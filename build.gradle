@@ -1,0 +1,20 @@
+plugins {
+    id 'java'
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // メインの依存関係
+    implementation '...'
+
+    // JUnit 5 の依存関係（テスト用）
+    testImplementation 'org.junit.jupiter:junit-jupiter:5.9.3'
+}
+
+test {
+    // JUnit 5 を使うための設定
+    useJUnitPlatform()
+}

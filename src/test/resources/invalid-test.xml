@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root>
+  <!-- Missing required 'id' attribute -->
+  <element>Test Element 1</element>
+</root>

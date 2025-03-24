@@ -22,7 +22,7 @@ public class Validate extends AbstractStreamCommand {
     }
 
     @Override
-    public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+    public void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
         Objects.requireNonNull(inputStream);
         Objects.requireNonNull(outputStream);
         //InputStreamの消費先が２つになるため、出力先が二股のInputStreamを作成する

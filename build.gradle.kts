@@ -10,6 +10,11 @@
 plugins {
     id("java")
     id("jacoco")
+    id("application")
+}
+
+application {
+    mainClass.set(project.findProperty("mainClass")?.toString() ?: "com.streamConverter.Main")
 }
 
 java {
@@ -28,6 +33,8 @@ repositories {
 dependencies {
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.12.0")
+    implementation("org.slf4j:slf4j-api:2.0.9")
+    implementation("ch.qos.logback:logback-classic:1.4.11")
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")

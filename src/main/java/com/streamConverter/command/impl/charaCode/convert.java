@@ -19,7 +19,7 @@ public class convert extends AbstractStreamCommand {
     }
 
     @Override
-    public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+    public void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
         Objects.requireNonNull(inputStream);
         Objects.requireNonNull(outputStream);
 

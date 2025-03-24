@@ -1,0 +1,20 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.project.referencedLibraries": [
+        "lib/**/*.jar",
+        "lib/slf4j-api-2.0.9.jar",
+        "lib/logback-classic-1.4.11.jar",
+        "lib/logback-core-1.4.11.jar"
+    ],
+    "java.project.sourcePaths": [
+        "src/main/java",
+        "src/test/java"
+    ],
+    "java.project.outputPath": "build/classes",
+    "java.import.gradle.enabled": true,
+    "java.import.gradle.wrapper.enabled": true,
+    "java.project.exportJar": {
+        "targetPath": "${workspaceFolder}/build/libs/${workspaceFolderBasename}.jar"
+    }
+}

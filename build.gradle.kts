@@ -11,6 +11,21 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
+    id("com.diffplug.spotless") version "6.25.0"
+}
+
+// Spotless configuration for code formatting
+spotless {
+    java {
+        // Use Google's Java formatting style
+        googleJavaFormat()
+        // Remove unused imports
+        importOrder()
+        // Remove trailing whitespace
+        trimTrailingWhitespace()
+        // Ensure files end with a newline
+        endWithNewline()
+    }
 }
 
 application {

@@ -1,4 +1,30 @@
+# Gradle
 .gradle
+build/
 
-# Ignore Gradle build output directory
-build
+# Node.js
+node_modules/
+package-lock.json
+package.json
+
+# IDE files
+.idea/
+*.iml
+*.iws
+*.ipr
+.vscode/
+*.swp
+*.swo
+
+# Java
+*.class
+*.jar
+*.war
+*.ear
+*.logs
+.mtj.tmp/
+hs_err_pid*
+
+# OS specific
+.DS_Store
+Thumbs.db

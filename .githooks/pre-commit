@@ -1,0 +1,38 @@
+#!/bin/sh
+
+# Run Spotless to check code style
+echo "Running Spotless check..."
+./gradlew spotlessCheck
+
+# If Spotless check fails, exit with error
+if [ $? -ne 0 ]; then
+  echo "Spotless check failed. Run './gradlew spotlessApply' to fix code style issues."
+  exit 1
+fi
+
+# Get the commit message
+commit_msg_file=$1
+if [ -z "$commit_msg_file" ]; then
+  # If running manually (not as a hook), use the staged commit message
+  commit_msg_file=".git/COMMIT_EDITMSG"
+fi
+
+# If the commit message file doesn't exist, exit
+if [ ! -f "$commit_msg_file" ]; then
+  echo "No commit message file found."
+  exit 0
+fi
+
+# Check commit message format using commitlint
+echo "Checking commit message format..."
+cat "$commit_msg_file" | npx commitlint
+
+# If commitlint fails, exit with error
+if [ $? -ne 0 ]; then
+  echo "Commit message does not follow the conventional commit format."
+  echo "See CONTRIBUTING.md for more information on commit message format."
+  exit 1
+fi
+
+echo "Pre-commit checks passed!"
+exit 0

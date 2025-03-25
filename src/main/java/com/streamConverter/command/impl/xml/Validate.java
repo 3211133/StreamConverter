@@ -3,7 +3,6 @@ package com.streamConverter.command.impl.xml;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
 import java.util.Objects;
 import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
@@ -12,9 +11,9 @@ import javax.xml.validation.Validator;
 
 import org.xml.sax.SAXException;
 
-import com.streamConverter.command.AbstractStreamCommand;
+import com.streamConverter.command.ConsumerCommand;
 
-public class Validate extends AbstractStreamCommand {
+public class Validate extends ConsumerCommand {
     private String schema;
 
     public Validate(String schema) {
@@ -22,9 +21,8 @@ public class Validate extends AbstractStreamCommand {
     }
 
     @Override
-    public void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+    public void consume(InputStream inputStream) throws IOException {
         Objects.requireNonNull(inputStream);
-        Objects.requireNonNull(outputStream);
         //InputStreamの消費先が２つになるため、出力先が二股のInputStreamを作成する
         //TODO InputStreamの二股処理を実装する
 
@@ -42,7 +40,6 @@ public class Validate extends AbstractStreamCommand {
             e.printStackTrace();
         }
         
-        inputStream.transferTo(outputStream);
     }
 
     

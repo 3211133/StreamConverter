@@ -1,15 +1,7 @@
 #!/bin/sh
 
-# Check commit message format using commitlint
-echo "Checking commit message format..."
-npx commitlint --edit "$1"
+# Run the consolidated commit checks script
+"$(git rev-parse --show-toplevel)/scripts/commit-checks.sh" commit-msg "$1"
 
-# If commitlint fails, exit with error
-if [ $? -ne 0 ]; then
-  echo "Commit message does not follow the conventional commit format."
-  echo "See CONTRIBUTING.md for more information on commit message format."
-  exit 1
-fi
-
-echo "Commit message format is valid!"
-exit 0
+# Exit with the same status as the script
+exit $?

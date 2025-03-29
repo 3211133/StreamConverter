@@ -1,4 +1,4 @@
-name: Commit Rules
+name: Code Quality
 
 on:
   pull_request:
@@ -7,40 +7,7 @@ on:
     branches: [ main, master ]
 
 jobs:
-  # Check commit message format
-  commit-message:
-    name: Validate Commit Messages
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v3
-        with:
-          fetch-depth: 0
-          
-      - name: Setup Node.js
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          
-      - name: Install commitlint
-        run: |
-          npm install -g @commitlint/cli @commitlint/config-conventional
-          
-      - name: Create commitlint config
-        run: |
-          echo "module.exports = {extends: ['@commitlint/config-conventional']}" > commitlint.config.js
-          
-      - name: Check commit messages
-        run: |
-          if [ "${{ github.event_name }}" == "pull_request" ]; then
-            git log ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --pretty=format:"%s" | while read commit_message; do
-              echo "$commit_message" | npx commitlint
-            done
-          else
-            git log -1 --pretty=format:"%s" | npx commitlint
-          fi
-
-  # Check code style and run tests
+  # Check code style, run lint and tests
   code-quality:
     name: Code Quality and Tests
     runs-on: ubuntu-latest
@@ -60,6 +27,9 @@ jobs:
         
       - name: Check code style with Spotless
         run: ./gradlew spotlessCheck
+        
+      - name: Run lint
+        run: ./gradlew lint
         continue-on-error: true
         
       - name: Build and run tests

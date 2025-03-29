@@ -17,7 +17,7 @@ public abstract class ConsumerCommand extends AbstractStreamCommand {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
-    try(InputStream teeInputStream = new TeeInputStream(inputStream, outputStream);) {
+    try (InputStream teeInputStream = new TeeInputStream(inputStream, outputStream); ) {
       this.consume(teeInputStream);
     } catch (IOException e) {
       throw new IOException("Error while consuming input stream", e);

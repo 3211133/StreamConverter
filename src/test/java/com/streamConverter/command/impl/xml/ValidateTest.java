@@ -22,6 +22,7 @@ class ValidateTest {
   private String validXmlPath;
   private String invalidXmlPath;
   private String validXmlContent;
+
   @BeforeEach
   void setUp() throws IOException {
     // テストリソースのパスを設定

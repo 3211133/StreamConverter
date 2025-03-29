@@ -1,0 +1,5 @@
+#!/bin/sh
+
+# Simple Gradle wrapper script
+echo "Running Gradle tests..."
+java -jar gradle/wrapper/gradle-wrapper.jar test

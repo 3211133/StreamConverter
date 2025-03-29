@@ -1,0 +1,22 @@
+# StreamConverter プロジェクトのライセンス
+
+このプロジェクトは、追加の条項なしで使用している外部ライブラリのライセンスに準じます。
+
+## 使用ライブラリとそのライセンス
+
+### メイン依存関係
+- **Apache Commons Lang (org.apache.commons:commons-lang3:3.12.0)**
+  - ライセンス: Apache License 2.0
+  - https://www.apache.org/licenses/LICENSE-2.0
+
+### テスト依存関係
+- **JUnit 5 (org.junit.jupiter:junit-jupiter:5.9.3)**
+  - ライセンス: Eclipse Public License 2.0
+  - https://www.eclipse.org/legal/epl-2.0/
+
+### ビルドツール
+- **Gradle**
+  - ライセンス: Apache License 2.0
+  - https://www.apache.org/licenses/LICENSE-2.0
+
+このプロジェクトは主に Apache License 2.0 の条項に従います。

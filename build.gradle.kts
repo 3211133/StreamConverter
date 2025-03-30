@@ -50,7 +50,7 @@ dependencies {
     implementation("org.apache.commons:commons-lang3:3.17.0")
     implementation("commons-io:commons-io:2.15.1")
     implementation("org.slf4j:slf4j-api:2.0.17")
-    implementation("ch.qos.logback:logback-classic:1.4.11")
+    implementation("ch.qos.logback:logback-classic:1.5.18")
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation("org.junit.jupiter:junit-jupiter:5.9.3")

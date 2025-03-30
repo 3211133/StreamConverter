@@ -15,9 +15,9 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
 
   // TODO execute以外の共通処理を実装する
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-    log.info("execute start");
+    log.debug("execute start");
     _execute(inputStream, outputStream);
-    log.info("execute end");
+    log.debug("execute end");
   }
 
   protected abstract void _execute(InputStream inputStream, OutputStream outputStream)

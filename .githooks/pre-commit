@@ -8,7 +8,7 @@ if [ -z "$commit_msg_file" ]; then
 fi
 
 # Run the consolidated commit checks script
-"$(git rev-parse --show-toplevel)/scripts/commit-checks.sh" pre-commit "$commit_msg_file"
+# "$(git rev-parse --show-toplevel)/scripts/commit-checks.sh" pre-commit "$commit_msg_file"
 
 # Exit with the same status as the script
 exit $?

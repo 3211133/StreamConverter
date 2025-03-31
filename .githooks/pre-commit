@@ -4,7 +4,7 @@
 commit_msg_file=$1
 if [ -z "$commit_msg_file" ]; then
   # If running manually (not as a hook), use the staged commit message
-  commit_msg_file=".git/COMMIT_EDITMSG"
+  # commit_msg_file=".git/COMMIT_EDITMSG"
 fi
 
 # Run the consolidated commit checks script

@@ -16,8 +16,11 @@ public class convert extends AbstractStreamCommand {
   public convert(String from, String to) {
     Objects.requireNonNull(from);
     Objects.requireNonNull(to);
-    if (Charset.isSupported(from) == false || Charset.isSupported(to) == false) {
-      throw new IllegalArgumentException("指定された文字コードがサポートされていません");
+    if (Charset.isSupported(from) == false) {
+      throw new IllegalArgumentException("変換元文字コードがサポートされていません");
+    }
+    if (Charset.isSupported(to) == false) {
+      throw new IllegalArgumentException("変換先文字コードがサポートされていません");
     }
     this.from = from;
     this.to = to;

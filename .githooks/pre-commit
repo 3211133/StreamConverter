@@ -2,10 +2,10 @@
 
 # Get the commit message
 commit_msg_file=$1
-if [ -z "$commit_msg_file" ]; then
+#if [ -z "$commit_msg_file" ]; then
   # If running manually (not as a hook), use the staged commit message
   # commit_msg_file=".git/COMMIT_EDITMSG"
-fi
+#fi
 
 # Run the consolidated commit checks script
 # "$(git rev-parse --show-toplevel)/scripts/commit-checks.sh" pre-commit "$commit_msg_file"

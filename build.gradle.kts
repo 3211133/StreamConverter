@@ -12,6 +12,7 @@ plugins {
     id("jacoco")
     id("application")
     id("com.diffplug.spotless") version "7.0.2"
+    id("info.solidsoft.pitest") version "1.15.0"
 }
 
 // Spotless configuration for code formatting
@@ -56,6 +57,7 @@ dependencies {
 	testImplementation(platform("org.junit:junit-bom:5.12.1"))
 	testImplementation("org.junit.jupiter:junit-jupiter")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+    testImplementation("org.pitest:pitest-junit5-plugin:1.2.2")
 }
 
 tasks.test {
@@ -70,6 +72,8 @@ tasks.test {
     
     // テスト完了後にJaCoCoレポートを生成
     finalizedBy(tasks.jacocoTestReport)
+    // テスト実行後にPITレポートを生成
+    finalizedBy(tasks.pitest)
 }
 
 // JaCoCoレポートの設定
@@ -79,6 +83,14 @@ tasks.jacocoTestReport {
         html.required.set(true)
     }
     
+    // テスト後にレポートを生成
+    dependsOn(tasks.test)
+}
+
+// PITレポートの設定
+tasks.pitest {
+    targetClasses.set(listOf("com.streamConverter.*")) // テスト対象のクラスを指定
+    outputFormats.set(listOf("HTML")) // 出力形式を指定
     // テスト後にレポートを生成
     dependsOn(tasks.test)
 }

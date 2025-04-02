@@ -1,7 +1,17 @@
 #!/bin/sh
 echo "Running pre-commit checks..."
+#OS環境差異を吸収するために、実行するgradleを選択する
+# OS判定
+if [ "$OS" = "Windows_NT" ]; then
+    GRADLE_CMD="gradle.bat"
+else
+    GRADLE_CMD="./gradlew"
+fi
+
+
+
 #./gradlew clean build
-gradle.bat clean build
+$GRADLE_CMD clean build
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
     echo "Pre-commit checks failed. Commit aborted."
@@ -10,7 +20,7 @@ fi
 
 echo "Running code formatting with Spotless..."
 #./gradlew spotlessApply
-gradle.bat spotlessApply
+$GRADLE_CMD spotlessApply
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
     echo "Code formatting failed. Commit aborted."

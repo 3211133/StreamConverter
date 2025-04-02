@@ -20,4 +20,16 @@ if [ $RESULT -ne 0 ]; then
     echo "Pre-commit checks failed. Commit aborted."
     exit 1
 fi
+
+echo "Running code formatting with Spotless..."
+./gradlew spotlessApply
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+    echo "Code formatting failed. Commit aborted."
+    exit 1
+fi
+
+# 変更されたファイルを再度ステージングする
+git add -u
+
 exit 0

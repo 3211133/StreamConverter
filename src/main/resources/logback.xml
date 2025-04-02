@@ -15,12 +15,10 @@
         <append>true</append>
     </appender>
 
-    <logger name="com.example" level="DEBUG" additivity="false">
-        <appender-ref ref="FILE" />
-    </logger>
 
     <root >
         <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </root>
 
 </configuration>

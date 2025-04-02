@@ -31,9 +31,5 @@ jobs:
       - name: Check code style with Spotless
         run: ./gradlew spotlessCheck
         
-      - name: Run lint
-        run: ./gradlew lint
-        continue-on-error: true
-        
       - name: Build and run tests
         run: ./gradlew build

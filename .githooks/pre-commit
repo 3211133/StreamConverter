@@ -12,3 +12,12 @@ commit_msg_file=$1
 
 # Exit with the same status as the script
 exit $?
+#!/bin/sh
+echo "Running pre-commit checks..."
+./gradlew clean build
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+    echo "Pre-commit checks failed. Commit aborted."
+    exit 1
+fi
+exit 0

@@ -8,15 +8,20 @@ else
     GRADLE_CMD="./gradlew"
 fi
 
-echo "Running code formatting with Spotless..."
-$GRADLE_CMD spotlessApply
+echo "Running code checking format with Spotless..."
+$GRADLE_CMD spotlessCheck
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
-    echo "Code formatting failed. Commit aborted."
-    exit 1
+    echo "Running code formatting with Spotless..."
+    $GRADLE_CMD spotlessApply
+    RESULT=$?
+    if [ $RESULT -ne 0 ]; then
+        echo "Code formatting failed. Commit aborted."
+        exit 1
+    fi
+    # 変更されたファイルを再度ステージングする
+    git add -u
 fi
-# 変更されたファイルを再度ステージングする
-git add -u
 
 echo "Running code analysis with clean build..."
 $GRADLE_CMD clean build

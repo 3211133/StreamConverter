@@ -37,29 +37,6 @@ chmod +x setup-hooks.sh
 rm -rf .gradle/configuration-cache
 ```
 
-## 4. コミットメッセージチェック
-
-```bash
-# コミットメッセージのフォーマットチェック
-npx commitlint --edit <commit-msg-file>
-
-# コミットメッセージのパイプによるチェック
-cat <commit-msg-file> | npx commitlint
-```
-
-## 5. 統合スクリプトの実行
-
-```bash
-# pre-commitモードでの実行（コードスタイルチェック）
-./scripts/commit-checks.sh pre-commit
-
-# commit-msgモードでの実行（コミットメッセージチェック）
-./scripts/commit-checks.sh commit-msg <commit-msg-file>
-
-# allモードでの実行（すべてのチェック）
-./scripts/commit-checks.sh all [<commit-msg-file>]
-```
-
 ## 6. Gitコミット
 
 ```bash

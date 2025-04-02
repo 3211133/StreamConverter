@@ -8,26 +8,22 @@ else
     GRADLE_CMD="./gradlew"
 fi
 
-
-
-#./gradlew clean build
-$GRADLE_CMD clean build
-RESULT=$?
-if [ $RESULT -ne 0 ]; then
-    echo "Pre-commit checks failed. Commit aborted."
-    exit 1
-fi
-
 echo "Running code formatting with Spotless..."
-#./gradlew spotlessApply
 $GRADLE_CMD spotlessApply
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
     echo "Code formatting failed. Commit aborted."
     exit 1
 fi
-
 # 変更されたファイルを再度ステージングする
 git add -u
+
+echo "Running code analysis with clean build..."
+$GRADLE_CMD clean build
+RESULT=$?
+if [ $RESULT -ne 0 ]; then
+    echo "Pre-commit checks failed. Commit aborted."
+    exit 1
+fi
 
 exit 0

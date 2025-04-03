@@ -15,6 +15,13 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.logging.Logger;
 
+/**
+ * ストリーム変換クラス。
+ *
+ * <p>ストリームを変換するクラス。ストリームを変換するコマンドを指定して、ストリームを変換する。
+ *
+ * <p>ストリームを変換するコマンドは、IStreamCommandインターフェースを実装したクラスである必要がある。
+ */
 public class StreamConverter {
   private List<IStreamCommand> commands;
 

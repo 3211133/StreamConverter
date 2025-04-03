@@ -8,8 +8,19 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * Main class for the StreamConverter application.
+ *
+ * <p>This class demonstrates the usage of the StreamConverter with sample commands.
+ */
 public class Main {
 
+  /**
+   * Main method to run the StreamConverter application.
+   *
+   * @param args Command line arguments (not used).
+   * @throws IOException If an I/O error occurs during the execution.
+   */
   public static void main(String[] args) throws IOException {
     System.out.println("Hello World!");
     IStreamCommand[] commands = {

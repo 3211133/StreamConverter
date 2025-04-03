@@ -11,13 +11,39 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import org.xml.sax.SAXException;
 
+/**
+ * XMLのバリデーションを行うコマンドクラス
+ *
+ * <p>XMLのバリデーションを行うコマンドクラスです。
+ *
+ * <p>このクラスは、XMLのスキーマを指定して、XMLのバリデーションを行います。
+ *
+ * <p>バリデーションエラーが発生した場合は、エラーメッセージを出力します。
+ */
 public class Validate extends ConsumerCommand {
   private String schema;
 
+  /**
+   * コンストラクタ
+   *
+   * <p>XMLのスキーマを指定して、XMLのバリデーションを行います。
+   *
+   * @param schema XMLのスキーマ
+   */
   public Validate(String schema) {
     this.schema = schema;
   }
 
+  /**
+   * XMLのバリデーションを行うコマンドを実行します。
+   *
+   * <p>XMLのスキーマを指定して、XMLのバリデーションを行います。
+   *
+   * <p>バリデーションエラーが発生した場合は、エラーメッセージを出力します。
+   *
+   * @param inputStream 入力ストリーム
+   * @throws IOException 入出力エラーが発生した場合
+   */
   @Override
   public void consume(InputStream inputStream) throws IOException {
     Objects.requireNonNull(inputStream);

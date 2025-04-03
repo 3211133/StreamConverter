@@ -74,6 +74,8 @@ tasks.test {
     finalizedBy(tasks.jacocoTestReport)
     // テスト実行後にPITレポートを生成
     finalizedBy(tasks.pitest)
+    // テスト実行後にjavadocを生成
+    finalizedBy(tasks.javadoc)
 }
 
 // JaCoCoレポートの設定
@@ -93,4 +95,10 @@ tasks.pitest {
     outputFormats.set(listOf("HTML")) // 出力形式を指定
     // テスト後にレポートを生成
     dependsOn(tasks.test)
+}
+
+// javadocタスクの設定
+tasks.javadoc {
+    options.encoding = "UTF-8"
+    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
 }

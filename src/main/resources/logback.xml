@@ -7,12 +7,20 @@
         </encoder>
     </appender>
 
-    <appender name="FILE" class="ch.qos.logback.core.FileAppender">
-        <file>logs/app.log</file>
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <!-- 現在のログファイル -->
+        <file>logs/myapp.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
+            <!-- 日付を含むファイル名パターン。例えば、myapp.2025-04-04.log -->
+            <fileNamePattern>logs/myapp.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <!-- 例えば過去30日分を保持し、それ以外は自動削除 -->
+            <maxHistory>30</maxHistory>
+            <!-- オプション：ファイルを圧縮する場合 -->
+            <!-- <fileNamePattern>logs/myapp.%d{yyyy-MM-dd}.log.gz</fileNamePattern> -->
+        </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+            <pattern>%date %-5level %logger{36} - %msg%n</pattern>
         </encoder>
-        <append>true</append>
     </appender>
 
 

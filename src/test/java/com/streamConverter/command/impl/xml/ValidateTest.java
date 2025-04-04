@@ -39,7 +39,7 @@ class ValidateTest {
   @DisplayName("コンストラクタのテスト")
   void testConstructor() {
     // コンストラクタのテスト
-    Validate command = new Validate(schemaPath);
+    ValidateCommand command = new ValidateCommand(schemaPath);
     assertNotNull(command);
   }
 
@@ -47,7 +47,7 @@ class ValidateTest {
   @DisplayName("execute正常系：有効なXML")
   void testExecuteWithValidXml() throws IOException {
     // 正常系のexecuteメソッドテスト
-    Validate command = new Validate(schemaPath);
+    ValidateCommand command = new ValidateCommand(schemaPath);
 
     try (InputStream inputStream = new FileInputStream(validXmlPath);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -68,7 +68,7 @@ class ValidateTest {
   @DisplayName("execute異常系：無効なXML")
   void testExecuteWithInvalidXml() throws IOException {
     // 無効なXMLでのexecuteメソッドテスト
-    Validate command = new Validate(schemaPath);
+    ValidateCommand command = new ValidateCommand(schemaPath);
 
     try (InputStream inputStream = new FileInputStream(invalidXmlPath);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -91,7 +91,7 @@ class ValidateTest {
   @DisplayName("execute異常系：null入力ストリーム")
   void testExecuteWithNullInputStream() {
     // null入力ストリームでのexecuteメソッドテスト
-    Validate command = new Validate(schemaPath);
+    ValidateCommand command = new ValidateCommand(schemaPath);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     assertThrows(
@@ -105,7 +105,7 @@ class ValidateTest {
   @DisplayName("execute異常系：null出力ストリーム")
   void testExecuteWithNullOutputStream() throws IOException {
     // null出力ストリームでのexecuteメソッドテスト
-    Validate command = new Validate(schemaPath);
+    ValidateCommand command = new ValidateCommand(schemaPath);
 
     try (InputStream inputStream = new FileInputStream(validXmlPath)) {
       assertThrows(
@@ -120,7 +120,7 @@ class ValidateTest {
   @DisplayName("execute異常系：存在しないスキーマファイル")
   void testExecuteWithNonExistentSchemaFile() throws IOException {
     // 存在しないスキーマファイルでのexecuteメソッドテスト
-    Validate command = new Validate("non-existent-schema.xsd");
+    ValidateCommand command = new ValidateCommand("non-existent-schema.xsd");
 
     try (InputStream inputStream =
             new ByteArrayInputStream(validXmlContent.getBytes(StandardCharsets.UTF_8));
@@ -138,7 +138,7 @@ class ValidateTest {
   @DisplayName("execute：空の入力ストリーム")
   void testExecuteWithEmptyInputStream() throws IOException {
     // 空の入力ストリームでのexecuteメソッドテスト
-    Validate command = new Validate(schemaPath);
+    ValidateCommand command = new ValidateCommand(schemaPath);
 
     try (InputStream inputStream = new ByteArrayInputStream(new byte[0]);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

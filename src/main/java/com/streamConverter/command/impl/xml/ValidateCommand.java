@@ -20,7 +20,7 @@ import org.xml.sax.SAXException;
  *
  * <p>バリデーションエラーが発生した場合は、エラーメッセージを出力します。
  */
-public class Validate extends ConsumerCommand {
+public class ValidateCommand extends ConsumerCommand {
   private String schema;
 
   /**
@@ -30,7 +30,7 @@ public class Validate extends ConsumerCommand {
    *
    * @param schema XMLのスキーマ
    */
-  public Validate(String schema) {
+  public ValidateCommand(String schema) {
     this.schema = schema;
   }
 

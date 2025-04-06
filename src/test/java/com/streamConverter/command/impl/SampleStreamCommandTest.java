@@ -111,4 +111,22 @@ class SampleStreamCommandTest {
     String expected = "SampleStreamCommand [id=" + id + "]";
     assertEquals(expected, command.toString());
   }
+
+  @Test
+  @DisplayName("ファイルサイズが大きい場合のテスト")
+  void testLargeFileSize() throws IOException {
+    // 大きなファイルサイズのテスト
+    String largeInput = "A".repeat(10_000_000); // 10MBのデータ
+    SampleStreamCommand command = new SampleStreamCommand("largeTest");
+
+    try (InputStream inputStream =
+            new ByteArrayInputStream(largeInput.getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+      command.execute(inputStream, outputStream);
+
+      // 結果の検証 - 入力がそのまま出力されるはず
+      assertEquals(largeInput, outputStream.toString(StandardCharsets.UTF_8));
+    }
+  }
 }

@@ -12,6 +12,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -170,5 +171,12 @@ class StreamConverterTest {
       // 結果の検証 - SampleStreamCommandは単純にコピーするだけなので、入力と同じ出力になるはず
       assertEquals(testInput, outputStream.toString(StandardCharsets.UTF_8));
     }
+  }
+
+  @Test
+  @DisplayName("large file size test")
+  @Disabled
+  void testLargeFileSize() throws IOException {
+    // 大きなファイルサイズのテスト
   }
 }

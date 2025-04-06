@@ -67,22 +67,19 @@ public class ConvertCommand extends AbstractStreamCommand {
         XMLEvent event = xmlEventReader.nextEvent();
         int eventType = event.getEventType();
         switch (eventType) {
+          // 現在地点を保持するための処理
           case XMLEvent.START_ELEMENT:
             currentPath.add(event.asStartElement().getName().getLocalPart());
-            // Handle start element event
             break;
           case XMLEvent.END_ELEMENT:
             currentPath.remove(currentPath.size() - 1);
-            // Handle end element event
             break;
+          // 変換対象の箇所なら変換処理を実行する
           case XMLEvent.CHARACTERS:
             if (currentPath == this.targetPath) {
               String transformedData = rule.apply(event.asCharacters().getData());
               event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);
             }
-            // Handle character data event
-            // Apply the rule to transform the data
-
             break;
           default:
             // Handle other events if necessary

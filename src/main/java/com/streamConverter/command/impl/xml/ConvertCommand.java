@@ -1,12 +1,11 @@
 package com.streamConverter.command.impl.xml;
 
+import com.streamConverter.StaXPathHandler;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Objects;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
@@ -25,7 +24,7 @@ import javax.xml.stream.events.XMLEvent;
 public class ConvertCommand extends AbstractStreamCommand {
 
   private IRule rule;
-  private List<String> targetPath;
+  private StaXPathHandler pathHandler;
 
   /**
    * デフォルトコンストラクタ
@@ -38,7 +37,8 @@ public class ConvertCommand extends AbstractStreamCommand {
     Objects.requireNonNull(rule, "rule must not be null");
     Objects.requireNonNull(path, "path must not be null");
     this.rule = rule;
-    this.targetPath = List.of(path.split("."));
+
+    this.pathHandler = new StaXPathHandler(path);
   }
 
   /**
@@ -62,21 +62,21 @@ public class ConvertCommand extends AbstractStreamCommand {
       xmlEventWriter = xmlOutputFactory.createXMLEventWriter(outputStream);
       // Add your XML processing logic here
       // For example, you can read the XML events and apply the rule to transform the data
-      List<String> currentPath = new ArrayList<>();
+      this.pathHandler.moveToRoot();
       while (xmlEventReader.hasNext()) {
         XMLEvent event = xmlEventReader.nextEvent();
         int eventType = event.getEventType();
         switch (eventType) {
           // 現在地点を保持するための処理
           case XMLEvent.START_ELEMENT:
-            currentPath.add(event.asStartElement().getName().getLocalPart());
+            this.pathHandler.moveToChild(event.asStartElement().getName().getLocalPart());
             break;
           case XMLEvent.END_ELEMENT:
-            currentPath.remove(currentPath.size() - 1);
+            this.pathHandler.moveToParent();
             break;
           // 変換対象の箇所なら変換処理を実行する
           case XMLEvent.CHARACTERS:
-            if (currentPath == this.targetPath) {
+            if (this.pathHandler.isTarget()) {
               String transformedData = rule.apply(event.asCharacters().getData());
               event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);
             }

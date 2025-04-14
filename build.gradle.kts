@@ -49,7 +49,7 @@ repositories {
 dependencies {
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.17.0")
-    implementation("commons-io:commons-io:2.18.0")
+    implementation("commons-io:commons-io:2.19.0")
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("ch.qos.logback:logback-classic:1.5.18")
 

@@ -11,7 +11,7 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
-    id("com.diffplug.spotless") version "7.0.2"
+    id("com.diffplug.spotless") version "7.0.3"
     id("info.solidsoft.pitest") version "1.15.0"
 }
 

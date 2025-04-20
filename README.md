@@ -24,8 +24,8 @@
 このプロジェクトでは [Conventional Commits](https://www.conventionalcommits.org/) 仕様に従ったコミットメッセージを使用しています。詳細は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
 
 ### Git Hooks の設定
-
-コミットメッセージのフォーマットとコードスタイルを自動的にチェックするために、Git Hooks を設定することをお勧めします。セットアップスクリプトを使用して簡単に設定できます：
+面倒なので無効化しました
+~~コミットメッセージのフォーマットとコードスタイルを自動的にチェックするために、Git Hooks を設定することをお勧めします。セットアップスクリプトを使用して簡単に設定できます：~~
 
 ```bash
 # セットアップスクリプトを実行
@@ -45,7 +45,7 @@ npm install --save-dev @commitlint/cli @commitlint/config-conventional
 これにより、コミット時に自動的にコミットメッセージのフォーマットとコードスタイルがチェックされます。
 
 ### コードスタイル
-
+ビルド時に適用されるように変更しています
 このプロジェクトでは [Spotless](https://github.com/diffplug/spotless) を使用してコードスタイルを統一しています。コードスタイルを適用するには：
 
 ```bash

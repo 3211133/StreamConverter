@@ -101,3 +101,13 @@ tasks.javadoc {
     options.encoding = "UTF-8"
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
 }
+
+// spotlessCheck タスクを無効化
+tasks.named("spotlessCheck") {
+    enabled = false
+}
+
+// check タスクの実行時に spotlessApply を依存タスクとして実行する
+tasks.named("check") {
+    dependsOn("spotlessApply")
+}

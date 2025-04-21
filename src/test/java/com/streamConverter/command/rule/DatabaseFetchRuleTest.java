@@ -44,7 +44,6 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("単一の結果を返すクエリのテスト")
-  // @Disabled("このテストは実装のみで、実行は無効化されています")
   public void testApplyWithSingleResult() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -76,7 +75,6 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("結果が空の場合のテスト")
-  // @Disabled("このテストは実装のみで、実行は無効化されています")
   public void testApplyWithEmptyResult() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -105,7 +103,6 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("複数列の結果を返すクエリのテスト")
-  // @Disabled("このテストは実装のみで、実行は無効化されています")
   public void testApplyWithMultipleColumns() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -137,7 +134,6 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("複数行の結果を返すクエリのテスト")
-  // @Disabled("このテストは実装のみで、実行は無効化されています")
   public void testApplyWithMultipleRows() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -169,7 +165,6 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("SQLエラーが発生した場合のテスト")
-  // @Disabled("このテストは実装のみで、実行は無効化されています")
   public void testApplyWithSQLException() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -202,7 +197,6 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("NULL値を返すクエリのテスト")
-  // @Disabled("このテストは実装のみで、実行は無効化されています")
   public void testApplyWithNullResult() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";

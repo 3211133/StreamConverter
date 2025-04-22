@@ -17,7 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
-public class SendHttpCpmmand extends AbstractStreamCommand {
+public class SendHttpCommand extends AbstractStreamCommand {
 
   private String url;
 
@@ -26,7 +26,7 @@ public class SendHttpCpmmand extends AbstractStreamCommand {
    *
    * @param url 送信先のURL
    */
-  public SendHttpCpmmand(String url) {
+  public SendHttpCommand(String url) {
     super();
     this.url = url;
   }

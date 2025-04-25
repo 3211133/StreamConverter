@@ -2,9 +2,9 @@ name: Code Quality
 
 on:
   pull_request:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
   push:
-    branches: [ main, master ]
+    branches: [ main, master, develop ]
 
 jobs:
   # Check code style, run lint and tests

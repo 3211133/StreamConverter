@@ -60,8 +60,8 @@ dependencies {
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.2")
     
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.11.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.11.0")
+    testImplementation("org.mockito:mockito-core:5.17.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.17.0")
 }
 
 tasks.test {

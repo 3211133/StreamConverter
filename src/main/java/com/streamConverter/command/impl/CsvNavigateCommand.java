@@ -5,6 +5,12 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/**
+ * CSV変換コマンドクラス
+ *
+ * <p>このクラスは、CSV形式のデータを変換するためのコマンドを実装します。 ストリームを使用して、CSVデータを読み込み、変換後のデータを出力します。
+ * 変換対象のXPathである箇所を特定したあとに、変換処理を実行することを想定しています。
+ */
 public class CsvNavigateCommand extends AbstractStreamCommand {
 
   @Override

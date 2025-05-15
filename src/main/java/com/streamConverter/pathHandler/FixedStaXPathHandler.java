@@ -23,6 +23,12 @@ public class FixedStaXPathHandler implements IStaXPathHandler {
 
   private List<String> targetXpath;
 
+  /**
+   * コンストラクタ
+   *
+   * @param xpath Xpathの文字列
+   * @throws IllegalArgumentException xpathがnullの場合、空要素がある場合
+   */
   public FixedStaXPathHandler(String xpath) {
     if (xpath == null) {
       throw new IllegalArgumentException("xpath must not be null");

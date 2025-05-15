@@ -17,6 +17,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 
+/** 指定された通信先にOutputStreamを送信するコマンドクラス。 */
 public class SendHttpCommand extends AbstractStreamCommand {
 
   private String url;

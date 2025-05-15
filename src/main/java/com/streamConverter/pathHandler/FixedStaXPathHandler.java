@@ -10,8 +10,14 @@ import org.slf4j.LoggerFactory;
  * <p>Xpathは、XMLドキュメント内のノードを選択するための言語です。 このクラスは、上から読み下すことを想定して、Xpathの機能を一部省略して実装します。
  *
  * <p>フルパスで指定するクラス。
+ *
+ * <p>例: root/child/grandchild のように、全ての階層を指定する必要があります。
+ *
+ * <p>両端に/がある場合は、エラーをスローします。
+ *
+ * <p>hoge//fugaのように空要素がある場合は、エラーをスローします。
  */
-class FixedStaXPathHandler implements IStaXPathHandler {
+public class FixedStaXPathHandler implements IStaXPathHandler {
   // log
   private static final Logger log = LoggerFactory.getLogger(FixedStaXPathHandler.class);
 
@@ -31,10 +37,15 @@ class FixedStaXPathHandler implements IStaXPathHandler {
   /**
    * 対象階層かどうか判定する。 引数のXpathが、対象Xpathと同じ階層かどうかを完全一致で判定します。
    *
+   * @param xpathList 判定対象のXpathリスト
+   * @throws IllegalArgumentException xpathListがnullの場合
    * @return 対象Xpathで指定した階層かどうか。
    */
   @Override
-  public boolean isTargetXpath(List<String> xpathList) {
+  public boolean isTarget(List<String> xpathList) {
+    if (xpathList == null) {
+      throw new IllegalArgumentException("xpathList must not be null");
+    }
     if (xpathList.size() != targetXpath.size()) {
       return false;
     }

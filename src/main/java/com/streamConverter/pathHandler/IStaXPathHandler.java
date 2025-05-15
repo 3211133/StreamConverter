@@ -8,5 +8,5 @@ public interface IStaXPathHandler {
    *
    * @return 対象Xpathで指定した階層かどうか。
    */
-  boolean isTargetXpath(List<String> xpathList);
+  boolean isTarget(List<String> xpathList);
 }

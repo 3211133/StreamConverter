@@ -22,27 +22,27 @@ class FixedStaXPathHandlerTest {
   void isTargetXpath_shouldReturnTrue_whenXpathMatchesExactly() {
     FixedStaXPathHandler handler = new FixedStaXPathHandler("a/b/c");
     List<String> input = List.of("a", "b", "c");
-    assertTrue(handler.isTargetXpath(input));
+    assertTrue(handler.isTarget(input));
   }
 
   @Test
   void isTargetXpath_shouldReturnFalse_whenXpathDoesNotMatchInSize() {
     FixedStaXPathHandler handler = new FixedStaXPathHandler("a/b/c");
     List<String> input = List.of("a", "b");
-    assertFalse(handler.isTargetXpath(input));
+    assertFalse(handler.isTarget(input));
   }
 
   @Test
   void isTargetXpath_shouldReturnFalse_whenXpathDoesNotMatchInContent() {
     FixedStaXPathHandler handler = new FixedStaXPathHandler("a/b/c");
     List<String> input = List.of("a", "x", "c");
-    assertFalse(handler.isTargetXpath(input));
+    assertFalse(handler.isTarget(input));
   }
 
   @Test
   void isTargetXpath_shouldReturnFalse_whenXpathIsEmpty() {
     FixedStaXPathHandler handler = new FixedStaXPathHandler("a/b/c");
     List<String> input = List.of();
-    assertFalse(handler.isTargetXpath(input));
+    assertFalse(handler.isTarget(input));
   }
 }

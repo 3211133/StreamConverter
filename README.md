@@ -21,7 +21,7 @@
 
 ### コミットルール
 
-このプロジェクトでは [Conventional Commits](https://www.conventionalcommits.org/) 仕様に従ったコミットメッセージを使用しています。詳細は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
+このプロジェクトでは [Conventional Commits](https://www.conventionalcommits.org/) 仕様に従ったコミットメッセージを使用しています。詳細は [CONTRIBUTING.md](doc/CONTRIBUTING.md) を参照してください。
 
 ### Git Hooks の設定
 面倒なので無効化しました

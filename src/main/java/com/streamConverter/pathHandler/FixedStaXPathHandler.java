@@ -27,7 +27,7 @@ public class FixedStaXPathHandler implements IStaXPathHandler {
     if (xpath == null) {
       throw new IllegalArgumentException("xpath must not be null");
     }
-    this.targetXpath = List.of(xpath.split("/"));
+    this.targetXpath = List.of(xpath.trim().split("/"));
     // 空要素がある場合は、エラーをスローする
     if (this.targetXpath.contains("")) {
       throw new IllegalArgumentException("xpath must not contain empty segments");

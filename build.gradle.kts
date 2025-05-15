@@ -104,6 +104,7 @@ tasks.pitest {
 tasks.javadoc {
     options.encoding = "UTF-8"
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+    destinationDir = file("docs/javadoc")
 }
 
 // spotlessCheck タスクを無効化

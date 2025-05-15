@@ -1,0 +1,7 @@
+com.streamConverter
+com.streamConverter.command
+com.streamConverter.command.impl
+com.streamConverter.command.impl.charaCode
+com.streamConverter.command.impl.xml
+com.streamConverter.command.rule
+com.streamConverter.pathHandler

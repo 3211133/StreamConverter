@@ -1,11 +1,14 @@
 package com.streamConverter.command.impl.xml;
 
-import com.streamConverter.StaXPathHandler;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
+import com.streamConverter.pathHandler.FixedStaXPathHandler;
+import com.streamConverter.pathHandler.IStaXPathHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
@@ -24,7 +27,7 @@ import javax.xml.stream.events.XMLEvent;
 public class ConvertCommand extends AbstractStreamCommand {
 
   private IRule rule;
-  private StaXPathHandler pathHandler;
+  private IStaXPathHandler pathHandler;
 
   /**
    * デフォルトコンストラクタ
@@ -38,7 +41,7 @@ public class ConvertCommand extends AbstractStreamCommand {
     Objects.requireNonNull(path, "path must not be null");
     this.rule = rule;
 
-    this.pathHandler = new StaXPathHandler(path);
+    this.pathHandler = new FixedStaXPathHandler(path);
   }
 
   /**
@@ -60,23 +63,24 @@ public class ConvertCommand extends AbstractStreamCommand {
     try {
       xmlEventReader = xmlInputFactory.createXMLEventReader(inputStream);
       xmlEventWriter = xmlOutputFactory.createXMLEventWriter(outputStream);
-      // Add your XML processing logic here
-      // For example, you can read the XML events and apply the rule to transform the data
-      this.pathHandler.moveToRoot();
+
+      List<String> currentDirectory = new ArrayList<>();
       while (xmlEventReader.hasNext()) {
         XMLEvent event = xmlEventReader.nextEvent();
         int eventType = event.getEventType();
         switch (eventType) {
           // 現在地点を保持するための処理
           case XMLEvent.START_ELEMENT:
-            this.pathHandler.moveToChild(event.asStartElement().getName().getLocalPart());
+            // 現在のXpathを保持する
+            currentDirectory.add(event.asStartElement().getName().getLocalPart());
             break;
           case XMLEvent.END_ELEMENT:
-            this.pathHandler.moveToParent();
+            // 現在のXpathを保持する
+            currentDirectory.remove(currentDirectory.size() - 1);
             break;
           // 変換対象の箇所なら変換処理を実行する
           case XMLEvent.CHARACTERS:
-            if (this.pathHandler.isTarget()) {
+            if (this.pathHandler.isTarget(currentDirectory)) {
               String transformedData = rule.apply(event.asCharacters().getData());
               event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);
             }

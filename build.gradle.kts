@@ -57,7 +57,7 @@ dependencies {
 	testImplementation(platform("org.junit:junit-bom:5.12.2"))
 	testImplementation("org.junit.jupiter:junit-jupiter")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.pitest:pitest-junit5-plugin:1.2.2")
+    testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
     
     // Mockito の依存関係（テスト用）
     testImplementation("org.mockito:mockito-core:5.17.0")

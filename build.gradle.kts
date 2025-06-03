@@ -61,7 +61,7 @@ dependencies {
     
     // Mockito の依存関係（テスト用）
     testImplementation("org.mockito:mockito-core:5.17.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.17.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
 }
 
 tasks.test {

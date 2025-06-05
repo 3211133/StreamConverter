@@ -21,7 +21,7 @@ git config core.hooksPath .githooks
 # フックスクリプトに実行権限を付与
 chmod +x .githooks/pre-commit
 chmod +x .githooks/commit-msg
-chmod +x setup-hooks.sh
+chmod +x doc/setup-hooks.sh
 ```
 
 ## 3. コードスタイルチェック

@@ -87,7 +87,7 @@ public class StreamConverter {
                 try (OutputStream currentOut1 = currentOut;
                     InputStream currentIn1 = currentIn; ) {
                   // コマンド実行
-                  command.execute(inputStream, outputStream);
+                  command.execute(currentIn1, currentOut1);
                 } catch (IOException e) {
                   throw new RuntimeException(e);
                 }

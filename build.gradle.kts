@@ -13,6 +13,8 @@ plugins {
     id("application")
     id("com.diffplug.spotless") version "7.0.4"
     id("info.solidsoft.pitest") version "1.15.0"
+    // Add Maven publishing capabilities
+    id("maven-publish")
 }
 
 // Spotless configuration for code formatting
@@ -38,11 +40,16 @@ java {
     targetCompatibility = JavaVersion.VERSION_17
 }
 
+group = "com.streamConverter"
+version = "1.0-SNAPSHOT"
+
 tasks.withType<JavaCompile> {
     options.encoding = "UTF-8"
 }
 
 repositories {
+    // Check local repository first to avoid resolution errors
+    mavenLocal()
     mavenCentral()
 }
 
@@ -115,4 +122,17 @@ tasks.named("spotlessCheck") {
 // check タスクの実行時に spotlessApply を依存タスクとして実行する
 tasks.named("check") {
     dependsOn("spotlessApply")
+}
+
+publishing {
+    publications {
+        create<MavenPublication>("mavenJava") {
+            from(components["java"])
+        }
+    }
+}
+
+// Provide an "install" task similar to Maven's behavior
+tasks.register("install") {
+    dependsOn("publishToMavenLocal")
 }

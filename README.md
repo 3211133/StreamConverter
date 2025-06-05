@@ -52,3 +52,14 @@ npm install --save-dev @commitlint/cli @commitlint/config-conventional
 ```bash
 ./gradlew spotlessApply
 ```
+
+### ローカルMavenリポジトリへのインストール
+
+依存解決の失敗を避けるため、生成物をローカルリポジトリへ公開できます。
+
+```bash
+./gradlew install
+```
+
+これにより `mavenLocal()` が最優先で参照されるため、この環境だけで依存関係を解決できます。
+

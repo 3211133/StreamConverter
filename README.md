@@ -30,7 +30,7 @@
 
 ```bash
 # セットアップスクリプトを実行
-./setup-hooks.sh
+./doc/setup-hooks.sh
 ```
 
 または手動で設定することもできます：

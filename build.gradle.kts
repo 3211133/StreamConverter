@@ -54,7 +54,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.18")
 
     // JUnit 5 の依存関係（テスト用）
-	testImplementation(platform("org.junit:junit-bom:5.13.0"))
+	testImplementation(platform("org.junit:junit-bom:5.13.1"))
 	testImplementation("org.junit.jupiter:junit-jupiter")
 	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")

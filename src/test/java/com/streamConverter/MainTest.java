@@ -2,30 +2,36 @@ package com.streamConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import java.io.ByteArrayOutputStream;
-import java.io.PrintStream;
+import ch.qos.logback.classic.Logger;
+import ch.qos.logback.classic.spi.ILoggingEvent;
+import ch.qos.logback.core.read.ListAppender;
+import java.util.List;
+import java.util.stream.Collectors;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.slf4j.LoggerFactory;
 
 @DisplayName("Mainクラスのテスト")
 class MainTest {
 
-  private final PrintStream standardOut = System.out;
-  private ByteArrayOutputStream outputStreamCaptor;
+  private ListAppender<ILoggingEvent> listAppender;
+  private Logger mainLogger;
 
   @BeforeEach
   void setUp() {
-    // 標準出力をキャプチャするための設定
-    outputStreamCaptor = new ByteArrayOutputStream();
-    System.setOut(new PrintStream(outputStreamCaptor));
+    // Logbackのルートロガーを取得し、テスト用のアペンダを追加
+    mainLogger = (Logger) LoggerFactory.getLogger(Main.class);
+    listAppender = new ListAppender<>();
+    listAppender.start();
+    mainLogger.addAppender(listAppender);
   }
 
   @AfterEach
   void tearDown() {
-    // 標準出力を元に戻す
-    System.setOut(standardOut);
+    // テスト用アペンダを削除
+    mainLogger.detachAppender(listAppender);
   }
 
   @Test
@@ -34,13 +40,14 @@ class MainTest {
     // mainメソッドを実行
     Main.main(new String[] {});
 
-    // 出力をキャプチャ
-    String output = outputStreamCaptor.toString();
+    // ログイベントをキャプチャ
+    List<String> logMessages =
+        listAppender.list.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.toList());
 
-    // 期待される出力が含まれていることを確認
-    assertTrue(output.contains("Hello World!"));
-    assertTrue(output.contains("result:any message"));
-    assertTrue(output.contains("Goodbye World!"));
+    // 期待されるログメッセージが含まれていることを確認
+    assertTrue(logMessages.stream().anyMatch(s -> s.contains("Starting StreamConverter application")));
+    assertTrue(logMessages.stream().anyMatch(s -> s.contains("Processing result: any message")));
+    assertTrue(logMessages.stream().anyMatch(s -> s.contains("StreamConverter application completed")));
   }
 
   @Test
@@ -50,12 +57,13 @@ class MainTest {
     String[] args = {"arg1", "arg2"};
     Main.main(args);
 
-    // 出力をキャプチャ
-    String output = outputStreamCaptor.toString();
+    // ログイベントをキャプチャ
+    List<String> logMessages =
+        listAppender.list.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.toList());
 
-    // 期待される出力が含まれていることを確認
-    assertTrue(output.contains("Hello World!"));
-    assertTrue(output.contains("result:any message"));
-    assertTrue(output.contains("Goodbye World!"));
+    // 期待されるログメッセージが含まれていることを確認
+    assertTrue(logMessages.stream().anyMatch(s -> s.contains("Starting StreamConverter application")));
+    assertTrue(logMessages.stream().anyMatch(s -> s.contains("Processing result: any message")));
+    assertTrue(logMessages.stream().anyMatch(s -> s.contains("StreamConverter application completed")));
   }
 }

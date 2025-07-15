@@ -68,6 +68,9 @@ tasks.test {
     // JUnit 5 を使うための設定
     useJUnitPlatform()
     
+    // メモリ効率テスト用にJVMヒープサイズを設定
+    jvmArgs("-Xmx1g", "-Xms512m")
+    
     // テスト実行時の詳細ログを表示
     testLogging {
         events("passed", "skipped", "failed")

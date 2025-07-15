@@ -13,6 +13,7 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 import java.util.logging.Logger;
 
 /**
@@ -43,6 +44,7 @@ public class StreamConverter {
 
   /**
    * 非同期並列処理でストリームを変換する。
+   * メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。
    *
    * @param inputStream
    * @param outputStream
@@ -53,64 +55,108 @@ public class StreamConverter {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
-    // スレッドを生成
+    if (this.commands.size() == 1) {
+      // 単一コマンドの場合は直接実行（メモリ効率最優先）
+      IStreamCommand command = this.commands.get(0);
+      Logger.getGlobal().info("command: 0:" + command.toString());
+      command.execute(inputStream, outputStream);
+      List<Object> result = new ArrayList<>();
+      result.add(null);
+      return result;
+    }
+
+    // 複数コマンドの場合はPipedStreamで並行処理
     ExecutorService executor = Executors.newFixedThreadPool(this.commands.size());
     List<Future<?>> futures = new ArrayList<>();
-    // N+1回目のInputStreamの引数。N回目のOutputStream生成時に都度更新される。
-    PipedOutputStream pipedOut = new PipedOutputStream();
-    // 各コマンドを非同期で実行
-    for (int i = 0; i < this.commands.size(); i++) {
-      IStreamCommand command = this.commands.get(i);
-      Logger.getGlobal().info("command: " + i + ":" + command.toString());
+    List<AutoCloseable> resources = new ArrayList<>();
+    
+    try {
+      InputStream currentInput = inputStream;
+      
+      // パイプライン構築
+      for (int i = 0; i < this.commands.size(); i++) {
+        IStreamCommand command = this.commands.get(i);
+        Logger.getGlobal().info("command: " + i + ":" + command.toString());
 
-      /*
-       * PipedInputStreamとPipedOutputStreamは、一組にする必要がある。
-       * PipedInXとPipedOutX-1で一組にする
-       *
-       * i InputStream OutputStream
-       * 0 (引数の)in PipedOut1
-       * 1 PipedIn1 PipedOut2
-       * 2 PipedIn2 PipedOut3
-       * ...
-       * N-1 PipedInN1 PipedOutN
-       * N PipedInN (引数の)out
-       */
-
-      InputStream currentIn = (i == 0) ? inputStream : new PipedInputStream(pipedOut);
-      OutputStream currentOut =
-          (i == this.commands.size() - 1) ? outputStream : (pipedOut = new PipedOutputStream());
-
-      // Thread実行。
-      futures.add(
-          executor.submit(
-              () -> {
-                try (OutputStream currentOut1 = currentOut;
-                    InputStream currentIn1 = currentIn; ) {
-                  // コマンド実行
-                  command.execute(inputStream, outputStream);
-                } catch (IOException e) {
-                  throw new RuntimeException(e);
-                }
-              }));
-    }
-    executor.shutdown();
-
-    // Thread内で例外が投げられていたら投げる。
-    List<Object> result = new ArrayList<>();
-    for (Future<?> future : futures) {
-      try {
-        result.add(future.get());
-      } catch (ExecutionException e) {
-        Throwable cause = e.getCause();
-        if (cause instanceof IOException ioe) {
-          throw ioe;
-        } else { // 発生しないと思われる。
-          throw new RuntimeException(cause);
+        final InputStream commandInput = currentInput;
+        final OutputStream commandOutput;
+        
+        if (i == this.commands.size() - 1) {
+          // 最後のコマンド
+          commandOutput = outputStream;
+        } else {
+          // 中間コマンド: 次のコマンド用にPipedStreamペア作成
+          PipedOutputStream pipedOut = new PipedOutputStream();
+          PipedInputStream pipedIn = new PipedInputStream(pipedOut, 64 * 1024); // 64KBバッファ
+          resources.add(pipedOut);
+          resources.add(pipedIn);
+          commandOutput = pipedOut;
+          currentInput = pipedIn;
         }
-      } catch (InterruptedException e) { // 発生しないと思われる。
-        throw new RuntimeException(e);
+
+        // 各コマンドを非同期実行
+        futures.add(executor.submit(() -> {
+          try {
+            command.execute(commandInput, commandOutput);
+            // 中間コマンドの場合、出力ストリームを閉じてEOFをシグナル
+            if (commandOutput != outputStream) {
+              commandOutput.close();
+            }
+          } catch (IOException e) {
+            Logger.getGlobal().severe("Command execution failed: " + command.getClass().getSimpleName() + " - " + e.getMessage());
+            throw new RuntimeException("Command execution failed: " + command.getClass().getSimpleName(), e);
+          }
+          return null;
+        }));
+      }
+
+      // すべてのタスクの完了を待機
+      List<Object> result = new ArrayList<>();
+      for (Future<?> future : futures) {
+        try {
+          // タイムアウト付きで待機（デッドロック防止）
+          future.get(60, TimeUnit.SECONDS);
+          result.add(null);
+        } catch (ExecutionException e) {
+          Throwable cause = e.getCause();
+          if (cause instanceof RuntimeException re) {
+            Throwable rootCause = re.getCause();
+            if (rootCause instanceof IOException ioe) {
+              throw ioe;
+            }
+            throw re;
+          }
+          throw new RuntimeException("Unexpected error during command execution", cause);
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+          throw new RuntimeException("Command execution was interrupted", e);
+        } catch (java.util.concurrent.TimeoutException e) {
+          throw new RuntimeException("Command execution timed out after 60 seconds", e);
+        }
+      }
+      
+      return result;
+      
+    } finally {
+      // リソースクリーンアップ
+      executor.shutdown();
+      try {
+        if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+          executor.shutdownNow();
+        }
+      } catch (InterruptedException e) {
+        executor.shutdownNow();
+        Thread.currentThread().interrupt();
+      }
+      
+      // PipedStreamのクリーンアップ
+      for (AutoCloseable resource : resources) {
+        try {
+          resource.close();
+        } catch (Exception e) {
+          Logger.getGlobal().warning("Failed to close resource: " + e.getMessage());
+        }
       }
     }
-    return result;
   }
 }

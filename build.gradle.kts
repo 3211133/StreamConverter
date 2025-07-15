@@ -11,7 +11,7 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
-    id("com.diffplug.spotless") version "7.0.4"
+    id("com.diffplug.spotless") version "7.1.0"
     id("info.solidsoft.pitest") version "1.15.0"
 }
 
@@ -92,7 +92,7 @@ tasks.jacocoTestReport {
     }
     
     // テスト後にレポートを生成
-    dependsOn(tasks.test)
+    // dependsOn(tasks.test)
 }
 
 // PITレポートの設定
@@ -100,7 +100,7 @@ tasks.pitest {
     targetClasses.set(listOf("com.streamConverter.*")) // テスト対象のクラスを指定
     outputFormats.set(listOf("HTML")) // 出力形式を指定
     // テスト後にレポートを生成
-    dependsOn(tasks.test)
+    // dependsOn(tasks.test)
 }
 
 // javadocタスクの設定

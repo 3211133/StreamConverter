@@ -43,8 +43,7 @@ public class StreamConverter {
   }
 
   /**
-   * 非同期並列処理でストリームを変換する。
-   * メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。
+   * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。
    *
    * @param inputStream
    * @param outputStream
@@ -69,10 +68,10 @@ public class StreamConverter {
     ExecutorService executor = Executors.newFixedThreadPool(this.commands.size());
     List<Future<?>> futures = new ArrayList<>();
     List<AutoCloseable> resources = new ArrayList<>();
-    
+
     try {
       InputStream currentInput = inputStream;
-      
+
       // パイプライン構築
       for (int i = 0; i < this.commands.size(); i++) {
         IStreamCommand command = this.commands.get(i);
@@ -80,7 +79,7 @@ public class StreamConverter {
 
         final InputStream commandInput = currentInput;
         final OutputStream commandOutput;
-        
+
         if (i == this.commands.size() - 1) {
           // 最後のコマンド
           commandOutput = outputStream;
@@ -95,19 +94,27 @@ public class StreamConverter {
         }
 
         // 各コマンドを非同期実行
-        futures.add(executor.submit(() -> {
-          try {
-            command.execute(commandInput, commandOutput);
-            // 中間コマンドの場合、出力ストリームを閉じてEOFをシグナル
-            if (commandOutput != outputStream) {
-              commandOutput.close();
-            }
-          } catch (IOException e) {
-            Logger.getGlobal().severe("Command execution failed: " + command.getClass().getSimpleName() + " - " + e.getMessage());
-            throw new RuntimeException("Command execution failed: " + command.getClass().getSimpleName(), e);
-          }
-          return null;
-        }));
+        futures.add(
+            executor.submit(
+                () -> {
+                  try {
+                    command.execute(commandInput, commandOutput);
+                    // 中間コマンドの場合、出力ストリームを閉じてEOFをシグナル
+                    if (commandOutput != outputStream) {
+                      commandOutput.close();
+                    }
+                  } catch (IOException e) {
+                    Logger.getGlobal()
+                        .severe(
+                            "Command execution failed: "
+                                + command.getClass().getSimpleName()
+                                + " - "
+                                + e.getMessage());
+                    throw new RuntimeException(
+                        "Command execution failed: " + command.getClass().getSimpleName(), e);
+                  }
+                  return null;
+                }));
       }
 
       // すべてのタスクの完了を待機
@@ -134,9 +141,9 @@ public class StreamConverter {
           throw new RuntimeException("Command execution timed out after 60 seconds", e);
         }
       }
-      
+
       return result;
-      
+
     } finally {
       // リソースクリーンアップ
       executor.shutdown();
@@ -148,7 +155,7 @@ public class StreamConverter {
         executor.shutdownNow();
         Thread.currentThread().interrupt();
       }
-      
+
       // PipedStreamのクリーンアップ
       for (AutoCloseable resource : resources) {
         try {

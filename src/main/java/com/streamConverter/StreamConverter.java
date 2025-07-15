@@ -14,7 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
-import java.util.logging.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * ストリーム変換クラス。
@@ -24,6 +25,7 @@ import java.util.logging.Logger;
  * <p>ストリームを変換するコマンドは、IStreamCommandインターフェースを実装したクラスである必要がある。
  */
 public class StreamConverter {
+  private static final Logger log = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
 
@@ -100,14 +102,16 @@ public class StreamConverter {
    * @return TODO 各コマンドの実行結果(未実装)
    * @throws IOException
    */
-  List<Object> run(InputStream inputStream, OutputStream outputStream) throws IOException {
+  public List<Object> run(InputStream inputStream, OutputStream outputStream) throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
+    
+    log.info("Starting StreamConverter with {} commands", commands.size());
 
     if (this.commands.size() == 1) {
       // 単一コマンドの場合は直接実行（メモリ効率最優先）
       IStreamCommand command = this.commands.get(0);
-      Logger.getGlobal().info("command: 0:" + command.toString());
+      log.info("Executing single command: {}", command.getClass().getSimpleName());
       command.execute(inputStream, outputStream);
       List<Object> result = new ArrayList<>();
       result.add(null);
@@ -125,7 +129,7 @@ public class StreamConverter {
       // パイプライン構築
       for (int i = 0; i < this.commands.size(); i++) {
         IStreamCommand command = this.commands.get(i);
-        Logger.getGlobal().info("command: " + i + ":" + command.toString());
+        log.info("Executing command {} of {}: {}", i + 1, commands.size(), command.getClass().getSimpleName());
 
         final InputStream commandInput = currentInput;
         final OutputStream commandOutput;
@@ -154,12 +158,8 @@ public class StreamConverter {
                       commandOutput.close();
                     }
                   } catch (IOException e) {
-                    Logger.getGlobal()
-                        .severe(
-                            "Command execution failed: "
-                                + command.getClass().getSimpleName()
-                                + " - "
-                                + e.getMessage());
+                    log.error("Command execution failed: {} - {}", 
+                             command.getClass().getSimpleName(), e.getMessage(), e);
                     throw new StreamProcessingException(
                         "Command execution failed: " + command.getClass().getSimpleName(), e);
                   }
@@ -194,6 +194,7 @@ public class StreamConverter {
         }
       }
 
+      log.info("StreamConverter completed successfully with {} commands", commands.size());
       return result;
 
     } finally {
@@ -213,7 +214,7 @@ public class StreamConverter {
         try {
           resource.close();
         } catch (Exception e) {
-          Logger.getGlobal().warning("Failed to close resource: " + e.getMessage());
+          log.warn("Failed to close resource: {}", e.getMessage());
         }
       }
     }

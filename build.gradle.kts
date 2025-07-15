@@ -15,6 +15,40 @@ plugins {
     id("info.solidsoft.pitest") version "1.15.0"
 }
 
+// Main class configuration
+application {
+    mainClass.set("com.streamConverter.Main")
+}
+
+// Custom tasks for running examples
+tasks.register<JavaExec>("runQuickStart") {
+    group = "application"
+    description = "Run QuickStart example"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.examples.QuickStart")
+}
+
+tasks.register<JavaExec>("runDemo") {
+    group = "application"
+    description = "Run StreamConverter demo"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.demo.StreamConverterDemo")
+}
+
+tasks.register<JavaExec>("runDataProcessing") {
+    group = "application"
+    description = "Run DataProcessing examples"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.examples.DataProcessingExamples")
+}
+
+tasks.register<JavaExec>("runAutoLoggingDemo") {
+    group = "application"
+    description = "Run Auto Logging Demo"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.examples.AutoLoggingDemo")
+}
+
 // Spotless configuration for code formatting
 spotless {
     java {

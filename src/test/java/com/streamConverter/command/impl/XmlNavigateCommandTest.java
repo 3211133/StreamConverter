@@ -13,9 +13,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for XmlNavigateCommand.
- */
+/** Unit tests for XmlNavigateCommand. */
 class XmlNavigateCommandTest {
 
   private XmlNavigateCommand command;
@@ -37,7 +35,7 @@ class XmlNavigateCommandTest {
     OutputStream outputStream = new ByteArrayOutputStream();
 
     assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
-    
+
     String result = outputStream.toString();
     assertNotNull(result);
     // For now, just verify that the command doesn't throw an exception
@@ -46,7 +44,8 @@ class XmlNavigateCommandTest {
 
   @Test
   void testComplexXmlProcessing() throws IOException {
-    String xmlInput = """
+    String xmlInput =
+        """
         <?xml version="1.0"?>
         <root>
           <users>

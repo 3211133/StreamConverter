@@ -1,7 +1,6 @@
 package com.streamConverter.command.impl;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 import java.io.ByteArrayInputStream;
@@ -13,9 +12,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for CsvNavigateCommand.
- */
+/** Unit tests for CsvNavigateCommand. */
 class CsvNavigateCommandTest {
 
   private CsvNavigateCommand command;
@@ -37,7 +34,7 @@ class CsvNavigateCommandTest {
     OutputStream outputStream = new ByteArrayOutputStream();
 
     assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
-    
+
     String result = outputStream.toString();
     assertNotNull(result);
     // For now, just verify that the command doesn't throw an exception
@@ -57,10 +54,18 @@ class CsvNavigateCommandTest {
     StringBuilder largeInput = new StringBuilder();
     largeInput.append("name,age,city\n");
     for (int i = 0; i < 1000; i++) {
-      largeInput.append("Person").append(i).append(",").append(20 + i % 50).append(",City").append(i % 10).append("\n");
+      largeInput
+          .append("Person")
+          .append(i)
+          .append(",")
+          .append(20 + i % 50)
+          .append(",City")
+          .append(i % 10)
+          .append("\n");
     }
-    
-    InputStream inputStream = new ByteArrayInputStream(largeInput.toString().getBytes(StandardCharsets.UTF_8));
+
+    InputStream inputStream =
+        new ByteArrayInputStream(largeInput.toString().getBytes(StandardCharsets.UTF_8));
     OutputStream outputStream = new ByteArrayOutputStream();
 
     assertDoesNotThrow(() -> command.execute(inputStream, outputStream));

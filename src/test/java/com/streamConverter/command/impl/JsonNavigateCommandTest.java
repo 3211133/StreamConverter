@@ -12,9 +12,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-/**
- * Unit tests for JsonNavigateCommand.
- */
+/** Unit tests for JsonNavigateCommand. */
 class JsonNavigateCommandTest {
 
   private JsonNavigateCommand command;
@@ -36,7 +34,7 @@ class JsonNavigateCommandTest {
     OutputStream outputStream = new ByteArrayOutputStream();
 
     assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
-    
+
     String result = outputStream.toString();
     assertNotNull(result);
     // For now, just verify that the command doesn't throw an exception
@@ -45,7 +43,8 @@ class JsonNavigateCommandTest {
 
   @Test
   void testComplexJsonProcessing() throws IOException {
-    String jsonInput = """
+    String jsonInput =
+        """
         {
           "users": [
             {"name": "John", "age": 30, "city": "NYC"},
@@ -74,7 +73,8 @@ class JsonNavigateCommandTest {
   @Test
   void testInvalidJsonInput() throws IOException {
     String invalidJson = "{invalid json}";
-    InputStream inputStream = new ByteArrayInputStream(invalidJson.getBytes(StandardCharsets.UTF_8));
+    InputStream inputStream =
+        new ByteArrayInputStream(invalidJson.getBytes(StandardCharsets.UTF_8));
     OutputStream outputStream = new ByteArrayOutputStream();
 
     // Should not throw for now - actual navigation logic will handle validation

@@ -71,7 +71,7 @@ class FixedStaXPathHandlerTest {
   @Test
   void constructor_shouldNormalizeLeadingSlashes() {
     FixedStaXPathHandler handler = new FixedStaXPathHandler("/root/child");
-    
+
     assertTrue(handler.isTarget(List.of("root", "child")));
     assertEquals(List.of("root", "child"), handler.getTargetXpath());
   }
@@ -79,7 +79,7 @@ class FixedStaXPathHandlerTest {
   @Test
   void constructor_shouldNormalizeTrailingSlashes() {
     FixedStaXPathHandler handler = new FixedStaXPathHandler("root/child/");
-    
+
     assertTrue(handler.isTarget(List.of("root", "child")));
     assertEquals(List.of("root", "child"), handler.getTargetXpath());
   }
@@ -87,28 +87,22 @@ class FixedStaXPathHandlerTest {
   @Test
   void constructor_shouldNormalizeMultipleSlashes() {
     FixedStaXPathHandler handler = new FixedStaXPathHandler("root//child///grandchild");
-    
+
     assertTrue(handler.isTarget(List.of("root", "child", "grandchild")));
     assertEquals(List.of("root", "child", "grandchild"), handler.getTargetXpath());
   }
 
   @Test
   void constructor_shouldThrowException_whenXpathIsJustSlashes() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> new FixedStaXPathHandler("/"));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> new FixedStaXPathHandler("//"));
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> new FixedStaXPathHandler("///"));
+    assertThrows(IllegalArgumentException.class, () -> new FixedStaXPathHandler("/"));
+    assertThrows(IllegalArgumentException.class, () -> new FixedStaXPathHandler("//"));
+    assertThrows(IllegalArgumentException.class, () -> new FixedStaXPathHandler("///"));
   }
 
   @Test
   void isTarget_shouldThrowException_whenXpathListIsNull() {
     FixedStaXPathHandler handler = new FixedStaXPathHandler("root/child");
-    
+
     assertThrows(IllegalArgumentException.class, () -> handler.isTarget(null));
   }
 }

@@ -9,14 +9,16 @@
 
     <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
         <!-- 現在のログファイル -->
-        <file>logs/myapp.log</file>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <!-- 日付を含むファイル名パターン。例えば、myapp.2025-04-04.log -->
-            <fileNamePattern>logs/myapp.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+        <file>logs/streamconverter.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <!-- 日付を含むファイル名パターン。例えば、streamconverter.2025-04-04.1.log -->
+            <fileNamePattern>logs/streamconverter.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
             <!-- 例えば過去30日分を保持し、それ以外は自動削除 -->
             <maxHistory>30</maxHistory>
-            <!-- オプション：ファイルを圧縮する場合 -->
-            <!-- <fileNamePattern>logs/myapp.%d{yyyy-MM-dd}.log.gz</fileNamePattern> -->
+            <!-- 1ファイルの最大サイズ -->
+            <maxFileSize>10MB</maxFileSize>
+            <!-- 全ログファイルの最大サイズ -->
+            <totalSizeCap>1GB</totalSizeCap>
         </rollingPolicy>
         <encoder>
             <pattern>%date %-5level %logger{36} - %msg%n</pattern>
@@ -24,7 +26,7 @@
     </appender>
 
 
-    <root >
+    <root level="INFO">
         <appender-ref ref="STDOUT" />
         <appender-ref ref="FILE" />
     </root>

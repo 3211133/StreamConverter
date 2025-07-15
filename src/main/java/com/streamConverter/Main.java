@@ -6,7 +6,9 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Main class for the StreamConverter application.
@@ -14,6 +16,7 @@ import java.io.OutputStream;
  * <p>This class demonstrates the usage of the StreamConverter with sample commands.
  */
 public class Main {
+  private static final Logger log = LoggerFactory.getLogger(Main.class);
 
   /**
    * Main method to run the StreamConverter application.
@@ -22,19 +25,19 @@ public class Main {
    * @throws IOException If an I/O error occurs during the execution.
    */
   public static void main(String[] args) throws IOException {
-    System.out.println("Hello World!");
+    log.info("Starting StreamConverter application");
     IStreamCommand[] commands = {
       new SampleStreamCommand("0"), new SampleStreamCommand("1"), new SampleStreamCommand("2")
     };
     StreamConverter converter = new StreamConverter(commands);
     try (InputStream inputStream = new ByteArrayInputStream("any message".getBytes());
-        OutputStream outputStream = new ByteArrayOutputStream()) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       converter.run(inputStream, outputStream);
-      System.out.println("result:" + outputStream.toString());
+      log.info("Processing result: {}", outputStream.toString(StandardCharsets.UTF_8));
     } catch (IOException e) {
-      e.printStackTrace();
+      log.error("Application execution failed: {}", e.getMessage(), e);
     }
 
-    System.out.println("Goodbye World!");
+    log.info("StreamConverter application completed");
   }
 }

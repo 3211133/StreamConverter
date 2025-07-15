@@ -33,11 +33,32 @@ public class FixedStaXPathHandler implements IStaXPathHandler {
     if (xpath == null) {
       throw new IllegalArgumentException("xpath must not be null");
     }
-    this.targetXpath = List.of(xpath.trim().split("/"));
-    // 空要素がある場合は、エラーをスローする
-    if (this.targetXpath.contains("")) {
-      throw new IllegalArgumentException("xpath must not contain empty segments");
+
+    String trimmedXpath = xpath.trim();
+    if (trimmedXpath.isEmpty()) {
+      throw new IllegalArgumentException("xpath must not be empty");
     }
+
+    // Normalize path: remove leading/trailing slashes, handle multiple slashes
+    String normalizedPath =
+        trimmedXpath
+            .replaceAll("^/+", "") // Remove leading slashes
+            .replaceAll("/+$", "") // Remove trailing slashes
+            .replaceAll("/+", "/"); // Collapse multiple slashes
+
+    if (normalizedPath.isEmpty()) {
+      throw new IllegalArgumentException("xpath cannot be just slashes");
+    }
+
+    this.targetXpath = List.of(normalizedPath.split("/"));
+
+    // Validate no empty segments remain after normalization
+    if (this.targetXpath.contains("")) {
+      throw new IllegalArgumentException(
+          "xpath must not contain empty segments after normalization: " + xpath);
+    }
+
+    log.debug("Normalized XPath: {} -> {}", xpath, normalizedPath);
   }
 
   /**

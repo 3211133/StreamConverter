@@ -24,9 +24,10 @@ public class SampleStreamCommand extends AbstractStreamCommand {
    * Constructor that initializes the command with a specific ID.
    *
    * @param arg The ID to be assigned to this command.
+   * @throws NullPointerException if arg is null
    */
   public SampleStreamCommand(String arg) {
-    this.id = arg;
+    this.id = Objects.requireNonNull(arg, "ID cannot be null");
   }
 
   /**

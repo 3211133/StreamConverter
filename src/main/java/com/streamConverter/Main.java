@@ -7,6 +7,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 
 /**
  * Main class for the StreamConverter application.
@@ -28,9 +29,9 @@ public class Main {
     };
     StreamConverter converter = new StreamConverter(commands);
     try (InputStream inputStream = new ByteArrayInputStream("any message".getBytes());
-        OutputStream outputStream = new ByteArrayOutputStream()) {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       converter.run(inputStream, outputStream);
-      System.out.println("result:" + outputStream.toString());
+      System.out.println("result:" + outputStream.toString(StandardCharsets.UTF_8));
     } catch (IOException e) {
       e.printStackTrace();
     }

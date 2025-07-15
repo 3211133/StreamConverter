@@ -49,7 +49,7 @@ loadScripts(document, 'script');</script>
 <div class="header">
 <h1>Index</h1>
 </div>
-<a href="#I:A">A</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:_">_</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a>
+<a href="#I:A">A</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:_">_</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a>
 <h2 class="title" id="I:A">A</h2>
 <dl class="index">
 <dt><a href="com/streamConverter/command/AbstractStreamCommand.html" class="type-name-link" title="class in com.streamConverter.command">AbstractStreamCommand</a> - Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
@@ -112,6 +112,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/impl/xml/ConvertCommand.html#%3Cinit%3E(com.streamConverter.command.rule.IRule,java.lang.String)" class="member-name-link">ConvertCommand(IRule, String)</a> - Constructor for class com.streamConverter.command.impl.xml.<a href="com/streamConverter/command/impl/xml/ConvertCommand.html" title="class in com.streamConverter.command.impl.xml">ConvertCommand</a></dt>
 <dd>
 <div class="block">デフォルトコンストラクタ</div>
+</dd>
+<dt><a href="com/streamConverter/StreamConverter.html#create(com.streamConverter.command.IStreamCommand...)" class="member-name-link">create(IStreamCommand...)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
+<dd>
+<div class="block">Creates a StreamConverter with the specified array of commands.</div>
+</dd>
+<dt><a href="com/streamConverter/StreamConverter.html#create(java.util.List)" class="member-name-link">create(List&lt;IStreamCommand&gt;)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
+<dd>
+<div class="block">Creates a StreamConverter with the specified list of commands.</div>
 </dd>
 <dt><a href="com/streamConverter/command/impl/CsvNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
@@ -220,6 +228,30 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">ストリーム変換クラス。</div>
 </dd>
+<dt><a href="com/streamConverter/StreamConverter.html#%3Cinit%3E(com.streamConverter.command.IStreamCommand%5B%5D)" class="member-name-link">StreamConverter(IStreamCommand[])</a> - Constructor for class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
+<dd>
+<div class="block">Constructs a StreamConverter with the specified array of commands.</div>
+</dd>
+<dt><a href="com/streamConverter/StreamConverter.html#%3Cinit%3E(java.util.List)" class="member-name-link">StreamConverter(List&lt;IStreamCommand&gt;)</a> - Constructor for class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
+<dd>
+<div class="block">Constructs a StreamConverter with the specified list of commands.</div>
+</dd>
+<dt><a href="com/streamConverter/StreamProcessingException.html" class="type-name-link" title="class in com.streamConverter">StreamProcessingException</a> - Exception in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
+<dd>
+<div class="block">Custom exception for stream processing errors.</div>
+</dd>
+<dt><a href="com/streamConverter/StreamProcessingException.html#%3Cinit%3E(java.lang.String)" class="member-name-link">StreamProcessingException(String)</a> - Constructor for exception com.streamConverter.<a href="com/streamConverter/StreamProcessingException.html" title="class in com.streamConverter">StreamProcessingException</a></dt>
+<dd>
+<div class="block">Constructs a new StreamProcessingException with the specified detail message.</div>
+</dd>
+<dt><a href="com/streamConverter/StreamProcessingException.html#%3Cinit%3E(java.lang.String,java.lang.Throwable)" class="member-name-link">StreamProcessingException(String, Throwable)</a> - Constructor for exception com.streamConverter.<a href="com/streamConverter/StreamProcessingException.html" title="class in com.streamConverter">StreamProcessingException</a></dt>
+<dd>
+<div class="block">Constructs a new StreamProcessingException with the specified detail message and cause.</div>
+</dd>
+<dt><a href="com/streamConverter/StreamProcessingException.html#%3Cinit%3E(java.lang.Throwable)" class="member-name-link">StreamProcessingException(Throwable)</a> - Constructor for exception com.streamConverter.<a href="com/streamConverter/StreamProcessingException.html" title="class in com.streamConverter">StreamProcessingException</a></dt>
+<dd>
+<div class="block">Constructs a new StreamProcessingException with the specified cause.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:T">T</h2>
 <dl class="index">
@@ -280,7 +312,7 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/impl/XmlNavigateCommand.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a></dt>
 <dd>&nbsp;</dd>
 </dl>
-<a href="#I:A">A</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:_">_</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a></main>
+<a href="#I:A">A</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:_">_</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a></main>
 </div>
 </div>
 </body>

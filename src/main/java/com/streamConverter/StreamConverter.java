@@ -24,22 +24,72 @@ import java.util.logging.Logger;
  * <p>ストリームを変換するコマンドは、IStreamCommandインターフェースを実装したクラスである必要がある。
  */
 public class StreamConverter {
+  private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
 
-  StreamConverter(IStreamCommand[] commands) {
-    Objects.requireNonNull(commands);
+  /**
+   * Constructs a StreamConverter with the specified array of commands.
+   *
+   * @param commands the array of commands to be executed in sequence
+   * @throws NullPointerException if commands is null
+   * @throws IllegalArgumentException if commands is empty
+   */
+  public StreamConverter(IStreamCommand[] commands) {
+    Objects.requireNonNull(commands, "commands cannot be null");
     if (commands.length == 0) {
       throw new IllegalArgumentException("commands is empty.");
     }
     this.commands = List.of(commands);
   }
 
-  StreamConverter(List<IStreamCommand> commands) {
-    Objects.requireNonNull(commands);
+  /**
+   * Constructs a StreamConverter with the specified list of commands.
+   *
+   * @param commands the list of commands to be executed in sequence
+   * @throws NullPointerException if commands is null
+   * @throws IllegalArgumentException if commands is empty
+   */
+  public StreamConverter(List<IStreamCommand> commands) {
+    Objects.requireNonNull(commands, "commands cannot be null");
     if (commands.isEmpty()) {
       throw new IllegalArgumentException("commands is empty.");
     }
-    this.commands = commands;
+    this.commands = new ArrayList<>(commands); // Defensive copy
+  }
+
+  /**
+   * Creates a StreamConverter with the specified array of commands.
+   *
+   * @param commands the array of commands to be executed in sequence
+   * @return a new StreamConverter instance
+   * @throws NullPointerException if commands is null
+   * @throws IllegalArgumentException if commands is empty
+   */
+  public static StreamConverter create(IStreamCommand... commands) {
+    return new StreamConverter(commands);
+  }
+
+  /**
+   * Creates a StreamConverter with the specified list of commands.
+   *
+   * @param commands the list of commands to be executed in sequence
+   * @return a new StreamConverter instance
+   * @throws NullPointerException if commands is null
+   * @throws IllegalArgumentException if commands is empty
+   */
+  public static StreamConverter create(List<IStreamCommand> commands) {
+    return new StreamConverter(commands);
+  }
+
+  /**
+   * Creates an optimal executor service based on available system resources and command count.
+   *
+   * @return an optimally configured ExecutorService
+   */
+  private ExecutorService createOptimalExecutor() {
+    int availableCores = Runtime.getRuntime().availableProcessors();
+    int optimalSize = Math.min(this.commands.size(), Math.max(2, availableCores));
+    return Executors.newFixedThreadPool(optimalSize);
   }
 
   /**
@@ -65,7 +115,7 @@ public class StreamConverter {
     }
 
     // 複数コマンドの場合はPipedStreamで並行処理
-    ExecutorService executor = Executors.newFixedThreadPool(this.commands.size());
+    ExecutorService executor = createOptimalExecutor();
     List<Future<?>> futures = new ArrayList<>();
     List<AutoCloseable> resources = new ArrayList<>();
 
@@ -86,7 +136,7 @@ public class StreamConverter {
         } else {
           // 中間コマンド: 次のコマンド用にPipedStreamペア作成
           PipedOutputStream pipedOut = new PipedOutputStream();
-          PipedInputStream pipedIn = new PipedInputStream(pipedOut, 64 * 1024); // 64KBバッファ
+          PipedInputStream pipedIn = new PipedInputStream(pipedOut, DEFAULT_BUFFER_SIZE);
           resources.add(pipedOut);
           resources.add(pipedIn);
           commandOutput = pipedOut;
@@ -110,7 +160,7 @@ public class StreamConverter {
                                 + command.getClass().getSimpleName()
                                 + " - "
                                 + e.getMessage());
-                    throw new RuntimeException(
+                    throw new StreamProcessingException(
                         "Command execution failed: " + command.getClass().getSimpleName(), e);
                   }
                   return null;
@@ -126,19 +176,21 @@ public class StreamConverter {
           result.add(null);
         } catch (ExecutionException e) {
           Throwable cause = e.getCause();
-          if (cause instanceof RuntimeException re) {
+          if (cause instanceof StreamProcessingException spe) {
+            throw spe;
+          } else if (cause instanceof RuntimeException re) {
             Throwable rootCause = re.getCause();
             if (rootCause instanceof IOException ioe) {
               throw ioe;
             }
             throw re;
           }
-          throw new RuntimeException("Unexpected error during command execution", cause);
+          throw new StreamProcessingException("Unexpected error during command execution", cause);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
-          throw new RuntimeException("Command execution was interrupted", e);
+          throw new StreamProcessingException("Command execution was interrupted", e);
         } catch (java.util.concurrent.TimeoutException e) {
-          throw new RuntimeException("Command execution timed out after 60 seconds", e);
+          throw new StreamProcessingException("Command execution timed out after 60 seconds", e);
         }
       }
 

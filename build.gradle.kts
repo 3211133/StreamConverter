@@ -11,7 +11,7 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
-    id("com.diffplug.spotless") version "7.1.0"
+    id("com.diffplug.spotless") version "7.2.0"
     id("info.solidsoft.pitest") version "1.15.0"
 }
 
@@ -83,7 +83,7 @@ repositories {
 dependencies {
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.18.0")
-    implementation("commons-io:commons-io:2.19.0")
+    implementation("commons-io:commons-io:2.20.0")
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("ch.qos.logback:logback-classic:1.5.18")
 

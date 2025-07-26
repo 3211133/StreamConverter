@@ -152,16 +152,16 @@ public class StreamConverter {
         }
 
         // 各コマンドを非同期実行
-        futures.add(
+        Future<?> future =
             executor.submit(
                 () -> {
                   try {
                     command.execute(commandInput, commandOutput);
-                    // 中間コマンドの場合、出力ストリームを閉じてEOFをシグナル
-                    if (commandOutput != outputStream) {
+                    // 中間の PipedOutputStream は実行完了後にクローズする必要がある
+                    if (commandOutput instanceof PipedOutputStream) {
                       commandOutput.close();
                     }
-                  } catch (IOException e) {
+                  } catch (IOException e) 
                     log.error(
                         "Command execution failed: {} - {}",
                         command.getClass().getSimpleName(),
@@ -170,59 +170,72 @@ public class StreamConverter {
                     throw new StreamProcessingException(
                         "Command execution failed: " + command.getClass().getSimpleName(), e);
                   }
-                  return null;
-                }));
+                });
+        futures.add(future);
       }
 
-      // すべてのタスクの完了を待機
-      List<Object> result = new ArrayList<>();
+      // 全コマンドの完了を待機
       for (Future<?> future : futures) {
         try {
-          // タイムアウト付きで待機（デッドロック防止）
-          future.get(60, TimeUnit.SECONDS);
-          result.add(null);
-        } catch (ExecutionException e) {
-          Throwable cause = e.getCause();
-          if (cause instanceof StreamProcessingException spe) {
-            throw spe;
-          } else if (cause instanceof RuntimeException re) {
-            Throwable rootCause = re.getCause();
-            if (rootCause instanceof IOException ioe) {
-              throw ioe;
-            }
-            throw re;
-          }
-          throw new StreamProcessingException("Unexpected error during command execution", cause);
+          future.get();
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
-          throw new StreamProcessingException("Command execution was interrupted", e);
-        } catch (java.util.concurrent.TimeoutException e) {
-          throw new StreamProcessingException("Command execution timed out after 60 seconds", e);
+          throw new IOException("Command execution was interrupted", e);
+        } catch (ExecutionException e) {
+          Throwable cause = e.getCause();
+          if (cause instanceof RuntimeException && cause.getCause() instanceof IOException) {
+            throw (IOException) cause.getCause();
+          }
+          throw new IOException("Command execution failed", cause);
         }
       }
 
-      log.info("StreamConverter completed successfully with {} commands", commands.size());
+      log.info("All commands completed successfully");
+      List<Object> result = new ArrayList<>();
+      for (int i = 0; i < this.commands.size(); i++) {
+        result.add(null); // TODO: 実際の結果を収集する機能を実装
+      }
       return result;
 
     } finally {
       // リソースクリーンアップ
-      executor.shutdown();
-      try {
-        if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-          executor.shutdownNow();
-        }
-      } catch (InterruptedException e) {
-        executor.shutdownNow();
-        Thread.currentThread().interrupt();
-      }
+      shutdownExecutor(executor);
+      closeResources(resources);
+    }
+  }
 
-      // PipedStreamのクリーンアップ
-      for (AutoCloseable resource : resources) {
-        try {
-          resource.close();
-        } catch (Exception e) {
-          log.warn("Failed to close resource: {}", e.getMessage());
+  /**
+   * ExecutorServiceを安全にシャットダウンする
+   *
+   * @param executor シャットダウン対象のExecutorService
+   */
+  private void shutdownExecutor(ExecutorService executor) {
+    executor.shutdown();
+    try {
+      if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+        log.warn("Executor did not terminate gracefully, forcing shutdown");
+        executor.shutdownNow();
+        if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+          log.error("Executor did not terminate after forced shutdown");
         }
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      executor.shutdownNow();
+    }
+  }
+
+  /**
+   * 使用したリソースを安全にクローズする
+   *
+   * @param resources クローズ対象のリソースリスト
+   */
+  private void closeResources(List<AutoCloseable> resources) {
+    for (AutoCloseable resource : resources) {
+      try {
+        resource.close();
+      } catch (Exception e) {
+        log.warn("Failed to close resource: {}", e.getMessage());
       }
     }
   }

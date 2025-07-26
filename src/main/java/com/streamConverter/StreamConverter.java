@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -234,6 +235,8 @@ public class StreamConverter {
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           throw new IOException("Command execution was interrupted", e);
+        } catch (TimeoutException e) {
+          throw new IOException("Command execution timed out after 60 seconds", e);
         }
       }
 

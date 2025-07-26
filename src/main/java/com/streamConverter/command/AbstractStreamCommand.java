@@ -28,12 +28,9 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
 
   /**
    * Executes the command on the provided input stream and writes the result to the output stream.
-   * 
-   * <p>This method automatically logs execution details including:
-   * - Command name and execution time
-   * - Input/output data sizes
-   * - Exception details if execution fails
-   * - Performance metrics
+   *
+   * <p>This method automatically logs execution details including: - Command name and execution
+   * time - Input/output data sizes - Exception details if execution fails - Performance metrics
    *
    * @param inputStream The input stream to read data from.
    * @param outputStream The output stream to write data to.
@@ -44,46 +41,51 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
     String commandName = this.getClass().getSimpleName();
     long startTime = System.currentTimeMillis();
     long startMemory = getUsedMemory();
-    
+
     // 実行開始ログ
     log.info("Starting command execution: {}", commandName);
     log.debug("Command details: {}", getCommandDetails());
-    
+
     // データサイズ測定用のストリームでラップ
     MeasuredInputStream measuredInput = new MeasuredInputStream(inputStream);
     MeasuredOutputStream measuredOutput = new MeasuredOutputStream(outputStream);
-    
+
     try {
       // 実際の処理実行
       _execute(measuredInput, measuredOutput);
-      
+
       // 成功時のログ出力
       long duration = System.currentTimeMillis() - startTime;
       long memoryUsed = getUsedMemory() - startMemory;
-      
-      log.info("Command execution completed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB)",
-               commandName, duration, 
-               measuredInput.getBytesRead(), 
-               measuredOutput.getBytesWritten(),
-               memoryUsed / 1024 / 1024);
-      
+
+      log.info(
+          "Command execution completed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB)",
+          commandName,
+          duration,
+          measuredInput.getBytesRead(),
+          measuredOutput.getBytesWritten(),
+          memoryUsed / 1024 / 1024);
+
       // パフォーマンス警告
       if (duration > 5000) { // 5秒以上
         log.warn("Command {} took longer than expected: {}ms", commandName, duration);
       }
-      
+
     } catch (Exception e) {
       // 例外発生時のログ出力
       long duration = System.currentTimeMillis() - startTime;
       long memoryUsed = getUsedMemory() - startMemory;
-      
-      log.error("Command execution failed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB) - {}", 
-               commandName, duration, 
-               measuredInput.getBytesRead(), 
-               measuredOutput.getBytesWritten(),
-               memoryUsed / 1024 / 1024,
-               e.getMessage(), e);
-      
+
+      log.error(
+          "Command execution failed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB) - {}",
+          commandName,
+          duration,
+          measuredInput.getBytesRead(),
+          measuredOutput.getBytesWritten(),
+          memoryUsed / 1024 / 1024,
+          e.getMessage(),
+          e);
+
       throw e;
     }
   }
@@ -97,22 +99,21 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
    */
   protected abstract void _execute(InputStream inputStream, OutputStream outputStream)
       throws IOException;
-  
+
   /**
    * コマンドの詳細情報を取得します。
-   * 
-   * <p>サブクラスでオーバーライドして、コマンド固有の設定や状態を返すことができます。
-   * この情報はデバッグログに出力され、問題の診断に役立ちます。
-   * 
+   *
+   * <p>サブクラスでオーバーライドして、コマンド固有の設定や状態を返すことができます。 この情報はデバッグログに出力され、問題の診断に役立ちます。
+   *
    * @return コマンドの詳細情報
    */
   protected String getCommandDetails() {
     return this.getClass().getSimpleName() + " (default implementation)";
   }
-  
+
   /**
    * 現在の使用メモリ量を取得します。
-   * 
+   *
    * @return 使用メモリ量（バイト）
    */
   private long getUsedMemory() {

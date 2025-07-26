@@ -97,15 +97,15 @@ public class StreamConverter {
   /**
    * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。
    *
-   * @param inputStream
-   * @param outputStream
+   * @param inputStream 処理対象の入力ストリーム
+   * @param outputStream 処理結果を書き込む出力ストリーム
    * @return TODO 各コマンドの実行結果(未実装)
-   * @throws IOException
+   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
    */
   public List<Object> run(InputStream inputStream, OutputStream outputStream) throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
-    
+
     log.info("Starting StreamConverter with {} commands", commands.size());
 
     if (this.commands.size() == 1) {
@@ -129,7 +129,11 @@ public class StreamConverter {
       // パイプライン構築
       for (int i = 0; i < this.commands.size(); i++) {
         IStreamCommand command = this.commands.get(i);
-        log.info("Executing command {} of {}: {}", i + 1, commands.size(), command.getClass().getSimpleName());
+        log.info(
+            "Executing command {} of {}: {}",
+            i + 1,
+            commands.size(),
+            command.getClass().getSimpleName());
 
         final InputStream commandInput = currentInput;
         final OutputStream commandOutput;
@@ -158,8 +162,11 @@ public class StreamConverter {
                       commandOutput.close();
                     }
                   } catch (IOException e) {
-                    log.error("Command execution failed: {} - {}", 
-                             command.getClass().getSimpleName(), e.getMessage(), e);
+                    log.error(
+                        "Command execution failed: {} - {}",
+                        command.getClass().getSimpleName(),
+                        e.getMessage(),
+                        e);
                     throw new StreamProcessingException(
                         "Command execution failed: " + command.getClass().getSimpleName(), e);
                   }

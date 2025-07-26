@@ -15,33 +15,36 @@ import java.nio.charset.StandardCharsets;
 /**
  * Comprehensive demo application for StreamConverter.
  *
- * <p>This demo showcases various features of the StreamConverter including:
- * - CSV navigation and column selection
- * - JSON navigation with JSONPath-like expressions
- * - XML navigation with XPath expressions
- * - Command chaining and pipeline processing
+ * <p>This demo showcases various features of the StreamConverter including: - CSV navigation and
+ * column selection - JSON navigation with JSONPath-like expressions - XML navigation with XPath
+ * expressions - Command chaining and pipeline processing
  */
 public class StreamConverterDemo {
 
+  /**
+   * アプリケーションのエントリーポイント。StreamConverterのデモを実行します。
+   *
+   * @param args コマンドライン引数（使用されません）
+   */
   public static void main(String[] args) {
     System.out.println("=== StreamConverter Demo Application ===\n");
 
     try {
       // Demo 1: CSV Navigation
       demoCSVNavigation();
-      
+
       // Demo 2: JSON Navigation
       demoJSONNavigation();
-      
+
       // Demo 3: XML Navigation
       demoXMLNavigation();
-      
+
       // Demo 4: Command Pipeline
       demoCommandPipeline();
-      
+
       // Demo 5: Complex Processing Chain
       demoComplexProcessing();
-      
+
     } catch (Exception e) {
       System.err.println("Demo failed: " + e.getMessage());
       e.printStackTrace();
@@ -52,7 +55,8 @@ public class StreamConverterDemo {
     System.out.println("📊 CSV Navigation Demo");
     System.out.println("======================");
 
-    String csvData = """
+    String csvData =
+        """
         name,age,city,salary
         John Doe,30,New York,50000
         Jane Smith,25,Los Angeles,60000
@@ -79,7 +83,8 @@ public class StreamConverterDemo {
     System.out.println("🔍 JSON Navigation Demo");
     System.out.println("========================");
 
-    String jsonData = """
+    String jsonData =
+        """
         {"users":[{"name":"John","age":30,"city":"NYC"},{"name":"Jane","age":25,"city":"LA"}],"total":2}
         """;
 
@@ -102,7 +107,8 @@ public class StreamConverterDemo {
     System.out.println("🌲 XML Navigation Demo");
     System.out.println("======================");
 
-    String xmlData = """
+    String xmlData =
+        """
         <?xml version="1.0"?>
         <users>
           <user>
@@ -137,7 +143,8 @@ public class StreamConverterDemo {
     System.out.println("🔗 Command Pipeline Demo");
     System.out.println("=========================");
 
-    String jsonData = """
+    String jsonData =
+        """
         {"users":[{"name":"John","age":30},{"name":"Jane","age":25}],"total":2}
         """;
 
@@ -157,7 +164,8 @@ public class StreamConverterDemo {
     System.out.println("⚙️ Complex Processing Demo");
     System.out.println("===========================");
 
-    String csvData = """
+    String csvData =
+        """
         name,age,city
         John,30,NYC
         Jane,25,LA
@@ -178,12 +186,13 @@ public class StreamConverterDemo {
   }
 
   private static void runDemo(String inputData, IStreamCommand command) throws IOException {
-    runDemo(inputData, new IStreamCommand[]{command});
+    runDemo(inputData, new IStreamCommand[] {command});
   }
 
   private static void runDemo(String inputData, IStreamCommand[] commands) throws IOException {
-    try (InputStream inputStream = new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));
-         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+    try (InputStream inputStream =
+            new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
       StreamConverter converter = new StreamConverter(commands);
       converter.run(inputStream, outputStream);

@@ -14,15 +14,18 @@ import java.nio.charset.StandardCharsets;
 
 /**
  * Real-world data processing examples using StreamConverter.
- * 
- * <p>This class demonstrates practical use cases including:
- * - Data extraction from various formats
- * - Data transformation pipelines
- * - Format conversion workflows
- * - Performance optimization techniques
+ *
+ * <p>This class demonstrates practical use cases including: - Data extraction from various formats
+ * - Data transformation pipelines - Format conversion workflows - Performance optimization
+ * techniques
  */
 public class DataProcessingExamples {
 
+  /**
+   * アプリケーションのエントリーポイント。実用的なデータ処理例を実行します。
+   *
+   * @param args コマンドライン引数（使用されません）
+   */
   public static void main(String[] args) {
     System.out.println("🚀 StreamConverter - Real-world Examples");
     System.out.println("=========================================\n");
@@ -30,33 +33,32 @@ public class DataProcessingExamples {
     try {
       // Example 1: Employee data processing
       employeeDataProcessing();
-      
+
       // Example 2: API response processing
       apiResponseProcessing();
-      
+
       // Example 3: Configuration file processing
       configurationProcessing();
-      
+
       // Example 4: Log analysis
       logAnalysis();
-      
+
       // Example 5: Data format conversion
       dataFormatConversion();
-      
+
     } catch (Exception e) {
       System.err.println("Example failed: " + e.getMessage());
       e.printStackTrace();
     }
   }
 
-  /**
-   * Example 1: Processing employee data from CSV format
-   */
+  /** Example 1: Processing employee data from CSV format */
   private static void employeeDataProcessing() throws IOException {
     System.out.println("👥 Employee Data Processing");
     System.out.println("============================");
 
-    String employeeData = """
+    String employeeData =
+        """
         employee_id,name,department,salary,location
         E001,John Smith,Engineering,75000,New York
         E002,Jane Doe,Marketing,65000,Los Angeles
@@ -80,14 +82,13 @@ public class DataProcessingExamples {
     System.out.println("\n" + "=".repeat(60) + "\n");
   }
 
-  /**
-   * Example 2: Processing API response data
-   */
+  /** Example 2: Processing API response data */
   private static void apiResponseProcessing() throws IOException {
     System.out.println("🌐 API Response Processing");
     System.out.println("===========================");
 
-    String apiResponse = """
+    String apiResponse =
+        """
         {
           "status": "success",
           "data": {
@@ -119,14 +120,13 @@ public class DataProcessingExamples {
     System.out.println("\n" + "=".repeat(60) + "\n");
   }
 
-  /**
-   * Example 3: Configuration file processing
-   */
+  /** Example 3: Configuration file processing */
   private static void configurationProcessing() throws IOException {
     System.out.println("⚙️ Configuration Processing");
     System.out.println("============================");
 
-    String configXml = """
+    String configXml =
+        """
         <?xml version="1.0"?>
         <configuration>
           <database>
@@ -160,14 +160,13 @@ public class DataProcessingExamples {
     System.out.println("\n" + "=".repeat(60) + "\n");
   }
 
-  /**
-   * Example 4: Log analysis workflow
-   */
+  /** Example 4: Log analysis workflow */
   private static void logAnalysis() throws IOException {
     System.out.println("📈 Log Analysis Workflow");
     System.out.println("=========================");
 
-    String logData = """
+    String logData =
+        """
         timestamp,level,service,message
         2023-07-15T10:30:00Z,INFO,auth-service,User login successful
         2023-07-15T10:31:00Z,ERROR,payment-service,Payment processing failed
@@ -177,8 +176,8 @@ public class DataProcessingExamples {
 
     // Create analysis pipeline
     IStreamCommand[] analysisPipeline = {
-        new CsvNavigateCommand("level"), // Extract log levels
-        new SampleStreamCommand("level-analyzer") // Analyze log levels
+      new CsvNavigateCommand("level"), // Extract log levels
+      new SampleStreamCommand("level-analyzer") // Analyze log levels
     };
 
     System.out.println("🔍 Log level analysis:");
@@ -191,14 +190,13 @@ public class DataProcessingExamples {
     System.out.println("\n" + "=".repeat(60) + "\n");
   }
 
-  /**
-   * Example 5: Data format conversion
-   */
+  /** Example 5: Data format conversion */
   private static void dataFormatConversion() throws IOException {
     System.out.println("🔄 Data Format Conversion");
     System.out.println("==========================");
 
-    String productData = """
+    String productData =
+        """
         product_id,name,price,category
         P001,Laptop,999.99,Electronics
         P002,Chair,149.99,Furniture
@@ -207,9 +205,9 @@ public class DataProcessingExamples {
 
     // Multi-stage conversion pipeline
     IStreamCommand[] conversionPipeline = {
-        new CsvNavigateCommand("name"), // Extract product names
-        new SampleStreamCommand("name-processor"), // Process names
-        new SampleStreamCommand("format-converter") // Convert format
+      new CsvNavigateCommand("name"), // Extract product names
+      new SampleStreamCommand("name-processor"), // Process names
+      new SampleStreamCommand("format-converter") // Convert format
     };
 
     System.out.println("🛍️ Product name conversion pipeline:");
@@ -222,19 +220,16 @@ public class DataProcessingExamples {
     System.out.println("\n" + "=".repeat(60) + "\n");
   }
 
-  /**
-   * Helper method to process data with given commands
-   */
+  /** Helper method to process data with given commands */
   private static void processData(String inputData, IStreamCommand command) throws IOException {
-    processData(inputData, new IStreamCommand[]{command});
+    processData(inputData, new IStreamCommand[] {command});
   }
 
-  /**
-   * Helper method to process data with command pipeline
-   */
+  /** Helper method to process data with command pipeline */
   private static void processData(String inputData, IStreamCommand[] commands) throws IOException {
-    try (InputStream inputStream = new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));
-         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+    try (InputStream inputStream =
+            new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
       StreamConverter converter = new StreamConverter(commands);
       converter.run(inputStream, outputStream);

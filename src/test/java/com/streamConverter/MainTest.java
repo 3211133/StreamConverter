@@ -42,12 +42,16 @@ class MainTest {
 
     // ログイベントをキャプチャ
     List<String> logMessages =
-        listAppender.list.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.toList());
+        listAppender.list.stream()
+            .map(ILoggingEvent::getFormattedMessage)
+            .collect(Collectors.toList());
 
     // 期待されるログメッセージが含まれていることを確認
-    assertTrue(logMessages.stream().anyMatch(s -> s.contains("Starting StreamConverter application")));
+    assertTrue(
+        logMessages.stream().anyMatch(s -> s.contains("Starting StreamConverter application")));
     assertTrue(logMessages.stream().anyMatch(s -> s.contains("Processing result: any message")));
-    assertTrue(logMessages.stream().anyMatch(s -> s.contains("StreamConverter application completed")));
+    assertTrue(
+        logMessages.stream().anyMatch(s -> s.contains("StreamConverter application completed")));
   }
 
   @Test
@@ -59,11 +63,15 @@ class MainTest {
 
     // ログイベントをキャプチャ
     List<String> logMessages =
-        listAppender.list.stream().map(ILoggingEvent::getFormattedMessage).collect(Collectors.toList());
+        listAppender.list.stream()
+            .map(ILoggingEvent::getFormattedMessage)
+            .collect(Collectors.toList());
 
     // 期待されるログメッセージが含まれていることを確認
-    assertTrue(logMessages.stream().anyMatch(s -> s.contains("Starting StreamConverter application")));
+    assertTrue(
+        logMessages.stream().anyMatch(s -> s.contains("Starting StreamConverter application")));
     assertTrue(logMessages.stream().anyMatch(s -> s.contains("Processing result: any message")));
-    assertTrue(logMessages.stream().anyMatch(s -> s.contains("StreamConverter application completed")));
+    assertTrue(
+        logMessages.stream().anyMatch(s -> s.contains("StreamConverter application completed")));
   }
 }

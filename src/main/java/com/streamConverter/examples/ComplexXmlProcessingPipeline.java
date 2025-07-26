@@ -13,6 +13,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Complex XML processing pipeline demonstrating: HTTPS → XML parsing → DB lookup → API call → XML
@@ -25,6 +27,7 @@ import java.util.concurrent.Executors;
  */
 public class ComplexXmlProcessingPipeline {
 
+  private static final Logger logger = LoggerFactory.getLogger(ComplexXmlProcessingPipeline.class);
   private static final ExecutorService executor = Executors.newFixedThreadPool(10);
 
   /**
@@ -33,8 +36,8 @@ public class ComplexXmlProcessingPipeline {
    * @param args コマンドライン引数（使用されません）
    */
   public static void main(String[] args) {
-    System.out.println("🌐 Complex XML Processing Pipeline");
-    System.out.println("==================================\n");
+    logger.info("🌐 Complex XML Processing Pipeline");
+    logger.info("==================================");
 
     try {
       // Example 1: Basic pipeline demonstration
@@ -50,8 +53,7 @@ public class ComplexXmlProcessingPipeline {
       demonstratePerformanceOptimization();
 
     } catch (Exception e) {
-      System.err.println("Pipeline demonstration failed: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Pipeline demonstration failed: {}", e.getMessage(), e);
     } finally {
       executor.shutdown();
     }

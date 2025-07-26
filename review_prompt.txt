@@ -1,0 +1,22 @@
+StreamConverterプロジェクトのログ基盤実装のコードレビューをお願いします。
+
+## 対象コミット
+- Commit ID: 89ef314
+- 変更ファイル: 30 files
+- 追加行数: 3,745 lines
+
+## 主な実装内容
+1. SLF4J + Logbackによる統一ログフレームワーク
+2. AbstractStreamCommandの自動ログ出力機能
+3. LoggingDecoratorパターンによる詳細ログ出力
+4. CommandFactoryによるログ機能付きコマンド生成
+5. MeasuredStreamによる透過的データサイズ測定
+
+## 重点レビューポイント
+- AbstractStreamCommand.execute()のfinal化の影響
+- LoggingDecoratorとAbstractStreamCommandの重複ログ問題
+- パフォーマンスへの影響（特に自動測定機能）
+- CommandFactoryのリフレクション使用の妥当性
+- エラーハンドリングの網羅性
+
+設計の妥当性、パフォーマンスへの影響、潜在的な問題点について詳細にレビューしてください。

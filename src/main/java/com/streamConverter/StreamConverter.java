@@ -14,6 +14,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -99,10 +100,11 @@ public class StreamConverter {
    *
    * @param inputStream 処理対象の入力ストリーム
    * @param outputStream 処理結果を書き込む出力ストリーム
-   * @return TODO 各コマンドの実行結果(未実装)
+   * @return 各コマンドの実行結果リスト
    * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
    */
-  public List<Object> run(InputStream inputStream, OutputStream outputStream) throws IOException {
+  public List<CommandResult> run(InputStream inputStream, OutputStream outputStream)
+      throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
@@ -112,10 +114,37 @@ public class StreamConverter {
       // 単一コマンドの場合は直接実行（メモリ効率最優先）
       IStreamCommand command = this.commands.get(0);
       log.info("Executing single command: {}", command.getClass().getSimpleName());
-      command.execute(inputStream, outputStream);
-      List<Object> result = new ArrayList<>();
-      result.add(null);
-      return result;
+      long startTime = System.currentTimeMillis();
+      java.time.Instant startInstant = java.time.Instant.now();
+      try {
+        command.execute(inputStream, outputStream);
+        long endTime = System.currentTimeMillis();
+        java.time.Instant endInstant = java.time.Instant.now();
+
+        List<CommandResult> results = new ArrayList<>();
+        results.add(
+            CommandResult.success(
+                command.getClass().getSimpleName(),
+                endTime - startTime,
+                0L, // 入力バイト数は現在の実装では取得困難
+                0L, // 出力バイト数は現在の実装では取得困難
+                startInstant,
+                endInstant));
+        return results;
+      } catch (Exception e) {
+        long endTime = System.currentTimeMillis();
+        java.time.Instant endInstant = java.time.Instant.now();
+
+        List<CommandResult> results = new ArrayList<>();
+        results.add(
+            CommandResult.failure(
+                command.getClass().getSimpleName(),
+                endTime - startTime,
+                e.getMessage(),
+                startInstant,
+                endInstant));
+        throw e; // 例外は再スロー
+      }
     }
 
     // 複数コマンドの場合はPipedStreamで並行処理
@@ -162,34 +191,56 @@ public class StreamConverter {
                       commandOutput.close();
                     }
                   } catch (IOException e) {
-                    log.error("Command execution failed: {}", command.getClass().getSimpleName(), e);
-                    throw new RuntimeException(e);
+                    log.error(
+                        "Command execution failed: {} - {}",
+                        command.getClass().getSimpleName(),
+                        e.getMessage(),
+                        e);
+                    throw new StreamProcessingException(
+                        "Command execution failed: " + command.getClass().getSimpleName(), e);
                   }
                 });
         futures.add(future);
       }
 
-      // 全コマンドの完了を待機
-      for (Future<?> future : futures) {
+      // すべてのタスクの完了を待機
+      List<CommandResult> result = new ArrayList<>();
+      for (int i = 0; i < futures.size(); i++) {
+        Future<?> future = futures.get(i);
         try {
-          future.get();
+          // タイムアウト付きで待機（デッドロック防止）
+          future.get(60, TimeUnit.SECONDS);
+          // 現在の実装では詳細な実行結果を取得できないため、ダミーの成功結果を作成
+          result.add(
+              CommandResult.success(
+                  commands.get(i).getClass().getSimpleName(),
+                  0L, // 実行時間は現在取得できない
+                  0L, // 入力バイト数
+                  0L, // 出力バイト数
+                  java.time.Instant.now(), // ダミーの開始時間
+                  java.time.Instant.now() // ダミーの終了時間
+                  ));
+        } catch (ExecutionException e) {
+          Throwable cause = e.getCause();
+          if (cause instanceof StreamProcessingException spe) {
+            throw spe;
+          } else if (cause instanceof RuntimeException re) {
+            Throwable rootCause = re.getCause();
+            if (rootCause instanceof IOException ioe) {
+              throw ioe;
+            }
+            throw re;
+          }
+          throw new StreamProcessingException("Unexpected error during command execution", cause);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           throw new IOException("Command execution was interrupted", e);
-        } catch (ExecutionException e) {
-          Throwable cause = e.getCause();
-          if (cause instanceof RuntimeException && cause.getCause() instanceof IOException) {
-            throw (IOException) cause.getCause();
-          }
-          throw new IOException("Command execution failed", cause);
+        } catch (TimeoutException e) {
+          throw new IOException("Command execution timed out after 60 seconds", e);
         }
       }
 
       log.info("All commands completed successfully");
-      List<Object> result = new ArrayList<>();
-      for (int i = 0; i < this.commands.size(); i++) {
-        result.add(null); // TODO: 実際の結果を収集する機能を実装
-      }
       return result;
 
     } finally {

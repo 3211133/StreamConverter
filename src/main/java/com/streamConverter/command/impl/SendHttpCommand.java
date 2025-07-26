@@ -18,10 +18,18 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.time.Duration;
 import java.util.Objects;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /** 指定された通信先にOutputStreamを送信するコマンドクラス。 */
 public class SendHttpCommand extends AbstractStreamCommand {
+
+  private static final Logger logger = LoggerFactory.getLogger(SendHttpCommand.class);
 
   private String url;
 
@@ -117,11 +125,63 @@ public class SendHttpCommand extends AbstractStreamCommand {
    */
   @Override
   protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-    // TODO: HTTP POSTリクエストの実装が必要
-    // 現在は未実装のため、UnsupportedOperationExceptionを投げる
-    throw new UnsupportedOperationException(
-        "HTTP communication is not yet implemented. "
-            + "This command requires implementation of HTTP POST request functionality to URL: "
-            + url);
+    Objects.requireNonNull(inputStream, "inputStream must not be null");
+    Objects.requireNonNull(outputStream, "outputStream must not be null");
+
+    logger.info("Sending HTTP POST request to: {}", url);
+
+    try {
+      // HttpClientを作成（タイムアウト設定付き）
+      HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+
+      // 入力ストリームからデータを読み取ってバイト配列に変換
+      byte[] requestBody = inputStream.readAllBytes();
+      logger.debug("Read {} bytes from input stream", requestBody.length);
+
+      // HTTPリクエストを構築
+      HttpRequest request =
+          HttpRequest.newBuilder()
+              .uri(URI.create(url))
+              .header("Content-Type", "application/octet-stream")
+              .header("User-Agent", "StreamConverter/1.0")
+              .timeout(Duration.ofSeconds(30))
+              .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody))
+              .build();
+
+      // HTTPリクエストを送信
+      HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
+
+      logger.info(
+          "HTTP response received: status={}, length={} bytes",
+          response.statusCode(),
+          response.body().length);
+
+      // レスポンスのステータスコードをチェック
+      if (response.statusCode() >= 200 && response.statusCode() < 300) {
+        // 成功レスポンスの場合、レスポンスボディを出力ストリームに書き込み
+        outputStream.write(response.body());
+        outputStream.flush();
+        logger.debug("Successfully wrote {} bytes to output stream", response.body().length);
+      } else {
+        // エラーレスポンスの場合、エラー情報を含む例外をスロー
+        String errorBody = new String(response.body(), java.nio.charset.StandardCharsets.UTF_8);
+        String errorMessage =
+            String.format(
+                "HTTP request failed: status=%d, url=%s, response=%s",
+                response.statusCode(), url, errorBody);
+        logger.error(errorMessage);
+        throw new IOException(errorMessage);
+      }
+
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      String errorMessage = "HTTP request was interrupted: " + url;
+      logger.error(errorMessage, e);
+      throw new IOException(errorMessage, e);
+    } catch (Exception e) {
+      String errorMessage = "HTTP request failed: " + url;
+      logger.error(errorMessage, e);
+      throw new IOException(errorMessage, e);
+    }
   }
 }

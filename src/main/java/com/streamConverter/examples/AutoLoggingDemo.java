@@ -181,7 +181,7 @@ public class AutoLoggingDemo {
     long duration = System.currentTimeMillis() - startTime;
 
     log.info("Large data processing completed in {} ms", duration);
-    log.info("Result lines: {}", result.split("\\n").length);
+    log.info("Result lines: {}", result.split("\n").length);
     log.info("");
   }
 

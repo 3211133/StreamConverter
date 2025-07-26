@@ -10,6 +10,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Performance optimization examples for StreamConverter.
@@ -19,14 +21,17 @@ import java.nio.charset.StandardCharsets;
  */
 public class PerformanceOptimizationExamples {
 
+  private static final Logger logger =
+      LoggerFactory.getLogger(PerformanceOptimizationExamples.class);
+
   /**
    * アプリケーションのエントリーポイント。パフォーマンス最適化の例を実行します。
    *
    * @param args コマンドライン引数（使用されません）
    */
   public static void main(String[] args) {
-    System.out.println("⚡ StreamConverter - Performance Optimization Examples");
-    System.out.println("=====================================================\n");
+    logger.info("⚡ StreamConverter - Performance Optimization Examples");
+    logger.info("=====================================================\n");
 
     try {
       // Example 1: Large dataset processing
@@ -42,15 +47,14 @@ public class PerformanceOptimizationExamples {
       performanceMonitoring();
 
     } catch (Exception e) {
-      System.err.println("Performance example failed: " + e.getMessage());
-      e.printStackTrace();
+      logger.error("Performance example failed: {}", e.getMessage(), e);
     }
   }
 
   /** Example 1: Processing large datasets efficiently */
   private static void largeDatasetProcessing() throws IOException {
-    System.out.println("📊 Large Dataset Processing");
-    System.out.println("============================");
+    logger.info("📊 Large Dataset Processing");
+    logger.info("============================");
 
     // Generate large CSV dataset
     StringBuilder largeDataset = new StringBuilder();
@@ -66,36 +70,36 @@ public class PerformanceOptimizationExamples {
     long startTime = System.currentTimeMillis();
 
     // Process large dataset with memory-efficient navigation
-    System.out.println("🔄 Processing 10,000 records...");
+    logger.info("🔄 Processing 10,000 records...");
     processDataWithTiming(largeDataset.toString(), new CsvNavigateCommand("name"));
 
     long endTime = System.currentTimeMillis();
-    System.out.println(String.format("⏱️ Processing completed in %d ms", endTime - startTime));
+    logger.info(String.format("⏱️ Processing completed in %d ms", endTime - startTime));
 
     // Show memory usage
     Runtime runtime = Runtime.getRuntime();
     long memoryUsed = runtime.totalMemory() - runtime.freeMemory();
-    System.out.println(String.format("💾 Memory used: %.2f MB", memoryUsed / (1024.0 * 1024.0)));
+    logger.info(String.format("💾 Memory used: %.2f MB", memoryUsed / (1024.0 * 1024.0)));
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Example 2: Concurrent pipeline optimization */
   private static void concurrentPipelineOptimization() throws IOException {
-    System.out.println("🔗 Concurrent Pipeline Optimization");
-    System.out.println("====================================");
+    logger.info("🔗 Concurrent Pipeline Optimization");
+    logger.info("====================================");
 
     String jsonData = generateLargeJsonData();
 
     // Single command processing
     long startTime = System.currentTimeMillis();
-    System.out.println("🔄 Single command processing...");
+    logger.info("🔄 Single command processing...");
     processDataWithTiming(jsonData, new JsonNavigateCommand());
     long singleTime = System.currentTimeMillis() - startTime;
 
     // Pipeline processing (demonstrates concurrent execution)
     startTime = System.currentTimeMillis();
-    System.out.println("\n🔄 Pipeline processing (concurrent)...");
+    logger.info("\n🔄 Pipeline processing (concurrent)...");
     IStreamCommand[] pipeline = {
       new JsonNavigateCommand(),
       new SampleStreamCommand("stage1"),
@@ -104,19 +108,19 @@ public class PerformanceOptimizationExamples {
     processDataWithTiming(jsonData, pipeline);
     long pipelineTime = System.currentTimeMillis() - startTime;
 
-    System.out.println(String.format("📈 Performance comparison:"));
-    System.out.println(String.format("  Single command: %d ms", singleTime));
-    System.out.println(String.format("  Pipeline: %d ms", pipelineTime));
-    System.out.println(
+    logger.info(String.format("📈 Performance comparison:"));
+    logger.info(String.format("  Single command: %d ms", singleTime));
+    logger.info(String.format("  Pipeline: %d ms", pipelineTime));
+    logger.info(
         String.format("  CPU cores utilized: %d", Runtime.getRuntime().availableProcessors()));
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Example 3: Memory-efficient processing demonstration */
   private static void memoryEfficientProcessing() throws IOException {
-    System.out.println("💾 Memory-Efficient Processing");
-    System.out.println("===============================");
+    logger.info("💾 Memory-Efficient Processing");
+    logger.info("===============================");
 
     // Generate data that would be problematic for memory
     StringBuilder hugeDataset = new StringBuilder();
@@ -128,28 +132,27 @@ public class PerformanceOptimizationExamples {
 
     long beforeMemory = getUsedMemory();
 
-    System.out.println("🔄 Processing 50,000 records with 100-char data each...");
+    logger.info("🔄 Processing 50,000 records with 100-char data each...");
     processDataWithTiming(hugeDataset.toString(), new CsvNavigateCommand("id"));
 
     long afterMemory = getUsedMemory();
     long memoryIncrease = afterMemory - beforeMemory;
 
-    System.out.println(
-        String.format("💾 Memory increase: %.2f MB", memoryIncrease / (1024.0 * 1024.0)));
-    System.out.println("✅ Demonstrates streaming processing with constant memory usage");
+    logger.info(String.format("💾 Memory increase: %.2f MB", memoryIncrease / (1024.0 * 1024.0)));
+    logger.info("✅ Demonstrates streaming processing with constant memory usage");
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Example 4: Performance monitoring and optimization */
   private static void performanceMonitoring() throws IOException {
-    System.out.println("📊 Performance Monitoring");
-    System.out.println("==========================");
+    logger.info("📊 Performance Monitoring");
+    logger.info("==========================");
 
     String testData = generateTestData();
 
     // Test different processing strategies
-    System.out.println("🧪 Testing different processing strategies:\n");
+    logger.info("🧪 Testing different processing strategies:\n");
 
     // Strategy 1: Direct processing
     long start = System.nanoTime();
@@ -176,16 +179,15 @@ public class PerformanceOptimizationExamples {
     long multiStageTime = System.nanoTime() - start;
 
     // Performance analysis
-    System.out.println("\n📈 Performance Analysis:");
-    System.out.println(String.format("  Direct processing: %.2f ms", directTime / 1_000_000.0));
-    System.out.println(String.format("  Pipeline processing: %.2f ms", pipelineTime / 1_000_000.0));
-    System.out.println(
-        String.format("  Multi-stage processing: %.2f ms", multiStageTime / 1_000_000.0));
+    logger.info("\n📈 Performance Analysis:");
+    logger.info(String.format("  Direct processing: %.2f ms", directTime / 1_000_000.0));
+    logger.info(String.format("  Pipeline processing: %.2f ms", pipelineTime / 1_000_000.0));
+    logger.info(String.format("  Multi-stage processing: %.2f ms", multiStageTime / 1_000_000.0));
 
     double throughput = (testData.length() * 1000.0) / (directTime / 1_000_000.0);
-    System.out.println(String.format("  Throughput: %.2f MB/s", throughput / (1024.0 * 1024.0)));
+    logger.info(String.format("  Throughput: %.2f MB/s", throughput / (1024.0 * 1024.0)));
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Helper method to process data with timing */
@@ -209,14 +211,14 @@ public class PerformanceOptimizationExamples {
       String[] lines = result.split("\n");
 
       if (lines.length > 10) {
-        System.out.println("Sample output (first 5 lines):");
+        logger.info("Sample output (first 5 lines):");
         for (int i = 0; i < Math.min(5, lines.length); i++) {
-          System.out.println(lines[i]);
+          logger.info(lines[i]);
         }
-        System.out.println("... (" + (lines.length - 5) + " more lines)");
+        logger.info("... (" + (lines.length - 5) + " more lines)");
       } else {
-        System.out.println("Output:");
-        System.out.println(result.trim());
+        logger.info("Output:");
+        logger.info(result.trim());
       }
     }
   }

@@ -13,6 +13,8 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Enterprise Integration Patterns using StreamConverter.
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class EnterpriseIntegrationPatterns {
 
+  private static final Logger logger = LoggerFactory.getLogger(EnterpriseIntegrationPatterns.class);
   private static final ExecutorService executorService = Executors.newFixedThreadPool(20);
 
   /**
@@ -31,8 +34,8 @@ public class EnterpriseIntegrationPatterns {
    * @param args コマンドライン引数（使用されません）
    */
   public static void main(String[] args) {
-    System.out.println("🏢 Enterprise Integration Patterns");
-    System.out.println("===================================\n");
+    logger.info("🏢 Enterprise Integration Patterns");
+    logger.info("===================================\n");
 
     try {
       // Pattern 1: Message Translation
@@ -54,7 +57,7 @@ public class EnterpriseIntegrationPatterns {
       demonstrateDeadLetterQueue();
 
     } catch (Exception e) {
-      System.err.println("Enterprise pattern demonstration failed: " + e.getMessage());
+      logger.error("Enterprise pattern demonstration failed: " + e.getMessage());
       e.printStackTrace();
     } finally {
       shutdownExecutor();
@@ -63,8 +66,8 @@ public class EnterpriseIntegrationPatterns {
 
   /** Pattern 1: Message Translation Transforms message format from one system to another */
   private static void demonstrateMessageTranslation() throws IOException {
-    System.out.println("🔄 Message Translation Pattern");
-    System.out.println("===============================");
+    logger.info("🔄 Message Translation Pattern");
+    logger.info("===============================");
 
     // Input: Legacy system XML format
     String legacyXml =
@@ -87,8 +90,8 @@ public class EnterpriseIntegrationPatterns {
         </LegacyOrder>
         """;
 
-    System.out.println("📨 Legacy XML Input:");
-    System.out.println(legacyXml);
+    logger.info("📨 Legacy XML Input:");
+    logger.info(legacyXml);
 
     // Translation pipeline: Extract key fields and transform
     IStreamCommand[] translationPipeline = {
@@ -97,16 +100,16 @@ public class EnterpriseIntegrationPatterns {
       new SampleStreamCommand("format-modernizer")
     };
 
-    System.out.println("\n🔄 Translating to modern format...");
+    logger.info("\n🔄 Translating to modern format...");
     executePattern(legacyXml, translationPipeline, "Message Translation");
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Pattern 2: Content-Based Router Routes messages based on content */
   private static void demonstrateContentBasedRouter() throws IOException {
-    System.out.println("🛤️ Content-Based Router Pattern");
-    System.out.println("=================================");
+    logger.info("🛤️ Content-Based Router Pattern");
+    logger.info("=================================");
 
     // Different message types
     String[] messages = {
@@ -136,10 +139,10 @@ public class EnterpriseIntegrationPatterns {
         """
     };
 
-    System.out.println("📬 Processing different message types...");
+    logger.info("📬 Processing different message types...");
 
     for (int i = 0; i < messages.length; i++) {
-      System.out.println("\n📨 Message " + (i + 1) + ":");
+      logger.info("\n📨 Message " + (i + 1) + ":");
 
       // Route based on message type
       IStreamCommand[] routingPipeline = {
@@ -149,13 +152,13 @@ public class EnterpriseIntegrationPatterns {
       executePattern(messages[i], routingPipeline, "Content-Based Routing");
     }
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Pattern 3: Scatter-Gather Distributes request to multiple services and aggregates responses */
   private static void demonstrateScatterGather() throws IOException {
-    System.out.println("📡 Scatter-Gather Pattern");
-    System.out.println("==========================");
+    logger.info("📡 Scatter-Gather Pattern");
+    logger.info("==========================");
 
     String requestXml =
         """
@@ -167,10 +170,10 @@ public class EnterpriseIntegrationPatterns {
         </PriceRequest>
         """;
 
-    System.out.println("📨 Price Request:");
-    System.out.println(requestXml);
+    logger.info("📨 Price Request:");
+    logger.info(requestXml);
 
-    System.out.println("\n🚀 Scattering request to multiple suppliers...");
+    logger.info("\n🚀 Scattering request to multiple suppliers...");
 
     // Simulate multiple supplier endpoints
     String[] suppliers = {"supplier-a", "supplier-b", "supplier-c"};
@@ -200,22 +203,22 @@ public class EnterpriseIntegrationPatterns {
     }
 
     // Gather results
-    System.out.println("\n📥 Gathering responses...");
+    logger.info("\n📥 Gathering responses...");
     for (int i = 0; i < futures.length; i++) {
       String result = futures[i].join();
-      System.out.println("✅ " + suppliers[i] + " response: " + result.trim());
+      logger.info("✅ " + suppliers[i] + " response: " + result.trim());
     }
 
-    System.out.println("\n🎯 Aggregating best price...");
-    System.out.println("✅ Best price selected and response prepared");
+    logger.info("\n🎯 Aggregating best price...");
+    logger.info("✅ Best price selected and response prepared");
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Pattern 4: Request-Reply with timeout Handles request-reply with timeout management */
   private static void demonstrateRequestReply() throws IOException {
-    System.out.println("🔄 Request-Reply Pattern");
-    System.out.println("=========================");
+    logger.info("🔄 Request-Reply Pattern");
+    logger.info("=========================");
 
     String requestXml =
         """
@@ -227,10 +230,10 @@ public class EnterpriseIntegrationPatterns {
         </ServiceRequest>
         """;
 
-    System.out.println("📨 Service Request:");
-    System.out.println(requestXml);
+    logger.info("📨 Service Request:");
+    logger.info(requestXml);
 
-    System.out.println("\n⏱️ Processing with timeout...");
+    logger.info("\n⏱️ Processing with timeout...");
 
     // Simulate request processing with timeout
     CompletableFuture<String> requestFuture =
@@ -256,21 +259,21 @@ public class EnterpriseIntegrationPatterns {
     try {
       // Wait for result with timeout
       String result = requestFuture.get(5, TimeUnit.SECONDS);
-      System.out.println("✅ Request processed successfully:");
-      System.out.println(result);
+      logger.info("✅ Request processed successfully:");
+      logger.info(result);
     } catch (Exception e) {
-      System.out.println("⏰ Request timeout or error: " + e.getMessage());
+      logger.info("⏰ Request timeout or error: " + e.getMessage());
       // Implement timeout handling
-      System.out.println("🔄 Implementing timeout recovery...");
+      logger.info("🔄 Implementing timeout recovery...");
     }
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Pattern 5: Message Filter Filters messages based on criteria */
   private static void demonstrateMessageFilter() throws IOException {
-    System.out.println("🔍 Message Filter Pattern");
-    System.out.println("==========================");
+    logger.info("🔍 Message Filter Pattern");
+    logger.info("==========================");
 
     String[] messages = {
       """
@@ -299,14 +302,14 @@ public class EnterpriseIntegrationPatterns {
         """
     };
 
-    System.out.println("📋 Filtering ERROR level messages...");
+    logger.info("📋 Filtering ERROR level messages...");
 
     for (int i = 0; i < messages.length; i++) {
       // Check if message should be filtered
       String level = extractLevel(messages[i]);
 
       if ("ERROR".equals(level)) {
-        System.out.println("\n🚨 Processing ERROR message " + (i + 1) + ":");
+        logger.info("\n🚨 Processing ERROR message " + (i + 1) + ":");
 
         IStreamCommand[] filterPipeline = {
           new XmlNavigateCommand("LogEntry/Message"),
@@ -316,17 +319,17 @@ public class EnterpriseIntegrationPatterns {
 
         executePattern(messages[i], filterPipeline, "Error Processing");
       } else {
-        System.out.println("\n✅ Filtered out " + level + " message " + (i + 1));
+        logger.info("\n✅ Filtered out " + level + " message " + (i + 1));
       }
     }
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Pattern 6: Dead Letter Queue Handles failed messages */
   private static void demonstrateDeadLetterQueue() throws IOException {
-    System.out.println("💀 Dead Letter Queue Pattern");
-    System.out.println("=============================");
+    logger.info("💀 Dead Letter Queue Pattern");
+    logger.info("=============================");
 
     String[] problematicMessages = {
       """
@@ -348,10 +351,10 @@ public class EnterpriseIntegrationPatterns {
         """
     };
 
-    System.out.println("⚠️ Processing problematic messages...");
+    logger.info("⚠️ Processing problematic messages...");
 
     for (int i = 0; i < problematicMessages.length; i++) {
-      System.out.println("\n📨 Message " + (i + 1) + ":");
+      logger.info("\n📨 Message " + (i + 1) + ":");
 
       try {
         IStreamCommand[] processingPipeline = {
@@ -359,18 +362,18 @@ public class EnterpriseIntegrationPatterns {
         };
 
         executePattern(problematicMessages[i], processingPipeline, "Normal Processing");
-        System.out.println("✅ Message processed successfully");
+        logger.info("✅ Message processed successfully");
 
       } catch (Exception e) {
-        System.out.println("❌ Processing failed: " + e.getMessage());
-        System.out.println("📤 Sending to Dead Letter Queue...");
+        logger.info("❌ Processing failed: " + e.getMessage());
+        logger.info("📤 Sending to Dead Letter Queue...");
 
         // Send to Dead Letter Queue
         sendToDeadLetterQueue(problematicMessages[i], e.getMessage());
       }
     }
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Helper method to execute a pattern */
@@ -384,8 +387,8 @@ public class EnterpriseIntegrationPatterns {
       converter.run(inputStream, outputStream);
 
       String result = outputStream.toString(StandardCharsets.UTF_8);
-      System.out.println("✅ " + patternName + " result:");
-      System.out.println(result.trim());
+      logger.info("✅ " + patternName + " result:");
+      logger.info(result.trim());
     }
   }
 
@@ -430,12 +433,11 @@ public class EnterpriseIntegrationPatterns {
 
   /** Helper method to send message to Dead Letter Queue */
   private static void sendToDeadLetterQueue(String message, String error) {
-    System.out.println("💀 Dead Letter Queue Entry:");
-    System.out.println(
-        "   Message: " + message.substring(0, Math.min(100, message.length())) + "...");
-    System.out.println("   Error: " + error);
-    System.out.println("   Timestamp: " + java.time.Instant.now());
-    System.out.println("   Status: QUEUED_FOR_MANUAL_REVIEW");
+    logger.info("💀 Dead Letter Queue Entry:");
+    logger.info("   Message: " + message.substring(0, Math.min(100, message.length())) + "...");
+    logger.info("   Error: " + error);
+    logger.info("   Timestamp: " + java.time.Instant.now());
+    logger.info("   Status: QUEUED_FOR_MANUAL_REVIEW");
   }
 
   /** Helper method to shutdown executor */

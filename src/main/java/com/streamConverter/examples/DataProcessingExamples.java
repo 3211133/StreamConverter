@@ -11,6 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Real-world data processing examples using StreamConverter.
@@ -21,14 +23,16 @@ import java.nio.charset.StandardCharsets;
  */
 public class DataProcessingExamples {
 
+  private static final Logger logger = LoggerFactory.getLogger(DataProcessingExamples.class);
+
   /**
    * アプリケーションのエントリーポイント。実用的なデータ処理例を実行します。
    *
    * @param args コマンドライン引数（使用されません）
    */
   public static void main(String[] args) {
-    System.out.println("🚀 StreamConverter - Real-world Examples");
-    System.out.println("=========================================\n");
+    logger.info("🚀 StreamConverter - Real-world Examples");
+    logger.info("=========================================\n");
 
     try {
       // Example 1: Employee data processing
@@ -47,15 +51,15 @@ public class DataProcessingExamples {
       dataFormatConversion();
 
     } catch (Exception e) {
-      System.err.println("Example failed: " + e.getMessage());
+      logger.error("Example failed: " + e.getMessage());
       e.printStackTrace();
     }
   }
 
   /** Example 1: Processing employee data from CSV format */
   private static void employeeDataProcessing() throws IOException {
-    System.out.println("👥 Employee Data Processing");
-    System.out.println("============================");
+    logger.info("👥 Employee Data Processing");
+    logger.info("============================");
 
     String employeeData =
         """
@@ -68,24 +72,24 @@ public class DataProcessingExamples {
         """;
 
     // Extract employee names for a directory
-    System.out.println("📋 Extract employee names:");
+    logger.info("📋 Extract employee names:");
     processData(employeeData, new CsvNavigateCommand("name"));
 
     // Extract salary information for budget analysis
-    System.out.println("\n💰 Extract salary information:");
+    logger.info("\n💰 Extract salary information:");
     processData(employeeData, new CsvNavigateCommand("salary"));
 
     // Extract department information for organization chart
-    System.out.println("\n🏢 Extract department information:");
+    logger.info("\n🏢 Extract department information:");
     processData(employeeData, new CsvNavigateCommand("department"));
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Example 2: Processing API response data */
   private static void apiResponseProcessing() throws IOException {
-    System.out.println("🌐 API Response Processing");
-    System.out.println("===========================");
+    logger.info("🌐 API Response Processing");
+    logger.info("===========================");
 
     String apiResponse =
         """
@@ -106,24 +110,24 @@ public class DataProcessingExamples {
         """;
 
     // Extract status for monitoring
-    System.out.println("📊 Extract API status:");
+    logger.info("📊 Extract API status:");
     processData(apiResponse, new JsonNavigateCommand("status"));
 
     // Extract user data for processing
-    System.out.println("\n👤 Extract user data:");
+    logger.info("\n👤 Extract user data:");
     processData(apiResponse, new JsonNavigateCommand("data"));
 
     // Format entire response for logging
-    System.out.println("\n📝 Format entire response:");
+    logger.info("\n📝 Format entire response:");
     processData(apiResponse, new JsonNavigateCommand());
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Example 3: Configuration file processing */
   private static void configurationProcessing() throws IOException {
-    System.out.println("⚙️ Configuration Processing");
-    System.out.println("============================");
+    logger.info("⚙️ Configuration Processing");
+    logger.info("============================");
 
     String configXml =
         """
@@ -146,24 +150,24 @@ public class DataProcessingExamples {
         """;
 
     // Extract database configuration
-    System.out.println("🗄️ Extract database configuration:");
+    logger.info("🗄️ Extract database configuration:");
     processData(configXml, new XmlNavigateCommand("configuration/database"));
 
     // Extract server configuration
-    System.out.println("\n🖥️ Extract server configuration:");
+    logger.info("\n🖥️ Extract server configuration:");
     processData(configXml, new XmlNavigateCommand("configuration/server"));
 
     // Extract logging configuration
-    System.out.println("\n📊 Extract logging configuration:");
+    logger.info("\n📊 Extract logging configuration:");
     processData(configXml, new XmlNavigateCommand("configuration/logging"));
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Example 4: Log analysis workflow */
   private static void logAnalysis() throws IOException {
-    System.out.println("📈 Log Analysis Workflow");
-    System.out.println("=========================");
+    logger.info("📈 Log Analysis Workflow");
+    logger.info("=========================");
 
     String logData =
         """
@@ -180,20 +184,20 @@ public class DataProcessingExamples {
       new SampleStreamCommand("level-analyzer") // Analyze log levels
     };
 
-    System.out.println("🔍 Log level analysis:");
+    logger.info("🔍 Log level analysis:");
     processData(logData, analysisPipeline);
 
     // Service-specific analysis
-    System.out.println("\n🔧 Service analysis:");
+    logger.info("\n🔧 Service analysis:");
     processData(logData, new CsvNavigateCommand("service"));
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Example 5: Data format conversion */
   private static void dataFormatConversion() throws IOException {
-    System.out.println("🔄 Data Format Conversion");
-    System.out.println("==========================");
+    logger.info("🔄 Data Format Conversion");
+    logger.info("==========================");
 
     String productData =
         """
@@ -210,14 +214,14 @@ public class DataProcessingExamples {
       new SampleStreamCommand("format-converter") // Convert format
     };
 
-    System.out.println("🛍️ Product name conversion pipeline:");
+    logger.info("🛍️ Product name conversion pipeline:");
     processData(productData, conversionPipeline);
 
     // Price extraction for financial analysis
-    System.out.println("\n💲 Price extraction:");
+    logger.info("\n💲 Price extraction:");
     processData(productData, new CsvNavigateCommand("price"));
 
-    System.out.println("\n" + "=".repeat(60) + "\n");
+    logger.info("\n" + "=".repeat(60) + "\n");
   }
 
   /** Helper method to process data with given commands */
@@ -235,8 +239,8 @@ public class DataProcessingExamples {
       converter.run(inputStream, outputStream);
 
       String result = outputStream.toString(StandardCharsets.UTF_8);
-      System.out.println("Output:");
-      System.out.println(result.trim());
+      logger.info("Output:");
+      logger.info(result.trim());
     }
   }
 }

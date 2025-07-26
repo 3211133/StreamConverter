@@ -11,6 +11,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * Comprehensive demo application for StreamConverter.
@@ -21,13 +23,15 @@ import java.nio.charset.StandardCharsets;
  */
 public class StreamConverterDemo {
 
+  private static final Logger logger = LoggerFactory.getLogger(StreamConverterDemo.class);
+
   /**
    * アプリケーションのエントリーポイント。StreamConverterのデモを実行します。
    *
    * @param args コマンドライン引数（使用されません）
    */
   public static void main(String[] args) {
-    System.out.println("=== StreamConverter Demo Application ===\n");
+    logger.info("=== StreamConverter Demo Application ===\n");
 
     try {
       // Demo 1: CSV Navigation
@@ -46,14 +50,14 @@ public class StreamConverterDemo {
       demoComplexProcessing();
 
     } catch (Exception e) {
-      System.err.println("Demo failed: " + e.getMessage());
+      logger.error("Demo failed: " + e.getMessage());
       e.printStackTrace();
     }
   }
 
   private static void demoCSVNavigation() throws IOException {
-    System.out.println("📊 CSV Navigation Demo");
-    System.out.println("======================");
+    logger.info("📊 CSV Navigation Demo");
+    logger.info("======================");
 
     String csvData =
         """
@@ -65,23 +69,23 @@ public class StreamConverterDemo {
         """;
 
     // Demo 1a: Extract specific column by name
-    System.out.println("1. Extract 'name' column:");
+    logger.info("1. Extract 'name' column:");
     runDemo(csvData, new CsvNavigateCommand("name"));
 
     // Demo 1b: Extract column by index
-    System.out.println("\n2. Extract column at index 2 (city):");
+    logger.info("\n2. Extract column at index 2 (city):");
     runDemo(csvData, new CsvNavigateCommand("2"));
 
     // Demo 1c: Process all columns
-    System.out.println("\n3. Process all columns (formatted):");
+    logger.info("\n3. Process all columns (formatted):");
     runDemo(csvData, new CsvNavigateCommand());
 
-    System.out.println("\n" + "=".repeat(50) + "\n");
+    logger.info("\n" + "=".repeat(50) + "\n");
   }
 
   private static void demoJSONNavigation() throws IOException {
-    System.out.println("🔍 JSON Navigation Demo");
-    System.out.println("========================");
+    logger.info("🔍 JSON Navigation Demo");
+    logger.info("========================");
 
     String jsonData =
         """
@@ -89,23 +93,23 @@ public class StreamConverterDemo {
         """;
 
     // Demo 2a: Extract specific property
-    System.out.println("1. Extract 'total' property:");
+    logger.info("1. Extract 'total' property:");
     runDemo(jsonData, new JsonNavigateCommand("total"));
 
     // Demo 2b: Navigate nested properties
-    System.out.println("\n2. Navigate to users array:");
+    logger.info("\n2. Navigate to users array:");
     runDemo(jsonData, new JsonNavigateCommand("users"));
 
     // Demo 2c: Format entire JSON
-    System.out.println("\n3. Format entire JSON:");
+    logger.info("\n3. Format entire JSON:");
     runDemo(jsonData, new JsonNavigateCommand());
 
-    System.out.println("\n" + "=".repeat(50) + "\n");
+    logger.info("\n" + "=".repeat(50) + "\n");
   }
 
   private static void demoXMLNavigation() throws IOException {
-    System.out.println("🌲 XML Navigation Demo");
-    System.out.println("======================");
+    logger.info("🌲 XML Navigation Demo");
+    logger.info("======================");
 
     String xmlData =
         """
@@ -125,23 +129,23 @@ public class StreamConverterDemo {
         """;
 
     // Demo 3a: Extract specific elements
-    System.out.println("1. Extract all 'name' elements:");
+    logger.info("1. Extract all 'name' elements:");
     runDemo(xmlData, new XmlNavigateCommand("users/user/name"));
 
     // Demo 3b: Extract user elements
-    System.out.println("\n2. Extract all 'user' elements:");
+    logger.info("\n2. Extract all 'user' elements:");
     runDemo(xmlData, new XmlNavigateCommand("users/user"));
 
     // Demo 3c: Process entire XML
-    System.out.println("\n3. Process entire XML:");
+    logger.info("\n3. Process entire XML:");
     runDemo(xmlData, new XmlNavigateCommand());
 
-    System.out.println("\n" + "=".repeat(50) + "\n");
+    logger.info("\n" + "=".repeat(50) + "\n");
   }
 
   private static void demoCommandPipeline() throws IOException {
-    System.out.println("🔗 Command Pipeline Demo");
-    System.out.println("=========================");
+    logger.info("🔗 Command Pipeline Demo");
+    logger.info("=========================");
 
     String jsonData =
         """
@@ -149,7 +153,7 @@ public class StreamConverterDemo {
         """;
 
     // Demo 4: Chain JSON formatting with sample processing
-    System.out.println("1. JSON formatting → Sample processing:");
+    logger.info("1. JSON formatting → Sample processing:");
     IStreamCommand[] pipeline = {
       new JsonNavigateCommand(), // Format JSON
       new SampleStreamCommand("formatter") // Add processing info
@@ -157,12 +161,12 @@ public class StreamConverterDemo {
 
     runDemo(jsonData, pipeline);
 
-    System.out.println("\n" + "=".repeat(50) + "\n");
+    logger.info("\n" + "=".repeat(50) + "\n");
   }
 
   private static void demoComplexProcessing() throws IOException {
-    System.out.println("⚙️ Complex Processing Demo");
-    System.out.println("===========================");
+    logger.info("⚙️ Complex Processing Demo");
+    logger.info("===========================");
 
     String csvData =
         """
@@ -173,7 +177,7 @@ public class StreamConverterDemo {
         """;
 
     // Demo 5: Multi-stage processing
-    System.out.println("1. Multi-stage CSV processing:");
+    logger.info("1. Multi-stage CSV processing:");
     IStreamCommand[] complexPipeline = {
       new CsvNavigateCommand("name"), // Extract names
       new SampleStreamCommand("name-processor"), // Process names
@@ -182,7 +186,7 @@ public class StreamConverterDemo {
 
     runDemo(csvData, complexPipeline);
 
-    System.out.println("\n" + "=".repeat(50) + "\n");
+    logger.info("\n" + "=".repeat(50) + "\n");
   }
 
   private static void runDemo(String inputData, IStreamCommand command) throws IOException {
@@ -198,10 +202,10 @@ public class StreamConverterDemo {
       converter.run(inputStream, outputStream);
 
       String result = outputStream.toString(StandardCharsets.UTF_8);
-      System.out.println("Input:");
-      System.out.println(inputData.trim());
-      System.out.println("\nOutput:");
-      System.out.println(result.trim());
+      logger.info("Input:");
+      logger.info(inputData.trim());
+      logger.info("\nOutput:");
+      logger.info(result.trim());
     }
   }
 }

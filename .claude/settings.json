@@ -21,6 +21,17 @@
           }
         ]
       }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash(gh pr create *)",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "./gradlew clean build"
+          }
+        ]
+      }
     ]
   }
 }

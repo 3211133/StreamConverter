@@ -1,5 +1,6 @@
 package com.streamConverter.command.impl.xml;
 
+import com.streamConverter.StreamProcessingException;
 import com.streamConverter.command.ConsumerCommand;
 import java.io.File;
 import java.io.IOException;
@@ -9,6 +10,8 @@ import javax.xml.transform.stream.StreamSource;
 import javax.xml.validation.Schema;
 import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.xml.sax.SAXException;
 
 /**
@@ -21,6 +24,7 @@ import org.xml.sax.SAXException;
  * <p>バリデーションエラーが発生した場合は、エラーメッセージを出力します。
  */
 public class ValidateCommand extends ConsumerCommand {
+  private static final Logger logger = LoggerFactory.getLogger(ValidateCommand.class);
   private String schema;
 
   /**
@@ -43,6 +47,7 @@ public class ValidateCommand extends ConsumerCommand {
    *
    * @param inputStream 入力ストリーム
    * @throws IOException 入出力エラーが発生した場合
+   * @throws StreamProcessingException XMLバリデーションエラーが発生した場合
    */
   @Override
   public void consume(InputStream inputStream) throws IOException {
@@ -56,15 +61,12 @@ public class ValidateCommand extends ConsumerCommand {
       Validator validator = schema.newValidator();
       validator.validate(new StreamSource(inputStream));
     } catch (SAXException e) {
-      // バリデーションエラー時の処理を実装する
-      // バリデーションエラーが発生した原因を取得する
-      String errorMessage = e.getMessage();
-      // エラーの詳細を出力する
-      System.err.println("XML Validation Error: " + errorMessage);
-      // TODO XMLのバリデーションエラー時の処理を実装する
-      // 後続のCommandにエラー情報を渡す
+      // バリデーションエラーの詳細ログ出力
+      logger.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);
 
-      // e.printStackTrace();
+      // バリデーションエラーをカスタム例外でラップして伝播
+      throw new StreamProcessingException(
+          String.format("XMLバリデーションに失敗しました - スキーマ: %s, エラー: %s", this.schema, e.getMessage()), e);
     }
   }
 }

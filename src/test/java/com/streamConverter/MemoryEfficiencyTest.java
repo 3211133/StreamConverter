@@ -55,7 +55,7 @@ class MemoryEfficiencyTest {
     long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
 
     // 大容量ストリーム処理実行
-    List<Object> result = converter.run(largeInput, output);
+    List<CommandResult> result = converter.run(largeInput, output);
 
     // 処理後のメモリ確認
     System.gc();
@@ -103,7 +103,7 @@ class MemoryEfficiencyTest {
     System.gc();
     long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
 
-    List<Object> result = converter.run(input, output);
+    List<CommandResult> result = converter.run(input, output);
 
     System.gc();
     long afterMemory = runtime.totalMemory() - runtime.freeMemory();
@@ -162,7 +162,7 @@ class MemoryEfficiencyTest {
 
     // 1GBストリーム処理実行
     long startTime = System.currentTimeMillis();
-    List<Object> result = converter.run(largeInput, output);
+    List<CommandResult> result = converter.run(largeInput, output);
     long endTime = System.currentTimeMillis();
 
     // 処理後のメモリ確認

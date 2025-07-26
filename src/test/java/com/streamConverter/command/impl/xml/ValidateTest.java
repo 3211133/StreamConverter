@@ -73,14 +73,9 @@ class ValidateTest {
     try (InputStream inputStream = new FileInputStream(invalidXmlPath);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-      // SAXExceptionが発生することを期待
-      // 注意: 現在の実装では、例外はキャッチされてスタックトレースが出力されるだけです
-      // assertThrows(SAXException.class, () -> {
-      //     command.execute(inputStream, outputStream);
-      // });
-
-      // 現在の実装では例外がキャッチされるため、例外は発生しません
-      assertDoesNotThrow(
+      // StreamProcessingExceptionが発生することを期待
+      assertThrows(
+          com.streamConverter.StreamProcessingException.class,
           () -> {
             command.execute(inputStream, outputStream);
           });
@@ -126,8 +121,9 @@ class ValidateTest {
             new ByteArrayInputStream(validXmlContent.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-      // 現在の実装では例外がキャッチされるため、例外は発生しません
-      assertDoesNotThrow(
+      // StreamProcessingExceptionが発生することを期待（存在しないスキーマファイル）
+      assertThrows(
+          com.streamConverter.StreamProcessingException.class,
           () -> {
             command.execute(inputStream, outputStream);
           });
@@ -143,14 +139,12 @@ class ValidateTest {
     try (InputStream inputStream = new ByteArrayInputStream(new byte[0]);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-      // 現在の実装では例外がキャッチされるため、例外は発生しません
-      assertDoesNotThrow(
+      // StreamProcessingExceptionが発生することを期待（空のXMLは無効）
+      assertThrows(
+          com.streamConverter.StreamProcessingException.class,
           () -> {
             command.execute(inputStream, outputStream);
           });
-
-      // 出力が空であることを確認
-      assertEquals(0, outputStream.size());
     }
   }
 }

@@ -6,6 +6,8 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
+import java.math.BigDecimal
+
 
 plugins {
     id("java")
@@ -113,8 +115,6 @@ tasks.test {
     
     // テスト完了後にJaCoCoレポートを生成
     finalizedBy(tasks.jacocoTestReport)
-    // テスト実行後にPITレポートを生成
-    finalizedBy(tasks.pitest)
     // テスト実行後にjavadocを生成
     finalizedBy(tasks.javadoc)
 }
@@ -133,6 +133,14 @@ tasks.jacocoTestReport {
 tasks.pitest {
     targetClasses.set(listOf("com.streamConverter.*")) // テスト対象のクラスを指定
     outputFormats.set(listOf("HTML")) // 出力形式を指定
+    // タイムアウト設定を追加
+    timeoutConstInMillis.set(10000) // 10秒でタイムアウト
+    timeoutFactor.set(BigDecimal("1.5")) // 1.5倍のマージン
+    // 対象クラスを絞り込んでパフォーマンスを向上
+    excludedClasses.set(listOf(
+        "com.streamConverter.examples.*", // サンプルコードを除外
+        "com.streamConverter.demo.*"      // デモコードを除外
+    ))
     // テスト後にレポートを生成
     // dependsOn(tasks.test)
 }

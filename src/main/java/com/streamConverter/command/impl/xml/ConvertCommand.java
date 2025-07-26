@@ -1,5 +1,6 @@
 package com.streamConverter.command.impl.xml;
 
+import com.streamConverter.StreamProcessingException;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
 import com.streamConverter.pathHandler.FixedStaXPathHandler;
@@ -17,6 +18,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * XML変換コマンドクラス
@@ -26,6 +29,7 @@ import javax.xml.stream.events.XMLEvent;
  */
 public class ConvertCommand extends AbstractStreamCommand {
 
+  private static final Logger logger = LoggerFactory.getLogger(ConvertCommand.class);
   private IRule rule;
   private IStaXPathHandler pathHandler;
 
@@ -50,6 +54,7 @@ public class ConvertCommand extends AbstractStreamCommand {
    * @param inputStream 入力ストリーム
    * @param outputStream 出力ストリーム
    * @throws IOException 入出力エラーが発生した場合
+   * @throws StreamProcessingException XML処理エラーが発生した場合
    */
   @Override
   protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
@@ -58,58 +63,60 @@ public class ConvertCommand extends AbstractStreamCommand {
     // 例: XMLを読み込み、IRuleを適用して変換し、出力ストリームに書き込む処理を実装する
     XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
     XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
-    XMLEventReader xmlEventReader = null;
-    XMLEventWriter xmlEventWriter = null;
-    try {
-      xmlEventReader = xmlInputFactory.createXMLEventReader(inputStream);
-      xmlEventWriter = xmlOutputFactory.createXMLEventWriter(outputStream);
 
-      List<String> currentDirectory = new ArrayList<>();
-      while (xmlEventReader.hasNext()) {
-        XMLEvent event = xmlEventReader.nextEvent();
-        int eventType = event.getEventType();
-        switch (eventType) {
-          // 現在地点を保持するための処理
-          case XMLEvent.START_ELEMENT:
-            // 現在のXpathを保持する
-            currentDirectory.add(event.asStartElement().getName().getLocalPart());
-            break;
-          case XMLEvent.END_ELEMENT:
-            // 現在のXpathを保持する
-            currentDirectory.remove(currentDirectory.size() - 1);
-            break;
-          // 変換対象の箇所なら変換処理を実行する
-          case XMLEvent.CHARACTERS:
-            if (this.pathHandler.isTarget(currentDirectory)) {
-              String transformedData = rule.apply(event.asCharacters().getData());
-              event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);
-            }
-            break;
-          default:
-            // Handle other events if necessary
-            break;
+    try {
+      XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(inputStream);
+      XMLEventWriter xmlEventWriter = xmlOutputFactory.createXMLEventWriter(outputStream);
+
+      try {
+        List<String> currentDirectory = new ArrayList<>();
+        while (xmlEventReader.hasNext()) {
+          XMLEvent event = xmlEventReader.nextEvent();
+          int eventType = event.getEventType();
+          switch (eventType) {
+            // 現在地点を保持するための処理
+            case XMLEvent.START_ELEMENT:
+              // 現在のXpathを保持する
+              currentDirectory.add(event.asStartElement().getName().getLocalPart());
+              break;
+            case XMLEvent.END_ELEMENT:
+              // 現在のXpathを保持する
+              currentDirectory.remove(currentDirectory.size() - 1);
+              break;
+            // 変換対象の箇所なら変換処理を実行する
+            case XMLEvent.CHARACTERS:
+              if (this.pathHandler.isTarget(currentDirectory)) {
+                String transformedData = rule.apply(event.asCharacters().getData());
+                event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);
+              }
+              break;
+            default:
+              // Handle other events if necessary
+              break;
+          }
+          // Write the event to the output stream
+          xmlEventWriter.add(event);
         }
-        // Write the event to the output stream
-        xmlEventWriter.add(event);
+      } finally {
+        // リソースのクリーンアップ
+        try {
+          if (xmlEventWriter != null) {
+            xmlEventWriter.close();
+          }
+        } catch (XMLStreamException e) {
+          logger.warn("XMLEventWriterのクローズ中にエラーが発生しました: {}", e.getMessage(), e);
+        }
+        try {
+          if (xmlEventReader != null) {
+            xmlEventReader.close();
+          }
+        } catch (XMLStreamException e) {
+          logger.warn("XMLEventReaderのクローズ中にエラーが発生しました: {}", e.getMessage(), e);
+        }
       }
     } catch (XMLStreamException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    } finally {
-      if (xmlEventReader != null) {
-        try {
-          xmlEventReader.close();
-        } catch (XMLStreamException e) {
-          e.printStackTrace();
-        }
-      }
-      if (xmlEventWriter != null) {
-        try {
-          xmlEventWriter.close();
-        } catch (XMLStreamException e) {
-          e.printStackTrace();
-        }
-      }
+      logger.error("XML処理中にエラーが発生しました: {}", e.getMessage(), e);
+      throw new StreamProcessingException("XML変換処理に失敗しました", e);
     }
   }
 }

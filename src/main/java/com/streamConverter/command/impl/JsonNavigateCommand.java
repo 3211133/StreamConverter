@@ -29,13 +29,11 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     this.jsonPath = jsonPath;
   }
 
-  /**
-   * Default constructor - processes entire JSON.
-   */
+  /** Default constructor - processes entire JSON. */
   public JsonNavigateCommand() {
     this.jsonPath = null;
   }
-  
+
   @Override
   protected String getCommandDetails() {
     if (jsonPath != null) {
@@ -211,11 +209,11 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
     // Handle numeric/boolean values
     int end = start;
-    while (end < json.length() && 
-           json.charAt(end) != ',' && 
-           json.charAt(end) != '}' && 
-           json.charAt(end) != ']' && 
-           !Character.isWhitespace(json.charAt(end))) {
+    while (end < json.length()
+        && json.charAt(end) != ','
+        && json.charAt(end) != '}'
+        && json.charAt(end) != ']'
+        && !Character.isWhitespace(json.charAt(end))) {
       end++;
     }
 

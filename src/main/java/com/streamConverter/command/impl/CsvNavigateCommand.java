@@ -30,13 +30,11 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     this.columnSelector = columnSelector;
   }
 
-  /**
-   * Default constructor - processes all columns.
-   */
+  /** Default constructor - processes all columns. */
   public CsvNavigateCommand() {
     this.columnSelector = null;
   }
-  
+
   @Override
   protected String getCommandDetails() {
     if (columnSelector != null) {
@@ -58,7 +56,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
       }
 
       String[] headers = parseCSVLine(headerLine);
-      
+
       // Determine column index if selector is provided
       if (columnSelector != null) {
         columnIndex = findColumnIndex(headers, columnSelector);
@@ -79,7 +77,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
       String line;
       while ((line = reader.readLine()) != null) {
         String[] values = parseCSVLine(line);
-        
+
         if (columnIndex >= 0 && columnIndex < values.length) {
           writer.write(values[columnIndex]);
         } else if (columnIndex < 0) {
@@ -102,7 +100,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
         return i;
       }
     }
-    
+
     // Try to parse as column index
     try {
       int index = Integer.parseInt(selector);
@@ -112,7 +110,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     } catch (NumberFormatException e) {
       // Not a number, ignore
     }
-    
+
     return -1;
   }
 }

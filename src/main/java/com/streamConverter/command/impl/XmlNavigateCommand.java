@@ -40,14 +40,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     }
   }
 
-  /**
-   * Default constructor - processes entire XML.
-   */
+  /** Default constructor - processes entire XML. */
   public XmlNavigateCommand() {
     this.xpath = null;
     this.pathHandler = null;
   }
-  
+
   @Override
   protected String getCommandDetails() {
     if (xpath != null) {
@@ -85,7 +83,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     }
   }
 
-  private void navigateXml(XMLEventReader eventReader, XMLEventWriter eventWriter) throws XMLStreamException {
+  private void navigateXml(XMLEventReader eventReader, XMLEventWriter eventWriter)
+      throws XMLStreamException {
     List<String> currentPath = new ArrayList<>();
     boolean inTargetElement = false;
     int targetDepth = 0;

@@ -15,6 +15,7 @@
 - **統合ログ**: 全コマンドの実行状況を自動記録
 - **パフォーマンス測定**: 実行時間とメモリ使用量の自動追跡
 - **エラー追跡**: 詳細なスタックトレースと実行コンテキスト
+- **コンテキスト伝播**: マルチスレッド環境でのMDCコンテキスト管理
 
 ### 🔧 豊富なコマンド
 - **データ抽出**: CSV、JSON、XMLからの値抽出
@@ -41,17 +42,22 @@ StreamConverter converter = StreamConverter.create(pipeline);
 converter.run(inputStream, outputStream);
 ```
 
-### 自動ログ機能付き
+### コンテキスト対応処理
 
 ```java
-import com.streamConverter.command.CommandFactory;
+import com.streamConverter.ContextAwareStreamConverter;
+import com.streamConverter.context.ExecutionContext;
 
-// ログ機能を自動追加
-IStreamCommand loggedCommand = CommandFactory.createWithLogging(
-    CsvNavigateCommand.class, "productName"
+// カスタムコンテキストで実行追跡
+ExecutionContext context = ExecutionContext.builder()
+    .globalContext("requestId", "REQ-12345")
+    .globalContext("userId", "user789")
+    .build();
+
+ContextAwareStreamConverter converter = ContextAwareStreamConverter.create(
+    context, csvCommand, httpCommand, jsonCommand
 );
-
-StreamConverter converter = StreamConverter.create(loggedCommand);
+converter.run(inputStream, outputStream);
 ```
 
 ## 📋 利用可能なコマンド
@@ -71,6 +77,7 @@ StreamConverter converter = StreamConverter.create(loggedCommand);
 - **[📚 ドキュメント一覧](docs/)** - 全ドキュメントのインデックス
 - **[🏗️ コマンドアーキテクチャ](docs/COMMAND_ARCHITECTURE.md)** - 設計思想と拡張方法
 - **[📝 自動ログ機能](docs/AUTO_LOGGING.md)** - ログ機能の詳細と設定
+- **[🔗 コンテキスト伝播](CONTEXT_PROPAGATION_ARCHITECTURE.md)** - マルチスレッド環境でのMDC管理
 - **[🔢 バージョン管理](docs/VERSION_MANAGEMENT.md)** - サポートバージョンとポリシー
 - **[🛡️ セキュリティ](SECURITY.md)** - セキュリティポリシーと脆弱性報告
 
@@ -80,6 +87,8 @@ StreamConverter converter = StreamConverter.create(loggedCommand);
 
 - **[QuickStart.java](src/main/java/com/streamConverter/examples/QuickStart.java)** - 基本的な使用方法
 - **[AutoLoggingDemo.java](src/main/java/com/streamConverter/examples/AutoLoggingDemo.java)** - ログ機能のデモ
+- **[ContextPropagationDemo.java](src/main/java/com/streamConverter/examples/ContextPropagationDemo.java)** - コンテキスト伝播のデモ
+- **[MDCMultiThreadExample.java](src/main/java/com/streamConverter/examples/MDCMultiThreadExample.java)** - MDCマルチスレッド検証
 - **[DataProcessingExamples.java](src/main/java/com/streamConverter/examples/DataProcessingExamples.java)** - 実用的な処理例
 - **[EnterpriseIntegrationPatterns.java](src/main/java/com/streamConverter/examples/EnterpriseIntegrationPatterns.java)** - エンタープライズパターン
 
@@ -98,6 +107,8 @@ StreamConverter converter = StreamConverter.create(loggedCommand);
 # サンプル実行
 ./gradlew runQuickStart
 ./gradlew runAutoLoggingDemo
+./gradlew runContextDemo
+./gradlew runMDC
 ```
 
 ## 開発ガイドライン

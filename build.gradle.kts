@@ -51,6 +51,20 @@ tasks.register<JavaExec>("runAutoLoggingDemo") {
     mainClass.set("com.streamConverter.examples.AutoLoggingDemo")
 }
 
+tasks.register<JavaExec>("runMDC") {
+    group = "application"
+    description = "Run MDC Multi-Thread Example"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.examples.MDCMultiThreadExample")
+}
+
+tasks.register<JavaExec>("runContextDemo") {
+    group = "application"
+    description = "Run Context Propagation Demo"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.examples.ContextPropagationDemo")
+}
+
 
 // Spotless configuration for code formatting
 spotless {

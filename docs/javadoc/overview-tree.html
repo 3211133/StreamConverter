@@ -58,6 +58,7 @@ loadScripts(document, 'script');</script>
 <li><a href="com/streamConverter/command/impl/json/package-tree.html">com.streamConverter.command.impl.json</a>, </li>
 <li><a href="com/streamConverter/command/impl/xml/package-tree.html">com.streamConverter.command.impl.xml</a>, </li>
 <li><a href="com/streamConverter/command/rule/package-tree.html">com.streamConverter.command.rule</a>, </li>
+<li><a href="com/streamConverter/context/package-tree.html">com.streamConverter.context</a>, </li>
 <li><a href="com/streamConverter/demo/package-tree.html">com.streamConverter.demo</a>, </li>
 <li><a href="com/streamConverter/examples/package-tree.html">com.streamConverter.examples</a>, </li>
 <li><a href="com/streamConverter/pathHandler/package-tree.html">com.streamConverter.pathHandler</a>, </li>
@@ -93,9 +94,15 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" class="type-name-link" title="class in com.streamConverter.command">CommandFactory</a></li>
 <li class="circle">com.streamConverter.<a href="com/streamConverter/CommandResult.html" class="type-name-link" title="class in com.streamConverter">CommandResult</a></li>
 <li class="circle">com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" class="type-name-link" title="class in com.streamConverter">CommandResult.Builder</a></li>
+<li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/ComplexPipelineExample.html" class="type-name-link" title="class in com.streamConverter.examples">ComplexPipelineExample</a></li>
 <li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html" class="type-name-link" title="class in com.streamConverter.examples">ComplexXmlProcessingPipeline</a></li>
+<li class="circle">com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" class="type-name-link" title="class in com.streamConverter">ContextAwareStreamConverter</a></li>
+<li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" class="type-name-link" title="class in com.streamConverter.command">ContextPropagatingDecorator</a> (implements com.streamConverter.command.<a href="com/streamConverter/command/IContextAwareStreamCommand.html" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a>)</li>
+<li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/ContextPropagationDemo.html" class="type-name-link" title="class in com.streamConverter.examples">ContextPropagationDemo</a></li>
 <li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/DataProcessingExamples.html" class="type-name-link" title="class in com.streamConverter.examples">DataProcessingExamples</a></li>
 <li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/EnterpriseIntegrationPatterns.html" class="type-name-link" title="class in com.streamConverter.examples">EnterpriseIntegrationPatterns</a></li>
+<li class="circle">com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" class="type-name-link" title="class in com.streamConverter.context">ExecutionContext</a></li>
+<li class="circle">com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" class="type-name-link" title="class in com.streamConverter.context">ExecutionContext.Builder</a></li>
 <li class="circle">com.streamConverter.pathHandler.<a href="com/streamConverter/pathHandler/FixedStaXPathHandler.html" class="type-name-link" title="class in com.streamConverter.pathHandler">FixedStaXPathHandler</a> (implements com.streamConverter.pathHandler.<a href="com/streamConverter/pathHandler/IStaXPathHandler.html" title="interface in com.streamConverter.pathHandler">IStaXPathHandler</a>)</li>
 <li class="circle">java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" class="type-name-link external-link" title="class or interface in java.io">InputStream</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>)
 <ul>
@@ -104,6 +111,7 @@ loadScripts(document, 'script');</script>
 </li>
 <li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/LoggingDecorator.html" class="type-name-link" title="class in com.streamConverter.command">LoggingDecorator</a> (implements com.streamConverter.command.<a href="com/streamConverter/command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>)</li>
 <li class="circle">com.streamConverter.<a href="com/streamConverter/Main.html" class="type-name-link" title="class in com.streamConverter">Main</a></li>
+<li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/MDCMultiThreadExample.html" class="type-name-link" title="class in com.streamConverter.examples">MDCMultiThreadExample</a></li>
 <li class="circle">java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" class="type-name-link external-link" title="class or interface in java.io">OutputStream</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>, java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Flushable.html" title="class or interface in java.io" class="external-link">Flushable</a>)
 <ul>
 <li class="circle">com.streamConverter.util.<a href="com/streamConverter/util/MeasuredOutputStream.html" class="type-name-link" title="class in com.streamConverter.util">MeasuredOutputStream</a></li>
@@ -139,7 +147,11 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/IRule.html" class="type-name-link" title="interface in com.streamConverter.command.rule">IRule</a></li>
 <li class="circle">com.streamConverter.pathHandler.<a href="com/streamConverter/pathHandler/IStaXPathHandler.html" class="type-name-link" title="interface in com.streamConverter.pathHandler">IStaXPathHandler</a></li>
-<li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/IStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IStreamCommand</a></li>
+<li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/IStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IStreamCommand</a>
+<ul>
+<li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/IContextAwareStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a></li>
+</ul>
+</li>
 </ul>
 </section>
 <section class="hierarchy">

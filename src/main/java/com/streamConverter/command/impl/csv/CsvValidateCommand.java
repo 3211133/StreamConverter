@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,7 +46,7 @@ public class CsvValidateCommand extends ConsumerCommand {
    * 必須カラムを指定するコンストラクタ（ヘッダー行ありと仮定）
    *
    * @param requiredColumns 必須カラム名の配列
-   * @throws IllegalArgumentException 必須カラムがnullまたは空の場合
+   * @throws IllegalArgumentException 必須カラムがnullの場合
    */
   public CsvValidateCommand(String[] requiredColumns) {
     this(requiredColumns, true, 10);
@@ -56,25 +55,29 @@ public class CsvValidateCommand extends ConsumerCommand {
   /**
    * 詳細設定を指定するコンストラクタ
    *
-   * @param requiredColumns 必須カラム名の配列（nullの場合は必須カラムチェックをスキップ）
+   * @param requiredColumns 必須カラム名の配列
    * @param hasHeader ヘッダー行の存在フラグ
    * @param maxErrorsToReport 報告する最大エラー数
-   * @throws IllegalArgumentException 無効なパラメータが指定された場合
+   * @throws IllegalArgumentException requiredColumnsがnullの場合
    */
   public CsvValidateCommand(String[] requiredColumns, boolean hasHeader, int maxErrorsToReport) {
+    if (requiredColumns == null) {
+      throw new IllegalArgumentException("Required columns cannot be null");
+    }
+
     this.hasHeader = hasHeader;
     this.maxErrorsToReport = Math.max(1, maxErrorsToReport);
 
-    if (requiredColumns == null || requiredColumns.length == 0) {
-      this.requiredColumns = new HashSet<>();
+    this.requiredColumns = new HashSet<>();
+    for (String column : requiredColumns) {
+      if (column != null && !column.trim().isEmpty()) {
+        this.requiredColumns.add(column.trim());
+      }
+    }
+
+    if (requiredColumns.length == 0) {
       logger.info("No required columns specified, column validation will be skipped");
     } else {
-      this.requiredColumns = new HashSet<>();
-      for (String column : requiredColumns) {
-        if (column != null && !column.trim().isEmpty()) {
-          this.requiredColumns.add(column.trim());
-        }
-      }
       logger.info("Required columns: {}", this.requiredColumns);
     }
   }
@@ -88,7 +91,9 @@ public class CsvValidateCommand extends ConsumerCommand {
    */
   @Override
   public void consume(InputStream inputStream) throws IOException {
-    Objects.requireNonNull(inputStream, "Input stream cannot be null");
+    if (inputStream == null) {
+      throw new NullPointerException("InputStream cannot be null");
+    }
 
     logger.info(
         "Starting CSV validation - hasHeader: {}, requiredColumns: {}",

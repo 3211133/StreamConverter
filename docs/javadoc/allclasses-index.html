@@ -83,14 +83,30 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">CommandResultのビルダークラス</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html" title="class in com.streamConverter.examples">ComplexXmlProcessingPipeline</a></div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/examples/ComplexPipelineExample.html" title="class in com.streamConverter.examples">ComplexPipelineExample</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">複数コマンドを束にした複雑なパイプライン処理の例</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html" title="class in com.streamConverter.examples">ComplexXmlProcessingPipeline</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Complex XML processing pipeline demonstrating: HTTPS → XML parsing → DB lookup → API call → XML
  transformation → Response</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/ConsumerCommand.html" title="class in com.streamConverter.command">ConsumerCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/ConsumerCommand.html" title="class in com.streamConverter.command">ConsumerCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Abstract class for commands that consume an input stream and produce an output stream.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">コンテキスト対応のStreamConverter</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">既存のIStreamCommandをコンテキスト対応にするデコレータ</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/examples/ContextPropagationDemo.html" title="class in com.streamConverter.examples">ContextPropagationDemo</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">コンテキスト伝播機能のデモンストレーション</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/impl/charaCode/convert.html" title="class in com.streamConverter.command.impl.charaCode">convert</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
@@ -116,37 +132,53 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Enterprise Integration Patterns using StreamConverter.</div>
 </div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="block">実行コンテキストを管理するクラス</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">ExecutionContext作成用のBuilderクラス</div>
+</div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/pathHandler/FixedStaXPathHandler.html" title="class in com.streamConverter.pathHandler">FixedStaXPathHandler</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Xpathを指定して、Xpathの階層を判定するクラス。</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/streamConverter/command/rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a></div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/streamConverter/command/IContextAwareStreamCommand.html" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a></div>
 <div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="block">コンテキスト対応のストリームコマンドインターフェース</div>
+</div>
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="com/streamConverter/command/rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">ルールインターフェース</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="com/streamConverter/pathHandler/IStaXPathHandler.html" title="interface in com.streamConverter.pathHandler">IStaXPathHandler</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/streamConverter/pathHandler/IStaXPathHandler.html" title="interface in com.streamConverter.pathHandler">IStaXPathHandler</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Xpathを指定して、Xpathの階層を判定するインターフェース。</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab1"><a href="com/streamConverter/command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab1">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab1"><a href="com/streamConverter/command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab1">
 <div class="block">Interface for stream commands.</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/impl/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/impl/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">JSON変換コマンドクラス</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/impl/json/JsonValidateCommand.html" title="class in com.streamConverter.command.impl.json">JsonValidateCommand</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/impl/json/JsonValidateCommand.html" title="class in com.streamConverter.command.impl.json">JsonValidateCommand</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">JSONスキーマバリデーションを行うコマンドクラス</div>
 </div>
-<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/LoggingDecorator.html" title="class in com.streamConverter.command">LoggingDecorator</a></div>
-<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/command/LoggingDecorator.html" title="class in com.streamConverter.command">LoggingDecorator</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
 <div class="block">IStreamCommandのログ出力デコレーター</div>
 </div>
-<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/Main.html" title="class in com.streamConverter">Main</a></div>
-<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/Main.html" title="class in com.streamConverter">Main</a></div>
+<div class="col-last even-row-color all-classes-table all-classes-table-tab2">
 <div class="block">Main class for the StreamConverter application.</div>
+</div>
+<div class="col-first odd-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/examples/MDCMultiThreadExample.html" title="class in com.streamConverter.examples">MDCMultiThreadExample</a></div>
+<div class="col-last odd-row-color all-classes-table all-classes-table-tab2">
+<div class="block">MDCのマルチスレッド環境での動作検証のための実装例</div>
 </div>
 <div class="col-first even-row-color all-classes-table all-classes-table-tab2"><a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></div>
 <div class="col-last even-row-color all-classes-table all-classes-table-tab2">

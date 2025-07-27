@@ -41,7 +41,7 @@ public class StreamConverterIntegrationTest {
 
     converter.run(input, output);
 
-    assertTrue(output.toByteArray().length == 0, "Empty input should produce empty output");
+    assertEquals(0, output.toByteArray().length, "Empty input should produce empty output");
   }
 
   @Test

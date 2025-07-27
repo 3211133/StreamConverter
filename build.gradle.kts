@@ -123,6 +123,8 @@ tasks.test {
 tasks.jacocoTestReport {
     reports {
         html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
     }
     
     // テスト後にレポートを生成
@@ -149,7 +151,7 @@ tasks.pitest {
 tasks.javadoc {
     options.encoding = "UTF-8"
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-    destinationDir = file("docs/javadoc")
+    setDestinationDir(file("docs/javadoc"))
 }
 
 // spotlessCheck タスクを無効化

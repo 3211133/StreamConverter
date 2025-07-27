@@ -173,8 +173,8 @@ class StreamConverterTest {
   }
 
   @Test
-  @DisplayName("large file size test")
-  void testLargeFileSize() throws IOException {
+  @DisplayName("large data memory efficiency test")
+  void testLargeDataMemoryEfficiency() throws IOException {
     // 大容量データ処理のメモリ効率性テスト
     long maxMemoryMB = 50; // 最大50MBのメモリ使用量制限
     long testDataSize = 100 * 1024 * 1024; // 100MBのテストデータ

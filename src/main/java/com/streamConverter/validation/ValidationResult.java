@@ -348,7 +348,8 @@ public class ValidationResult {
 
       // 成功フラグとエラーの整合性チェック
       if (isValid && !errors.isEmpty()) {
-        throw new IllegalStateException("Cannot be valid with errors present");
+        throw new IllegalStateException(
+            "ValidationResult cannot be marked as valid when errors are present");
       }
       if (!isValid && errors.isEmpty()) {
         addError("Validation failed (no specific error message)");

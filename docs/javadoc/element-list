@@ -2,9 +2,12 @@ com.streamConverter
 com.streamConverter.command
 com.streamConverter.command.impl
 com.streamConverter.command.impl.charaCode
+com.streamConverter.command.impl.csv
+com.streamConverter.command.impl.json
 com.streamConverter.command.impl.xml
 com.streamConverter.command.rule
 com.streamConverter.demo
 com.streamConverter.examples
 com.streamConverter.pathHandler
 com.streamConverter.util
+com.streamConverter.validation

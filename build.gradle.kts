@@ -51,6 +51,7 @@ tasks.register<JavaExec>("runAutoLoggingDemo") {
     mainClass.set("com.streamConverter.examples.AutoLoggingDemo")
 }
 
+
 // Spotless configuration for code formatting
 spotless {
     java {

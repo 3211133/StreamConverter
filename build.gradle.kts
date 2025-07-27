@@ -51,6 +51,7 @@ tasks.register<JavaExec>("runAutoLoggingDemo") {
     mainClass.set("com.streamConverter.examples.AutoLoggingDemo")
 }
 
+
 // Spotless configuration for code formatting
 spotless {
     java {
@@ -88,6 +89,12 @@ dependencies {
     implementation("commons-io:commons-io:2.20.0")
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("ch.qos.logback:logback-classic:1.5.18")
+    
+    // JSON Schema validation
+    implementation("com.networknt:json-schema-validator:1.5.3")
+    
+    // CSV validation support
+    implementation("com.opencsv:opencsv:5.9")
 
     // JUnit 5 の依存関係（テスト用）
 	testImplementation(platform("org.junit:junit-bom:5.13.4"))

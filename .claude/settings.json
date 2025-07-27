@@ -17,7 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./gradlew clean build"
+            "command": "./gradlew build"
           }
         ]
       }

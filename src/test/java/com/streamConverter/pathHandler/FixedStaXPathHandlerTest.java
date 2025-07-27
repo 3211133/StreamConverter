@@ -2,10 +2,75 @@ package com.streamConverter.pathHandler;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.Test;
 
+/** Additional tests for FixedStaXPathHandler edge cases. */
 class FixedStaXPathHandlerTest {
+
+  @Test
+  public void testLeadingSlashHandling() {
+    FixedStaXPathHandler handler = new FixedStaXPathHandler("/root/child");
+    List<String> expected = Arrays.asList("root", "child");
+    assertEquals(expected, handler.getTargetXpath(), "Leading slash should be normalized");
+  }
+
+  @Test
+  public void testTrailingSlashHandling() {
+    FixedStaXPathHandler handler = new FixedStaXPathHandler("root/child/");
+    List<String> expected = Arrays.asList("root", "child");
+    assertEquals(expected, handler.getTargetXpath(), "Trailing slash should be normalized");
+  }
+
+  @Test
+  public void testMultipleSlashHandling() {
+    FixedStaXPathHandler handler = new FixedStaXPathHandler("//root///child//");
+    List<String> expected = Arrays.asList("root", "child");
+    assertEquals(expected, handler.getTargetXpath(), "Multiple slashes should be normalized");
+  }
+
+  @Test
+  public void testOnlySlashesThrowsException() {
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new FixedStaXPathHandler("///"),
+        "Only slashes should throw IllegalArgumentException");
+  }
+
+  @Test
+  public void testWhitespaceHandling() {
+    FixedStaXPathHandler handler = new FixedStaXPathHandler("  /root/child  ");
+    List<String> expected = Arrays.asList("root", "child");
+    assertEquals(expected, handler.getTargetXpath(), "Whitespace should be trimmed");
+  }
+
+  @Test
+  public void testComplexPathMatching() {
+    FixedStaXPathHandler handler = new FixedStaXPathHandler("document/section/paragraph");
+
+    assertTrue(
+        handler.isTarget(Arrays.asList("document", "section", "paragraph")),
+        "Exact match should return true");
+
+    assertFalse(
+        handler.isTarget(Arrays.asList("document", "section")),
+        "Partial match should return false");
+
+    assertFalse(
+        handler.isTarget(Arrays.asList("document", "section", "paragraph", "extra")),
+        "Longer path should return false");
+  }
+
+  @Test
+  public void testNullXpathListThrowsException() {
+    FixedStaXPathHandler handler = new FixedStaXPathHandler("root/child");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> handler.isTarget(null),
+        "Null xpath list should throw IllegalArgumentException");
+  }
 
   @Test
   void constructor_shouldThrowException_whenXpathIsNull() {

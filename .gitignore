@@ -34,5 +34,10 @@ Thumbs.db
 # build artifacts
 bin/
 lib/
-#logfiles
+
+# Documentation (generated)
+docs/javadoc/
+
+# Log files
 *.log
+logs/

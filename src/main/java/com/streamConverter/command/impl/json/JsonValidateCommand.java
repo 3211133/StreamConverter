@@ -67,9 +67,7 @@ public class JsonValidateCommand extends ConsumerCommand {
    */
   @Override
   public void consume(InputStream inputStream) throws IOException {
-    if (inputStream == null) {
-      throw new NullPointerException("InputStream cannot be null");
-    }
+    Objects.requireNonNull(inputStream, "InputStream cannot be null");
 
     logger.info("Starting JSON validation with schema: {}", schemaPath);
 

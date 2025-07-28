@@ -11,6 +11,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -140,7 +141,7 @@ public class CsvValidateCommand extends ConsumerCommand {
       throw e;
     } catch (Exception e) {
       logger.error("CSV validation failed: {}", e.getMessage(), e);
-      throw new StreamProcessingException("CSV validation failed: " + e.getMessage(), e);
+      throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     }
   }
 

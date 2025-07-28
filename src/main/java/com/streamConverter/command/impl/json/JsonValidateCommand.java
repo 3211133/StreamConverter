@@ -11,6 +11,7 @@ import com.streamConverter.command.ConsumerCommand;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Set;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -39,11 +40,19 @@ public class JsonValidateCommand extends ConsumerCommand {
    *
    * @param schemaPath JSONスキーマファイルのパス
    * @throws IllegalArgumentException スキーマパスがnullまたは空の場合
+   * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
    */
   public JsonValidateCommand(String schemaPath) {
     this.schemaPath = validateSchemaPath(schemaPath);
     this.objectMapper = new ObjectMapper();
     this.schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+
+    // コンストラクタでスキーマファイルの妥当性を検証
+    try {
+      loadSchema();
+    } catch (StreamProcessingException e) {
+      throw e;
+    }
   }
 
   /** スキーマパスの検証 */
@@ -78,13 +87,28 @@ public class JsonValidateCommand extends ConsumerCommand {
       // JSONデータの読み込み
       JsonNode jsonNode;
       try {
-        jsonNode = objectMapper.readTree(inputStream);
+        // 入力ストリームの内容を確認
+        byte[] inputBytes = inputStream.readAllBytes();
+        if (inputBytes.length == 0) {
+          throw new StreamProcessingException("Failed to parse JSON input: Input stream is empty");
+        }
+
+        String inputString = new String(inputBytes, StandardCharsets.UTF_8).trim();
+        if (inputString.isEmpty()) {
+          throw new StreamProcessingException(
+              "Failed to parse JSON input: Input contains only whitespace");
+        }
+
+        jsonNode = objectMapper.readTree(inputString);
+      } catch (StreamProcessingException e) {
+        throw e;
       } catch (Exception e) {
-        throw new StreamProcessingException("Failed to parse JSON input", e);
+        throw new StreamProcessingException("Failed to parse JSON input: " + e.getMessage(), e);
       }
 
       if (jsonNode == null) {
-        throw new StreamProcessingException("Input stream is empty or contains no valid JSON data");
+        throw new StreamProcessingException(
+            "Failed to parse JSON input: Input stream contains no valid JSON data");
       }
 
       logger.debug("JSON data loaded successfully, validating against schema");
@@ -148,7 +172,7 @@ public class JsonValidateCommand extends ConsumerCommand {
     errorBuilder
         .append("JSON validation failed with ")
         .append(validationMessages.size())
-        .append(" error(s):");
+        .append(" validation errors:");
 
     int errorCount = 0;
     for (ValidationMessage message : validationMessages) {

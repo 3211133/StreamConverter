@@ -23,10 +23,19 @@ public class ExecutionContext {
   private final Map<String, String> userContext;
 
   // 標準的なコンテキストキー
+  /** 実行ID用のMDCキー */
   public static final String EXECUTION_ID_KEY = "executionId";
+
+  /** 開始時刻用のMDCキー */
   public static final String START_TIME_KEY = "startTime";
+
+  /** コマンドシーケンス用のMDCキー */
   public static final String COMMAND_SEQUENCE_KEY = "commandSequence";
+
+  /** スレッド名用のMDCキー */
   public static final String THREAD_NAME_KEY = "threadName";
+
+  /** ステージ用のMDCキー */
   public static final String STAGE_KEY = "stage";
 
   private ExecutionContext(Builder builder) {
@@ -173,7 +182,7 @@ public class ExecutionContext {
   }
 
   /**
-   * コンテキストのコピーを作成 ユーザーコンテキストは複製されますが、グローバルコンテキストは共有されます。
+   * コンテキストのコピーを作成 ユーザーコンテキストは複製されますが、グローバルコンテキストは共有されます。 コピー時はコマンドシーケンスは0にリセットされます。
    *
    * @return コンテキストのコピー
    */
@@ -184,6 +193,7 @@ public class ExecutionContext {
         .globalContext(this.globalContext)
         .userContext(this.userContext)
         .build();
+    // コマンドシーケンスは新しいコピーとして0から開始
   }
 
   /** ExecutionContext作成用のBuilderクラス */
@@ -193,16 +203,35 @@ public class ExecutionContext {
     private Map<String, String> globalContext = new HashMap<>();
     private Map<String, String> userContext = new HashMap<>();
 
+    /**
+     * 実行IDを設定
+     *
+     * @param executionId 実行ID
+     * @return Builderインスタンス
+     */
     public Builder executionId(String executionId) {
       this.executionId = Objects.requireNonNull(executionId, "executionId cannot be null");
       return this;
     }
 
+    /**
+     * 開始時刻を設定
+     *
+     * @param startTime 開始時刻
+     * @return Builderインスタンス
+     */
     public Builder startTime(Instant startTime) {
       this.startTime = Objects.requireNonNull(startTime, "startTime cannot be null");
       return this;
     }
 
+    /**
+     * グローバルコンテキスト値を設定
+     *
+     * @param key キー
+     * @param value 値
+     * @return Builderインスタンス
+     */
     public Builder globalContext(String key, String value) {
       Objects.requireNonNull(key, "key cannot be null");
       if (value == null) {
@@ -213,6 +242,12 @@ public class ExecutionContext {
       return this;
     }
 
+    /**
+     * グローバルコンテキストを一括設定
+     *
+     * @param context コンテキストマップ
+     * @return Builderインスタンス
+     */
     public Builder globalContext(Map<String, String> context) {
       if (context != null) {
         this.globalContext.putAll(context);
@@ -220,6 +255,13 @@ public class ExecutionContext {
       return this;
     }
 
+    /**
+     * ユーザーコンテキスト値を設定
+     *
+     * @param key キー
+     * @param value 値
+     * @return Builderインスタンス
+     */
     public Builder userContext(String key, String value) {
       Objects.requireNonNull(key, "key cannot be null");
       if (value == null) {
@@ -230,6 +272,12 @@ public class ExecutionContext {
       return this;
     }
 
+    /**
+     * ユーザーコンテキストを一括設定
+     *
+     * @param context コンテキストマップ
+     * @return Builderインスタンス
+     */
     public Builder userContext(Map<String, String> context) {
       if (context != null) {
         this.userContext.putAll(context);
@@ -237,6 +285,11 @@ public class ExecutionContext {
       return this;
     }
 
+    /**
+     * ExecutionContextインスタンスを生成
+     *
+     * @return ExecutionContextインスタンス
+     */
     public ExecutionContext build() {
       return new ExecutionContext(this);
     }

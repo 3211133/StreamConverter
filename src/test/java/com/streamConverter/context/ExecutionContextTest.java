@@ -74,9 +74,11 @@ class ExecutionContextTest {
     Map<String, String> retrievedContext = context.getAllGlobalContext();
 
     // getAllGlobalContextは読み取り専用なので変更操作は失敗する
-    assertThrows(UnsupportedOperationException.class, () -> {
-        retrievedContext.put("newKey", "newValue");
-    });
+    assertThrows(
+        UnsupportedOperationException.class,
+        () -> {
+          retrievedContext.put("newKey", "newValue");
+        });
 
     // 元のマップを変更しても影響しないことを確認
     initialGlobalContext.put("anotherKey", "anotherValue");

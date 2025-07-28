@@ -25,6 +25,11 @@ import org.slf4j.MDC;
 public class MDCMultiThreadExample {
   private static final Logger logger = LoggerFactory.getLogger(MDCMultiThreadExample.class);
 
+  /**
+   * メインメソッド
+   *
+   * @param args コマンドライン引数
+   */
   public static void main(String[] args) {
     logger.info("🧪 MDC Multi-Thread Behavior Test");
     logger.info("=================================\n");

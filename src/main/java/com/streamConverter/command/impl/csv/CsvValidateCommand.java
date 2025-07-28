@@ -106,7 +106,7 @@ public class CsvValidateCommand extends ConsumerCommand {
       List<String[]> allRows = csvReader.readAll();
 
       if (allRows.isEmpty()) {
-        throw new StreamProcessingException("CSV file is empty");
+        throw new StreamProcessingException("CSV validation failed: CSV file is empty");
       }
 
       logger.debug("Read {} rows from CSV", allRows.size());
@@ -120,6 +120,11 @@ public class CsvValidateCommand extends ConsumerCommand {
         validateHeaders(headers, validationErrors);
       }
 
+      // Check if CSV has only header row (no data rows)
+      if (hasHeader && allRows.size() == 1) {
+        validationErrors.add("CSV file contains only header, no data rows found");
+      }
+
       validateDataRows(allRows, dataStartRow, headers, validationErrors);
 
       if (!validationErrors.isEmpty()) {
@@ -130,7 +135,7 @@ public class CsvValidateCommand extends ConsumerCommand {
 
     } catch (CsvException e) {
       logger.error("CSV parsing error: {}", e.getMessage(), e);
-      throw new StreamProcessingException("CSV parsing failed: " + e.getMessage(), e);
+      throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     } catch (StreamProcessingException e) {
       throw e;
     } catch (Exception e) {
@@ -163,7 +168,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     }
 
     if (!duplicates.isEmpty()) {
-      errors.add("Duplicate headers found: " + duplicates);
+      errors.add("Duplicate column headers: " + duplicates);
     }
 
     // 必須カラムの存在チェック
@@ -205,11 +210,12 @@ public class CsvValidateCommand extends ConsumerCommand {
 
       // カラム数チェック
       if (expectedColumnCount > 0 && row.length != expectedColumnCount) {
+        int dataRowNumber = i + 1 - startRow; // Data row number (1-based, excluding header)
         addError(
             errors,
             String.format(
-                "Row %d: Expected %d columns, but found %d",
-                rowNumber, expectedColumnCount, row.length));
+                "Row %d has inconsistent number of columns (expected %d, found %d)",
+                dataRowNumber, expectedColumnCount, row.length));
         errorRows++;
         continue;
       }

@@ -21,6 +21,11 @@ import org.slf4j.MDC;
 public class ComplexPipelineExample {
   private static final Logger logger = LoggerFactory.getLogger(ComplexPipelineExample.class);
 
+  /**
+   * メインメソッド
+   *
+   * @param args コマンドライン引数
+   */
   public static void main(String[] args) {
     logger.info("🔧 Complex Pipeline Processing Example");
     logger.info("=====================================\n");

@@ -23,6 +23,11 @@ public class ContextPropagationDemo {
 
   private static final Logger logger = LoggerFactory.getLogger(ContextPropagationDemo.class);
 
+  /**
+   * メインメソッド
+   *
+   * @param args コマンドライン引数
+   */
   public static void main(String[] args) {
     logger.info("🔗 Context Propagation Demonstration");
     logger.info("===================================\n");

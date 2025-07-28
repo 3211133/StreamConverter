@@ -234,8 +234,8 @@ public class ContextAwareStreamConverter {
           currentInput = pipedIn;
         }
 
-        // 各コマンドを非同期実行（ExecutionContextを渡す）
-        final ExecutionContext commandContext = executionContext.copy();
+        // 各コマンドを非同期実行（同じExecutionContextを共有）
+        final ExecutionContext commandContext = executionContext;
         CompletableFuture<CommandResult> future =
             CompletableFuture.supplyAsync(
                 () -> {

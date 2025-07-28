@@ -36,8 +36,11 @@ public class ValidationDecorator implements IStreamCommand {
 
   /** サポートされるバリデーションタイプ */
   public enum ValidationType {
+    /** JSON形式のバリデーション */
     JSON("JSON"),
+    /** XML形式のバリデーション */
     XML("XML"),
+    /** CSV形式のバリデーション */
     CSV("CSV");
 
     private final String typeName;
@@ -46,6 +49,11 @@ public class ValidationDecorator implements IStreamCommand {
       this.typeName = typeName;
     }
 
+    /**
+     * バリデーションタイプ名を取得
+     *
+     * @return タイプ名
+     */
     public String getTypeName() {
       return typeName;
     }

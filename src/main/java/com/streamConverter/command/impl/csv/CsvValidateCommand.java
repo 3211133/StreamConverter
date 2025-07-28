@@ -47,7 +47,7 @@ public class CsvValidateCommand extends ConsumerCommand {
    * 必須カラムを指定するコンストラクタ（ヘッダー行ありと仮定）
    *
    * @param requiredColumns 必須カラム名の配列
-   * @throws IllegalArgumentException 必須カラムがnullまたは空の場合
+   * @throws IllegalArgumentException 必須カラムがnullの場合
    */
   public CsvValidateCommand(String[] requiredColumns) {
     this(requiredColumns, true, 10);
@@ -56,25 +56,29 @@ public class CsvValidateCommand extends ConsumerCommand {
   /**
    * 詳細設定を指定するコンストラクタ
    *
-   * @param requiredColumns 必須カラム名の配列（nullの場合は必須カラムチェックをスキップ）
+   * @param requiredColumns 必須カラム名の配列
    * @param hasHeader ヘッダー行の存在フラグ
    * @param maxErrorsToReport 報告する最大エラー数
-   * @throws IllegalArgumentException 無効なパラメータが指定された場合
+   * @throws IllegalArgumentException requiredColumnsがnullの場合
    */
   public CsvValidateCommand(String[] requiredColumns, boolean hasHeader, int maxErrorsToReport) {
+    if (requiredColumns == null) {
+      throw new IllegalArgumentException("Required columns cannot be null");
+    }
+
     this.hasHeader = hasHeader;
     this.maxErrorsToReport = Math.max(1, maxErrorsToReport);
 
-    if (requiredColumns == null || requiredColumns.length == 0) {
-      this.requiredColumns = new HashSet<>();
+    this.requiredColumns = new HashSet<>();
+    for (String column : requiredColumns) {
+      if (column != null && !column.trim().isEmpty()) {
+        this.requiredColumns.add(column.trim());
+      }
+    }
+
+    if (requiredColumns.length == 0) {
       logger.info("No required columns specified, column validation will be skipped");
     } else {
-      this.requiredColumns = new HashSet<>();
-      for (String column : requiredColumns) {
-        if (column != null && !column.trim().isEmpty()) {
-          this.requiredColumns.add(column.trim());
-        }
-      }
       logger.info("Required columns: {}", this.requiredColumns);
     }
   }
@@ -88,7 +92,7 @@ public class CsvValidateCommand extends ConsumerCommand {
    */
   @Override
   public void consume(InputStream inputStream) throws IOException {
-    Objects.requireNonNull(inputStream, "Input stream cannot be null");
+    Objects.requireNonNull(inputStream, "InputStream cannot be null");
 
     logger.info(
         "Starting CSV validation - hasHeader: {}, requiredColumns: {}",
@@ -103,7 +107,7 @@ public class CsvValidateCommand extends ConsumerCommand {
       List<String[]> allRows = csvReader.readAll();
 
       if (allRows.isEmpty()) {
-        throw new StreamProcessingException("CSV file is empty");
+        throw new StreamProcessingException("CSV validation failed: CSV file is empty");
       }
 
       logger.debug("Read {} rows from CSV", allRows.size());
@@ -117,6 +121,11 @@ public class CsvValidateCommand extends ConsumerCommand {
         validateHeaders(headers, validationErrors);
       }
 
+      // Check if CSV has only header row (no data rows)
+      if (hasHeader && allRows.size() == 1) {
+        validationErrors.add("CSV file contains only header, no data rows found");
+      }
+
       validateDataRows(allRows, dataStartRow, headers, validationErrors);
 
       if (!validationErrors.isEmpty()) {
@@ -127,12 +136,12 @@ public class CsvValidateCommand extends ConsumerCommand {
 
     } catch (CsvException e) {
       logger.error("CSV parsing error: {}", e.getMessage(), e);
-      throw new StreamProcessingException("CSV parsing failed: " + e.getMessage(), e);
+      throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     } catch (StreamProcessingException e) {
       throw e;
     } catch (Exception e) {
       logger.error("CSV validation failed: {}", e.getMessage(), e);
-      throw new StreamProcessingException("CSV validation failed: " + e.getMessage(), e);
+      throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     }
   }
 
@@ -160,7 +169,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     }
 
     if (!duplicates.isEmpty()) {
-      errors.add("Duplicate headers found: " + duplicates);
+      errors.add("Duplicate column headers: " + duplicates);
     }
 
     // 必須カラムの存在チェック
@@ -202,11 +211,12 @@ public class CsvValidateCommand extends ConsumerCommand {
 
       // カラム数チェック
       if (expectedColumnCount > 0 && row.length != expectedColumnCount) {
+        int dataRowNumber = i + 1 - startRow; // Data row number (1-based, excluding header)
         addError(
             errors,
             String.format(
-                "Row %d: Expected %d columns, but found %d",
-                rowNumber, expectedColumnCount, row.length));
+                "Row %d has inconsistent number of columns (expected %d, found %d)",
+                dataRowNumber, expectedColumnCount, row.length));
         errorRows++;
         continue;
       }

@@ -11,6 +11,7 @@ StreamConverterの包括的なドキュメントです。目的に応じて適�
 
 ### 🏗️ Architecture & Design
 - [**Command Architecture**](COMMAND_ARCHITECTURE.md) - コマンドパターンとファクトリー設計
+- [**Context Propagation Architecture**](../CONTEXT_PROPAGATION_ARCHITECTURE.md) - マルチスレッド環境でのMDC管理
 - [**Auto-Logging Infrastructure**](AUTO_LOGGING.md) - 自動ログ機能の設計と使用方法
 - [**Auto-Logging Design**](auto-logging-design.md) - ログ機能の設計詳細
 - [**Auto-Logging Implementation**](auto-logging-implementation.md) - 実装詳細
@@ -31,7 +32,8 @@ StreamConverterの包括的なドキュメントです。目的に応じて適�
 ### 初めてのユーザー
 1. [メインREADME](../README.md) - プロジェクト概要
 2. [QuickStart](../src/main/java/com/streamConverter/examples/QuickStart.java) - 基本的な使用方法
-3. [Auto-Logging](AUTO_LOGGING.md) - ログ機能の活用
+3. [Context Propagation Demo](../src/main/java/com/streamConverter/examples/ContextPropagationDemo.java) - コンテキスト伝播の活用
+4. [Auto-Logging](AUTO_LOGGING.md) - ログ機能の活用
 
 ### 開発者
 1. [Command Architecture](COMMAND_ARCHITECTURE.md) - アーキテクチャ理解
@@ -65,6 +67,7 @@ StreamConverterの包括的なドキュメントです。目的に応じて適�
 
 ## 📝 ドキュメント更新履歴
 
+- 2025-07-27: コンテキスト伝播アーキテクチャドキュメント追加、MDCマルチスレッド対応
 - 2025-07-26: ドキュメント構造の再整理、自動ログ機能ドキュメント追加
 - 2025-07-XX: コマンドアーキテクチャドキュメント追加
 - 2025-07-XX: バージョン管理ポリシー策定

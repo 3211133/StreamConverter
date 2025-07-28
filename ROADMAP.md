@@ -9,14 +9,13 @@ StreamConverterをWebAPIとして機能させ、スキーマバリデーショ�
 - XMLバリデーション機能実装済み
 - MDC対応のログパターン設定済み（logback.xml）
 
-## フェーズ1: ログ機能強化 (1-2週間)
-### 1.1 MDC機能実装
-- [ ] ValueExtractionDecoratorクラス作成
-  - 特定パスの値をMDCに格納する機能
-  - JSON/XML/CSV形式サポート
-  - リクエストID自動生成
-- [ ] 既存LoggingDecoratorとの統合
-- [ ] MDC機能の単体テスト作成
+## フェーズ1: ログ機能強化 (1-2週間) ✅ 完了
+### 1.1 MDC機能実装 ✅ 完了
+- [x] ExecutionContextクラス作成 - ユニークID発行とコンテキスト管理
+- [x] IContextAwareStreamCommandインターフェース追加
+- [x] ContextPropagatingDecoratorクラス作成 - 既存コマンドの自動ラップ
+- [x] ContextAwareStreamConverter実装 - マルチスレッド対応実行エンジン
+- [x] MDC機能の単体テスト作成とデモンストレーション実装
 
 ### 1.2 スキーマバリデーション機能拡張
 - [x] XMLバリデーション（ValidateCommand）- 実装済み

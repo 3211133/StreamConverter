@@ -29,47 +29,83 @@ public class CommandResult {
     this.endTime = builder.endTime;
   }
 
-  /** コマンド名を取得 */
+  /**
+   * コマンド名を取得
+   *
+   * @return コマンド名
+   */
   public String getCommandName() {
     return commandName;
   }
 
-  /** 実行成功フラグを取得 */
+  /**
+   * 実行成功フラグを取得
+   *
+   * @return 実行が成功した場合true
+   */
   public boolean isSuccess() {
     return success;
   }
 
-  /** 実行時間（ミリ秒）を取得 */
+  /**
+   * 実行時間（ミリ秒）を取得
+   *
+   * @return 実行時間（ミリ秒）
+   */
   public long getExecutionTimeMillis() {
     return executionTimeMillis;
   }
 
-  /** 入力バイト数を取得 */
+  /**
+   * 入力バイト数を取得
+   *
+   * @return 入力バイト数
+   */
   public long getInputBytes() {
     return inputBytes;
   }
 
-  /** 出力バイト数を取得 */
+  /**
+   * 出力バイト数を取得
+   *
+   * @return 出力バイト数
+   */
   public long getOutputBytes() {
     return outputBytes;
   }
 
-  /** エラーメッセージを取得（エラー時のみ） */
+  /**
+   * エラーメッセージを取得（エラー時のみ）
+   *
+   * @return エラーメッセージ（エラーがない場合はnull）
+   */
   public String getErrorMessage() {
     return errorMessage;
   }
 
-  /** 開始時刻を取得 */
+  /**
+   * 開始時刻を取得
+   *
+   * @return 開始時刻
+   */
   public Instant getStartTime() {
     return startTime;
   }
 
-  /** 終了時刻を取得 */
+  /**
+   * 終了時刻を取得
+   *
+   * @return 終了時刻
+   */
   public Instant getEndTime() {
     return endTime;
   }
 
-  /** 実行時間をDurationで取得 */
+  /**
+   * 実行時間をDurationで取得
+   *
+   * @return 実行時間
+   */
   public Duration getDuration() {
     return Duration.between(startTime, endTime);
   }
@@ -97,52 +133,115 @@ public class CommandResult {
     private Instant startTime;
     private Instant endTime;
 
+    /**
+     * コマンド名を設定
+     *
+     * @param commandName コマンド名
+     * @return Builderインスタンス
+     */
     public Builder commandName(String commandName) {
       this.commandName = commandName;
       return this;
     }
 
+    /**
+     * 成功フラグを設定
+     *
+     * @param success 成功フラグ
+     * @return Builderインスタンス
+     */
     public Builder success(boolean success) {
       this.success = success;
       return this;
     }
 
+    /**
+     * 実行時間を設定
+     *
+     * @param executionTimeMillis 実行時間（ミリ秒）
+     * @return Builderインスタンス
+     */
     public Builder executionTime(long executionTimeMillis) {
       this.executionTimeMillis = executionTimeMillis;
       return this;
     }
 
+    /**
+     * 入力バイト数を設定
+     *
+     * @param inputBytes 入力バイト数
+     * @return Builderインスタンス
+     */
     public Builder inputBytes(long inputBytes) {
       this.inputBytes = inputBytes;
       return this;
     }
 
+    /**
+     * 出力バイト数を設定
+     *
+     * @param outputBytes 出力バイト数
+     * @return Builderインスタンス
+     */
     public Builder outputBytes(long outputBytes) {
       this.outputBytes = outputBytes;
       return this;
     }
 
+    /**
+     * エラーメッセージを設定
+     *
+     * @param errorMessage エラーメッセージ
+     * @return Builderインスタンス
+     */
     public Builder errorMessage(String errorMessage) {
       this.errorMessage = errorMessage;
       return this;
     }
 
+    /**
+     * 開始時刻を設定
+     *
+     * @param startTime 開始時刻
+     * @return Builderインスタンス
+     */
     public Builder startTime(Instant startTime) {
       this.startTime = startTime;
       return this;
     }
 
+    /**
+     * 終了時刻を設定
+     *
+     * @param endTime 終了時刻
+     * @return Builderインスタンス
+     */
     public Builder endTime(Instant endTime) {
       this.endTime = endTime;
       return this;
     }
 
+    /**
+     * CommandResultインスタンスを生成
+     *
+     * @return CommandResultインスタンス
+     */
     public CommandResult build() {
       return new CommandResult(this);
     }
   }
 
-  /** 成功結果を作成するヘルパーメソッド */
+  /**
+   * 成功結果を作成するヘルパーメソッド
+   *
+   * @param commandName コマンド名
+   * @param executionTime 実行時間（ミリ秒）
+   * @param inputBytes 入力バイト数
+   * @param outputBytes 出力バイト数
+   * @param startTime 開始時刻
+   * @param endTime 終了時刻
+   * @return 成功結果のCommandResult
+   */
   public static CommandResult success(
       String commandName,
       long executionTime,
@@ -161,7 +260,16 @@ public class CommandResult {
         .build();
   }
 
-  /** 失敗結果を作成するヘルパーメソッド */
+  /**
+   * 失敗結果を作成するヘルパーメソッド
+   *
+   * @param commandName コマンド名
+   * @param executionTime 実行時間（ミリ秒）
+   * @param errorMessage エラーメッセージ
+   * @param startTime 開始時刻
+   * @param endTime 終了時刻
+   * @return 失敗結果のCommandResult
+   */
   public static CommandResult failure(
       String commandName,
       long executionTime,

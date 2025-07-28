@@ -344,7 +344,15 @@ public class ValidationResult {
      * @throws IllegalStateException 必須フィールドが設定されていない場合
      */
     public ValidationResult build() {
-      Objects.requireNonNull(validationType, "Validation type is required");
+      // バリデーションタイプの検証
+      if (validationType == null || validationType.trim().isEmpty()) {
+        throw new IllegalArgumentException("Validation type cannot be null or empty");
+      }
+
+      // スキーマパスの検証
+      if (schemaPath == null || schemaPath.trim().isEmpty()) {
+        throw new IllegalArgumentException("Schema path cannot be null or empty");
+      }
 
       // 成功フラグとエラーの整合性チェック
       if (isValid && !errors.isEmpty()) {

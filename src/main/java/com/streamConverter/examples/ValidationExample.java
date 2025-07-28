@@ -19,6 +19,11 @@ import org.slf4j.LoggerFactory;
 public class ValidationExample {
   private static final Logger logger = LoggerFactory.getLogger(ValidationExample.class);
 
+  /**
+   * メインメソッド
+   *
+   * @param args コマンドライン引数
+   */
   public static void main(String[] args) {
     logger.info("🔍 Validation Feature Demonstration");
     logger.info("====================================\n");

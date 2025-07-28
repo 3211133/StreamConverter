@@ -11,6 +11,7 @@ import com.streamConverter.command.ConsumerCommand;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -40,16 +41,26 @@ public class JsonValidateCommand extends ConsumerCommand {
    *
    * @param schemaPath JSONスキーマファイルのパス
    * @throws IllegalArgumentException スキーマパスがnullまたは空の場合
+   * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
    */
   public JsonValidateCommand(String schemaPath) {
     this.schemaPath = validateSchemaPath(schemaPath);
     this.objectMapper = new ObjectMapper();
     this.schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+
+    // コンストラクタでスキーマファイルの妥当性を検証
+    try {
+      loadSchema();
+    } catch (StreamProcessingException e) {
+      throw e;
+    }
   }
 
   /** スキーマパスの検証 */
   private String validateSchemaPath(String path) {
-    Objects.requireNonNull(path, "Schema path cannot be null");
+    if (path == null) {
+      throw new IllegalArgumentException("Schema path cannot be null");
+    }
     String trimmedPath = path.trim();
     if (trimmedPath.isEmpty()) {
       throw new IllegalArgumentException("Schema path cannot be empty");
@@ -66,7 +77,7 @@ public class JsonValidateCommand extends ConsumerCommand {
    */
   @Override
   public void consume(InputStream inputStream) throws IOException {
-    Objects.requireNonNull(inputStream, "Input stream cannot be null");
+    Objects.requireNonNull(inputStream, "InputStream cannot be null");
 
     logger.info("Starting JSON validation with schema: {}", schemaPath);
 
@@ -75,10 +86,30 @@ public class JsonValidateCommand extends ConsumerCommand {
       JsonSchema schema = loadSchema();
 
       // JSONデータの読み込み
-      JsonNode jsonNode = objectMapper.readTree(inputStream);
+      JsonNode jsonNode;
+      try {
+        // 入力ストリームの内容を確認
+        byte[] inputBytes = inputStream.readAllBytes();
+        if (inputBytes.length == 0) {
+          throw new StreamProcessingException("Failed to parse JSON input: Input stream is empty");
+        }
+
+        String inputString = new String(inputBytes, StandardCharsets.UTF_8).trim();
+        if (inputString.isEmpty()) {
+          throw new StreamProcessingException(
+              "Failed to parse JSON input: Input contains only whitespace");
+        }
+
+        jsonNode = objectMapper.readTree(inputString);
+      } catch (StreamProcessingException e) {
+        throw e;
+      } catch (Exception e) {
+        throw new StreamProcessingException("Failed to parse JSON input: " + e.getMessage(), e);
+      }
 
       if (jsonNode == null) {
-        throw new StreamProcessingException("Input stream contains no valid JSON data");
+        throw new StreamProcessingException(
+            "Failed to parse JSON input: Input stream contains no valid JSON data");
       }
 
       logger.debug("JSON data loaded successfully, validating against schema");
@@ -105,22 +136,34 @@ public class JsonValidateCommand extends ConsumerCommand {
   }
 
   /** JSONスキーマを読み込み */
-  private JsonSchema loadSchema() throws IOException {
+  private JsonSchema loadSchema() throws StreamProcessingException {
     try {
       File schemaFile = new File(schemaPath);
       if (!schemaFile.exists()) {
-        throw new IOException("Schema file not found: " + schemaPath);
+        throw new StreamProcessingException("Failed to load JSON schema: Schema file not found: " + schemaPath);
       }
 
       if (!schemaFile.canRead()) {
-        throw new IOException("Schema file is not readable: " + schemaPath);
+        throw new StreamProcessingException("Failed to load JSON schema: Schema file is not readable: " + schemaPath);
       }
 
-      JsonNode schemaNode = objectMapper.readTree(schemaFile);
+      JsonNode schemaNode;
+      try {
+        schemaNode = objectMapper.readTree(schemaFile);
+      } catch (Exception e) {
+        throw new StreamProcessingException("Failed to load JSON schema: Invalid schema file format: " + schemaPath, e);
+      }
+
+      if (schemaNode == null) {
+        throw new StreamProcessingException("Failed to load JSON schema: Schema file is empty: " + schemaPath);
+      }
+
       return schemaFactory.getSchema(schemaNode);
 
+    } catch (StreamProcessingException e) {
+      throw e;
     } catch (Exception e) {
-      throw new IOException("Failed to load JSON schema from: " + schemaPath, e);
+      throw new StreamProcessingException("Failed to load JSON schema from: " + schemaPath, e);
     }
   }
 
@@ -130,7 +173,7 @@ public class JsonValidateCommand extends ConsumerCommand {
     errorBuilder
         .append("JSON validation failed with ")
         .append(validationMessages.size())
-        .append(" error(s):");
+        .append(" validation errors:");
 
     int errorCount = 0;
     for (ValidationMessage message : validationMessages) {

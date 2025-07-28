@@ -105,7 +105,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.18")
     
     // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:1.5.3")
+    implementation("com.networknt:json-schema-validator:1.5.8")
     
     // CSV validation support
     implementation("com.opencsv:opencsv:5.9")

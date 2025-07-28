@@ -200,6 +200,10 @@ loadScripts(document, 'script');</script>
 <h3>getCommandName</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getCommandName</span>()</div>
 <div class="block">コマンド名を取得</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>コマンド名</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -207,6 +211,10 @@ loadScripts(document, 'script');</script>
 <h3>isSuccess</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name">isSuccess</span>()</div>
 <div class="block">実行成功フラグを取得</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>実行が成功した場合true</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -214,6 +222,10 @@ loadScripts(document, 'script');</script>
 <h3>getExecutionTimeMillis</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getExecutionTimeMillis</span>()</div>
 <div class="block">実行時間（ミリ秒）を取得</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>実行時間（ミリ秒）</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -221,6 +233,10 @@ loadScripts(document, 'script');</script>
 <h3>getInputBytes</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getInputBytes</span>()</div>
 <div class="block">入力バイト数を取得</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>入力バイト数</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -228,6 +244,10 @@ loadScripts(document, 'script');</script>
 <h3>getOutputBytes</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name">getOutputBytes</span>()</div>
 <div class="block">出力バイト数を取得</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>出力バイト数</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -235,6 +255,10 @@ loadScripts(document, 'script');</script>
 <h3>getErrorMessage</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name">getErrorMessage</span>()</div>
 <div class="block">エラーメッセージを取得（エラー時のみ）</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>エラーメッセージ（エラーがない場合はnull）</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -242,6 +266,10 @@ loadScripts(document, 'script');</script>
 <h3>getStartTime</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a></span>&nbsp;<span class="element-name">getStartTime</span>()</div>
 <div class="block">開始時刻を取得</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>開始時刻</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -249,6 +277,10 @@ loadScripts(document, 'script');</script>
 <h3>getEndTime</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a></span>&nbsp;<span class="element-name">getEndTime</span>()</div>
 <div class="block">終了時刻を取得</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>終了時刻</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -256,6 +288,10 @@ loadScripts(document, 'script');</script>
 <h3>getDuration</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a></span>&nbsp;<span class="element-name">getDuration</span>()</div>
 <div class="block">実行時間をDurationで取得</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>実行時間</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -278,6 +314,17 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a>&nbsp;startTime,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a>&nbsp;endTime)</span></div>
 <div class="block">成功結果を作成するヘルパーメソッド</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>commandName</code> - コマンド名</dd>
+<dd><code>executionTime</code> - 実行時間（ミリ秒）</dd>
+<dd><code>inputBytes</code> - 入力バイト数</dd>
+<dd><code>outputBytes</code> - 出力バイト数</dd>
+<dd><code>startTime</code> - 開始時刻</dd>
+<dd><code>endTime</code> - 終了時刻</dd>
+<dt>Returns:</dt>
+<dd>成功結果のCommandResult</dd>
+</dl>
 </section>
 </li>
 <li>
@@ -289,6 +336,16 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a>&nbsp;startTime,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a>&nbsp;endTime)</span></div>
 <div class="block">失敗結果を作成するヘルパーメソッド</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>commandName</code> - コマンド名</dd>
+<dd><code>executionTime</code> - 実行時間（ミリ秒）</dd>
+<dd><code>errorMessage</code> - エラーメッセージ</dd>
+<dd><code>startTime</code> - 開始時刻</dd>
+<dd><code>endTime</code> - 終了時刻</dd>
+<dt>Returns:</dt>
+<dd>失敗結果のCommandResult</dd>
+</dl>
 </section>
 </li>
 </ul>

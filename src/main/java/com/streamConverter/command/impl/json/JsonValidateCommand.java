@@ -140,22 +140,26 @@ public class JsonValidateCommand extends ConsumerCommand {
     try {
       File schemaFile = new File(schemaPath);
       if (!schemaFile.exists()) {
-        throw new StreamProcessingException("Failed to load JSON schema: Schema file not found: " + schemaPath);
+        throw new StreamProcessingException(
+            "Failed to load JSON schema: Schema file not found: " + schemaPath);
       }
 
       if (!schemaFile.canRead()) {
-        throw new StreamProcessingException("Failed to load JSON schema: Schema file is not readable: " + schemaPath);
+        throw new StreamProcessingException(
+            "Failed to load JSON schema: Schema file is not readable: " + schemaPath);
       }
 
       JsonNode schemaNode;
       try {
         schemaNode = objectMapper.readTree(schemaFile);
       } catch (Exception e) {
-        throw new StreamProcessingException("Failed to load JSON schema: Invalid schema file format: " + schemaPath, e);
+        throw new StreamProcessingException(
+            "Failed to load JSON schema: Invalid schema file format: " + schemaPath, e);
       }
 
       if (schemaNode == null) {
-        throw new StreamProcessingException("Failed to load JSON schema: Schema file is empty: " + schemaPath);
+        throw new StreamProcessingException(
+            "Failed to load JSON schema: Schema file is empty: " + schemaPath);
       }
 
       return schemaFactory.getSchema(schemaNode);

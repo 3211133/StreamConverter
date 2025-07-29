@@ -1,0 +1,87 @@
+# テスト環境専用設定
+server:
+  port: 0  # ランダムポートを使用（テスト用）
+
+spring:
+  profiles:
+    active: test
+  # テスト用のセキュリティ設定
+  security:
+    user:
+      name: admin
+      password: streamconverter123
+      roles: USER, ADMIN
+      
+  # テスト用キャッシュ設定（短いTTL）
+  cache:
+    type: caffeine
+    caffeine:
+      spec: "maximumSize=500,expireAfterWrite=10m"
+
+# テスト用のセキュリティ設定
+security:
+  cors:
+    allowed-origins: 
+      - "http://localhost:3000"
+      - "http://localhost:8080"
+      - "*"
+    allowed-methods:
+      - GET
+      - POST
+      - OPTIONS
+    allowed-headers:
+      - "*"
+    allow-credentials: true
+
+# Actuator設定（テスト用）
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,cache
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: always
+    cache:
+      enabled: true
+  security:
+    enabled: true
+      
+# OpenAPI設定（テスト環境）
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    enabled: true
+
+# テスト用のカスタム設定
+streamconverter:
+  test:
+    enabled: true
+    batch-timeout-seconds: 30
+    cache-enabled: true
+    
+# テスト用ログ設定
+logging:
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level %logger{36} - %msg%n"
+  level:
+    root: INFO
+    com.streamConverter: DEBUG
+    org.springframework.security: DEBUG
+    org.springframework.cache: DEBUG
+
+# テスト用キャッシュ設定
+app:
+  cache:
+    validation:
+      maximum-size: 100
+      expire-after-write: 5m
+    transform:
+      maximum-size: 200
+      expire-after-write: 10m
+    schema:
+      maximum-size: 50
+      expire-after-write: 15m

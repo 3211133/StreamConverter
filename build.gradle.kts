@@ -15,11 +15,13 @@ plugins {
     id("application")
     id("com.diffplug.spotless") version "7.2.0"
     id("info.solidsoft.pitest") version "1.15.0"
+    id("org.springframework.boot") version "3.3.2"
+    id("io.spring.dependency-management") version "1.1.6"
 }
 
 // Main class configuration
 application {
-    mainClass.set("com.streamConverter.Main")
+    mainClass.set("com.streamConverter.StreamConverterApplication")
 }
 
 // Custom tasks for running examples
@@ -81,7 +83,7 @@ spotless {
 }
 
 application {
-    mainClass.set(project.findProperty("mainClass")?.toString() ?: "com.streamConverter.Main")
+    mainClass.set(project.findProperty("mainClass")?.toString() ?: "com.streamConverter.StreamConverterApplication")
 }
 
 java {
@@ -98,18 +100,33 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot 依存関係
+    implementation("org.springframework.boot:spring-boot-starter-web")
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+    implementation("org.springframework.boot:spring-boot-starter-security")
+    
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("commons-io:commons-io:2.20.0")
-    implementation("org.slf4j:slf4j-api:2.0.17")
-    implementation("ch.qos.logback:logback-classic:1.5.18")
     
     // JSON Schema validation
     implementation("com.networknt:json-schema-validator:1.5.3")
     
     // CSV validation support
     implementation("com.opencsv:opencsv:5.9")
+    
+    // API Documentation
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
+    
+    // Cache Support
+    implementation("org.springframework.boot:spring-boot-starter-cache")
+    implementation("com.github.ben-manes.caffeine:caffeine:3.1.8")
 
+    // Spring Boot テスト依存関係
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.springframework.security:spring-security-test")
+    
     // JUnit 5 の依存関係（テスト用）
 	testImplementation(platform("org.junit:junit-bom:5.13.4"))
 	testImplementation("org.junit.jupiter:junit-jupiter")

@@ -17,6 +17,13 @@
 - **エラー追跡**: 詳細なスタックトレースと実行コンテキスト
 - **コンテキスト伝播**: マルチスレッド環境でのMDCコンテキスト管理
 
+#### 🌐 WebAPI機能 (NEW!)
+- **REST API**: Spring Boot ベースのWebAPIエンドポイント
+- **値抽出**: JSON/XML/CSVからの自動値抽出とMDC連携
+- **スキーマ検証**: JSON Schema、XSD、CSV構造の検証
+- **認証・セキュリティ**: 基本認証、CORS設定
+- **API文書**: OpenAPI/Swagger UI による自動生成仕様書
+
 ### 🔧 豊富なコマンド
 - **データ抽出**: CSV、JSON、XMLからの値抽出
 - **形式変換**: 文字エンコーディング、XML変換
@@ -122,4 +129,46 @@ converter.run(inputStream, outputStream);
 
 ```bash
 ./gradlew spotlessApply
+```
+
+## 📦 依存関係
+
+StreamConverterは以下の主要な外部ライブラリを使用しています：
+
+### Core Dependencies (実行時)
+- **Spring Boot 3.3.2** - WebAPIフレームワーク、セキュリティ、監視機能
+- **Jackson 2.17.1** - JSON処理（Spring Boot BOMで管理）
+- **JSON Schema Validator 1.5.3** - JSONスキーマ検証
+- **OpenCSV 5.9** - CSV処理・バリデーション
+- **Apache Commons Lang3 3.18.0** - ユーティリティ機能
+- **Apache Commons IO 2.20.0** - I/O処理支援
+
+### Development Dependencies (開発・テスト時)
+- **JUnit 5.13.4** - 単体テストフレームワーク
+- **Mockito 5.18.0** - モックオブジェクト作成
+- **Spring Boot Test** - 統合テスト支援
+- **PITest 1.2.3** - 変異テスト（コードカバレッジ品質向上）
+
+### Documentation & API
+- **SpringDoc OpenAPI 2.6.0** - API仕様書自動生成、Swagger UI
+
+詳細な依存関係情報とアーキテクチャについては以下を参照：
+- 📋 [依存関係詳細 (DEPENDENCIES.md)](DEPENDENCIES.md)
+- 🏗️ [アーキテクチャ依存関係 (docs/ARCHITECTURE_DEPENDENCIES.md)](docs/ARCHITECTURE_DEPENDENCIES.md)
+
+### バージョン管理
+- **Spring Boot BOM**: Spring関連ライブラリのバージョン自動管理
+- **明示的バージョン指定**: サードパーティライブラリは安定版を選択
+- **セキュリティ更新**: 四半期ごとの定期更新を推奨
+
+### 依存関係確認コマンド
+```bash
+# 依存関係ツリー表示
+./gradlew dependencies
+
+# 脆弱性チェック
+./gradlew dependencyCheckAnalyze
+
+# 更新可能なバージョン確認
+./gradlew dependencyUpdates
 ```

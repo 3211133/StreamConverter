@@ -1,0 +1,101 @@
+# StreamConverter WebAPI Configuration
+
+# Server configuration
+server:
+  port: 8080
+  servlet:
+    context-path: /
+  compression:
+    enabled: true
+    mime-types: application/json,application/xml,text/plain,text/xml,text/css,application/javascript
+
+# Spring Boot configuration
+spring:
+  application:
+    name: streamconverter-api
+  
+  # JSON configuration
+  jackson:
+    default-property-inclusion: non_null
+    date-format: yyyy-MM-dd'T'HH:mm:ss.SSS'Z'
+    time-zone: UTC
+    
+  # Security configuration (basic setup)
+  security:
+    user:
+      name: admin
+      password: ${ADMIN_PASSWORD:streamconverter123}
+      roles: ADMIN
+
+# Management endpoints (Actuator)
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+      base-path: /actuator
+  endpoint:
+    health:
+      show-details: when-authorized
+    info:
+      enabled: true
+  info:
+    env:
+      enabled: true
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging configuration
+logging:
+  level:
+    com.streamConverter: INFO
+    org.springframework.security: WARN
+    org.springframework.web: INFO
+  pattern:
+    console: "%d{yyyy-MM-dd HH:mm:ss} %level [%X{executionId:-}] [%X{userId:-}] [%X{requestId:-}] %logger{36} - %msg%n"
+    file: "%d{yyyy-MM-dd HH:mm:ss} %level [%X{executionId:-}] [%X{userId:-}] [%X{requestId:-}] %logger{36} - %msg%n"
+  file:
+    name: logs/streamconverter-api.log
+
+# API Documentation (OpenAPI/Swagger)
+springdoc:
+  api-docs:
+    path: /api-docs
+  swagger-ui:
+    path: /swagger-ui.html
+    try-it-out-enabled: true
+    operations-sorter: method
+    tags-sorter: alpha
+  info:
+    title: StreamConverter API
+    description: データ変換とバリデーションのためのWebAPI
+    version: 1.0.0
+    contact:
+      name: StreamConverter Team
+      email: support@streamconverter.com
+
+# Custom StreamConverter configuration
+streamconverter:
+  # Performance settings
+  performance:
+    max-input-size: 10MB
+    timeout-ms: 30000
+    
+  # Schema validation settings
+  validation:
+    schema-cache-enabled: true
+    schema-cache-size: 100
+    
+  # Value extraction settings
+  extraction:
+    max-path-depth: 10
+    
+  # Security settings
+  security:
+    cors:
+      allowed-origins: "*"
+      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+      allowed-headers: "*"
+      max-age: 3600

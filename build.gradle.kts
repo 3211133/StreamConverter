@@ -108,7 +108,7 @@ dependencies {
     implementation("com.networknt:json-schema-validator:1.5.8")
     
     // CSV validation support
-    implementation("com.opencsv:opencsv:5.9")
+    implementation("com.opencsv:opencsv:5.12.0")
 
     // JUnit 5 の依存関係（テスト用）
 	testImplementation(platform("org.junit:junit-bom:5.13.4"))

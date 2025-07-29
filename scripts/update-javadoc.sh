@@ -119,15 +119,16 @@ else
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         git add docs/javadoc/
-        git commit -m "docs: update Javadoc
+        git commit <<EOF
+docs: update Javadoc
 
 🔄 Updated Javadoc documentation
 
 Generated from latest source code changes.
 See individual commits for specific API changes.
 
-Co-Authored-By: update-javadoc.sh <noreply@local>"
-        
+Co-Authored-By: update-javadoc.sh <noreply@local>
+EOF
         print_status "Javadoc changes committed successfully"
         
         # Clean up backup after successful commit

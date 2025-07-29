@@ -13,7 +13,7 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
-    id("com.diffplug.spotless") version "7.2.0"
+    id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.15.0"
 }
 
@@ -105,7 +105,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.18")
     
     // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:1.5.3")
+    implementation("com.networknt:json-schema-validator:1.5.8")
     
     // CSV validation support
     implementation("com.opencsv:opencsv:5.12.0")

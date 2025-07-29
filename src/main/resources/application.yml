@@ -23,8 +23,8 @@ spring:
   # Security configuration (basic setup)
   security:
     user:
-      name: admin
-      password: ${ADMIN_PASSWORD:streamconverter123}
+      name: ${ADMIN_USERNAME:admin}
+      password: ${ADMIN_PASSWORD:}  # Must be set via environment variable
       roles: ADMIN
 
 # Management endpoints (Actuator)
@@ -95,7 +95,8 @@ streamconverter:
   # Security settings
   security:
     cors:
-      allowed-origins: "*"
-      allowed-methods: GET,POST,PUT,DELETE,OPTIONS
-      allowed-headers: "*"
-      max-age: 3600
+      allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:8080,http://127.0.0.1:3000}
+      allowed-methods: ${CORS_ALLOWED_METHODS:GET,POST,OPTIONS}
+      allowed-headers: ${CORS_ALLOWED_HEADERS:Content-Type,Authorization,X-Requested-With}
+      allow-credentials: ${CORS_ALLOW_CREDENTIALS:true}
+      max-age: ${CORS_MAX_AGE:3600}

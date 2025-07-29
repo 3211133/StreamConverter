@@ -3,6 +3,7 @@ package com.streamConverter.api.config;
 import java.util.concurrent.Executor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.scheduling.annotation.EnableAsync;
@@ -32,6 +33,29 @@ public class AsyncConfig {
 
   private static final Logger logger = LoggerFactory.getLogger(AsyncConfig.class);
 
+  // バッチ処理用ExecutorService設定
+  @Value("${streamconverter.async.batch.core-pool-size:5}")
+  private int batchCorePoolSize;
+
+  @Value("${streamconverter.async.batch.max-pool-size:20}")
+  private int batchMaxPoolSize;
+
+  @Value("${streamconverter.async.batch.queue-capacity:100}")
+  private int batchQueueCapacity;
+
+  @Value("${streamconverter.async.batch.keep-alive-seconds:60}")
+  private int batchKeepAliveSeconds;
+
+  // 一般処理用ExecutorService設定
+  @Value("${streamconverter.async.general.core-pool-size:3}")
+  private int generalCorePoolSize;
+
+  @Value("${streamconverter.async.general.max-pool-size:10}")
+  private int generalMaxPoolSize;
+
+  @Value("${streamconverter.async.general.queue-capacity:50}")
+  private int generalQueueCapacity;
+
   /**
    * バッチ処理用の非同期実行器を設定します。
    *
@@ -50,11 +74,11 @@ public class AsyncConfig {
   public Executor batchTaskExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-    // 基本スレッドプール設定
-    executor.setCorePoolSize(5);
-    executor.setMaxPoolSize(20);
-    executor.setQueueCapacity(100);
-    executor.setKeepAliveSeconds(60);
+    // 基本スレッドプール設定（環境変数から取得）
+    executor.setCorePoolSize(batchCorePoolSize);
+    executor.setMaxPoolSize(batchMaxPoolSize);
+    executor.setQueueCapacity(batchQueueCapacity);
+    executor.setKeepAliveSeconds(batchKeepAliveSeconds);
 
     // スレッド名の設定
     executor.setThreadNamePrefix("BatchProcessing-");
@@ -96,9 +120,9 @@ public class AsyncConfig {
   public Executor generalTaskExecutor() {
     ThreadPoolTaskExecutor executor = new ThreadPoolTaskExecutor();
 
-    executor.setCorePoolSize(3);
-    executor.setMaxPoolSize(10);
-    executor.setQueueCapacity(50);
+    executor.setCorePoolSize(generalCorePoolSize);
+    executor.setMaxPoolSize(generalMaxPoolSize);
+    executor.setQueueCapacity(generalQueueCapacity);
     executor.setKeepAliveSeconds(30);
     executor.setThreadNamePrefix("GeneralAsync-");
 

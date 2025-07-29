@@ -8,8 +8,8 @@ spring:
   # テスト用のセキュリティ設定
   security:
     user:
-      name: admin
-      password: streamconverter123
+      name: ${TEST_ADMIN_USERNAME:admin}
+      password: ${TEST_ADMIN_PASSWORD:streamconverter123}
       roles: USER, ADMIN
       
   # テスト用キャッシュ設定（短いTTL）

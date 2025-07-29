@@ -1,5 +1,8 @@
 package com.streamConverter.config;
 
+import java.util.Arrays;
+import java.util.List;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -18,6 +21,21 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
+
+  @Value("${streamconverter.security.cors.allowed-origins:http://localhost:3000,http://localhost:8080}")
+  private String allowedOrigins;
+
+  @Value("${streamconverter.security.cors.allowed-methods:GET,POST,OPTIONS}")
+  private String allowedMethods;
+
+  @Value("${streamconverter.security.cors.allowed-headers:Content-Type,Authorization,X-Requested-With}")
+  private String allowedHeaders;
+
+  @Value("${streamconverter.security.cors.allow-credentials:true}")
+  private boolean allowCredentials;
+
+  @Value("${streamconverter.security.cors.max-age:3600}")
+  private long maxAge;
 
   /**
    * Spring Securityのフィルターチェーンを設定
@@ -64,32 +82,37 @@ public class SecurityConfig {
   /**
    * CORS設定を定義
    *
+   * <p>環境変数から設定を読み取り、セキュアなCORS設定を提供します。
+   *
    * @return CORS設定ソース
    */
   @Bean
   public CorsConfigurationSource corsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
-    // 許可するオリジン（開発環境用設定）
-    configuration.addAllowedOrigin("http://localhost:3000");
-    configuration.addAllowedOrigin("http://localhost:8080");
-    configuration.addAllowedOriginPattern("*"); // 開発環境のみ
+    // 許可するオリジンを環境変数から設定
+    List<String> origins = Arrays.asList(allowedOrigins.split(","));
+    for (String origin : origins) {
+      configuration.addAllowedOrigin(origin.trim());
+    }
 
-    // 許可するHTTPメソッド
-    configuration.addAllowedMethod("GET");
-    configuration.addAllowedMethod("POST");
-    configuration.addAllowedMethod("PUT");
-    configuration.addAllowedMethod("DELETE");
-    configuration.addAllowedMethod("OPTIONS");
+    // 許可するHTTPメソッドを環境変数から設定
+    List<String> methods = Arrays.asList(allowedMethods.split(","));
+    for (String method : methods) {
+      configuration.addAllowedMethod(method.trim());
+    }
 
-    // 許可するヘッダー
-    configuration.addAllowedHeader("*");
+    // 許可するヘッダーを環境変数から設定
+    List<String> headers = Arrays.asList(allowedHeaders.split(","));
+    for (String header : headers) {
+      configuration.addAllowedHeader(header.trim());
+    }
 
-    // 認証情報の送信を許可
-    configuration.setAllowCredentials(true);
+    // 認証情報の送信を環境変数から設定
+    configuration.setAllowCredentials(allowCredentials);
 
-    // プリフライトリクエストのキャッシュ時間
-    configuration.setMaxAge(3600L);
+    // プリフライトリクエストのキャッシュ時間を環境変数から設定
+    configuration.setMaxAge(maxAge);
 
     UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
     source.registerCorsConfiguration("/**", configuration);

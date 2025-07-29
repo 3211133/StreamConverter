@@ -126,6 +126,7 @@ dependencies {
     // Spring Boot テスト依存関係
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.security:spring-security-test")
+    testImplementation("org.awaitility:awaitility:4.2.0")
     
     // JUnit 5 の依存関係（テスト用）
 	testImplementation(platform("org.junit:junit-bom:5.13.4"))

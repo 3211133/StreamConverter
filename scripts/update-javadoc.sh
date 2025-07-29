@@ -67,8 +67,11 @@ else
     
     # Try to merge only javadoc changes
     if git merge origin/$current_branch --no-commit --no-ff -- docs/javadoc/ 2>/dev/null; then
-        git commit -m "docs: merge remote Javadoc changes" 2>/dev/null || true
-        print_status "Successfully merged remote Javadoc changes"
+        if git commit -m "docs: merge remote Javadoc changes" 2>/dev/null; then
+            print_status "Successfully merged remote Javadoc changes"
+        else
+            print_error "Failed to commit merged Javadoc changes"
+            exit 1
     else
         print_warning "Auto-merge failed. Using remote version as base..."
         git checkout origin/$current_branch -- docs/javadoc/ 2>/dev/null || true

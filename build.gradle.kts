@@ -13,7 +13,7 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
-    id("com.diffplug.spotless") version "7.2.0"
+    id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.15.0"
     id("org.springframework.boot") version "3.3.2"
     id("io.spring.dependency-management") version "1.1.6"
@@ -111,10 +111,10 @@ dependencies {
     implementation("commons-io:commons-io:2.20.0")
     
     // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:1.5.3")
+    implementation("com.networknt:json-schema-validator:1.5.8")
     
     // CSV validation support
-    implementation("com.opencsv:opencsv:5.9")
+    implementation("com.opencsv:opencsv:5.12.0")
     
     // API Documentation
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")

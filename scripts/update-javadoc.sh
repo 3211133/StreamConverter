@@ -162,4 +162,6 @@ echo "📋 Next Steps:"
 echo "   • Review changes: git diff --cached docs/javadoc/ (if staged)"
 echo "   • Manual commit: git add docs/javadoc/ && git commit"
 echo "   • View docs: open docs/javadoc/index.html"
-echo "   • Backup location: $backup_dir (if created)"
+if [ -n "$backup_dir" ]; then
+    echo "   • Backup location: $backup_dir"
+fi

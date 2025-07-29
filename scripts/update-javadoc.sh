@@ -56,25 +56,56 @@ fi
 
 # Pull latest changes from remote
 print_info "Fetching latest changes from remote..."
-git fetch origin
+if ! git fetch origin; then
+    print_error "Failed to fetch from remote. Check network connection."
+    exit 1
+fi
 
 # Check if docs/javadoc has conflicts with remote
 current_branch=$(git branch --show-current)
+if [ -z "$current_branch" ]; then
+    print_error "Unable to determine current branch"
+    exit 1
+fi
+
+print_info "Checking for conflicts with remote branch: origin/$current_branch"
 if git diff --quiet HEAD origin/$current_branch -- docs/javadoc/ 2>/dev/null; then
     print_status "No conflicts with remote Javadoc"
 else
-    print_warning "Javadoc differs from remote. Merging remote changes first..."
+    print_warning "Javadoc differs from remote. Resolving conflicts..."
     
-    # Try to merge only javadoc changes
-    if git merge origin/$current_branch --no-commit --no-ff -- docs/javadoc/ 2>/dev/null; then
-        if git commit -m "docs: merge remote Javadoc changes" 2>/dev/null; then
+    # Try to safely merge remote changes
+    print_info "Attempting to merge remote Javadoc changes..."
+    if git merge origin/$current_branch --no-commit --no-ff 2>/dev/null; then
+        # If merge succeeds, commit only if there were actual changes
+        if ! git diff --quiet --cached; then
+            git commit -m "docs: merge remote Javadoc changes"
             print_status "Successfully merged remote Javadoc changes"
         else
-            print_error "Failed to commit merged Javadoc changes"
-            exit 1
+            git reset --hard HEAD  # Clean up if no changes
+            print_status "No actual changes to merge"
+        fi
     else
-        print_warning "Auto-merge failed. Using remote version as base..."
-        git checkout origin/$current_branch -- docs/javadoc/ 2>/dev/null || true
+        print_warning "Auto-merge failed due to conflicts. Using remote version as base..."
+        
+        # Reset to clean state and use remote version
+        git merge --abort 2>/dev/null || true
+        git reset --hard HEAD 2>/dev/null || true
+        
+        # Checkout remote version of javadoc directory
+        if git checkout origin/$current_branch -- docs/javadoc/ 2>/dev/null; then
+            print_status "Using remote Javadoc as base"
+            
+            # Commit the remote version if changes exist
+            if ! git diff --quiet docs/javadoc/; then
+                git add docs/javadoc/
+                git commit -m "docs: use remote Javadoc as merge base"
+                print_status "Remote Javadoc version committed"
+            fi
+        else
+            print_error "Failed to checkout remote Javadoc. Manual intervention required."
+            exit 1
+        fi
     fi
 fi
 
@@ -122,16 +153,14 @@ else
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
         git add docs/javadoc/
-        git commit <<EOF
-docs: update Javadoc
+        git commit -m "docs: update Javadoc
 
 🔄 Updated Javadoc documentation
 
 Generated from latest source code changes.
 See individual commits for specific API changes.
 
-Co-Authored-By: update-javadoc.sh <noreply@local>
-EOF
+Co-Authored-By: update-javadoc.sh <noreply@local>"
         print_status "Javadoc changes committed successfully"
         
         # Clean up backup after successful commit

@@ -198,6 +198,9 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
   }
 
   /** XMLから値を抽出 */
+  @SuppressWarnings(
+      "lgtm[java/xpath-injection]") // XPath expressions are validated through whitelist before
+  // compilation
   private String extractFromXml(String xmlString) throws Exception {
     // XPathの安全性をチェック
     String sanitizedXPath = sanitizeXPath(extractionPath);
@@ -221,6 +224,8 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
     XPath xpath = xPathFactory.newXPath();
 
     // CodeQL mitigation: Use pre-compiled expressions from whitelist to prevent injection
+    // lgtm[java/xpath-injection] - XPath expression is validated against whitelist before
+    // compilation
     XPathExpression expression = getPreCompiledXPathExpression(xpath, sanitizedXPath);
 
     String result = expression.evaluate(document);

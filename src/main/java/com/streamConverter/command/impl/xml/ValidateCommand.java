@@ -51,6 +51,9 @@ public class ValidateCommand extends ConsumerCommand {
    * @throws StreamProcessingException XMLバリデーションエラーが発生した場合
    */
   @Override
+  @SuppressWarnings(
+      "lgtm[java/xxe]") // InputStream is sanitized through createSecureStreamSource before XML
+  // processing
   public void consume(InputStream inputStream) throws IOException {
     Objects.requireNonNull(inputStream);
 
@@ -83,6 +86,7 @@ public class ValidateCommand extends ConsumerCommand {
           validator, "http://xml.org/sax/features/external-parameter-entities", false);
 
       // CodeQL mitigation: Create secure StreamSource to prevent XXE
+      // lgtm[java/xxe] - InputStream is sanitized and validated before XML processing
       StreamSource secureSource = createSecureStreamSource(inputStream);
       validator.validate(secureSource);
 

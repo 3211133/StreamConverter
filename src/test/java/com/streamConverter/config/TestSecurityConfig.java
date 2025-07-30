@@ -29,6 +29,9 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @TestConfiguration
 @EnableWebSecurity
 @Profile("test")
+@SuppressWarnings(
+    "lgtm[java/spring-disabled-csrf-protection]") // CSRF protection disabled only for test profile
+// with runtime validation
 public class TestSecurityConfig {
 
   @Autowired private Environment environment;
@@ -67,6 +70,8 @@ public class TestSecurityConfig {
         // 安全性確保: このクラスは@Profile("test")により本番環境では無効
         // 理由: TestRestTemplateを使用した統合テストの実行を簡素化するため
         // 本番環境では SecurityConfig.java でCSRF保護が有効化されている
+        // lgtm[java/spring-disabled-csrf-protection] - CSRF disabled only for test profile with
+        // runtime validation
         .csrf(
             csrf -> {
               // テスト環境であることを再確認

@@ -114,20 +114,13 @@ class ValidateTest {
   @Test
   @DisplayName("execute異常系：存在しないスキーマファイル")
   void testExecuteWithNonExistentSchemaFile() throws IOException {
-    // 存在しないスキーマファイルでのexecuteメソッドテスト
-    ValidateCommand command = new ValidateCommand("non-existent-schema.xsd");
-
-    try (InputStream inputStream =
-            new ByteArrayInputStream(validXmlContent.getBytes(StandardCharsets.UTF_8));
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-
-      // StreamProcessingExceptionが発生することを期待（存在しないスキーマファイル）
-      assertThrows(
-          com.streamConverter.StreamProcessingException.class,
-          () -> {
-            command.execute(inputStream, outputStream);
-          });
-    }
+    // 存在しないスキーマファイルでのコンストラクタテスト（セキュリティ強化により、コンストラクタで例外が発生）
+    // StreamProcessingExceptionが発生することを期待（存在しないスキーマファイル）
+    assertThrows(
+        com.streamConverter.StreamProcessingException.class,
+        () -> {
+          new ValidateCommand("non-existent-schema.xsd");
+        });
   }
 
   @Test

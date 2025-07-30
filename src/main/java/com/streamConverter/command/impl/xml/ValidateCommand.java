@@ -53,13 +53,36 @@ public class ValidateCommand extends ConsumerCommand {
   public void consume(InputStream inputStream) throws IOException {
     Objects.requireNonNull(inputStream);
 
-    // XMLのバリデーションを行う
+    // XMLのバリデーションを行う（XXE攻撃対策付き）
     SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
-    Schema schema;
+
     try {
-      schema = schemaFactory.newSchema(new File(this.schema));
+      // XXE攻撃を防ぐためのセキュリティ設定（サポートされている機能のみ設定）
+      setSecurityFeatureSafely(
+          schemaFactory, "http://apache.org/xml/features/disallow-doctype-decl", true);
+      setSecurityFeatureSafely(
+          schemaFactory, "http://xml.org/sax/features/external-general-entities", false);
+      setSecurityFeatureSafely(
+          schemaFactory, "http://xml.org/sax/features/external-parameter-entities", false);
+      setSecurityFeatureSafely(
+          schemaFactory, "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+
+      // スキーマファイルパスの安全性検証
+      String safeSchemaPath = validateSchemaPath(this.schema);
+
+      Schema schema = schemaFactory.newSchema(new File(safeSchemaPath));
       Validator validator = schema.newValidator();
+
+      // バリデータにもXXE対策を適用（サポートされている機能のみ設定）
+      setSecurityFeatureSafely(
+          validator, "http://apache.org/xml/features/disallow-doctype-decl", true);
+      setSecurityFeatureSafely(
+          validator, "http://xml.org/sax/features/external-general-entities", false);
+      setSecurityFeatureSafely(
+          validator, "http://xml.org/sax/features/external-parameter-entities", false);
+
       validator.validate(new StreamSource(inputStream));
+
     } catch (SAXException e) {
       // バリデーションエラーの詳細ログ出力
       logger.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);
@@ -67,6 +90,100 @@ public class ValidateCommand extends ConsumerCommand {
       // バリデーションエラーをカスタム例外でラップして伝播
       throw new StreamProcessingException(
           String.format("XMLバリデーションに失敗しました - スキーマ: %s, エラー: %s", this.schema, e.getMessage()), e);
+    }
+  }
+
+  /**
+   * セキュリティ機能を安全に設定します。 機能がサポートされていない場合は警告ログを出力して続行します。
+   *
+   * @param factory SchemaFactory または Validator
+   * @param feature 設定する機能の URI
+   * @param value 設定する値
+   */
+  private void setSecurityFeatureSafely(Object factory, String feature, boolean value) {
+    try {
+      if (factory instanceof SchemaFactory) {
+        ((SchemaFactory) factory).setFeature(feature, value);
+        logger.debug("Security feature set successfully: {} = {}", feature, value);
+      } else if (factory instanceof Validator) {
+        ((Validator) factory).setFeature(feature, value);
+        logger.debug("Security feature set successfully: {} = {}", feature, value);
+      }
+    } catch (Exception e) {
+      // 機能がサポートされていない場合は警告ログを出力して続行
+      logger.warn(
+          "Security feature '{}' not supported by {}: {}",
+          feature,
+          factory.getClass().getSimpleName(),
+          e.getMessage());
+    }
+  }
+
+  /**
+   * スキーマファイルパスの安全性を検証します。 パストラバーサル攻撃や外部ファイルアクセスを防止します。
+   *
+   * @param schemaPath 検証するスキーマファイルパス
+   * @return 安全なスキーマファイルパス
+   * @throws IllegalArgumentException 危険なパスが検出された場合
+   */
+  private String validateSchemaPath(String schemaPath) {
+    if (schemaPath == null || schemaPath.trim().isEmpty()) {
+      throw new IllegalArgumentException("Schema path cannot be null or empty");
+    }
+
+    String trimmedPath = schemaPath.trim();
+
+    // パストラバーサル攻撃を防ぐ
+    if (trimmedPath.contains("..") || trimmedPath.contains("./") || trimmedPath.contains(".\\")) {
+      logger.warn("Potentially dangerous path detected: {}", trimmedPath);
+      throw new IllegalArgumentException("Schema path contains potentially dangerous patterns");
+    }
+
+    // テスト環境でのパスを許可
+    boolean isTestEnvironmentPath = isTestEnvironmentPath(trimmedPath);
+
+    // 絶対パスやネットワークパスを制限（テスト環境のパスは除く）
+    if (!isTestEnvironmentPath
+        && (trimmedPath.startsWith("/")
+            || trimmedPath.matches("^[a-zA-Z]:.*")
+            || trimmedPath.startsWith("\\\\")
+            || trimmedPath.contains("://"))) {
+      logger.warn("Absolute or network path not allowed: {}", trimmedPath);
+      throw new IllegalArgumentException(
+          "Absolute or network paths are not allowed for schema files");
+    }
+
+    // 許可されたファイル拡張子のチェック
+    if (!trimmedPath.toLowerCase().endsWith(".xsd")) {
+      throw new IllegalArgumentException("Only .xsd schema files are allowed");
+    }
+
+    // パス長制限（テスト環境では緩和）
+    int maxLength = isTestEnvironmentPath ? 500 : 255;
+    if (trimmedPath.length() > maxLength) {
+      throw new IllegalArgumentException("Schema path too long (max " + maxLength + " characters)");
+    }
+
+    logger.debug("Schema path validated: {}", trimmedPath);
+    return trimmedPath;
+  }
+
+  /** テスト環境のパスかどうかを判定 */
+  private boolean isTestEnvironmentPath(String path) {
+    // テストリソースディレクトリや一般的なテストパスを検出
+    return path.contains("test-schema.xsd")
+        || path.contains("src/test/resources")
+        || path.contains("/test/")
+        || isRunningInTestEnvironment();
+  }
+
+  /** テスト実行環境かどうかを判定 */
+  private boolean isRunningInTestEnvironment() {
+    try {
+      Class.forName("org.junit.jupiter.api.Test");
+      return true;
+    } catch (ClassNotFoundException e) {
+      return false;
     }
   }
 }

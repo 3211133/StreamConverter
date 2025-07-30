@@ -18,6 +18,11 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
  * テスト環境専用のSpring Security設定クラス
  *
  * <p>統合テストでのHTTPリクエストを簡素化するため、CSRF保護を無効化します。
+ *
+ * <p><strong>セキュリティ注意事項:</strong> このクラスは"test"プロファイルでのみ有効であり、本番環境では使用されません。
+ * CSRF保護の無効化は、テスト用HTTPクライアント（TestRestTemplate）での API呼び出しを簡素化する目的で行っています。
+ *
+ * <p>本番環境では{@link com.streamConverter.config.SecurityConfig}が使用され、 適切なCSRF保護が適用されます。
  */
 @TestConfiguration
 @EnableWebSecurity
@@ -55,6 +60,8 @@ public class TestSecurityConfig {
   public SecurityFilterChain testFilterChain(HttpSecurity http) throws Exception {
     http
         // テスト環境ではCSRF保護を無効化
+        // 理由: TestRestTemplateでのAPIテストを簡素化するため
+        // 注意: testプロファイル限定、本番環境では適用されない
         .csrf(csrf -> csrf.disable())
 
         // CORS設定を有効化

@@ -226,7 +226,7 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
   }
 
   /**
-   * XPath式をサニタイズしてインジェクション攻撃を防ぎます。
+   * XPath式をサニタイズしてインジェクション攻撃を防ぎます。 安全なXPath式のみを許可するホワイトリスト方式を採用。
    *
    * @param xpath 元のXPath式
    * @return サニタイズされたXPath式
@@ -239,22 +239,48 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
 
     String trimmedXPath = xpath.trim();
 
-    // 危険な文字列パターンをチェック
+    // 長さ制限（DoS攻撃防止）
+    if (trimmedXPath.length() > 200) {
+      throw new IllegalArgumentException("XPath expression too long (max 200 characters)");
+    }
+
+    // ホワイトリスト方式：安全な文字のみ許可（text()関数のため括弧も追加）
+    if (!trimmedXPath.matches("^[a-zA-Z0-9_/\\[\\]@\\-\\.\\s:*=()]+$")) {
+      logger.warn("XPath contains invalid characters: {}", trimmedXPath);
+      throw new IllegalArgumentException("XPath expression contains invalid characters");
+    }
+
+    // 危険な文字列パターンをチェック（強化版）
     String[] dangerousPatterns = {
-      "document(", // document() 関数
-      "unparsed-text(", // unparsed-text() 関数
-      "collection(", // collection() 関数
-      "doc(", // doc() 関数
-      "//script", // script要素への直接アクセス
-      "concat(", // concat関数（条件によっては危険）
-      "substring-before(", // 一部の文字列操作関数
+      "document(",
+      "unparsed-text(",
+      "collection(",
+      "doc(",
+      "//script",
+      "concat(",
+      "substring-before(",
       "substring-after(",
-      "..", // 親ディレクトリ参照
-      "javascript:", // JavaScriptプロトコル
-      "file:", // ファイルプロトコル
-      "http:", // HTTPプロトコル
-      "https:", // HTTPSプロトコル
-      "ftp:" // FTPプロトコル
+      "..",
+      "javascript:",
+      "file:",
+      "http:",
+      "https:",
+      "ftp:",
+      "system-property(",
+      "current-date(",
+      "current-time(",
+      "format-number(",
+      "generate-id(",
+      "key(",
+      "id(",
+      "contains(",
+      "normalize-space(",
+      "translate(",
+      "function(",
+      "import",
+      "include",
+      "entity",
+      "external"
     };
 
     String lowerCaseXPath = trimmedXPath.toLowerCase();
@@ -266,33 +292,36 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
       }
     }
 
-    // 基本的な構文チェック（括弧のバランス）
-    int openBrackets = 0;
-    int openParens = 0;
-    for (char c : trimmedXPath.toCharArray()) {
-      if (c == '[') openBrackets++;
-      else if (c == ']') openBrackets--;
-      else if (c == '(') openParens++;
-      else if (c == ')') openParens--;
-
-      if (openBrackets < 0 || openParens < 0) {
-        throw new IllegalArgumentException(
-            "Invalid XPath syntax: unbalanced brackets or parentheses");
-      }
-    }
-
-    if (openBrackets != 0 || openParens != 0) {
-      throw new IllegalArgumentException(
-          "Invalid XPath syntax: unbalanced brackets or parentheses");
-    }
-
-    // 長さ制限（DoS攻撃防止）
-    if (trimmedXPath.length() > 500) {
-      throw new IllegalArgumentException("XPath expression too long (max 500 characters)");
+    // XPath式を事前定義されたパターンに制限
+    if (!isValidXPathPattern(trimmedXPath)) {
+      throw new IllegalArgumentException("XPath expression does not match allowed patterns");
     }
 
     logger.debug("XPath expression validated: {}", trimmedXPath);
     return trimmedXPath;
+  }
+
+  /** XPath式が許可されたパターンに一致するかチェック */
+  private boolean isValidXPathPattern(String xpath) {
+    // 許可されるXPathパターン（安全なもののみ）
+    String[] allowedPatterns = {
+      "^/[a-zA-Z0-9_/\\[\\]@\\-\\.]+$", // 絶対パス: /root/element
+      "^//[a-zA-Z0-9_]+$", // 子孫検索: //element
+      "^/[a-zA-Z0-9_/]+/@[a-zA-Z0-9_]+$", // 属性: /root/element/@attr
+      "^//[a-zA-Z0-9_]+/@[a-zA-Z0-9_]+$", // 子孫属性: //element/@attr
+      "^/[a-zA-Z0-9_/\\[\\]0-9=@'\"\\s]+/text\\(\\)$", // テキスト: /root/element/text()
+      "^//[a-zA-Z0-9_/]+/text\\(\\)$", // 子孫テキスト: //element/text() or //user/name/text()
+      "^[a-zA-Z0-9_]+$" // 単純な要素名
+    };
+
+    for (String pattern : allowedPatterns) {
+      if (xpath.matches(pattern)) {
+        return true;
+      }
+    }
+
+    logger.warn("XPath does not match any allowed pattern: {}", xpath);
+    return false;
   }
 
   /** CSVから値を抽出 */

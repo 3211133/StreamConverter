@@ -2,6 +2,8 @@ package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.StreamProcessingException;
 import com.streamConverter.command.ConsumerCommand;
+import com.streamConverter.security.SecureXmlConfiguration;
+import com.streamConverter.security.XmlResourceLimiter;
 import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
@@ -13,6 +15,7 @@ import javax.xml.validation.SchemaFactory;
 import javax.xml.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.xml.sax.SAXException;
 
 /**
@@ -28,6 +31,12 @@ public class ValidateCommand extends ConsumerCommand {
   private static final Logger logger = LoggerFactory.getLogger(ValidateCommand.class);
   private String schema;
 
+  @Autowired(required = false)
+  private SecureXmlConfiguration secureXmlConfig;
+
+  @Autowired(required = false)
+  private XmlResourceLimiter resourceLimiter;
+
   /**
    * コンストラクタ
    *
@@ -37,6 +46,13 @@ public class ValidateCommand extends ConsumerCommand {
    */
   public ValidateCommand(String schema) {
     this.schema = schema;
+    // Spring DI が利用できない場合のフォールバック
+    if (secureXmlConfig == null) {
+      secureXmlConfig = new SecureXmlConfiguration();
+    }
+    if (resourceLimiter == null) {
+      resourceLimiter = new XmlResourceLimiter();
+    }
   }
 
   /**
@@ -57,19 +73,13 @@ public class ValidateCommand extends ConsumerCommand {
   public void consume(InputStream inputStream) throws IOException {
     Objects.requireNonNull(inputStream);
 
-    // XMLのバリデーションを行う（XXE攻撃対策付き）
-    SchemaFactory schemaFactory = SchemaFactory.newInstance("http://www.w3.org/2001/XMLSchema");
+    // セキュアなXMLバリデーションを行う
+    try (InputStream limitedStream = resourceLimiter.createLimitedInputStream(inputStream)) {
+      // XML爆弾パターンの事前チェック
+      resourceLimiter.scanXmlSample(limitedStream);
 
-    try {
-      // XXE攻撃を防ぐためのセキュリティ設定（サポートされている機能のみ設定）
-      setSecurityFeatureSafely(
-          schemaFactory, "http://apache.org/xml/features/disallow-doctype-decl", true);
-      setSecurityFeatureSafely(
-          schemaFactory, "http://xml.org/sax/features/external-general-entities", false);
-      setSecurityFeatureSafely(
-          schemaFactory, "http://xml.org/sax/features/external-parameter-entities", false);
-      setSecurityFeatureSafely(
-          schemaFactory, "http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+      // セキュアなSchemaFactoryを使用
+      SchemaFactory schemaFactory = secureXmlConfig.createSecureSchemaFactory();
 
       // スキーマファイルパスの安全性検証
       String safeSchemaPath = validateSchemaPath(this.schema);
@@ -77,17 +87,16 @@ public class ValidateCommand extends ConsumerCommand {
       Schema schema = schemaFactory.newSchema(new File(safeSchemaPath));
       Validator validator = schema.newValidator();
 
-      // バリデータにもXXE対策を適用（サポートされている機能のみ設定）
-      setSecurityFeatureSafely(
-          validator, "http://apache.org/xml/features/disallow-doctype-decl", true);
-      setSecurityFeatureSafely(
-          validator, "http://xml.org/sax/features/external-general-entities", false);
-      setSecurityFeatureSafely(
-          validator, "http://xml.org/sax/features/external-parameter-entities", false);
+      // セキュアなValidator設定を適用
+      secureXmlConfig.configureSecureValidator(validator);
 
-      // CodeQL mitigation: Indirect validation to break data flow
-      performSecureValidation(validator, inputStream);
+      // セキュアなバリデーションを実行
+      performSecureValidation(validator, limitedStream);
 
+    } catch (SecurityException e) {
+      logger.error("XMLセキュリティ脅威を検出しました: {}", e.getMessage(), e);
+      throw new StreamProcessingException(
+          String.format("XMLセキュリティ検証に失敗しました - %s", e.getMessage()), e);
     } catch (SAXException e) {
       // バリデーションエラーの詳細ログ出力
       logger.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);
@@ -98,31 +107,7 @@ public class ValidateCommand extends ConsumerCommand {
     }
   }
 
-  /**
-   * セキュリティ機能を安全に設定します。 機能がサポートされていない場合は警告ログを出力して続行します。
-   *
-   * @param factory SchemaFactory または Validator
-   * @param feature 設定する機能の URI
-   * @param value 設定する値
-   */
-  private void setSecurityFeatureSafely(Object factory, String feature, boolean value) {
-    try {
-      if (factory instanceof SchemaFactory) {
-        ((SchemaFactory) factory).setFeature(feature, value);
-        logger.debug("Security feature set successfully: {} = {}", feature, value);
-      } else if (factory instanceof Validator) {
-        ((Validator) factory).setFeature(feature, value);
-        logger.debug("Security feature set successfully: {} = {}", feature, value);
-      }
-    } catch (Exception e) {
-      // 機能がサポートされていない場合は警告ログを出力して続行
-      logger.warn(
-          "Security feature '{}' not supported by {}: {}",
-          feature,
-          factory.getClass().getSimpleName(),
-          e.getMessage());
-    }
-  }
+  // このメソッドは SecureXmlConfiguration に移行したため削除
 
   /**
    * スキーマファイルパスの安全性を検証します。 パストラバーサル攻撃や外部ファイルアクセスを防止します。

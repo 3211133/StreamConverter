@@ -5,6 +5,8 @@ import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
 import com.streamConverter.pathHandler.FixedStaXPathHandler;
 import com.streamConverter.pathHandler.IStaXPathHandler;
+import com.streamConverter.security.SecureXmlConfiguration;
+import com.streamConverter.security.XmlResourceLimiter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,6 +34,8 @@ public class ConvertCommand extends AbstractStreamCommand {
   private static final Logger logger = LoggerFactory.getLogger(ConvertCommand.class);
   private IRule rule;
   private IStaXPathHandler pathHandler;
+  private final SecureXmlConfiguration secureXmlConfig;
+  private final XmlResourceLimiter resourceLimiter;
 
   /**
    * デフォルトコンストラクタ
@@ -44,8 +48,11 @@ public class ConvertCommand extends AbstractStreamCommand {
     Objects.requireNonNull(rule, "rule must not be null");
     Objects.requireNonNull(path, "path must not be null");
     this.rule = rule;
-
     this.pathHandler = new FixedStaXPathHandler(path);
+
+    // セキュリティ設定の初期化
+    this.secureXmlConfig = new SecureXmlConfiguration();
+    this.resourceLimiter = new XmlResourceLimiter();
   }
 
   /**

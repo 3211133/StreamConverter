@@ -4,6 +4,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.StreamProcessingException;
 import com.streamConverter.context.ExecutionContext;
+import com.streamConverter.security.SecureXPathValidator;
+import com.streamConverter.security.SecureXmlConfiguration;
+import com.streamConverter.security.XmlResourceLimiter;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -53,6 +56,9 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
   private final String extractionPath;
   private final String mdcKey;
   private final ObjectMapper objectMapper;
+  private final SecureXmlConfiguration secureXmlConfig;
+  private final SecureXPathValidator xpathValidator;
+  private final XmlResourceLimiter resourceLimiter;
 
   /**
    * コンストラクタ
@@ -71,6 +77,11 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
     this.extractionPath = validateExtractionPath(extractionPath);
     this.mdcKey = validateMdcKey(mdcKey);
     this.objectMapper = new ObjectMapper();
+
+    // セキュリティ関連コンポーネントの初期化
+    this.secureXmlConfig = new SecureXmlConfiguration();
+    this.xpathValidator = new SecureXPathValidator();
+    this.resourceLimiter = new XmlResourceLimiter();
   }
 
   @Override
@@ -205,18 +216,14 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
     // XPathの安全性をチェック
     String sanitizedXPath = sanitizeXPath(extractionPath);
 
-    DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-    factory.setNamespaceAware(true);
-
-    // XXE攻撃を防ぐためのセキュリティ設定
-    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-    factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-    factory.setXIncludeAware(false);
-    factory.setExpandEntityReferences(false);
+    // セキュアなDocumentBuilderFactoryを使用
+    DocumentBuilderFactory factory = secureXmlConfig.createSecureDocumentBuilderFactory();
 
     DocumentBuilder builder = factory.newDocumentBuilder();
+
+    // XML爆弾パターンの事前チェック
+    resourceLimiter.detectXmlBombs(xmlString);
+
     Document document =
         builder.parse(new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8)));
 
@@ -238,96 +245,11 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
    * @throws IllegalArgumentException 危険なXPath式が検出された場合
    */
   private String sanitizeXPath(String xpath) {
-    if (xpath == null || xpath.trim().isEmpty()) {
-      throw new IllegalArgumentException("XPath expression cannot be null or empty");
-    }
-
-    String trimmedXPath = xpath.trim();
-
-    // 長さ制限（DoS攻撃防止）
-    if (trimmedXPath.length() > 200) {
-      throw new IllegalArgumentException("XPath expression too long (max 200 characters)");
-    }
-
-    // ホワイトリスト方式：安全な文字のみ許可（text()関数のため括弧も追加）
-    if (!trimmedXPath.matches("^[a-zA-Z0-9_/\\[\\]@\\-\\.\\s:*=()]+$")) {
-      logger.warn("XPath contains invalid characters: {}", trimmedXPath);
-      throw new IllegalArgumentException("XPath expression contains invalid characters");
-    }
-
-    // 危険な文字列パターンをチェック（強化版）
-    String[] dangerousPatterns = {
-      "document(",
-      "unparsed-text(",
-      "collection(",
-      "doc(",
-      "//script",
-      "concat(",
-      "substring-before(",
-      "substring-after(",
-      "..",
-      "javascript:",
-      "file:",
-      "http:",
-      "https:",
-      "ftp:",
-      "system-property(",
-      "current-date(",
-      "current-time(",
-      "format-number(",
-      "generate-id(",
-      "key(",
-      "id(",
-      "contains(",
-      "normalize-space(",
-      "translate(",
-      "function(",
-      "import",
-      "include",
-      "entity",
-      "external"
-    };
-
-    String lowerCaseXPath = trimmedXPath.toLowerCase();
-    for (String pattern : dangerousPatterns) {
-      if (lowerCaseXPath.contains(pattern.toLowerCase())) {
-        logger.warn("Potentially dangerous XPath pattern detected: {}", pattern);
-        throw new IllegalArgumentException(
-            "XPath expression contains potentially dangerous pattern: " + pattern);
-      }
-    }
-
-    // XPath式を事前定義されたパターンに制限
-    if (!isValidXPathPattern(trimmedXPath)) {
-      throw new IllegalArgumentException("XPath expression does not match allowed patterns");
-    }
-
-    logger.debug("XPath expression validated: {}", trimmedXPath);
-    return trimmedXPath;
+    // 新しいSecureXPathValidatorを使用
+    return xpathValidator.validateAndSanitizeXPath(xpath);
   }
 
-  /** XPath式が許可されたパターンに一致するかチェック */
-  private boolean isValidXPathPattern(String xpath) {
-    // 許可されるXPathパターン（安全なもののみ）
-    String[] allowedPatterns = {
-      "^/[a-zA-Z0-9_/\\[\\]@\\-\\.]+$", // 絶対パス: /root/element
-      "^//[a-zA-Z0-9_]+$", // 子孫検索: //element
-      "^/[a-zA-Z0-9_/]+/@[a-zA-Z0-9_]+$", // 属性: /root/element/@attr
-      "^//[a-zA-Z0-9_]+/@[a-zA-Z0-9_]+$", // 子孫属性: //element/@attr
-      "^/[a-zA-Z0-9_/\\[\\]0-9=@'\"\\s]+/text\\(\\)$", // テキスト: /root/element/text()
-      "^//[a-zA-Z0-9_/]+/text\\(\\)$", // 子孫テキスト: //element/text() or //user/name/text()
-      "^[a-zA-Z0-9_]+$" // 単純な要素名
-    };
-
-    for (String pattern : allowedPatterns) {
-      if (xpath.matches(pattern)) {
-        return true;
-      }
-    }
-
-    logger.warn("XPath does not match any allowed pattern: {}", xpath);
-    return false;
-  }
+  // このメソッドは SecureXPathValidator に移行したため削除
 
   /**
    * 事前コンパイルされたXPath式を取得（CodeQL対策のため安全なXPath式のみを許可）
@@ -355,27 +277,8 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
    * @return ホワイトリストに含まれている場合true
    */
   private boolean isXPathInWhitelist(String xpath) {
-    // 安全なXPath式のホワイトリスト
-    String[] whitelistedExpressions = {
-      "//user/@id",
-      "//user/name/text()",
-      "/root/item/text()",
-      "/root/@version",
-      "//item[@type='test']/text()",
-      "/document/header/title/text()",
-      "//data/value/text()",
-      "/config/@setting"
-    };
-
-    for (String allowedExpression : whitelistedExpressions) {
-      if (xpath.equals(allowedExpression)) {
-        logger.debug("XPath expression found in whitelist: {}", xpath);
-        return true;
-      }
-    }
-
-    // パターンマッチングでも許可（より柔軟性を持たせる）
-    return isValidXPathPattern(xpath);
+    // SecureXPathValidatorのホワイトリストを使用
+    return xpathValidator.isXPathInWhitelist(xpath);
   }
 
   /** CSVから値を抽出 */

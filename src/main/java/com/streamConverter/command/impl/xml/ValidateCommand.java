@@ -2,6 +2,7 @@ package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.StreamProcessingException;
 import com.streamConverter.command.ConsumerCommand;
+import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,7 +82,9 @@ public class ValidateCommand extends ConsumerCommand {
       setSecurityFeatureSafely(
           validator, "http://xml.org/sax/features/external-parameter-entities", false);
 
-      validator.validate(new StreamSource(inputStream));
+      // CodeQL mitigation: Create secure StreamSource to prevent XXE
+      StreamSource secureSource = createSecureStreamSource(inputStream);
+      validator.validate(secureSource);
 
     } catch (SAXException e) {
       // バリデーションエラーの詳細ログ出力
@@ -185,5 +188,58 @@ public class ValidateCommand extends ConsumerCommand {
     } catch (ClassNotFoundException e) {
       return false;
     }
+  }
+
+  /**
+   * セキュアなStreamSourceを作成してXXE攻撃を防止
+   *
+   * @param inputStream 入力ストリーム
+   * @return セキュアなStreamSource
+   * @throws IOException I/Oエラーが発生した場合
+   */
+  private StreamSource createSecureStreamSource(InputStream inputStream) throws IOException {
+    // CodeQL対策: 入力ストリームからバイト配列に読み込み、外部エンティティ参照を除去
+    byte[] xmlBytes = inputStream.readAllBytes();
+    String xmlContent = new String(xmlBytes, java.nio.charset.StandardCharsets.UTF_8);
+
+    // 外部エンティティ参照を含む危険なパターンをチェック
+    if (containsDangerousXmlPatterns(xmlContent)) {
+      throw new SecurityException(
+          "XML content contains potentially dangerous external entity references");
+    }
+
+    // セキュアなバイトストリームとしてStreamSourceを作成
+    ByteArrayInputStream secureStream = new ByteArrayInputStream(xmlBytes);
+    StreamSource source = new StreamSource(secureStream);
+
+    logger.debug("Created secure StreamSource for XML validation");
+    return source;
+  }
+
+  /**
+   * 危険なXMLパターンをチェック
+   *
+   * @param xmlContent XMLコンテンツ
+   * @return 危険なパターンが含まれている場合true
+   */
+  private boolean containsDangerousXmlPatterns(String xmlContent) {
+    String[] dangerousPatterns = {
+      "<!ENTITY", // エンティティ宣言
+      "<!DOCTYPE", // DOCTYPE宣言（外部DTD参照の可能性）
+      "SYSTEM", // システムエンティティ
+      "PUBLIC", // パブリックエンティティ
+      "NDATA", // 記法データ
+      "NOTATION" // 記法宣言
+    };
+
+    String upperCaseContent = xmlContent.toUpperCase();
+    for (String pattern : dangerousPatterns) {
+      if (upperCaseContent.contains(pattern)) {
+        logger.warn("Dangerous XML pattern detected: {}", pattern);
+        return true;
+      }
+    }
+
+    return false;
   }
 }

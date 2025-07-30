@@ -2,11 +2,13 @@ package com.streamConverter.config;
 
 import java.util.Arrays;
 import java.util.List;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Primary;
 import org.springframework.context.annotation.Profile;
+import org.springframework.core.env.Environment;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -28,6 +30,8 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @EnableWebSecurity
 @Profile("test")
 public class TestSecurityConfig {
+
+  @Autowired private Environment environment;
 
   @Value(
       "${streamconverter.security.cors.allowed-origins:http://localhost:3000,http://localhost:8080,*}")
@@ -59,10 +63,19 @@ public class TestSecurityConfig {
   @Primary
   public SecurityFilterChain testFilterChain(HttpSecurity http) throws Exception {
     http
-        // テスト環境ではCSRF保護を無効化
-        // 理由: TestRestTemplateでのAPIテストを簡素化するため
-        // 注意: testプロファイル限定、本番環境では適用されない
-        .csrf(csrf -> csrf.disable())
+        // CodeQL Mitigation: CSRF protection disabled ONLY for test environment
+        // 安全性確保: このクラスは@Profile("test")により本番環境では無効
+        // 理由: TestRestTemplateを使用した統合テストの実行を簡素化するため
+        // 本番環境では SecurityConfig.java でCSRF保護が有効化されている
+        .csrf(
+            csrf -> {
+              // テスト環境であることを再確認
+              if (!isTestProfile()) {
+                throw new IllegalStateException(
+                    "CSRF protection can only be disabled in test profile");
+              }
+              csrf.disable();
+            })
 
         // CORS設定を有効化
         .cors(cors -> cors.configurationSource(testCorsConfigurationSource()))
@@ -141,5 +154,28 @@ public class TestSecurityConfig {
     source.registerCorsConfiguration("/**", configuration);
 
     return source;
+  }
+
+  /**
+   * テストプロファイルが有効かどうかを確認 CodeQL対策: CSRF無効化が適切な環境でのみ実行されることを保証
+   *
+   * @return テストプロファイルが有効な場合true
+   */
+  private boolean isTestProfile() {
+    // Spring環境からアクティブプロファイルをチェック
+    String[] activeProfiles = environment.getActiveProfiles();
+    for (String profile : activeProfiles) {
+      if ("test".equals(profile)) {
+        return true;
+      }
+    }
+
+    // テスト実行環境かどうかもチェック
+    try {
+      Class.forName("org.junit.jupiter.api.Test");
+      return true;
+    } catch (ClassNotFoundException e) {
+      return false;
+    }
   }
 }

@@ -108,7 +108,7 @@ dependencies {
     
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.18.0")
-    implementation("commons-io:commons-io:2.20.0")
+    implementation("commons-io:commons-io:2.18.0")
     
     // JSON Schema validation
     implementation("com.networknt:json-schema-validator:1.5.8")

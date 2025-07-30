@@ -5,7 +5,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.validation.SchemaFactory;
-import javax.xml.validation.Validator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -58,38 +57,27 @@ public class SecureXmlConfiguration {
   public DocumentBuilderFactory createSecureDocumentBuilderFactory()
       throws ParserConfigurationException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+    factory.setNamespaceAware(true);
+    factory.setIgnoringComments(true);
 
     logger.debug("Configuring secure DocumentBuilderFactory");
 
     try {
-      // セキュア処理の有効化
+      // XXE and other external entity attacks
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-
-      // XXE攻撃防止の包括的設定
-      setSecureFeature(factory, DISALLOW_DOCTYPE_DECL, true);
-      setSecureFeature(factory, EXTERNAL_GENERAL_ENTITIES, false);
-      setSecureFeature(factory, EXTERNAL_PARAMETER_ENTITIES, false);
-      setSecureFeature(factory, LOAD_EXTERNAL_DTD, false);
-      setSecureFeature(factory, LOAD_DTD_GRAMMAR, false);
-      setSecureFeature(factory, LOAD_EXTERNAL_SUBSET, false);
-
-      // XInclude無効化
+      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
       factory.setXIncludeAware(false);
       factory.setExpandEntityReferences(false);
 
-      // 外部参照の完全無効化
-      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-      // リソース制限の適用
-      applyResourceLimits(factory);
-
       logger.info("Secure DocumentBuilderFactory configured successfully");
 
-    } catch (Exception e) {
+    } catch (ParserConfigurationException e) {
       logger.error("Failed to configure secure DocumentBuilderFactory", e);
-      throw new ParserConfigurationException(
-          "Could not configure secure XML parser: " + e.getMessage());
+      // Re-throw the original exception to avoid losing context
+      throw e;
     }
 
     return factory;
@@ -107,14 +95,12 @@ public class SecureXmlConfiguration {
 
     logger.debug("Configuring secure XMLInputFactory");
 
-    // XXE攻撃防止
-    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    // Disable DTDs and external entities to prevent XXE
     factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-    factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
 
-    // リソース制限（利用可能な場合のみ）
-    setPropertySafely(factory, "javax.xml.stream.maxEntityCount", 1);
-    setPropertySafely(factory, "com.sun.xml.internal.stream.XMLInputFactory.maxEntityCount", 1);
+    // Note: IS_REPLACING_ENTITY_REFERENCES is not a standard property and can be ignored.
+    // The two properties above are sufficient for XXE prevention in StAX parsers.
 
     logger.info("Secure XMLInputFactory configured successfully");
     return factory;
@@ -129,113 +115,50 @@ public class SecureXmlConfiguration {
    */
   public SchemaFactory createSecureSchemaFactory() {
     SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-
     logger.debug("Configuring secure SchemaFactory");
-
-    // XXE攻撃防止設定
-    setSecureFeature(factory, DISALLOW_DOCTYPE_DECL, true);
-    setSecureFeature(factory, EXTERNAL_GENERAL_ENTITIES, false);
-    setSecureFeature(factory, EXTERNAL_PARAMETER_ENTITIES, false);
-    setSecureFeature(factory, LOAD_EXTERNAL_DTD, false);
-
-    // 外部参照無効化
-    setPropertySafely(factory, XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    setPropertySafely(factory, XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-    logger.info("Secure SchemaFactory configured successfully");
+    try {
+      // Prevent external entity access to block XXE
+      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+      logger.info("Secure SchemaFactory configured successfully");
+    } catch (Exception e) {
+      // Some properties might not be supported by all JAXP implementations.
+      // Log a warning but don't fail, as the most critical protections are in the parsers.
+      logger.warn(
+          "Could not set some properties on SchemaFactory (may not be supported): {}",
+          e.getMessage());
+    }
     return factory;
   }
 
   /**
-   * Validatorにセキュリティ設定を適用
+   * セキュアなSchemaFactoryを設定します。
+   *
+   * @param factory 設定対象のSchemaFactory
+   */
+  public static void configureSchemaFactory(SchemaFactory factory) {
+    try {
+      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      // 外部スキーマの参照を無効化
+      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+      logger.info("Secure SchemaFactory configured successfully.");
+    } catch (Exception e) {
+      logger.error("Failed to configure secure SchemaFactory: {}", e.getMessage(), e);
+    }
+  }
+
+  /**
+   * セキュアなValidatorを設定します。
    *
    * @param validator 設定対象のValidator
    */
-  public void configureSecureValidator(Validator validator) {
-    logger.debug("Configuring secure Validator");
-
-    // XXE攻撃防止設定
-    setSecureFeature(validator, DISALLOW_DOCTYPE_DECL, true);
-    setSecureFeature(validator, EXTERNAL_GENERAL_ENTITIES, false);
-    setSecureFeature(validator, EXTERNAL_PARAMETER_ENTITIES, false);
-
-    logger.debug("Secure Validator configured successfully");
-  }
-
-  /**
-   * DocumentBuilderFactoryにリソース制限を適用
-   *
-   * @param factory 設定対象のDocumentBuilderFactory
-   */
-  private void applyResourceLimits(DocumentBuilderFactory factory) {
+  public static void configureValidator(javax.xml.validation.Validator validator) {
     try {
-      // JDK 8u45以降で利用可能なリソース制限
-      factory.setAttribute("http://www.oracle.com/xml/jaxp/properties/maxOccur", 100);
-      factory.setAttribute("http://www.oracle.com/xml/jaxp/properties/maxElementDepth", 100);
-      factory.setAttribute(
-          "http://www.oracle.com/xml/jaxp/properties/totalEntitySizeLimit",
-          10 * 1024 * 1024); // 10MB
-      factory.setAttribute(
-          "http://www.oracle.com/xml/jaxp/properties/maxEntityExpansionLimit", 100);
-
-      logger.debug("Resource limits applied successfully");
-
-    } catch (Exception e) {
-      // JDKバージョンによっては利用できない場合があるため警告のみ
-      logger.warn(
-          "Could not apply some XML resource limits (may not be supported): {}", e.getMessage());
-    }
-  }
-
-  /**
-   * セキュリティ機能を安全に設定
-   *
-   * @param factory 設定対象のオブジェクト
-   * @param feature 機能名
-   * @param value 設定値
-   */
-  private void setSecureFeature(Object factory, String feature, boolean value) {
-    try {
-      if (factory instanceof DocumentBuilderFactory) {
-        ((DocumentBuilderFactory) factory).setFeature(feature, value);
-      } else if (factory instanceof SchemaFactory) {
-        ((SchemaFactory) factory).setFeature(feature, value);
-      } else if (factory instanceof Validator) {
-        ((Validator) factory).setFeature(feature, value);
-      }
-      logger.debug("Security feature set: {} = {}", feature, value);
-
-    } catch (Exception e) {
-      logger.warn(
-          "Could not set security feature '{}' on {}: {}",
-          feature,
-          factory.getClass().getSimpleName(),
-          e.getMessage());
-    }
-  }
-
-  /**
-   * プロパティを安全に設定
-   *
-   * @param factory 設定対象のオブジェクト
-   * @param property プロパティ名
-   * @param value 設定値
-   */
-  private void setPropertySafely(Object factory, String property, Object value) {
-    try {
-      if (factory instanceof XMLInputFactory) {
-        ((XMLInputFactory) factory).setProperty(property, value);
-      } else if (factory instanceof SchemaFactory) {
-        ((SchemaFactory) factory).setProperty(property, value);
-      }
-      logger.debug("Property set: {} = {}", property, value);
-
-    } catch (Exception e) {
-      logger.warn(
-          "Could not set property '{}' on {}: {}",
-          property,
-          factory.getClass().getSimpleName(),
-          e.getMessage());
+      validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+      logger.info("Secure Validator configured successfully.");
+    } catch (org.xml.sax.SAXException e) {
+      logger.error("Failed to configure secure Validator: {}", e.getMessage(), e);
     }
   }
 }

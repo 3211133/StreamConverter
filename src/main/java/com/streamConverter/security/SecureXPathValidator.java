@@ -313,14 +313,29 @@ public class SecureXPathValidator {
   }
 
   // 設定取得メソッド
+  /**
+   * ホワイトリストに登録されているXPath式のセットを取得します。
+   *
+   * @return ホワイトリストに登録されているXPath式の不変のセット
+   */
   public Set<String> getWhitelistedExpressions() {
     return new HashSet<>(WHITELISTED_EXPRESSIONS);
   }
 
+  /**
+   * 危険な関数名のセットを取得します。
+   *
+   * @return 危険な関数名の不変のセット
+   */
   public Set<String> getDangerousFunctions() {
     return new HashSet<>(DANGEROUS_FUNCTIONS);
   }
 
+  /**
+   * 許可されているXPathパターンの配列を取得します。
+   *
+   * @return 許可されているXPathパターンのクローン配列
+   */
   public String[] getAllowedPatterns() {
     return ALLOWED_PATTERNS.clone();
   }

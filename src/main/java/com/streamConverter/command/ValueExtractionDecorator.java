@@ -4,24 +4,16 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.StreamProcessingException;
 import com.streamConverter.context.ExecutionContext;
-import com.streamConverter.security.SecureXPathValidator;
-import com.streamConverter.security.SecureXmlConfiguration;
-import com.streamConverter.security.XmlResourceLimiter;
+import com.streamConverter.security.SecureXmlProcessor;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.xpath.XPath;
-import javax.xml.xpath.XPathExpression;
-import javax.xml.xpath.XPathFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
-import org.w3c.dom.Document;
 
 /**
  * 指定されたパスから値を抽出してMDCに格納するデコレータ
@@ -56,9 +48,7 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
   private final String extractionPath;
   private final String mdcKey;
   private final ObjectMapper objectMapper;
-  private final SecureXmlConfiguration secureXmlConfig;
-  private final SecureXPathValidator xpathValidator;
-  private final XmlResourceLimiter resourceLimiter;
+  private final SecureXmlProcessor secureXmlProcessor;
 
   /**
    * コンストラクタ
@@ -78,10 +68,8 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
     this.mdcKey = validateMdcKey(mdcKey);
     this.objectMapper = new ObjectMapper();
 
-    // セキュリティ関連コンポーネントの初期化
-    this.secureXmlConfig = new SecureXmlConfiguration();
-    this.xpathValidator = new SecureXPathValidator();
-    this.resourceLimiter = new XmlResourceLimiter();
+    // セキュアなXML処理コンポーネントの初期化
+    this.secureXmlProcessor = new SecureXmlProcessor();
   }
 
   @Override
@@ -208,108 +196,19 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
     return currentNode != null ? currentNode.asText() : null;
   }
 
-  /** XMLから値を抽出 */
-  @SuppressWarnings({
-    "lgtm[java/xpath-injection]", // XPath expressions are validated through whitelist before
-    // compilation
-    "lgtm[java/xxe]", // XML input is validated and sanitized through SecureXmlConfiguration
-    "CodeQL[java/xxe]" // XXE prevented through secure XML factory configuration
-  })
+  /** XMLから値を抽出（DocumentBuilderを使用しない安全な実装） */
   private String extractFromXml(String xmlString) throws Exception {
-    // XPathの安全性をチェック
-    String sanitizedXPath = sanitizeXPath(extractionPath);
+    logger.debug("Extracting XML value using secure StAX processor");
 
-    // セキュアなDocumentBuilderFactoryを使用
-    DocumentBuilderFactory factory = secureXmlConfig.createSecureDocumentBuilderFactory();
-
-    DocumentBuilder builder = factory.newDocumentBuilder();
-
-    // XML爆弾パターンの事前チェック
-    resourceLimiter.detectXmlBombs(xmlString);
-
-    // CodeQL mitigation: Use sanitized input with secure parser configuration
-    Document document = parseSecureXmlDocument(builder, xmlString);
-
-    XPathFactory xPathFactory = XPathFactory.newInstance();
-    XPath xpath = xPathFactory.newXPath();
-
-    // CodeQL mitigation: Complete data flow break for static analysis
-    XPathExpression expression = compileSecureXPath(xpath, sanitizedXPath);
-
-    String result = expression.evaluate(document);
-    return result != null && !result.trim().isEmpty() ? result.trim() : null;
+    // DocumentBuilderを使用せず、StAXベースのセキュアプロセッサを使用
+    return secureXmlProcessor.extractValueSafely(xmlString, extractionPath);
   }
 
-  /**
-   * セキュアなXMLドキュメント解析（CodeQL data flow中断）
-   *
-   * @param builder セキュア設定済みDocumentBuilder
-   * @param xmlString 検証済みXML文字列
-   * @return 解析されたDocument
-   */
-  @SuppressWarnings({
-    "lgtm[java/xxe]", // Input validated, secure parser configured
-    "CodeQL[java/xxe]" // XXE prevention through secure configuration
-  })
-  private Document parseSecureXmlDocument(DocumentBuilder builder, String xmlString)
-      throws Exception {
-    // 入力の最終検証（CodeQL data flow 分離）
-    String validatedXml = validateXmlInput(xmlString);
-    return builder.parse(new ByteArrayInputStream(validatedXml.getBytes(StandardCharsets.UTF_8)));
-  }
+  // 危険なDocumentBuilder使用メソッドを削除し、SecureXmlProcessorに置き換え
 
-  /** XML入力の最終検証（CodeQL data flow 分離） */
-  private String validateXmlInput(String xmlString) {
-    if (xmlString == null || xmlString.trim().isEmpty()) {
-      throw new IllegalArgumentException("XML input cannot be null or empty");
-    }
-    // 既にresourceLimiter.detectXmlBombs()で検証済み
-    return xmlString;
-  }
+  // XPath処理はSecureXmlProcessorに統合されたため削除
 
-  /**
-   * XPath式をサニタイズしてインジェクション攻撃を防ぎます。 安全なXPath式のみを許可するホワイトリスト方式を採用。
-   *
-   * @param xpath 元のXPath式
-   * @return サニタイズされたXPath式
-   * @throws IllegalArgumentException 危険なXPath式が検出された場合
-   */
-  private String sanitizeXPath(String xpath) {
-    // 新しいSecureXPathValidatorを使用
-    return xpathValidator.validateAndSanitizeXPath(xpath);
-  }
-
-  // このメソッドは SecureXPathValidator に移行したため削除
-
-  /**
-   * 事前コンパイルされたXPath式を取得（CodeQL対策のため安全なXPath式のみを許可）
-   *
-   * @param xpath XPathオブジェクト
-   * @param sanitizedXPath サニタイズ済みXPath式
-   * @return コンパイル済みXPathExpression
-   * @throws Exception コンパイルに失敗した場合
-   */
-  private XPathExpression compileSecureXPath(XPath xpath, String sanitizedXPath) throws Exception {
-    // CodeQL対策: ホワイトリスト方式でXPath式を事前検証してからコンパイル
-    if (!isXPathInWhitelist(sanitizedXPath)) {
-      throw new IllegalArgumentException(
-          "XPath expression not in approved whitelist: " + sanitizedXPath);
-    }
-
-    logger.debug("Compiling whitelisted XPath expression: {}", sanitizedXPath);
-    return xpath.compile(sanitizedXPath);
-  }
-
-  /**
-   * XPath式がホワイトリストに含まれているかチェック
-   *
-   * @param xpath 検証するXPath式
-   * @return ホワイトリストに含まれている場合true
-   */
-  private boolean isXPathInWhitelist(String xpath) {
-    // SecureXPathValidatorのホワイトリストを使用
-    return xpathValidator.isXPathInWhitelist(xpath);
-  }
+  // XPath処理メソッドはSecureXmlProcessorに統合されたため削除
 
   /** CSVから値を抽出 */
   private String extractFromCsv(String csvString) throws Exception {

@@ -176,107 +176,237 @@ public class BatchTransformResponse {
 
   // Getters and Setters
 
+  /**
+   * バッチIDを取得します。
+   *
+   * @return バッチID
+   */
   public String getBatchId() {
     return batchId;
   }
 
+  /**
+   * バッチIDを設定します。
+   *
+   * @param batchId バッチID
+   */
   public void setBatchId(String batchId) {
     this.batchId = batchId;
   }
 
+  /**
+   * 処理状況を取得します。
+   *
+   * @return 処理状況
+   */
   public String getStatus() {
     return status;
   }
 
+  /**
+   * 処理状況を設定します。
+   *
+   * @param status 処理状況
+   */
   public void setStatus(String status) {
     this.status = status;
   }
 
+  /**
+   * 処理開始時刻を取得します。
+   *
+   * @return 処理開始時刻
+   */
   public String getStartTime() {
     return startTime;
   }
 
+  /**
+   * 処理開始時刻を設定します。
+   *
+   * @param startTime 処理開始時刻
+   */
   public void setStartTime(String startTime) {
     this.startTime = startTime;
   }
 
+  /**
+   * 処理完了時刻を取得します。
+   *
+   * @return 処理���了時刻
+   */
   public String getEndTime() {
     return endTime;
   }
 
+  /**
+   * 処理完了時刻を設定します。
+   *
+   * @param endTime 処理完了時刻
+   */
   public void setEndTime(String endTime) {
     this.endTime = endTime;
   }
 
+  /**
+   * 総処理時間（ミリ秒）を取得します。
+   *
+   * @return 総処理時間（ミリ秒）
+   */
   public Long getTotalProcessingTimeMs() {
     return totalProcessingTimeMs;
   }
 
+  /**
+   * 総処理時間（ミリ秒）を設定します。
+   *
+   * @param totalProcessingTimeMs 総処理時間（ミリ秒）
+   */
   public void setTotalProcessingTimeMs(Long totalProcessingTimeMs) {
     this.totalProcessingTimeMs = totalProcessingTimeMs;
   }
 
+  /**
+   * 処理対象総数を取得します。
+   *
+   * @return 処理対象総数
+   */
   public int getTotalCount() {
     return totalCount;
   }
 
+  /**
+   * 処理対象総数を設定します。
+   *
+   * @param totalCount 処理対象総数
+   */
   public void setTotalCount(int totalCount) {
     this.totalCount = totalCount;
   }
 
+  /**
+   * 成功数を取得します。
+   *
+   * @return 成功数
+   */
   public int getSuccessCount() {
     return successCount;
   }
 
+  /**
+   * 成功数を設定します。
+   *
+   * @param successCount 成功数
+   */
   public void setSuccessCount(int successCount) {
     this.successCount = successCount;
   }
 
+  /**
+   * 失敗数を取得します。
+   *
+   * @return 失敗数
+   */
   public int getFailureCount() {
     return failureCount;
   }
 
+  /**
+   * 失敗数を設定します。
+   *
+   * @param failureCount 失敗数
+   */
   public void setFailureCount(int failureCount) {
     this.failureCount = failureCount;
   }
 
+  /**
+   * 個別処理結果のリストを取得します。
+   *
+   * @return 個別処理結果のリスト
+   */
   public List<TransformResponse> getResults() {
     return results;
   }
 
+  /**
+   * 個別処理結果のリストを設定します。
+   *
+   * @param results 個別処理結果のリスト
+   */
   public void setResults(List<TransformResponse> results) {
     this.results = results;
     calculateStatistics(); // 結果設定時に統計を再計算
   }
 
+  /**
+   * 進捗率（0-100）を取得します。
+   *
+   * @return 進捗率
+   */
   public double getProgressPercentage() {
     return progressPercentage;
   }
 
+  /**
+   * 進捗率（0-100）を設定します。
+   *
+   * @param progressPercentage 進捗率
+   */
   public void setProgressPercentage(double progressPercentage) {
     this.progressPercentage = progressPercentage;
   }
 
+  /**
+   * 処理統計情報を取得します。
+   *
+   * @return 処理統計情報
+   */
   public Map<String, Object> getStatistics() {
     return statistics;
   }
 
+  /**
+   * 処理統計情報を設定します。
+   *
+   * @param statistics 処理統計情報
+   */
   public void setStatistics(Map<String, Object> statistics) {
     this.statistics = statistics;
   }
 
+  /**
+   * エラーサマリーのリストを取得します。
+   *
+   * @return エラーサマリーのリスト
+   */
   public List<String> getErrorSummary() {
     return errorSummary;
   }
 
+  /**
+   * エラーサマリーのリストを設定します。
+   *
+   * @param errorSummary エラーサマリーのリスト
+   */
   public void setErrorSummary(List<String> errorSummary) {
     this.errorSummary = errorSummary;
   }
 
+  /**
+   * 非同期処理の場合のステータスURLを取���します。
+   *
+   * @return ステータスURL
+   */
   public String getStatusUrl() {
     return statusUrl;
   }
 
+  /**
+   * 非同期処理の場合のステータスURLを設定します。
+   *
+   * @param statusUrl ステータスURL
+   */
   public void setStatusUrl(String statusUrl) {
     this.statusUrl = statusUrl;
   }

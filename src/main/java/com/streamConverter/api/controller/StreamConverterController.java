@@ -8,8 +8,6 @@ import com.streamConverter.api.service.BatchTransformService;
 import com.streamConverter.api.service.TransformService;
 import com.streamConverter.context.ExecutionContext;
 import io.swagger.v3.oas.annotations.Operation;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -51,36 +49,10 @@ public class StreamConverterController {
     this.batchTransformService = batchTransformService;
   }
 
-  @Operation(
-      summary = "データ変換API",
-      description =
-          "指定された形式のデータを別の形式に変換し、オプションで外部APIに送信します。" + "値抽出、スキーマバリデーション、MDCコンテキスト管理も提供されます。")
-  @ApiResponses(
-      value = {
-        @ApiResponse(
-            responseCode = "200",
-            description = "変換成功",
-            content =
-                @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = TransformResponse.class))),
-        @ApiResponse(
-            responseCode = "400",
-            description = "リクエストが無効",
-            content =
-                @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = TransformResponse.class))),
-        @ApiResponse(
-            responseCode = "500",
-            description = "サーバー内部エラー",
-            content =
-                @Content(
-                    mediaType = "application/json",
-                    schema = @Schema(implementation = TransformResponse.class)))
-      })
   /**
    * データ変換エンドポイント
+   *
+   * <p>指定された形式のデータを別の形式に変換し、オプションで外部APIに送信します。 値抽出、スキーマバリデーション、MDCコンテキスト管理も提供されます。
    *
    * @param request 変換リクエスト
    * @return 変換結果レスポンス
@@ -158,7 +130,9 @@ public class StreamConverterController {
   /**
    * バリデーションエンドポイント
    *
-   * @param request バリデーションリクエスト
+   * <p>指定されたスキーマを使用してデータのバリデーションのみを実行します。
+   *
+   * @param request バリデーショ��リクエスト
    * @return バリデーション結果レスポンス
    */
   @PostMapping("/validate")
@@ -217,6 +191,8 @@ public class StreamConverterController {
   /**
    * バッチ変換エンドポイント
    *
+   * <p>複数データセットの一括変換処理を実行します。非同期処理にも対応しています。
+   *
    * @param request バッチ変換リクエスト
    * @return バッチ変換結果または受付レスポンス
    */
@@ -262,6 +238,8 @@ public class StreamConverterController {
   /**
    * バッチ処理状況取得エンドポイント
    *
+   * <p>非同期バッチ処理の進捗状況を取得します。
+   *
    * @param batchId バッチID
    * @return バッチ処理状況
    */
@@ -295,6 +273,8 @@ public class StreamConverterController {
   @ApiResponse(responseCode = "200", description = "正常")
   /**
    * ヘルスチェックエンドポイント
+   *
+   * <p>APIの正常性を確認します。
    *
    * @return システム稼働状態
    */

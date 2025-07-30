@@ -1,8 +1,8 @@
-# StreamConverter アーキテクチャ依存関係
+# StreamConverter Architecture and Dependencies
 
-このドキュメントでは、StreamConverterの内部モジュール間の依存関係とアーキテクチャレイヤーを説明します。
+This document provides a comprehensive overview of the StreamConverter project's internal module dependencies, architectural layers, and external library dependencies. It serves as the single source of truth for dependency information.
 
-## アーキテクチャ概要
+## 1. Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
@@ -16,7 +16,7 @@
 ├─────────────────────────────────────────────────────────────┤
 │ Business Logic      │ Pipeline Builder │ Value Extraction   │
 │ - TransformService  │ - Command        │ - Decorator        │
-│                     │   Factory        │   Pattern          │
+│ - BatchTransformSvc │   Factory        │   Pattern          │
 ├─────────────────────────────────────────────────────────────┤
 │                      Command Layer                          │
 ├─────────────────────────────────────────────────────────────┤
@@ -28,374 +28,98 @@
 ├─────────────────────────────────────────────────────────────┤
 │ Spring Boot        │ External Libs    │ Configuration       │
 │ - Web/Security     │ - JSON Schema    │ - Application.yml   │
-│ - Actuator         │ - OpenCSV        │ - Security Config   │
+│ - Actuator/Cache   │ - OpenCSV        │ - Security Config   │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-## 依存関係マップ
+## 2. External Library Dependencies
 
-### 1. Core Dependencies (コア依存関係)
+This section details the external libraries used in the project, their roles, and versions.
 
-```mermaid
-graph TD
-    A[StreamConverterApplication] --> B[StreamConverterController]
-    B --> C[TransformService]
-    C --> D[ValueExtractionDecorator]
-    C --> E[ValidationCommands]
-    
-    D --> F[ExecutionContext]
-    E --> G[JsonValidateCommand]
-    E --> H[XmlValidateCommand]
-    E --> I[CsvValidateCommand]
-    
-    F --> J[MDC Integration]
-    G --> K[JSON Schema Validator]
-    H --> L[XML Parser]
-    I --> M[OpenCSV]
-```
+### 2.1. Core Framework (Spring Boot)
 
-### 2. External Library Dependencies (外部ライブラリ依存関係)
+| Dependency | Version | Scope | Purpose |
+|---|---|---|---|
+| `org.springframework.boot:spring-boot-starter-web` | 3.3.2 | impl | Core web framework, REST APIs, embedded Tomcat |
+| `org.springframework.boot:spring-boot-starter-validation` | 3.3.2 | impl | Input validation (Bean Validation) |
+| `org.springframework.boot:spring-boot-starter-actuator` | 3.3.2 | impl | Monitoring and management (health, metrics) |
+| `org.springframework.boot:spring-boot-starter-security` | 3.3.2 | impl | Authentication, authorization, security |
+| `org.springframework.boot:spring-boot-starter-cache` | 3.3.2 | impl | Caching abstraction |
 
-```mermaid
-graph LR
-    subgraph "Application Code"
-        A[StreamConverterController]
-        B[TransformService]
-        C[ValidationCommands]
-        D[SecurityConfig]
-    end
-    
-    subgraph "Spring Boot Ecosystem"
-        E[spring-boot-starter-web]
-        F[spring-boot-starter-security]
-        G[spring-boot-starter-actuator]
-        H[spring-boot-starter-validation]
-    end
-    
-    subgraph "Data Processing"
-        I[jackson-databind]
-        J[json-schema-validator]
-        K[opencsv]
-        L[commons-io]
-    end
-    
-    subgraph "Utilities"
-        M[commons-lang3]
-        N[slf4j-api]
-        O[logback-classic]
-    end
-    
-    A --> E
-    A --> H
-    B --> I
-    B --> J
-    C --> K
-    C --> L
-    D --> F
-    
-    E --> I
-    G --> N
-    N --> O
-```
+### 2.2. Data Processing & Utilities
 
-## レイヤー別依存関係詳細
+| Dependency | Version | Scope | Purpose |
+|---|---|---|---|
+| `org.apache.commons:commons-lang3` | 3.18.0 | impl | General utility functions |
+| `commons-io:commons-io` | 2.18.0 | impl | I/O stream utilities |
+| `com.networknt:json-schema-validator` | 1.5.8 | impl | JSON Schema validation |
+| `com.opencsv:opencsv` | 5.12.0 | impl | CSV reading and processing |
+| `com.github.ben-manes.caffeine:caffeine` | 3.1.8 | impl | High-performance caching implementation |
 
-### WebAPI Layer
+### 2.3. API Documentation
 
-#### StreamConverterController
-```java
-// 直接依存関係
-@RestController
-public class StreamConverterController {
-    // Service Layer
-    private final TransformService transformService; // ← Service依存
-    
-    // Spring Framework
-    @Autowired // ← Spring DI
-    @Valid @RequestBody // ← Validation
-    @Operation // ← OpenAPI/Swagger
-}
-```
+| Dependency | Version | Scope | Purpose |
+|---|---|---|---|
+| `org.springdoc:springdoc-openapi-starter-webmvc-ui` | 2.6.0 | impl | OpenAPI 3.0 spec and Swagger UI generation |
 
-#### DTO Classes
-```java
-// 外部ライブラリ依存関係
-public class TransformRequest {
-    @NotBlank          // ← jakarta.validation
-    @Pattern           // ← jakarta.validation  
-    @Schema            // ← swagger annotations
-}
-```
+### 2.4. Testing
 
-### Service Layer
+| Dependency | Version | Scope | Purpose |
+|---|---|---|---|
+| `org.springframework.boot:spring-boot-starter-test` | 3.3.2 | test | Spring Boot integration testing |
+| `org.springframework.security:spring-security-test` | 6.3.1 (from BOM) | test | Security testing utilities |
+| `org.awaitility:awaitility` | 4.2.0 | test | Asynchronous testing utilities |
+| `org.junit:junit-bom` | 5.13.4 | test | JUnit 5 dependency management |
+| `org.mockito:mockito-core` | 5.18.0 | test | Mocking framework |
+| `org.pitest:pitest-junit5-plugin` | 1.2.3 | test | Mutation testing for test quality |
 
-#### TransformService
-```java
-// 依存関係注入パターン
-@Service
-public class TransformService {
-    // Command Layer依存
-    private IStreamCommand buildTransformPipeline(request) {
-        return new ValueExtractionDecorator(    // ← Command Layer
-            new SampleStreamCommand(),          // ← Command Layer
-            request.getInputFormat(),
-            request.getExtractionPath(),
-            request.getMdcKey()
-        );
-    }
-    
-    // 外部ライブラリ使用
-    private Map<String, String> getExtractedValues() {
-        return MDC.getCopyOfContextMap();       // ← SLF4J MDC
+## 3. Dependency Management Strategy
+
+### 3.1. Spring Boot BOM (Bill of Materials)
+We use the `io.spring.dependency-management` plugin, which leverages the Spring Boot 3.3.2 BOM to manage versions for সময়োপযোগী (transitive) dependencies like `spring-core`, `jackson-databind`, `logback`, etc. This ensures compatibility across the Spring ecosystem.
+
+### 3.2. Explicit Versioning
+Third-party libraries not covered by the Spring Boot BOM are versioned explicitly in `build.gradle.kts`. We select stable, well-maintained versions.
+
+### 3.3. Dependency Health Monitoring
+We recommend the following practices to maintain dependency health:
+- **Vulnerability Scanning**: Use tools like the OWASP Dependency-Check plugin (`./gradlew dependencyCheckAnalyze`) to scan for known vulnerabilities.
+- **Update Checks**: Regularly check for new versions using the `com.github.ben-manes.versions` plugin (`./gradlew dependencyUpdates`).
+- **Automated Checks**: Set up CI/CD pipelines to run these checks automatically on a schedule (e.g., weekly).
+
+## 4. Dependency Addition/Removal Process
+
+### Checklist for Adding a New Dependency
+1.  **License Compatibility**: Ensure the license is compatible (e.g., Apache 2.0, MIT).
+2.  **Security**: Check for known vulnerabilities.
+3.  **Maintenance**: Verify the library is actively maintained.
+4.  **Impact**: Assess the impact on JAR size and startup performance.
+5.  **Necessity**: Confirm the functionality cannot be reasonably achieved with existing dependencies.
+
+### Process for Removing a Dependency
+1.  **Impact Analysis**: Identify all code locations using the library.
+2.  **Refactoring**: Replace the functionality with an alternative implementation.
+3.  **Verification**: Run all tests to ensure no regressions.
+4.  **Documentation**: Update this document.
+
+## 5. Troubleshooting
+
+### Resolving Dependency Conflicts
+If a transitive dependency conflict arises, use Gradle's resolution strategy to force a specific version:
+```gradle
+configurations.all {
+    resolutionStrategy {
+        force 'group:name:version'
     }
 }
 ```
 
-### Command Layer
-
-#### ValueExtractionDecorator
-```java
-// 複数外部ライブラリ依存
-public class ValueExtractionDecorator {
-    private final ObjectMapper objectMapper;           // ← Jackson
-    
-    private String extractFromJson(String json) {
-        JsonNode node = objectMapper.readTree(json);   // ← Jackson
-    }
-    
-    private String extractFromXml(String xml) {
-        DocumentBuilder builder = factory               // ← Java XML API
-            .newDocumentBuilder();
-    }
-    
-    private String extractFromCsv(String csv) {
-        String[] lines = csvString.split("\n");        // ← Java Core
-    }
-}
-```
-
-#### Validation Commands
-```java
-// JSON Validation
-public class JsonValidateCommand {
-    private final JsonSchemaFactory schemaFactory;     // ← json-schema-validator
-    private final ObjectMapper objectMapper;           // ← Jackson
-}
-
-// CSV Validation  
-public class CsvValidateCommand {
-    public void consume(InputStream input) {
-        CSVReader reader = new CSVReader(               // ← OpenCSV
-            new InputStreamReader(input)
-        );
-    }
-}
-```
-
-## Configuration Dependencies (設定依存関係)
-
-### Spring Boot Configuration
-```yaml
-# application.yml の依存関係影響
-spring:
-  security:          # ← spring-boot-starter-security
-    user:
-      name: admin
-      password: ${ADMIN_PASSWORD:streamconverter123}
-      
-management:          # ← spring-boot-starter-actuator
-  endpoints:
-    web:
-      exposure:
-        include: health,info,metrics
-
-springdoc:           # ← springdoc-openapi
-  api-docs:
-    path: /api-docs
-  swagger-ui:
-    path: /swagger-ui.html
-```
-
-### Security Configuration
-```java
-@Configuration
-@EnableWebSecurity   // ← Spring Security
-public class SecurityConfig {
-    
-    @Bean
-    public SecurityFilterChain filterChain(HttpSecurity http) {
-        return http
-            .cors(cors -> cors.configurationSource(   // ← CORS設定
-                corsConfigurationSource()
-            ))
-            .authorizeHttpRequests(authz -> authz     // ← 認証設定
-                .requestMatchers("/api/v1/**").authenticated()
-            )
-            .build();
-    }
-}
-```
-
-## Runtime Dependencies (実行時依存関係)
-
-### Spring Boot Auto-Configuration
-実行時に自動設定される依存関係：
-
-```
-spring-boot-starter-web:
-├── DispatcherServlet        (自動設定)
-├── Jackson2ObjectMapper     (自動設定)  
-├── Tomcat EmbeddedServer    (自動設定)
-└── Spring MVC Config        (自動設定)
-
-spring-boot-starter-security:
-├── SecurityFilterChain      (自動設定)
-├── AuthenticationManager    (自動設定)
-└── PasswordEncoder          (自動設定)
-
-spring-boot-starter-actuator:
-├── HealthIndicators         (自動設定)
-├── MetricsRegistry          (自動設定)
-└── EndpointMappings        (自動設定)
-```
-
-### Bean Dependencies Graph
-```mermaid
-graph TD
-    A[StreamConverterApplication] --> B[Auto-Configuration]
-    B --> C[TransformService Bean]
-    B --> D[SecurityConfig Bean]
-    B --> E[ControllerBeans]
-    
-    C --> F[Command Objects]
-    D --> G[Security Filters]
-    E --> H[Exception Handlers]
-    
-    F --> I[External Library Objects]
-    G --> J[CORS Configuration]
-    H --> K[Error Response Objects]
-```
-
-## Testing Dependencies (テスト依存関係)
-
-### Test Layer Architecture
-```java
-// 統合テスト依存関係
-@WebMvcTest(StreamConverterController.class)
-class StreamConverterControllerTest {
-    @Autowired MockMvc mockMvc;                    // ← Spring Test
-    @MockBean TransformService transformService;   // ← Mockito
-    @Autowired ObjectMapper objectMapper;          // ← Jackson
-}
-
-// Service Layer テスト
-class TransformServiceTest {
-    private TransformService transformService;     // ← Test Target
-    
-    @BeforeEach
-    void setUp() {
-        transformService = new TransformService();  // ← Direct Instantiation
-        MDC.clear();                               // ← SLF4J MDC
-    }
-}
-```
-
-## Circular Dependencies Prevention (循環依存関係の防止)
-
-### Layer Separation Rules
-1. **上位レイヤーは下位レイヤーに依存可能**
-2. **下位レイヤーは上位レイヤーに依存禁止**
-3. **同一レイヤー内でのみ相互依存許可**
-
-```
-WebAPI Layer     (Controller, DTO, Exception)
-    ↓ OK
-Service Layer    (TransformService, Business Logic)
-    ↓ OK  
-Command Layer    (Commands, Decorators, Context)
-    ↓ OK
-Infrastructure   (Spring Boot, External Libraries)
-```
-
-### Dependency Injection Pattern
-```java
-// Good: Constructor Injection (推奨)
-@Service
-public class TransformService {
-    private final ValidationService validationService;
-    
-    public TransformService(ValidationService validationService) {
-        this.validationService = validationService;
-    }
-}
-
-// Avoid: Field Injection (非推奨)
-@Service
-public class TransformService {
-    @Autowired
-    private ValidationService validationService;  // ← テストが困難
-}
-```
-
-## Performance Impact (パフォーマンス影響)
-
-### Library Loading Time
-```
-Spring Boot Startup:
-├── Auto-configuration scan:    ~800ms
-├── Bean instantiation:         ~400ms
-├── Security setup:             ~200ms
-├── Web server startup:         ~300ms
-└── External lib loading:       ~200ms
-Total:                          ~1.9s
-```
-
-### Memory Footprint
-```
-Runtime Memory Usage:
-├── Spring Framework:           ~15MB
-├── Jackson (JSON):            ~3MB
-├── OpenCSV:                   ~1MB
-├── JSON Schema Validator:      ~2MB
-├── Application Code:           ~5MB
-└── Tomcat Embedded:           ~8MB
-Total:                         ~34MB
-```
-
-## Dependency Health Monitoring (依存関係健全性監視)
-
-### Regular Health Checks
+### Viewing the Dependency Tree
+To understand the project's dependencies, use the following command:
 ```bash
-# 依存関係脆弱性チェック
-./gradlew dependencyCheckAnalyze
-
-# 依存関係更新確認
-./gradlew dependencyUpdates
-
-# ライセンス確認
-./gradlew generateLicenseReport
-
-# 使用されていない依存関係検出
-./gradlew unusedDependencies
-```
-
-### Automated Monitoring
-```yaml
-# GitHub Actions での定期チェック
-name: Dependency Check
-on:
-  schedule:
-    - cron: '0 2 * * 1'  # 毎週月曜日2時
-jobs:
-  dependency-check:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Run dependency check
-        run: ./gradlew dependencyCheckAnalyze
+# Display the full dependency tree
+./gradlew dependencies
 ```
 
 ---
-
-**更新日**: 2025-07-29  
-**次回更新予定**: 依存関係更新時、または新機能追加時
+*This document was last updated on 2025-07-30 and should be maintained alongside any changes to `build.gradle.kts`.*

@@ -2,6 +2,7 @@ package com.streamConverter.util;
 
 import java.io.IOException;
 import java.io.OutputStream;
+import java.util.Objects;
 
 /**
  * 出力ストリームのデータサイズを測定するラッパークラス
@@ -19,7 +20,7 @@ public class MeasuredOutputStream extends OutputStream {
    * @param delegate ラップ対象のOutputStream
    */
   public MeasuredOutputStream(OutputStream delegate) {
-    this.delegate = delegate;
+    this.delegate = Objects.requireNonNull(delegate);
   }
 
   @Override

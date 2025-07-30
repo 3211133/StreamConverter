@@ -88,7 +88,7 @@ class ValueExtractionDecoratorTest {
     OutputStream outputStream = new ByteArrayOutputStream();
 
     ValueExtractionDecorator decorator =
-        new ValueExtractionDecorator(mockCommand, "XML", "//user/@id", "userId");
+        new ValueExtractionDecorator(mockCommand, "XML", "/root/user/@id", "userId");
 
     // When
     decorator.execute(inputStream, outputStream);
@@ -107,7 +107,7 @@ class ValueExtractionDecoratorTest {
     OutputStream outputStream = new ByteArrayOutputStream();
 
     ValueExtractionDecorator decorator =
-        new ValueExtractionDecorator(mockCommand, "XML", "//user/name/text()", "userName");
+        new ValueExtractionDecorator(mockCommand, "XML", "/root/user/name/text()", "userName");
 
     // When
     decorator.execute(inputStream, outputStream);

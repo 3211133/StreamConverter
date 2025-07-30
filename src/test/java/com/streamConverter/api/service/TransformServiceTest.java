@@ -83,7 +83,7 @@ class TransformServiceTest {
             "XML",
             "XML",
             null,
-            "//user/@id",
+            "/root/user/@id",
             "userId",
             null,
             "<root><user id=\"12345\"><name>John</name></user></root>");

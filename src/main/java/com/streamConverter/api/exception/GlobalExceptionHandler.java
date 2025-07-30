@@ -248,6 +248,11 @@ public class GlobalExceptionHandler {
       return timestamp;
     }
 
+    /**
+     * タイムスタンプを設定
+     *
+     * @param timestamp タイムスタンプ
+     */
     public void setTimestamp(LocalDateTime timestamp) {
       this.timestamp = timestamp;
     }
@@ -261,6 +266,11 @@ public class GlobalExceptionHandler {
       return details;
     }
 
+    /**
+     * エラー詳細情報を設定
+     *
+     * @param details エラー詳細情報のマップ
+     */
     public void setDetails(Map<String, String> details) {
       this.details = details;
     }

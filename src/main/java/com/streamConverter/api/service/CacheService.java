@@ -291,34 +291,74 @@ public class CacheService {
     private long createdAt;
 
     // Getters and Setters
+    /**
+     * 入力フォーマットを取得します。
+     *
+     * @return 入力フォーマット
+     */
     public String getInputFormat() {
       return inputFormat;
     }
 
+    /**
+     * 入力フォーマットを設定します。
+     *
+     * @param inputFormat 入力フォーマット
+     */
     public void setInputFormat(String inputFormat) {
       this.inputFormat = inputFormat;
     }
 
+    /**
+     * 出力フォーマットを取得します。
+     *
+     * @return 出力フォーマット
+     */
     public String getOutputFormat() {
       return outputFormat;
     }
 
+    /**
+     * 出力フォーマットを設定します。
+     *
+     * @param outputFormat 出力フォーマット
+     */
     public void setOutputFormat(String outputFormat) {
       this.outputFormat = outputFormat;
     }
 
+    /**
+     * 抽出パスを取得します。
+     *
+     * @return 抽出パス
+     */
     public String getExtractionPath() {
       return extractionPath;
     }
 
+    /**
+     * 抽出パスを設定します。
+     *
+     * @param extractionPath 抽出パス
+     */
     public void setExtractionPath(String extractionPath) {
       this.extractionPath = extractionPath;
     }
 
+    /**
+     * 作成時刻を取得します。
+     *
+     * @return 作成時刻（ミリ秒）
+     */
     public long getCreatedAt() {
       return createdAt;
     }
 
+    /**
+     * 作成時刻を設定します。
+     *
+     * @param createdAt 作成時刻（ミリ秒）
+     */
     public void setCreatedAt(long createdAt) {
       this.createdAt = createdAt;
     }

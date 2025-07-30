@@ -3,14 +3,13 @@ server:
   port: 0  # ランダムポートを使用（テスト用）
 
 spring:
-  profiles:
-    active: test
   # テスト用のセキュリティ設定
   security:
     user:
       name: ${TEST_ADMIN_USERNAME:admin}
       password: ${TEST_ADMIN_PASSWORD:streamconverter123}
       roles: USER, ADMIN
+
       
   # テスト用キャッシュ設定（短いTTL）
   cache:
@@ -18,20 +17,18 @@ spring:
     caffeine:
       spec: "maximumSize=500,expireAfterWrite=10m"
 
-# テスト用のセキュリティ設定
-security:
-  cors:
-    allowed-origins: 
-      - "http://localhost:3000"
-      - "http://localhost:8080"
-      - "*"
-    allowed-methods:
-      - GET
-      - POST
-      - OPTIONS
-    allowed-headers:
-      - "*"
-    allow-credentials: true
+# テスト用のカスタム設定
+streamconverter:
+  security:
+    cors:
+      allowed-origins: "http://localhost:3000,http://localhost:8080,*"
+      allowed-methods: "GET,POST,OPTIONS"
+      allowed-headers: "*"
+      allow-credentials: true
+  test:
+    enabled: true
+    batch-timeout-seconds: 30
+    cache-enabled: true
 
 # Actuator設定（テスト用）
 management:
@@ -56,12 +53,6 @@ springdoc:
     path: /swagger-ui.html
     enabled: true
 
-# テスト用のカスタム設定
-streamconverter:
-  test:
-    enabled: true
-    batch-timeout-seconds: 30
-    cache-enabled: true
     
 # テスト用ログ設定
 logging:

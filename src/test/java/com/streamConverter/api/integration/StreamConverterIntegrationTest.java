@@ -7,6 +7,7 @@ import com.streamConverter.api.dto.BatchTransformRequest;
 import com.streamConverter.api.dto.BatchTransformResponse;
 import com.streamConverter.api.dto.TransformRequest;
 import com.streamConverter.api.dto.TransformResponse;
+import com.streamConverter.config.TestSecurityConfig;
 import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -18,6 +19,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -43,6 +45,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 public class StreamConverterIntegrationTest {
 
   @LocalServerPort private int port;

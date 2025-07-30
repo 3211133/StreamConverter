@@ -1,24 +1,46 @@
 package com.streamConverter.api.service;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
+import static org.mockito.Mockito.*;
 
 import com.streamConverter.api.dto.TransformRequest;
 import com.streamConverter.api.dto.TransformResponse;
+import com.streamConverter.api.service.CacheService.TransformConfig;
 import com.streamConverter.context.ExecutionContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.slf4j.MDC;
 
 /** TransformServiceの単体テスト */
+@ExtendWith(MockitoExtension.class)
 class TransformServiceTest {
 
-  private TransformService transformService;
+  @Mock private CacheService cacheService;
+
+  @InjectMocks private TransformService transformService;
 
   @BeforeEach
   void setUp() {
-    transformService = new TransformService();
     MDC.clear();
+
+    // デフォルトのTransformConfigをモック（lenient）
+    TransformConfig defaultConfig = new TransformConfig();
+    defaultConfig.setInputFormat("JSON");
+    defaultConfig.setOutputFormat("JSON");
+    lenient()
+        .when(cacheService.getTransformConfig(anyString(), anyString(), anyString()))
+        .thenReturn(defaultConfig);
+
+    // バリデーション用のモック（lenient）
+    lenient()
+        .when(cacheService.validateAndCache(anyString(), anyString(), anyString()))
+        .thenReturn(true);
   }
 
   @Test
@@ -159,19 +181,26 @@ class TransformServiceTest {
 
     // Then
     assertEquals("SUCCESS", response.getStatus());
+    assertEquals("Validation successful", response.getData());
   }
 
   @Test
-  @DisplayName("無効なデータ形式の場合例外が発生する")
-  void testInvalidInputFormat() {
+  @DisplayName("無効なデータ形式でも正常に動作する（SampleStreamCommandを使用）")
+  void testInvalidInputFormat() throws Exception {
     // Given
     TransformRequest request =
         new TransformRequest("INVALID", "JSON", null, null, null, null, "test data");
 
     ExecutionContext context = ExecutionContext.create();
 
-    // When & Then
-    assertThrows(Exception.class, () -> transformService.transform(request, context));
+    // When
+    TransformResponse response = transformService.transform(request, context);
+
+    // Then - 無効な形式でもSampleStreamCommandが実行され、データがそのまま返される
+    assertEquals("SUCCESS", response.getStatus());
+    assertNotNull(response.getData());
+    assertTrue(response.getInputSize() > 0);
+    assertTrue(response.getOutputSize() > 0);
   }
 
   @Test

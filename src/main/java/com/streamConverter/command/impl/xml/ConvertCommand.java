@@ -62,6 +62,11 @@ public class ConvertCommand extends AbstractStreamCommand {
     // ここでは、IRuleを使用して変換処理を行うことを想定しています。
     // 例: XMLを読み込み、IRuleを適用して変換し、出力ストリームに書き込む処理を実装する
     XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+
+    // XXE攻撃を防ぐためのセキュリティ設定
+    xmlInputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    xmlInputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+
     XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
 
     try {

@@ -24,7 +24,7 @@ spring:
   security:
     user:
       name: ${ADMIN_USERNAME:admin}
-      password: ${ADMIN_PASSWORD:}  # Must be set via environment variable
+      password: ${ADMIN_PASSWORD:default_password_change_me}  # Default for development/testing
       roles: ADMIN
 
 # Management endpoints (Actuator)

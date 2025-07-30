@@ -3,8 +3,10 @@ package com.streamConverter.config;
 import java.util.Arrays;
 import java.util.List;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.context.annotation.Profile;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.web.SecurityFilterChain;
@@ -13,23 +15,24 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 /**
- * Spring Security設定クラス
+ * テスト環境専用のSpring Security設定クラス
  *
- * <p>StreamConverter WebAPIのセキュリティ設定を定義します。 開発環境では基本認証を使用し、本番環境では適切な認証機構に変更することを想定しています。
+ * <p>統合テストでのHTTPリクエストを簡素化するため、CSRF保護を無効化します。
  */
-@Configuration
+@TestConfiguration
 @EnableWebSecurity
-public class SecurityConfig {
+@Profile("test")
+public class TestSecurityConfig {
 
   @Value(
-      "${streamconverter.security.cors.allowed-origins:http://localhost:3000,http://localhost:8080}")
+      "${streamconverter.security.cors.allowed-origins:http://localhost:3000,http://localhost:8080,*}")
   private String allowedOrigins;
 
   @Value("${streamconverter.security.cors.allowed-methods:GET,POST,OPTIONS}")
   private String allowedMethods;
 
   @Value(
-      "${streamconverter.security.cors.allowed-headers:Content-Type,Authorization,X-Requested-With}")
+      "${streamconverter.security.cors.allowed-headers:Content-Type,Authorization,X-Requested-With,*}")
   private String allowedHeaders;
 
   @Value("${streamconverter.security.cors.allow-credentials:true}")
@@ -39,26 +42,23 @@ public class SecurityConfig {
   private long maxAge;
 
   /**
-   * Spring Securityのフィルターチェーンを設定
+   * テスト環境専用のSpring Securityフィルターチェーン設定
+   *
+   * <p>CSRF保護を無効化し、統合テストでのHTTPリクエストを簡素化します。
    *
    * @param http HTTPセキュリティ設定
    * @return セキュリティフィルターチェーン
    * @throws Exception 設定エラーが発生した場合
    */
   @Bean
-  public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+  @Primary
+  public SecurityFilterChain testFilterChain(HttpSecurity http) throws Exception {
     http
-        // CSRF設定（REST APIでも一部保護）
-        .csrf(
-            csrf ->
-                csrf.ignoringRequestMatchers(
-                        "/api/v1/health", "/actuator/**", "/api-docs/**", "/swagger-ui/**")
-                    .csrfTokenRepository(
-                        org.springframework.security.web.csrf.CookieCsrfTokenRepository
-                            .withHttpOnlyFalse()))
+        // テスト環境ではCSRF保護を無効化
+        .csrf(csrf -> csrf.disable())
 
         // CORS設定を有効化
-        .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+        .cors(cors -> cors.configurationSource(testCorsConfigurationSource()))
 
         // エンドポイントごとの認証設定
         .authorizeHttpRequests(
@@ -71,6 +71,10 @@ public class SecurityConfig {
                         "/api-docs/**",
                         "/swagger-ui/**",
                         "/swagger-ui.html")
+                    .permitAll()
+
+                    // CORS preflightリクエスト（OPTIONS）は認証不要
+                    .requestMatchers(org.springframework.http.HttpMethod.OPTIONS, "/**")
                     .permitAll()
 
                     // APIエンドポイントは認証必要
@@ -91,14 +95,15 @@ public class SecurityConfig {
   }
 
   /**
-   * CORS設定を定義
+   * テスト環境専用のCORS設定を定義
    *
-   * <p>環境変数から設定を読み取り、セキュアなCORS設定を提供します。
+   * <p>より寛容なCORS設定でテストを簡素化します。
    *
    * @return CORS設定ソース
    */
   @Bean
-  public CorsConfigurationSource corsConfigurationSource() {
+  @Primary
+  public CorsConfigurationSource testCorsConfigurationSource() {
     CorsConfiguration configuration = new CorsConfiguration();
 
     // 許可するオリジンを環境変数から設定

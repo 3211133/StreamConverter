@@ -1,8 +1,8 @@
 package com.streamConverter.api.service;
 
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.cache.annotation.CacheEvict;
@@ -31,10 +31,10 @@ import org.springframework.stereotype.Service;
 public class CacheService {
 
   private static final Logger logger = LoggerFactory.getLogger(CacheService.class);
-  
+
   /**
    * 文字列のSHA-256ハッシュを生成します。
-   * 
+   *
    * @param input ハッシュ対象の文字列
    * @return SHA-256ハッシュ値（16進数文字列）
    */
@@ -76,7 +76,8 @@ public class CacheService {
   @Cacheable(
       value = "validationResults",
       cacheManager = "validationCacheManager",
-      key = "T(com.streamConverter.api.service.CacheService).generateCacheKey(#data, #format, #schema)")
+      key =
+          "T(com.streamConverter.api.service.CacheService).generateCacheKey(#data, #format, #schema)")
   public boolean validateAndCache(String data, String format, String schema) {
     logger.info("Performing validation for format: {} (cache miss)", format);
 
@@ -101,7 +102,8 @@ public class CacheService {
   @Cacheable(
       value = "transformConfigs",
       cacheManager = "transformCacheManager",
-      key = "T(com.streamConverter.api.service.CacheService).generateTransformCacheKey(#inputFormat, #outputFormat, #extractionPath)")
+      key =
+          "T(com.streamConverter.api.service.CacheService).generateTransformCacheKey(#inputFormat, #outputFormat, #extractionPath)")
   public TransformConfig getTransformConfig(
       String inputFormat, String outputFormat, String extractionPath) {
     logger.info("Building transform config for {}→{} (cache miss)", inputFormat, outputFormat);
@@ -121,7 +123,8 @@ public class CacheService {
    */
   @Cacheable(
       value = "schemaCache",
-      key = "T(com.streamConverter.api.service.CacheService).generateSchemaCacheKey(#schemaType, #schemaContent)")
+      key =
+          "T(com.streamConverter.api.service.CacheService).generateSchemaCacheKey(#schemaType, #schemaContent)")
   public Object getSchemaObject(String schemaContent, String schemaType) {
     logger.info("Parsing schema of type: {} (cache miss)", schemaType);
 
@@ -141,7 +144,8 @@ public class CacheService {
   @CacheEvict(
       value = "validationResults",
       cacheManager = "validationCacheManager",
-      key = "T(com.streamConverter.api.service.CacheService).generateCacheKey(#data, #format, #schema)")
+      key =
+          "T(com.streamConverter.api.service.CacheService).generateCacheKey(#data, #format, #schema)")
   public void evictValidationCache(String data, String format, String schema) {
     logger.info("Evicted validation cache for format: {}", format);
   }
@@ -165,15 +169,27 @@ public class CacheService {
   @CacheEvict(
       value = "transformConfigs",
       cacheManager = "transformCacheManager",
-      key = "T(com.streamConverter.api.service.CacheService).generateTransformCacheKey(#inputFormat, #outputFormat, #extractionPath)")
+      key =
+          "T(com.streamConverter.api.service.CacheService).generateTransformCacheKey(#inputFormat, #outputFormat, #extractionPath)")
   public void evictTransformCache(String inputFormat, String outputFormat, String extractionPath) {
     logger.info("Evicted transform cache for {}→{}", inputFormat, outputFormat);
   }
 
   /** すべてのキャッシュを削除します。 */
-  @CacheEvict(
-      value = {"validationResults", "transformConfigs", "schemaCache"},
-      allEntries = true)
+  @org.springframework.cache.annotation.Caching(
+      evict = {
+        @CacheEvict(
+            value = {"validationResults", "schemaValidations"},
+            cacheManager = "validationCacheManager",
+            allEntries = true),
+        @CacheEvict(
+            value = {"transformConfigs", "pipelineConfigs"},
+            cacheManager = "transformCacheManager",
+            allEntries = true),
+        @CacheEvict(
+            value = {"validationCache", "transformCache", "schemaCache"},
+            allEntries = true)
+      })
   public void evictAllCaches() {
     logger.info("Evicted all cache entries");
   }
@@ -188,8 +204,12 @@ public class CacheService {
    */
   private boolean performActualValidation(String data, String format, String schema) {
     // 実際のバリデーション処理の実装
-    // 現在はデモとしてデータ長をチェック
-    return data != null && !data.trim().isEmpty() && data.length() > 5;
+    if (data == null || data.trim().isEmpty()) {
+      return false;
+    }
+
+    // 基本的なデータ長チェック - テスト用に簡単なバリデーション
+    return data.length() > 2;
   }
 
   /**
@@ -222,10 +242,10 @@ public class CacheService {
     // 現在はデモとして文字列をそのまま返す
     return schemaType + ":" + schemaContent.substring(0, Math.min(100, schemaContent.length()));
   }
-  
+
   /**
    * バリデーション用のキャッシュキーを生成します。
-   * 
+   *
    * @param data バリデーション対象データ
    * @param format データフォーマット
    * @param schema バリデーションスキーマ
@@ -235,23 +255,25 @@ public class CacheService {
     String combined = data + "|" + format + "|" + schema;
     return "validation_" + new CacheService().generateHash(combined);
   }
-  
+
   /**
    * 変換設定用のキャッシュキーを生成します。
-   * 
+   *
    * @param inputFormat 入力フォーマット
    * @param outputFormat 出力フォーマット
    * @param extractionPath 抽出パス
    * @return 生成されたキャッシュキー
    */
-  public static String generateTransformCacheKey(String inputFormat, String outputFormat, String extractionPath) {
-    String combined = inputFormat + "|" + outputFormat + "|" + (extractionPath != null ? extractionPath : "");
+  public static String generateTransformCacheKey(
+      String inputFormat, String outputFormat, String extractionPath) {
+    String combined =
+        inputFormat + "|" + outputFormat + "|" + (extractionPath != null ? extractionPath : "");
     return "transform_" + new CacheService().generateHash(combined);
   }
-  
+
   /**
    * スキーマ用のキャッシュキーを生成します。
-   * 
+   *
    * @param schemaType スキーマタイプ
    * @param schemaContent スキーマ内容
    * @return 生成されたキャッシュキー

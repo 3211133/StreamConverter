@@ -3,6 +3,7 @@ package com.streamConverter.api.integration;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import com.streamConverter.api.dto.TransformRequest;
+import com.streamConverter.config.TestSecurityConfig;
 import java.util.Base64;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer.OrderAnnotation;
@@ -13,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.*;
 import org.springframework.test.context.ActiveProfiles;
 
@@ -28,6 +30,7 @@ import org.springframework.test.context.ActiveProfiles;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @TestMethodOrder(OrderAnnotation.class)
 @ActiveProfiles("test")
+@Import(TestSecurityConfig.class)
 public class SecurityIntegrationTest {
 
   @LocalServerPort private int port;

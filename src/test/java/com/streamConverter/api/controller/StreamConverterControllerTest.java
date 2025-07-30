@@ -2,6 +2,7 @@ package com.streamConverter.api.controller;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
@@ -11,6 +12,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.api.dto.TransformRequest;
 import com.streamConverter.api.dto.TransformResponse;
+import com.streamConverter.api.service.BatchTransformService;
 import com.streamConverter.api.service.TransformService;
 import com.streamConverter.context.ExecutionContext;
 import java.util.HashMap;
@@ -34,7 +36,10 @@ class StreamConverterControllerTest {
 
   @MockBean private TransformService transformService;
 
+  @MockBean private BatchTransformService batchTransformService;
+
   @Test
+  @WithMockUser
   @DisplayName("ヘルスチェックエンドポイントが正常に動作する")
   void testHealthEndpoint() throws Exception {
     mockMvc
@@ -80,7 +85,8 @@ class StreamConverterControllerTest {
         .perform(
             post("/api/v1/transform")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.status").value("SUCCESS"))
@@ -96,7 +102,7 @@ class StreamConverterControllerTest {
     // Given
     TransformRequest request =
         new TransformRequest(
-            "JSON", null, null, null, null, "schema/user.json", "{\"user\":{\"id\":\"12345\"}}");
+            "JSON", "JSON", null, null, null, "schema/user.json", "{\"user\":{\"id\":\"12345\"}}");
 
     TransformResponse expectedResponse =
         TransformResponse.success(
@@ -110,7 +116,8 @@ class StreamConverterControllerTest {
         .perform(
             post("/api/v1/validate")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
         .andExpect(status().isOk())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.status").value("SUCCESS"))
@@ -132,7 +139,8 @@ class StreamConverterControllerTest {
         .perform(
             post("/api/v1/transform")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(invalidRequest)))
+                .content(objectMapper.writeValueAsString(invalidRequest))
+                .with(csrf()))
         .andExpect(status().isBadRequest())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.errorCode").value("VALIDATION_ERROR"));
@@ -155,7 +163,8 @@ class StreamConverterControllerTest {
         .perform(
             post("/api/v1/transform")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(objectMapper.writeValueAsString(request)))
+                .content(objectMapper.writeValueAsString(request))
+                .with(csrf()))
         .andExpect(status().isInternalServerError())
         .andExpect(content().contentType(MediaType.APPLICATION_JSON))
         .andExpect(jsonPath("$.status").value("ERROR"))
@@ -174,6 +183,6 @@ class StreamConverterControllerTest {
             post("/api/v1/transform")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(objectMapper.writeValueAsString(request)))
-        .andExpect(status().isUnauthorized());
+        .andExpect(status().isForbidden()); // CSRF protection returns 403, not 401
   }
 }

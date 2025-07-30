@@ -199,18 +199,100 @@ public class ValueExtractionDecorator implements IContextAwareStreamCommand {
 
   /** XMLから値を抽出 */
   private String extractFromXml(String xmlString) throws Exception {
+    // XPathの安全性をチェック
+    String sanitizedXPath = sanitizeXPath(extractionPath);
+
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
     factory.setNamespaceAware(true);
+
+    // XXE攻撃を防ぐためのセキュリティ設定
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    factory.setXIncludeAware(false);
+    factory.setExpandEntityReferences(false);
+
     DocumentBuilder builder = factory.newDocumentBuilder();
     Document document =
         builder.parse(new ByteArrayInputStream(xmlString.getBytes(StandardCharsets.UTF_8)));
 
     XPathFactory xPathFactory = XPathFactory.newInstance();
     XPath xpath = xPathFactory.newXPath();
-    XPathExpression expression = xpath.compile(extractionPath);
+    XPathExpression expression = xpath.compile(sanitizedXPath);
 
     String result = expression.evaluate(document);
     return result != null && !result.trim().isEmpty() ? result.trim() : null;
+  }
+
+  /**
+   * XPath式をサニタイズしてインジェクション攻撃を防ぎます。
+   *
+   * @param xpath 元のXPath式
+   * @return サニタイズされたXPath式
+   * @throws IllegalArgumentException 危険なXPath式が検出された場合
+   */
+  private String sanitizeXPath(String xpath) {
+    if (xpath == null || xpath.trim().isEmpty()) {
+      throw new IllegalArgumentException("XPath expression cannot be null or empty");
+    }
+
+    String trimmedXPath = xpath.trim();
+
+    // 危険な文字列パターンをチェック
+    String[] dangerousPatterns = {
+      "document(", // document() 関数
+      "unparsed-text(", // unparsed-text() 関数
+      "collection(", // collection() 関数
+      "doc(", // doc() 関数
+      "//script", // script要素への直接アクセス
+      "concat(", // concat関数（条件によっては危険）
+      "substring-before(", // 一部の文字列操作関数
+      "substring-after(",
+      "..", // 親ディレクトリ参照
+      "javascript:", // JavaScriptプロトコル
+      "file:", // ファイルプロトコル
+      "http:", // HTTPプロトコル
+      "https:", // HTTPSプロトコル
+      "ftp:" // FTPプロトコル
+    };
+
+    String lowerCaseXPath = trimmedXPath.toLowerCase();
+    for (String pattern : dangerousPatterns) {
+      if (lowerCaseXPath.contains(pattern.toLowerCase())) {
+        logger.warn("Potentially dangerous XPath pattern detected: {}", pattern);
+        throw new IllegalArgumentException(
+            "XPath expression contains potentially dangerous pattern: " + pattern);
+      }
+    }
+
+    // 基本的な構文チェック（括弧のバランス）
+    int openBrackets = 0;
+    int openParens = 0;
+    for (char c : trimmedXPath.toCharArray()) {
+      if (c == '[') openBrackets++;
+      else if (c == ']') openBrackets--;
+      else if (c == '(') openParens++;
+      else if (c == ')') openParens--;
+
+      if (openBrackets < 0 || openParens < 0) {
+        throw new IllegalArgumentException(
+            "Invalid XPath syntax: unbalanced brackets or parentheses");
+      }
+    }
+
+    if (openBrackets != 0 || openParens != 0) {
+      throw new IllegalArgumentException(
+          "Invalid XPath syntax: unbalanced brackets or parentheses");
+    }
+
+    // 長さ制限（DoS攻撃防止）
+    if (trimmedXPath.length() > 500) {
+      throw new IllegalArgumentException("XPath expression too long (max 500 characters)");
+    }
+
+    logger.debug("XPath expression validated: {}", trimmedXPath);
+    return trimmedXPath;
   }
 
   /** CSVから値を抽出 */

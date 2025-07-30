@@ -59,6 +59,11 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
       XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+
+      // XXE攻撃を防ぐためのセキュリティ設定
+      inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+      inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+
       XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
 
       XMLEventReader eventReader = inputFactory.createXMLEventReader(inputStream);

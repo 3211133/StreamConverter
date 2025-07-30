@@ -182,6 +182,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">変換設定クラス</div>
 </dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#calculateComplexityScore(java.lang.String)" class="member-name-link">calculateComplexityScore(String)</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>
+<div class="block">XPath式の複雑さを評価</div>
+</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#close()" class="member-name-link">close()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/MeasuredOutputStream.html#close()" class="member-name-link">close()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredOutputStream.html" title="class in com.streamConverter.util">MeasuredOutputStream</a></dt>
@@ -221,6 +225,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a> - package com.streamConverter.examples</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/pathHandler/package-summary.html">com.streamConverter.pathHandler</a> - package com.streamConverter.pathHandler</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/security/package-summary.html">com.streamConverter.security</a> - package com.streamConverter.security</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/package-summary.html">com.streamConverter.util</a> - package com.streamConverter.util</dt>
 <dd>&nbsp;</dd>
@@ -273,6 +279,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html#%3Cinit%3E()" class="member-name-link">ComplexXmlProcessingPipeline()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html" title="class in com.streamConverter.examples">ComplexXmlProcessingPipeline</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#configureSecureValidator(javax.xml.validation.Validator)" class="member-name-link">configureSecureValidator(Validator)</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">Validatorにセキュリティ設定を適用</div>
+</dd>
 <dt><a href="com/streamConverter/command/ConsumerCommand.html#consume(java.io.InputStream)" class="member-name-link">consume(InputStream)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ConsumerCommand.html" title="class in com.streamConverter.command">ConsumerCommand</a></dt>
 <dd>
 <div class="block">Abstract method to be implemented by subclasses for consuming the input stream.</div>
@@ -375,6 +385,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a StreamConverter with the specified list of commands.</div>
 </dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html#createLimitedInputStream(java.io.InputStream)" class="member-name-link">createLimitedInputStream(InputStream)</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/XmlResourceLimiter.html" title="class in com.streamConverter.security">XmlResourceLimiter</a></dt>
+<dd>
+<div class="block">XMLサイズを制限したInputStreamを作成</div>
+</dd>
 <dt><a href="com/streamConverter/command/CommandFactory.html#createPipelineWithDetailedLogging(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineWithDetailedLogging(CommandConfig...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" title="class in com.streamConverter.command">CommandFactory</a></dt>
 <dd>
 <div class="block">パイプライン全体を詳細ログ付きで生成</div>
@@ -382,6 +396,18 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/CommandFactory.html#createPipelineWithLogging(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineWithLogging(CommandConfig...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" title="class in com.streamConverter.command">CommandFactory</a></dt>
 <dd>
 <div class="block">ログ機能付きパイプラインを生成</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureDocumentBuilderFactory()" class="member-name-link">createSecureDocumentBuilderFactory()</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">セキュアなDocumentBuilderFactoryを作成</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureSchemaFactory()" class="member-name-link">createSecureSchemaFactory()</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">セキュアなSchemaFactoryを作成</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureXMLInputFactory()" class="member-name-link">createSecureXMLInputFactory()</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">セキュアなXMLInputFactoryを作成</div>
 </dd>
 <dt><a href="com/streamConverter/command/CommandFactory.html#createWithLogging(java.lang.Class,boolean,java.lang.Object...)" class="member-name-link">createWithLogging(Class&lt;T&gt;, boolean, Object...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" title="class in com.streamConverter.command">CommandFactory</a></dt>
 <dd>
@@ -431,6 +457,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#dataSource(java.lang.String)" class="member-name-link">dataSource(String)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
 <dd>
 <div class="block">データソース情報を設定</div>
+</dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html#detectXmlBombs(java.lang.String)" class="member-name-link">detectXmlBombs(String)</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/XmlResourceLimiter.html" title="class in com.streamConverter.security">XmlResourceLimiter</a></dt>
+<dd>
+<div class="block">XML爆弾パターンを検出</div>
 </dd>
 </dl>
 <h2 class="title" id="I:E">E</h2>
@@ -579,6 +609,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">全てのグローバルコンテキストを取得</div>
 </dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#getAllowedPatterns()" class="member-name-link">getAllowedPatterns()</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#getAllUserContext()" class="member-name-link">getAllUserContext()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
 <div class="block">全てのユーザーコンテキストを取得</div>
@@ -641,6 +673,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">現在のコマンドシーケンス番号を取得</div>
 </dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#getDangerousFunctions()" class="member-name-link">getDangerousFunctions()</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/api/dto/TransformRequest.html#getData()" class="member-name-link">getData()</a> - Method in class com.streamConverter.api.dto.<a href="com/streamConverter/api/dto/TransformRequest.html" title="class in com.streamConverter.api.dto">TransformRequest</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/api/dto/TransformResponse.html#getData()" class="member-name-link">getData()</a> - Method in class com.streamConverter.api.dto.<a href="com/streamConverter/api/dto/TransformResponse.html" title="class in com.streamConverter.api.dto">TransformResponse</a></dt>
@@ -753,10 +787,16 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">最後のバリデーション結果を取得</div>
 </dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html#getMaxElementDepth()" class="member-name-link">getMaxElementDepth()</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/XmlResourceLimiter.html" title="class in com.streamConverter.security">XmlResourceLimiter</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html#getMaxEntityExpansion()" class="member-name-link">getMaxEntityExpansion()</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/XmlResourceLimiter.html" title="class in com.streamConverter.security">XmlResourceLimiter</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#getMaxErrorsToReport()" class="member-name-link">getMaxErrorsToReport()</a> - Method in class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
 <dd>
 <div class="block">最大エラー報告数を取得</div>
 </dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html#getMaxXmlSize()" class="member-name-link">getMaxXmlSize()</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/XmlResourceLimiter.html" title="class in com.streamConverter.security">XmlResourceLimiter</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/api/dto/TransformRequest.html#getMdcKey()" class="member-name-link">getMdcKey()</a> - Method in class com.streamConverter.api.dto.<a href="com/streamConverter/api/dto/TransformRequest.html" title="class in com.streamConverter.api.dto">TransformRequest</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/ValueExtractionDecorator.html#getMdcKey()" class="member-name-link">getMdcKey()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ValueExtractionDecorator.html" title="class in com.streamConverter.command">ValueExtractionDecorator</a></dt>
@@ -881,6 +921,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">警告メッセージのリストを取得</div>
 </dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#getWhitelistedExpressions()" class="member-name-link">getWhitelistedExpressions()</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#getWrappedCommand()" class="member-name-link">getWrappedCommand()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
 <dd>
 <div class="block">ラップされたコマンドを取得</div>
@@ -986,6 +1028,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#isValid()" class="member-name-link">isValid()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>
 <div class="block">バリデーション結果が有効かどうかを取得</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#isXPathInWhitelist(java.lang.String)" class="member-name-link">isXPathInWhitelist(String)</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>
+<div class="block">XPath式がホワイトリストに含まれているかチェック</div>
 </dd>
 </dl>
 <h2 class="title" id="I:J">J</h2>
@@ -1171,6 +1217,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#read(byte%5B%5D,int,int)" class="member-name-link">read(byte[], int, int)</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html#readAndValidateXmlStream(java.io.InputStream)" class="member-name-link">readAndValidateXmlStream(InputStream)</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/XmlResourceLimiter.html" title="class in com.streamConverter.security">XmlResourceLimiter</a></dt>
+<dd>
+<div class="block">InputStreamを読み込んでXMLセキュリティ検証を行い、バイト配列を返す</div>
+</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#reset()" class="member-name-link">reset()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/ContextAwareStreamConverter.html#run(java.io.InputStream,java.io.OutputStream)" class="member-name-link">run(InputStream, OutputStream)</a> - Method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
@@ -1196,10 +1246,26 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Constructor that initializes the command with a specific ID.</div>
 </dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html#scanXmlSample(java.io.InputStream)" class="member-name-link">scanXmlSample(InputStream)</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/XmlResourceLimiter.html" title="class in com.streamConverter.security">XmlResourceLimiter</a></dt>
+<dd>
+<div class="block">XMLの最初の部分をサンプリングしてチェック</div>
+</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#schemaPath(java.lang.String)" class="member-name-link">schemaPath(String)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
 <dd>
 <div class="block">スキーマパスを設定</div>
 </dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html" class="type-name-link" title="class in com.streamConverter.security">SecureXmlConfiguration</a> - Class in <a href="com/streamConverter/security/package-summary.html">com.streamConverter.security</a></dt>
+<dd>
+<div class="block">XMLセキュリティ設定を統一管理するクラス</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#%3Cinit%3E()" class="member-name-link">SecureXmlConfiguration()</a> - Constructor for class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html" class="type-name-link" title="class in com.streamConverter.security">SecureXPathValidator</a> - Class in <a href="com/streamConverter/security/package-summary.html">com.streamConverter.security</a></dt>
+<dd>
+<div class="block">XPathセキュリティ検証クラス</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#%3Cinit%3E()" class="member-name-link">SecureXPathValidator()</a> - Constructor for class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/config/SecurityConfig.html" class="type-name-link" title="class in com.streamConverter.config">SecurityConfig</a> - Class in <a href="com/streamConverter/config/package-summary.html">com.streamConverter.config</a></dt>
 <dd>
 <div class="block">Spring Security設定クラス</div>
@@ -1503,6 +1569,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">バリデーション結果をキャッシュします。</div>
 </dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#validateAndSanitizeXPath(java.lang.String)" class="member-name-link">validateAndSanitizeXPath(String)</a> - Method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>
+<div class="block">XPath式を検証・サニタイズ</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/xml/ValidateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.xml">ValidateCommand</a> - Class in <a href="com/streamConverter/command/impl/xml/package-summary.html">com.streamConverter.command.impl.xml</a></dt>
 <dd>
 <div class="block">XMLのバリデーションを行うコマンドクラス</div>
@@ -1603,6 +1673,18 @@ the order they are declared.</div>
 <dt><a href="com/streamConverter/command/impl/XmlNavigateCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">XmlNavigateCommand(String)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a></dt>
 <dd>
 <div class="block">Constructor for XML navigation with XPath selector.</div>
+</dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html" class="type-name-link" title="class in com.streamConverter.security">XmlResourceLimiter</a> - Class in <a href="com/streamConverter/security/package-summary.html">com.streamConverter.security</a></dt>
+<dd>
+<div class="block">XMLリソース制限クラス</div>
+</dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html#%3Cinit%3E()" class="member-name-link">XmlResourceLimiter()</a> - Constructor for class com.streamConverter.security.<a href="com/streamConverter/security/XmlResourceLimiter.html" title="class in com.streamConverter.security">XmlResourceLimiter</a></dt>
+<dd>
+<div class="block">デフォルトコンストラクタ</div>
+</dd>
+<dt><a href="com/streamConverter/security/XmlResourceLimiter.html#%3Cinit%3E(int,int,int)" class="member-name-link">XmlResourceLimiter(int, int, int)</a> - Constructor for class com.streamConverter.security.<a href="com/streamConverter/security/XmlResourceLimiter.html" title="class in com.streamConverter.security">XmlResourceLimiter</a></dt>
+<dd>
+<div class="block">カスタム制限値を使用するコンストラクタ</div>
 </dd>
 </dl>
 <h2 class="title" id="I:_">_</h2>

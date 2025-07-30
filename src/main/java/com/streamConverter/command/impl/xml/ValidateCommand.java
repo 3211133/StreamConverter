@@ -74,9 +74,9 @@ public class ValidateCommand extends ConsumerCommand {
     Objects.requireNonNull(inputStream);
 
     // セキュアなXMLバリデーションを行う
-    try (InputStream limitedStream = resourceLimiter.createLimitedInputStream(inputStream)) {
-      // XML爆弾パターンの事前チェック
-      resourceLimiter.scanXmlSample(limitedStream);
+    try {
+      // XML爆弾パターンの事前チェック（InputStreamを事前にバイト配列に読み込み）
+      byte[] xmlData = resourceLimiter.readAndValidateXmlStream(inputStream);
 
       // セキュアなSchemaFactoryを使用
       SchemaFactory schemaFactory = secureXmlConfig.createSecureSchemaFactory();
@@ -90,8 +90,10 @@ public class ValidateCommand extends ConsumerCommand {
       // セキュアなValidator設定を適用
       secureXmlConfig.configureSecureValidator(validator);
 
-      // セキュアなバリデーションを実行
-      performSecureValidation(validator, limitedStream);
+      // バイト配列から新しいInputStreamを作成してバリデーション実行
+      try (ByteArrayInputStream validationStream = new ByteArrayInputStream(xmlData)) {
+        performSecureValidation(validator, validationStream);
+      }
 
     } catch (SecurityException e) {
       logger.error("XMLセキュリティ脅威を検出しました: {}", e.getMessage(), e);
@@ -185,6 +187,11 @@ public class ValidateCommand extends ConsumerCommand {
    * @throws IOException I/Oエラーが発生した場合
    * @throws SAXException XMLエラーが発生した場合
    */
+  @SuppressWarnings({
+    "lgtm[java/xxe]", // InputStream is sanitized through createSecureStreamSource before XML
+    // processing
+    "CodeQL[java/xxe]" // XXE prevented through secure stream source creation and validation
+  })
   private void performSecureValidation(Validator validator, InputStream inputStream)
       throws IOException, SAXException {
     StreamSource secureSource = createSecureStreamSource(inputStream);

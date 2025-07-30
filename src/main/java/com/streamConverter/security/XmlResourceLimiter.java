@@ -1,8 +1,10 @@
 package com.streamConverter.security;
 
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Objects;
 import org.apache.commons.io.input.BoundedInputStream;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -239,6 +241,38 @@ public class XmlResourceLimiter {
     }
 
     return false;
+  }
+
+  /**
+   * InputStreamを読み込んでXMLセキュリティ検証を行い、バイト配列を返す
+   *
+   * @param inputStream 検証対象のInputStream
+   * @return 検証済みのXMLデータ（バイト配列）
+   * @throws IOException 入出力エラーが発生した場合
+   * @throws SecurityException XMLセキュリティ脅威が検出された場合
+   */
+  public byte[] readAndValidateXmlStream(InputStream inputStream) throws IOException {
+    Objects.requireNonNull(inputStream, "InputStream cannot be null");
+
+    // リソース制限付きでストリームを読み込み
+    try (InputStream limitedStream = createLimitedInputStream(inputStream)) {
+      ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+      byte[] tempBuffer = new byte[8192];
+      int bytesRead;
+
+      while ((bytesRead = limitedStream.read(tempBuffer)) != -1) {
+        buffer.write(tempBuffer, 0, bytesRead);
+      }
+
+      byte[] xmlData = buffer.toByteArray();
+
+      // XML爆弾パターンの検証
+      String xmlContent = new String(xmlData, StandardCharsets.UTF_8);
+      detectXmlBombs(xmlContent);
+
+      logger.debug("XML stream validated successfully, size: {} bytes", xmlData.length);
+      return xmlData;
+    }
   }
 
   /**

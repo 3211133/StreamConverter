@@ -29,9 +29,12 @@ import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 @TestConfiguration
 @EnableWebSecurity
 @Profile("test")
-@SuppressWarnings(
-    "lgtm[java/spring-disabled-csrf-protection]") // CSRF protection disabled only for test profile
-// with runtime validation
+@SuppressWarnings({
+  "lgtm[java/spring-disabled-csrf-protection]", // CSRF protection disabled only for test profile
+  // with runtime validation
+  "CodeQL[java/spring-disabled-csrf-protection]" // CSRF disabled only in test environment with
+  // explicit profile validation
+})
 public class TestSecurityConfig {
 
   @Autowired private Environment environment;
@@ -64,6 +67,11 @@ public class TestSecurityConfig {
    */
   @Bean
   @Primary
+  @SuppressWarnings({
+    "lgtm[java/spring-disabled-csrf-protection]", // CSRF disabled only in test profile with runtime
+    // validation
+    "CodeQL[java/spring-disabled-csrf-protection]" // Secure: CSRF disabled only in test environment
+  })
   public SecurityFilterChain testFilterChain(HttpSecurity http) throws Exception {
     http
         // CodeQL Mitigation: CSRF protection disabled ONLY for test environment

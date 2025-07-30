@@ -16,5 +16,6 @@ com.streamConverter.context
 com.streamConverter.demo
 com.streamConverter.examples
 com.streamConverter.pathHandler
+com.streamConverter.security
 com.streamConverter.util
 com.streamConverter.validation

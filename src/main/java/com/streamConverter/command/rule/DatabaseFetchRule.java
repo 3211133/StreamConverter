@@ -19,10 +19,10 @@ import org.slf4j.LoggerFactory;
 class DatabaseFetchRule implements IRule {
   private static final Logger logger = LoggerFactory.getLogger(DatabaseFetchRule.class);
 
-  /** SQLインジェクション攻撃を検出するパターン */
+  /** SQLインジェクション攻撃を検出するパターン（SELECT以外の危険なSQL文） */
   private static final Pattern SQL_INJECTION_PATTERN =
       Pattern.compile(
-          "(?i).*(union|select|insert|update|delete|drop|create|alter|exec|execute|sp_|xp_).*",
+          "(?i).*(union|insert|update|delete|drop|create|alter|exec|execute|sp_|xp_).*",
           Pattern.CASE_INSENSITIVE);
 
   /** 許可されるデータベースURLスキーマ（テスト用のmockも含む） */
@@ -104,14 +104,8 @@ class DatabaseFetchRule implements IRule {
       throw new SecurityException("Only SELECT queries are allowed: " + queryString);
     }
 
-    // SQLインジェクション攻撃の検出（簡易版）
-    String lowerQuery = queryString.toLowerCase();
-    if (lowerQuery.contains("union")
-        || lowerQuery.contains("drop")
-        || lowerQuery.contains("delete")
-        || lowerQuery.contains("update")
-        || lowerQuery.contains("insert")
-        || lowerQuery.contains("exec")) {
+    // SQLインジェクション攻撃の検出（パターンマッチング使用）
+    if (SQL_INJECTION_PATTERN.matcher(queryString).matches()) {
       throw new SecurityException(
           "Query contains potentially dangerous SQL commands: " + queryString);
     }

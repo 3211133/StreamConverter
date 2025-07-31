@@ -53,10 +53,19 @@ public class convert extends AbstractStreamCommand {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
-    // 文字コードを変換する
+    // 省メモリストリーミング文字コード変換
     try (InputStreamReader reader = new InputStreamReader(inputStream, this.from);
         OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.to); ) {
-      reader.transferTo(writer);
+
+      // transferTo()は大容量データでメモリを大量消費するため、
+      // 固定サイズバッファでストリーミング処理を実装
+      char[] buffer = new char[8192]; // 8KB char buffer (16KB memory)
+      int charsRead;
+
+      while ((charsRead = reader.read(buffer)) != -1) {
+        writer.write(buffer, 0, charsRead);
+        writer.flush(); // 即座に出力してメモリを解放
+      }
     }
   }
 }

@@ -49,7 +49,7 @@ loadScripts(document, 'script');</script>
 <div class="header">
 <h1>Index</h1>
 </div>
-<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:_">_</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a>
+<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:_">_</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a>
 <h2 class="title" id="I:A">A</h2>
 <dl class="index">
 <dt><a href="com/streamConverter/command/AbstractStreamCommand.html" class="type-name-link" title="class in com.streamConverter.command">AbstractStreamCommand</a> - Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
@@ -60,9 +60,25 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Default constructor.</div>
 </dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#addError(java.lang.String)" class="member-name-link">addError(String)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
+<dd>
+<div class="block">エラーメッセージを追加</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#addWarning(java.lang.String)" class="member-name-link">addWarning(String)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
+<dd>
+<div class="block">警告メッセージを追加</div>
+</dd>
 <dt><a href="com/streamConverter/command/rule/IRule.html#apply(java.lang.String)" class="member-name-link">apply(String)</a> - Method in interface com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a></dt>
 <dd>
 <div class="block">ルールの適用を実行します。</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#applyToMDC()" class="member-name-link">applyToMDC()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">現在のコンテキストをMDCに設定</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#applyToMDCWithStage(java.lang.String)" class="member-name-link">applyToMDCWithStage(String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">特定のステージでのMDC設定</div>
 </dd>
 <dt><a href="com/streamConverter/examples/AutoLoggingDemo.html" class="type-name-link" title="class in com.streamConverter.examples">AutoLoggingDemo</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
 <dd>
@@ -76,8 +92,30 @@ loadScripts(document, 'script');</script>
 <h2 class="title" id="I:B">B</h2>
 <dl class="index">
 <dt><a href="com/streamConverter/CommandResult.Builder.html#build()" class="member-name-link">build()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">CommandResultインスタンスを生成</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.Builder.html#build()" class="member-name-link">build()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></dt>
+<dd>
+<div class="block">ExecutionContextインスタンスを生成</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#build()" class="member-name-link">build()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
+<dd>
+<div class="block">ValidationResultインスタンスを構築</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#builder()" class="member-name-link">builder()</a> - Static method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">カスタム設定でExecutionContextを作成するためのビルダーを取得</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#builder()" class="member-name-link">builder()</a> - Static method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">Builderインスタンスを作成</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.Builder.html#%3Cinit%3E()" class="member-name-link">Builder()</a> - Constructor for class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.Builder.html#%3Cinit%3E()" class="member-name-link">Builder()</a> - Constructor for class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#%3Cinit%3E()" class="member-name-link">Builder()</a> - Constructor for class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:C">C</h2>
@@ -94,9 +132,15 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/charaCode/package-summary.html">com.streamConverter.command.impl.charaCode</a> - package com.streamConverter.command.impl.charaCode</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/impl/csv/package-summary.html">com.streamConverter.command.impl.csv</a> - package com.streamConverter.command.impl.csv</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/impl/json/package-summary.html">com.streamConverter.command.impl.json</a> - package com.streamConverter.command.impl.json</dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/xml/package-summary.html">com.streamConverter.command.impl.xml</a> - package com.streamConverter.command.impl.xml</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/rule/package-summary.html">com.streamConverter.command.rule</a> - package com.streamConverter.command.rule</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/context/package-summary.html">com.streamConverter.context</a> - package com.streamConverter.context</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/demo/package-summary.html">com.streamConverter.demo</a> - package com.streamConverter.demo</dt>
 <dd>&nbsp;</dd>
@@ -106,6 +150,12 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/package-summary.html">com.streamConverter.util</a> - package com.streamConverter.util</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/validation/package-summary.html">com.streamConverter.validation</a> - package com.streamConverter.validation</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#COMMAND_SEQUENCE_KEY" class="member-name-link">COMMAND_SEQUENCE_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">コマンドシーケンス用のMDCキー</div>
+</dd>
 <dt><a href="com/streamConverter/command/CommandConfig.html" class="type-name-link" title="class in com.streamConverter.command">CommandConfig</a> - Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
 <dd>
 <div class="block">コマンド設定クラス</div>
@@ -125,7 +175,9 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/CommandFactory.html#%3Cinit%3E()" class="member-name-link">CommandFactory()</a> - Constructor for class com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" title="class in com.streamConverter.command">CommandFactory</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/CommandResult.Builder.html#commandName(java.lang.String)" class="member-name-link">commandName(String)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">コマンド名を設定</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.html" class="type-name-link" title="class in com.streamConverter">CommandResult</a> - Class in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
 <dd>
 <div class="block">コマンドの実行結果を表すクラス</div>
@@ -134,6 +186,12 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">CommandResultのビルダークラス</div>
 </dd>
+<dt><a href="com/streamConverter/examples/ComplexPipelineExample.html" class="type-name-link" title="class in com.streamConverter.examples">ComplexPipelineExample</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
+<dd>
+<div class="block">複数コマンドを束にした複雑なパイプライン処理の例</div>
+</dd>
+<dt><a href="com/streamConverter/examples/ComplexPipelineExample.html#%3Cinit%3E()" class="member-name-link">ComplexPipelineExample()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/ComplexPipelineExample.html" title="class in com.streamConverter.examples">ComplexPipelineExample</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html" class="type-name-link" title="class in com.streamConverter.examples">ComplexXmlProcessingPipeline</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
 <dd>
 <div class="block">Complex XML processing pipeline demonstrating: HTTPS → XML parsing → DB lookup → API call → XML
@@ -144,6 +202,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/ConsumerCommand.html#consume(java.io.InputStream)" class="member-name-link">consume(InputStream)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ConsumerCommand.html" title="class in com.streamConverter.command">ConsumerCommand</a></dt>
 <dd>
 <div class="block">Abstract method to be implemented by subclasses for consuming the input stream.</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#consume(java.io.InputStream)" class="member-name-link">consume(InputStream)</a> - Method in class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
+<dd>
+<div class="block">CSVバリデーションを実行します</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/json/JsonValidateCommand.html#consume(java.io.InputStream)" class="member-name-link">consume(InputStream)</a> - Method in class com.streamConverter.command.impl.json.<a href="com/streamConverter/command/impl/json/JsonValidateCommand.html" title="class in com.streamConverter.command.impl.json">JsonValidateCommand</a></dt>
+<dd>
+<div class="block">JSONバリデーションを実行します</div>
 </dd>
 <dt><a href="com/streamConverter/command/impl/xml/ValidateCommand.html#consume(java.io.InputStream)" class="member-name-link">consume(InputStream)</a> - Method in class com.streamConverter.command.impl.xml.<a href="com/streamConverter/command/impl/xml/ValidateCommand.html" title="class in com.streamConverter.command.impl.xml">ValidateCommand</a></dt>
 <dd>
@@ -157,6 +223,32 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Default constructor.</div>
 </dd>
+<dt><a href="com/streamConverter/ContextAwareStreamConverter.html" class="type-name-link" title="class in com.streamConverter">ContextAwareStreamConverter</a> - Class in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
+<dd>
+<div class="block">コンテキスト対応のStreamConverter</div>
+</dd>
+<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#%3Cinit%3E(java.util.List,com.streamConverter.context.ExecutionContext)" class="member-name-link">ContextAwareStreamConverter(List&lt;IContextAwareStreamCommand&gt;, ExecutionContext)</a> - Constructor for class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
+<dd>
+<div class="block">コンストラクタ</div>
+</dd>
+<dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html" class="type-name-link" title="class in com.streamConverter.command">ContextPropagatingDecorator</a> - Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
+<dd>
+<div class="block">既存のIStreamCommandをコンテキスト対応にするデコレータ</div>
+</dd>
+<dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#%3Cinit%3E(com.streamConverter.command.IStreamCommand)" class="member-name-link">ContextPropagatingDecorator(IStreamCommand)</a> - Constructor for class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
+<dd>
+<div class="block">デコレータを作成</div>
+</dd>
+<dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#%3Cinit%3E(com.streamConverter.command.IStreamCommand,java.lang.String)" class="member-name-link">ContextPropagatingDecorator(IStreamCommand, String)</a> - Constructor for class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
+<dd>
+<div class="block">デコレータを作成（カスタムコマンド名付き）</div>
+</dd>
+<dt><a href="com/streamConverter/examples/ContextPropagationDemo.html" class="type-name-link" title="class in com.streamConverter.examples">ContextPropagationDemo</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
+<dd>
+<div class="block">コンテキスト伝播機能のデモンストレーション</div>
+</dd>
+<dt><a href="com/streamConverter/examples/ContextPropagationDemo.html#%3Cinit%3E()" class="member-name-link">ContextPropagationDemo()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/ContextPropagationDemo.html" title="class in com.streamConverter.examples">ContextPropagationDemo</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/charaCode/convert.html" class="type-name-link" title="class in com.streamConverter.command.impl.charaCode">convert</a> - Class in <a href="com/streamConverter/command/impl/charaCode/package-summary.html">com.streamConverter.command.impl.charaCode</a></dt>
 <dd>
 <div class="block">Converts the character encoding of a stream from one encoding to another.</div>
@@ -173,9 +265,33 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">デフォルトコンストラクタ</div>
 </dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#copy()" class="member-name-link">copy()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">コンテキストのコピーを作成 ユーザーコンテキストは複製されますが、グローバルコンテキストは共有されます。 コピー時はコマンドシーケンスは0にリセットされます。</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#create()" class="member-name-link">create()</a> - Static method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">新しい実行コンテキストを生成</div>
+</dd>
+<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#create(com.streamConverter.command.IStreamCommand...)" class="member-name-link">create(IStreamCommand...)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
+<dd>
+<div class="block">ファクトリメソッド：既存のコマンドからコンテキスト対応コンバーターを作成</div>
+</dd>
 <dt><a href="com/streamConverter/StreamConverter.html#create(com.streamConverter.command.IStreamCommand...)" class="member-name-link">create(IStreamCommand...)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
 <dd>
 <div class="block">Creates a StreamConverter with the specified array of commands.</div>
+</dd>
+<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#create(com.streamConverter.context.ExecutionContext,com.streamConverter.command.IStreamCommand...)" class="member-name-link">create(ExecutionContext, IStreamCommand...)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
+<dd>
+<div class="block">ファクトリメソッド：カスタムコンテキストでコンバーターを作成</div>
+</dd>
+<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#create(com.streamConverter.context.ExecutionContext,java.util.List)" class="member-name-link">create(ExecutionContext, List&lt;IStreamCommand&gt;)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
+<dd>
+<div class="block">ファクトリメソッド：カスタムコンテキストでリストからコンバーターを作成</div>
+</dd>
+<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#create(java.util.List)" class="member-name-link">create(List&lt;IStreamCommand&gt;)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
+<dd>
+<div class="block">ファクトリメソッド：リストからコンバーターを作成</div>
 </dd>
 <dt><a href="com/streamConverter/StreamConverter.html#create(java.util.List)" class="member-name-link">create(List&lt;IStreamCommand&gt;)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
 <dd>
@@ -197,6 +313,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">ログ機能付きコマンドを生成</div>
 </dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#CSV" class="member-name-link">CSV</a> - Enum constant in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
+<dd>
+<div class="block">CSV形式のバリデーション</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/CsvNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
 <div class="block">CSV変換コマンドクラス</div>
@@ -209,6 +329,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Constructor for CSV navigation with column selector.</div>
 </dd>
+<dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a> - Class in <a href="com/streamConverter/command/impl/csv/package-summary.html">com.streamConverter.command.impl.csv</a></dt>
+<dd>
+<div class="block">CSVデータのバリデーションを行うコマンドクラス</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#%3Cinit%3E(java.lang.String%5B%5D)" class="member-name-link">CsvValidateCommand(String[])</a> - Constructor for class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
+<dd>
+<div class="block">必須カラムを指定するコンストラクタ（ヘッダー行ありと仮定）</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#%3Cinit%3E(java.lang.String%5B%5D,boolean,int)" class="member-name-link">CsvValidateCommand(String[], boolean, int)</a> - Constructor for class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
+<dd>
+<div class="block">詳細設定を指定するコンストラクタ</div>
+</dd>
 </dl>
 <h2 class="title" id="I:D">D</h2>
 <dl class="index">
@@ -218,22 +350,38 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/examples/DataProcessingExamples.html#%3Cinit%3E()" class="member-name-link">DataProcessingExamples()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/DataProcessingExamples.html" title="class in com.streamConverter.examples">DataProcessingExamples</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#dataSource(java.lang.String)" class="member-name-link">dataSource(String)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
+<dd>
+<div class="block">データソース情報を設定</div>
+</dd>
 </dl>
 <h2 class="title" id="I:E">E</h2>
 <dl class="index">
 <dt><a href="com/streamConverter/CommandResult.Builder.html#endTime(java.time.Instant)" class="member-name-link">endTime(Instant)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">終了時刻を設定</div>
+</dd>
 <dt><a href="com/streamConverter/examples/EnterpriseIntegrationPatterns.html" class="type-name-link" title="class in com.streamConverter.examples">EnterpriseIntegrationPatterns</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
 <dd>
 <div class="block">Enterprise Integration Patterns using StreamConverter.</div>
 </dd>
 <dt><a href="com/streamConverter/examples/EnterpriseIntegrationPatterns.html#%3Cinit%3E()" class="member-name-link">EnterpriseIntegrationPatterns()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/EnterpriseIntegrationPatterns.html" title="class in com.streamConverter.examples">EnterpriseIntegrationPatterns</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/streamConverter/CommandResult.Builder.html#errorMessage(java.lang.String)" class="member-name-link">errorMessage(String)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#equals(java.lang.Object)" class="member-name-link">equals(Object)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/CommandResult.Builder.html#errorMessage(java.lang.String)" class="member-name-link">errorMessage(String)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
+<dd>
+<div class="block">エラーメッセージを設定</div>
+</dd>
 <dt><a href="com/streamConverter/command/AbstractStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/AbstractStreamCommand.html" title="class in com.streamConverter.command">AbstractStreamCommand</a></dt>
 <dd>
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
+</dd>
+<dt><a href="com/streamConverter/command/IContextAwareStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute(InputStream, OutputStream)</a> - Method in interface com.streamConverter.command.<a href="com/streamConverter/command/IContextAwareStreamCommand.html" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a></dt>
+<dd>
+<div class="block">既存のIStreamCommandインターフェースとの互換性のためのデフォルト実装 コンテキストなしで呼び出された場合は新しいコンテキストを作成します</div>
 </dd>
 <dt><a href="com/streamConverter/command/IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute(InputStream, OutputStream)</a> - Method in interface com.streamConverter.command.<a href="com/streamConverter/command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></dt>
 <dd>
@@ -241,14 +389,48 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/command/LoggingDecorator.html#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/LoggingDecorator.html" title="class in com.streamConverter.command">LoggingDecorator</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/streamConverter/CommandResult.Builder.html#executionTime(long)" class="member-name-link">executionTime(long)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
+<dt><a href="com/streamConverter/command/ValidationDecorator.html#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#execute(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)" class="member-name-link">execute(InputStream, OutputStream, ExecutionContext)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/IContextAwareStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)" class="member-name-link">execute(InputStream, OutputStream, ExecutionContext)</a> - Method in interface com.streamConverter.command.<a href="com/streamConverter/command/IContextAwareStreamCommand.html" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a></dt>
+<dd>
+<div class="block">ExecutionContextを使用してコマンドを実行します</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#EXECUTION_ID_KEY" class="member-name-link">EXECUTION_ID_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">実行ID用のMDCキー</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html" class="type-name-link" title="class in com.streamConverter.context">ExecutionContext</a> - Class in <a href="com/streamConverter/context/package-summary.html">com.streamConverter.context</a></dt>
+<dd>
+<div class="block">実行コンテキストを管理するクラス</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.Builder.html" class="type-name-link" title="class in com.streamConverter.context">ExecutionContext.Builder</a> - Class in <a href="com/streamConverter/context/package-summary.html">com.streamConverter.context</a></dt>
+<dd>
+<div class="block">ExecutionContext作成用のBuilderクラス</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.Builder.html#executionId(java.lang.String)" class="member-name-link">executionId(String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></dt>
+<dd>
+<div class="block">実行IDを設定</div>
+</dd>
+<dt><a href="com/streamConverter/CommandResult.Builder.html#executionTime(long)" class="member-name-link">executionTime(long)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
+<dd>
+<div class="block">実行時間を設定</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#executionTimeMillis(long)" class="member-name-link">executionTimeMillis(long)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
+<dd>
+<div class="block">実行時間を設定</div>
+</dd>
 </dl>
 <h2 class="title" id="I:F">F</h2>
 <dl class="index">
 <dt><a href="com/streamConverter/CommandResult.html#failure(java.lang.String,long,java.lang.String,java.time.Instant,java.time.Instant)" class="member-name-link">failure(String, long, String, Instant, Instant)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">失敗結果を作成するヘルパーメソッド</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#failure(java.lang.String,java.lang.String,java.util.List,long)" class="member-name-link">failure(String, String, List&lt;String&gt;, long)</a> - Static method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">失敗した場合のバリデーション結果を作成</div>
 </dd>
 <dt><a href="com/streamConverter/pathHandler/FixedStaXPathHandler.html" class="type-name-link" title="class in com.streamConverter.pathHandler">FixedStaXPathHandler</a> - Class in <a href="com/streamConverter/pathHandler/package-summary.html">com.streamConverter.pathHandler</a></dt>
 <dd>
@@ -263,6 +445,14 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:G">G</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/context/ExecutionContext.html#getAllGlobalContext()" class="member-name-link">getAllGlobalContext()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">全てのグローバルコンテキストを取得</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#getAllUserContext()" class="member-name-link">getAllUserContext()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">全てのユーザーコンテキストを取得</div>
+</dd>
 <dt><a href="com/streamConverter/command/CommandConfig.html#getArgs()" class="member-name-link">getArgs()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a></dt>
 <dd>
 <div class="block">コンストラクタ引数を取得</div>
@@ -289,7 +479,15 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/XmlNavigateCommand.html#getCommandDetails()" class="member-name-link">getCommandDetails()</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#getCommandName()" class="member-name-link">getCommandName()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
+<dd>
+<div class="block">コマンド名を取得</div>
+</dd>
 <dt><a href="com/streamConverter/command/LoggingDecorator.html#getCommandName()" class="member-name-link">getCommandName()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/LoggingDecorator.html" title="class in com.streamConverter.command">LoggingDecorator</a></dt>
+<dd>
+<div class="block">コマンド名を取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.html#getCommandName()" class="member-name-link">getCommandName()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></dt>
 <dd>
 <div class="block">コマンド名を取得</div>
 </dd>
@@ -297,7 +495,19 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">コマンド名を取得</div>
 </dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#getCurrentCommandSequence()" class="member-name-link">getCurrentCommandSequence()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">現在のコマンドシーケンス番号を取得</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#getDataSource()" class="member-name-link">getDataSource()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">データソース情報を取得</div>
+</dd>
 <dt><a href="com/streamConverter/command/LoggingDecorator.html#getDelegate()" class="member-name-link">getDelegate()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/LoggingDecorator.html" title="class in com.streamConverter.command">LoggingDecorator</a></dt>
+<dd>
+<div class="block">ラップされているコマンドを取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.html#getDelegate()" class="member-name-link">getDelegate()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></dt>
 <dd>
 <div class="block">ラップされているコマンドを取得</div>
 </dd>
@@ -313,35 +523,148 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">終了時刻を取得</div>
 </dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#getErrorCount()" class="member-name-link">getErrorCount()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">エラーの数を取得</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.html#getErrorMessage()" class="member-name-link">getErrorMessage()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">エラーメッセージを取得（エラー時のみ）</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#getErrors()" class="member-name-link">getErrors()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">エラーメッセージのリストを取得</div>
+</dd>
+<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#getExecutionContext()" class="member-name-link">getExecutionContext()</a> - Method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
+<dd>
+<div class="block">実行コンテキストを取得</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#getExecutionId()" class="member-name-link">getExecutionId()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">実行ID（一意識別子）を取得</div>
 </dd>
 <dt><a href="com/streamConverter/CommandResult.html#getExecutionTimeMillis()" class="member-name-link">getExecutionTimeMillis()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">実行時間（ミリ秒）を取得</div>
 </dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#getExecutionTimeMillis()" class="member-name-link">getExecutionTimeMillis()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">実行時間を取得</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#getGlobalContext(java.lang.String)" class="member-name-link">getGlobalContext(String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">グローバルコンテキスト値を取得</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.html#getInputBytes()" class="member-name-link">getInputBytes()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">入力バイト数を取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.html#getLastValidationResult()" class="member-name-link">getLastValidationResult()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></dt>
+<dd>
+<div class="block">最後のバリデーション結果を取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#getMaxErrorsToReport()" class="member-name-link">getMaxErrorsToReport()</a> - Method in class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
+<dd>
+<div class="block">最大エラー報告数を取得</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#getNextCommandSequence()" class="member-name-link">getNextCommandSequence()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">次のコマンドシーケンス番号を取得（自動インクリメント）</div>
 </dd>
 <dt><a href="com/streamConverter/CommandResult.html#getOutputBytes()" class="member-name-link">getOutputBytes()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">出力バイト数を取得</div>
 </dd>
+<dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#getRequiredColumns()" class="member-name-link">getRequiredColumns()</a> - Method in class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
+<dd>
+<div class="block">必須カラムを取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/json/JsonValidateCommand.html#getSchemaPath()" class="member-name-link">getSchemaPath()</a> - Method in class com.streamConverter.command.impl.json.<a href="com/streamConverter/command/impl/json/JsonValidateCommand.html" title="class in com.streamConverter.command.impl.json">JsonValidateCommand</a></dt>
+<dd>
+<div class="block">スキーマパスを取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.html#getSchemaPath()" class="member-name-link">getSchemaPath()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></dt>
+<dd>
+<div class="block">スキーマパスを取得</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#getSchemaPath()" class="member-name-link">getSchemaPath()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">スキーマパスを取得</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.html#getStartTime()" class="member-name-link">getStartTime()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">開始時刻を取得</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#getStartTime()" class="member-name-link">getStartTime()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">実行開始時刻を取得</div>
 </dd>
 <dt><a href="com/streamConverter/pathHandler/FixedStaXPathHandler.html#getTargetXpath()" class="member-name-link">getTargetXpath()</a> - Method in class com.streamConverter.pathHandler.<a href="com/streamConverter/pathHandler/FixedStaXPathHandler.html" title="class in com.streamConverter.pathHandler">FixedStaXPathHandler</a></dt>
 <dd>
 <div class="block">Xpathを取得します。</div>
 </dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#getTypeName()" class="member-name-link">getTypeName()</a> - Method in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
+<dd>
+<div class="block">バリデーションタイプ名を取得</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#getUserContext(java.lang.String)" class="member-name-link">getUserContext(String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">ユーザーコンテキスト値を取得</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#getValidationTime()" class="member-name-link">getValidationTime()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">バリデーション実行時刻を取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.html#getValidationType()" class="member-name-link">getValidationType()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></dt>
+<dd>
+<div class="block">バリデーションタイプを取得</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#getValidationType()" class="member-name-link">getValidationType()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">バリデーションタイプを取得</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#getWarningCount()" class="member-name-link">getWarningCount()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">警告の数を取得</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#getWarnings()" class="member-name-link">getWarnings()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">警告メッセージのリストを取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#getWrappedCommand()" class="member-name-link">getWrappedCommand()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
+<dd>
+<div class="block">ラップされたコマンドを取得</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.Builder.html#globalContext(java.lang.String,java.lang.String)" class="member-name-link">globalContext(String, String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></dt>
+<dd>
+<div class="block">グローバルコンテキスト値を設定</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.Builder.html#globalContext(java.util.Map)" class="member-name-link">globalContext(Map&lt;String, String&gt;)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></dt>
+<dd>
+<div class="block">グローバルコンテキストを一括設定</div>
+</dd>
+</dl>
+<h2 class="title" id="I:H">H</h2>
+<dl class="index">
+<dt><a href="com/streamConverter/context/ExecutionContext.html#hashCode()" class="member-name-link">hashCode()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#hashCode()" class="member-name-link">hashCode()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#hasHeader()" class="member-name-link">hasHeader()</a> - Method in class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
+<dd>
+<div class="block">ヘッダー行の存在フラグを取得</div>
+</dd>
 </dl>
 <h2 class="title" id="I:I">I</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/command/IContextAwareStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a> - Interface in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
+<dd>
+<div class="block">コンテキスト対応のストリームコマンドインターフェース</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.Builder.html#inputBytes(long)" class="member-name-link">inputBytes(long)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">入力バイト数を設定</div>
+</dd>
 <dt><a href="com/streamConverter/command/rule/IRule.html" class="type-name-link" title="interface in com.streamConverter.command.rule">IRule</a> - Interface in <a href="com/streamConverter/command/rule/package-summary.html">com.streamConverter.command.rule</a></dt>
 <dd>
 <div class="block">ルールインターフェース</div>
@@ -374,9 +697,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Interface for stream commands.</div>
 </dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#isValid()" class="member-name-link">isValid()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">バリデーション結果が有効かどうかを取得</div>
+</dd>
 </dl>
 <h2 class="title" id="I:J">J</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#JSON" class="member-name-link">JSON</a> - Enum constant in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
+<dd>
+<div class="block">JSON形式のバリデーション</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/JsonNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
 <div class="block">JSON変換コマンドクラス</div>
@@ -388,6 +719,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/impl/JsonNavigateCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">JsonNavigateCommand(String)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a></dt>
 <dd>
 <div class="block">Constructor for JSON navigation with JSONPath selector.</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/json/JsonValidateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.json">JsonValidateCommand</a> - Class in <a href="com/streamConverter/command/impl/json/package-summary.html">com.streamConverter.command.impl.json</a></dt>
+<dd>
+<div class="block">JSONスキーマバリデーションを行うコマンドクラス</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/json/JsonValidateCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">JsonValidateCommand(String)</a> - Constructor for class com.streamConverter.command.impl.json.<a href="com/streamConverter/command/impl/json/JsonValidateCommand.html" title="class in com.streamConverter.command.impl.json">JsonValidateCommand</a></dt>
+<dd>
+<div class="block">コンストラクタ</div>
 </dd>
 </dl>
 <h2 class="title" id="I:L">L</h2>
@@ -415,9 +754,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。自動ログ機能のデモンストレーションを実行します。</div>
 </dd>
+<dt><a href="com/streamConverter/examples/ComplexPipelineExample.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/ComplexPipelineExample.html" title="class in com.streamConverter.examples">ComplexPipelineExample</a></dt>
+<dd>
+<div class="block">メインメソッド</div>
+</dd>
 <dt><a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html" title="class in com.streamConverter.examples">ComplexXmlProcessingPipeline</a></dt>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。複雑なXML処理パイプラインの例を実行します。</div>
+</dd>
+<dt><a href="com/streamConverter/examples/ContextPropagationDemo.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/ContextPropagationDemo.html" title="class in com.streamConverter.examples">ContextPropagationDemo</a></dt>
+<dd>
+<div class="block">メインメソッド</div>
 </dd>
 <dt><a href="com/streamConverter/examples/DataProcessingExamples.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/DataProcessingExamples.html" title="class in com.streamConverter.examples">DataProcessingExamples</a></dt>
 <dd>
@@ -427,6 +774,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。エンタープライズ統合パターンの例を実行します。</div>
 </dd>
+<dt><a href="com/streamConverter/examples/MDCMultiThreadExample.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/MDCMultiThreadExample.html" title="class in com.streamConverter.examples">MDCMultiThreadExample</a></dt>
+<dd>
+<div class="block">メインメソッド</div>
+</dd>
 <dt><a href="com/streamConverter/examples/PerformanceOptimizationExamples.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/PerformanceOptimizationExamples.html" title="class in com.streamConverter.examples">PerformanceOptimizationExamples</a></dt>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。パフォーマンス最適化の例を実行します。</div>
@@ -434,6 +785,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/examples/QuickStart.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/QuickStart.html" title="class in com.streamConverter.examples">QuickStart</a></dt>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。StreamConverterの基本的な使用例を実行します。</div>
+</dd>
+<dt><a href="com/streamConverter/examples/ValidationExample.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/ValidationExample.html" title="class in com.streamConverter.examples">ValidationExample</a></dt>
+<dd>
+<div class="block">メインメソッド</div>
 </dd>
 <dt><a href="com/streamConverter/Main.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.<a href="com/streamConverter/Main.html" title="class in com.streamConverter">Main</a></dt>
 <dd>
@@ -448,6 +803,12 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#mark(int)" class="member-name-link">mark(int)</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#markSupported()" class="member-name-link">markSupported()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/examples/MDCMultiThreadExample.html" class="type-name-link" title="class in com.streamConverter.examples">MDCMultiThreadExample</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
+<dd>
+<div class="block">MDCのマルチスレッド環境での動作検証のための実装例</div>
+</dd>
+<dt><a href="com/streamConverter/examples/MDCMultiThreadExample.html#%3Cinit%3E()" class="member-name-link">MDCMultiThreadExample()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/MDCMultiThreadExample.html" title="class in com.streamConverter.examples">MDCMultiThreadExample</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html" class="type-name-link" title="class in com.streamConverter.util">MeasuredInputStream</a> - Class in <a href="com/streamConverter/util/package-summary.html">com.streamConverter.util</a></dt>
 <dd>
@@ -469,7 +830,9 @@ loadScripts(document, 'script');</script>
 <h2 class="title" id="I:O">O</h2>
 <dl class="index">
 <dt><a href="com/streamConverter/CommandResult.Builder.html#outputBytes(long)" class="member-name-link">outputBytes(long)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">出力バイト数を設定</div>
+</dd>
 </dl>
 <h2 class="title" id="I:P">P</h2>
 <dl class="index">
@@ -499,6 +862,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#reset()" class="member-name-link">reset()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#run(java.io.InputStream,java.io.OutputStream)" class="member-name-link">run(InputStream, OutputStream)</a> - Method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
+<dd>
+<div class="block">ストリーム変換を実行</div>
+</dd>
 <dt><a href="com/streamConverter/StreamConverter.html#run(java.io.InputStream,java.io.OutputStream)" class="member-name-link">run(InputStream, OutputStream)</a> - Method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
 <dd>
 <div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。</div>
@@ -518,6 +885,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Constructor that initializes the command with a specific ID.</div>
 </dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#schemaPath(java.lang.String)" class="member-name-link">schemaPath(String)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
+<dd>
+<div class="block">スキーマパスを設定</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/SendHttpCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">SendHttpCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
 <div class="block">指定された通信先にOutputStreamを送信するコマンドクラス。</div>
@@ -526,10 +897,28 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">デフォルトコンストラクタ</div>
 </dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#setUserContext(java.lang.String,java.lang.String)" class="member-name-link">setUserContext(String, String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">ユーザーコンテキスト値を設定</div>
+</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#skip(long)" class="member-name-link">skip(long)</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#STAGE_KEY" class="member-name-link">STAGE_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">ステージ用のMDCキー</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#START_TIME_KEY" class="member-name-link">START_TIME_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">開始時刻用のMDCキー</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.Builder.html#startTime(java.time.Instant)" class="member-name-link">startTime(Instant)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">開始時刻を設定</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.Builder.html#startTime(java.time.Instant)" class="member-name-link">startTime(Instant)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></dt>
+<dd>
+<div class="block">開始時刻を設定</div>
+</dd>
 <dt><a href="com/streamConverter/StreamConverter.html" class="type-name-link" title="class in com.streamConverter">StreamConverter</a> - Class in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
 <dd>
 <div class="block">ストリーム変換クラス。</div>
@@ -565,20 +954,51 @@ loadScripts(document, 'script');</script>
 <div class="block">Constructs a new StreamProcessingException with the specified cause.</div>
 </dd>
 <dt><a href="com/streamConverter/CommandResult.Builder.html#success(boolean)" class="member-name-link">success(boolean)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">成功フラグを設定</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#success(boolean)" class="member-name-link">success(boolean)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
+<dd>
+<div class="block">バリデーション成功/失敗フラグを設定</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.html#success(java.lang.String,long,long,long,java.time.Instant,java.time.Instant)" class="member-name-link">success(String, long, long, long, Instant, Instant)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">成功結果を作成するヘルパーメソッド</div>
 </dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#success(java.lang.String,java.lang.String,long)" class="member-name-link">success(String, String, long)</a> - Static method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>
+<div class="block">成功した場合のバリデーション結果を作成</div>
+</dd>
 </dl>
 <h2 class="title" id="I:T">T</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/context/ExecutionContext.html#THREAD_NAME_KEY" class="member-name-link">THREAD_NAME_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>
+<div class="block">スレッド名用のMDCキー</div>
+</dd>
 <dt><a href="com/streamConverter/command/CommandConfig.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/SampleStreamCommand.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/SampleStreamCommand.html" title="class in com.streamConverter.command.impl">SampleStreamCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/CommandResult.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
+<dd>&nbsp;</dd>
+</dl>
+<h2 class="title" id="I:U">U</h2>
+<dl class="index">
+<dt><a href="com/streamConverter/context/ExecutionContext.Builder.html#userContext(java.lang.String,java.lang.String)" class="member-name-link">userContext(String, String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></dt>
+<dd>
+<div class="block">ユーザーコンテキスト値を設定</div>
+</dd>
+<dt><a href="com/streamConverter/context/ExecutionContext.Builder.html#userContext(java.util.Map)" class="member-name-link">userContext(Map&lt;String, String&gt;)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></dt>
+<dd>
+<div class="block">ユーザーコンテキストを一括設定</div>
+</dd>
 </dl>
 <h2 class="title" id="I:V">V</h2>
 <dl class="index">
@@ -589,6 +1009,53 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/impl/xml/ValidateCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">ValidateCommand(String)</a> - Constructor for class com.streamConverter.command.impl.xml.<a href="com/streamConverter/command/impl/xml/ValidateCommand.html" title="class in com.streamConverter.command.impl.xml">ValidateCommand</a></dt>
 <dd>
 <div class="block">コンストラクタ</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.html" class="type-name-link" title="class in com.streamConverter.command">ValidationDecorator</a> - Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
+<dd>
+<div class="block">IStreamCommandにバリデーション機能を追加するデコレーター</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.html#%3Cinit%3E(com.streamConverter.command.IStreamCommand,com.streamConverter.command.ValidationDecorator.ValidationType,java.lang.String)" class="member-name-link">ValidationDecorator(IStreamCommand, ValidationDecorator.ValidationType, String)</a> - Constructor for class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></dt>
+<dd>
+<div class="block">コンストラクタ</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.html#%3Cinit%3E(com.streamConverter.command.IStreamCommand,java.lang.String%5B%5D)" class="member-name-link">ValidationDecorator(IStreamCommand, String[])</a> - Constructor for class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></dt>
+<dd>
+<div class="block">CSVバリデーション用のコンストラクタ（必須カラム指定）</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" class="type-name-link" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a> - Enum Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
+<dd>
+<div class="block">サポートされるバリデーションタイプ</div>
+</dd>
+<dt><a href="com/streamConverter/examples/ValidationExample.html" class="type-name-link" title="class in com.streamConverter.examples">ValidationExample</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
+<dd>
+<div class="block">バリデーション機能のデモンストレーション</div>
+</dd>
+<dt><a href="com/streamConverter/examples/ValidationExample.html#%3Cinit%3E()" class="member-name-link">ValidationExample()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/ValidationExample.html" title="class in com.streamConverter.examples">ValidationExample</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.html" class="type-name-link" title="class in com.streamConverter.validation">ValidationResult</a> - Class in <a href="com/streamConverter/validation/package-summary.html">com.streamConverter.validation</a></dt>
+<dd>
+<div class="block">バリデーション結果を統一的に表現するクラス</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html" class="type-name-link" title="class in com.streamConverter.validation">ValidationResult.Builder</a> - Class in <a href="com/streamConverter/validation/package-summary.html">com.streamConverter.validation</a></dt>
+<dd>
+<div class="block">ValidationResult作成用のBuilderクラス</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#validationTime(java.time.Instant)" class="member-name-link">validationTime(Instant)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
+<dd>
+<div class="block">バリデーション実行時刻を設定</div>
+</dd>
+<dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#validationType(java.lang.String)" class="member-name-link">validationType(String)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
+<dd>
+<div class="block">バリデーションタイプを設定</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
+<dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#values()" class="member-name-link">values()</a> - Static method in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:W">W</h2>
@@ -602,6 +1069,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:X">X</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#XML" class="member-name-link">XML</a> - Enum constant in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
+<dd>
+<div class="block">XML形式のバリデーション</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/XmlNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
 <div class="block">XML変換コマンドクラス</div>
@@ -649,7 +1120,7 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/impl/XmlNavigateCommand.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a></dt>
 <dd>&nbsp;</dd>
 </dl>
-<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:_">_</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a></main>
+<a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:_">_</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a></main>
 </div>
 </div>
 </body>

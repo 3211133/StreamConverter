@@ -13,7 +13,7 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
-    id("com.diffplug.spotless") version "7.2.0"
+    id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.15.0"
 }
 
@@ -50,6 +50,21 @@ tasks.register<JavaExec>("runAutoLoggingDemo") {
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set("com.streamConverter.examples.AutoLoggingDemo")
 }
+
+tasks.register<JavaExec>("runMDC") {
+    group = "application"
+    description = "Run MDC Multi-Thread Example"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.examples.MDCMultiThreadExample")
+}
+
+tasks.register<JavaExec>("runContextDemo") {
+    group = "application"
+    description = "Run Context Propagation Demo"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.examples.ContextPropagationDemo")
+}
+
 
 // Spotless configuration for code formatting
 spotless {
@@ -88,6 +103,12 @@ dependencies {
     implementation("commons-io:commons-io:2.20.0")
     implementation("org.slf4j:slf4j-api:2.0.17")
     implementation("ch.qos.logback:logback-classic:1.5.18")
+    
+    // JSON Schema validation
+    implementation("com.networknt:json-schema-validator:1.5.8")
+    
+    // CSV validation support
+    implementation("com.opencsv:opencsv:5.12.0")
 
     // JUnit 5 の依存関係（テスト用）
 	testImplementation(platform("org.junit:junit-bom:5.13.4"))

@@ -65,7 +65,9 @@ loadScripts(document, 'script');</script>
 </li>
 <li class="circle">com.streamConverter.command.<a href="CommandConfig.html" class="type-name-link" title="class in com.streamConverter.command">CommandConfig</a></li>
 <li class="circle">com.streamConverter.command.<a href="CommandFactory.html" class="type-name-link" title="class in com.streamConverter.command">CommandFactory</a></li>
+<li class="circle">com.streamConverter.command.<a href="ContextPropagatingDecorator.html" class="type-name-link" title="class in com.streamConverter.command">ContextPropagatingDecorator</a> (implements com.streamConverter.command.<a href="IContextAwareStreamCommand.html" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a>)</li>
 <li class="circle">com.streamConverter.command.<a href="LoggingDecorator.html" class="type-name-link" title="class in com.streamConverter.command">LoggingDecorator</a> (implements com.streamConverter.command.<a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>)</li>
+<li class="circle">com.streamConverter.command.<a href="ValidationDecorator.html" class="type-name-link" title="class in com.streamConverter.command">ValidationDecorator</a> (implements com.streamConverter.command.<a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>)</li>
 </ul>
 </li>
 </ul>
@@ -73,7 +75,25 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li class="circle">com.streamConverter.command.<a href="IStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IStreamCommand</a></li>
+<li class="circle">com.streamConverter.command.<a href="IStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IStreamCommand</a>
+<ul>
+<li class="circle">com.streamConverter.command.<a href="IContextAwareStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a></li>
+</ul>
+</li>
+</ul>
+</section>
+<section class="hierarchy">
+<h2 title="Enum Class Hierarchy">Enum Class Hierarchy</h2>
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
+<ul>
+<li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" class="type-name-link external-link" title="class or interface in java.lang">Enum</a>&lt;E&gt; (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link">Comparable</a>&lt;T&gt;, java.lang.constant.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/constant/Constable.html" title="class or interface in java.lang.constant" class="external-link">Constable</a>, java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a>)
+<ul>
+<li class="circle">com.streamConverter.command.<a href="ValidationDecorator.ValidationType.html" class="type-name-link" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></li>
+</ul>
+</li>
+</ul>
+</li>
 </ul>
 </section>
 </main>

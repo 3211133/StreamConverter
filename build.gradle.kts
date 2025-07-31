@@ -65,6 +65,64 @@ tasks.register<JavaExec>("runContextDemo") {
     mainClass.set("com.streamConverter.examples.ContextPropagationDemo")
 }
 
+tasks.register<JavaExec>("runFluentApiDemo") {
+    group = "application"
+    description = "Run Fluent API Demo"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.examples.FluentApiDemo")
+}
+
+// Benchmark tasks
+tasks.register<Test>("benchmarkInfrastructure") {
+    group = "benchmark"
+    description = "Run benchmark infrastructure tests"
+    useJUnitPlatform()
+    include("**/BenchmarkInfrastructureTest*")
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+}
+
+tasks.register<Test>("benchmarkLargeData") {
+    group = "benchmark"
+    description = "Run large data processing benchmarks"
+    useJUnitPlatform()
+    include("**/LargeDataBenchmark*")
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+    // Increase heap size for large data benchmarks
+    jvmArgs("-Xms1g", "-Xmx2g")
+}
+
+tasks.register<Test>("benchmarkMemoryEfficiency") {
+    group = "benchmark"
+    description = "Run memory efficiency benchmarks"
+    useJUnitPlatform()
+    include("**/MemoryEfficiencyTest*")
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+    // Increase heap size for memory efficiency tests
+    jvmArgs("-Xms1g", "-Xmx2g")
+}
+
+tasks.register<Test>("benchmarkAll") {
+    group = "benchmark"
+    description = "Run all benchmark tests"
+    useJUnitPlatform()
+    include("**/benchmark/**/*Test*", "**/MemoryEfficiencyTest*")
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+    // Increase heap size for all benchmarks
+    jvmArgs("-Xms1g", "-Xmx2g")
+}
+
 
 // Spotless configuration for code formatting
 spotless {

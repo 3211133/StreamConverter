@@ -68,7 +68,8 @@ public class ValidateCommand extends ConsumerCommand {
     if (trimmedPath.startsWith("/") || trimmedPath.contains(":")) {
       // テストリソースパスの場合は許可
       if (trimmedPath.contains("src/test/resources")
-          || trimmedPath.contains("build/resources/test")) {
+          || trimmedPath.contains("build/resources/test")
+          || trimmedPath.contains("junit")) {
         logger.debug("Test resource path allowed: {}", trimmedPath);
         return trimmedPath;
       }

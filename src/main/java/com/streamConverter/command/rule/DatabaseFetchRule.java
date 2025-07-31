@@ -6,6 +6,8 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Objects;
+import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -16,21 +18,133 @@ import org.slf4j.LoggerFactory;
  */
 class DatabaseFetchRule implements IRule {
   private static final Logger logger = LoggerFactory.getLogger(DatabaseFetchRule.class);
-  private String databaseUrl;
-  private String query;
+
+  /** SQLインジェクション攻撃を検出するパターン（SELECT以外の危険なSQL文） */
+  private static final Pattern SQL_INJECTION_PATTERN =
+      Pattern.compile(
+          "(?i).*(union|insert|update|delete|drop|create|alter|exec|execute|sp_|xp_).*",
+          Pattern.CASE_INSENSITIVE);
+
+  /** 許可されるデータベースURLスキーマ（テスト用のmockも含む） */
+  private static final Pattern ALLOWED_DB_SCHEME_PATTERN =
+      Pattern.compile(
+          "^jdbc:(h2|hsqldb|sqlite|postgresql|mysql|mock):.*", Pattern.CASE_INSENSITIVE);
+
+  private final String databaseUrl;
+  private final String query;
 
   /**
    * コンストラクタ
    *
    * <p>データベースのURLとクエリを指定して、DatabaseFetchRuleのインスタンスを初期化します。
-   * クエリは一意な結果を返すように設計されるべきです（例：DISTINCT、LIMIT句の使用など）。
+   * クエリは一意な結果を返すように設計されるべきです（例：DISTINCT、LIMIT句の使用など）。 セキュリティのため、URLとクエリの検証を実行します。
    *
-   * @param databaseUrl データベースのURL
-   * @param query データベースに対するクエリ
+   * @param databaseUrl データベースのURL（許可されたスキーマのみ）
+   * @param query データベースに対するクエリ（SELECTクエリのみ許可）
+   * @throws IllegalArgumentException 無効なパラメータが指定された場合
+   * @throws SecurityException セキュリティ違反が検出された場合
    */
   public DatabaseFetchRule(String databaseUrl, String query) {
-    this.databaseUrl = databaseUrl;
-    this.query = query;
+    Objects.requireNonNull(databaseUrl, "Database URL cannot be null");
+    Objects.requireNonNull(query, "Query cannot be null");
+
+    // データベースURLの検証
+    this.databaseUrl = validateDatabaseUrl(databaseUrl.trim());
+
+    // クエリの検証
+    this.query = validateQuery(query.trim());
+
+    logger.info(
+        "DatabaseFetchRule initialized with secure validation - URL: {}, Query length: {}",
+        this.databaseUrl,
+        this.query.length());
+  }
+
+  /**
+   * データベースURLを検証します（セキュリティ対策）
+   *
+   * @param url 検証対象のURL
+   * @return 検証済みのURL
+   * @throws SecurityException 不正なURLが検出された場合
+   */
+  private String validateDatabaseUrl(String url) {
+    if (url.isEmpty()) {
+      throw new IllegalArgumentException("Database URL cannot be empty");
+    }
+
+    // 許可されたスキーマのチェック
+    if (!ALLOWED_DB_SCHEME_PATTERN.matcher(url).matches()) {
+      throw new SecurityException(
+          "Database URL uses unsupported or potentially dangerous scheme: " + url);
+    }
+
+    // 危険な文字列の検出
+    if (url.contains("..") || url.contains("file:") || url.contains("javascript:")) {
+      throw new SecurityException("Database URL contains potentially dangerous patterns: " + url);
+    }
+
+    logger.debug("Database URL validation passed: {}", url);
+    return url;
+  }
+
+  /**
+   * クエリを検証します（SQLインジェクション対策）
+   *
+   * @param queryString 検証対象のクエリ
+   * @return 検証済みのクエリ
+   * @throws SecurityException SQLインジェクションが検出された場合
+   */
+  private String validateQuery(String queryString) {
+    if (queryString.isEmpty()) {
+      throw new IllegalArgumentException("Query cannot be empty");
+    }
+
+    // SELECTクエリのみ許可
+    if (!queryString.trim().toLowerCase().startsWith("select")) {
+      throw new SecurityException("Only SELECT queries are allowed: " + queryString);
+    }
+
+    // SQLインジェクション攻撃の検出（パターンマッチング使用）
+    if (SQL_INJECTION_PATTERN.matcher(queryString).matches()) {
+      throw new SecurityException(
+          "Query contains potentially dangerous SQL commands: " + queryString);
+    }
+
+    // セミコロンによる複数文の実行を防止
+    if (queryString.contains(";") && !queryString.trim().endsWith(";")) {
+      throw new SecurityException("Multiple SQL statements are not allowed: " + queryString);
+    }
+
+    logger.debug("Query validation passed, length: {}", queryString.length());
+    return queryString;
+  }
+
+  /**
+   * 入力パラメータをサニタイズします
+   *
+   * @param input サニタイズ対象の入力
+   * @return サニタイズされた入力
+   */
+  private String sanitizeInput(String input) {
+    if (input == null) {
+      return null;
+    }
+
+    // 危険な文字の除去/エスケープ
+    String sanitized =
+        input
+            .replace("'", "''") // シングルクォートのエスケープ
+            .replace("--", "") // SQLコメントの除去
+            .replace("/*", "") // ブロックコメント開始の除去
+            .replace("*/", ""); // ブロックコメント終了の除去
+
+    // 極端に長い入力の制限
+    if (sanitized.length() > 1000) {
+      logger.warn("Input parameter is extremely long, truncating: length={}", sanitized.length());
+      sanitized = sanitized.substring(0, 1000);
+    }
+
+    return sanitized;
   }
 
   /**
@@ -58,7 +172,16 @@ class DatabaseFetchRule implements IRule {
 
       // 入力文字列をパラメータとして設定（クエリに「?」プレースホルダーがある場合）
       if (query.contains("?") && input != null && !input.isEmpty()) {
-        statement.setString(1, input);
+        // 入力値のサニタイズとセキュリティチェック
+        String sanitizedInput = sanitizeInput(input);
+        if (sanitizedInput == null || sanitizedInput.isEmpty()) {
+          logger.warn(
+              "Input parameter was sanitized to empty string, using original input: {}", input);
+          sanitizedInput = input; // 元の値を使用（PreparedStatementがエスケープを処理）
+        }
+
+        statement.setString(1, sanitizedInput);
+        logger.debug("Parameter set for prepared statement: length={}", sanitizedInput.length());
       }
 
       // クエリ実行

@@ -73,28 +73,35 @@ tasks.register<JavaExec>("runFluentApiDemo") {
 }
 
 // Benchmark tasks
+tasks.register<Test>("benchmarkLargeData") {
+    group = "benchmark"
+    description = "Run large data benchmark tests (5GB/50MB target)"
+    useJUnitPlatform {
+        includeTags("benchmark", "large-data")
+    }
+    include("**/benchmark/**")
+    
+    // 5GBテスト用にヒープサイズを大きく設定
+    jvmArgs("-Xmx3g", "-Xms1g")
+    
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
 tasks.register<Test>("benchmarkInfrastructure") {
     group = "benchmark"
     description = "Run benchmark infrastructure tests"
     useJUnitPlatform()
     include("**/BenchmarkInfrastructureTest*")
+    
+    jvmArgs("-Xmx1g", "-Xms512m")
+    
     testLogging {
         events("passed", "skipped", "failed")
         showStandardStreams = true
     }
-}
-
-tasks.register<Test>("benchmarkLargeData") {
-    group = "benchmark"
-    description = "Run large data processing benchmarks"
-    useJUnitPlatform()
-    include("**/LargeDataBenchmark*")
-    testLogging {
-        events("passed", "skipped", "failed")
-        showStandardStreams = true
-    }
-    // Increase heap size for large data benchmarks
-    jvmArgs("-Xms1g", "-Xmx2g")
 }
 
 tasks.register<Test>("benchmarkMemoryEfficiency") {
@@ -122,7 +129,6 @@ tasks.register<Test>("benchmarkAll") {
     // Increase heap size for all benchmarks
     jvmArgs("-Xms1g", "-Xmx2g")
 }
-
 
 // Spotless configuration for code formatting
 spotless {

@@ -1,4 +1,6 @@
 com.streamConverter
+com.streamConverter.api
+com.streamConverter.benchmark
 com.streamConverter.command
 com.streamConverter.command.impl
 com.streamConverter.command.impl.charaCode

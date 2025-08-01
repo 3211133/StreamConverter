@@ -65,6 +65,40 @@ tasks.register<JavaExec>("runContextDemo") {
     mainClass.set("com.streamConverter.examples.ContextPropagationDemo")
 }
 
+// Benchmark test tasks
+tasks.register<Test>("benchmarkLargeData") {
+    group = "benchmark"
+    description = "Run large data benchmark tests (5GB/50MB target)"
+    useJUnitPlatform {
+        includeTags("benchmark", "large-data")
+    }
+    include("**/benchmark/**")
+    
+    // 5GBテスト用にヒープサイズを大きく設定
+    jvmArgs("-Xmx3g", "-Xms1g")
+    
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+    }
+}
+
+tasks.register<Test>("benchmarkInfrastructure") {
+    group = "benchmark"
+    description = "Run benchmark infrastructure tests"
+    useJUnitPlatform()
+    include("**/benchmark/**")
+    exclude("**/*LargeDataBenchmark*")
+    
+    jvmArgs("-Xmx1g", "-Xms512m")
+    
+    testLogging {
+        events("passed", "skipped", "failed")
+        showStandardStreams = true
+    }
+}
+
 
 // Spotless configuration for code formatting
 spotless {

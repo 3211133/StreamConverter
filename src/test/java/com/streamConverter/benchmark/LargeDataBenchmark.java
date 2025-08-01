@@ -46,6 +46,8 @@ class LargeDataBenchmark {
 
   // テスト目標値（ResourceMonitor approach）
   private static final long TARGET_5GB = 5L * 1024 * 1024 * 1024; // 5GB
+  private static final long TARGET_2GB = 2L * 1024 * 1024 * 1024; // 2GB
+  private static final long TARGET_1GB = 1024 * 1024 * 1024; // 1GB
   private static final double TARGET_MEMORY_MB = 50.0; // 50MB
   private static final double TARGET_THROUGHPUT_MBPS = 100.0; // 100MB/s
 
@@ -174,7 +176,7 @@ class LargeDataBenchmark {
   void testLargeDataByFormat(String format) throws IOException {
     logger.info("=== Format-specific Large Data Test: {} ===", format);
 
-    long testDataSize = 1024 * 1024 * 1024; // 1GB (reduced from 2GB for stability)
+    long testDataSize = TARGET_1GB; // 1GB (reduced from 2GB for stability)
     InputStream dataStream = LargeDataGenerator.createLargeDataStream(format, testDataSize);
     OutputStream nullOutput = new NullOutputStream();
 
@@ -230,7 +232,7 @@ class LargeDataBenchmark {
   void test2GBDataByFormat(String format) throws IOException {
     logger.info("=== Format-specific 2GB Data Test: {} ===", format);
 
-    long testDataSize = 2L * 1024 * 1024 * 1024; // 2GB
+    long testDataSize = TARGET_2GB; // 2GB
     InputStream dataStream = LargeDataGenerator.createLargeDataStream(format, testDataSize);
     OutputStream nullOutput = new NullOutputStream();
 

@@ -381,24 +381,21 @@ public class LargeDataGeneratorDebugTest {
     System.out.println("\n=== Single Record Size Analysis ===");
 
     // Generate single records to understand their size
-    java.util.Random random = new java.util.Random(42);
+    Random random = new Random(42);
 
     // Use reflection to access private methods for testing
     java.lang.reflect.Method xmlMethod =
-        LargeDataGenerator.class.getDeclaredMethod(
-            "generateXmlRecord", int.class, java.util.Random.class);
+        LargeDataGenerator.class.getDeclaredMethod("generateXmlRecord", int.class, Random.class);
     xmlMethod.setAccessible(true);
     String xmlRecord = (String) xmlMethod.invoke(null, 1, random);
 
     java.lang.reflect.Method jsonMethod =
-        LargeDataGenerator.class.getDeclaredMethod(
-            "generateJsonRecord", int.class, java.util.Random.class);
+        LargeDataGenerator.class.getDeclaredMethod("generateJsonRecord", int.class, Random.class);
     jsonMethod.setAccessible(true);
     String jsonRecord = (String) jsonMethod.invoke(null, 1, random);
 
     java.lang.reflect.Method csvMethod =
-        LargeDataGenerator.class.getDeclaredMethod(
-            "generateCsvRecord", int.class, java.util.Random.class);
+        LargeDataGenerator.class.getDeclaredMethod("generateCsvRecord", int.class, Random.class);
     csvMethod.setAccessible(true);
     String csvRecord = (String) csvMethod.invoke(null, 1, random);
 

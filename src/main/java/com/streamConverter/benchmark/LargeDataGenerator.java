@@ -253,7 +253,7 @@ public class LargeDataGenerator {
     private int recordCount = 0;
     private boolean headerWritten = false;
     private boolean footerWritten = false;
-    private boolean documentComplete = false;
+    private boolean isDocumentComplete = false;
     private final Random random = new Random(42);
 
     public LargeDataInputStream(String format, long totalSize) {
@@ -276,12 +276,12 @@ public class LargeDataGenerator {
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-      if (documentComplete && bufferPosition >= buffer.length) {
+      if (isDocumentComplete && bufferPosition >= buffer.length) {
         return -1; // EOF
       }
 
       int totalRead = 0;
-      while (totalRead < len && (!documentComplete || bufferPosition < buffer.length)) {
+      while (totalRead < len && (!isDocumentComplete || bufferPosition < buffer.length)) {
         if (bufferPosition >= buffer.length) {
           generateNextChunk();
           if (buffer.length == 0) break;
@@ -300,7 +300,7 @@ public class LargeDataGenerator {
     }
 
     private void generateNextChunk() {
-      if (documentComplete) {
+      if (isDocumentComplete) {
         buffer = new byte[0];
         return;
       }
@@ -347,7 +347,7 @@ public class LargeDataGenerator {
             break;
         }
         footerWritten = true;
-        documentComplete = true;
+        isDocumentComplete = true;
       } else {
         // レコード生成（メモリ効率重視、チャンクサイズ制限）
         long availableSpace = remainingBytes - footerSize - 50; // 安全マージン
@@ -399,7 +399,7 @@ public class LargeDataGenerator {
         bytesGenerated += chunkBytes.length;
       } catch (Exception e) {
         buffer = new byte[0];
-        documentComplete = true;
+        isDocumentComplete = true;
       }
       bufferPosition = 0;
     }

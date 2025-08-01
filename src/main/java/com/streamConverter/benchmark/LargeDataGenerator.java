@@ -253,6 +253,7 @@ public class LargeDataGenerator {
     private int recordCount = 0;
     private boolean headerWritten = false;
     private boolean footerWritten = false;
+    private boolean isDocumentComplete = false;
     private final Random random = new Random(42);
 
     public LargeDataInputStream(String format, long totalSize) {
@@ -270,18 +271,17 @@ public class LargeDataGenerator {
         bufferPosition = 0;
       }
 
-      bytesGenerated++;
       return buffer[bufferPosition++] & 0xFF;
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
-      if (bytesGenerated >= totalSize && bufferPosition >= buffer.length) {
+      if (isDocumentComplete && bufferPosition >= buffer.length) {
         return -1; // EOF
       }
 
       int totalRead = 0;
-      while (totalRead < len && bytesGenerated < totalSize) {
+      while (totalRead < len && (!isDocumentComplete || bufferPosition < buffer.length)) {
         if (bufferPosition >= buffer.length) {
           generateNextChunk();
           if (buffer.length == 0) break;
@@ -294,19 +294,22 @@ public class LargeDataGenerator {
         System.arraycopy(buffer, bufferPosition, b, off + totalRead, toRead);
         bufferPosition += toRead;
         totalRead += toRead;
-        bytesGenerated += toRead;
       }
 
       return totalRead > 0 ? totalRead : -1;
     }
 
     private void generateNextChunk() {
-      if (bytesGenerated >= totalSize) {
+      if (isDocumentComplete) {
         buffer = new byte[0];
         return;
       }
 
       StringBuilder chunk = new StringBuilder();
+
+      // フッターの必要なサイズを計算（マージンを含む）
+      int footerSize = calculateFooterSize();
+      long remainingBytes = totalSize - bytesGenerated;
 
       // ヘッダー生成
       if (!headerWritten) {
@@ -324,31 +327,14 @@ public class LargeDataGenerator {
         headerWritten = true;
       }
 
-      // レコード生成（チャンクサイズ：64KB）
-      while (chunk.length() < 64 * 1024 && bytesGenerated + chunk.length() < totalSize - 100) {
-        if (format.equals("JSON") && recordCount > 0) {
-          chunk.append(",\n");
-        }
+      // フッター生成のタイミングチェック（厳密な制御）
+      boolean shouldGenerateFooter =
+          !footerWritten
+              && (remainingBytes <= footerSize + 100
+                  || // 最小限のマージン
+                  (chunk.length() == 0 && remainingBytes < 500)); // ヘッダーのみで小さすぎる場合
 
-        String record;
-        switch (format) {
-          case "XML":
-            record = generateXmlRecord(recordCount++, random);
-            break;
-          case "JSON":
-            record = generateJsonRecord(recordCount++, random);
-            break;
-          case "CSV":
-            record = generateCsvRecord(recordCount++, random);
-            break;
-          default:
-            record = "Unknown format\n";
-        }
-        chunk.append(record);
-      }
-
-      // フッター生成
-      if (!footerWritten && bytesGenerated + chunk.length() >= totalSize - 100) {
+      if (shouldGenerateFooter) {
         switch (format) {
           case "XML":
             chunk.append("</orders>\n");
@@ -356,16 +342,78 @@ public class LargeDataGenerator {
           case "JSON":
             chunk.append("\n  ]\n}\n");
             break;
+          case "CSV":
+            // CSVにはフッターなし
+            break;
         }
         footerWritten = true;
+        isDocumentComplete = true;
+      } else {
+        // レコード生成（メモリ効率重視、チャンクサイズ制限）
+        long availableSpace = remainingBytes - footerSize - 50; // 安全マージン
+        final int MAX_CHUNK_SIZE = 64 * 1024; // 64KB制限でメモリ効率向上
+
+        while (availableSpace > 0 && !shouldGenerateFooter && chunk.length() < MAX_CHUNK_SIZE) {
+          // JSON カンマ追加
+          String separator = "";
+          if (format.equals("JSON") && recordCount > 0 && chunk.length() > 50) {
+            separator = ",\n";
+          }
+
+          String record;
+          switch (format) {
+            case "XML":
+              record = generateXmlRecord(recordCount, random);
+              break;
+            case "JSON":
+              record = generateJsonRecord(recordCount, random);
+              break;
+            case "CSV":
+              record = generateCsvRecord(recordCount, random);
+              break;
+            default:
+              record = "Unknown format\n";
+          }
+
+          // サイズチェック（より厳密）
+          int nextAdditionSize = separator.length() + record.length();
+          if (nextAdditionSize > availableSpace
+              || chunk.length() + nextAdditionSize > MAX_CHUNK_SIZE) {
+            break; // これ以上追加できない
+          }
+
+          // レコード追加
+          chunk.append(separator).append(record);
+          recordCount++;
+          availableSpace -= nextAdditionSize;
+
+          // 次回のフッター生成判定を更新
+          shouldGenerateFooter = !footerWritten && availableSpace <= footerSize + 50;
+          if (shouldGenerateFooter) break;
+        }
       }
 
       try {
-        buffer = chunk.toString().getBytes("UTF-8");
+        byte[] chunkBytes = chunk.toString().getBytes("UTF-8");
+        buffer = chunkBytes;
+        bytesGenerated += chunkBytes.length;
       } catch (Exception e) {
         buffer = new byte[0];
+        isDocumentComplete = true;
       }
       bufferPosition = 0;
+    }
+
+    private int calculateFooterSize() {
+      switch (format) {
+        case "XML":
+          return "</orders>\n".getBytes().length;
+        case "JSON":
+          return "\n  ]\n}\n".getBytes().length;
+        case "CSV":
+        default:
+          return 0;
+      }
     }
   }
 }

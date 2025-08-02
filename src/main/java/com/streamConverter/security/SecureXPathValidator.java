@@ -119,7 +119,7 @@ public class SecureXPathValidator {
     sanitized = sanitized.replace("\\n", " ");
 
     // 連続する空白の正規化
-    sanitized = sanitized.replaceAll("\\\\s+", " ");
+    sanitized = sanitized.replaceAll("\\s+", " ");
 
     securityLogger.debug(
         "XPath sanitized: {} -> {}", sanitizeForLogging(xpath), sanitizeForLogging(sanitized));
@@ -262,7 +262,7 @@ public class SecureXPathValidator {
     }
 
     // 制御文字を除去
-    sanitized = sanitized.replaceAll("[\\\\p{Cntrl}\\\\p{Cc}\\\\p{Cf}\\\\p{Co}\\\\p{Cn}]", "");
+    sanitized = sanitized.replaceAll("[\\p{Cntrl}\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]", "");
 
     return sanitized;
   }

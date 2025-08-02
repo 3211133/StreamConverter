@@ -7,33 +7,42 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * Factory for creating and managing stream controllers.
+ * Factory for creating and managing stream controllers with CommandFactory integration.
  *
  * <p>This factory provides centralized controller creation and management, supporting:
  *
  * <ul>
  *   <li>Controller creation based on data types and processing requirements
+ *   <li>CommandFactory integration for unified command and controller creation
+ *   <li>Type-safe OutputType enum for eliminating hardcoded string literals
  *   <li>Controller registry for reuse and management
  *   <li>Automatic controller selection based on input/output types
  *   <li>Configuration validation and optimization
+ *   <li>Detailed logging control through CommandFactory integration
  * </ul>
  *
- * <p>The factory pattern further enhances the Controller architecture by providing a single entry
- * point for external systems to obtain appropriate controllers without needing to know the specific
- * implementation details.
+ * <p>The factory pattern enhances the Controller architecture by providing a single entry point for
+ * external systems to obtain appropriate controllers while leveraging the existing CommandFactory
+ * infrastructure for consistent command creation and logging.
  *
  * <p>Usage examples:
  *
  * <pre>
- * // Get controller by data types
+ * // Get controller by data types (string-based)
  * IStreamController controller = ControllerFactory.getController("CSV", "JSON_PROPERTY");
+ *
+ * // Get controller with OutputType enum (type-safe)
+ * IStreamController controller = ControllerFactory.getController("CSV", OutputType.JSON_PROPERTY);
+ *
+ * // Get controller with CommandFactory integration and OutputType enum
+ * IStreamController controller = ControllerFactory.createWithCommandFactory("CSV", OutputType.JSON_FORMATTED, true);
  *
  * // Get controller with specific configuration
  * IStreamController controller = ControllerFactory.getCsvController()
  *     .forColumnExtraction("name");
  *
  * // Register custom controller
- * ControllerFactory.registerController("CUSTOM_CSV", customController);
+ * ControllerFactory.registerController("CUSTOM_CSV", "CUSTOM_OUTPUT", customController);
  * </pre>
  *
  * @author StreamConverter Team
@@ -51,9 +60,28 @@ public class ControllerFactory {
   private static final Map<String, ControllerBuilder> builderRegistry = new HashMap<>();
 
   static {
-    // Initialize default builders
+    // Initialize default builders with CommandFactory integration
     builderRegistry.put("CSV", new CsvControllerBuilder());
     builderRegistry.put("JSON", new JsonControllerBuilder());
+
+    log.debug(
+        "Initialized ControllerFactory with CommandFactory-integrated builders for CSV and JSON");
+  }
+
+  /**
+   * Gets a controller for the specified input and output data types using OutputType enum.
+   *
+   * <p>This method provides type-safe controller creation by using the OutputType enum instead of
+   * string literals.
+   *
+   * @param inputType the expected input data type (e.g., "CSV", "JSON", "XML")
+   * @param outputType the expected output data type as enum
+   * @return appropriate controller, or null if none can be created
+   * @throws IllegalArgumentException if input parameters are invalid
+   */
+  public static IStreamController getController(String inputType, OutputType outputType) {
+    Objects.requireNonNull(outputType, "Output type cannot be null");
+    return getController(inputType, outputType.getValue());
   }
 
   /**
@@ -112,6 +140,70 @@ public class ControllerFactory {
    */
   public static JsonControllerBuilder getJsonController() {
     return new JsonControllerBuilder();
+  }
+
+  /**
+   * Creates a controller using CommandFactory-style configuration with OutputType enum.
+   *
+   * <p>This method provides type-safe controller creation while leveraging the existing
+   * CommandFactory infrastructure for unified command and controller creation.
+   *
+   * @param inputType the expected input data type
+   * @param outputType the expected output data type as enum
+   * @param enableDetailedLogging whether to enable detailed logging for created commands
+   * @return appropriate controller with CommandFactory integration, or null if none can be created
+   */
+  public static IStreamController createWithCommandFactory(
+      String inputType, OutputType outputType, boolean enableDetailedLogging) {
+    Objects.requireNonNull(outputType, "Output type cannot be null");
+    return createWithCommandFactory(inputType, outputType.getValue(), enableDetailedLogging);
+  }
+
+  /**
+   * Creates a controller using CommandFactory-style configuration.
+   *
+   * <p>This method leverages the existing CommandFactory infrastructure to provide a unified
+   * approach to both controller and command creation.
+   *
+   * @param inputType the expected input data type
+   * @param outputType the expected output data type
+   * @param enableDetailedLogging whether to enable detailed logging for created commands
+   * @return appropriate controller with CommandFactory integration, or null if none can be created
+   */
+  public static IStreamController createWithCommandFactory(
+      String inputType, String outputType, boolean enableDetailedLogging) {
+    Objects.requireNonNull(inputType, "Input type cannot be null");
+    Objects.requireNonNull(outputType, "Output type cannot be null");
+
+    String key = createRegistryKey(inputType, outputType);
+
+    // Check registry first
+    IStreamController cachedController = controllerRegistry.get(key);
+    if (cachedController != null) {
+      log.debug(
+          "Found cached CommandFactory-integrated controller for {} → {}", inputType, outputType);
+      return cachedController;
+    }
+
+    // Create using enhanced builders with CommandFactory integration
+    ControllerBuilder builder = builderRegistry.get(inputType);
+    if (builder instanceof CommandFactoryAwareBuilder) {
+      CommandFactoryAwareBuilder enhancedBuilder = (CommandFactoryAwareBuilder) builder;
+      IStreamController controller =
+          enhancedBuilder.createWithCommandFactory(outputType, enableDetailedLogging);
+      if (controller != null) {
+        log.info(
+            "Created CommandFactory-integrated controller for {} → {} with detailed logging: {}",
+            inputType,
+            outputType,
+            enableDetailedLogging);
+        controllerRegistry.put(key, controller);
+        return controller;
+      }
+    }
+
+    // Fallback to standard creation
+    return getController(inputType, outputType);
   }
 
   /**
@@ -193,19 +285,49 @@ public class ControllerFactory {
     IStreamController createForOutputType(String outputType);
   }
 
+  /** Interface for builders that can integrate with CommandFactory. */
+  public interface CommandFactoryAwareBuilder extends ControllerBuilder {
+    /**
+     * Creates a controller with CommandFactory integration.
+     *
+     * @param outputType the desired output type
+     * @param enableDetailedLogging whether to enable detailed logging
+     * @return appropriate controller with CommandFactory integration, or null if not supported
+     */
+    IStreamController createWithCommandFactory(String outputType, boolean enableDetailedLogging);
+  }
+
   /** Builder for CSV controllers. */
-  public static class CsvControllerBuilder implements ControllerBuilder {
+  public static class CsvControllerBuilder implements CommandFactoryAwareBuilder {
 
     @Override
     public IStreamController createForOutputType(String outputType) {
+      OutputType type = OutputType.fromString(outputType);
+      if (type != null) {
+        return createForOutputType(type);
+      }
+
+      // Fallback for unknown string types
+      log.warn("Unknown output type for CSV controller: {}", outputType);
+      return null;
+    }
+
+    /**
+     * Creates a controller for the specified OutputType enum.
+     *
+     * @param outputType the desired output type as enum
+     * @return appropriate controller, or null if not supported
+     */
+    public IStreamController createForOutputType(OutputType outputType) {
       switch (outputType) {
-        case "CSV_COLUMN":
+        case CSV_COLUMN:
           return CsvProcessingController.forColumnExtraction("default");
-        case "PROCESSED_DATA":
+        case PROCESSED_DATA:
           return CsvProcessingController.forComplexProcessing("default", "default-processor");
-        case "CSV":
+        case CSV:
           return CsvProcessingController.forPassThrough();
         default:
+          log.warn("Unsupported output type for CSV controller: {}", outputType);
           return null;
       }
     }
@@ -239,23 +361,58 @@ public class ControllerFactory {
     public CsvProcessingController forPassThrough() {
       return CsvProcessingController.forPassThrough();
     }
+
+    @Override
+    public IStreamController createWithCommandFactory(
+        String outputType, boolean enableDetailedLogging) {
+      // Create controller using standard method, as AbstractStreamController
+      // already integrates with CommandFactory for command creation
+      IStreamController controller = createForOutputType(outputType);
+
+      if (controller != null) {
+        log.debug(
+            "Created CSV controller with CommandFactory integration for output type: {}, detailed logging: {}",
+            outputType,
+            enableDetailedLogging);
+      }
+
+      return controller;
+    }
   }
 
   /** Builder for JSON controllers. */
-  public static class JsonControllerBuilder implements ControllerBuilder {
+  public static class JsonControllerBuilder implements CommandFactoryAwareBuilder {
 
     @Override
     public IStreamController createForOutputType(String outputType) {
+      OutputType type = OutputType.fromString(outputType);
+      if (type != null) {
+        return createForOutputType(type);
+      }
+
+      // Fallback for unknown string types
+      log.warn("Unknown output type for JSON controller: {}", outputType);
+      return null;
+    }
+
+    /**
+     * Creates a controller for the specified OutputType enum.
+     *
+     * @param outputType the desired output type as enum
+     * @return appropriate controller, or null if not supported
+     */
+    public IStreamController createForOutputType(OutputType outputType) {
       switch (outputType) {
-        case "JSON_PROPERTY":
+        case JSON_PROPERTY:
           return JsonProcessingController.forPropertyExtraction("default", false);
-        case "VALIDATED_JSON_PROPERTY":
+        case VALIDATED_JSON_PROPERTY:
           return JsonProcessingController.forPropertyExtraction("default", true);
-        case "JSON_FORMATTED":
+        case JSON_FORMATTED:
           return JsonProcessingController.forFormatting();
-        case "TRANSFORMED_DATA":
+        case TRANSFORMED_DATA:
           return JsonProcessingController.forTransformation("default", "default-processor");
         default:
+          log.warn("Unsupported output type for JSON controller: {}", outputType);
           return null;
       }
     }
@@ -291,6 +448,23 @@ public class ControllerFactory {
     public JsonProcessingController forTransformation(
         String propertyPath, String... processingStages) {
       return JsonProcessingController.forTransformation(propertyPath, processingStages);
+    }
+
+    @Override
+    public IStreamController createWithCommandFactory(
+        String outputType, boolean enableDetailedLogging) {
+      // Create controller using standard method, as AbstractStreamController
+      // already integrates with CommandFactory for command creation
+      IStreamController controller = createForOutputType(outputType);
+
+      if (controller != null) {
+        log.debug(
+            "Created JSON controller with CommandFactory integration for output type: {}, detailed logging: {}",
+            outputType,
+            enableDetailedLogging);
+      }
+
+      return controller;
     }
   }
 }

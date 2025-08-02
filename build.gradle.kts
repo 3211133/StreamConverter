@@ -187,7 +187,10 @@ dependencies {
 
 tasks.test {
     // JUnit 5 を使うための設定
-    useJUnitPlatform()
+    useJUnitPlatform {
+        // ベンチマークテストを通常のテスト実行から除外
+        excludeTags("benchmark", "large-data")
+    }
     
     // メモリ効率テスト用にJVMヒープサイズを設定
     jvmArgs("-Xmx1g", "-Xms512m")

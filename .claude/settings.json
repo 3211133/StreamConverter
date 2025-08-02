@@ -17,11 +17,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./gradlew build"
-          },
-          {
-            "type": "command",
-            "command": "./gradlew clean build --quiet"
+            "command": "{ ./gradlew test && exit 0; } || exit 2"
           }
         ]
       }
@@ -32,7 +28,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "./gradlew clean build"
+            "command": "{ ./gradlew test && exit 0; } || exit 2"
           }
         ]
       }

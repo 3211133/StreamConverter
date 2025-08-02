@@ -210,6 +210,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/rule/package-summary.html">com.streamConverter.command.rule</a> - package com.streamConverter.command.rule</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/config/package-summary.html">com.streamConverter.config</a> - package com.streamConverter.config</dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/context/package-summary.html">com.streamConverter.context</a> - package com.streamConverter.context</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a> - package com.streamConverter.controller</dt>
@@ -221,6 +223,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a> - package com.streamConverter.examples</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/pathHandler/package-summary.html">com.streamConverter.pathHandler</a> - package com.streamConverter.pathHandler</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/security/package-summary.html">com.streamConverter.security</a> - package com.streamConverter.security</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/package-summary.html">com.streamConverter.util</a> - package com.streamConverter.util</dt>
 <dd>&nbsp;</dd>
@@ -344,10 +348,14 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.html" class="type-name-link" title="class in com.streamConverter.controller">ControllerFactory</a> - Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
 <dd>
-<div class="block">Factory for creating and managing stream controllers.</div>
+<div class="block">Factory for creating and managing stream controllers with CommandFactory integration.</div>
 </dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.html#%3Cinit%3E()" class="member-name-link">ControllerFactory()</a> - Constructor for class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CommandFactoryAwareBuilder.html" class="type-name-link" title="interface in com.streamConverter.controller">ControllerFactory.CommandFactoryAwareBuilder</a> - Interface in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Interface for builders that can integrate with CommandFactory.</div>
+</dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.ControllerBuilder.html" class="type-name-link" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a> - Interface in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
 <dd>
 <div class="block">Interface for controller builders.</div>
@@ -428,6 +436,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a StreamConverter with the specified list of commands.</div>
 </dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#createForOutputType(com.streamConverter.controller.OutputType)" class="member-name-link">createForOutputType(OutputType)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for the specified OutputType enum.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#createForOutputType(com.streamConverter.controller.OutputType)" class="member-name-link">createForOutputType(OutputType)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for the specified OutputType enum.</div>
+</dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.ControllerBuilder.html#createForOutputType(java.lang.String)" class="member-name-link">createForOutputType(String)</a> - Method in interface com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.ControllerBuilder.html" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a></dt>
 <dd>
 <div class="block">Creates a controller for the specified output type.</div>
@@ -448,6 +464,46 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">ログ機能付きパイプラインを生成</div>
 </dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureDocumentBuilder()" class="member-name-link">createSecureDocumentBuilder()</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">安全に設定されたDocumentBuilderを作成します</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureDocumentBuilderFactory()" class="member-name-link">createSecureDocumentBuilderFactory()</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">XXE攻撃を防ぐように設定されたDocumentBuilderFactoryを作成します</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureDocumentBuilderForStream(java.io.InputStream)" class="member-name-link">createSecureDocumentBuilderForStream(InputStream)</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">InputStreamからのXML読み込みを安全に行います</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureSchemaFactory()" class="member-name-link">createSecureSchemaFactory()</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">安全に設定されたSchemaFactoryを作成します</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureTransformerFactory()" class="member-name-link">createSecureTransformerFactory()</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">安全に設定されたTransformerFactoryを作成します</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureXMLInputFactory()" class="member-name-link">createSecureXMLInputFactory()</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">XXE攻撃を防ぐように設定されたXMLInputFactoryを作成します</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CommandFactoryAwareBuilder.html#createWithCommandFactory(java.lang.String,boolean)" class="member-name-link">createWithCommandFactory(String, boolean)</a> - Method in interface com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CommandFactoryAwareBuilder.html" title="interface in com.streamConverter.controller">ControllerFactory.CommandFactoryAwareBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller with CommandFactory integration.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#createWithCommandFactory(java.lang.String,boolean)" class="member-name-link">createWithCommandFactory(String, boolean)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#createWithCommandFactory(java.lang.String,boolean)" class="member-name-link">createWithCommandFactory(String, boolean)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#createWithCommandFactory(java.lang.String,com.streamConverter.controller.OutputType,boolean)" class="member-name-link">createWithCommandFactory(String, OutputType, boolean)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Creates a controller using CommandFactory-style configuration with OutputType enum.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#createWithCommandFactory(java.lang.String,java.lang.String,boolean)" class="member-name-link">createWithCommandFactory(String, String, boolean)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Creates a controller using CommandFactory-style configuration.</div>
+</dd>
 <dt><a href="com/streamConverter/command/CommandFactory.html#createWithLogging(java.lang.Class,boolean,java.lang.Object...)" class="member-name-link">createWithLogging(Class&lt;T&gt;, boolean, Object...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" title="class in com.streamConverter.command">CommandFactory</a></dt>
 <dd>
 <div class="block">ログ機能付きコマンドを生成（詳細ログ付き）</div>
@@ -463,6 +519,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#CSV" class="member-name-link">CSV</a> - Enum constant in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
 <dd>
 <div class="block">CSV形式のバリデーション</div>
+</dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#CSV" class="member-name-link">CSV</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Pass-through CSV processing</div>
+</dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#CSV_COLUMN" class="member-name-link">CSV_COLUMN</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Extract specific CSV column data</div>
 </dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#%3Cinit%3E()" class="member-name-link">CsvControllerBuilder()</a> - Constructor for class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
 <dd>&nbsp;</dd>
@@ -715,6 +779,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">文字列から入力ストリームを作成</div>
 </dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Static method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Converts a string value to the corresponding OutputType.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:G">G</h2>
 <dl class="index">
@@ -746,9 +814,21 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">大容量XMLファイルを生成します</div>
 </dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#getActiveProfile()" class="member-name-link">getActiveProfile()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">アクティブなプロファイルを取得します</div>
+</dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#getAllGlobalContext()" class="member-name-link">getAllGlobalContext()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
 <div class="block">全てのグローバルコンテキストを取得</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#getAllowedFileExtensions()" class="member-name-link">getAllowedFileExtensions()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">許可されるファイル拡張子リストを取得します</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#getAllowedXPathFunctions()" class="member-name-link">getAllowedXPathFunctions()</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>
+<div class="block">許可されたXPath関数のリストを取得します</div>
 </dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#getAllUserContext()" class="member-name-link">getAllUserContext()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
@@ -820,6 +900,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/controller/JsonProcessingController.html#getConfigurationDescription()" class="member-name-link">getConfigurationDescription()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#getController(java.lang.String,com.streamConverter.controller.OutputType)" class="member-name-link">getController(String, OutputType)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Gets a controller for the specified input and output data types using OutputType enum.</div>
+</dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.html#getController(java.lang.String,java.lang.String)" class="member-name-link">getController(String, String)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
 <dd>
 <div class="block">Gets a controller for the specified input and output data types.</div>
@@ -859,6 +943,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/CommandConfig.html#getDescription()" class="member-name-link">getDescription()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a></dt>
 <dd>
 <div class="block">コマンドの説明を取得</div>
+</dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#getDescription()" class="member-name-link">getDescription()</a> - Method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Gets the human-readable description of this output type.</div>
 </dd>
 <dt><a href="com/streamConverter/CommandResult.html#getDuration()" class="member-name-link">getDuration()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
@@ -920,6 +1008,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/controller/JsonProcessingController.html#getInputDataType()" class="member-name-link">getInputDataType()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#getInstance()" class="member-name-link">getInstance()</a> - Static method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">SecurityConfigurationManagerのシングルトンインスタンスを取得します</div>
+</dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.html#getJsonController()" class="member-name-link">getJsonController()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
 <dd>
 <div class="block">Gets a JSON controller builder for advanced configuration.</div>
@@ -931,6 +1023,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#getMaxErrorsToReport()" class="member-name-link">getMaxErrorsToReport()</a> - Method in class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
 <dd>
 <div class="block">最大エラー報告数を取得</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#getMaxFileSize()" class="member-name-link">getMaxFileSize()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">最大ファイルサイズ制限を取得します</div>
 </dd>
 <dt><a href="com/streamConverter/benchmark/ResourceUsage.html#getMeasurementTime()" class="member-name-link">getMeasurementTime()</a> - Method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/ResourceUsage.html" title="class in com.streamConverter.benchmark">ResourceUsage</a></dt>
 <dd>
@@ -1068,6 +1164,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">バリデーションタイプを取得</div>
 </dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#getValue()" class="member-name-link">getValue()</a> - Method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Gets the string representation of this output type.</div>
+</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#getWarningCount()" class="member-name-link">getWarningCount()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>
 <div class="block">警告の数を取得</div>
@@ -1114,6 +1214,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">ルールインターフェース</div>
 </dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isAuditEnabled()" class="member-name-link">isAuditEnabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">監査ログの有効化設定を取得します</div>
+</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#isClosed()" class="member-name-link">isClosed()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>
 <div class="block">ストリームがクローズされているかどうかを確認</div>
@@ -1133,6 +1237,38 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">パイプラインが空かどうかを確認</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isEncodingValidationEnabled()" class="member-name-link">isEncodingValidationEnabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">文字エンコーディング検証の有効化設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isFileAccessRestrictedToWorkspace()" class="member-name-link">isFileAccessRestrictedToWorkspace()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">ファイルアクセスのワークスペース制限設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isLoadExternalDtdDisabled()" class="member-name-link">isLoadExternalDtdDisabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">外部DTD読み込みの無効化設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isParentReferencesAllowed()" class="member-name-link">isParentReferencesAllowed()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">親ディレクトリ参照許可の設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isPathTraversalPreventionEnabled()" class="member-name-link">isPathTraversalPreventionEnabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">パストラバーサル防止の設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isPerformanceMonitoringEnabled()" class="member-name-link">isPerformanceMonitoringEnabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">パフォーマンス監視の有効化設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isProductionEnvironment()" class="member-name-link">isProductionEnvironment()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">本番環境かどうかを判定します</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isSecurityLoggingEnabled()" class="member-name-link">isSecurityLoggingEnabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">セキュリティログの有効化設定を取得します</div>
 </dd>
 <dt><a href="com/streamConverter/CommandResult.html#isSuccess()" class="member-name-link">isSuccess()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
@@ -1162,9 +1298,33 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">バリデーション結果が有効かどうかを取得</div>
 </dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#isValid(java.lang.String)" class="member-name-link">isValid(String)</a> - Static method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Checks if a string value represents a valid OutputType.</div>
+</dd>
 <dt><a href="com/streamConverter/controller/JsonProcessingController.html#isValidationEnabled()" class="member-name-link">isValidationEnabled()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
 <dd>
 <div class="block">Checks if validation is enabled.</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isXmlDoctypeDeclarationsDisabled()" class="member-name-link">isXmlDoctypeDeclarationsDisabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">XMLドキュメントタイプ宣言の無効化設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isXmlExternalEntitiesDisabled()" class="member-name-link">isXmlExternalEntitiesDisabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">XML外部エンティティの無効化設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#isXPathSafe(java.lang.String)" class="member-name-link">isXPathSafe(String)</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>
+<div class="block">XPath式が安全かどうかを判定します（例外を投げない版）</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isXPathStrictModeEnabled()" class="member-name-link">isXPathStrictModeEnabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">XPath厳格モードの設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isXPathValidationEnabled()" class="member-name-link">isXPathValidationEnabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
+<dd>
+<div class="block">XPath検証の有効化設定を取得します</div>
 </dd>
 </dl>
 <h2 class="title" id="I:J">J</h2>
@@ -1176,6 +1336,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#JSON" class="member-name-link">JSON</a> - Enum constant in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
 <dd>
 <div class="block">JSON形式のバリデーション</div>
+</dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#JSON_FORMATTED" class="member-name-link">JSON_FORMATTED</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Format JSON for readability</div>
+</dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#JSON_PROPERTY" class="member-name-link">JSON_PROPERTY</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Extract JSON property using JSONPath</div>
 </dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#%3Cinit%3E()" class="member-name-link">JsonControllerBuilder()</a> - Constructor for class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
 <dd>&nbsp;</dd>
@@ -1227,6 +1395,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/LoggingDecorator.html#%3Cinit%3E(com.streamConverter.command.IStreamCommand,java.lang.String)" class="member-name-link">LoggingDecorator(IStreamCommand, String)</a> - Constructor for class com.streamConverter.command.<a href="com/streamConverter/command/LoggingDecorator.html" title="class in com.streamConverter.command">LoggingDecorator</a></dt>
 <dd>
 <div class="block">カスタムログ名を指定するコンストラクタ</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#logSecurityStatus()" class="member-name-link">logSecurityStatus()</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
+<dd>
+<div class="block">セキュリティ設定の現在の状態をログに出力します</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#logSecurityStatus()" class="member-name-link">logSecurityStatus()</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>
+<div class="block">セキュリティ設定の現在の状態をログに出力します</div>
 </dd>
 </dl>
 <h2 class="title" id="I:M">M</h2>
@@ -1356,6 +1532,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">出力バイト数を設定</div>
 </dd>
+<dt><a href="com/streamConverter/controller/OutputType.html" class="type-name-link" title="enum class in com.streamConverter.controller">OutputType</a> - Enum Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Enumeration of supported output data types for stream controllers.</div>
+</dd>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#overallSuccessRate" class="member-name-link">overallSuccessRate</a> - Variable in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer.PerformanceStatistics</a></dt>
 <dd>
 <div class="block">全体の成功率</div>
@@ -1408,6 +1588,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/api/Streams.XmlStreamBuilder.html#process(java.lang.String)" class="member-name-link">process(String)</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/Streams.XmlStreamBuilder.html" title="class in com.streamConverter.api">Streams.XmlStreamBuilder</a></dt>
 <dd>
 <div class="block">カスタム処理を追加</div>
+</dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#PROCESSED_DATA" class="member-name-link">PROCESSED_DATA</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Process CSV data with additional transformations</div>
 </dd>
 <dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#PROPERTY_EXTRACTION" class="member-name-link">PROPERTY_EXTRACTION</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
 <dd>&nbsp;</dd>
@@ -1476,9 +1660,25 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Constructor that initializes the command with a specific ID.</div>
 </dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#sanitizeXPath(java.lang.String)" class="member-name-link">sanitizeXPath(String)</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>
+<div class="block">XPath式をサニタイズします（エスケープ処理）</div>
+</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#schemaPath(java.lang.String)" class="member-name-link">schemaPath(String)</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
 <dd>
 <div class="block">スキーマパスを設定</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXmlConfiguration.html" class="type-name-link" title="class in com.streamConverter.security">SecureXmlConfiguration</a> - Class in <a href="com/streamConverter/security/package-summary.html">com.streamConverter.security</a></dt>
+<dd>
+<div class="block">XML処理のセキュリティ設定を提供するユーティリティクラス</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html" class="type-name-link" title="class in com.streamConverter.security">SecureXPathValidator</a> - Class in <a href="com/streamConverter/security/package-summary.html">com.streamConverter.security</a></dt>
+<dd>
+<div class="block">XPathインジェクション攻撃を防ぐためのバリデータークラス</div>
+</dd>
+<dt><a href="com/streamConverter/config/SecurityConfigurationManager.html" class="type-name-link" title="class in com.streamConverter.config">SecurityConfigurationManager</a> - Class in <a href="com/streamConverter/config/package-summary.html">com.streamConverter.config</a></dt>
+<dd>
+<div class="block">本番環境向けセキュリティ設定管理クラス</div>
 </dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#sendHttp(java.lang.String)" class="member-name-link">sendHttp(String)</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
@@ -1663,6 +1863,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#toString()" class="member-name-link">toString()</a> - Method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Returns the string representation of this output type.</div>
+</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#totalCommands" class="member-name-link">totalCommands</a> - Variable in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer.PerformanceStatistics</a></dt>
@@ -1676,6 +1880,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#totalTests" class="member-name-link">totalTests</a> - Variable in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer.PerformanceStatistics</a></dt>
 <dd>
 <div class="block">総テスト数</div>
+</dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#TRANSFORMED_DATA" class="member-name-link">TRANSFORMED_DATA</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Transform data with multi-stage processing</div>
 </dd>
 </dl>
 <h2 class="title" id="I:U">U</h2>
@@ -1721,6 +1929,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">CSVスキーマバリデーションを追加</div>
 </dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#VALIDATED_JSON_PROPERTY" class="member-name-link">VALIDATED_JSON_PROPERTY</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Extract and validate JSON property</div>
+</dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#validateJson(java.lang.String)" class="member-name-link">validateJson(String)</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">JSONスキーマバリデーションを追加</div>
@@ -1728,6 +1940,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#validateXml(java.lang.String)" class="member-name-link">validateXml(String)</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">XMLスキーマバリデーションを追加</div>
+</dd>
+<dt><a href="com/streamConverter/security/SecureXPathValidator.html#validateXPath(java.lang.String)" class="member-name-link">validateXPath(String)</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXPathValidator.html" title="class in com.streamConverter.security">SecureXPathValidator</a></dt>
+<dd>
+<div class="block">XPath式の安全性を検証します</div>
 </dd>
 <dt><a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html#VALIDATION_ONLY" class="member-name-link">VALIDATION_ONLY</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a></dt>
 <dd>&nbsp;</dd>
@@ -1783,6 +1999,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
 <dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#values()" class="member-name-link">values()</a> - Static method in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
@@ -1794,6 +2014,11 @@ the order they are declared.</div>
 the order they are declared.</div>
 </dd>
 <dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#values()" class="member-name-link">values()</a> - Static method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/OutputType.html#values()" class="member-name-link">values()</a> - Static method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>

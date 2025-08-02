@@ -223,5 +223,5 @@ StreamConverter converter = StreamConverter.create(pipeline);
 ## 関連ドキュメント
 
 - [Command Architecture](COMMAND_ARCHITECTURE.md) - コマンドパターンの詳細
-- [Performance Optimization](../docs/performance-optimization.md) - パフォーマンス最適化
-- [Configuration Reference](../docs/configuration-reference.md) - 設定リファレンス
+- [Testing Strategy](TESTING.md) - パフォーマンス最適化とベンチマーク
+- [Documentation Index](README.md) - その他のドキュメント

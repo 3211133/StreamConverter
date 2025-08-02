@@ -2,6 +2,8 @@ package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.StreamProcessingException;
 import com.streamConverter.command.ConsumerCommand;
+import com.streamConverter.config.SecurityConfigurationManager;
+import com.streamConverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -28,6 +30,11 @@ import org.xml.sax.SAXException;
  */
 public class ValidateCommand extends ConsumerCommand {
   private static final Logger logger = LoggerFactory.getLogger(ValidateCommand.class);
+  private static final Logger securityLogger =
+      LoggerFactory.getLogger("com.streamConverter.security");
+
+  private static final SecurityConfigurationManager securityConfig =
+      SecurityConfigurationManager.getInstance();
 
   /** スキーマファイルのベースディレクトリ（セキュリティのため固定） */
   private static final Path SCHEMA_BASE_PATH = Paths.get("schemas");
@@ -64,6 +71,12 @@ public class ValidateCommand extends ConsumerCommand {
   private String validateAndNormalizeSchemaPath(String inputPath) {
     String trimmedPath = inputPath.trim();
 
+    // セキュリティ設定でパストラバーサル防止が無効な場合は基本検証のみ
+    if (!securityConfig.isPathTraversalPreventionEnabled()) {
+      logger.debug("Path traversal prevention is disabled");
+      return trimmedPath;
+    }
+
     // テスト環境での絶対パスを許可（テストリソースディレクトリのみ）
     if (trimmedPath.startsWith("/") || trimmedPath.contains(":")) {
       // テストリソースパスの場合は許可
@@ -73,26 +86,36 @@ public class ValidateCommand extends ConsumerCommand {
         logger.debug("Test resource path allowed: {}", trimmedPath);
         return trimmedPath;
       }
+      securityLogger.warn("Potentially dangerous absolute path detected: {}", trimmedPath);
       throw new SecurityException(
           "Schema path contains potentially dangerous patterns: " + trimmedPath);
     }
 
-    // 明らかに危険なパターンの検出
-    if (trimmedPath.contains("..") || trimmedPath.contains("./") || trimmedPath.contains(".\\")) {
-      throw new SecurityException(
-          "Schema path contains potentially dangerous patterns: " + trimmedPath);
+    // 親ディレクトリ参照の検証
+    if (!securityConfig.isParentReferencesAllowed()) {
+      if (trimmedPath.contains("..") || trimmedPath.contains("./") || trimmedPath.contains(".\\")) {
+        securityLogger.warn("Path traversal attempt detected: {}", trimmedPath);
+        throw new SecurityException(
+            "Schema path contains potentially dangerous patterns: " + trimmedPath);
+      }
     }
 
-    // ベースパスからの相対パスとして解決
-    Path resolvedPath = SCHEMA_BASE_PATH.resolve(trimmedPath).normalize();
+    // ワークスペース制限が有効な場合の追加検証
+    if (securityConfig.isFileAccessRestrictedToWorkspace()) {
+      // ベースパスからの相対パスとして解決
+      Path resolvedPath = SCHEMA_BASE_PATH.resolve(trimmedPath).normalize();
 
-    // ベースディレクトリ外へのアクセスを防止
-    if (!resolvedPath.startsWith(SCHEMA_BASE_PATH)) {
-      throw new SecurityException(
-          "Schema path attempts to access outside base directory: " + trimmedPath);
+      // ベースディレクトリ外へのアクセスを防止
+      if (!resolvedPath.startsWith(SCHEMA_BASE_PATH)) {
+        securityLogger.warn("Workspace access violation detected: {}", trimmedPath);
+        throw new SecurityException(
+            "Schema path attempts to access outside base directory: " + trimmedPath);
+      }
+
+      return resolvedPath.toString();
     }
 
-    return resolvedPath.toString();
+    return trimmedPath;
   }
 
   /**
@@ -104,11 +127,8 @@ public class ValidateCommand extends ConsumerCommand {
    */
   private Schema loadSchemaSecurely(String validatedPath) {
     try {
-      // セキュアなSchemaFactoryの作成
-      SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
-
-      // XXE攻撃を防ぐセキュリティ設定
-      configureSecureSchemaFactory(factory);
+      // セキュアなSchemaFactoryの作成（新しいセキュリティインフラを使用）
+      SchemaFactory factory = SecureXmlConfiguration.createSecureSchemaFactory();
 
       // ファイルからスキーマをロード
       Path schemaFile = Paths.get(validatedPath);
@@ -116,38 +136,16 @@ public class ValidateCommand extends ConsumerCommand {
 
       Schema loadedSchema = factory.newSchema(schemaUrl);
       logger.info("XML Schema loaded successfully from: {}", validatedPath);
+      securityLogger.info("Secure XML schema loading completed for: {}", validatedPath);
 
       return loadedSchema;
 
     } catch (SAXException | IOException e) {
       logger.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);
+      securityLogger.error("Secure XML schema loading failed for: {}", validatedPath);
       throw new StreamProcessingException(
           String.format("XMLスキーマの読み込みに失敗しました - スキーマ: %s, エラー: %s", validatedPath, e.getMessage()),
           e);
-    }
-  }
-
-  /**
-   * SchemaFactoryにセキュリティ設定を適用します
-   *
-   * @param factory 設定対象のSchemaFactory
-   */
-  private void configureSecureSchemaFactory(SchemaFactory factory) {
-    try {
-      // XXE攻撃防止の基本設定
-      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
-
-      // 外部エンティティアクセスを無効化
-      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-
-      logger.debug("Secure XML processing features configured for SchemaFactory");
-
-    } catch (Exception e) {
-      logger.warn(
-          "Could not configure all security features for SchemaFactory: {}", e.getMessage());
-      // セキュリティ設定に失敗した場合は処理を続行しない
-      throw new StreamProcessingException("Failed to configure secure XML processing", e);
     }
   }
 

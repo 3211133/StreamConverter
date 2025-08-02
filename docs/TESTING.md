@@ -1,8 +1,237 @@
-# Testing Guide
+# StreamConverter テスト戦略とガイド
 
-## 概要
+このドキュメントでは、StreamConverterプロジェクトの包括的なテスト戦略、実行方法、カバレッジ測定について説明します。
 
-このドキュメントは、StreamConverterプロジェクトのテスト戦略と環境依存性について説明します。
+## 🎯 テスト戦略
+
+### テスト対象とアプローチ
+
+StreamConverterプロジェクトでは、以下の包括的なテストアプローチを採用しています：
+
+#### 1. **単体テスト (Unit Tests)**
+- **StreamConverter クラス**: コア機能の詳細テスト
+  - コンストラクタテスト（正常系・異常系）
+  - run メソッドのテスト（正常系・異常系）
+  - 複数コマンドの連携テスト
+  - 並行処理とパイプライン動作の検証
+
+- **IStreamCommand 実装クラス**: 各コマンドの責務テスト
+  - execute メソッドの正常系・異常系テスト
+  - データ変換ロジックの検証
+  - エラーハンドリングテスト
+  - 特殊条件下での動作テスト
+
+#### 2. **統合テスト (Integration Tests)**
+- **パイプライン処理テスト**: 複数コマンドの組み合わせ動作検証
+- **外部システム連携テスト**: HTTP通信、ファイルI/O等
+- **コンテキスト伝播テスト**: マルチスレッド環境でのMDC動作
+
+#### 3. **パフォーマンステスト (Performance Tests)**
+- **ベンチマークテスト**: 大容量データ処理性能測定
+- **メモリ効率テスト**: メモリ使用量の制約確認
+- **スループットテスト**: 処理速度とリソース使用量の最適化検証
+
+#### 4. **テスト手法とフレームワーク**
+- **JUnit 5**: 最新のテストフレームワーク活用
+  - `@DisplayName`: 分かりやすいテスト名
+  - `@ParameterizedTest`: データ駆動テスト
+  - `@EnabledIf`: 条件付きテスト実行
+  - `@Timeout`: 実行時間制限
+- **Mockito**: モックオブジェクトによる依存関係の分離
+- **Awaitility**: 非同期処理のテスト支援
+
+## 📁 テスト構造
+
+### ディレクトリ構成
+
+```
+src/test/java/com/streamConverter/
+├── StreamConverterTest.java              # StreamConverter コアテスト
+├── StreamConverterIntegrationTest.java   # 統合テスト
+├── ContextAwareStreamConverterTest.java  # コンテキスト機能テスト
+├── MainTest.java                          # エントリーポイントテスト
+├── MemoryEfficiencyTest.java             # メモリ効率テスト
+├── api/
+│   ├── StreamBuilderTest.java            # Fluent API テスト
+│   └── StreamsTest.java                  # 静的ファクトリテスト
+├── benchmark/
+│   ├── BenchmarkInfrastructureTest.java  # ベンチマーク基盤テスト
+│   ├── LargeDataBenchmark.java           # 大容量データベンチマーク
+│   └── MemoryEfficiencyQuickTest.java    # メモリ効率クイックテスト
+├── command/
+│   ├── AbstractStreamCommandTest.java    # 抽象コマンドテスト
+│   ├── ValidationDecoratorTest.java      # デコレータパターンテスト
+│   └── impl/
+│       ├── CsvNavigateCommandTest.java   # CSV処理テスト
+│       ├── JsonNavigateCommandTest.java  # JSON処理テスト
+│       ├── XmlNavigateCommandTest.java   # XML処理テスト
+│       ├── SampleStreamCommandTest.java  # サンプルコマンドテスト
+│       ├── charaCode/
+│       │   └── ConvertTest.java          # 文字コード変換テスト
+│       ├── csv/
+│       │   └── CsvValidateCommandTest.java # CSVバリデーションテスト
+│       ├── json/
+│       │   └── JsonValidateCommandTest.java # JSONバリデーションテスト
+│       └── xml/
+│           ├── ConvertCommandTest.java    # XML変換テスト
+│           └── ValidateTest.java          # XMLバリデーションテスト
+├── context/
+│   └── ExecutionContextTest.java         # 実行コンテキストテスト
+├── demo/
+│   └── StreamConverterDemoTest.java      # デモ機能テスト
+├── examples/
+│   └── QuickStartTest.java               # クイックスタートテスト
+├── pathHandler/
+│   └── FixedStaXPathHandlerTest.java     # XMLパスハンドラテスト
+└── validation/
+    └── ValidationResultTest.java         # バリデーション結果テスト
+```
+
+### テストリソース
+
+```
+src/test/resources/
+├── logback.xml          # テスト用ログ設定
+├── test-schema.xsd      # XMLバリデーション用スキーマ
+├── valid-test.xml       # 有効なXMLテストファイル
+└── invalid-test.xml     # 無効なXMLテストファイル
+```
+
+## 🚀 テスト実行方法
+
+### 基本的なテスト実行
+
+```bash
+# 全テストの実行
+./gradlew test
+
+# 特定のテストクラスの実行
+./gradlew test --tests "com.streamConverter.StreamConverterTest"
+
+# 特定のテストメソッドの実行
+./gradlew test --tests "com.streamConverter.StreamConverterTest.testRunWithValidStreams"
+
+# パッケージ単位でのテスト実行
+./gradlew test --tests "com.streamConverter.command.*"
+```
+
+### 専門的なテスト実行
+
+```bash
+# ベンチマークテスト
+./gradlew benchmarkAll                    # 全ベンチマークテスト
+./gradlew benchmarkLargeData             # 大容量データテスト
+./gradlew benchmarkMemoryEfficiency     # メモリ効率テスト
+./gradlew benchmarkInfrastructure        # ベンチマーク基盤テスト
+
+# 統合テスト（タグベース）
+./gradlew test --tests "*IntegrationTest"
+
+# 並行テスト実行（パフォーマンス向上）
+./gradlew test --parallel --max-workers=4
+```
+
+### 継続的インテグレーション
+
+```bash
+# CI環境での実行（詳細ログ付き）
+./gradlew test --info --stacktrace
+
+# カバレッジ付きテスト実行
+./gradlew test jacocoTestReport
+
+# 品質チェック付きテスト
+./gradlew check  # テスト + 静的解析 + コードフォーマット
+```
+
+## 📊 テストレポートとカバレッジ
+
+### レポート生成場所
+
+- **HTMLテストレポート**: `build/reports/tests/test/index.html`
+- **XMLテストレポート**: `build/test-results/test/`
+- **JaCoCoカバレッジレポート**: `build/reports/jacoco/test/html/index.html`
+- **ベンチマークレポート**: `build/reports/tests/benchmarkLargeData/index.html`
+
+### カバレッジ測定
+
+プロジェクトにはJaCoCoプラグインが設定済みで、以下のコマンドでカバレッジレポートを生成できます：
+
+```bash
+# テスト実行とカバレッジレポート生成
+./gradlew test jacocoTestReport
+
+# カバレッジ検証（設定された閾値をチェック）
+./gradlew jacocoTestCoverageVerification
+```
+
+#### カバレッジ目標値
+
+- **ライン カバレッジ**: 80%以上
+- **ブランチ カバレッジ**: 70%以上
+- **コア機能 (StreamConverter, AbstractStreamCommand)**: 90%以上
+
+### パフォーマンステストの結果解釈
+
+#### ベンチマークテスト結果
+
+1. **大容量データテスト**: 1GB、2GB、5GBデータの処理性能
+   - メモリ使用量制限の確認
+   - スループット測定
+   - 安定性評価
+
+2. **メモリ効率テスト**: ストリーミング処理の効果測定
+   - ヒープ使用量の監視
+   - ガベージコレクション影響の評価
+
+## 🔧 テスト設定とカスタマイズ
+
+### Gradle設定
+
+```kotlin
+// build.gradle.kts でのテスト設定
+test {
+    useJUnitPlatform()
+    
+    // JVM設定
+    jvmArgs("-Xmx2g", "-XX:+UseG1GC")
+    
+    // システムプロパティ
+    systemProperty("junit.jupiter.execution.parallel.enabled", "true")
+    systemProperty("junit.jupiter.execution.parallel.mode.default", "concurrent")
+    
+    // テストログ設定
+    testLogging {
+        events("passed", "skipped", "failed")
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
+        showStandardStreams = false
+    }
+}
+```
+
+### テスト固有の設定
+
+#### 大容量データテスト用メモリ設定
+
+```kotlin
+tasks.register<Test>("benchmarkLargeData") {
+    jvmArgs("-Xms1g", "-Xmx3g")
+    systemProperty("test.data.size", "large")
+}
+```
+
+#### 条件付きテスト実行
+
+```java
+@EnabledIf("hasEnoughMemoryFor5GB")
+void test5GBDataProcessing() {
+    // 5GBデータ処理テスト
+}
+
+static boolean hasEnoughMemoryFor5GB() {
+    return Runtime.getRuntime().maxMemory() > 2L * 1024 * 1024 * 1024;
+}
+```
 
 ## 環境依存テスト
 

@@ -18,6 +18,10 @@
           {
             "type": "command",
             "command": "./gradlew build"
+          },
+          {
+            "type": "command",
+            "command": "./gradlew clean build --quiet"
           }
         ]
       }

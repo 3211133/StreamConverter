@@ -61,6 +61,8 @@ loadScripts(document, 'script');</script>
 <li><a href="com/streamConverter/command/impl/xml/package-tree.html">com.streamConverter.command.impl.xml</a>, </li>
 <li><a href="com/streamConverter/command/rule/package-tree.html">com.streamConverter.command.rule</a>, </li>
 <li><a href="com/streamConverter/context/package-tree.html">com.streamConverter.context</a>, </li>
+<li><a href="com/streamConverter/controller/package-tree.html">com.streamConverter.controller</a>, </li>
+<li><a href="com/streamConverter/controller/examples/package-tree.html">com.streamConverter.controller.examples</a>, </li>
 <li><a href="com/streamConverter/demo/package-tree.html">com.streamConverter.demo</a>, </li>
 <li><a href="com/streamConverter/examples/package-tree.html">com.streamConverter.examples</a>, </li>
 <li><a href="com/streamConverter/pathHandler/package-tree.html">com.streamConverter.pathHandler</a>, </li>
@@ -91,6 +93,12 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a></li>
 </ul>
 </li>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" class="type-name-link" title="class in com.streamConverter.controller">AbstractStreamController</a> (implements com.streamConverter.controller.<a href="com/streamConverter/controller/IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a>)
+<ul>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" class="type-name-link" title="class in com.streamConverter.controller">CsvProcessingController</a></li>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" class="type-name-link" title="class in com.streamConverter.controller">JsonProcessingController</a></li>
+</ul>
+</li>
 <li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/AutoLoggingDemo.html" class="type-name-link" title="class in com.streamConverter.examples">AutoLoggingDemo</a></li>
 <li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/CommandConfig.html" class="type-name-link" title="class in com.streamConverter.command">CommandConfig</a></li>
 <li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" class="type-name-link" title="class in com.streamConverter.command">CommandFactory</a></li>
@@ -101,6 +109,10 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" class="type-name-link" title="class in com.streamConverter">ContextAwareStreamConverter</a></li>
 <li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" class="type-name-link" title="class in com.streamConverter.command">ContextPropagatingDecorator</a> (implements com.streamConverter.command.<a href="com/streamConverter/command/IContextAwareStreamCommand.html" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a>)</li>
 <li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/ContextPropagationDemo.html" class="type-name-link" title="class in com.streamConverter.examples">ContextPropagationDemo</a></li>
+<li class="circle">com.streamConverter.controller.examples.<a href="com/streamConverter/controller/examples/ControllerArchitectureDemo.html" class="type-name-link" title="class in com.streamConverter.controller.examples">ControllerArchitectureDemo</a></li>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" class="type-name-link" title="class in com.streamConverter.controller">ControllerFactory</a></li>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" class="type-name-link" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a> (implements com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.ControllerBuilder.html" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a>)</li>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" class="type-name-link" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a> (implements com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.ControllerBuilder.html" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a>)</li>
 <li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/DataProcessingExamples.html" class="type-name-link" title="class in com.streamConverter.examples">DataProcessingExamples</a></li>
 <li class="circle">com.streamConverter.examples.<a href="com/streamConverter/examples/EnterpriseIntegrationPatterns.html" class="type-name-link" title="class in com.streamConverter.examples">EnterpriseIntegrationPatterns</a></li>
 <li class="circle">com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" class="type-name-link" title="class in com.streamConverter.context">ExecutionContext</a></li>
@@ -158,6 +170,7 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.ControllerBuilder.html" class="type-name-link" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a></li>
 <li class="circle">com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/IRule.html" class="type-name-link" title="interface in com.streamConverter.command.rule">IRule</a></li>
 <li class="circle">com.streamConverter.pathHandler.<a href="com/streamConverter/pathHandler/IStaXPathHandler.html" class="type-name-link" title="interface in com.streamConverter.pathHandler">IStaXPathHandler</a></li>
 <li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/IStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IStreamCommand</a>
@@ -165,6 +178,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/IContextAwareStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a></li>
 </ul>
 </li>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/IStreamController.html" class="type-name-link" title="interface in com.streamConverter.controller">IStreamController</a></li>
 </ul>
 </section>
 <section class="hierarchy">
@@ -174,6 +188,8 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Enum.html" class="type-name-link external-link" title="class or interface in java.lang">Enum</a>&lt;E&gt; (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Comparable.html" title="class or interface in java.lang" class="external-link">Comparable</a>&lt;T&gt;, java.lang.constant.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/constant/Constable.html" title="class or interface in java.lang.constant" class="external-link">Constable</a>, java.io.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/Serializable.html" title="class or interface in java.io" class="external-link">Serializable</a>)
 <ul>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" class="type-name-link" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a></li>
+<li class="circle">com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" class="type-name-link" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></li>
 <li class="circle">com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" class="type-name-link" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></li>
 </ul>
 </li>

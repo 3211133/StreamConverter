@@ -9,6 +9,8 @@ com.streamConverter.command.impl.json
 com.streamConverter.command.impl.xml
 com.streamConverter.command.rule
 com.streamConverter.context
+com.streamConverter.controller
+com.streamConverter.controller.examples
 com.streamConverter.demo
 com.streamConverter.examples
 com.streamConverter.pathHandler

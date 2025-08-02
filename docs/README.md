@@ -23,7 +23,7 @@ StreamConverterの包括的なドキュメントです。目的に応じて適�
 - [**Javadoc**](javadoc/index.html) - API詳細リファレンス
 
 ### 🛠️ Development
-- [**Test Strategy**](../doc/TEST_STRATEGY.md) - テスト戦略とガイドライン
+- [**Test Strategy**](TESTING.md) - テスト戦略とガイドライン
 - [**Examples**](../src/main/java/com/streamConverter/examples/) - 実用的な使用例集
 - [**Demo Applications**](../src/main/java/com/streamConverter/demo/) - デモアプリケーション
 
@@ -38,7 +38,7 @@ StreamConverterの包括的なドキュメントです。目的に応じて適�
 ### 開発者
 1. [Command Architecture](COMMAND_ARCHITECTURE.md) - アーキテクチャ理解
 2. [Contributing Guidelines](../doc/CONTRIBUTING.md) - 開発参加方法
-3. [Test Strategy](../doc/TEST_STRATEGY.md) - テスト方針
+3. [Test Strategy](TESTING.md) - テスト方針
 
 ### システム管理者
 1. [Version Management](VERSION_MANAGEMENT.md) - サポートバージョン

@@ -50,3 +50,9 @@ For security issues, please refer to [SECURITY.md](../SECURITY.md).
 
 ### Dependencies
 See [build.gradle.kts](../build.gradle.kts) for current dependency versions.
+
+## 関連ドキュメント
+
+- [Security Policy](../SECURITY.md) - セキュリティポリシーと脆弱性対応
+- [Testing Strategy](TESTING.md) - テスト戦略と品質保証
+- [Documentation Index](README.md) - その他のドキュメント

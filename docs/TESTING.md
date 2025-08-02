@@ -385,3 +385,9 @@ void testBenchmarkConsistency()          // 性能一貫性テスト
 - **最終更新**: 2025年7月31日
 
 すべてのテストは現在成功していますが、上記の環境条件によっては失敗する可能性があります。
+
+## 関連ドキュメント
+
+- [Command Architecture](COMMAND_ARCHITECTURE.md) - コマンドパターンとテストアーキテクチャ
+- [Auto-Logging](AUTO_LOGGING.md) - ログ機能とテスト環境での活用
+- [Documentation Index](README.md) - その他のドキュメント

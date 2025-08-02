@@ -315,5 +315,5 @@ public class SafeCommand extends AbstractStreamCommand {
 ## 関連ドキュメント
 
 - [Auto-Logging Infrastructure](AUTO_LOGGING.md) - 自動ログ機能の詳細
-- [Performance Optimization](performance-optimization.md) - パフォーマンス最適化
-- [Custom Command Development](custom-command-development.md) - カスタムコマンド開発ガイド
+- [Testing Strategy](TESTING.md) - テスト戦略とパフォーマンス最適化
+- [Documentation Index](README.md) - その他のドキュメント

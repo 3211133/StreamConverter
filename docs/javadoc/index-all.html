@@ -60,6 +60,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Default constructor.</div>
 </dd>
+<dt><a href="com/streamConverter/controller/AbstractStreamController.html" class="type-name-link" title="class in com.streamConverter.controller">AbstractStreamController</a> - Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Abstract base class for stream controllers.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/AbstractStreamController.html#%3Cinit%3E()" class="member-name-link">AbstractStreamController()</a> - Constructor for class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
+<dd>
+<div class="block">Default constructor that initializes the controller.</div>
+</dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#addCommand(com.streamConverter.command.IStreamCommand)" class="member-name-link">addCommand(IStreamCommand)</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">カスタムコマンドを追加</div>
@@ -172,9 +180,15 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">全記録をクリア</div>
 </dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#clearRegistry()" class="member-name-link">clearRegistry()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Clears all registered controllers and builders.</div>
+</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#close()" class="member-name-link">close()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/MeasuredOutputStream.html#close()" class="member-name-link">close()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredOutputStream.html" title="class in com.streamConverter.util">MeasuredOutputStream</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html#COLUMN_EXTRACTION" class="member-name-link">COLUMN_EXTRACTION</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/package-summary.html">com.streamConverter</a> - package com.streamConverter</dt>
 <dd>&nbsp;</dd>
@@ -197,6 +211,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/rule/package-summary.html">com.streamConverter.command.rule</a> - package com.streamConverter.command.rule</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/context/package-summary.html">com.streamConverter.context</a> - package com.streamConverter.context</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a> - package com.streamConverter.controller</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/examples/package-summary.html">com.streamConverter.controller.examples</a> - package com.streamConverter.controller.examples</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/demo/package-summary.html">com.streamConverter.demo</a> - package com.streamConverter.demo</dt>
 <dd>&nbsp;</dd>
@@ -242,6 +260,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">CommandResultのビルダークラス</div>
 </dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html#COMPLEX_PROCESSING" class="member-name-link">COMPLEX_PROCESSING</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/examples/ComplexPipelineExample.html" class="type-name-link" title="class in com.streamConverter.examples">ComplexPipelineExample</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
 <dd>
 <div class="block">複数コマンドを束にした複雑なパイプライン処理の例</div>
@@ -254,6 +274,16 @@ loadScripts(document, 'script');</script>
  transformation → Response</div>
 </dd>
 <dt><a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html#%3Cinit%3E()" class="member-name-link">ComplexXmlProcessingPipeline()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html" title="class in com.streamConverter.examples">ComplexXmlProcessingPipeline</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/AbstractStreamController.html#configureCommands()" class="member-name-link">configureCommands()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
+<dd>
+<div class="block">Configures the command pipeline for this controller.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#configureCommands()" class="member-name-link">configureCommands()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>
+<div class="block">Configures the command pipeline based on the processing mode.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#configureCommands()" class="member-name-link">configureCommands()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/ConsumerCommand.html#consume(java.io.InputStream)" class="member-name-link">consume(InputStream)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ConsumerCommand.html" title="class in com.streamConverter.command">ConsumerCommand</a></dt>
 <dd>
@@ -305,6 +335,31 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/examples/ContextPropagationDemo.html#%3Cinit%3E()" class="member-name-link">ContextPropagationDemo()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/ContextPropagationDemo.html" title="class in com.streamConverter.examples">ContextPropagationDemo</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/examples/ControllerArchitectureDemo.html" class="type-name-link" title="class in com.streamConverter.controller.examples">ControllerArchitectureDemo</a> - Class in <a href="com/streamConverter/controller/examples/package-summary.html">com.streamConverter.controller.examples</a></dt>
+<dd>
+<div class="block">Demonstration of the Controller Architecture implementing the ideal pattern: External Systems →
+ Controller → StreamConverter → Commands</div>
+</dd>
+<dt><a href="com/streamConverter/controller/examples/ControllerArchitectureDemo.html#%3Cinit%3E()" class="member-name-link">ControllerArchitectureDemo()</a> - Constructor for class com.streamConverter.controller.examples.<a href="com/streamConverter/controller/examples/ControllerArchitectureDemo.html" title="class in com.streamConverter.controller.examples">ControllerArchitectureDemo</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html" class="type-name-link" title="class in com.streamConverter.controller">ControllerFactory</a> - Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Factory for creating and managing stream controllers.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#%3Cinit%3E()" class="member-name-link">ControllerFactory()</a> - Constructor for class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.ControllerBuilder.html" class="type-name-link" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a> - Interface in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Interface for controller builders.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" class="type-name-link" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a> - Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Builder for CSV controllers.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" class="type-name-link" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a> - Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Builder for JSON controllers.</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/charaCode/convert.html" class="type-name-link" title="class in com.streamConverter.command.impl.charaCode">convert</a> - Class in <a href="com/streamConverter/command/impl/charaCode/package-summary.html">com.streamConverter.command.impl.charaCode</a></dt>
 <dd>
 <div class="block">Converts the character encoding of a stream from one encoding to another.</div>
@@ -373,6 +428,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a StreamConverter with the specified list of commands.</div>
 </dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.ControllerBuilder.html#createForOutputType(java.lang.String)" class="member-name-link">createForOutputType(String)</a> - Method in interface com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.ControllerBuilder.html" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for the specified output type.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#createForOutputType(java.lang.String)" class="member-name-link">createForOutputType(String)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#createForOutputType(java.lang.String)" class="member-name-link">createForOutputType(String)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/benchmark/LargeDataGenerator.html#createLargeDataStream(java.lang.String,long)" class="member-name-link">createLargeDataStream(String, long)</a> - Static method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/LargeDataGenerator.html" title="class in com.streamConverter.benchmark">LargeDataGenerator</a></dt>
 <dd>
 <div class="block">メモリ効率的な大容量データInputStreamを作成</div>
@@ -401,6 +464,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">CSV形式のバリデーション</div>
 </dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#%3Cinit%3E()" class="member-name-link">CsvControllerBuilder()</a> - Constructor for class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/CsvNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
 <div class="block">CSV変換コマンドクラス</div>
@@ -412,6 +477,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/impl/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">CsvNavigateCommand(String)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a></dt>
 <dd>
 <div class="block">Constructor for CSV navigation with column selector.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html" class="type-name-link" title="class in com.streamConverter.controller">CsvProcessingController</a> - Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Controller for CSV data processing operations.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" class="type-name-link" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a> - Enum Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Processing mode enumeration</div>
 </dd>
 <dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a> - Class in <a href="com/streamConverter/command/impl/csv/package-summary.html">com.streamConverter.command.impl.csv</a></dt>
 <dd>
@@ -560,13 +633,63 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/MeasuredOutputStream.html#flush()" class="member-name-link">flush()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredOutputStream.html" title="class in com.streamConverter.util">MeasuredOutputStream</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#forColumnExtraction(java.lang.String)" class="member-name-link">forColumnExtraction(String)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for column extraction.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#forColumnExtraction(java.lang.String)" class="member-name-link">forColumnExtraction(String)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>
+<div class="block">Factory method for creating a column extraction controller.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#forComplexProcessing(java.lang.String,java.lang.String)" class="member-name-link">forComplexProcessing(String, String)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for complex processing.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#forComplexProcessing(java.lang.String,java.lang.String)" class="member-name-link">forComplexProcessing(String, String)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>
+<div class="block">Factory method for creating a complex processing controller.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#forFormatting()" class="member-name-link">forFormatting()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for JSON formatting.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#forFormatting()" class="member-name-link">forFormatting()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>
+<div class="block">Factory method for JSON formatting only.</div>
+</dd>
 <dt><a href="com/streamConverter/api/Streams.JsonStreamBuilder.html#format()" class="member-name-link">format()</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/Streams.JsonStreamBuilder.html" title="class in com.streamConverter.api">Streams.JsonStreamBuilder</a></dt>
 <dd>
 <div class="block">JSONをフォーマット</div>
 </dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#FORMAT_ONLY" class="member-name-link">FORMAT_ONLY</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#formatJson()" class="member-name-link">formatJson()</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">JSONデータのフォーマット処理を追加（JSONPath指定なし）</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#forPassThrough()" class="member-name-link">forPassThrough()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for pass-through processing.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#forPassThrough()" class="member-name-link">forPassThrough()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>
+<div class="block">Factory method for creating a pass-through controller.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#forPropertyExtraction(java.lang.String,boolean)" class="member-name-link">forPropertyExtraction(String, boolean)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for property extraction.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#forPropertyExtraction(java.lang.String,boolean)" class="member-name-link">forPropertyExtraction(String, boolean)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>
+<div class="block">Factory method for property extraction.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#forTransformation(java.lang.String,java.lang.String...)" class="member-name-link">forTransformation(String, String...)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for multi-stage transformation.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#forTransformation(java.lang.String,java.lang.String...)" class="member-name-link">forTransformation(String, String...)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>
+<div class="block">Factory method for multi-stage transformation.</div>
 </dd>
 <dt><a href="com/streamConverter/api/Streams.html#from(java.io.InputStream)" class="member-name-link">from(InputStream)</a> - Static method in class com.streamConverter.api.<a href="com/streamConverter/api/Streams.html" title="class in com.streamConverter.api">Streams</a></dt>
 <dd>
@@ -643,9 +766,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">現在までに書き込んだバイト数を取得</div>
 </dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#getColumnSelector()" class="member-name-link">getColumnSelector()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>
+<div class="block">Gets the column selector if applicable.</div>
+</dd>
 <dt><a href="com/streamConverter/command/CommandConfig.html#getCommandClass()" class="member-name-link">getCommandClass()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a></dt>
 <dd>
 <div class="block">コマンドクラスを取得</div>
+</dd>
+<dt><a href="com/streamConverter/controller/AbstractStreamController.html#getCommandConfigs()" class="member-name-link">getCommandConfigs()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
+<dd>
+<div class="block">Gets the configured command configurations.</div>
 </dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#getCommandCount()" class="member-name-link">getCommandCount()</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
@@ -676,6 +807,26 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/CommandResult.html#getCommandName()" class="member-name-link">getCommandName()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">コマンド名を取得</div>
+</dd>
+<dt><a href="com/streamConverter/controller/AbstractStreamController.html#getConfigurationDescription()" class="member-name-link">getConfigurationDescription()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
+<dd>
+<div class="block">Gets a description of the controller's current configuration.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#getConfigurationDescription()" class="member-name-link">getConfigurationDescription()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/IStreamController.html#getConfigurationDescription()" class="member-name-link">getConfigurationDescription()</a> - Method in interface com.streamConverter.controller.<a href="com/streamConverter/controller/IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></dt>
+<dd>
+<div class="block">Gets a human-readable description of the controller's configuration.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#getConfigurationDescription()" class="member-name-link">getConfigurationDescription()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#getController(java.lang.String,java.lang.String)" class="member-name-link">getController(String, String)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Gets a controller for the specified input and output data types.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#getCsvController()" class="member-name-link">getCsvController()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Gets a CSV controller builder for advanced configuration.</div>
 </dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#getCurrentCommandSequence()" class="member-name-link">getCurrentCommandSequence()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
@@ -761,6 +912,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">入力バイト数を取得</div>
 </dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#getInputDataType()" class="member-name-link">getInputDataType()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/IStreamController.html#getInputDataType()" class="member-name-link">getInputDataType()</a> - Method in interface com.streamConverter.controller.<a href="com/streamConverter/controller/IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></dt>
+<dd>
+<div class="block">Gets the expected input data type that this controller can handle.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#getInputDataType()" class="member-name-link">getInputDataType()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#getJsonController()" class="member-name-link">getJsonController()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Gets a JSON controller builder for advanced configuration.</div>
+</dd>
 <dt><a href="com/streamConverter/command/ValidationDecorator.html#getLastValidationResult()" class="member-name-link">getLastValidationResult()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></dt>
 <dd>
 <div class="block">最後のバリデーション結果を取得</div>
@@ -793,6 +956,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">出力バイト数を取得</div>
 </dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#getOutputDataType()" class="member-name-link">getOutputDataType()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/IStreamController.html#getOutputDataType()" class="member-name-link">getOutputDataType()</a> - Method in interface com.streamConverter.controller.<a href="com/streamConverter/controller/IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></dt>
+<dd>
+<div class="block">Gets the output data type that this controller produces.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#getOutputDataType()" class="member-name-link">getOutputDataType()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/benchmark/ResourceUsage.html#getPeakMemoryBytes()" class="member-name-link">getPeakMemoryBytes()</a> - Method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/ResourceUsage.html" title="class in com.streamConverter.benchmark">ResourceUsage</a></dt>
 <dd>
 <div class="block">ピークメモリ使用量を取得（バイト）</div>
@@ -808,6 +979,30 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#getPipelineInfo()" class="member-name-link">getPipelineInfo()</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">現在のパイプライン情報を取得</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#getProcessingMode()" class="member-name-link">getProcessingMode()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>
+<div class="block">Gets the processing mode of this controller.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#getProcessingScenario()" class="member-name-link">getProcessingScenario()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>
+<div class="block">Gets the processing scenario.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#getProcessingStages()" class="member-name-link">getProcessingStages()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>
+<div class="block">Gets the processing stages for multi-stage transformation.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.html#getProcessorId()" class="member-name-link">getProcessorId()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
+<dd>
+<div class="block">Gets the processor ID if applicable.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#getPropertyPath()" class="member-name-link">getPropertyPath()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>
+<div class="block">Gets the property path for extraction.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#getRegisteredTypes()" class="member-name-link">getRegisteredTypes()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Gets all registered controller types.</div>
 </dd>
 <dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#getRequiredColumns()" class="member-name-link">getRequiredColumns()</a> - Method in class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
 <dd>
@@ -840,6 +1035,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.html#getStatistics()" class="member-name-link">getStatistics()</a> - Method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer</a></dt>
 <dd>
 <div class="block">パフォーマンス統計を取得</div>
+</dd>
+<dt><a href="com/streamConverter/controller/AbstractStreamController.html#getStreamConverter()" class="member-name-link">getStreamConverter()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
+<dd>
+<div class="block">Gets the configured StreamConverter instance.</div>
 </dd>
 <dt><a href="com/streamConverter/pathHandler/FixedStaXPathHandler.html#getTargetXpath()" class="member-name-link">getTargetXpath()</a> - Method in class com.streamConverter.pathHandler.<a href="com/streamConverter/pathHandler/FixedStaXPathHandler.html" title="class in com.streamConverter.pathHandler">FixedStaXPathHandler</a></dt>
 <dd>
@@ -923,6 +1122,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">ストリームがクローズされているかどうかを確認</div>
 </dd>
+<dt><a href="com/streamConverter/controller/AbstractStreamController.html#isConfigured()" class="member-name-link">isConfigured()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
+<dd>
+<div class="block">Checks if the controller is properly configured.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/IStreamController.html#isConfigured()" class="member-name-link">isConfigured()</a> - Method in interface com.streamConverter.controller.<a href="com/streamConverter/controller/IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></dt>
+<dd>
+<div class="block">Validates that the controller is properly configured and ready for processing.</div>
+</dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">パイプラインが空かどうかを確認</div>
@@ -947,9 +1154,17 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Interface for stream commands.</div>
 </dd>
+<dt><a href="com/streamConverter/controller/IStreamController.html" class="type-name-link" title="interface in com.streamConverter.controller">IStreamController</a> - Interface in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Controller interface for stream processing operations.</div>
+</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#isValid()" class="member-name-link">isValid()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>
 <div class="block">バリデーション結果が有効かどうかを取得</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#isValidationEnabled()" class="member-name-link">isValidationEnabled()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>
+<div class="block">Checks if validation is enabled.</div>
 </dd>
 </dl>
 <h2 class="title" id="I:J">J</h2>
@@ -962,6 +1177,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">JSON形式のバリデーション</div>
 </dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#%3Cinit%3E()" class="member-name-link">JsonControllerBuilder()</a> - Constructor for class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/JsonNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
 <div class="block">JSON変換コマンドクラス</div>
@@ -973,6 +1190,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/impl/JsonNavigateCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">JsonNavigateCommand(String)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a></dt>
 <dd>
 <div class="block">Constructor for JSON navigation with JSONPath selector.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html" class="type-name-link" title="class in com.streamConverter.controller">JsonProcessingController</a> - Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Controller for JSON data processing operations.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" class="type-name-link" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a> - Enum Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
+<dd>
+<div class="block">Processing scenarios for JSON</div>
 </dd>
 <dt><a href="com/streamConverter/command/impl/json/JsonValidateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.json">JsonValidateCommand</a> - Class in <a href="com/streamConverter/command/impl/json/package-summary.html">com.streamConverter.command.impl.json</a></dt>
 <dd>
@@ -1006,6 +1231,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:M">M</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/controller/examples/ControllerArchitectureDemo.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.controller.examples.<a href="com/streamConverter/controller/examples/ControllerArchitectureDemo.html" title="class in com.streamConverter.controller.examples">ControllerArchitectureDemo</a></dt>
+<dd>
+<div class="block">Main demonstration method showing various controller usage patterns.</div>
+</dd>
 <dt><a href="com/streamConverter/demo/StreamConverterDemo.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.demo.<a href="com/streamConverter/demo/StreamConverterDemo.html" title="class in com.streamConverter.demo">StreamConverterDemo</a></dt>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。StreamConverterのデモを実行します。</div>
@@ -1118,6 +1347,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">最小スループット（MB/s）</div>
 </dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#MULTI_STAGE_TRANSFORMATION" class="member-name-link">MULTI_STAGE_TRANSFORMATION</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:O">O</h2>
 <dl class="index">
@@ -1132,6 +1363,8 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:P">P</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html#PASS_THROUGH" class="member-name-link">PASS_THROUGH</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#peakMemoryUsage" class="member-name-link">peakMemoryUsage</a> - Variable in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer.PerformanceStatistics</a></dt>
 <dd>
 <div class="block">ピークメモリ使用量（バイト）</div>
@@ -1152,6 +1385,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/examples/PerformanceOptimizationExamples.html#%3Cinit%3E()" class="member-name-link">PerformanceOptimizationExamples()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/PerformanceOptimizationExamples.html" title="class in com.streamConverter.examples">PerformanceOptimizationExamples</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/AbstractStreamController.html#process(java.io.InputStream,java.io.OutputStream)" class="member-name-link">process(InputStream, OutputStream)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
+<dd>
+<div class="block">Processes data from input stream to output stream using the configured command pipeline.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/IStreamController.html#process(java.io.InputStream,java.io.OutputStream)" class="member-name-link">process(InputStream, OutputStream)</a> - Method in interface com.streamConverter.controller.<a href="com/streamConverter/controller/IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></dt>
+<dd>
+<div class="block">Processes data from the input stream and writes results to the output stream.</div>
+</dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#process(java.lang.String)" class="member-name-link">process(String)</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">カスタム処理コマンドを追加</div>
@@ -1168,6 +1409,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">カスタム処理を追加</div>
 </dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#PROPERTY_EXTRACTION" class="member-name-link">PROPERTY_EXTRACTION</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
+<dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:Q">Q</h2>
 <dl class="index">
@@ -1186,6 +1429,14 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#read(byte%5B%5D,int,int)" class="member-name-link">read(byte[], int, int)</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#registerBuilder(java.lang.String,com.streamConverter.controller.ControllerFactory.ControllerBuilder)" class="member-name-link">registerBuilder(String, ControllerFactory.ControllerBuilder)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Registers a custom controller builder for a specific input type.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#registerController(java.lang.String,java.lang.String,com.streamConverter.controller.IStreamController)" class="member-name-link">registerController(String, String, IStreamController)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Registers a custom controller for specific input/output type combination.</div>
+</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#reset()" class="member-name-link">reset()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/benchmark/ResourceMonitor.html" class="type-name-link" title="class in com.streamConverter.benchmark">ResourceMonitor</a> - Class in <a href="com/streamConverter/benchmark/package-summary.html">com.streamConverter.benchmark</a></dt>
@@ -1460,6 +1711,12 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">コンストラクタ</div>
 </dd>
+<dt><a href="com/streamConverter/controller/AbstractStreamController.html#validateConfiguration()" class="member-name-link">validateConfiguration()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
+<dd>
+<div class="block">Allows subclasses to perform additional validation after configuration.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.html#validateConfiguration()" class="member-name-link">validateConfiguration()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#validateCsv(java.lang.String%5B%5D)" class="member-name-link">validateCsv(String[])</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">CSVスキーマバリデーションを追加</div>
@@ -1472,6 +1729,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">XMLスキーマバリデーションを追加</div>
 </dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html#VALIDATION_ONLY" class="member-name-link">VALIDATION_ONLY</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#VALIDATION_WITH_EXTRACTION" class="member-name-link">VALIDATION_WITH_EXTRACTION</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/ValidationDecorator.html" class="type-name-link" title="class in com.streamConverter.command">ValidationDecorator</a> - Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
 <dd>
 <div class="block">IStreamCommandにバリデーション機能を追加するデコレーター</div>
@@ -1514,7 +1775,25 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the enum constant of this class with the specified name.</div>
 </dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#valueOf(java.lang.String)" class="member-name-link">valueOf(String)</a> - Static method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
+<dd>
+<div class="block">Returns the enum constant of this class with the specified name.</div>
+</dd>
 <dt><a href="com/streamConverter/command/ValidationDecorator.ValidationType.html#values()" class="member-name-link">values()</a> - Static method in enum class com.streamConverter.command.<a href="com/streamConverter/command/ValidationDecorator.ValidationType.html" title="enum class in com.streamConverter.command">ValidationDecorator.ValidationType</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html#values()" class="member-name-link">values()</a> - Static method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a></dt>
+<dd>
+<div class="block">Returns an array containing the constants of this enum class, in
+the order they are declared.</div>
+</dd>
+<dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#values()" class="member-name-link">values()</a> - Static method in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
 <dd>
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>

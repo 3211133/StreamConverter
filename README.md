@@ -101,6 +101,11 @@ converter.run(inputStream, outputStream);
 # テスト実行
 ./gradlew test
 
+# ベンチマークテスト
+./gradlew benchmarkAll
+
+# 詳細なテスト戦略とガイドは docs/TESTING.md を参照
+
 # コードスタイル適用
 ./gradlew spotlessApply
 
@@ -123,3 +128,15 @@ converter.run(inputStream, outputStream);
 ```bash
 ./gradlew spotlessApply
 ```
+
+## 📚 詳細ドキュメント
+
+プロジェクトの詳細な情報は [`docs/`](docs/) ディレクトリにあります：
+
+- **[テスト戦略とガイド](docs/TESTING.md)** - 包括的なテスト実行方法とベンチマーク
+- **[アーキテクチャドキュメント](docs/COMMAND_ARCHITECTURE.md)** - コマンドパターンとController層の設計
+- **[セキュリティ分析](docs/SECURITY_ANALYSIS.md)** - セキュリティ対策と脆弱性分析
+- **[ベンチマーク実装](docs/BENCHMARK_IMPLEMENTATION.md)** - 大容量データ処理のパフォーマンス測定
+- **[自動ログ機能](docs/AUTO_LOGGING.md)** - MDCとコンテキスト伝播の詳細
+
+開発に参加する場合は [doc/CONTRIBUTING.md](doc/CONTRIBUTING.md) を参照してください。

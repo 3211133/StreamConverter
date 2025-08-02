@@ -39,6 +39,8 @@ import org.slf4j.LoggerFactory;
  *   <li>5GBデータ/50MBメモリ目標達成テスト
  * </ul>
  */
+@Tag("benchmark")
+@Tag("large-data")
 @DisplayName("大容量データ処理ベンチマーク")
 class LargeDataBenchmark {
 

@@ -125,11 +125,30 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates a StreamConverter with the specified list of commands.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createWithContext(com.streamConverter.context.ExecutionContext,com.streamConverter.command.IStreamCommand...)" class="member-name-link">createWithContext</a><wbr>(<a href="context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a>&nbsp;context,
+ <a href="command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>...&nbsp;commands)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a StreamConverter with a custom ExecutionContext and specified commands.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createWithContext(com.streamConverter.context.ExecutionContext,java.util.List)" class="member-name-link">createWithContext</a><wbr>(<a href="context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a>&nbsp;context,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>&gt;&nbsp;commands)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Creates a StreamConverter with a custom ExecutionContext and specified commands list.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#run(java.io.InputStream,java.io.OutputStream)" class="member-name-link">run</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。</div>
+<div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 自動的にExecutionContextを生成してMDC同期を実現する。</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#run(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)" class="member-name-link">run</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
+ <a href="context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a>&nbsp;context)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">カスタムExecutionContextを使用してストリームを変換する。 マルチスレッド環境でのMDCコンテキスト伝播とログトレーサビリティを実現。</div>
 </div>
 </div>
 </div>
@@ -217,16 +236,74 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="createWithContext(com.streamConverter.context.ExecutionContext,com.streamConverter.command.IStreamCommand...)">
+<h3>createWithContext</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></span>&nbsp;<span class="element-name">createWithContext</span><wbr><span class="parameters">(<a href="context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a>&nbsp;context,
+ <a href="command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>...&nbsp;commands)</span></div>
+<div class="block">Creates a StreamConverter with a custom ExecutionContext and specified commands. All subsequent
+ runs will use the provided context for MDC synchronization.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>context</code> - the execution context to use for MDC and logging</dd>
+<dd><code>commands</code> - the array of commands to be executed in sequence</dd>
+<dt>Returns:</dt>
+<dd>a new StreamConverter instance</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if context or commands is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if commands is empty</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="createWithContext(com.streamConverter.context.ExecutionContext,java.util.List)">
+<h3>createWithContext</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></span>&nbsp;<span class="element-name">createWithContext</span><wbr><span class="parameters">(<a href="context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a>&nbsp;context,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>&gt;&nbsp;commands)</span></div>
+<div class="block">Creates a StreamConverter with a custom ExecutionContext and specified commands list. All
+ subsequent runs will use the provided context for MDC synchronization.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>context</code> - the execution context to use for MDC and logging</dd>
+<dd><code>commands</code> - the list of commands to be executed in sequence</dd>
+<dt>Returns:</dt>
+<dd>a new StreamConverter instance</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if context or commands is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if commands is empty</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="run(java.io.InputStream,java.io.OutputStream)">
 <h3>run</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</span>&nbsp;<span class="element-name">run</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
-<div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。</div>
+<div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 自動的にExecutionContextを生成してMDC同期を実現する。</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>inputStream</code> - 処理対象の入力ストリーム</dd>
 <dd><code>outputStream</code> - 処理結果を書き込む出力ストリーム</dd>
+<dt>Returns:</dt>
+<dd>各コマンドの実行結果リスト</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - ストリーム処理中にI/Oエラーが発生した場合</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="run(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)">
+<h3>run</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</span>&nbsp;<span class="element-name">run</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
+ <a href="context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a>&nbsp;context)</span>
+                        throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
+<div class="block">カスタムExecutionContextを使用してストリームを変換する。 マルチスレッド環境でのMDCコンテキスト伝播とログトレーサビリティを実現。</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>inputStream</code> - 処理対象の入力ストリーム</dd>
+<dd><code>outputStream</code> - 処理結果を書き込む出力ストリーム</dd>
+<dd><code>context</code> - 実行コンテキスト</dd>
 <dt>Returns:</dt>
 <dd>各コマンドの実行結果リスト</dd>
 <dt>Throws:</dt>

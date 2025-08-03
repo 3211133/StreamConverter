@@ -1,6 +1,7 @@
 package com.streamConverter;
 
 import com.streamConverter.command.IStreamCommand;
+import com.streamConverter.context.ExecutionContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -9,10 +10,10 @@ import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
@@ -29,6 +30,7 @@ public class StreamConverter {
   private static final Logger log = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
+  private ExecutionContext defaultContext;
 
   /**
    * Constructs a StreamConverter with the specified array of commands.
@@ -85,6 +87,42 @@ public class StreamConverter {
   }
 
   /**
+   * Creates a StreamConverter with a custom ExecutionContext and specified commands. All subsequent
+   * runs will use the provided context for MDC synchronization.
+   *
+   * @param context the execution context to use for MDC and logging
+   * @param commands the array of commands to be executed in sequence
+   * @return a new StreamConverter instance
+   * @throws NullPointerException if context or commands is null
+   * @throws IllegalArgumentException if commands is empty
+   */
+  public static StreamConverter createWithContext(
+      ExecutionContext context, IStreamCommand... commands) {
+    Objects.requireNonNull(context, "context cannot be null");
+    StreamConverter converter = new StreamConverter(commands);
+    converter.defaultContext = context;
+    return converter;
+  }
+
+  /**
+   * Creates a StreamConverter with a custom ExecutionContext and specified commands list. All
+   * subsequent runs will use the provided context for MDC synchronization.
+   *
+   * @param context the execution context to use for MDC and logging
+   * @param commands the list of commands to be executed in sequence
+   * @return a new StreamConverter instance
+   * @throws NullPointerException if context or commands is null
+   * @throws IllegalArgumentException if commands is empty
+   */
+  public static StreamConverter createWithContext(
+      ExecutionContext context, List<IStreamCommand> commands) {
+    Objects.requireNonNull(context, "context cannot be null");
+    StreamConverter converter = new StreamConverter(commands);
+    converter.defaultContext = context;
+    return converter;
+  }
+
+  /**
    * Creates an optimal executor service based on available system resources and command count.
    *
    * @return an optimally configured ExecutorService
@@ -96,7 +134,7 @@ public class StreamConverter {
   }
 
   /**
-   * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。
+   * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 自動的にExecutionContextを生成してMDC同期を実現する。
    *
    * @param inputStream 処理対象の入力ストリーム
    * @param outputStream 処理結果を書き込む出力ストリーム
@@ -105,64 +143,125 @@ public class StreamConverter {
    */
   public List<CommandResult> run(InputStream inputStream, OutputStream outputStream)
       throws IOException {
+    // デフォルトコンテキストがあればそれを使用、なければ自動生成
+    ExecutionContext contextToUse =
+        defaultContext != null ? defaultContext : ExecutionContext.create();
+    return run(inputStream, outputStream, contextToUse);
+  }
+
+  /**
+   * カスタムExecutionContextを使用してストリームを変換する。 マルチスレッド環境でのMDCコンテキスト伝播とログトレーサビリティを実現。
+   *
+   * @param inputStream 処理対象の入力ストリーム
+   * @param outputStream 処理結果を書き込む出力ストリーム
+   * @param context 実行コンテキスト
+   * @return 各コマンドの実行結果リスト
+   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
+   */
+  public List<CommandResult> run(
+      InputStream inputStream, OutputStream outputStream, ExecutionContext context)
+      throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
+    Objects.requireNonNull(context, "context cannot be null");
 
-    log.info("Starting StreamConverter with {} commands", commands.size());
+    // パイプライン開始時にMDCコンテキストを設定
+    context.applyToMDCWithStage("pipeline-start");
+
+    log.info(
+        "Starting StreamConverter with {} commands (executionId: {})",
+        commands.size(),
+        context.getExecutionId());
 
     if (this.commands.size() == 1) {
       // 単一コマンドの場合は直接実行（メモリ効率最優先）
-      IStreamCommand command = this.commands.get(0);
-      log.info("Executing single command: {}", command.getClass().getSimpleName());
-      long startTime = System.currentTimeMillis();
-      java.time.Instant startInstant = java.time.Instant.now();
-      try {
-        command.execute(inputStream, outputStream);
-        long endTime = System.currentTimeMillis();
-        java.time.Instant endInstant = java.time.Instant.now();
-
-        List<CommandResult> results = new ArrayList<>();
-        results.add(
-            CommandResult.success(
-                command.getClass().getSimpleName(),
-                endTime - startTime,
-                0L, // 入力バイト数は現在の実装では取得困難
-                0L, // 出力バイト数は現在の実装では取得困難
-                startInstant,
-                endInstant));
-        return results;
-      } catch (Exception e) {
-        long endTime = System.currentTimeMillis();
-        java.time.Instant endInstant = java.time.Instant.now();
-
-        List<CommandResult> results = new ArrayList<>();
-        results.add(
-            CommandResult.failure(
-                command.getClass().getSimpleName(),
-                endTime - startTime,
-                e.getMessage(),
-                startInstant,
-                endInstant));
-        throw e; // 例外は再スロー
-      }
+      return executeSingleCommandWithMDC(inputStream, outputStream, context);
     }
 
-    // 複数コマンドの場合はPipedStreamで並行処理
+    // 複数コマンドの場合はPipedStreamで並行処理（MDC対応）
+    return executeMultipleCommandsWithMDC(inputStream, outputStream, context);
+  }
+
+  /** 単一コマンドをMDC同期付きで実行 */
+  private List<CommandResult> executeSingleCommandWithMDC(
+      InputStream inputStream, OutputStream outputStream, ExecutionContext context)
+      throws IOException {
+    IStreamCommand command = this.commands.get(0);
+
+    // コマンド実行前のMDC設定
+    int sequence = context.getNextCommandSequence();
+    String stageName = command.getClass().getSimpleName() + "-" + sequence;
+    context.applyToMDCWithStage(stageName);
+
+    log.info(
+        "Executing single command: {} (sequence: {})",
+        command.getClass().getSimpleName(),
+        sequence);
+
+    long startTime = System.currentTimeMillis();
+    java.time.Instant startInstant = java.time.Instant.now();
+
+    try {
+      // コマンド実行（MDCは自動的に利用可能）
+      command.execute(inputStream, outputStream);
+
+      long endTime = System.currentTimeMillis();
+      java.time.Instant endInstant = java.time.Instant.now();
+
+      List<CommandResult> results = new ArrayList<>();
+      results.add(
+          CommandResult.success(
+              command.getClass().getSimpleName(),
+              endTime - startTime,
+              0L, // 入力バイト数は現在の実装では取得困難
+              0L, // 出力バイト数は現在の実装では取得困難
+              startInstant,
+              endInstant));
+
+      log.info(
+          "Completed single command: {} (sequence: {})",
+          command.getClass().getSimpleName(),
+          sequence);
+      return results;
+
+    } catch (Exception e) {
+      long endTime = System.currentTimeMillis();
+      java.time.Instant endInstant = java.time.Instant.now();
+
+      List<CommandResult> results = new ArrayList<>();
+      results.add(
+          CommandResult.failure(
+              command.getClass().getSimpleName(),
+              endTime - startTime,
+              e.getMessage(),
+              startInstant,
+              endInstant));
+
+      log.error(
+          "Single command failed: {} (sequence: {}) - {}",
+          command.getClass().getSimpleName(),
+          sequence,
+          e.getMessage(),
+          e);
+      throw e; // 例外は再スロー
+    }
+  }
+
+  /** 複数コマンドをMDC同期付きで並列実行 */
+  private List<CommandResult> executeMultipleCommandsWithMDC(
+      InputStream inputStream, OutputStream outputStream, ExecutionContext context)
+      throws IOException {
     ExecutorService executor = createOptimalExecutor();
-    List<Future<?>> futures = new ArrayList<>();
+    List<CompletableFuture<CommandResult>> futures = new ArrayList<>();
     List<AutoCloseable> resources = new ArrayList<>();
 
     try {
       InputStream currentInput = inputStream;
 
-      // パイプライン構築
+      // パイプライン構築（MDC対応）
       for (int i = 0; i < this.commands.size(); i++) {
         IStreamCommand command = this.commands.get(i);
-        log.info(
-            "Executing command {} of {}: {}",
-            i + 1,
-            commands.size(),
-            command.getClass().getSimpleName());
+        final int commandIndex = i; // Lambda用のfinal変数
 
         final InputStream commandInput = currentInput;
         final OutputStream commandOutput;
@@ -180,58 +279,95 @@ public class StreamConverter {
           currentInput = pipedIn;
         }
 
-        // 各コマンドを非同期実行
-        Future<?> future =
-            executor.submit(
+        // 各コマンドを非同期実行（MDC同期付き）
+        CompletableFuture<CommandResult> future =
+            CompletableFuture.supplyAsync(
                 () -> {
+                  // スレッド固有のMDC設定
+                  int sequence = context.getNextCommandSequence();
+                  String stageName = command.getClass().getSimpleName() + "-" + sequence;
+                  context.applyToMDCWithStage(stageName);
+
+                  log.info(
+                      "Setting up command {} of {}: {} (sequence: {})",
+                      commandIndex + 1,
+                      commands.size(),
+                      command.getClass().getSimpleName(),
+                      sequence);
+
+                  long startTime = System.currentTimeMillis();
+                  java.time.Instant startInstant = java.time.Instant.now();
+
                   try {
+                    // コマンド実行（MDCは自動的に利用可能）
                     command.execute(commandInput, commandOutput);
+
                     // 中間の PipedOutputStream は実行完了後にクローズする必要がある
                     if (commandOutput instanceof PipedOutputStream) {
                       commandOutput.close();
                     }
-                  } catch (IOException e) {
-                    log.error(
-                        "Command execution failed: {} - {}",
+
+                    long endTime = System.currentTimeMillis();
+                    java.time.Instant endInstant = java.time.Instant.now();
+
+                    log.info(
+                        "Completed command: {} (sequence: {})",
                         command.getClass().getSimpleName(),
+                        sequence);
+
+                    return CommandResult.success(
+                        command.getClass().getSimpleName(),
+                        endTime - startTime,
+                        0L, // 入力バイト数
+                        0L, // 出力バイト数
+                        startInstant,
+                        endInstant);
+
+                  } catch (IOException e) {
+                    long endTime = System.currentTimeMillis();
+                    java.time.Instant endInstant = java.time.Instant.now();
+
+                    log.error(
+                        "Command execution failed: {} (sequence: {}) - {}",
+                        command.getClass().getSimpleName(),
+                        sequence,
                         e.getMessage(),
                         e);
-                    throw new StreamProcessingException(
-                        "Command execution failed: " + command.getClass().getSimpleName(), e);
+
+                    return CommandResult.failure(
+                        command.getClass().getSimpleName(),
+                        endTime - startTime,
+                        e.getMessage(),
+                        startInstant,
+                        endInstant);
                   }
-                });
+                },
+                executor);
+
         futures.add(future);
       }
 
       // すべてのタスクの完了を待機
-      List<CommandResult> result = new ArrayList<>();
-      for (int i = 0; i < futures.size(); i++) {
-        Future<?> future = futures.get(i);
+      List<CommandResult> results = new ArrayList<>();
+      for (CompletableFuture<CommandResult> future : futures) {
         try {
           // タイムアウト付きで待機（デッドロック防止）
-          future.get(60, TimeUnit.SECONDS);
-          // 現在の実装では詳細な実行結果を取得できないため、ダミーの成功結果を作成
-          result.add(
-              CommandResult.success(
-                  commands.get(i).getClass().getSimpleName(),
-                  0L, // 実行時間は現在取得できない
-                  0L, // 入力バイト数
-                  0L, // 出力バイト数
-                  java.time.Instant.now(), // ダミーの開始時間
-                  java.time.Instant.now() // ダミーの終了時間
-                  ));
+          CommandResult result = future.get(60, TimeUnit.SECONDS);
+          results.add(result);
+
+          // 失敗した場合は例外をスロー
+          if (!result.isSuccess()) {
+            throw new IOException("Command execution failed: " + result.getErrorMessage());
+          }
+
         } catch (ExecutionException e) {
           Throwable cause = e.getCause();
-          if (cause instanceof StreamProcessingException spe) {
-            throw spe;
-          } else if (cause instanceof RuntimeException re) {
-            Throwable rootCause = re.getCause();
-            if (rootCause instanceof IOException ioe) {
-              throw ioe;
-            }
-            throw re;
+          if (cause instanceof IOException) {
+            throw (IOException) cause;
+          } else if (cause instanceof RuntimeException) {
+            throw (RuntimeException) cause;
           }
-          throw new StreamProcessingException("Unexpected error during command execution", cause);
+          throw new IOException("Unexpected error during command execution", cause);
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           throw new IOException("Command execution was interrupted", e);
@@ -240,8 +376,8 @@ public class StreamConverter {
         }
       }
 
-      log.info("All commands completed successfully");
-      return result;
+      log.info("All commands completed successfully (executionId: {})", context.getExecutionId());
+      return results;
 
     } finally {
       // リソースクリーンアップ

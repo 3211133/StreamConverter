@@ -303,6 +303,41 @@ class StreamsTest {
   }
 
   @Test
+  @DisplayName("format()メソッドの形式制限確認")
+  void testFormatMethodRestriction() throws IOException {
+    // JSON形式では format() が正常に動作することを確認
+    assertDoesNotThrow(
+        () -> {
+          StreamBuilder jsonBuilder = Streams.json(SAMPLE_JSON);
+          jsonBuilder.format(); // JSON形式なので例外は発生しない
+        });
+
+    // CSV形式で format() を呼び出すと例外が発生することを確認
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          StreamBuilder csvBuilder = Streams.csv(SAMPLE_CSV);
+          csvBuilder.format(); // CSV形式なので例外が発生
+        });
+
+    // XML形式で format() を呼び出すと例外が発生することを確認
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          StreamBuilder xmlBuilder = Streams.xml(SAMPLE_XML);
+          xmlBuilder.format(); // XML形式なので例外が発生
+        });
+
+    // 汎用形式で format() を呼び出すと例外が発生することを確認
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          StreamBuilder genericBuilder = Streams.from("test data");
+          genericBuilder.format(); // 汎用形式なので例外が発生
+        });
+  }
+
+  @Test
   @DisplayName("データフォーマット特化APIの実用例")
   void testRealWorldUsageExamples() throws IOException {
     // Real-world JSON processing example

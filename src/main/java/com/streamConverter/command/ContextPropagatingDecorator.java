@@ -14,7 +14,7 @@ import org.slf4j.MDC;
  *
  * <p>このデコレータは既存のコマンドを変更することなく、 ExecutionContextの適用とMDCの設定を自動化します。
  */
-public class ContextPropagatingDecorator implements IContextAwareStreamCommand {
+public class ContextPropagatingDecorator implements IStreamCommand {
 
   private static final Logger logger = LoggerFactory.getLogger(ContextPropagatingDecorator.class);
 
@@ -43,6 +43,13 @@ public class ContextPropagatingDecorator implements IContextAwareStreamCommand {
   }
 
   @Override
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+    // Default implementation creates a new ExecutionContext
+    ExecutionContext context = ExecutionContext.create();
+    execute(inputStream, outputStream, context);
+  }
+
+  @Override
   public void execute(InputStream inputStream, OutputStream outputStream, ExecutionContext context)
       throws IOException {
 
@@ -65,13 +72,8 @@ public class ContextPropagatingDecorator implements IContextAwareStreamCommand {
       logger.info("Starting command execution: {} (sequence: {})", commandName, sequence);
 
       // ラップしたコマンドの実行
-      if (wrappedCommand instanceof IContextAwareStreamCommand) {
-        // コンテキスト対応コマンドの場合はコンテキストを渡す
-        ((IContextAwareStreamCommand) wrappedCommand).execute(inputStream, outputStream, context);
-      } else {
-        // 従来のコマンドの場合はMDCで対応
-        wrappedCommand.execute(inputStream, outputStream);
-      }
+      // 統合されたIStreamCommandインターフェースを使用
+      wrappedCommand.execute(inputStream, outputStream, context);
 
       logger.info("Completed command execution: {} (sequence: {})", commandName, sequence);
 

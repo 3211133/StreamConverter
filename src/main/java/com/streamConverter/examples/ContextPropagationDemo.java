@@ -1,7 +1,6 @@
 package com.streamConverter.examples;
 
 import com.streamConverter.StreamConverter;
-import com.streamConverter.command.IContextAwareStreamCommand;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.context.ExecutionContext;
@@ -97,8 +96,8 @@ public class ContextPropagationDemo {
     String testData = "transaction,amount,currency\n1,100.50,USD\n2,75.25,EUR\n";
 
     // コンテキスト対応コマンドを作成
-    IContextAwareStreamCommand enrichmentCommand = createDataEnrichmentCommand();
-    IContextAwareStreamCommand auditCommand = createAuditCommand();
+    IStreamCommand enrichmentCommand = createDataEnrichmentCommand();
+    IStreamCommand auditCommand = createAuditCommand();
 
     // カスタムコンテキストでコンバーター作成
     StreamConverter converter =
@@ -124,7 +123,7 @@ public class ContextPropagationDemo {
 
     // 既存のコマンドとコンテキスト対応コマンドを混在
     IStreamCommand legacyCommand = new SampleStreamCommand("legacy-processor");
-    IContextAwareStreamCommand contextCommand = createProductAnalysisCommand();
+    IStreamCommand contextCommand = createProductAnalysisCommand();
     IStreamCommand anotherLegacyCommand = new SampleStreamCommand("legacy-formatter");
 
     StreamConverter converter =
@@ -157,8 +156,8 @@ public class ContextPropagationDemo {
             .userContext("monitoringLevel", "detailed")
             .build();
 
-    IContextAwareStreamCommand metricsProcessorCommand = createMetricsProcessorCommand();
-    IContextAwareStreamCommand alertingCommand = createAlertingCommand();
+    IStreamCommand metricsProcessorCommand = createMetricsProcessorCommand();
+    IStreamCommand alertingCommand = createAlertingCommand();
 
     StreamConverter converter =
         StreamConverter.createWithContext(
@@ -178,9 +177,15 @@ public class ContextPropagationDemo {
   }
 
   /** データ拡充コマンドを作成 */
-  private static IContextAwareStreamCommand createDataEnrichmentCommand() {
-    return new IContextAwareStreamCommand() {
+  private static IStreamCommand createDataEnrichmentCommand() {
+    return new IStreamCommand() {
       private final Logger commandLogger = LoggerFactory.getLogger("DataEnrichment");
+
+      @Override
+      public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+        // Default implementation for backward compatibility
+        execute(inputStream, outputStream, ExecutionContext.create());
+      }
 
       @Override
       public void execute(
@@ -217,9 +222,15 @@ public class ContextPropagationDemo {
   }
 
   /** 監査コマンドを作成 */
-  private static IContextAwareStreamCommand createAuditCommand() {
-    return new IContextAwareStreamCommand() {
+  private static IStreamCommand createAuditCommand() {
+    return new IStreamCommand() {
       private final Logger commandLogger = LoggerFactory.getLogger("AuditCommand");
+
+      @Override
+      public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+        // Default implementation for backward compatibility
+        execute(inputStream, outputStream, ExecutionContext.create());
+      }
 
       @Override
       public void execute(
@@ -249,9 +260,15 @@ public class ContextPropagationDemo {
   }
 
   /** 商品分析コマンドを作成 */
-  private static IContextAwareStreamCommand createProductAnalysisCommand() {
-    return new IContextAwareStreamCommand() {
+  private static IStreamCommand createProductAnalysisCommand() {
+    return new IStreamCommand() {
       private final Logger commandLogger = LoggerFactory.getLogger("ProductAnalysis");
+
+      @Override
+      public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+        // Default implementation for backward compatibility
+        execute(inputStream, outputStream, ExecutionContext.create());
+      }
 
       @Override
       public void execute(
@@ -276,9 +293,15 @@ public class ContextPropagationDemo {
   }
 
   /** メトリクス処理コマンドを作成 */
-  private static IContextAwareStreamCommand createMetricsProcessorCommand() {
-    return new IContextAwareStreamCommand() {
+  private static IStreamCommand createMetricsProcessorCommand() {
+    return new IStreamCommand() {
       private final Logger commandLogger = LoggerFactory.getLogger("MetricsProcessor");
+
+      @Override
+      public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+        // Default implementation for backward compatibility
+        execute(inputStream, outputStream, ExecutionContext.create());
+      }
 
       @Override
       public void execute(
@@ -311,9 +334,15 @@ public class ContextPropagationDemo {
   }
 
   /** アラート生成コマンドを作成 */
-  private static IContextAwareStreamCommand createAlertingCommand() {
-    return new IContextAwareStreamCommand() {
+  private static IStreamCommand createAlertingCommand() {
+    return new IStreamCommand() {
       private final Logger commandLogger = LoggerFactory.getLogger("AlertingCommand");
+
+      @Override
+      public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+        // Default implementation for backward compatibility
+        execute(inputStream, outputStream, ExecutionContext.create());
+      }
 
       @Override
       public void execute(

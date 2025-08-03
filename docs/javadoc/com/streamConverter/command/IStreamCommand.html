@@ -72,19 +72,23 @@ loadScripts(document, 'script');</script>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
-<dt>All Known Subinterfaces:</dt>
-<dd><code><a href="IContextAwareStreamCommand.html" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a></code></dd>
-</dl>
-<dl class="notes">
 <dt>All Known Implementing Classes:</dt>
 <dd><code><a href="AbstractStreamCommand.html" title="class in com.streamConverter.command">AbstractStreamCommand</a></code>, <code><a href="ConsumerCommand.html" title="class in com.streamConverter.command">ConsumerCommand</a></code>, <code><a href="ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></code>, <code><a href="impl/charaCode/convert.html" title="class in com.streamConverter.command.impl.charaCode">convert</a></code>, <code><a href="impl/xml/ConvertCommand.html" title="class in com.streamConverter.command.impl.xml">ConvertCommand</a></code>, <code><a href="impl/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a></code>, <code><a href="impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></code>, <code><a href="impl/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a></code>, <code><a href="impl/json/JsonValidateCommand.html" title="class in com.streamConverter.command.impl.json">JsonValidateCommand</a></code>, <code><a href="LoggingDecorator.html" title="class in com.streamConverter.command">LoggingDecorator</a></code>, <code><a href="impl/SampleStreamCommand.html" title="class in com.streamConverter.command.impl">SampleStreamCommand</a></code>, <code><a href="impl/SendHttpCommand.html" title="class in com.streamConverter.command.impl">SendHttpCommand</a></code>, <code><a href="impl/xml/ValidateCommand.html" title="class in com.streamConverter.command.impl.xml">ValidateCommand</a></code>, <code><a href="ValidationDecorator.html" title="class in com.streamConverter.command">ValidationDecorator</a></code>, <code><a href="impl/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public interface </span><span class="element-name type-name-label">IStreamCommand</span></div>
-<div class="block">Interface for stream commands.
+<div class="block">Unified interface for stream commands with optional execution context support.
 
- <p>This interface defines a method for executing a command on an input stream and writing the
- result to an output stream.</div>
+ <p>This interface defines methods for executing commands on input streams and writing results to
+ output streams. Commands can optionally utilize ExecutionContext for enhanced logging,
+ traceability, and multi-threaded context propagation.
+
+ <p>Implementation options:
+
+ <ul>
+   <li>Basic commands: Implement only the 2-parameter execute method
+   <li>Context-aware commands: Override the 3-parameter execute method for enhanced functionality
+ </ul></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -93,7 +97,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab3" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab3', 3)" class="table-tab">Abstract Methods</button><button id="method-summary-table-tab5" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab5', 3)" class="table-tab">Default Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -104,6 +108,13 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#execute(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)" class="member-name-link">execute</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
+ <a href="../context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a>&nbsp;context)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Executes the command with ExecutionContext support for enhanced traceability.</div>
 </div>
 </div>
 </div>
@@ -120,12 +131,37 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="execute(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)">
+<h3>execute</h3>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name">execute</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
+ <a href="../context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a>&nbsp;context)</span>
+              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
+<div class="block">Executes the command with ExecutionContext support for enhanced traceability.
+
+ <p>This is the primary execution method that supports MDC context propagation, execution
+ tracking, and enhanced logging capabilities.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>inputStream</code> - The input stream to read data from.</dd>
+<dd><code>outputStream</code> - The output stream to write data to.</dd>
+<dd><code>context</code> - The execution context for traceability and logging enhancement.</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - If an I/O error occurs during the execution of the command.</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
 <div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name">execute</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
       throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
-<div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
+<div class="block">Executes the command on the provided input stream and writes the result to the output stream.
+
+ <p>This method maintains backward compatibility for existing implementations. When called
+ without ExecutionContext, a new context will be automatically created by the StreamConverter
+ pipeline.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>inputStream</code> - The input stream to read data from.</dd>

@@ -41,6 +41,7 @@ public class StreamBuilder {
   private final List<IStreamCommand> commands;
   private InputStream inputStream;
   private boolean built = false;
+  private DataFormat format = DataFormat.GENERIC;
 
   /** プライベートコンストラクタ - ファクトリメソッドを使用してインスタンス化 */
   private StreamBuilder() {
@@ -95,6 +96,47 @@ public class StreamBuilder {
     return this;
   }
 
+  // === Data Format Configuration ===
+
+  /**
+   * データ形式をJSONに設定
+   *
+   * @return このビルダーインスタンス（メソッドチェーン用）
+   */
+  public StreamBuilder asJson() {
+    this.format = DataFormat.JSON;
+    return this;
+  }
+
+  /**
+   * データ形式をCSVに設定
+   *
+   * @return このビルダーインスタンス（メソッドチェーン用）
+   */
+  public StreamBuilder asCsv() {
+    this.format = DataFormat.CSV;
+    return this;
+  }
+
+  /**
+   * データ形式をXMLに設定
+   *
+   * @return このビルダーインスタンス（メソッドチェーン用）
+   */
+  public StreamBuilder asXml() {
+    this.format = DataFormat.XML;
+    return this;
+  }
+
+  /**
+   * 現在のデータ形式を取得
+   *
+   * @return 現在のデータ形式
+   */
+  public DataFormat getFormat() {
+    return format;
+  }
+
   // === Validation Commands ===
 
   /**
@@ -130,6 +172,79 @@ public class StreamBuilder {
   public StreamBuilder validateCsv(String[] requiredColumns) {
     Objects.requireNonNull(requiredColumns, "Required columns cannot be null");
     this.commands.add(new CsvValidateCommand(requiredColumns));
+    return this;
+  }
+
+  // === Unified Format-Aware Commands ===
+
+  /**
+   * 現在のデータ形式に応じたバリデーションを追加
+   *
+   * @param schemaPath スキーマファイルのパス
+   * @return このビルダーインスタンス（メソッドチェーン用）
+   */
+  public StreamBuilder validate(String schemaPath) {
+    Objects.requireNonNull(schemaPath, "Schema path cannot be null");
+
+    switch (format) {
+      case JSON:
+        this.commands.add(new JsonValidateCommand(schemaPath));
+        break;
+      case XML:
+        this.commands.add(new ValidateCommand(schemaPath));
+        break;
+      case CSV:
+        // CSVの場合はschemaPathを必須カラム配列として解釈
+        // TODO: より良いCSVスキーマ指定方法を検討
+        throw new UnsupportedOperationException(
+            "CSV validation with schema path not supported. Use validateCsv(String[]) instead.");
+      case GENERIC:
+      default:
+        throw new IllegalStateException(
+            "Data format must be specified before validation. Use asJson(), asCsv(), or asXml() first.");
+    }
+
+    return this;
+  }
+
+  /**
+   * 現在のデータ形式に応じたデータ抽出を追加
+   *
+   * @param path 抽出パス（JSONPath、XPath、CSV列名など）
+   * @return このビルダーインスタンス（メソッドチェーン用）
+   */
+  public StreamBuilder extract(String path) {
+    Objects.requireNonNull(path, "Extraction path cannot be null");
+
+    switch (format) {
+      case JSON:
+        this.commands.add(new JsonNavigateCommand(path));
+        break;
+      case XML:
+        this.commands.add(new XmlNavigateCommand(path));
+        break;
+      case CSV:
+        this.commands.add(new CsvNavigateCommand(path));
+        break;
+      case GENERIC:
+      default:
+        throw new IllegalStateException(
+            "Data format must be specified before extraction. Use asJson(), asCsv(), or asXml() first.");
+    }
+
+    return this;
+  }
+
+  /**
+   * JSONデータのフォーマット処理を追加（JSON形式のみ）
+   *
+   * @return このビルダーインスタンス（メソッドチェーン用）
+   */
+  public StreamBuilder format() {
+    if (format != DataFormat.JSON) {
+      throw new IllegalStateException("Format operation is only supported for JSON data format");
+    }
+    this.commands.add(new JsonNavigateCommand());
     return this;
   }
 

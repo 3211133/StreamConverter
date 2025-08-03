@@ -3,9 +3,6 @@ package com.streamConverter.api;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamConverter.CommandResult;
-import com.streamConverter.api.Streams.CsvStreamBuilder;
-import com.streamConverter.api.Streams.JsonStreamBuilder;
-import com.streamConverter.api.Streams.XmlStreamBuilder;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -60,7 +57,7 @@ class StreamsTest {
   @DisplayName("JSON専用APIの基本動作")
   void testJsonStreamBuilder() throws IOException {
     // When
-    JsonStreamBuilder jsonBuilder = Streams.json(SAMPLE_JSON);
+    StreamBuilder jsonBuilder = Streams.json(SAMPLE_JSON);
 
     // Then
     assertNotNull(jsonBuilder);
@@ -76,7 +73,7 @@ class StreamsTest {
   @DisplayName("CSV専用APIの基本動作")
   void testCsvStreamBuilder() throws IOException {
     // When
-    CsvStreamBuilder csvBuilder = Streams.csv(SAMPLE_CSV);
+    StreamBuilder csvBuilder = Streams.csv(SAMPLE_CSV);
 
     // Then
     assertNotNull(csvBuilder);
@@ -92,7 +89,7 @@ class StreamsTest {
   @DisplayName("XML専用APIの基本動作")
   void testXmlStreamBuilder() throws IOException {
     // When
-    XmlStreamBuilder xmlBuilder = Streams.xml(SAMPLE_XML);
+    StreamBuilder xmlBuilder = Streams.xml(SAMPLE_XML);
 
     // Then
     assertNotNull(xmlBuilder);
@@ -128,7 +125,7 @@ class StreamsTest {
     // When & Then (スキーマファイルが存在しないためIOExceptionが発生することを期待)
     assertDoesNotThrow(
         () -> {
-          JsonStreamBuilder builder = Streams.json(SAMPLE_JSON);
+          StreamBuilder builder = Streams.json(SAMPLE_JSON);
           // ここではビルダーの構築のみテスト（実行はしない）
           assertNotNull(builder);
         });
@@ -196,7 +193,7 @@ class StreamsTest {
     // When & Then (実際のHTTP送信はしないが、パイプライン構築をテスト)
     assertDoesNotThrow(
         () -> {
-          JsonStreamBuilder builder = Streams.json(SAMPLE_JSON).format().sendHttp(testUrl);
+          StreamBuilder builder = Streams.json(SAMPLE_JSON).format().sendHttp(testUrl);
           assertNotNull(builder);
         });
   }
@@ -205,17 +202,17 @@ class StreamsTest {
   @DisplayName("汎用StreamBuilderへの変換")
   void testAsGenericConversion() throws IOException {
     // JSON -> Generic
-    StreamBuilder genericFromJson = Streams.json(SAMPLE_JSON).format().asGeneric();
+    StreamBuilder genericFromJson = Streams.json(SAMPLE_JSON).format();
     assertNotNull(genericFromJson);
     assertTrue(genericFromJson.getCommandCount() > 0);
 
     // CSV -> Generic
-    StreamBuilder genericFromCsv = Streams.csv(SAMPLE_CSV).extract("name").asGeneric();
+    StreamBuilder genericFromCsv = Streams.csv(SAMPLE_CSV).extract("name");
     assertNotNull(genericFromCsv);
     assertTrue(genericFromCsv.getCommandCount() > 0);
 
     // XML -> Generic
-    StreamBuilder genericFromXml = Streams.xml(SAMPLE_XML).extract("configuration").asGeneric();
+    StreamBuilder genericFromXml = Streams.xml(SAMPLE_XML).extract("configuration");
     assertNotNull(genericFromXml);
     assertTrue(genericFromXml.getCommandCount() > 0);
   }
@@ -303,6 +300,41 @@ class StreamsTest {
     assertThrows(NullPointerException.class, () -> Streams.xml(null));
     assertThrows(NullPointerException.class, () -> Streams.from((String) null));
     assertThrows(NullPointerException.class, () -> Streams.from((ByteArrayInputStream) null));
+  }
+
+  @Test
+  @DisplayName("format()メソッドの形式制限確認")
+  void testFormatMethodRestriction() throws IOException {
+    // JSON形式では format() が正常に動作することを確認
+    assertDoesNotThrow(
+        () -> {
+          StreamBuilder jsonBuilder = Streams.json(SAMPLE_JSON);
+          jsonBuilder.format(); // JSON形式なので例外は発生しない
+        });
+
+    // CSV形式で format() を呼び出すと例外が発生することを確認
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          StreamBuilder csvBuilder = Streams.csv(SAMPLE_CSV);
+          csvBuilder.format(); // CSV形式なので例外が発生
+        });
+
+    // XML形式で format() を呼び出すと例外が発生することを確認
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          StreamBuilder xmlBuilder = Streams.xml(SAMPLE_XML);
+          xmlBuilder.format(); // XML形式なので例外が発生
+        });
+
+    // 汎用形式で format() を呼び出すと例外が発生することを確認
+    assertThrows(
+        IllegalStateException.class,
+        () -> {
+          StreamBuilder genericBuilder = Streams.from("test data");
+          genericBuilder.format(); // 汎用形式なので例外が発生
+        });
   }
 
   @Test

@@ -584,10 +584,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
 </dd>
-<dt><a href="com/streamConverter/command/IContextAwareStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute(InputStream, OutputStream)</a> - Method in interface com.streamConverter.command.<a href="com/streamConverter/command/IContextAwareStreamCommand.html" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a></dt>
-<dd>
-<div class="block">既存のIStreamCommandインターフェースとの互換性のためのデフォルト実装 コンテキストなしで呼び出された場合は新しいコンテキストを作成します</div>
-</dd>
+<dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute(InputStream, OutputStream)</a> - Method in interface com.streamConverter.command.<a href="com/streamConverter/command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></dt>
 <dd>
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
@@ -598,9 +596,9 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#execute(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)" class="member-name-link">execute(InputStream, OutputStream, ExecutionContext)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="com/streamConverter/command/IContextAwareStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)" class="member-name-link">execute(InputStream, OutputStream, ExecutionContext)</a> - Method in interface com.streamConverter.command.<a href="com/streamConverter/command/IContextAwareStreamCommand.html" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a></dt>
+<dt><a href="com/streamConverter/command/IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)" class="member-name-link">execute(InputStream, OutputStream, ExecutionContext)</a> - Method in interface com.streamConverter.command.<a href="com/streamConverter/command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></dt>
 <dd>
-<div class="block">ExecutionContextを使用してコマンドを実行します</div>
+<div class="block">Executes the command with ExecutionContext support for enhanced traceability.</div>
 </dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#EXECUTION_ID_KEY" class="member-name-link">EXECUTION_ID_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
@@ -1182,10 +1180,6 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:I">I</h2>
 <dl class="index">
-<dt><a href="com/streamConverter/command/IContextAwareStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IContextAwareStreamCommand</a> - Interface in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
-<dd>
-<div class="block">コンテキスト対応のストリームコマンドインターフェース</div>
-</dd>
 <dt><a href="com/streamConverter/CommandResult.Builder.html#inputBytes(long)" class="member-name-link">inputBytes(long)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
 <dd>
 <div class="block">入力バイト数を設定</div>
@@ -1268,7 +1262,7 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/command/IStreamCommand.html" class="type-name-link" title="interface in com.streamConverter.command">IStreamCommand</a> - Interface in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
 <dd>
-<div class="block">Interface for stream commands.</div>
+<div class="block">Unified interface for stream commands with optional execution context support.</div>
 </dd>
 <dt><a href="com/streamConverter/controller/IStreamController.html" class="type-name-link" title="interface in com.streamConverter.controller">IStreamController</a> - Interface in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
 <dd>

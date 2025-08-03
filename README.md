@@ -77,7 +77,7 @@ converter.run(inputStream, outputStream);
 - **[📚 ドキュメント一覧](docs/)** - 全ドキュメントのインデックス
 - **[🏗️ コマンドアーキテクチャ](docs/COMMAND_ARCHITECTURE.md)** - 設計思想と拡張方法
 - **[📝 自動ログ機能](docs/AUTO_LOGGING.md)** - ログ機能の詳細と設定
-- **[🔗 コンテキスト伝播](CONTEXT_PROPAGATION_ARCHITECTURE.md)** - マルチスレッド環境でのMDC管理
+- **[🔗 コンテキスト伝播](docs/reports/CONTEXT_PROPAGATION_ARCHITECTURE.md)** - マルチスレッド環境でのMDC管理
 - **[🔢 バージョン管理](docs/VERSION_MANAGEMENT.md)** - サポートバージョンとポリシー
 - **[🛡️ セキュリティ](SECURITY.md)** - セキュリティポリシーと脆弱性報告
 
@@ -120,7 +120,7 @@ converter.run(inputStream, outputStream);
 
 ### コミットルール
 
-このプロジェクトでは [Conventional Commits](https://www.conventionalcommits.org/) 仕様に従ったコミットメッセージを使用しています。詳細は [CONTRIBUTING.md](doc/CONTRIBUTING.md) を参照してください。
+このプロジェクトでは [Conventional Commits](https://www.conventionalcommits.org/) 仕様に従ったコミットメッセージを使用しています。詳細は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。
 
 ### コードスタイル
 このプロジェクトでは [Spotless](https://github.com/diffplug/spotless) を使用してコードスタイルを統一しています。コードスタイルを適用するには：
@@ -139,4 +139,4 @@ converter.run(inputStream, outputStream);
 - **[ベンチマーク実装](docs/BENCHMARK_IMPLEMENTATION.md)** - 大容量データ処理のパフォーマンス測定
 - **[自動ログ機能](docs/AUTO_LOGGING.md)** - MDCとコンテキスト伝播の詳細
 
-開発に参加する場合は [doc/CONTRIBUTING.md](doc/CONTRIBUTING.md) を参照してください。
+開発に参加する場合は [CONTRIBUTING.md](CONTRIBUTING.md) を参照してください。

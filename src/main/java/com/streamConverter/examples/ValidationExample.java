@@ -1,9 +1,8 @@
 package com.streamConverter.examples;
 
 import com.streamConverter.StreamConverter;
-import com.streamConverter.command.ValidationDecorator;
 import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.validation.ValidationResult;
+import com.streamConverter.command.impl.csv.CsvValidateCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -140,40 +139,27 @@ public class ValidationExample {
 
     String[] requiredColumns = {"id", "name", "email"};
 
-    // ValidationDecoratorを直接使用してValidationResultを取得
-    SampleStreamCommand baseCommand = new SampleStreamCommand("validation-demo");
-    ValidationDecorator decorator = new ValidationDecorator(baseCommand, requiredColumns);
+    // CsvValidateCommandを直接使用してバリデーション実行
+    CsvValidateCommand csvValidator = new CsvValidateCommand(requiredColumns);
+    SampleStreamCommand dataProcessor = new SampleStreamCommand("validation-demo");
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     try {
-      decorator.execute(inputStream, outputStream);
+      // バリデーション実行
+      ByteArrayInputStream csvValidationInputStream =
+          new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
+      csvValidator.consume(csvValidationInputStream);
+      logger.info("📊 CSV validation completed successfully");
 
-      ValidationResult result = decorator.getLastValidationResult();
-      if (result != null) {
-        logger.info("📊 Validation Result Details:");
-        logger.info("   Type: {}", result.getValidationType());
-        logger.info("   Valid: {}", result.isValid());
-        logger.info("   Schema: {}", result.getSchemaPath());
-        logger.info("   Execution Time: {} ms", result.getExecutionTimeMillis());
-        logger.info("   Error Count: {}", result.getErrorCount());
-        logger.info("   Warning Count: {}", result.getWarningCount());
-        logger.info("   Validation Time: {}", result.getValidationTime());
-
-        if (!result.getErrors().isEmpty()) {
-          logger.info("   Errors:");
-          for (int i = 0; i < result.getErrors().size(); i++) {
-            logger.info("     {}. {}", i + 1, result.getErrors().get(i));
-          }
-        }
-      }
-
-      logger.info("✅ Validation result retrieved successfully");
+      // データ処理実行
+      dataProcessor.execute(inputStream, outputStream);
+      logger.info("✅ Data processing completed successfully");
 
     } catch (Exception e) {
-      logger.error("❌ Validation result demonstration failed: {}", e.getMessage());
+      logger.error("❌ Validation or processing failed: {}", e.getMessage());
     }
 
     logger.info("\n" + "=".repeat(50) + "\n");
@@ -189,14 +175,15 @@ public class ValidationExample {
       String data, String[] requiredColumns, String description) throws IOException {
     logger.debug("Processing {}: {}", description, data.substring(0, Math.min(50, data.length())));
 
-    SampleStreamCommand baseCommand = new SampleStreamCommand("csv-processor");
-    ValidationDecorator decorator = new ValidationDecorator(baseCommand, requiredColumns);
+    CsvValidateCommand csvValidator = new CsvValidateCommand(requiredColumns);
+    SampleStreamCommand processor = new SampleStreamCommand("csv-processor");
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    StreamConverter converter = StreamConverter.create(decorator);
+    // パイプラインでバリデーションと処理を実行
+    StreamConverter converter = StreamConverter.create(csvValidator, processor);
     converter.run(inputStream, outputStream);
 
     String result = outputStream.toString(StandardCharsets.UTF_8);

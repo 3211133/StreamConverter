@@ -173,81 +173,11 @@ public class StreamConverter {
         commands.size(),
         context.getExecutionId());
 
-    if (this.commands.size() == 1) {
-      // 単一コマンドの場合は直接実行（メモリ効率最優先）
-      return executeSingleCommandWithMDC(inputStream, outputStream, context);
-    }
-
-    // 複数コマンドの場合はPipedStreamで並行処理（MDC対応）
+    // PipedStreamで並行処理（MDC対応）
     return executeMultipleCommandsWithMDC(inputStream, outputStream, context);
   }
 
-  /** 単一コマンドをMDC同期付きで実行 */
-  private List<CommandResult> executeSingleCommandWithMDC(
-      InputStream inputStream, OutputStream outputStream, ExecutionContext context)
-      throws IOException {
-    IStreamCommand command = this.commands.get(0);
-
-    // コマンド実行前のMDC設定
-    int sequence = context.getNextCommandSequence();
-    String stageName = command.getClass().getSimpleName() + "-" + sequence;
-    context.applyToMDCWithStage(stageName);
-
-    log.info(
-        "Executing single command: {} (sequence: {})",
-        command.getClass().getSimpleName(),
-        sequence);
-
-    long startTime = System.currentTimeMillis();
-    java.time.Instant startInstant = java.time.Instant.now();
-
-    try {
-      // コマンド実行（MDCは自動的に利用可能）
-      command.execute(inputStream, outputStream);
-
-      long endTime = System.currentTimeMillis();
-      java.time.Instant endInstant = java.time.Instant.now();
-
-      List<CommandResult> results = new ArrayList<>();
-      results.add(
-          CommandResult.success(
-              command.getClass().getSimpleName(),
-              endTime - startTime,
-              0L, // 入力バイト数は現在の実装では取得困難
-              0L, // 出力バイト数は現在の実装では取得困難
-              startInstant,
-              endInstant));
-
-      log.info(
-          "Completed single command: {} (sequence: {})",
-          command.getClass().getSimpleName(),
-          sequence);
-      return results;
-
-    } catch (Exception e) {
-      long endTime = System.currentTimeMillis();
-      java.time.Instant endInstant = java.time.Instant.now();
-
-      List<CommandResult> results = new ArrayList<>();
-      results.add(
-          CommandResult.failure(
-              command.getClass().getSimpleName(),
-              endTime - startTime,
-              e.getMessage(),
-              startInstant,
-              endInstant));
-
-      log.error(
-          "Single command failed: {} (sequence: {}) - {}",
-          command.getClass().getSimpleName(),
-          sequence,
-          e.getMessage(),
-          e);
-      throw e; // 例外は再スロー
-    }
-  }
-
-  /** 複数コマンドをMDC同期付きで並列実行 */
+  /** コマンドをMDC同期付きで並列実行 */
   private List<CommandResult> executeMultipleCommandsWithMDC(
       InputStream inputStream, OutputStream outputStream, ExecutionContext context)
       throws IOException {

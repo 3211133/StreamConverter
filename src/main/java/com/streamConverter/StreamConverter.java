@@ -177,7 +177,7 @@ public class StreamConverter {
     return executeMultipleCommandsWithMDC(inputStream, outputStream, context);
   }
 
-  /** コマンドをMDC同期付きで並列実行 */
+  /** コマンド（単一または複数）をMDC同期付きで並列実行 */
   private List<CommandResult> executeMultipleCommandsWithMDC(
       InputStream inputStream, OutputStream outputStream, ExecutionContext context)
       throws IOException {

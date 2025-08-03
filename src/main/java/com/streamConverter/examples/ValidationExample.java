@@ -149,9 +149,9 @@ public class ValidationExample {
 
     try {
       // バリデーション実行
-      ByteArrayInputStream validationStream =
+      ByteArrayInputStream csvValidationInputStream =
           new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
-      csvValidator.consume(validationStream);
+      csvValidator.consume(csvValidationInputStream);
       logger.info("📊 CSV validation completed successfully");
 
       // データ処理実行

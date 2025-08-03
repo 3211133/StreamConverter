@@ -38,6 +38,9 @@ import com.streamConverter.command.impl.json.JsonValidateCommand;
  */
 public class JsonProcessingController extends AbstractStreamController {
 
+  /** Default JSON schema path for validation */
+  private static final String DEFAULT_SCHEMA_PATH = "schemas/default.json";
+
   /** Processing scenarios for JSON */
   public enum ProcessingScenario {
     PROPERTY_EXTRACTION,
@@ -151,7 +154,7 @@ public class JsonProcessingController extends AbstractStreamController {
       case VALIDATION_WITH_EXTRACTION:
         return new CommandConfig[] {
           new CommandConfig(
-              JsonValidateCommand.class, "Validate JSON structure", "schemas/default.json"),
+              JsonValidateCommand.class, "Validate JSON structure", DEFAULT_SCHEMA_PATH),
           new CommandConfig(
               JsonNavigateCommand.class, "Extract JSON property: " + propertyPath, propertyPath)
         };

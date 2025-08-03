@@ -1,9 +1,9 @@
 package com.streamConverter.controller;
 
 import com.streamConverter.command.CommandConfig;
-import com.streamConverter.command.ValidationDecorator;
 import com.streamConverter.command.impl.JsonNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
+import com.streamConverter.command.impl.json.JsonValidateCommand;
 
 /**
  * Controller for JSON data processing operations.
@@ -151,10 +151,9 @@ public class JsonProcessingController extends AbstractStreamController {
       case VALIDATION_WITH_EXTRACTION:
         return new CommandConfig[] {
           new CommandConfig(
-              ValidationDecorator.class,
-              "Validate JSON structure",
-              new JsonNavigateCommand(propertyPath),
-              new String[] {"required_fields", "data_types"})
+              JsonValidateCommand.class, "Validate JSON structure", "schemas/default.json"),
+          new CommandConfig(
+              JsonNavigateCommand.class, "Extract JSON property: " + propertyPath, propertyPath)
         };
 
       case MULTI_STAGE_TRANSFORMATION:

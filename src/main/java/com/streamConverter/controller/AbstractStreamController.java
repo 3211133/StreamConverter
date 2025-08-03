@@ -181,7 +181,7 @@ public abstract class AbstractStreamController implements IStreamController {
    * protected CommandConfig[] configureCommands() {
    *     return new CommandConfig[] {
    *         new CommandConfig(CsvNavigateCommand.class, "data", "Extract data column"),
-   *         new CommandConfig(ValidationDecorator.class, "Validate output")
+   *         new CommandConfig(CsvValidateCommand.class, "Validate output", requiredColumns)
    *     };
    * }
    * </pre>

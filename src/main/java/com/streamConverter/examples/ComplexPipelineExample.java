@@ -2,8 +2,8 @@ package com.streamConverter.examples;
 
 import com.streamConverter.StreamConverter;
 import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.ValidationDecorator;
 import com.streamConverter.command.impl.SampleStreamCommand;
+import com.streamConverter.command.impl.csv.CsvValidateCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -101,8 +101,8 @@ public class ComplexPipelineExample {
     // CSV必須カラムを定義
     String[] requiredColumns = {"id", "name", "email", "department"};
 
-    // ValidationDecoratorを使用して入力検証
-    return new ValidationDecorator(new SampleStreamCommand("input-validator"), requiredColumns);
+    // CsvValidateCommandを使用して入力検証
+    return new CsvValidateCommand(requiredColumns);
   }
 
   /** MDC設定コマンドを作成 */

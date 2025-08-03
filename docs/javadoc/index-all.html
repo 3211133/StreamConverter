@@ -313,14 +313,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Default constructor.</div>
 </dd>
-<dt><a href="com/streamConverter/ContextAwareStreamConverter.html" class="type-name-link" title="class in com.streamConverter">ContextAwareStreamConverter</a> - Class in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
-<dd>
-<div class="block">コンテキスト対応のStreamConverter</div>
-</dd>
-<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#%3Cinit%3E(java.util.List,com.streamConverter.context.ExecutionContext)" class="member-name-link">ContextAwareStreamConverter(List&lt;IContextAwareStreamCommand&gt;, ExecutionContext)</a> - Constructor for class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
-<dd>
-<div class="block">コンストラクタ</div>
-</dd>
 <dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html" class="type-name-link" title="class in com.streamConverter.command">ContextPropagatingDecorator</a> - Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
 <dd>
 <div class="block">既存のIStreamCommandをコンテキスト対応にするデコレータ</div>
@@ -412,25 +404,9 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">新しい実行コンテキストを生成</div>
 </dd>
-<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#create(com.streamConverter.command.IStreamCommand...)" class="member-name-link">create(IStreamCommand...)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
-<dd>
-<div class="block">ファクトリメソッド：既存のコマンドからコンテキスト対応コンバーターを作成</div>
-</dd>
 <dt><a href="com/streamConverter/StreamConverter.html#create(com.streamConverter.command.IStreamCommand...)" class="member-name-link">create(IStreamCommand...)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
 <dd>
 <div class="block">Creates a StreamConverter with the specified array of commands.</div>
-</dd>
-<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#create(com.streamConverter.context.ExecutionContext,com.streamConverter.command.IStreamCommand...)" class="member-name-link">create(ExecutionContext, IStreamCommand...)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
-<dd>
-<div class="block">ファクトリメソッド：カスタムコンテキストでコンバーターを作成</div>
-</dd>
-<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#create(com.streamConverter.context.ExecutionContext,java.util.List)" class="member-name-link">create(ExecutionContext, List&lt;IStreamCommand&gt;)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
-<dd>
-<div class="block">ファクトリメソッド：カスタムコンテキストでリストからコンバーターを作成</div>
-</dd>
-<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#create(java.util.List)" class="member-name-link">create(List&lt;IStreamCommand&gt;)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
-<dd>
-<div class="block">ファクトリメソッド：リストからコンバーターを作成</div>
 </dd>
 <dt><a href="com/streamConverter/StreamConverter.html#create(java.util.List)" class="member-name-link">create(List&lt;IStreamCommand&gt;)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
 <dd>
@@ -503,6 +479,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/controller/ControllerFactory.html#createWithCommandFactory(java.lang.String,java.lang.String,boolean)" class="member-name-link">createWithCommandFactory(String, String, boolean)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
 <dd>
 <div class="block">Creates a controller using CommandFactory-style configuration.</div>
+</dd>
+<dt><a href="com/streamConverter/StreamConverter.html#createWithContext(com.streamConverter.context.ExecutionContext,com.streamConverter.command.IStreamCommand...)" class="member-name-link">createWithContext(ExecutionContext, IStreamCommand...)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
+<dd>
+<div class="block">Creates a StreamConverter with a custom ExecutionContext and specified commands.</div>
+</dd>
+<dt><a href="com/streamConverter/StreamConverter.html#createWithContext(com.streamConverter.context.ExecutionContext,java.util.List)" class="member-name-link">createWithContext(ExecutionContext, List&lt;IStreamCommand&gt;)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
+<dd>
+<div class="block">Creates a StreamConverter with a custom ExecutionContext and specified commands list.</div>
 </dd>
 <dt><a href="com/streamConverter/command/CommandFactory.html#createWithLogging(java.lang.Class,boolean,java.lang.Object...)" class="member-name-link">createWithLogging(Class&lt;T&gt;, boolean, Object...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" title="class in com.streamConverter.command">CommandFactory</a></dt>
 <dd>
@@ -975,10 +959,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#getErrors()" class="member-name-link">getErrors()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>
 <div class="block">エラーメッセージのリストを取得</div>
-</dd>
-<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#getExecutionContext()" class="member-name-link">getExecutionContext()</a> - Method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
-<dd>
-<div class="block">実行コンテキストを取得</div>
 </dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#getExecutionId()" class="member-name-link">getExecutionId()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
@@ -1455,6 +1435,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。StreamConverterの基本的な使用例を実行します。</div>
 </dd>
+<dt><a href="com/streamConverter/examples/StreamConverterMDCDemo.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/StreamConverterMDCDemo.html" title="class in com.streamConverter.examples">StreamConverterMDCDemo</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/examples/ValidationExample.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/ValidationExample.html" title="class in com.streamConverter.examples">ValidationExample</a></dt>
 <dd>
 <div class="block">メインメソッド</div>
@@ -1637,13 +1619,13 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">リソース使用量結果を構築します</div>
 </dd>
-<dt><a href="com/streamConverter/ContextAwareStreamConverter.html#run(java.io.InputStream,java.io.OutputStream)" class="member-name-link">run(InputStream, OutputStream)</a> - Method in class com.streamConverter.<a href="com/streamConverter/ContextAwareStreamConverter.html" title="class in com.streamConverter">ContextAwareStreamConverter</a></dt>
-<dd>
-<div class="block">ストリーム変換を実行</div>
-</dd>
 <dt><a href="com/streamConverter/StreamConverter.html#run(java.io.InputStream,java.io.OutputStream)" class="member-name-link">run(InputStream, OutputStream)</a> - Method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
 <dd>
-<div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。</div>
+<div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 自動的にExecutionContextを生成してMDC同期を実現する。</div>
+</dd>
+<dt><a href="com/streamConverter/StreamConverter.html#run(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)" class="member-name-link">run(InputStream, OutputStream, ExecutionContext)</a> - Method in class com.streamConverter.<a href="com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
+<dd>
+<div class="block">カスタムExecutionContextを使用してストリームを変換する。 マルチスレッド環境でのMDCコンテキスト伝播とログトレーサビリティを実現。</div>
 </dd>
 </dl>
 <h2 class="title" id="I:S">S</h2>
@@ -1759,6 +1741,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Comprehensive demo application for StreamConverter.</div>
 </dd>
 <dt><a href="com/streamConverter/demo/StreamConverterDemo.html#%3Cinit%3E()" class="member-name-link">StreamConverterDemo()</a> - Constructor for class com.streamConverter.demo.<a href="com/streamConverter/demo/StreamConverterDemo.html" title="class in com.streamConverter.demo">StreamConverterDemo</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/examples/StreamConverterMDCDemo.html" class="type-name-link" title="class in com.streamConverter.examples">StreamConverterMDCDemo</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
+<dd>
+<div class="block">StreamConverterのMDC機能統合デモ</div>
+</dd>
+<dt><a href="com/streamConverter/examples/StreamConverterMDCDemo.html#%3Cinit%3E()" class="member-name-link">StreamConverterMDCDemo()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/StreamConverterMDCDemo.html" title="class in com.streamConverter.examples">StreamConverterMDCDemo</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/StreamProcessingException.html" class="type-name-link" title="class in com.streamConverter">StreamProcessingException</a> - Exception in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
 <dd>

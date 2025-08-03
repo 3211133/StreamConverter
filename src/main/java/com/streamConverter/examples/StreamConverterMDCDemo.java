@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
 /**
  * StreamConverterのMDC機能統合デモ
  *
- * <p>このデモでは、ContextAwareStreamConverterの機能が StreamConverterに統合され、デフォルトでMDC同期が有効になることを示します。
+ * <p>このデモでは、StreamConverterに統合されたMDC機能により、デフォルトでMDC同期が有効になることを示します。
  */
 public class StreamConverterMDCDemo {
   private static final Logger logger = LoggerFactory.getLogger(StreamConverterMDCDemo.class);

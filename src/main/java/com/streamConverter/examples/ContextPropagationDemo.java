@@ -1,6 +1,6 @@
 package com.streamConverter.examples;
 
-import com.streamConverter.ContextAwareStreamConverter;
+import com.streamConverter.StreamConverter;
 import com.streamConverter.command.IContextAwareStreamCommand;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
@@ -17,7 +17,7 @@ import org.slf4j.LoggerFactory;
 /**
  * コンテキスト伝播機能のデモンストレーション
  *
- * <p>この例では、ExecutionContextとContextAwareStreamConverterを使用して マルチスレッド環境でのMDCコンテキスト伝播を実演します。
+ * <p>この例では、ExecutionContextとStreamConverterを使用して マルチスレッド環境でのMDCコンテキスト伝播を実演します。
  */
 public class ContextPropagationDemo {
 
@@ -64,9 +64,9 @@ public class ContextPropagationDemo {
     IStreamCommand transformCommand = new SampleStreamCommand("transformer");
     IStreamCommand outputCommand = new SampleStreamCommand("output");
 
-    // ContextAwareStreamConverterで実行
-    ContextAwareStreamConverter converter =
-        ContextAwareStreamConverter.create(validateCommand, transformCommand, outputCommand);
+    // StreamConverterで実行（MDC機能統合済み）
+    StreamConverter converter =
+        StreamConverter.create(validateCommand, transformCommand, outputCommand);
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
@@ -76,8 +76,7 @@ public class ContextPropagationDemo {
     converter.run(inputStream, outputStream);
 
     String result = outputStream.toString(StandardCharsets.UTF_8);
-    logger.info(
-        "Demo 1 completed. ExecutionId: {}", converter.getExecutionContext().getExecutionId());
+    logger.info("Demo 1 completed with automatic MDC generation.");
     logger.info("Output length: {} characters\n", result.length());
   }
 
@@ -102,8 +101,8 @@ public class ContextPropagationDemo {
     IContextAwareStreamCommand auditCommand = createAuditCommand();
 
     // カスタムコンテキストでコンバーター作成
-    ContextAwareStreamConverter converter =
-        ContextAwareStreamConverter.create(customContext, enrichmentCommand, auditCommand);
+    StreamConverter converter =
+        StreamConverter.createWithContext(customContext, enrichmentCommand, auditCommand);
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
@@ -113,9 +112,7 @@ public class ContextPropagationDemo {
     converter.run(inputStream, outputStream);
 
     String result = outputStream.toString(StandardCharsets.UTF_8);
-    logger.info(
-        "Demo 2 completed. Custom ExecutionId: {}",
-        converter.getExecutionContext().getExecutionId());
+    logger.info("Demo 2 completed. Custom ExecutionId: {}", customContext.getExecutionId());
     logger.info("Output length: {} characters\n", result.length());
   }
 
@@ -130,8 +127,8 @@ public class ContextPropagationDemo {
     IContextAwareStreamCommand contextCommand = createProductAnalysisCommand();
     IStreamCommand anotherLegacyCommand = new SampleStreamCommand("legacy-formatter");
 
-    ContextAwareStreamConverter converter =
-        ContextAwareStreamConverter.create(legacyCommand, contextCommand, anotherLegacyCommand);
+    StreamConverter converter =
+        StreamConverter.create(legacyCommand, contextCommand, anotherLegacyCommand);
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
@@ -141,9 +138,7 @@ public class ContextPropagationDemo {
     converter.run(inputStream, outputStream);
 
     String result = outputStream.toString(StandardCharsets.UTF_8);
-    logger.info(
-        "Demo 3 completed. Mixed ExecutionId: {}",
-        converter.getExecutionContext().getExecutionId());
+    logger.info("Demo 3 completed with mixed command types.");
     logger.info("Output length: {} characters\n", result.length());
   }
 
@@ -165,8 +160,8 @@ public class ContextPropagationDemo {
     IContextAwareStreamCommand metricsProcessorCommand = createMetricsProcessorCommand();
     IContextAwareStreamCommand alertingCommand = createAlertingCommand();
 
-    ContextAwareStreamConverter converter =
-        ContextAwareStreamConverter.create(
+    StreamConverter converter =
+        StreamConverter.createWithContext(
             trackingContext, metricsProcessorCommand, alertingCommand);
 
     ByteArrayInputStream inputStream =
@@ -177,9 +172,7 @@ public class ContextPropagationDemo {
     converter.run(inputStream, outputStream);
 
     String result = outputStream.toString(StandardCharsets.UTF_8);
-    logger.info(
-        "Demo 4 completed. Tracking ExecutionId: {}",
-        converter.getExecutionContext().getExecutionId());
+    logger.info("Demo 4 completed. Tracking ExecutionId: {}", trackingContext.getExecutionId());
     logger.info("Output length: {} characters", result.length());
     logger.info("All demonstrations completed successfully! 🎉");
   }

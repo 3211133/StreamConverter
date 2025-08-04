@@ -21,6 +21,12 @@ import org.slf4j.LoggerFactory;
 public class StreamConverterMDCDemo {
   private static final Logger logger = LoggerFactory.getLogger(StreamConverterMDCDemo.class);
 
+  /**
+   * Main method to demonstrate StreamConverter MDC integration.
+   *
+   * @param args command line arguments (not used)
+   * @throws IOException if file operations fail
+   */
   public static void main(String[] args) throws IOException {
     logger.info("🚀 StreamConverter MDC Integration Demo");
 

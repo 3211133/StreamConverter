@@ -43,9 +43,13 @@ public class JsonProcessingController extends AbstractStreamController {
 
   /** Processing scenarios for JSON */
   public enum ProcessingScenario {
+    /** Extract specific JSON property values */
     PROPERTY_EXTRACTION,
+    /** Format JSON for readability only */
     FORMAT_ONLY,
+    /** Validate JSON and extract properties */
     VALIDATION_WITH_EXTRACTION,
+    /** Apply multiple transformation stages */
     MULTI_STAGE_TRANSFORMATION
   }
 

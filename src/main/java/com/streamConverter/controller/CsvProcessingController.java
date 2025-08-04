@@ -37,9 +37,13 @@ public class CsvProcessingController extends AbstractStreamController {
 
   /** Processing mode enumeration */
   public enum ProcessingMode {
+    /** Extract specific column data from CSV */
     COLUMN_EXTRACTION,
+    /** Perform complex multi-step processing */
     COMPLEX_PROCESSING,
+    /** Validate CSV format only */
     VALIDATION_ONLY,
+    /** Pass through CSV data unchanged */
     PASS_THROUGH
   }
 

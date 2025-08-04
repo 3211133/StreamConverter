@@ -82,19 +82,24 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     }
   }
 
-  /** Apply transformation rule to entire CSV content */
+  /** Apply transformation rule to entire CSV content using streaming approach */
   private void applyRuleToEntireCsv(BufferedReader reader, Writer writer) throws IOException {
-    StringBuilder csvBuilder = new StringBuilder();
     String line;
+    boolean isFirstLine = true;
 
-    // Read entire CSV content
+    // Stream through CSV lines and apply rule to each line
     while ((line = reader.readLine()) != null) {
-      csvBuilder.append(line).append(System.lineSeparator());
+      if (!isFirstLine) {
+        writer.write(System.lineSeparator());
+      }
+
+      // Apply rule to each line individually to avoid loading entire CSV
+      String transformedLine = rule.apply(line);
+      writer.write(transformedLine);
+
+      isFirstLine = false;
     }
 
-    // Apply rule to entire content
-    String transformedCsv = rule.apply(csvBuilder.toString());
-    writer.write(transformedCsv);
     writer.flush();
   }
 

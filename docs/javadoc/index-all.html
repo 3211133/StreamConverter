@@ -84,6 +84,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">警告メッセージを追加</div>
 </dd>
+<dt><a href="com/streamConverter/command/rule/DatabaseFetchRule.html#apply(java.lang.String)" class="member-name-link">apply(String)</a> - Method in class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/DatabaseFetchRule.html" title="class in com.streamConverter.command.rule">DatabaseFetchRule</a></dt>
+<dd>
+<div class="block">ルールの適用を実行します。</div>
+</dd>
 <dt><a href="com/streamConverter/command/rule/IRule.html#apply(java.lang.String)" class="member-name-link">apply(String)</a> - Method in interface com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a></dt>
 <dd>
 <div class="block">ルールの適用を実行します。</div>
@@ -91,6 +95,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/rule/PassThroughRule.html#apply(java.lang.String)" class="member-name-link">apply(String)</a> - Method in class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/PassThroughRule.html" title="class in com.streamConverter.command.rule">PassThroughRule</a></dt>
 <dd>
 <div class="block">Apply the pass-through rule - returns input unchanged.</div>
+</dd>
+<dt><a href="com/streamConverter/command/rule/PooledDatabaseFetchRule.html#apply(java.lang.String)" class="member-name-link">apply(String)</a> - Method in class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/PooledDatabaseFetchRule.html" title="class in com.streamConverter.command.rule">PooledDatabaseFetchRule</a></dt>
+<dd>
+<div class="block">ルールの適用を実行します。</div>
 </dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#applyToMDC()" class="member-name-link">applyToMDC()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
@@ -533,6 +541,26 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:D">D</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/command/rule/DatabaseConnectionPool.html" class="type-name-link" title="class in com.streamConverter.command.rule">DatabaseConnectionPool</a> - Class in <a href="com/streamConverter/command/rule/package-summary.html">com.streamConverter.command.rule</a></dt>
+<dd>
+<div class="block">データベース接続プールの実装</div>
+</dd>
+<dt><a href="com/streamConverter/command/rule/DatabaseConnectionPool.html#%3Cinit%3E(java.lang.String)" class="member-name-link">DatabaseConnectionPool(String)</a> - Constructor for class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/DatabaseConnectionPool.html" title="class in com.streamConverter.command.rule">DatabaseConnectionPool</a></dt>
+<dd>
+<div class="block">デフォルト設定でコネクションプールを初期化</div>
+</dd>
+<dt><a href="com/streamConverter/command/rule/DatabaseConnectionPool.html#%3Cinit%3E(java.lang.String,int,long)" class="member-name-link">DatabaseConnectionPool(String, int, long)</a> - Constructor for class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/DatabaseConnectionPool.html" title="class in com.streamConverter.command.rule">DatabaseConnectionPool</a></dt>
+<dd>
+<div class="block">設定可能なコネクションプールを初期化</div>
+</dd>
+<dt><a href="com/streamConverter/command/rule/DatabaseFetchRule.html" class="type-name-link" title="class in com.streamConverter.command.rule">DatabaseFetchRule</a> - Class in <a href="com/streamConverter/command/rule/package-summary.html">com.streamConverter.command.rule</a></dt>
+<dd>
+<div class="block">データベースからデータを取得するルール</div>
+</dd>
+<dt><a href="com/streamConverter/command/rule/DatabaseFetchRule.html#%3Cinit%3E(java.lang.String,java.lang.String)" class="member-name-link">DatabaseFetchRule(String, String)</a> - Constructor for class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/DatabaseFetchRule.html" title="class in com.streamConverter.command.rule">DatabaseFetchRule</a></dt>
+<dd>
+<div class="block">コンストラクタ</div>
+</dd>
 <dt><a href="com/streamConverter/api/DataFormat.html" class="type-name-link" title="enum class in com.streamConverter.api">DataFormat</a> - Enum Class in <a href="com/streamConverter/api/package-summary.html">com.streamConverter.api</a></dt>
 <dd>
 <div class="block">データ形式を表すenum</div>
@@ -856,6 +884,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/controller/JsonProcessingController.html#getConfigurationDescription()" class="member-name-link">getConfigurationDescription()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/rule/DatabaseConnectionPool.html#getConnection()" class="member-name-link">getConnection()</a> - Method in class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/DatabaseConnectionPool.html" title="class in com.streamConverter.command.rule">DatabaseConnectionPool</a></dt>
+<dd>
+<div class="block">プールから接続を取得</div>
+</dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.html#getController(java.lang.String,com.streamConverter.controller.OutputType)" class="member-name-link">getController(String, OutputType)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
 <dd>
 <div class="block">Gets a controller for the specified input and output data types using OutputType enum.</div>
@@ -1027,6 +1059,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#getPipelineInfo()" class="member-name-link">getPipelineInfo()</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">現在のパイプライン情報を取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/rule/DatabaseConnectionPool.html#getPoolStats()" class="member-name-link">getPoolStats()</a> - Method in class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/DatabaseConnectionPool.html" title="class in com.streamConverter.command.rule">DatabaseConnectionPool</a></dt>
+<dd>
+<div class="block">プールの現在の統計情報を取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/rule/PooledDatabaseFetchRule.html#getPoolStats()" class="member-name-link">getPoolStats()</a> - Method in class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/PooledDatabaseFetchRule.html" title="class in com.streamConverter.command.rule">PooledDatabaseFetchRule</a></dt>
+<dd>
+<div class="block">プールの統計情報を取得</div>
 </dd>
 <dt><a href="com/streamConverter/controller/CsvProcessingController.html#getProcessingMode()" class="member-name-link">getProcessingMode()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
 <dd>
@@ -1513,6 +1553,14 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/examples/PerformanceOptimizationExamples.html#%3Cinit%3E()" class="member-name-link">PerformanceOptimizationExamples()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/PerformanceOptimizationExamples.html" title="class in com.streamConverter.examples">PerformanceOptimizationExamples</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/rule/PooledDatabaseFetchRule.html" class="type-name-link" title="class in com.streamConverter.command.rule">PooledDatabaseFetchRule</a> - Class in <a href="com/streamConverter/command/rule/package-summary.html">com.streamConverter.command.rule</a></dt>
+<dd>
+<div class="block">コネクションプール対応のデータベースフェッチルール</div>
+</dd>
+<dt><a href="com/streamConverter/command/rule/PooledDatabaseFetchRule.html#%3Cinit%3E(com.streamConverter.command.rule.DatabaseConnectionPool,java.lang.String)" class="member-name-link">PooledDatabaseFetchRule(DatabaseConnectionPool, String)</a> - Constructor for class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/PooledDatabaseFetchRule.html" title="class in com.streamConverter.command.rule">PooledDatabaseFetchRule</a></dt>
+<dd>
+<div class="block">コンストラクタ</div>
+</dd>
 <dt><a href="com/streamConverter/controller/AbstractStreamController.html#process(java.io.InputStream,java.io.OutputStream)" class="member-name-link">process(InputStream, OutputStream)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
 <dd>
 <div class="block">Processes data from input stream to output stream using the configured command pipeline.</div>
@@ -1635,6 +1683,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#setUserContext(java.lang.String,java.lang.String)" class="member-name-link">setUserContext(String, String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
 <div class="block">ユーザーコンテキスト値を設定</div>
+</dd>
+<dt><a href="com/streamConverter/command/rule/DatabaseConnectionPool.html#shutdown()" class="member-name-link">shutdown()</a> - Method in class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/DatabaseConnectionPool.html" title="class in com.streamConverter.command.rule">DatabaseConnectionPool</a></dt>
+<dd>
+<div class="block">プールをシャットダウンし、全ての接続をクローズ</div>
 </dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#skip(long)" class="member-name-link">skip(long)</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>

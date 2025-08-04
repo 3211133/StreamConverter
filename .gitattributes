@@ -11,4 +11,4 @@
 *.jar           binary
 
 # Javadocをレビュー対象にしない
-docs/javadoc/*  linguist-generated=true
+docs/javadoc/**  linguist-generated=true

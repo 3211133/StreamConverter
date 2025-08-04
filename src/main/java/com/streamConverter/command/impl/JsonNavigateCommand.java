@@ -21,8 +21,11 @@ import java.nio.charset.StandardCharsets;
  */
 public class JsonNavigateCommand extends AbstractStreamCommand {
 
-  private String jsonPath;
-  private IRule rule;
+  private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming
+  private static final int PROCESSING_THRESHOLD = 65536; // 64KB processing threshold
+
+  private final String jsonPath;
+  private final IRule rule;
 
   /**
    * Constructor for JSON navigation with JSONPath selector and transformation rule.
@@ -55,14 +58,9 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   @Override
   protected String getCommandDetails() {
-    if (jsonPath != null) {
-      return String.format(
-          "JsonNavigateCommand(jsonPath='%s', rule='%s')",
-          jsonPath, rule.getClass().getSimpleName());
-    } else {
-      return String.format(
-          "JsonNavigateCommand(entire JSON, rule='%s')", rule.getClass().getSimpleName());
-    }
+    String pathInfo = jsonPath != null ? String.format("jsonPath='%s'", jsonPath) : "entire JSON";
+    return String.format(
+        "JsonNavigateCommand(%s, rule='%s')", pathInfo, rule.getClass().getSimpleName());
   }
 
   @Override
@@ -83,33 +81,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Apply transformation rule to entire JSON content using memory-efficient approach */
   private void applyRuleToEntireJson(BufferedReader reader, Writer writer) throws IOException {
-    // Load JSON in chunks to maintain memory efficiency while preserving structure
-    StringBuilder jsonBuffer = new StringBuilder();
-    char[] buffer = new char[8192]; // 8KB buffer for streaming
-    int charsRead;
-
-    // Read JSON in chunks instead of line-by-line to preserve JSON structure
-    while ((charsRead = reader.read(buffer)) != -1) {
-      jsonBuffer.append(buffer, 0, charsRead);
-
-      // Process complete JSON tokens when buffer reaches threshold
-      if (jsonBuffer.length() > 65536) { // 64KB threshold
-        String chunk = jsonBuffer.toString();
-        String transformedChunk = rule.apply(chunk);
-        writer.write(transformedChunk);
-        writer.flush();
-        jsonBuffer.setLength(0); // Clear buffer
-      }
-    }
-
-    // Process remaining content
-    if (jsonBuffer.length() > 0) {
-      String remaining = jsonBuffer.toString();
-      String transformedRemaining = rule.apply(remaining);
-      writer.write(transformedRemaining);
-    }
-
-    writer.flush();
+    processJsonInChunks(reader, writer, rule);
   }
 
   /**
@@ -118,17 +90,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    */
   private void applyRuleToJsonPath(BufferedReader reader, Writer writer) throws IOException {
     // JSONPath requires complete JSON structure - use controlled memory approach
-    StringBuilder jsonBuilder = new StringBuilder();
-    char[] buffer = new char[8192]; // 8KB buffer for streaming read
-    int charsRead;
-
-    // Read JSON in manageable chunks while preserving structure
-    while ((charsRead = reader.read(buffer)) != -1) {
-      jsonBuilder.append(buffer, 0, charsRead);
-    }
-
-    // Process complete JSON with JSONPath - this ensures path evaluation works correctly
-    String completeJson = jsonBuilder.toString();
+    String completeJson = readCompleteJsonFromReader(reader);
     String transformedJson = applyRuleToJsonPathComplete(completeJson, jsonPath, rule);
 
     writer.write(transformedJson);
@@ -449,5 +411,50 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     }
 
     return json.substring(start, end);
+  }
+
+  // Common utility methods
+  private void processJsonInChunks(BufferedReader reader, Writer writer, IRule rule)
+      throws IOException {
+    StringBuilder jsonBuffer = new StringBuilder();
+    char[] buffer = new char[BUFFER_SIZE];
+    int charsRead;
+
+    // Read JSON in chunks instead of line-by-line to preserve JSON structure
+    while ((charsRead = reader.read(buffer)) != -1) {
+      jsonBuffer.append(buffer, 0, charsRead);
+
+      // Process complete JSON tokens when buffer reaches threshold
+      if (jsonBuffer.length() > PROCESSING_THRESHOLD) {
+        processAndWriteChunk(jsonBuffer.toString(), writer, rule);
+        jsonBuffer.setLength(0); // Clear buffer
+      }
+    }
+
+    // Process remaining content
+    if (jsonBuffer.length() > 0) {
+      processAndWriteChunk(jsonBuffer.toString(), writer, rule);
+    }
+
+    writer.flush();
+  }
+
+  private void processAndWriteChunk(String chunk, Writer writer, IRule rule) throws IOException {
+    String transformedChunk = rule.apply(chunk);
+    writer.write(transformedChunk);
+    writer.flush();
+  }
+
+  private String readCompleteJsonFromReader(BufferedReader reader) throws IOException {
+    StringBuilder jsonBuilder = new StringBuilder();
+    char[] buffer = new char[BUFFER_SIZE];
+    int charsRead;
+
+    // Read JSON in manageable chunks while preserving structure
+    while ((charsRead = reader.read(buffer)) != -1) {
+      jsonBuilder.append(buffer, 0, charsRead);
+    }
+
+    return jsonBuilder.toString();
   }
 }

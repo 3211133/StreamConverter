@@ -32,7 +32,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private String xpath;
   private IRule rule;
   private FixedStaXPathHandler pathHandler;
-  private static final XMLEventFactory eventFactory = XMLEventFactory.newInstance();
+  private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
   /**
    * Constructor for XML navigation with XPath selector and transformation rule.
@@ -93,48 +93,17 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   /** Apply transformation rule to entire XML content */
   private void applyRuleToEntireXml(InputStream inputStream, Writer writer)
       throws IOException, XMLStreamException {
-    // Use streaming XML processing instead of loading entire content
-    XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-    XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-
-    XMLEventReader eventReader = inputFactory.createXMLEventReader(inputStream);
-    XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(writer);
-
-    // Check for empty input
-    if (!eventReader.hasNext()) {
-      throw new IOException("Empty XML input");
-    }
+    XMLEventReader eventReader = null;
+    XMLEventWriter eventWriter = null;
 
     try {
-      // Stream through XML events and apply rule to character data
-      while (eventReader.hasNext()) {
-        XMLEvent event = eventReader.nextEvent();
-
-        if (event.isCharacters()) {
-          String originalData = event.asCharacters().getData();
-          String transformedData = rule.apply(originalData);
-          if (!originalData.equals(transformedData)) {
-            XMLEvent transformedEvent =
-                XMLEventFactory.newInstance().createCharacters(transformedData);
-            eventWriter.add(transformedEvent);
-          } else {
-            eventWriter.add(event);
-          }
-        } else {
-          eventWriter.add(event);
-        }
-      }
-
-      eventWriter.flush();
+      eventReader = createXMLEventReader(inputStream);
+      eventWriter = createXMLEventWriter(writer);
+      processXmlEvents(eventReader, eventWriter, (event, data) -> rule.apply(data));
     } catch (XMLStreamException e) {
-      // Check for common XML issues to maintain test compatibility
-      if (e.getMessage().contains("unclosed") || e.getMessage().contains("end")) {
-        throw new IOException("Invalid XML format - unclosed tags");
-      }
-      throw new IOException("Invalid XML format", e);
+      handleXmlException(e);
     } finally {
-      eventReader.close();
-      eventWriter.close();
+      closeResources(eventReader, eventWriter);
     }
   }
 
@@ -144,18 +113,18 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    */
   private void applyRuleToXmlPath(InputStream inputStream, Writer writer)
       throws IOException, XMLStreamException {
-    XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-    XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+    XMLEventReader eventReader = null;
+    XMLEventWriter eventWriter = null;
 
-    XMLEventReader eventReader = inputFactory.createXMLEventReader(inputStream);
-    XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(writer);
-
-    // Apply rule-aware navigation using existing pathHandler
-    navigateXmlWithRule(eventReader, eventWriter, pathHandler, rule);
-
-    eventWriter.flush();
-    eventReader.close();
-    eventWriter.close();
+    try {
+      eventReader = createXMLEventReader(inputStream);
+      eventWriter = createXMLEventWriter(writer);
+      navigateXmlWithRule(eventReader, eventWriter, pathHandler, rule);
+    } catch (XMLStreamException e) {
+      handleXmlException(e);
+    } finally {
+      closeResources(eventReader, eventWriter);
+    }
   }
 
   private void navigateXmlWithRule(
@@ -188,7 +157,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
           if (currentPath.size() == targetDepth) {
             inTargetElement = false;
             // Add newline as simple characters
-            eventWriter.add(eventFactory.createCharacters("\n"));
+            eventWriter.add(EVENT_FACTORY.createCharacters("\n"));
           }
         }
         currentPath.remove(currentPath.size() - 1);
@@ -198,7 +167,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         String transformedData = rule.apply(originalData);
         if (!originalData.equals(transformedData)) {
           // Create new character event with transformed data
-          XMLEvent transformedEvent = eventFactory.createCharacters(transformedData);
+          XMLEvent transformedEvent = EVENT_FACTORY.createCharacters(transformedData);
           eventWriter.add(transformedEvent);
         } else {
           eventWriter.add(event);
@@ -207,5 +176,71 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     }
   }
 
-  private XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+  // Common factory methods and utilities
+  private XMLEventReader createXMLEventReader(InputStream inputStream) throws XMLStreamException {
+    XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+    XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);
+    if (!reader.hasNext()) {
+      throw new XMLStreamException("Empty XML input");
+    }
+    return reader;
+  }
+
+  private XMLEventWriter createXMLEventWriter(Writer writer) throws XMLStreamException {
+    XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+    return outputFactory.createXMLEventWriter(writer);
+  }
+
+  private void handleXmlException(XMLStreamException e) throws IOException {
+    String message = e.getMessage();
+    if (message != null && (message.contains("unclosed") || message.contains("end"))) {
+      throw new IOException("Invalid XML format - unclosed tags", e);
+    }
+    throw new IOException("Invalid XML format", e);
+  }
+
+  @FunctionalInterface
+  private interface CharacterDataProcessor {
+    String process(XMLEvent event, String data);
+  }
+
+  private void processXmlEvents(
+      XMLEventReader eventReader, XMLEventWriter eventWriter, CharacterDataProcessor processor)
+      throws XMLStreamException {
+    while (eventReader.hasNext()) {
+      XMLEvent event = eventReader.nextEvent();
+
+      if (event.isCharacters()) {
+        String originalData = event.asCharacters().getData();
+        String transformedData = processor.process(event, originalData);
+
+        if (!originalData.equals(transformedData)) {
+          XMLEvent transformedEvent = EVENT_FACTORY.createCharacters(transformedData);
+          eventWriter.add(transformedEvent);
+        } else {
+          eventWriter.add(event);
+        }
+      } else {
+        eventWriter.add(event);
+      }
+    }
+    eventWriter.flush();
+  }
+
+  private void closeResources(XMLEventReader eventReader, XMLEventWriter eventWriter) {
+    if (eventReader != null) {
+      try {
+        eventReader.close();
+      } catch (XMLStreamException e) {
+        // Log but don't throw - we're in cleanup
+      }
+    }
+    if (eventWriter != null) {
+      try {
+        eventWriter.close();
+      } catch (XMLStreamException e) {
+        // Log but don't throw - we're in cleanup
+      }
+    }
+  }
 }

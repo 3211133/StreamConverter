@@ -21,8 +21,8 @@ import java.nio.charset.StandardCharsets;
  */
 public class CsvNavigateCommand extends AbstractStreamCommand {
 
-  private String columnSelector;
-  private IRule rule;
+  private final String columnSelector;
+  private final IRule rule;
   private int columnIndex = -1;
 
   /**
@@ -56,14 +56,12 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
 
   @Override
   protected String getCommandDetails() {
-    if (columnSelector != null) {
-      return String.format(
-          "CsvNavigateCommand(columnSelector='%s', rule='%s')",
-          columnSelector, rule.getClass().getSimpleName());
-    } else {
-      return String.format(
-          "CsvNavigateCommand(all columns, rule='%s')", rule.getClass().getSimpleName());
-    }
+    String selectorInfo =
+        columnSelector != null
+            ? String.format("columnSelector='%s'", columnSelector)
+            : "all columns";
+    return String.format(
+        "CsvNavigateCommand(%s, rule='%s')", selectorInfo, rule.getClass().getSimpleName());
   }
 
   @Override

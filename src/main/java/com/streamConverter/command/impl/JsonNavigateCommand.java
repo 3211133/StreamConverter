@@ -29,8 +29,12 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    *
    * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
    * @param rule the transformation rule to apply to selected elements
+   * @throws IllegalArgumentException if rule is null
    */
   public JsonNavigateCommand(String jsonPath, IRule rule) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
     this.jsonPath = jsonPath;
     this.rule = rule;
   }

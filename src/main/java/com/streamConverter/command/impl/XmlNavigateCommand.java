@@ -37,8 +37,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    *
    * @param xpath the XPath expression to select elements (e.g., "users/user/name")
    * @param rule the transformation rule to apply to selected elements
+   * @throws IllegalArgumentException if rule is null
    */
   public XmlNavigateCommand(String xpath, IRule rule) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
     this.xpath = xpath;
     this.rule = rule;
     if (xpath != null) {

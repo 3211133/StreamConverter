@@ -30,8 +30,12 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    *
    * @param columnSelector the column name or index to select (e.g., "name", "2")
    * @param rule the transformation rule to apply to selected column
+   * @throws IllegalArgumentException if rule is null
    */
   public CsvNavigateCommand(String columnSelector, IRule rule) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
     this.columnSelector = columnSelector;
     this.rule = rule;
   }

@@ -13,9 +13,13 @@ public class PassThroughRule implements IRule {
    *
    * @param input the input string to process
    * @return the same input string without any modifications
+   * @throws IllegalArgumentException if input is null
    */
   @Override
   public String apply(String input) {
+    if (input == null) {
+      throw new IllegalArgumentException("Input cannot be null");
+    }
     return input;
   }
 }

@@ -200,8 +200,9 @@ public class DatabaseFetchRule implements IRule {
         String sanitizedInput = sanitizeInput(input);
         if (sanitizedInput == null || sanitizedInput.isEmpty()) {
           logger.warn(
-              "Input parameter was sanitized to empty string, using original input: {}", input);
-          sanitizedInput = input; // 元の値を使用（PreparedStatementがエスケープを処理）
+              "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",
+              input);
+          return "";
         }
 
         statement.setString(1, sanitizedInput);

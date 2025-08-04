@@ -238,11 +238,15 @@ public class PooledDatabaseFetchRuleIntegrationTest {
             "Pooled version (%dms) should be faster than or equal to non-pooled version (%dms)",
             pooledDuration, nonPooledDuration));
 
-    System.out.printf(
-        "Performance comparison - Non-pooled: %dms, Pooled: %dms (%.1fx improvement)%n",
-        nonPooledDuration,
-        pooledDuration,
-        (double) nonPooledDuration / Math.max(pooledDuration, 1));
+    if (pooledDuration == 0) {
+      System.out.printf(
+          "Performance comparison - Non-pooled: %dms, Pooled: %dms (improvement: infinite or unmeasurable)%n",
+          nonPooledDuration, pooledDuration);
+    } else {
+      System.out.printf(
+          "Performance comparison - Non-pooled: %dms, Pooled: %dms (%.1fx improvement)%n",
+          nonPooledDuration, pooledDuration, (double) nonPooledDuration / pooledDuration);
+    }
   }
 
   @Test

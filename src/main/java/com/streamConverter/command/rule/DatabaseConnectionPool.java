@@ -222,7 +222,7 @@ public class DatabaseConnectionPool {
       }
     }
 
-    // Connection インターface のすべてのメソッドを delegate に委譲
+    // Connection インターフェース のすべてのメソッドを delegate に委譲
     @Override
     public java.sql.Statement createStatement() throws SQLException {
       return delegate.createStatement();

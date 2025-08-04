@@ -81,45 +81,48 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     }
   }
 
-  /**
-   * Apply transformation rule to entire JSON content Reads the entire JSON, applies the rule, and
-   * outputs the result
-   */
+  /** Apply transformation rule to entire JSON content using streaming approach */
   private void applyRuleToEntireJson(BufferedReader reader, Writer writer) throws IOException {
-    StringBuilder jsonBuilder = new StringBuilder();
     String line;
+    boolean isFirstLine = true;
 
-    // Read entire JSON content
+    // Stream through JSON lines and apply rule
     while ((line = reader.readLine()) != null) {
-      jsonBuilder.append(line);
+      if (!isFirstLine) {
+        writer.write(System.lineSeparator());
+      }
+
+      // Apply rule to each line individually to avoid loading entire JSON
+      String transformedLine = rule.apply(line);
+      writer.write(transformedLine);
+
+      isFirstLine = false;
     }
 
-    // Apply rule to entire content
-    String transformedJson = rule.apply(jsonBuilder.toString());
-    writer.write(transformedJson);
     writer.flush();
   }
 
   /**
-   * Apply transformation rule to specific JSONPath elements while preserving JSON structure This is
-   * a simplified implementation - production version would need proper JSON parsing
+   * Apply transformation rule to specific JSONPath elements while preserving JSON structure Uses
+   * streaming approach to avoid loading entire JSON into memory
    */
   private void applyRuleToJsonPath(BufferedReader reader, Writer writer) throws IOException {
-    StringBuilder jsonBuilder = new StringBuilder();
     String line;
+    boolean isFirstLine = true;
 
-    // Read entire JSON content
+    // Stream through JSON lines and apply path-specific transformations
     while ((line = reader.readLine()) != null) {
-      jsonBuilder.append(line);
+      if (!isFirstLine) {
+        writer.write(System.lineSeparator());
+      }
+
+      // Apply rule to specific JSONPath elements within this line
+      String transformedLine = applyRuleToJsonPathSimple(line, jsonPath, rule);
+      writer.write(transformedLine);
+
+      isFirstLine = false;
     }
 
-    String originalJson = jsonBuilder.toString();
-
-    // For now, apply simple path-based transformation
-    // In production, this would use proper JSONPath library
-    String transformedJson = applyRuleToJsonPathSimple(originalJson, jsonPath, rule);
-
-    writer.write(transformedJson);
     writer.flush();
   }
 

@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 /** Unit tests for CsvNavigateCommand. */
 class CsvNavigateCommandTest {
 
+  private static final int LARGE_CSV_ROW_COUNT = 8000;
+
   private CsvNavigateCommand command;
 
   @BeforeEach
@@ -82,7 +84,7 @@ class CsvNavigateCommandTest {
     csvBuilder.append("id,name,email,department,salary,description\n");
 
     // Create 1MB of CSV data (simulating larger processing)
-    for (int i = 0; i < 8000; i++) {
+    for (int i = 0; i < LARGE_CSV_ROW_COUNT; i++) {
       csvBuilder.append(
           String.format(
               "%d,Employee%d,employee%d@company.com,Department%d,%.2f,Extended employee description with additional data to increase CSV record size %d\n",

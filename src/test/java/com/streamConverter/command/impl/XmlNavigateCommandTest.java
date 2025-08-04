@@ -19,6 +19,8 @@ import org.junit.jupiter.api.Test;
 /** Unit tests for XmlNavigateCommand. */
 class XmlNavigateCommandTest {
 
+  private static final int NUM_XML_ITEMS_FOR_LARGE_DATA_TEST = 10000;
+
   private XmlNavigateCommand command;
 
   @BeforeEach
@@ -101,7 +103,7 @@ class XmlNavigateCommandTest {
     xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n");
 
     // Create 1MB of XML data (simulating larger processing)
-    for (int i = 0; i < 10000; i++) {
+    for (int i = 0; i < NUM_XML_ITEMS_FOR_LARGE_DATA_TEST; i++) {
       xmlBuilder.append(
           String.format(
               "  <item id=\"%d\">Data content %d with some additional text to increase size</item>\n",

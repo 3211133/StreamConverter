@@ -18,6 +18,8 @@ import org.junit.jupiter.api.Test;
 /** Unit tests for JsonNavigateCommand. */
 class JsonNavigateCommandTest {
 
+  private static final int LARGE_JSON_USER_COUNT = 5000;
+
   private JsonNavigateCommand command;
 
   @BeforeEach
@@ -92,7 +94,7 @@ class JsonNavigateCommandTest {
     jsonBuilder.append("{\n  \"data\": [\n");
 
     // Create 1MB of JSON data (simulating larger processing)
-    for (int i = 0; i < 5000; i++) {
+    for (int i = 0; i < LARGE_JSON_USER_COUNT; i++) {
       jsonBuilder.append(
           String.format(
               "    {\"id\": %d, \"name\": \"User %d\", \"description\": \"Extended user description with additional data to increase JSON size %d\"},\n",

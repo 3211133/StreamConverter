@@ -12,6 +12,7 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Logger;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -28,11 +29,12 @@ import javax.xml.stream.events.XMLEvent;
  * while preserving the overall XML structure.
  */
 public class XmlNavigateCommand extends AbstractStreamCommand {
+  private static final Logger LOGGER = Logger.getLogger(XmlNavigateCommand.class.getName());
+  private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
   private String xpath;
   private IRule rule;
   private FixedStaXPathHandler pathHandler;
-  private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
   /**
    * Constructor for XML navigation with XPath selector and transformation rule.
@@ -232,14 +234,14 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       try {
         eventReader.close();
       } catch (XMLStreamException e) {
-        // Log but don't throw - we're in cleanup
+        LOGGER.warning("Failed to close XMLEventReader: " + e.getMessage());
       }
     }
     if (eventWriter != null) {
       try {
         eventWriter.close();
       } catch (XMLStreamException e) {
-        // Log but don't throw - we're in cleanup
+        LOGGER.warning("Failed to close XMLEventWriter: " + e.getMessage());
       }
     }
   }

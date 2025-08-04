@@ -1,7 +1,6 @@
 package com.streamConverter.command.rule;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
@@ -12,36 +11,43 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * データベースからデータを取得するルール
+ * コネクションプール対応のデータベースフェッチルール
  *
- * <p>このクラスは、データベースからデータを取得するためのルールを定義します。 具体的なデータベース接続やクエリ実行のロジックは、このクラスで実装されます。
+ * <p>DatabaseFetchRuleの高性能版です。DatabaseConnectionPoolを使用して接続の再利用により
+ * パフォーマンスを大幅に向上させます。特に大量のデータ処理や高頻度のデータベースアクセスが 必要な場合に効果的です。
  *
  * <p>使用例:
  *
  * <pre>{@code
- * // 基本的な使用例
- * DatabaseFetchRule rule = new DatabaseFetchRule(
- *     "jdbc:h2:mem:testdb",
+ * // コネクションプールを作成
+ * DatabaseConnectionPool pool = new DatabaseConnectionPool("jdbc:h2:mem:testdb", 10, 30000);
+ *
+ * // プール対応ルールを作成
+ * PooledDatabaseFetchRule rule = new PooledDatabaseFetchRule(
+ *     pool,
  *     "SELECT name FROM users WHERE id = ?"
  * );
- * String result = rule.apply("123"); // ユーザーID 123 の名前を取得
  *
- * // NavigateCommandと組み合わせた使用例
- * JsonNavigateCommand command = new JsonNavigateCommand("$.userId", rule);
- * command.execute(inputStream, outputStream); // JSON中のuserIdでDBを検索して置換
+ * // 大量処理でも高速
+ * for (int i = 0; i < 10000; i++) {
+ *     String result = rule.apply(String.valueOf(i));
+ * }
+ *
+ * // 使用後はプールをシャットダウン
+ * pool.shutdown();
  * }</pre>
  *
- * <p>セキュリティ機能:
+ * <p>DatabaseFetchRuleとの違い:
  *
  * <ul>
- *   <li>SELECTクエリのみ許可（INSERT/UPDATE/DELETE等は禁止）
- *   <li>SQLインジェクション攻撃の検出と防止
- *   <li>許可されたデータベーススキーマのみ接続可能
- *   <li>入力パラメータの自動サニタイズ
+ *   <li>接続プール使用によりパフォーマンス大幅向上
+ *   <li>リソース使用量の最適化
+ *   <li>複数スレッドからの同時アクセス対応
+ *   <li>接続の自動検証と回復
  * </ul>
  */
-public class DatabaseFetchRule implements IRule {
-  private static final Logger logger = LoggerFactory.getLogger(DatabaseFetchRule.class);
+public class PooledDatabaseFetchRule implements IRule {
+  private static final Logger logger = LoggerFactory.getLogger(PooledDatabaseFetchRule.class);
 
   /** SQLインジェクション攻撃を検出するパターン（SELECT以外の危険なSQL文） */
   private static final Pattern SQL_INJECTION_PATTERN =
@@ -49,66 +55,28 @@ public class DatabaseFetchRule implements IRule {
           "(?i).*(union|insert|update|delete|drop|create|alter|exec|execute|sp_|xp_).*",
           Pattern.CASE_INSENSITIVE);
 
-  /** 許可されるデータベースURLスキーマ（テスト用のmockも含む） */
-  private static final Pattern ALLOWED_DB_SCHEME_PATTERN =
-      Pattern.compile(
-          "^jdbc:(h2|hsqldb|sqlite|postgresql|mysql|mock):.*", Pattern.CASE_INSENSITIVE);
-
-  private final String databaseUrl;
+  private final DatabaseConnectionPool connectionPool;
   private final String query;
 
   /**
    * コンストラクタ
    *
-   * <p>データベースのURLとクエリを指定して、DatabaseFetchRuleのインスタンスを初期化します。
-   * クエリは一意な結果を返すように設計されるべきです（例：DISTINCT、LIMIT句の使用など）。 セキュリティのため、URLとクエリの検証を実行します。
-   *
-   * @param databaseUrl データベースのURL（許可されたスキーマのみ）
-   * @param query データベースに対するクエリ（SELECTクエリのみ許可）
+   * @param connectionPool データベース接続プール
+   * @param query データベースクエリ（SELECTクエリのみ許可）
    * @throws IllegalArgumentException 無効なパラメータが指定された場合
    * @throws SecurityException セキュリティ違反が検出された場合
    */
-  public DatabaseFetchRule(String databaseUrl, String query) {
-    Objects.requireNonNull(databaseUrl, "Database URL cannot be null");
+  public PooledDatabaseFetchRule(DatabaseConnectionPool connectionPool, String query) {
+    Objects.requireNonNull(connectionPool, "Connection pool cannot be null");
     Objects.requireNonNull(query, "Query cannot be null");
 
-    // データベースURLの検証
-    this.databaseUrl = validateDatabaseUrl(databaseUrl.trim());
-
-    // クエリの検証
+    this.connectionPool = connectionPool;
     this.query = validateQuery(query.trim());
 
     logger.info(
-        "DatabaseFetchRule initialized with secure validation - URL: {}, Query length: {}",
-        this.databaseUrl,
-        this.query.length());
-  }
-
-  /**
-   * データベースURLを検証します（セキュリティ対策）
-   *
-   * @param url 検証対象のURL
-   * @return 検証済みのURL
-   * @throws SecurityException 不正なURLが検出された場合
-   */
-  private String validateDatabaseUrl(String url) {
-    if (url.isEmpty()) {
-      throw new IllegalArgumentException("Database URL cannot be empty");
-    }
-
-    // 許可されたスキーマのチェック
-    if (!ALLOWED_DB_SCHEME_PATTERN.matcher(url).matches()) {
-      throw new SecurityException(
-          "Database URL uses unsupported or potentially dangerous scheme: " + url);
-    }
-
-    // 危険な文字列の検出
-    if (url.contains("..") || url.contains("file:") || url.contains("javascript:")) {
-      throw new SecurityException("Database URL contains potentially dangerous patterns: " + url);
-    }
-
-    logger.debug("Database URL validation passed: {}", url);
-    return url;
+        "PooledDatabaseFetchRule initialized - Query length: {}, Pool: {}",
+        this.query.length(),
+        connectionPool.getPoolStats());
   }
 
   /**
@@ -128,7 +96,7 @@ public class DatabaseFetchRule implements IRule {
       throw new SecurityException("Only SELECT queries are allowed: " + queryString);
     }
 
-    // SQLインジェクション攻撃の検出（パターンマッチング使用）
+    // SQLインジェクション攻撃の検出
     if (SQL_INJECTION_PATTERN.matcher(queryString).matches()) {
       throw new SecurityException(
           "Query contains potentially dangerous SQL commands: " + queryString);
@@ -174,11 +142,10 @@ public class DatabaseFetchRule implements IRule {
   /**
    * ルールの適用を実行します。
    *
-   * <p>このメソッドは、ストリーム変換の際にルールを適用するために使用されます。 データベースからデータを取得するロジックを実装します。 結果セットの先頭行・先頭列の値を返却します。
-   * 結果が1行1列でない場合は警告をログに出力します。
+   * <p>コネクションプールから接続を取得してクエリを実行し、結果の先頭行・先頭列の値を返します。 接続はプールに自動的に返却されるため、高いパフォーマンスを実現します。
    *
    * @param input 変換対象の文字列（クエリパラメータとして使用）
-   * @return String output クエリ結果の先頭値、または空文字列（結果がない場合）
+   * @return クエリ結果の先頭値、または空文字列（結果がない場合）
    */
   @Override
   public String apply(String input) {
@@ -187,21 +154,20 @@ public class DatabaseFetchRule implements IRule {
     ResultSet resultSet = null;
 
     try {
-      // データベース接続
-      logger.debug("データベースに接続: {}", databaseUrl);
-      connection = DriverManager.getConnection(databaseUrl);
+      // プールから接続を取得
+      logger.debug("Getting connection from pool: {}", connectionPool.getPoolStats());
+      connection = connectionPool.getConnection();
 
       // クエリの準備
       statement = connection.prepareStatement(query);
 
       // 入力文字列をパラメータとして設定（クエリに「?」プレースホルダーがある場合）
       if (query.contains("?") && input != null && !input.isEmpty()) {
-        // 入力値のサニタイズとセキュリティチェック
         String sanitizedInput = sanitizeInput(input);
         if (sanitizedInput == null || sanitizedInput.isEmpty()) {
           logger.warn(
               "Input parameter was sanitized to empty string, using original input: {}", input);
-          sanitizedInput = input; // 元の値を使用（PreparedStatementがエスケープを処理）
+          sanitizedInput = input;
         }
 
         statement.setString(1, sanitizedInput);
@@ -209,7 +175,7 @@ public class DatabaseFetchRule implements IRule {
       }
 
       // クエリ実行
-      logger.debug("クエリを実行: {}", query);
+      logger.debug("Executing query with pooled connection: {}", query);
       resultSet = statement.executeQuery();
 
       // 結果の検証と処理
@@ -239,33 +205,33 @@ public class DatabaseFetchRule implements IRule {
       // nullチェック
       if (value == null) {
         logger.info("クエリ結果の先頭値がNULLです。");
-        return ""; // NULLの場合は空文字列を返す
+        return "";
       }
 
       // 結果が理想的（1行1列）かどうかをログに記録
       if (columnCount == 1 && !hasMoreRows) {
-        logger.info("データベースから単一値を取得しました: {}", value);
+        logger.debug("データベースから単一値を取得しました（プール使用）: {}", value);
       } else {
-        logger.info("データベースから先頭値を取得しました: {}", value);
+        logger.debug("データベースから先頭値を取得しました（プール使用）: {}", value);
       }
 
       return value;
 
     } catch (SQLException e) {
-      logger.error("データベース操作中にエラーが発生しました: {}", e.getMessage(), e);
+      logger.error("プール接続でのデータベース操作中にエラーが発生しました: {}", e.getMessage(), e);
       return "ERROR: " + e.getMessage();
     } finally {
-      // リソースのクローズ
+      // リソースのクローズ（接続は自動的にプールに返却される）
       closeResources(resultSet, statement, connection);
     }
   }
 
   /**
-   * データベースリソースを安全にクローズします。
+   * データベースリソースを安全にクローズします。 接続はプールに自動的に返却されます。
    *
    * @param resultSet 結果セット
    * @param statement プリペアドステートメント
-   * @param connection データベース接続
+   * @param connection データベース接続（プールに返却される）
    */
   private void closeResources(
       ResultSet resultSet, PreparedStatement statement, Connection connection) {
@@ -287,10 +253,19 @@ public class DatabaseFetchRule implements IRule {
 
     if (connection != null) {
       try {
-        connection.close();
+        connection.close(); // プールに返却される
       } catch (SQLException e) {
-        logger.warn("Connectionのクローズ中にエラーが発生しました: {}", e.getMessage());
+        logger.warn("Connection（プール返却）中にエラーが発生しました: {}", e.getMessage());
       }
     }
+  }
+
+  /**
+   * プールの統計情報を取得
+   *
+   * @return プールの統計情報
+   */
+  public String getPoolStats() {
+    return connectionPool.getPoolStats();
   }
 }

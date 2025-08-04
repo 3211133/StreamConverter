@@ -173,6 +173,9 @@ dependencies {
     
     // CSV validation support
     implementation("com.opencsv:opencsv:5.12.0")
+    
+    // Database support (H2 for testing)
+    testImplementation("com.h2database:h2:2.2.224")
 
     // JUnit 5 の依存関係（テスト用）
 	testImplementation(platform("org.junit:junit-bom:5.13.4"))

@@ -114,7 +114,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
           String originalData = event.asCharacters().getData();
           String transformedData = rule.apply(originalData);
           if (!originalData.equals(transformedData)) {
-            XMLEvent transformedEvent = eventFactory.createCharacters(transformedData);
+            XMLEvent transformedEvent =
+                XMLEventFactory.newInstance().createCharacters(transformedData);
             eventWriter.add(transformedEvent);
           } else {
             eventWriter.add(event);

@@ -83,10 +83,11 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">XmlNavigateCommand</span>
 <span class="extends-implements">extends <a href="../AbstractStreamCommand.html" title="class in com.streamConverter.command">AbstractStreamCommand</a></span></div>
-<div class="block">XML変換コマンドクラス
+<div class="block">XML Navigate Command Class
 
- <p>このクラスは、XML形式のデータを変換するためのコマンドを実装します。 ストリームを使用して、XMLデータを読み込み、変換後のデータを出力します。
- 変換対象のXPathである箇所を特定したあとに、変換処理を実行することを想定しています。</div>
+ <p>This class implements command for targeted XML transformation using XPath. It identifies
+ specific elements using XPath expressions and applies IRule transformations to those elements
+ while preserving the overall XML structure.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -100,11 +101,16 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">XmlNavigateCommand</a>()</code></div>
 <div class="col-last even-row-color">
-<div class="block">Default constructor - processes entire XML.</div>
+<div class="block">Default constructor - processes entire XML with PassThroughRule.</div>
 </div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String)" class="member-name-link">XmlNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Constructor for XML navigation with XPath selector.</div>
+<div class="block">Constructor for XML navigation with XPath selector using PassThroughRule.</div>
+</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">XmlNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath,
+ <a href="../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Constructor for XML navigation with XPath selector and transformation rule.</div>
 </div>
 </div>
 </section>
@@ -155,10 +161,25 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="&lt;init&gt;(java.lang.String,com.streamConverter.command.rule.IRule)">
+<h3>XmlNavigateCommand</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">XmlNavigateCommand</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath,
+ <a href="../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
+<div class="block">Constructor for XML navigation with XPath selector and transformation rule.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>xpath</code> - the XPath expression to select elements (e.g., "users/user/name")</dd>
+<dd><code>rule</code> - the transformation rule to apply to selected elements</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="&lt;init&gt;(java.lang.String)">
 <h3>XmlNavigateCommand</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">XmlNavigateCommand</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath)</span></div>
-<div class="block">Constructor for XML navigation with XPath selector.</div>
+<div class="block">Constructor for XML navigation with XPath selector using PassThroughRule.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>xpath</code> - the XPath expression to select elements (e.g., "users/user/name")</dd>
@@ -169,7 +190,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="&lt;init&gt;()">
 <h3>XmlNavigateCommand</h3>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">XmlNavigateCommand</span>()</div>
-<div class="block">Default constructor - processes entire XML.</div>
+<div class="block">Default constructor - processes entire XML with PassThroughRule.</div>
 </section>
 </li>
 </ul>

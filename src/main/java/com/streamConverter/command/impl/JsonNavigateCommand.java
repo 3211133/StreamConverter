@@ -128,16 +128,56 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * production would use JSONPath library
    */
   private String applyRuleToJsonPathSimple(String json, String path, IRule rule) {
-    // For this implementation, we'll do simple string replacement as a placeholder
-    // In production, this would:
-    // 1. Parse JSON into DOM/object model
-    // 2. Navigate to specified path elements
-    // 3. Apply rule to those elements only
-    // 4. Serialize back to JSON preserving structure
+    // Basic implementation for simple JSONPath patterns
+    // In production, this would use a proper JSONPath library like Jayway JsonPath
 
-    // Placeholder: just apply rule to entire content for now
+    if (path == null || !path.startsWith("$.")) {
+      // Fallback to entire JSON transformation
+      return rule.apply(json);
+    }
+
+    // Handle very basic JSONPath patterns as demonstration
+    // This is a simplified implementation - real JSONPath is much more complex
+    if (path.matches("^\\$\\.[a-zA-Z_][a-zA-Z0-9_]*$")) {
+      // Simple property access like "$.name"
+      return applyRuleToJsonProperty(json, path.substring(2), rule);
+    }
+
+    // For complex paths, fallback to entire JSON transformation
     // TODO: Implement proper JSONPath navigation and targeted transformation
+    // This maintains functionality while acknowledging the current limitation
     return rule.apply(json);
+  }
+
+  /** Apply rule to a simple JSON property Basic implementation for property-level transformation */
+  private String applyRuleToJsonProperty(String json, String property, IRule rule) {
+    // Simple regex-based property transformation for basic cases
+    // This handles quoted string values in JSON properties
+    String pattern = "(\"" + property + "\"\\s*:\\s*\")([^\"]*)(\"[,}\\]])";
+
+    // Use manual string replacement since replaceAll with lambda is not supported in older Java
+    StringBuilder result = new StringBuilder();
+    java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
+    java.util.regex.Matcher m = p.matcher(json);
+
+    int lastEnd = 0;
+    while (m.find()) {
+      result.append(json, lastEnd, m.start());
+
+      String prefix = m.group(1); // "property": "
+      String value = m.group(2); // the actual value
+      String suffix = m.group(3); // closing quote and delimiter
+
+      String transformedValue = rule.apply(value);
+      // Escape quotes in the transformed value
+      transformedValue = transformedValue.replace("\"", "\\\"");
+
+      result.append(prefix).append(transformedValue).append(suffix);
+      lastEnd = m.end();
+    }
+    result.append(json, lastEnd, json.length());
+
+    return result.toString();
   }
 
   /** Legacy method kept for compatibility - now applies rule to formatted JSON */

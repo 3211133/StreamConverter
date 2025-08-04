@@ -127,8 +127,8 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
         values[columnIndex] = rule.apply(values[columnIndex]);
       }
 
-      // Write entire row with transformed column
-      writer.write(String.join(",", values));
+      // Write entire row with transformed column (with proper CSV escaping)
+      writer.write(formatCsvRow(values));
       writer.write(System.lineSeparator());
     }
     writer.flush();
@@ -136,6 +136,36 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
 
   private String[] parseCSVLine(String line) {
     return line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
+  }
+
+  /** Format CSV row with proper escaping */
+  private String formatCsvRow(String[] values) {
+    StringBuilder row = new StringBuilder();
+    for (int i = 0; i < values.length; i++) {
+      if (i > 0) {
+        row.append(",");
+      }
+      row.append(escapeCsvValue(values[i]));
+    }
+    return row.toString();
+  }
+
+  /** Escape CSV value according to CSV standards */
+  private String escapeCsvValue(String value) {
+    if (value == null) {
+      return "";
+    }
+
+    // Check if value needs escaping (contains comma, quote, or newline)
+    if (value.contains(",")
+        || value.contains("\"")
+        || value.contains("\n")
+        || value.contains("\r")) {
+      // Escape quotes by doubling them and wrap entire value in quotes
+      return "\"" + value.replace("\"", "\"\"") + "\"";
+    }
+
+    return value;
   }
 
   private int findColumnIndex(String[] headers, String selector) {

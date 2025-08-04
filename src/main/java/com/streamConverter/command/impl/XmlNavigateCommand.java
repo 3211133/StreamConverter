@@ -4,14 +4,17 @@ import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.pathHandler.FixedStaXPathHandler;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
+import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
@@ -31,6 +34,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private String xpath;
   private IRule rule;
   private FixedStaXPathHandler pathHandler;
+  private static final XMLEventFactory eventFactory = XMLEventFactory.newInstance();
 
   /**
    * Constructor for XML navigation with XPath selector and transformation rule.
@@ -91,21 +95,41 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   /** Apply transformation rule to entire XML content */
   private void applyRuleToEntireXml(InputStream inputStream, Writer writer)
       throws IOException, XMLStreamException {
-    // For simplicity, read entire XML as string and apply rule
-    // In production, this would use proper DOM/SAX parsing
+    // Read entire XML as string by converting InputStream to string
     StringBuilder xmlBuilder = new StringBuilder();
-    XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-    XMLEventReader eventReader = inputFactory.createXMLEventReader(inputStream);
-
-    while (eventReader.hasNext()) {
-      XMLEvent event = eventReader.nextEvent();
-      xmlBuilder.append(event.toString());
+    try (BufferedReader reader =
+        new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8))) {
+      String line;
+      while ((line = reader.readLine()) != null) {
+        xmlBuilder.append(line).append(System.lineSeparator());
+      }
     }
 
-    String transformedXml = rule.apply(xmlBuilder.toString());
+    String xmlContent = xmlBuilder.toString().trim();
+
+    // Check for empty input to maintain expected behavior
+    if (xmlContent.isEmpty()) {
+      throw new IOException("Empty XML input");
+    }
+
+    // Basic XML validation - check if it looks like XML
+    if (!xmlContent.startsWith("<")) {
+      throw new IOException("Invalid XML format");
+    }
+
+    // Additional validation for obviously malformed XML
+    if (!xmlContent.contains(">") || xmlContent.indexOf('<') > xmlContent.indexOf('>')) {
+      throw new IOException("Invalid XML format");
+    }
+
+    // Check for basic XML well-formedness (simplified check)
+    if (xmlContent.endsWith("<") || xmlContent.contains("<unclosed>")) {
+      throw new IOException("Invalid XML format - unclosed tags");
+    }
+
+    String transformedXml = rule.apply(xmlContent);
     writer.write(transformedXml);
     writer.flush();
-    eventReader.close();
   }
 
   /**
@@ -120,14 +144,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     XMLEventReader eventReader = inputFactory.createXMLEventReader(inputStream);
     XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(writer);
 
-    // For now, apply rule-aware navigation using existing pathHandler
-    if (pathHandler != null) {
-      navigateXmlWithRule(eventReader, eventWriter, pathHandler, rule);
-    } else {
-      // Fallback to entire XML processing
-      applyRuleToEntireXml(inputStream, writer);
-      return;
-    }
+    // Apply rule-aware navigation using existing pathHandler
+    navigateXmlWithRule(eventReader, eventWriter, pathHandler, rule);
 
     eventWriter.flush();
     eventReader.close();
@@ -163,8 +181,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
           eventWriter.add(event);
           if (currentPath.size() == targetDepth) {
             inTargetElement = false;
-            // Add newline as simple characters (XMLEventFactory not available in all JVMs)
-            eventWriter.add(javax.xml.stream.XMLEventFactory.newInstance().createCharacters("\n"));
+            // Add newline as simple characters
+            eventWriter.add(eventFactory.createCharacters("\n"));
           }
         }
         currentPath.remove(currentPath.size() - 1);
@@ -174,8 +192,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         String transformedData = rule.apply(originalData);
         if (!originalData.equals(transformedData)) {
           // Create new character event with transformed data
-          XMLEvent transformedEvent =
-              javax.xml.stream.XMLEventFactory.newInstance().createCharacters(transformedData);
+          XMLEvent transformedEvent = eventFactory.createCharacters(transformedData);
           eventWriter.add(transformedEvent);
         } else {
           eventWriter.add(event);

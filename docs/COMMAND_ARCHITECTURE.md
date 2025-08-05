@@ -148,13 +148,13 @@ public class CustomProcessingCommand extends AbstractStreamCommand {
 
 ## 利用可能なコマンド
 
-### ナビゲーションコマンド
+### ナビゲーション・変換コマンド
 
 | クラス | 用途 | 引数例 |
 |--------|------|--------|
-| `CsvNavigateCommand` | CSVフィールド抽出 | `"productName"` |
-| `JsonNavigateCommand` | JSONパス抽出 | `"$.user.name"` |
-| `XmlNavigateCommand` | XPath抽出 | `"//product/@id"` |
+| `CsvNavigateCommand` | CSV特定列の変換 | `"productName"` |
+| `JsonNavigateCommand` | JSON特定パスの変換 | `"$.user.name"` |
+| `XmlNavigateCommand` | XML特定要素の変換 | `"//product/@id"` |
 
 ### 変換コマンド
 

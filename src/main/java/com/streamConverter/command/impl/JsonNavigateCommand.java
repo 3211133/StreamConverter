@@ -161,7 +161,10 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   private String applyRuleToJsonProperty(String json, String property, IRule rule) {
     // Simple regex-based property transformation for basic cases
     // This handles quoted string values in JSON properties
-    String pattern = "(\"" + property + "\"\\s*:\\s*\")([^\"]*)(\"[,}\\]])";
+
+    // Sanitize property name to prevent regex injection
+    String sanitizedProperty = sanitizePropertyName(property);
+    String pattern = "(\"" + sanitizedProperty + "\"\\s*:\\s*\")([^\"]*)(\"[,}\\]])";
 
     // Use manual string replacement since replaceAll with lambda is not supported in older Java
     StringBuilder result = new StringBuilder();
@@ -456,5 +459,22 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     }
 
     return jsonBuilder.toString();
+  }
+
+  /**
+   * Sanitize property name to prevent regex injection attacks. Escapes all regex special characters
+   * to treat them as literal characters.
+   *
+   * @param property the property name to sanitize
+   * @return sanitized property name safe for regex compilation
+   */
+  private String sanitizePropertyName(String property) {
+    if (property == null) {
+      return "";
+    }
+
+    // Escape regex special characters manually to prevent injection
+    // This allows the property name to be used safely in regex patterns
+    return property.replaceAll("([\\\\\\[\\]{}()*+?.^$|])", "\\\\$1");
   }
 }

@@ -10,3 +10,5 @@
 # Binary files should be left untouched
 *.jar           binary
 
+# Javadocをレビュー対象にしない
+docs/javadoc/**  linguist-generated=true

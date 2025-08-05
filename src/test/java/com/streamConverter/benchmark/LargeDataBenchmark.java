@@ -8,7 +8,7 @@ import com.streamConverter.command.impl.CsvNavigateCommand;
 import com.streamConverter.command.impl.JsonNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.XmlNavigateCommand;
-import com.streamConverter.command.impl.charaCode.convert;
+import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -514,8 +514,8 @@ class LargeDataBenchmark {
       // 複雑パイプラインを軽量化（文字コード変換を含む4段階）
       IStreamCommand[] pipeline = {
         new SampleStreamCommand("validate"),
-        new convert("UTF-8", "UTF-16"),
-        new convert("UTF-16", "UTF-8"),
+        new CharacterConvertCommand("UTF-8", "UTF-16"),
+        new CharacterConvertCommand("UTF-16", "UTF-8"),
         new SampleStreamCommand("format")
       };
 

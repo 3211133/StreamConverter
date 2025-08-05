@@ -57,7 +57,7 @@ IStreamCommand legacyCommand = new SampleStreamCommand("processor");
 IContextAwareStreamCommand contextCommand = new ContextPropagatingDecorator(legacyCommand);
 ```
 
-### 4. ContextAwareStreamConverter（コンテキスト対応StreamConverter）
+### 4. StreamConverter.createWithContext()（コンテキスト対応StreamConverter）
 **役割**: ExecutionContextを使用したマルチスレッド実行管理
 
 **特徴**:
@@ -67,7 +67,7 @@ IContextAwareStreamCommand contextCommand = new ContextPropagatingDecorator(lega
 - リソース管理とエラーハンドリング
 
 ```java
-ContextAwareStreamConverter converter = ContextAwareStreamConverter.create(
+StreamConverter converter = StreamConverter.createWithContext(
     customContext, command1, command2, command3
 );
 ```
@@ -77,7 +77,7 @@ ContextAwareStreamConverter converter = ContextAwareStreamConverter.create(
 ### 1. 初期化フェーズ
 ```
 1. ExecutionContext生成（ユニークID発行）
-2. ContextAwareStreamConverter作成
+2. StreamConverter.createWithContext()でコンテキスト対応実行エンジン作成
 3. 既存コマンドの自動デコレート
 ```
 
@@ -130,7 +130,8 @@ IStreamCommand legacyValidator = new SampleStreamCommand("validator");
 IContextAwareStreamCommand contextProcessor = createCustomProcessor();
 IStreamCommand legacyFormatter = new SampleStreamCommand("formatter");
 
-ContextAwareStreamConverter converter = ContextAwareStreamConverter.create(
+StreamConverter converter = StreamConverter.createWithContext(
+    customContext,
     legacyValidator,     // 自動的にContextPropagatingDecoratorでラップ
     contextProcessor,    // そのまま使用
     legacyFormatter      // 自動的にContextPropagatingDecoratorでラップ
@@ -141,8 +142,8 @@ ContextAwareStreamConverter converter = ContextAwareStreamConverter.create(
 
 ### 実行開始時
 ```
-2025-07-27 16:32:33 INFO ContextAwareStreamConverter [REQ-12345] [user789] [pipeline-start] - 
-Starting ContextAware StreamConverter with 3 commands (executionId: EXEC-c226aa5a-1753633953001)
+2025-07-27 16:32:33 INFO StreamConverter [REQ-12345] [user789] [pipeline-start] - 
+Starting StreamConverter with context with 3 commands (executionId: EXEC-c226aa5a-1753633953001)
 ```
 
 ### コマンド実行中

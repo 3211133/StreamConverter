@@ -45,7 +45,7 @@ converter.run(inputStream, outputStream);
 ### コンテキスト対応処理
 
 ```java
-import com.streamConverter.ContextAwareStreamConverter;
+import com.streamConverter.StreamConverter;
 import com.streamConverter.context.ExecutionContext;
 
 // カスタムコンテキストで実行追跡
@@ -54,7 +54,7 @@ ExecutionContext context = ExecutionContext.builder()
     .globalContext("userId", "user789")
     .build();
 
-ContextAwareStreamConverter converter = ContextAwareStreamConverter.create(
+StreamConverter converter = StreamConverter.createWithContext(
     context, csvCommand, httpCommand, jsonCommand
 );
 converter.run(inputStream, outputStream);
@@ -67,7 +67,7 @@ converter.run(inputStream, outputStream);
 | **データ抽出** | `CsvNavigateCommand` | CSV フィールド抽出 | `new CsvNavigateCommand("name")` |
 | | `JsonNavigateCommand` | JSON パス抽出 | `new JsonNavigateCommand("$.user.id")` |
 | | `XmlNavigateCommand` | XPath 抽出 | `new XmlNavigateCommand("//item/@id")` |
-| **変換** | `convert` | 文字エンコーディング変換 | `new convert("UTF-8", "Shift_JIS")` |
+| **変換** | `CharacterConvertCommand` | 文字エンコーディング変換 | `new CharacterConvertCommand("UTF-8", "Shift_JIS")` |
 | | `xml.ConvertCommand` | XSLT 変換 | `new ConvertCommand("style.xsl")` |
 | **通信** | `SendHttpCommand` | HTTP リクエスト | `new SendHttpCommand("http://api.example.com")` |
 | **検証** | `xml.ValidateCommand` | XML スキーマ検証 | `new ValidateCommand("schema.xsd")` |

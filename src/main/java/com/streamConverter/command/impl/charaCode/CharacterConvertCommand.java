@@ -15,8 +15,8 @@ import java.util.Objects;
  * <p>This class extends the AbstractStreamCommand and implements the conversion of character
  * encodings.
  */
-// BEGIN convert.java
-public class convert extends AbstractStreamCommand {
+// BEGIN CharacterConvertCommand.java
+public class CharacterConvertCommand extends AbstractStreamCommand {
   private String from;
   private String to;
 
@@ -27,7 +27,7 @@ public class convert extends AbstractStreamCommand {
    * @param to The target character encoding.
    * @throws IllegalArgumentException if the specified character encodings are not supported.
    */
-  public convert(String from, String to) {
+  public CharacterConvertCommand(String from, String to) {
     Objects.requireNonNull(from);
     Objects.requireNonNull(to);
     if (Charset.isSupported(from) == false) {

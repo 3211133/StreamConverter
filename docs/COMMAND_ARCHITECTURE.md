@@ -160,7 +160,7 @@ public class CustomProcessingCommand extends AbstractStreamCommand {
 
 | クラス | 用途 | 引数例 |
 |--------|------|--------|
-| `convert` | 文字エンコーディング変換 | `"UTF-8", "Shift_JIS"` |
+| `CharacterConvertCommand` | 文字エンコーディング変換 | `"UTF-8", "Shift_JIS"` |
 | `xml.ConvertCommand` | XML変換 | `"stylesheet.xsl"` |
 | `xml.ValidateCommand` | XMLバリデーション | `"schema.xsd"` |
 

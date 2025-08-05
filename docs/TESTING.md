@@ -48,7 +48,7 @@ StreamConverterプロジェクトでは、以下の包括的なテストアプ�
 src/test/java/com/streamConverter/
 ├── StreamConverterTest.java              # StreamConverter コアテスト
 ├── StreamConverterIntegrationTest.java   # 統合テスト
-├── ContextAwareStreamConverterTest.java  # コンテキスト機能テスト
+├── StreamConverterMDCIntegrationTest.java  # コンテキスト機能テスト
 ├── MainTest.java                          # エントリーポイントテスト
 ├── MemoryEfficiencyTest.java             # メモリ効率テスト
 ├── api/

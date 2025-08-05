@@ -41,3 +41,7 @@ docs/javadoc/
 # Log files
 *.log
 logs/
+
+#Agentic Hooks
+.claude/hooks/
+.claude/logs/

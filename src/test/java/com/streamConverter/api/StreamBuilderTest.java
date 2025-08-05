@@ -107,7 +107,7 @@ class StreamBuilderTest {
     // Then
     assertEquals(2, builder.getCommandCount());
     String pipelineInfo = builder.getPipelineInfo();
-    assertTrue(pipelineInfo.contains("convert"));
+    assertTrue(pipelineInfo.contains("CharacterConvertCommand"));
   }
 
   @Test
@@ -253,7 +253,7 @@ class StreamBuilderTest {
     assertTrue(pipelineInfo.contains("3 commands"));
     assertTrue(pipelineInfo.contains("1. JsonNavigateCommand"));
     assertTrue(pipelineInfo.contains("2. SampleStreamCommand"));
-    assertTrue(pipelineInfo.contains("3. convert"));
+    assertTrue(pipelineInfo.contains("3. CharacterConvertCommand"));
 
     assertEquals(3, builder.getCommandCount());
     assertFalse(builder.isEmpty());

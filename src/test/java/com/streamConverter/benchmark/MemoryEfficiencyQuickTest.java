@@ -2,7 +2,7 @@ package com.streamConverter.benchmark;
 
 import com.streamConverter.*;
 import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.charaCode.convert;
+import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.*;
@@ -28,7 +28,9 @@ class MemoryEfficiencyQuickTest {
     int dataSize = 10 * 1024 * 1024; // 10MB
 
     // 複雑パイプラインの文字コード変換部分のみテスト
-    IStreamCommand[] pipeline = {new convert("UTF-8", "UTF-16"), new convert("UTF-16", "UTF-8")};
+    IStreamCommand[] pipeline = {
+      new CharacterConvertCommand("UTF-8", "UTF-16"), new CharacterConvertCommand("UTF-16", "UTF-8")
+    };
 
     Runtime runtime = Runtime.getRuntime();
 

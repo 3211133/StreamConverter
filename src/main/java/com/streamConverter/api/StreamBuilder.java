@@ -8,7 +8,7 @@ import com.streamConverter.command.impl.JsonNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.SendHttpCommand;
 import com.streamConverter.command.impl.XmlNavigateCommand;
-import com.streamConverter.command.impl.charaCode.convert;
+import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
 import com.streamConverter.command.impl.csv.CsvValidateCommand;
 import com.streamConverter.command.impl.json.JsonValidateCommand;
 import com.streamConverter.command.impl.xml.ValidateCommand;
@@ -308,7 +308,7 @@ public class StreamBuilder {
   public StreamBuilder convertEncoding(String fromEncoding, String toEncoding) {
     Objects.requireNonNull(fromEncoding, "From encoding cannot be null");
     Objects.requireNonNull(toEncoding, "To encoding cannot be null");
-    this.commands.add(new convert(fromEncoding, toEncoding));
+    this.commands.add(new CharacterConvertCommand(fromEncoding, toEncoding));
     return this;
   }
 

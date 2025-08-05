@@ -176,6 +176,14 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:C">C</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/command/impl/charaCode/CharacterConvertCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.charaCode">CharacterConvertCommand</a> - Class in <a href="com/streamConverter/command/impl/charaCode/package-summary.html">com.streamConverter.command.impl.charaCode</a></dt>
+<dd>
+<div class="block">Converts the character encoding of a stream from one encoding to another.</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/charaCode/CharacterConvertCommand.html#%3Cinit%3E(java.lang.String,java.lang.String)" class="member-name-link">CharacterConvertCommand(String, String)</a> - Constructor for class com.streamConverter.command.impl.charaCode.<a href="com/streamConverter/command/impl/charaCode/CharacterConvertCommand.html" title="class in com.streamConverter.command.impl.charaCode">CharacterConvertCommand</a></dt>
+<dd>
+<div class="block">Constructor to initialize the character encodings for conversion.</div>
+</dd>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.html#clearRecords()" class="member-name-link">clearRecords()</a> - Method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer</a></dt>
 <dd>
 <div class="block">全記録をクリア</div>
@@ -231,6 +239,8 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/util/package-summary.html">com.streamConverter.util</a> - package com.streamConverter.util</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/validation/package-summary.html">com.streamConverter.validation</a> - package com.streamConverter.validation</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/web/package-summary.html">com.streamConverter.web</a> - package com.streamConverter.web</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#COMMAND_SEQUENCE_KEY" class="member-name-link">COMMAND_SEQUENCE_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
@@ -363,14 +373,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" class="type-name-link" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a> - Class in <a href="com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
 <dd>
 <div class="block">Builder for JSON controllers.</div>
-</dd>
-<dt><a href="com/streamConverter/command/impl/charaCode/convert.html" class="type-name-link" title="class in com.streamConverter.command.impl.charaCode">convert</a> - Class in <a href="com/streamConverter/command/impl/charaCode/package-summary.html">com.streamConverter.command.impl.charaCode</a></dt>
-<dd>
-<div class="block">Converts the character encoding of a stream from one encoding to another.</div>
-</dd>
-<dt><a href="com/streamConverter/command/impl/charaCode/convert.html#%3Cinit%3E(java.lang.String,java.lang.String)" class="member-name-link">convert(String, String)</a> - Constructor for class com.streamConverter.command.impl.charaCode.<a href="com/streamConverter/command/impl/charaCode/convert.html" title="class in com.streamConverter.command.impl.charaCode">convert</a></dt>
-<dd>
-<div class="block">Constructor to initialize the character encodings for conversion.</div>
 </dd>
 <dt><a href="com/streamConverter/command/impl/xml/ConvertCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.xml">ConvertCommand</a> - Class in <a href="com/streamConverter/command/impl/xml/package-summary.html">com.streamConverter.command.impl.xml</a></dt>
 <dd>
@@ -1185,6 +1187,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">ヘッダー行の存在フラグを取得</div>
 </dd>
+<dt><a href="com/streamConverter/web/StreamProcessingController.html#health()" class="member-name-link">health()</a> - Method in class com.streamConverter.web.<a href="com/streamConverter/web/StreamProcessingController.html" title="class in com.streamConverter.web">StreamProcessingController</a></dt>
+<dd>
+<div class="block">Health check endpoint.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:I">I</h2>
 <dl class="index">
@@ -1453,6 +1459,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Main method to run the StreamConverter application.</div>
 </dd>
+<dt><a href="com/streamConverter/StreamConverterWebApplication.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.<a href="com/streamConverter/StreamConverterWebApplication.html" title="class in com.streamConverter">StreamConverterWebApplication</a></dt>
+<dd>
+<div class="block">Main method to start the Spring Boot application.</div>
+</dd>
 <dt><a href="com/streamConverter/Main.html" class="type-name-link" title="class in com.streamConverter">Main</a> - Class in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
 <dd>
 <div class="block">Main class for the StreamConverter application.</div>
@@ -1585,9 +1595,21 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">カスタム処理コマンドを追加</div>
 </dd>
+<dt><a href="com/streamConverter/web/StreamProcessingController.html#processCsvExtraction(reactor.core.publisher.Flux,java.lang.String)" class="member-name-link">processCsvExtraction(Flux&lt;DataBuffer&gt;, String)</a> - Method in class com.streamConverter.web.<a href="com/streamConverter/web/StreamProcessingController.html" title="class in com.streamConverter.web">StreamProcessingController</a></dt>
+<dd>
+<div class="block">Process data stream with CSV extraction.</div>
+</dd>
 <dt><a href="com/streamConverter/controller/OutputType.html#PROCESSED_DATA" class="member-name-link">PROCESSED_DATA</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
 <dd>
 <div class="block">Process CSV data with additional transformations</div>
+</dd>
+<dt><a href="com/streamConverter/web/StreamProcessingController.html#processJsonExtraction(reactor.core.publisher.Flux,java.lang.String)" class="member-name-link">processJsonExtraction(Flux&lt;DataBuffer&gt;, String)</a> - Method in class com.streamConverter.web.<a href="com/streamConverter/web/StreamProcessingController.html" title="class in com.streamConverter.web">StreamProcessingController</a></dt>
+<dd>
+<div class="block">Process data stream with JSON path extraction.</div>
+</dd>
+<dt><a href="com/streamConverter/web/StreamProcessingController.html#processWithPipeline(reactor.core.publisher.Flux,java.lang.String)" class="member-name-link">processWithPipeline(Flux&lt;DataBuffer&gt;, String)</a> - Method in class com.streamConverter.web.<a href="com/streamConverter/web/StreamProcessingController.html" title="class in com.streamConverter.web">StreamProcessingController</a></dt>
+<dd>
+<div class="block">Process data stream with custom command pipeline.</div>
 </dd>
 <dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#PROPERTY_EXTRACTION" class="member-name-link">PROPERTY_EXTRACTION</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
 <dd>
@@ -1755,6 +1777,18 @@ loadScripts(document, 'script');</script>
 <div class="block">StreamConverterのMDC機能統合デモ</div>
 </dd>
 <dt><a href="com/streamConverter/examples/StreamConverterMDCDemo.html#%3Cinit%3E()" class="member-name-link">StreamConverterMDCDemo()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/StreamConverterMDCDemo.html" title="class in com.streamConverter.examples">StreamConverterMDCDemo</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/StreamConverterWebApplication.html" class="type-name-link" title="class in com.streamConverter">StreamConverterWebApplication</a> - Class in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
+<dd>
+<div class="block">Spring Boot application entry point for StreamConverter Web API.</div>
+</dd>
+<dt><a href="com/streamConverter/StreamConverterWebApplication.html#%3Cinit%3E()" class="member-name-link">StreamConverterWebApplication()</a> - Constructor for class com.streamConverter.<a href="com/streamConverter/StreamConverterWebApplication.html" title="class in com.streamConverter">StreamConverterWebApplication</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/web/StreamProcessingController.html" class="type-name-link" title="class in com.streamConverter.web">StreamProcessingController</a> - Class in <a href="com/streamConverter/web/package-summary.html">com.streamConverter.web</a></dt>
+<dd>
+<div class="block">Web API controller for StreamConverter processing.</div>
+</dd>
+<dt><a href="com/streamConverter/web/StreamProcessingController.html#%3Cinit%3E()" class="member-name-link">StreamProcessingController()</a> - Constructor for class com.streamConverter.web.<a href="com/streamConverter/web/StreamProcessingController.html" title="class in com.streamConverter.web">StreamProcessingController</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/StreamProcessingException.html" class="type-name-link" title="class in com.streamConverter">StreamProcessingException</a> - Exception in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
 <dd>
@@ -2016,7 +2050,7 @@ the order they are declared.</div>
 <dd>
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
 </dd>
-<dt><a href="com/streamConverter/command/impl/charaCode/convert.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.charaCode.<a href="com/streamConverter/command/impl/charaCode/convert.html" title="class in com.streamConverter.command.impl.charaCode">convert</a></dt>
+<dt><a href="com/streamConverter/command/impl/charaCode/CharacterConvertCommand.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.charaCode.<a href="com/streamConverter/command/impl/charaCode/CharacterConvertCommand.html" title="class in com.streamConverter.command.impl.charaCode">CharacterConvertCommand</a></dt>
 <dd>
 <div class="block">Executes the character encoding conversion on the provided input stream and writes the result
  to the output stream.</div>

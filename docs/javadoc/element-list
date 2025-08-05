@@ -18,3 +18,4 @@ com.streamConverter.pathHandler
 com.streamConverter.security
 com.streamConverter.util
 com.streamConverter.validation
+com.streamConverter.web

@@ -15,6 +15,8 @@ plugins {
     id("application")
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.15.0"
+    id("org.springframework.boot") version "3.4.1"
+    id("io.spring.dependency-management") version "1.1.7"
 }
 
 // Main class configuration
@@ -162,11 +164,12 @@ repositories {
 }
 
 dependencies {
+    // Spring Boot WebFlux
+    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.18.0")
     implementation("commons-io:commons-io:2.20.0")
-    implementation("org.slf4j:slf4j-api:2.0.17")
-    implementation("ch.qos.logback:logback-classic:1.5.18")
     
     // JSON Schema validation
     implementation("com.networknt:json-schema-validator:1.5.8")
@@ -176,6 +179,10 @@ dependencies {
     
     // Database support (H2 for testing)
     testImplementation("com.h2database:h2:2.2.224")
+    
+    // Spring Boot Test
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("io.projectreactor:reactor-test")
 
     // JUnit 5 の依存関係（テスト用）
 	testImplementation(platform("org.junit:junit-bom:5.13.4"))

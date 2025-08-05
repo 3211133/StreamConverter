@@ -14,7 +14,7 @@ StreamConverterをWebAPIとして機能させ、スキーマバリデーショ�
 - [x] ExecutionContextクラス作成 - ユニークID発行とコンテキスト管理
 - [x] IContextAwareStreamCommandインターフェース追加
 - [x] ContextPropagatingDecoratorクラス作成 - 既存コマンドの自動ラップ
-- [x] ContextAwareStreamConverter実装 - マルチスレッド対応実行エンジン
+- [x] StreamConverter.createWithContext()実装 - マルチスレッド対応実行エンジン
 - [x] MDC機能の単体テスト作成とデモンストレーション実装
 
 ### 1.2 スキーマバリデーション機能拡張

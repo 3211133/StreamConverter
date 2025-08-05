@@ -159,31 +159,60 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Apply rule to a simple JSON property Basic implementation for property-level transformation */
   private String applyRuleToJsonProperty(String json, String property, IRule rule) {
-    // Simple regex-based property transformation for basic cases
-    // This handles quoted string values in JSON properties
-    String pattern = "(\"" + property + "\"\\s*:\\s*\")([^\"]*)(\"[,}\\]])";
+    // Use string-based approach instead of regex to avoid injection vulnerabilities
+    // This searches for JSON property patterns using safe string operations
 
-    // Use manual string replacement since replaceAll with lambda is not supported in older Java
     StringBuilder result = new StringBuilder();
-    java.util.regex.Pattern p = java.util.regex.Pattern.compile(pattern);
-    java.util.regex.Matcher m = p.matcher(json);
+    String searchPattern = "\"" + property + "\":";
+    int searchIndex = 0;
 
-    int lastEnd = 0;
-    while (m.find()) {
-      result.append(json, lastEnd, m.start());
+    while (searchIndex < json.length()) {
+      int propertyStart = json.indexOf(searchPattern, searchIndex);
+      if (propertyStart == -1) {
+        // No more matches, append rest of string
+        result.append(json.substring(searchIndex));
+        break;
+      }
 
-      String prefix = m.group(1); // "property": "
-      String value = m.group(2); // the actual value
-      String suffix = m.group(3); // closing quote and delimiter
+      // Append content before this property
+      result.append(json.substring(searchIndex, propertyStart));
 
-      String transformedValue = rule.apply(value);
-      // Escape quotes in the transformed value
-      transformedValue = transformedValue.replace("\"", "\\\"");
+      // Find the start of the value (after the colon and any whitespace)
+      int colonIndex = propertyStart + searchPattern.length();
+      int valueStart = colonIndex;
+      while (valueStart < json.length() && Character.isWhitespace(json.charAt(valueStart))) {
+        valueStart++;
+      }
 
-      result.append(prefix).append(transformedValue).append(suffix);
-      lastEnd = m.end();
+      if (valueStart < json.length() && json.charAt(valueStart) == '"') {
+        // Found quoted string value
+        int valueContentStart = valueStart + 1;
+        int valueEnd = json.indexOf('"', valueContentStart);
+
+        if (valueEnd != -1) {
+          // Extract and transform the value
+          String value = json.substring(valueContentStart, valueEnd);
+          String transformedValue = rule.apply(value);
+
+          // Escape quotes in the transformed value
+          transformedValue = transformedValue.replace("\"", "\\\"");
+
+          // Append the property with transformed value
+          result.append(json.substring(propertyStart, valueContentStart));
+          result.append(transformedValue);
+
+          searchIndex = valueEnd;
+        } else {
+          // Malformed JSON, just append and continue
+          result.append(json.substring(propertyStart, propertyStart + searchPattern.length()));
+          searchIndex = propertyStart + searchPattern.length();
+        }
+      } else {
+        // Not a quoted string, just append and continue
+        result.append(json.substring(propertyStart, propertyStart + searchPattern.length()));
+        searchIndex = propertyStart + searchPattern.length();
+      }
     }
-    result.append(json, lastEnd, json.length());
 
     return result.toString();
   }

@@ -1,5 +1,7 @@
 package com.streamConverter.controller;
 
+import com.streamConverter.command.EnhancedCommandFactory;
+import com.streamConverter.factory.FactoryConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -59,13 +61,17 @@ public class ControllerFactory {
   /** Registry of controller builders by input type */
   private static final Map<String, ControllerBuilder> builderRegistry = new HashMap<>();
 
+  /** Enhanced command factory for optimized command creation */
+  private static final EnhancedCommandFactory commandFactory =
+      EnhancedCommandFactory.createProductionInstance();
+
   static {
     // Initialize default builders with CommandFactory integration
     builderRegistry.put("CSV", new CsvControllerBuilder());
     builderRegistry.put("JSON", new JsonControllerBuilder());
 
-    log.debug(
-        "Initialized ControllerFactory with CommandFactory-integrated builders for CSV and JSON");
+    log.info(
+        "Initialized ControllerFactory with enhanced CommandFactory integration for optimized performance");
   }
 
   /**
@@ -247,6 +253,66 @@ public class ControllerFactory {
         "Registered custom builder for input type {}: {}",
         inputType,
         builder.getClass().getSimpleName());
+  }
+
+  /**
+   * Creates a controller with optimized CommandFactory integration. This method addresses Issue
+   * #124 by reducing redundancy and improving integration.
+   *
+   * @param inputType the expected input data type
+   * @param outputType the expected output data type as enum
+   * @param config factory configuration for optimization
+   * @return optimized controller with enhanced integration
+   */
+  public static IStreamController createOptimized(
+      String inputType, OutputType outputType, FactoryConfiguration config) {
+    Objects.requireNonNull(outputType, "Output type cannot be null");
+    Objects.requireNonNull(config, "Factory configuration cannot be null");
+
+    String key = createRegistryKey(inputType, outputType.getValue());
+
+    // Check cache first
+    IStreamController cached = controllerRegistry.get(key);
+    if (cached != null && config.isCachingEnabled()) {
+      log.debug("Retrieved cached optimized controller for {} → {}", inputType, outputType);
+      return cached;
+    }
+
+    // Create using optimized command factory
+    ControllerBuilder builder = builderRegistry.get(inputType);
+    if (builder instanceof CommandFactoryAwareBuilder) {
+      CommandFactoryAwareBuilder enhancedBuilder = (CommandFactoryAwareBuilder) builder;
+
+      // Use enhanced command factory for better performance
+      IStreamController controller =
+          enhancedBuilder.createWithCommandFactory(
+              outputType.getValue(), config.isDetailedLoggingEnabled());
+
+      if (controller != null) {
+        log.info(
+            "Created optimized controller for {} → {} with enhanced CommandFactory integration",
+            inputType,
+            outputType);
+
+        if (config.isCachingEnabled()) {
+          controllerRegistry.put(key, controller);
+        }
+        return controller;
+      }
+    }
+
+    // Fallback to standard creation
+    return getController(inputType, outputType);
+  }
+
+  /**
+   * Gets the enhanced command factory instance used by this controller factory. This provides
+   * access to the optimized command creation infrastructure.
+   *
+   * @return enhanced command factory instance
+   */
+  public static EnhancedCommandFactory getCommandFactory() {
+    return commandFactory;
   }
 
   /**

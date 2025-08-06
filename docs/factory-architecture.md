@@ -55,7 +55,7 @@ public abstract class AbstractFactory<T> {
 **主要機能:**
 - スレッドセーフなインスタンスキャッシング
 - リフレクションベースのインスタンス生成
-- 型互換性チェック（プリミティブ型とラッパー型を含む）
+- 型互換性チェック（プリミティブ型とラッパー型のMapベース高速マッチング）
 - 統一されたログ出力とエラーハンドリング
 
 ### 2. FactoryConfiguration
@@ -134,10 +134,17 @@ public class ControllerFactory {
 // 1. 従来の方法（後方互換性）
 IStreamCommand command = CommandFactory.createWithLogging(JsonNavigateCommand.class, "$.name");
 
-// 2. Enhanced Factory の静的メソッド
+// 2. Enhanced Factory の静的メソッド（RuntimeException版）
 IStreamCommand command = EnhancedCommandFactory.createWithLogging(JsonNavigateCommand.class, "$.name");
 
-// 3. インスタンスベースのアプローチ
+// 3. Enhanced Factory のchecked exception版（より良いエラーハンドリング）
+try {
+    IStreamCommand command = EnhancedCommandFactory.createWithLoggingChecked(JsonNavigateCommand.class, "$.name");
+} catch (FactoryException e) {
+    // 具体的な例外情報を保持
+}
+
+// 4. インスタンスベースのアプローチ
 EnhancedCommandFactory factory = new EnhancedCommandFactory(FactoryConfiguration.productionConfig());
 IStreamCommand command = factory.createCached(JsonNavigateCommand.class, "$.name");
 ```
@@ -223,7 +230,14 @@ FactoryConfiguration custom = FactoryConfiguration.builder()
 // コンストラクタマッチング階層
 1. 完全一致マッチング（最速）
 2. 型互換性チェック（継承関係含む）
-3. プリミティブ-ラッパー型変換
+3. プリミティブ-ラッパー型変換（Mapベース高速ルックアップ）
+
+// 最適化されたプリミティブマッチング
+private static final Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_MAP = Map.of(
+    int.class, Integer.class,
+    long.class, Long.class,
+    // ...
+);
 ```
 
 ## 統合と互換性
@@ -266,11 +280,28 @@ EnhancedCommandFactory testFactory = new EnhancedCommandFactory(FactoryConfigura
 ### 2. エラーハンドリング
 
 ```java
+// インスタンスメソッド（checked exception）
 try {
     IStreamCommand command = factory.createCached(CommandClass.class, args);
 } catch (FactoryException e) {
     log.error("Command creation failed: {}", e.getMessage(), e);
     // 適切なフォールバック処理
+}
+
+// 静的メソッド（checked exception版 - 推奨）
+try {
+    IStreamCommand command = EnhancedCommandFactory.createWithLoggingChecked(CommandClass.class, args);
+} catch (FactoryException e) {
+    // 具体的な例外情報を保持したエラーハンドリング
+    log.error("Specific factory error: {}", e.getMessage(), e);
+}
+
+// 従来のRuntimeException版（後方互換性）
+try {
+    IStreamCommand command = EnhancedCommandFactory.createWithLogging(CommandClass.class, args);
+} catch (RuntimeException e) {
+    // RuntimeExceptionとしてキャッチ
+    log.error("Runtime error during command creation: {}", e.getMessage(), e);
 }
 ```
 

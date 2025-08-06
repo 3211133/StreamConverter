@@ -84,6 +84,21 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
+   * Creates command with logging using default instance, allowing FactoryException to propagate.
+   * This method provides better error handling by preserving the specific exception type.
+   *
+   * @param <T> command type
+   * @param commandClass command class
+   * @param args constructor arguments
+   * @return command with logging enabled
+   * @throws FactoryException if command creation fails
+   */
+  public static <T extends IStreamCommand> T createWithLoggingChecked(
+      Class<T> commandClass, Object... args) throws FactoryException {
+    return DEFAULT_INSTANCE.createCommandWithLogging(commandClass, false, args);
+  }
+
+  /**
    * Creates command with detailed logging using default instance.
    *
    * @param <T> command type
@@ -99,6 +114,24 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
     } catch (FactoryException e) {
       throw new RuntimeException("Command creation failed: " + commandClass.getSimpleName(), e);
     }
+  }
+
+  /**
+   * Creates command with detailed logging using default instance, allowing FactoryException to
+   * propagate. This method provides better error handling by preserving the specific exception
+   * type.
+   *
+   * @param <T> command type
+   * @param commandClass command class
+   * @param enableDetailedLogging whether to enable detailed logging
+   * @param args constructor arguments
+   * @return command with configured logging
+   * @throws FactoryException if command creation fails
+   */
+  public static <T extends IStreamCommand> T createWithLoggingChecked(
+      Class<T> commandClass, boolean enableDetailedLogging, Object... args)
+      throws FactoryException {
+    return DEFAULT_INSTANCE.createCommandWithLogging(commandClass, enableDetailedLogging, args);
   }
 
   /**
@@ -127,6 +160,33 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
     } catch (FactoryException e) {
       throw new RuntimeException("Pipeline creation failed", e);
     }
+  }
+
+  /**
+   * Creates pipeline with logging using default instance, allowing FactoryException to propagate.
+   * This method provides better error handling by preserving the specific exception type.
+   *
+   * @param configs command configurations
+   * @return array of commands with logging
+   * @throws FactoryException if pipeline creation fails
+   */
+  public static IStreamCommand[] createPipelineWithLoggingChecked(CommandConfig... configs)
+      throws FactoryException {
+    return DEFAULT_INSTANCE.createPipeline(configs, false);
+  }
+
+  /**
+   * Creates pipeline with detailed logging using default instance, allowing FactoryException to
+   * propagate. This method provides better error handling by preserving the specific exception
+   * type.
+   *
+   * @param configs command configurations
+   * @return array of commands with detailed logging
+   * @throws FactoryException if pipeline creation fails
+   */
+  public static IStreamCommand[] createPipelineWithDetailedLoggingChecked(CommandConfig... configs)
+      throws FactoryException {
+    return DEFAULT_INSTANCE.createPipeline(configs, true);
   }
 
   // ========== Enhanced Instance Methods ==========

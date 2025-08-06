@@ -162,16 +162,21 @@ public abstract class AbstractFactory<T> {
     return paramType.isAssignableFrom(argType);
   }
 
+  /** Map of primitive types to their corresponding wrapper classes. */
+  private static final java.util.Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_MAP =
+      java.util.Map.of(
+          int.class, Integer.class,
+          long.class, Long.class,
+          boolean.class, Boolean.class,
+          double.class, Double.class,
+          float.class, Float.class,
+          char.class, Character.class,
+          byte.class, Byte.class,
+          short.class, Short.class);
+
   /** Checks if parameter and argument are primitive/wrapper type pair. */
   private boolean isPrimitiveWrapperMatch(Class<?> paramType, Class<?> argType) {
-    return (paramType == int.class && argType == Integer.class)
-        || (paramType == long.class && argType == Long.class)
-        || (paramType == boolean.class && argType == Boolean.class)
-        || (paramType == double.class && argType == Double.class)
-        || (paramType == float.class && argType == Float.class)
-        || (paramType == char.class && argType == Character.class)
-        || (paramType == byte.class && argType == Byte.class)
-        || (paramType == short.class && argType == Short.class);
+    return PRIMITIVE_WRAPPER_MAP.get(paramType) == argType;
   }
 
   /** Gets string representation of argument types for error messages. */

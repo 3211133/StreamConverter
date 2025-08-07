@@ -214,7 +214,7 @@ class SendHttpCommandTest {
   }
 
   @Test
-  @DisplayName("大容量データのストリーミング処理テスト - メモリ効率的なエコーサーバー")
+  @DisplayName("Large data streaming processing test with memory-efficient approach")
   void testLargeDataStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 
@@ -285,7 +285,7 @@ class SendHttpCommandTest {
   }
 
   @Test
-  @DisplayName("メモリ効率的なストリーミング処理の検証テスト - 小容量での精密測定")
+  @DisplayName("Memory-efficient streaming processing validation test with small data")
   void testMemoryEfficientStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 
@@ -352,7 +352,7 @@ class SendHttpCommandTest {
   }
 
   @Test
-  @DisplayName("ストリーミング処理のブロッキング動作確認テスト")
+  @DisplayName("Streaming processing blocking behavior verification test")
   void testStreamingBlockingBehavior() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 

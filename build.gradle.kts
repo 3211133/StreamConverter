@@ -177,6 +177,14 @@ dependencies {
     // CSV validation support
     implementation("com.opencsv:opencsv:5.12.0")
     
+    // IP address validation
+    implementation("com.google.guava:guava:33.4.0-jre")
+    
+    // JSON processing with Jackson
+    implementation("com.fasterxml.jackson.core:jackson-core:2.18.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+    
     // Database support (H2 for testing)
     testImplementation("com.h2database:h2:2.2.224")
     

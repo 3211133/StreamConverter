@@ -1,0 +1,157 @@
+package com.streamConverter.command.impl;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import org.junit.jupiter.api.Test;
+
+/**
+ * Basic tests for FilterCommand implementations
+ *
+ * <p>Tests the basic functionality of JsonFilterCommand, XmlFilterCommand, and CsvFilterCommand to
+ * ensure they can extract data correctly without applying transformations.
+ */
+class FilterCommandBasicTest {
+
+  @Test
+  void testJsonFilterCommand_SimpleProperty() throws IOException {
+    // Test data
+    String jsonInput = "{\"name\":\"田中太郎\",\"age\":30,\"city\":\"東京\"}";
+
+    // Create command to extract "name" property
+    JsonFilterCommand command = new JsonFilterCommand("$.name");
+
+    // Execute
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    // Verify
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals("\"田中太郎\"", result);
+  }
+
+  @Test
+  void testJsonFilterCommand_RootPath() throws IOException {
+    // Test data
+    String jsonInput = "{\"userId\":\"1001\",\"amount\":120000}";
+
+    // Create command to extract entire JSON (root path)
+    JsonFilterCommand command = new JsonFilterCommand("$");
+
+    // Execute
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    // Verify
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals(jsonInput, result);
+  }
+
+  @Test
+  void testCsvFilterCommand_SingleColumn() throws IOException {
+    // Test data
+    String csvInput = "name,age,city\n田中太郎,30,東京\n佐藤花子,25,大阪";
+
+    // Create command to extract "name" column
+    CsvFilterCommand command = new CsvFilterCommand("name");
+
+    // Execute
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    // Verify
+    String result = output.toString(StandardCharsets.UTF_8);
+    String expected = "name\n田中太郎\n佐藤花子\n";
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void testCsvFilterCommand_MultipleColumns() throws IOException {
+    // Test data
+    String csvInput = "name,age,city,country\n田中太郎,30,東京,日本\n佐藤花子,25,大阪,日本";
+
+    // Create command to extract "name" and "city" columns
+    CsvFilterCommand command = new CsvFilterCommand(Arrays.asList("name", "city"));
+
+    // Execute
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    // Verify
+    String result = output.toString(StandardCharsets.UTF_8);
+    String expected = "name,city\n田中太郎,東京\n佐藤花子,大阪\n";
+    assertEquals(expected, result);
+  }
+
+  @Test
+  void testXmlFilterCommand_SimpleElement() throws IOException {
+    // Test data
+    String xmlInput =
+        "<?xml version=\"1.0\"?><users><user><name>田中太郎</name><age>30</age></user></users>";
+
+    // Create command to extract "name" elements
+    XmlFilterCommand command = new XmlFilterCommand("users/user/name");
+
+    // Execute
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    // Verify output contains the extracted name element
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("田中太郎"));
+    assertTrue(result.contains("<name>") || result.contains("name"));
+  }
+
+  @Test
+  void testJsonFilterCommand_NonExistentProperty() throws IOException {
+    // Test data
+    String jsonInput = "{\"name\":\"田中太郎\",\"age\":30}";
+
+    // Create command to extract non-existent property
+    JsonFilterCommand command = new JsonFilterCommand("$.nonexistent");
+
+    // Execute
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    // Verify returns null for non-existent property
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals("null", result);
+  }
+
+  @Test
+  void testCsvFilterCommand_NumericIndex() throws IOException {
+    // Test data - no header
+    String csvInput = "田中太郎,30,東京\n佐藤花子,25,大阪";
+
+    // Create command to extract first column (index 0) without header
+    CsvFilterCommand command = new CsvFilterCommand("0", false);
+
+    // Execute
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    // Verify
+    String result = output.toString(StandardCharsets.UTF_8);
+    String expected = "田中太郎\n佐藤花子\n";
+    assertEquals(expected, result);
+  }
+}

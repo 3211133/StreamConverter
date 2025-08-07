@@ -64,11 +64,17 @@ class SampleStreamCommandTest {
     SampleStreamCommand command = new SampleStreamCommand("test");
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    assertThrows(
-        NullPointerException.class,
-        () -> {
-          command.execute(null, outputStream);
-        });
+    Exception exception =
+        assertThrows(
+            IOException.class,
+            () -> {
+              command.execute(null, outputStream);
+            });
+
+    // The root cause should be NullPointerException
+    assertTrue(
+        exception.getCause() instanceof NullPointerException,
+        "Root cause should be NullPointerException");
   }
 
   @Test
@@ -78,11 +84,17 @@ class SampleStreamCommandTest {
     SampleStreamCommand command = new SampleStreamCommand("test");
     InputStream inputStream = new ByteArrayInputStream(testInput.getBytes(StandardCharsets.UTF_8));
 
-    assertThrows(
-        NullPointerException.class,
-        () -> {
-          command.execute(inputStream, null);
-        });
+    Exception exception =
+        assertThrows(
+            IOException.class,
+            () -> {
+              command.execute(inputStream, null);
+            });
+
+    // The root cause should be NullPointerException
+    assertTrue(
+        exception.getCause() instanceof NullPointerException,
+        "Root cause should be NullPointerException");
   }
 
   @Test

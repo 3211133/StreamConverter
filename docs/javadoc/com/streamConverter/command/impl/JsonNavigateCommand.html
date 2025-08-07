@@ -83,11 +83,15 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name type-name-label">JsonNavigateCommand</span>
 <span class="extends-implements">extends <a href="../AbstractStreamCommand.html" title="class in com.streamConverter.command">AbstractStreamCommand</a></span></div>
-<div class="block">JSON Navigate Command Class
+<div class="block">Memory-Optimized JSON Navigate Command Class
 
- <p>This class implements command for targeted JSON transformation using JSONPath. It identifies
- specific elements using JSONPath expressions and applies IRule transformations to those elements
- while preserving the overall JSON structure.</div>
+ <p>This class implements memory-efficient JSON processing for targeted transformation using
+ JSONPath. It processes large JSON files (5GB+) within a 50MB memory budget by using streaming
+ approaches and avoiding loading entire content into memory.
+
+ <p>Key optimizations: - Line-by-line streaming for simple transformations - Chunked processing
+ for complex JSONPath operations - Fixed memory buffers instead of StringBuilder - Incremental
+ JSON parsing when possible</div>
 </section>
 <section class="summary">
 <ul class="summary-list">

@@ -47,10 +47,11 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
     log.debug("Command details: {}", getCommandDetails());
 
     // データサイズ測定用のストリームでラップ
-    MeasuredInputStream measuredInput = new MeasuredInputStream(inputStream);
-    MeasuredOutputStream measuredOutput = new MeasuredOutputStream(outputStream);
-
+    MeasuredInputStream measuredInput = null;
+    MeasuredOutputStream measuredOutput = null;
     try {
+      measuredInput = new MeasuredInputStream(inputStream);
+      measuredOutput = new MeasuredOutputStream(outputStream);
       // 実際の処理実行
       _execute(measuredInput, measuredOutput);
 
@@ -76,15 +77,24 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
       long duration = System.currentTimeMillis() - startTime;
       long memoryUsed = getUsedMemory() - startMemory;
 
+      // measuredInput/measuredOutputがnullの場合は0を使用
+      long inputBytes = (measuredInput != null) ? measuredInput.getBytesRead() : 0;
+      long outputBytes = (measuredOutput != null) ? measuredOutput.getBytesWritten() : 0;
+
       log.error(
           "Command execution failed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB) - {}",
           commandName,
           duration,
-          measuredInput.getBytesRead(),
-          measuredOutput.getBytesWritten(),
+          inputBytes,
+          outputBytes,
           memoryUsed / 1024 / 1024,
           e.getMessage(),
           e);
+
+      // NullPointerExceptionをIOExceptionでラップ
+      if (e instanceof NullPointerException) {
+        throw new IOException("Invalid null stream parameter", e);
+      }
 
       throw e;
     }

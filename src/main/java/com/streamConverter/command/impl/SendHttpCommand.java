@@ -141,6 +141,9 @@ public class SendHttpCommand extends AbstractStreamCommand {
     logger.info("Sending HTTP POST request to: {}", url);
 
     try {
+      // Track total bytes written for better error reporting
+      final long[] totalBytesWritten = {0L};
+
       // 大容量データに対応するため、ストリーミング処理を使用
       // WebClientでストリーミングレスポンスを処理
       webClient
@@ -171,14 +174,21 @@ public class SendHttpCommand extends AbstractStreamCommand {
           .timeout(Duration.ofMinutes(5)) // 大容量データ処理のため5分に延長
           .doOnNext(
               dataBuffer -> {
+                // Ensure DataBuffer is always released, even if write fails
                 try {
                   // ストリーミング処理：8KBずつレスポンスを処理
                   byte[] bytes = new byte[dataBuffer.readableByteCount()];
                   dataBuffer.read(bytes);
                   outputStream.write(bytes);
-                  org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);
+                  totalBytesWritten[0] += bytes.length;
                 } catch (IOException e) {
-                  throw new RuntimeException("Failed to write response data to output stream", e);
+                  throw new RuntimeException(
+                      String.format(
+                          "Failed to write response data to output stream (url=%s, bytesWritten=%d)",
+                          url, totalBytesWritten[0]),
+                      e);
+                } finally {
+                  org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);
                 }
               })
           .doOnComplete(
@@ -190,7 +200,10 @@ public class SendHttpCommand extends AbstractStreamCommand {
                   throw new RuntimeException("Failed to flush output stream", e);
                 }
               })
-          .blockLast(); // Wait for completion
+          .blockLast(); // Intentionally synchronous: AbstractStreamCommand interface requires
+      // blocking execution
+      // for compatibility with existing command pipeline. Alternative: use subscribe()
+      // with CompletableFuture for true async, but would break command interface contract.
 
     } catch (RuntimeException e) {
       // WebClient error responses are wrapped in RuntimeException

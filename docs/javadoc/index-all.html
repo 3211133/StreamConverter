@@ -52,6 +52,18 @@ loadScripts(document, 'script');</script>
 <a href="#I:A">A</a>&nbsp;<a href="#I:B">B</a>&nbsp;<a href="#I:C">C</a>&nbsp;<a href="#I:D">D</a>&nbsp;<a href="#I:E">E</a>&nbsp;<a href="#I:F">F</a>&nbsp;<a href="#I:G">G</a>&nbsp;<a href="#I:H">H</a>&nbsp;<a href="#I:I">I</a>&nbsp;<a href="#I:J">J</a>&nbsp;<a href="#I:L">L</a>&nbsp;<a href="#I:M">M</a>&nbsp;<a href="#I:O">O</a>&nbsp;<a href="#I:P">P</a>&nbsp;<a href="#I:Q">Q</a>&nbsp;<a href="#I:R">R</a>&nbsp;<a href="#I:S">S</a>&nbsp;<a href="#I:T">T</a>&nbsp;<a href="#I:U">U</a>&nbsp;<a href="#I:V">V</a>&nbsp;<a href="#I:W">W</a>&nbsp;<a href="#I:X">X</a>&nbsp;<a href="#I:_">_</a>&nbsp;<br><a href="allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="constant-values.html">Constant&nbsp;Field&nbsp;Values</a><span class="vertical-separator">|</span><a href="serialized-form.html">Serialized&nbsp;Form</a>
 <h2 class="title" id="I:A">A</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/factory/AbstractFactory.html" class="type-name-link" title="class in com.streamConverter.factory">AbstractFactory</a>&lt;<a href="com/streamConverter/factory/AbstractFactory.html" title="type parameter in AbstractFactory">T</a>&gt; - Class in <a href="com/streamConverter/factory/package-summary.html">com.streamConverter.factory</a></dt>
+<dd>
+<div class="block">Abstract Factory base class providing common factory functionality.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#%3Cinit%3E()" class="member-name-link">AbstractFactory()</a> - Constructor for class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Constructs an AbstractFactory with default configuration.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#%3Cinit%3E(com.streamConverter.factory.FactoryConfiguration)" class="member-name-link">AbstractFactory(FactoryConfiguration)</a> - Constructor for class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Constructs an AbstractFactory with specified configuration.</div>
+</dd>
 <dt><a href="com/streamConverter/command/AbstractStreamCommand.html" class="type-name-link" title="class in com.streamConverter.command">AbstractStreamCommand</a> - Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
 <dd>
 <div class="block">Abstract class for stream commands.</div>
@@ -155,6 +167,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">ExecutionContextインスタンスを生成</div>
 </dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.Builder.html#build()" class="member-name-link">build()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.Builder.html" title="class in com.streamConverter.factory">FactoryConfiguration.Builder</a></dt>
+<dd>
+<div class="block">Builds the configuration instance.</div>
+</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#build()" class="member-name-link">build()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
 <dd>
 <div class="block">ValidationResultインスタンスを構築</div>
@@ -162,6 +178,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#builder()" class="member-name-link">builder()</a> - Static method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
 <div class="block">カスタム設定でExecutionContextを作成するためのビルダーを取得</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#builder()" class="member-name-link">builder()</a> - Static method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Creates a configuration builder for custom settings.</div>
 </dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#builder()" class="member-name-link">builder()</a> - Static method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>
@@ -171,11 +191,25 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.Builder.html#%3Cinit%3E()" class="member-name-link">Builder()</a> - Constructor for class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.Builder.html" title="class in com.streamConverter.context">ExecutionContext.Builder</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.Builder.html#%3Cinit%3E()" class="member-name-link">Builder()</a> - Constructor for class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.Builder.html" title="class in com.streamConverter.factory">FactoryConfiguration.Builder</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.Builder.html#%3Cinit%3E()" class="member-name-link">Builder()</a> - Constructor for class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.Builder.html" title="class in com.streamConverter.validation">ValidationResult.Builder</a></dt>
 <dd>&nbsp;</dd>
 </dl>
 <h2 class="title" id="I:C">C</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.Builder.html#cacheExpiration(long)" class="member-name-link">cacheExpiration(long)</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.Builder.html" title="class in com.streamConverter.factory">FactoryConfiguration.Builder</a></dt>
+<dd>
+<div class="block">Sets cache expiration time.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#cacheInstance(java.lang.String,T)" class="member-name-link">cacheInstance(String, T)</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Caches an instance with the given key.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.Builder.html#caching(boolean)" class="member-name-link">caching(boolean)</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.Builder.html" title="class in com.streamConverter.factory">FactoryConfiguration.Builder</a></dt>
+<dd>
+<div class="block">Sets caching enabled flag.</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/charaCode/CharacterConvertCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.charaCode">CharacterConvertCommand</a> - Class in <a href="com/streamConverter/command/impl/charaCode/package-summary.html">com.streamConverter.command.impl.charaCode</a></dt>
 <dd>
 <div class="block">Converts the character encoding of a stream from one encoding to another.</div>
@@ -183,6 +217,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/impl/charaCode/CharacterConvertCommand.html#%3Cinit%3E(java.lang.String,java.lang.String)" class="member-name-link">CharacterConvertCommand(String, String)</a> - Constructor for class com.streamConverter.command.impl.charaCode.<a href="com/streamConverter/command/impl/charaCode/CharacterConvertCommand.html" title="class in com.streamConverter.command.impl.charaCode">CharacterConvertCommand</a></dt>
 <dd>
 <div class="block">Constructor to initialize the character encodings for conversion.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#clearCache()" class="member-name-link">clearCache()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Clears all cached instances.</div>
 </dd>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.html#clearRecords()" class="member-name-link">clearRecords()</a> - Method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer</a></dt>
 <dd>
@@ -232,9 +270,13 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a> - package com.streamConverter.examples</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/factory/package-summary.html">com.streamConverter.factory</a> - package com.streamConverter.factory</dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/pathHandler/package-summary.html">com.streamConverter.pathHandler</a> - package com.streamConverter.pathHandler</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/security/package-summary.html">com.streamConverter.security</a> - package com.streamConverter.security</dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/tools/package-summary.html">com.streamConverter.tools</a> - package com.streamConverter.tools</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/package-summary.html">com.streamConverter.util</a> - package com.streamConverter.util</dt>
 <dd>&nbsp;</dd>
@@ -293,6 +335,10 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html#%3Cinit%3E()" class="member-name-link">ComplexXmlProcessingPipeline()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/ComplexXmlProcessingPipeline.html" title="class in com.streamConverter.examples">ComplexXmlProcessingPipeline</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#config" class="member-name-link">config</a> - Variable in class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Factory configuration settings</div>
+</dd>
 <dt><a href="com/streamConverter/controller/AbstractStreamController.html#configureCommands()" class="member-name-link">configureCommands()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
 <dd>
 <div class="block">Configures the command pipeline for this controller.</div>
@@ -406,6 +452,22 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a StreamConverter with the specified list of commands.</div>
 </dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createCached(java.lang.Class,java.lang.Object...)" class="member-name-link">createCached(Class&lt;T&gt;, Object...)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates command with caching support.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#createCacheKey(java.lang.Object...)" class="member-name-link">createCacheKey(Object...)</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Creates a cache key for the given parameters.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createDevelopmentInstance()" class="member-name-link">createDevelopmentInstance()</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates a development-friendly factory instance.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createForControllerIntegration(java.lang.Class,boolean,java.lang.Object...)" class="member-name-link">createForControllerIntegration(Class&lt;T&gt;, boolean, Object...)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates command specifically for ControllerFactory integration.</div>
+</dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#createForOutputType(com.streamConverter.controller.OutputType)" class="member-name-link">createForOutputType(OutputType)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
 <dd>
 <div class="block">Creates a controller for the specified OutputType enum.</div>
@@ -422,17 +484,50 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#createForOutputType(java.lang.String)" class="member-name-link">createForOutputType(String)</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#createInstance(java.lang.Class,java.lang.Object...)" class="member-name-link">createInstance(Class&lt;U&gt;, Object...)</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Creates an instance using reflection with intelligent constructor matching.</div>
+</dd>
 <dt><a href="com/streamConverter/benchmark/LargeDataGenerator.html#createLargeDataStream(java.lang.String,long)" class="member-name-link">createLargeDataStream(String, long)</a> - Static method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/LargeDataGenerator.html" title="class in com.streamConverter.benchmark">LargeDataGenerator</a></dt>
 <dd>
 <div class="block">メモリ効率的な大容量データInputStreamを作成</div>
+</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#createOptimized(java.lang.String,com.streamConverter.controller.OutputType,com.streamConverter.factory.FactoryConfiguration)" class="member-name-link">createOptimized(String, OutputType, FactoryConfiguration)</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Creates a controller with optimized CommandFactory integration.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createPipelineOptimized(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineOptimized(CommandConfig...)</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates optimized pipeline with intelligent caching.</div>
 </dd>
 <dt><a href="com/streamConverter/command/CommandFactory.html#createPipelineWithDetailedLogging(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineWithDetailedLogging(CommandConfig...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" title="class in com.streamConverter.command">CommandFactory</a></dt>
 <dd>
 <div class="block">パイプライン全体を詳細ログ付きで生成</div>
 </dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createPipelineWithDetailedLogging(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineWithDetailedLogging(CommandConfig...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates pipeline with detailed logging using default instance.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createPipelineWithDetailedLoggingChecked(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineWithDetailedLoggingChecked(CommandConfig...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates pipeline with detailed logging using default instance, allowing FactoryException to
+ propagate.</div>
+</dd>
 <dt><a href="com/streamConverter/command/CommandFactory.html#createPipelineWithLogging(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineWithLogging(CommandConfig...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" title="class in com.streamConverter.command">CommandFactory</a></dt>
 <dd>
 <div class="block">ログ機能付きパイプラインを生成</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createPipelineWithLogging(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineWithLogging(CommandConfig...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates pipeline with logging using default instance.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createPipelineWithLoggingChecked(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineWithLoggingChecked(CommandConfig...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates pipeline with logging using default instance, allowing FactoryException to propagate.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createProductionInstance()" class="member-name-link">createProductionInstance()</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates a production-optimized factory instance.</div>
 </dd>
 <dt><a href="com/streamConverter/security/SecureXmlConfiguration.html#createSecureDocumentBuilder()" class="member-name-link">createSecureDocumentBuilder()</a> - Static method in class com.streamConverter.security.<a href="com/streamConverter/security/SecureXmlConfiguration.html" title="class in com.streamConverter.security">SecureXmlConfiguration</a></dt>
 <dd>
@@ -486,9 +581,26 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">ログ機能付きコマンドを生成（詳細ログ付き）</div>
 </dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createWithLogging(java.lang.Class,boolean,java.lang.Object...)" class="member-name-link">createWithLogging(Class&lt;T&gt;, boolean, Object...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates command with detailed logging using default instance.</div>
+</dd>
 <dt><a href="com/streamConverter/command/CommandFactory.html#createWithLogging(java.lang.Class,java.lang.Object...)" class="member-name-link">createWithLogging(Class&lt;T&gt;, Object...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/CommandFactory.html" title="class in com.streamConverter.command">CommandFactory</a></dt>
 <dd>
 <div class="block">ログ機能付きコマンドを生成</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createWithLogging(java.lang.Class,java.lang.Object...)" class="member-name-link">createWithLogging(Class&lt;T&gt;, Object...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates command with logging using default instance.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createWithLoggingChecked(java.lang.Class,boolean,java.lang.Object...)" class="member-name-link">createWithLoggingChecked(Class&lt;T&gt;, boolean, Object...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates command with detailed logging using default instance, allowing FactoryException to
+ propagate.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createWithLoggingChecked(java.lang.Class,java.lang.Object...)" class="member-name-link">createWithLoggingChecked(Class&lt;T&gt;, Object...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates command with logging using default instance, allowing FactoryException to propagate.</div>
 </dd>
 <dt><a href="com/streamConverter/api/Streams.html#csv(java.lang.String)" class="member-name-link">csv(String)</a> - Static method in class com.streamConverter.api.<a href="com/streamConverter/api/Streams.html" title="class in com.streamConverter.api">Streams</a></dt>
 <dd>
@@ -508,6 +620,26 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#%3Cinit%3E()" class="member-name-link">CsvControllerBuilder()</a> - Constructor for class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/impl/CsvFilterCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">CsvFilterCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
+<dd>
+<div class="block">CSV Filter Command Class</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/CsvFilterCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">CsvFilterCommand(String)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/CsvFilterCommand.html" title="class in com.streamConverter.command.impl">CsvFilterCommand</a></dt>
+<dd>
+<div class="block">Constructor for CSV filtering with single column selector (assumes header exists).</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/CsvFilterCommand.html#%3Cinit%3E(java.lang.String,boolean)" class="member-name-link">CsvFilterCommand(String, boolean)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/CsvFilterCommand.html" title="class in com.streamConverter.command.impl">CsvFilterCommand</a></dt>
+<dd>
+<div class="block">Constructor for CSV filtering with single column selector.</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/CsvFilterCommand.html#%3Cinit%3E(java.util.List)" class="member-name-link">CsvFilterCommand(List&lt;String&gt;)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/CsvFilterCommand.html" title="class in com.streamConverter.command.impl">CsvFilterCommand</a></dt>
+<dd>
+<div class="block">Constructor for CSV filtering with multiple column selectors (assumes header exists).</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/CsvFilterCommand.html#%3Cinit%3E(java.util.List,boolean)" class="member-name-link">CsvFilterCommand(List&lt;String&gt;, boolean)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/CsvFilterCommand.html" title="class in com.streamConverter.command.impl">CsvFilterCommand</a></dt>
+<dd>
+<div class="block">Constructor for CSV filtering with multiple column selectors.</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/CsvNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
 <div class="block">CSV Navigate Command Class</div>
@@ -567,6 +699,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">コンストラクタ</div>
 </dd>
+<dt><a href="com/streamConverter/tools/DatabaseInspector.html" class="type-name-link" title="class in com.streamConverter.tools">DatabaseInspector</a> - Class in <a href="com/streamConverter/tools/package-summary.html">com.streamConverter.tools</a></dt>
+<dd>
+<div class="block">H2データベースの中身を確認するためのツール</div>
+</dd>
+<dt><a href="com/streamConverter/tools/DatabaseInspector.html#%3Cinit%3E()" class="member-name-link">DatabaseInspector()</a> - Constructor for class com.streamConverter.tools.<a href="com/streamConverter/tools/DatabaseInspector.html" title="class in com.streamConverter.tools">DatabaseInspector</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/examples/DatabaseRuleDemo.html" class="type-name-link" title="class in com.streamConverter.examples">DatabaseRuleDemo</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
+<dd>
+<div class="block">DatabaseFetchRuleの実用的な使用例デモンストレーション</div>
+</dd>
+<dt><a href="com/streamConverter/examples/DatabaseRuleDemo.html#%3Cinit%3E()" class="member-name-link">DatabaseRuleDemo()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/DatabaseRuleDemo.html" title="class in com.streamConverter.examples">DatabaseRuleDemo</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/api/DataFormat.html" class="type-name-link" title="enum class in com.streamConverter.api">DataFormat</a> - Enum Class in <a href="com/streamConverter/api/package-summary.html">com.streamConverter.api</a></dt>
 <dd>
 <div class="block">データ形式を表すenum</div>
@@ -581,12 +725,44 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">データソース情報を設定</div>
 </dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#DEFAULT_CACHE_SIZE" class="member-name-link">DEFAULT_CACHE_SIZE</a> - Static variable in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Default cache size limit</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#DEFAULT_LOGGING_ENABLED" class="member-name-link">DEFAULT_LOGGING_ENABLED</a> - Static variable in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Default logging enabled flag</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#defaultConfig()" class="member-name-link">defaultConfig()</a> - Static method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Creates default factory configuration.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.Builder.html#detailedLogging(boolean)" class="member-name-link">detailedLogging(boolean)</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.Builder.html" title="class in com.streamConverter.factory">FactoryConfiguration.Builder</a></dt>
+<dd>
+<div class="block">Sets detailed logging enabled flag.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#developmentConfig()" class="member-name-link">developmentConfig()</a> - Static method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Creates a development-friendly configuration.</div>
+</dd>
 </dl>
 <h2 class="title" id="I:E">E</h2>
 <dl class="index">
 <dt><a href="com/streamConverter/CommandResult.Builder.html#endTime(java.time.Instant)" class="member-name-link">endTime(Instant)</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.Builder.html" title="class in com.streamConverter">CommandResult.Builder</a></dt>
 <dd>
 <div class="block">終了時刻を設定</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html" class="type-name-link" title="class in com.streamConverter.command">EnhancedCommandFactory</a> - Class in <a href="com/streamConverter/command/package-summary.html">com.streamConverter.command</a></dt>
+<dd>
+<div class="block">Enhanced Command Factory with optimized integration capabilities.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#%3Cinit%3E()" class="member-name-link">EnhancedCommandFactory()</a> - Constructor for class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates factory with default configuration.</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#%3Cinit%3E(com.streamConverter.factory.FactoryConfiguration)" class="member-name-link">EnhancedCommandFactory(FactoryConfiguration)</a> - Constructor for class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Creates factory with custom configuration.</div>
 </dd>
 <dt><a href="com/streamConverter/examples/EnterpriseIntegrationPatterns.html" class="type-name-link" title="class in com.streamConverter.examples">EnterpriseIntegrationPatterns</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
 <dd>
@@ -619,6 +795,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream,com.streamConverter.context.ExecutionContext)" class="member-name-link">execute(InputStream, OutputStream, ExecutionContext)</a> - Method in interface com.streamConverter.command.<a href="com/streamConverter/command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></dt>
 <dd>
 <div class="block">Executes the command with ExecutionContext support for enhanced traceability.</div>
+</dd>
+<dt><a href="com/streamConverter/examples/QuickDatabaseLookup.html#executeQuery(java.lang.String)" class="member-name-link">executeQuery(String)</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/QuickDatabaseLookup.html" title="class in com.streamConverter.examples">QuickDatabaseLookup</a></dt>
+<dd>
+<div class="block">SQLクエリを実行して結果を表示</div>
 </dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#EXECUTION_ID_KEY" class="member-name-link">EXECUTION_ID_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
@@ -667,6 +847,38 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:F">F</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html" class="type-name-link" title="class in com.streamConverter.factory">FactoryConfiguration</a> - Class in <a href="com/streamConverter/factory/package-summary.html">com.streamConverter.factory</a></dt>
+<dd>
+<div class="block">Configuration class for factory settings.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#%3Cinit%3E(boolean,boolean,int,long,boolean)" class="member-name-link">FactoryConfiguration(boolean, boolean, int, long, boolean)</a> - Constructor for class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Creates a factory configuration with specified settings.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.Builder.html" class="type-name-link" title="class in com.streamConverter.factory">FactoryConfiguration.Builder</a> - Class in <a href="com/streamConverter/factory/package-summary.html">com.streamConverter.factory</a></dt>
+<dd>
+<div class="block">Builder class for creating custom factory configurations.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryException.html" class="type-name-link" title="class in com.streamConverter.factory">FactoryException</a> - Exception in <a href="com/streamConverter/factory/package-summary.html">com.streamConverter.factory</a></dt>
+<dd>
+<div class="block">Exception thrown when factory operations fail.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryException.html#%3Cinit%3E(java.lang.String)" class="member-name-link">FactoryException(String)</a> - Constructor for exception com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryException.html" title="class in com.streamConverter.factory">FactoryException</a></dt>
+<dd>
+<div class="block">Constructs a FactoryException with the specified detail message.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryException.html#%3Cinit%3E(java.lang.String,java.lang.Throwable)" class="member-name-link">FactoryException(String, Throwable)</a> - Constructor for exception com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryException.html" title="class in com.streamConverter.factory">FactoryException</a></dt>
+<dd>
+<div class="block">Constructs a FactoryException with the specified detail message and cause.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryException.html#%3Cinit%3E(java.lang.Throwable)" class="member-name-link">FactoryException(Throwable)</a> - Constructor for exception com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryException.html" title="class in com.streamConverter.factory">FactoryException</a></dt>
+<dd>
+<div class="block">Constructs a FactoryException with the specified cause.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.Builder.html#failFast(boolean)" class="member-name-link">failFast(boolean)</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.Builder.html" title="class in com.streamConverter.factory">FactoryConfiguration.Builder</a></dt>
+<dd>
+<div class="block">Sets fail-fast error handling.</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.html#failure(java.lang.String,long,java.lang.String,java.time.Instant,java.time.Instant)" class="member-name-link">failure(String, long, String, Instant, Instant)</a> - Static method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">失敗結果を作成するヘルパーメソッド</div>
@@ -842,6 +1054,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">現在までに書き込んだバイト数を取得</div>
 </dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#getCachedInstance(java.lang.String)" class="member-name-link">getCachedInstance(String)</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Gets cached instance or null if not found.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#getCacheExpirationMinutes()" class="member-name-link">getCacheExpirationMinutes()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Gets cache expiration time in minutes.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#getCacheSize()" class="member-name-link">getCacheSize()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Gets current cache size.</div>
+</dd>
 <dt><a href="com/streamConverter/controller/CsvProcessingController.html#getColumnSelector()" class="member-name-link">getColumnSelector()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></dt>
 <dd>
 <div class="block">Gets the column selector if applicable.</div>
@@ -862,12 +1086,22 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">コマンドの詳細情報を取得します。</div>
 </dd>
+<dt><a href="com/streamConverter/command/impl/CsvFilterCommand.html#getCommandDetails()" class="member-name-link">getCommandDetails()</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/CsvFilterCommand.html" title="class in com.streamConverter.command.impl">CsvFilterCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/CsvNavigateCommand.html#getCommandDetails()" class="member-name-link">getCommandDetails()</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/impl/JsonFilterCommand.html#getCommandDetails()" class="member-name-link">getCommandDetails()</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/JsonFilterCommand.html" title="class in com.streamConverter.command.impl">JsonFilterCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/JsonNavigateCommand.html#getCommandDetails()" class="member-name-link">getCommandDetails()</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/impl/XmlFilterCommand.html#getCommandDetails()" class="member-name-link">getCommandDetails()</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlFilterCommand.html" title="class in com.streamConverter.command.impl">XmlFilterCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/XmlNavigateCommand.html#getCommandDetails()" class="member-name-link">getCommandDetails()</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/controller/ControllerFactory.html#getCommandFactory()" class="member-name-link">getCommandFactory()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Gets the enhanced command factory instance used by this controller factory.</div>
+</dd>
 <dt><a href="com/streamConverter/command/ContextPropagatingDecorator.html#getCommandName()" class="member-name-link">getCommandName()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/ContextPropagatingDecorator.html" title="class in com.streamConverter.command">ContextPropagatingDecorator</a></dt>
 <dd>
 <div class="block">コマンド名を取得</div>
@@ -879,6 +1113,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/CommandResult.html#getCommandName()" class="member-name-link">getCommandName()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">コマンド名を取得</div>
+</dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#getConfiguration()" class="member-name-link">getConfiguration()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Gets factory configuration.</div>
 </dd>
 <dt><a href="com/streamConverter/controller/AbstractStreamController.html#getConfigurationDescription()" class="member-name-link">getConfigurationDescription()</a> - Method in class com.streamConverter.controller.<a href="com/streamConverter/controller/AbstractStreamController.html" title="class in com.streamConverter.controller">AbstractStreamController</a></dt>
 <dd>
@@ -927,6 +1165,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#getDataSource()" class="member-name-link">getDataSource()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>
 <div class="block">データソース情報を取得</div>
+</dd>
+<dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#getDefaultInstance()" class="member-name-link">getDefaultInstance()</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
+<dd>
+<div class="block">Gets the default factory instance.</div>
 </dd>
 <dt><a href="com/streamConverter/command/LoggingDecorator.html#getDelegate()" class="member-name-link">getDelegate()</a> - Method in class com.streamConverter.command.<a href="com/streamConverter/command/LoggingDecorator.html" title="class in com.streamConverter.command">LoggingDecorator</a></dt>
 <dd>
@@ -1007,6 +1249,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/controller/ControllerFactory.html#getJsonController()" class="member-name-link">getJsonController()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
 <dd>
 <div class="block">Gets a JSON controller builder for advanced configuration.</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#getMaxCacheSize()" class="member-name-link">getMaxCacheSize()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Gets maximum cache size.</div>
 </dd>
 <dt><a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html#getMaxErrorsToReport()" class="member-name-link">getMaxErrorsToReport()</a> - Method in class com.streamConverter.command.impl.csv.<a href="com/streamConverter/command/impl/csv/CsvValidateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvValidateCommand</a></dt>
 <dd>
@@ -1198,6 +1444,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">入力バイト数を設定</div>
 </dd>
+<dt><a href="com/streamConverter/factory/AbstractFactory.html#instanceCache" class="member-name-link">instanceCache</a> - Variable in class com.streamConverter.factory.<a href="com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
+<dd>
+<div class="block">Thread-safe cache for created instances</div>
+</dd>
 <dt><a href="com/streamConverter/command/rule/IRule.html" class="type-name-link" title="interface in com.streamConverter.command.rule">IRule</a> - Interface in <a href="com/streamConverter/command/rule/package-summary.html">com.streamConverter.command.rule</a></dt>
 <dd>
 <div class="block">ルールインターフェース</div>
@@ -1205,6 +1455,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isAuditEnabled()" class="member-name-link">isAuditEnabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
 <dd>
 <div class="block">監査ログの有効化設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#isCachingEnabled()" class="member-name-link">isCachingEnabled()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Checks if caching is enabled.</div>
 </dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#isClosed()" class="member-name-link">isClosed()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>
@@ -1222,6 +1476,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Validates that the controller is properly configured and ready for processing.</div>
 </dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#isDetailedLoggingEnabled()" class="member-name-link">isDetailedLoggingEnabled()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Checks if detailed logging is enabled.</div>
+</dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#isEmpty()" class="member-name-link">isEmpty()</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">パイプラインが空かどうかを確認</div>
@@ -1229,6 +1487,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isEncodingValidationEnabled()" class="member-name-link">isEncodingValidationEnabled()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
 <dd>
 <div class="block">文字エンコーディング検証の有効化設定を取得します</div>
+</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#isFailFastOnError()" class="member-name-link">isFailFastOnError()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Checks if fail-fast error handling is enabled.</div>
 </dd>
 <dt><a href="com/streamConverter/config/SecurityConfigurationManager.html#isFileAccessRestrictedToWorkspace()" class="member-name-link">isFileAccessRestrictedToWorkspace()</a> - Method in class com.streamConverter.config.<a href="com/streamConverter/config/SecurityConfigurationManager.html" title="class in com.streamConverter.config">SecurityConfigurationManager</a></dt>
 <dd>
@@ -1335,9 +1597,17 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#%3Cinit%3E()" class="member-name-link">JsonControllerBuilder()</a> - Constructor for class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/impl/JsonFilterCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">JsonFilterCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
+<dd>
+<div class="block">JSON Filter Command Class</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/JsonFilterCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">JsonFilterCommand(String)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/JsonFilterCommand.html" title="class in com.streamConverter.command.impl">JsonFilterCommand</a></dt>
+<dd>
+<div class="block">Constructor for JSON filtering with JSONPath selector.</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/JsonNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
-<div class="block">JSON Navigate Command Class</div>
+<div class="block">Memory-Optimized JSON Navigate Command Class</div>
 </dd>
 <dt><a href="com/streamConverter/command/impl/JsonNavigateCommand.html#%3Cinit%3E()" class="member-name-link">JsonNavigateCommand()</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a></dt>
 <dd>
@@ -1396,6 +1666,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">セキュリティ設定の現在の状態をログに出力します</div>
 </dd>
+<dt><a href="com/streamConverter/examples/QuickDatabaseLookup.html#lookupCustomer(int)" class="member-name-link">lookupCustomer(int)</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/QuickDatabaseLookup.html" title="class in com.streamConverter.examples">QuickDatabaseLookup</a></dt>
+<dd>
+<div class="block">特定のIDの顧客情報を取得（DatabaseFetchRuleと同じ動作をテスト）</div>
+</dd>
+<dt><a href="com/streamConverter/examples/QuickDatabaseLookup.html#lookupProduct(java.lang.String)" class="member-name-link">lookupProduct(String)</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/QuickDatabaseLookup.html" title="class in com.streamConverter.examples">QuickDatabaseLookup</a></dt>
+<dd>
+<div class="block">特定のコードの商品情報を取得（DatabaseFetchRuleと同じ動作をテスト）</div>
+</dd>
 </dl>
 <h2 class="title" id="I:M">M</h2>
 <dl class="index">
@@ -1423,6 +1701,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">メインメソッド</div>
 </dd>
+<dt><a href="com/streamConverter/examples/DatabaseRuleDemo.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/DatabaseRuleDemo.html" title="class in com.streamConverter.examples">DatabaseRuleDemo</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/examples/DataProcessingExamples.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/DataProcessingExamples.html" title="class in com.streamConverter.examples">DataProcessingExamples</a></dt>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。実用的なデータ処理例を実行します。</div>
@@ -1443,10 +1723,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。パフォーマンス最適化の例を実行します。</div>
 </dd>
+<dt><a href="com/streamConverter/examples/QuickDatabaseLookup.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/QuickDatabaseLookup.html" title="class in com.streamConverter.examples">QuickDatabaseLookup</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/examples/QuickStart.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/QuickStart.html" title="class in com.streamConverter.examples">QuickStart</a></dt>
 <dd>
 <div class="block">アプリケーションのエントリーポイント。StreamConverterの基本的な使用例を実行します。</div>
 </dd>
+<dt><a href="com/streamConverter/examples/SendHttpCommandDemo.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/SendHttpCommandDemo.html" title="class in com.streamConverter.examples">SendHttpCommandDemo</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/examples/StreamConverterMDCDemo.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/StreamConverterMDCDemo.html" title="class in com.streamConverter.examples">StreamConverterMDCDemo</a></dt>
 <dd>
 <div class="block">Main method to demonstrate StreamConverter MDC integration.</div>
@@ -1463,6 +1747,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Main method to start the Spring Boot application.</div>
 </dd>
+<dt><a href="com/streamConverter/tools/DatabaseInspector.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.tools.<a href="com/streamConverter/tools/DatabaseInspector.html" title="class in com.streamConverter.tools">DatabaseInspector</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/Main.html" class="type-name-link" title="class in com.streamConverter">Main</a> - Class in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
 <dd>
 <div class="block">Main class for the StreamConverter application.</div>
@@ -1473,6 +1759,10 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#markSupported()" class="member-name-link">markSupported()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.Builder.html#maxCacheSize(int)" class="member-name-link">maxCacheSize(int)</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.Builder.html" title="class in com.streamConverter.factory">FactoryConfiguration.Builder</a></dt>
+<dd>
+<div class="block">Sets maximum cache size.</div>
+</dd>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#maxExecutionTime" class="member-name-link">maxExecutionTime</a> - Variable in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer.PerformanceStatistics</a></dt>
 <dd>
 <div class="block">最大実行時間（ミリ秒）</div>
@@ -1611,6 +1901,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Process data stream with custom command pipeline.</div>
 </dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#productionConfig()" class="member-name-link">productionConfig()</a> - Static method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Creates a production-optimized configuration.</div>
+</dd>
 <dt><a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#PROPERTY_EXTRACTION" class="member-name-link">PROPERTY_EXTRACTION</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
 <dd>
 <div class="block">Extract specific JSON property values</div>
@@ -1618,6 +1912,12 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:Q">Q</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/examples/QuickDatabaseLookup.html" class="type-name-link" title="class in com.streamConverter.examples">QuickDatabaseLookup</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
+<dd>
+<div class="block">H2データベースの中身を素早く確認するためのシンプルなツール</div>
+</dd>
+<dt><a href="com/streamConverter/examples/QuickDatabaseLookup.html#%3Cinit%3E()" class="member-name-link">QuickDatabaseLookup()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/QuickDatabaseLookup.html" title="class in com.streamConverter.examples">QuickDatabaseLookup</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/examples/QuickStart.html" class="type-name-link" title="class in com.streamConverter.examples">QuickStart</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
 <dd>
 <div class="block">Quick start examples for StreamConverter.</div>
@@ -1712,6 +2012,12 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">デフォルトコンストラクタ</div>
 </dd>
+<dt><a href="com/streamConverter/examples/SendHttpCommandDemo.html" class="type-name-link" title="class in com.streamConverter.examples">SendHttpCommandDemo</a> - Class in <a href="com/streamConverter/examples/package-summary.html">com.streamConverter.examples</a></dt>
+<dd>
+<div class="block">SendHttpCommandの実用例デモ</div>
+</dd>
+<dt><a href="com/streamConverter/examples/SendHttpCommandDemo.html#%3Cinit%3E()" class="member-name-link">SendHttpCommandDemo()</a> - Constructor for class com.streamConverter.examples.<a href="com/streamConverter/examples/SendHttpCommandDemo.html" title="class in com.streamConverter.examples">SendHttpCommandDemo</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#sendHttpPost(java.lang.String)" class="member-name-link">sendHttpPost(String)</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">HTTP送信コマンドを追加（基本実装のみサポート）</div>
@@ -1719,6 +2025,14 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#setUserContext(java.lang.String,java.lang.String)" class="member-name-link">setUserContext(String, String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
 <div class="block">ユーザーコンテキスト値を設定</div>
+</dd>
+<dt><a href="com/streamConverter/examples/QuickDatabaseLookup.html#showTable(java.lang.String)" class="member-name-link">showTable(String)</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/QuickDatabaseLookup.html" title="class in com.streamConverter.examples">QuickDatabaseLookup</a></dt>
+<dd>
+<div class="block">指定したテーブルの全データを表示</div>
+</dd>
+<dt><a href="com/streamConverter/examples/QuickDatabaseLookup.html#showTables()" class="member-name-link">showTables()</a> - Static method in class com.streamConverter.examples.<a href="com/streamConverter/examples/QuickDatabaseLookup.html" title="class in com.streamConverter.examples">QuickDatabaseLookup</a></dt>
+<dd>
+<div class="block">データベースのテーブル一覧を表示</div>
 </dd>
 <dt><a href="com/streamConverter/command/rule/DatabaseConnectionPool.html#shutdown()" class="member-name-link">shutdown()</a> - Method in class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/DatabaseConnectionPool.html" title="class in com.streamConverter.command.rule">DatabaseConnectionPool</a></dt>
 <dd>
@@ -1829,6 +2143,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:T">T</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#testingConfig()" class="member-name-link">testingConfig()</a> - Static method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>
+<div class="block">Creates a testing configuration.</div>
+</dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#THREAD_NAME_KEY" class="member-name-link">THREAD_NAME_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
 <div class="block">スレッド名用のMDCキー</div>
@@ -1863,6 +2181,8 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the string representation of this output type.</div>
 </dd>
+<dt><a href="com/streamConverter/factory/FactoryConfiguration.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#totalCommands" class="member-name-link">totalCommands</a> - Variable in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer.PerformanceStatistics</a></dt>
@@ -2023,6 +2343,14 @@ the order they are declared.</div>
 <dd>
 <div class="block">XML形式</div>
 </dd>
+<dt><a href="com/streamConverter/command/impl/XmlFilterCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">XmlFilterCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
+<dd>
+<div class="block">XML Filter Command Class</div>
+</dd>
+<dt><a href="com/streamConverter/command/impl/XmlFilterCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">XmlFilterCommand(String)</a> - Constructor for class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlFilterCommand.html" title="class in com.streamConverter.command.impl">XmlFilterCommand</a></dt>
+<dd>
+<div class="block">Constructor for XML filtering with XPath selector.</div>
+</dd>
 <dt><a href="com/streamConverter/command/impl/XmlNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a> - Class in <a href="com/streamConverter/command/impl/package-summary.html">com.streamConverter.command.impl</a></dt>
 <dd>
 <div class="block">XML Navigate Command Class</div>
@@ -2055,7 +2383,11 @@ the order they are declared.</div>
 <div class="block">Executes the character encoding conversion on the provided input stream and writes the result
  to the output stream.</div>
 </dd>
+<dt><a href="com/streamConverter/command/impl/CsvFilterCommand.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/CsvFilterCommand.html" title="class in com.streamConverter.command.impl">CsvFilterCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/CsvNavigateCommand.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/command/impl/JsonFilterCommand.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/JsonFilterCommand.html" title="class in com.streamConverter.command.impl">JsonFilterCommand</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/JsonNavigateCommand.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl">JsonNavigateCommand</a></dt>
 <dd>&nbsp;</dd>
@@ -2071,6 +2403,8 @@ the order they are declared.</div>
 <dd>
 <div class="block">XML変換コマンドの実行</div>
 </dd>
+<dt><a href="com/streamConverter/command/impl/XmlFilterCommand.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlFilterCommand.html" title="class in com.streamConverter.command.impl">XmlFilterCommand</a></dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/command/impl/XmlNavigateCommand.html#_execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">_execute(InputStream, OutputStream)</a> - Method in class com.streamConverter.command.impl.<a href="com/streamConverter/command/impl/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl">XmlNavigateCommand</a></dt>
 <dd>&nbsp;</dd>
 </dl>

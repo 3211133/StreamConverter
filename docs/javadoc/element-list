@@ -14,8 +14,10 @@ com.streamConverter.controller
 com.streamConverter.controller.examples
 com.streamConverter.demo
 com.streamConverter.examples
+com.streamConverter.factory
 com.streamConverter.pathHandler
 com.streamConverter.security
+com.streamConverter.tools
 com.streamConverter.util
 com.streamConverter.validation
 com.streamConverter.web

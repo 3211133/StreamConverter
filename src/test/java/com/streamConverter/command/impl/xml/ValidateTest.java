@@ -89,11 +89,17 @@ class ValidateTest {
     ValidateCommand command = new ValidateCommand(schemaPath);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    assertThrows(
-        NullPointerException.class,
-        () -> {
-          command.execute(null, outputStream);
-        });
+    Exception exception =
+        assertThrows(
+            IOException.class,
+            () -> {
+              command.execute(null, outputStream);
+            });
+
+    // The root cause should be NullPointerException
+    assertTrue(
+        exception.getCause() instanceof NullPointerException,
+        "Root cause should be NullPointerException");
   }
 
   @Test
@@ -103,11 +109,17 @@ class ValidateTest {
     ValidateCommand command = new ValidateCommand(schemaPath);
 
     try (InputStream inputStream = new FileInputStream(validXmlPath)) {
-      assertThrows(
-          NullPointerException.class,
-          () -> {
-            command.execute(inputStream, null);
-          });
+      Exception exception =
+          assertThrows(
+              IOException.class,
+              () -> {
+                command.execute(inputStream, null);
+              });
+
+      // The root cause should be NullPointerException
+      assertTrue(
+          exception.getCause() instanceof NullPointerException,
+          "Root cause should be NullPointerException");
     }
   }
 

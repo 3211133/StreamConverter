@@ -12,19 +12,22 @@
  */
 package com.streamConverter.command.impl;
 
+import com.google.common.net.InetAddresses;
 import com.streamConverter.command.AbstractStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.http.HttpClient;
-import java.net.http.HttpRequest;
-import java.net.http.HttpResponse;
 import java.time.Duration;
 import java.util.Objects;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 /** 指定された通信先にOutputStreamを送信するコマンドクラス。 */
 public class SendHttpCommand extends AbstractStreamCommand {
@@ -32,6 +35,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
   private static final Logger logger = LoggerFactory.getLogger(SendHttpCommand.class);
 
   private String url;
+  private final WebClient webClient;
 
   /**
    * デフォルトコンストラクタ
@@ -42,6 +46,12 @@ public class SendHttpCommand extends AbstractStreamCommand {
   public SendHttpCommand(String url) {
     super();
     this.url = validateAndSanitizeUrl(url);
+    this.webClient =
+        WebClient.builder()
+            .codecs(
+                configurer ->
+                    configurer.defaultCodecs().maxInMemorySize(-1)) // Unlimited for streaming
+            .build();
   }
 
   /**
@@ -90,30 +100,30 @@ public class SendHttpCommand extends AbstractStreamCommand {
 
   /** ローカルホストかどうかを判定する */
   private boolean isLocalhost(String host) {
-    return "localhost".equalsIgnoreCase(host) || "127.0.0.1".equals(host) || "::1".equals(host);
+    if (host == null) {
+      return false;
+    }
+
+    // Handle IPv6 addresses with brackets
+    String cleanHost =
+        host.startsWith("[") && host.endsWith("]") ? host.substring(1, host.length() - 1) : host;
+
+    return "localhost".equalsIgnoreCase(cleanHost)
+        || "127.0.0.1".equals(cleanHost)
+        || "::1".equals(cleanHost);
   }
 
-  /** プライベートIPアドレスかどうかを判定する */
+  /** プライベートIPアドレスかどうかを判定する（Guava使用） */
   private boolean isPrivateIpAddress(String host) {
-    // 簡単なプライベートIPアドレスチェック
-    return host.startsWith("192.168.")
-        || host.startsWith("10.")
-        || host.startsWith("172.16.")
-        || host.startsWith("172.17.")
-        || host.startsWith("172.18.")
-        || host.startsWith("172.19.")
-        || host.startsWith("172.20.")
-        || host.startsWith("172.21.")
-        || host.startsWith("172.22.")
-        || host.startsWith("172.23.")
-        || host.startsWith("172.24.")
-        || host.startsWith("172.25.")
-        || host.startsWith("172.26.")
-        || host.startsWith("172.27.")
-        || host.startsWith("172.28.")
-        || host.startsWith("172.29.")
-        || host.startsWith("172.30.")
-        || host.startsWith("172.31.");
+    try {
+      // GuavaのInetAddressesを使用してIPアドレスを解析
+      InetAddress address = InetAddresses.forString(host);
+      // RFC 1918準拠のプライベートアドレス判定
+      return address.isSiteLocalAddress() || address.isLoopbackAddress();
+    } catch (IllegalArgumentException e) {
+      // IPアドレス形式でない場合（ホスト名など）はfalseを返す
+      return false;
+    }
   }
 
   /**
@@ -131,51 +141,73 @@ public class SendHttpCommand extends AbstractStreamCommand {
     logger.info("Sending HTTP POST request to: {}", url);
 
     try {
-      // HttpClientを作成（タイムアウト設定付き）
-      HttpClient client = HttpClient.newBuilder().connectTimeout(Duration.ofSeconds(10)).build();
+      // Track total bytes written for better error reporting
+      final long[] totalBytesWritten = {0L};
 
-      // 入力ストリームからデータを読み取ってバイト配列に変換
-      byte[] requestBody = inputStream.readAllBytes();
-      logger.debug("Read {} bytes from input stream", requestBody.length);
+      // 大容量データに対応するため、ストリーミング処理を使用
+      // WebClientでストリーミングレスポンスを処理
+      webClient
+          .post()
+          .uri(url)
+          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+          .header(HttpHeaders.USER_AGENT, "StreamConverter/1.0")
+          .body(
+              BodyInserters.fromDataBuffers(
+                  org.springframework.core.io.buffer.DataBufferUtils.readInputStream(
+                      () -> inputStream,
+                      org.springframework.core.io.buffer.DefaultDataBufferFactory.sharedInstance,
+                      8192))) // 8KB chunks for memory efficiency
+          .retrieve()
+          .onStatus(
+              status -> !status.is2xxSuccessful(),
+              response ->
+                  response
+                      .bodyToMono(String.class)
+                      .defaultIfEmpty("")
+                      .map(
+                          errorBody ->
+                              new RuntimeException(
+                                  String.format(
+                                      "HTTP request failed: status=%d, url=%s, response=%s",
+                                      response.statusCode().value(), url, errorBody))))
+          .bodyToFlux(org.springframework.core.io.buffer.DataBuffer.class)
+          .timeout(Duration.ofMinutes(5)) // 大容量データ処理のため5分に延長
+          .doOnNext(
+              dataBuffer -> {
+                // Ensure DataBuffer is always released, even if write fails
+                try {
+                  // ストリーミング処理：8KBずつレスポンスを処理
+                  byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                  dataBuffer.read(bytes);
+                  outputStream.write(bytes);
+                  totalBytesWritten[0] += bytes.length;
+                } catch (IOException e) {
+                  throw new RuntimeException(
+                      String.format(
+                          "Failed to write response data to output stream (url=%s, bytesWritten=%d)",
+                          url, totalBytesWritten[0]),
+                      e);
+                } finally {
+                  org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);
+                }
+              })
+          .doOnComplete(
+              () -> {
+                try {
+                  outputStream.flush();
+                  logger.info("HTTP response streaming completed successfully");
+                } catch (IOException e) {
+                  throw new RuntimeException("Failed to flush output stream", e);
+                }
+              })
+          .blockLast(); // Intentionally synchronous: AbstractStreamCommand interface requires
+      // blocking execution
+      // for compatibility with existing command pipeline. Alternative: use subscribe()
+      // with CompletableFuture for true async, but would break command interface contract.
 
-      // HTTPリクエストを構築
-      HttpRequest request =
-          HttpRequest.newBuilder()
-              .uri(URI.create(url))
-              .header("Content-Type", "application/octet-stream")
-              .header("User-Agent", "StreamConverter/1.0")
-              .timeout(Duration.ofSeconds(30))
-              .POST(HttpRequest.BodyPublishers.ofByteArray(requestBody))
-              .build();
-
-      // HTTPリクエストを送信
-      HttpResponse<byte[]> response = client.send(request, HttpResponse.BodyHandlers.ofByteArray());
-
-      logger.info(
-          "HTTP response received: status={}, length={} bytes",
-          response.statusCode(),
-          response.body().length);
-
-      // レスポンスのステータスコードをチェック
-      if (response.statusCode() >= 200 && response.statusCode() < 300) {
-        // 成功レスポンスの場合、レスポンスボディを出力ストリームに書き込み
-        outputStream.write(response.body());
-        outputStream.flush();
-        logger.debug("Successfully wrote {} bytes to output stream", response.body().length);
-      } else {
-        // エラーレスポンスの場合、エラー情報を含む例外をスロー
-        String errorBody = new String(response.body(), java.nio.charset.StandardCharsets.UTF_8);
-        String errorMessage =
-            String.format(
-                "HTTP request failed: status=%d, url=%s, response=%s",
-                response.statusCode(), url, errorBody);
-        logger.error(errorMessage);
-        throw new IOException(errorMessage);
-      }
-
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      String errorMessage = "HTTP request was interrupted: " + url;
+    } catch (RuntimeException e) {
+      // WebClient error responses are wrapped in RuntimeException
+      String errorMessage = "HTTP request failed: " + url + " - " + e.getMessage();
       logger.error(errorMessage, e);
       throw new IOException(errorMessage, e);
     } catch (Exception e) {

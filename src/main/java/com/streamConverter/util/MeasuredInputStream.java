@@ -19,7 +19,8 @@ public class MeasuredInputStream extends InputStream {
    * @param delegate ラップ対象のInputStream
    */
   public MeasuredInputStream(InputStream delegate) {
-    this.delegate = delegate;
+    this.delegate =
+        java.util.Objects.requireNonNull(delegate, "delegate InputStream cannot be null");
   }
 
   @Override

@@ -149,7 +149,7 @@ public class HikariConnectionPoolConfig implements AutoCloseable {
       return "HikariCP[CLOSED]";
     }
 
-    var mxBean = dataSource.getHikariPoolMXBean();
+    com.zaxxer.hikari.HikariPoolMXBean mxBean = dataSource.getHikariPoolMXBean();
     return String.format(
         "HikariCP Details[active=%d, idle=%d, total=%d, waiting=%d, url=%s]",
         mxBean.getActiveConnections(),
@@ -183,7 +183,7 @@ public class HikariConnectionPoolConfig implements AutoCloseable {
    *
    * @deprecated {@link #close()} を使用してください
    */
-  @Deprecated
+  @Deprecated(since = "1.2", forRemoval = true)
   public void shutdown() {
     close();
   }

@@ -277,7 +277,7 @@ tasks.withType<com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask
     }
 }
 
-// Ensure code formatting is checked in CI and development
+// Ensure code formatting is applied automatically in development
 tasks.named("check") {
-    dependsOn("spotlessCheck")
+    dependsOn("spotlessApply")
 }

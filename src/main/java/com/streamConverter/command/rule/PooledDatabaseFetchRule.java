@@ -11,16 +11,16 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * コネクションプール対応のデータベースフェッチルール
+ * HikariCP対応のデータベースフェッチルール
  *
- * <p>DatabaseFetchRuleの高性能版です。DatabaseConnectionPoolを使用して接続の再利用により
- * パフォーマンスを大幅に向上させます。特に大量のデータ処理や高頻度のデータベースアクセスが 必要な場合に効果的です。
+ * <p>DatabaseFetchRuleの高性能版です。HikariCPを使用して接続の再利用により パフォーマンスを大幅に向上させます。特に大量のデータ処理や高頻度のデータベースアクセスが
+ * 必要な場合に効果的です。
  *
  * <p>使用例:
  *
  * <pre>{@code
- * // コネクションプールを作成
- * DatabaseConnectionPool pool = new DatabaseConnectionPool("jdbc:h2:mem:testdb", 10, 30000);
+ * // HikariCP接続プールを作成
+ * HikariConnectionPoolConfig pool = new HikariConnectionPoolConfig("jdbc:h2:mem:testdb", 10, Duration.ofSeconds(30));
  *
  * // プール対応ルールを作成
  * PooledDatabaseFetchRule rule = new PooledDatabaseFetchRule(
@@ -34,16 +34,16 @@ import org.slf4j.LoggerFactory;
  * }
  *
  * // 使用後はプールをシャットダウン
- * pool.shutdown();
+ * pool.close();
  * }</pre>
  *
  * <p>DatabaseFetchRuleとの違い:
  *
  * <ul>
- *   <li>接続プール使用によりパフォーマンス大幅向上
- *   <li>リソース使用量の最適化
+ *   <li>業界標準HikariCP使用によりパフォーマンス大幅向上
+ *   <li>接続リーク検出と自動回復
  *   <li>複数スレッドからの同時アクセス対応
- *   <li>接続の自動検証と回復
+ *   <li>詳細なプールメトリクス
  * </ul>
  */
 public class PooledDatabaseFetchRule implements IRule {
@@ -55,18 +55,18 @@ public class PooledDatabaseFetchRule implements IRule {
           "(?i).*(union|insert|update|delete|drop|create|alter|exec|execute|sp_|xp_).*",
           Pattern.CASE_INSENSITIVE);
 
-  private final DatabaseConnectionPool connectionPool;
+  private final HikariConnectionPoolConfig connectionPool;
   private final String query;
 
   /**
    * コンストラクタ
    *
-   * @param connectionPool データベース接続プール
+   * @param connectionPool HikariCP接続プール
    * @param query データベースクエリ（SELECTクエリのみ許可）
    * @throws IllegalArgumentException 無効なパラメータが指定された場合
    * @throws SecurityException セキュリティ違反が検出された場合
    */
-  public PooledDatabaseFetchRule(DatabaseConnectionPool connectionPool, String query) {
+  public PooledDatabaseFetchRule(HikariConnectionPoolConfig connectionPool, String query) {
     Objects.requireNonNull(connectionPool, "Connection pool cannot be null");
     Objects.requireNonNull(query, "Query cannot be null");
 
@@ -76,7 +76,7 @@ public class PooledDatabaseFetchRule implements IRule {
     logger.info(
         "PooledDatabaseFetchRule initialized - Query length: {}, Pool: {}",
         this.query.length(),
-        connectionPool.getPoolStats());
+        connectionPool.getDetailedStats());
   }
 
   /**

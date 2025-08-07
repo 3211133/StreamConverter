@@ -14,7 +14,7 @@ plugins {
     id("jacoco")
     id("application")
     id("com.diffplug.spotless") version "7.2.1"
-    id("info.solidsoft.pitest") version "1.15.0"
+    id("info.solidsoft.pitest") version "1.19.0-rc.1"
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -185,7 +185,8 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
     
-    // Database support (H2 for testing)
+    // Database support
+    implementation("com.zaxxer:HikariCP:6.2.1")
     testImplementation("com.h2database:h2:2.2.224")
     
     // Spring Boot Test

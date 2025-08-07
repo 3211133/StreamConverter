@@ -17,6 +17,7 @@ plugins {
     id("info.solidsoft.pitest") version "1.15.0"
     id("org.springframework.boot") version "3.4.1"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.github.ben-manes.versions") version "0.51.0"
 }
 
 // Main class configuration
@@ -260,12 +261,23 @@ tasks.javadoc {
     setDestinationDir(file("docs/javadoc"))
 }
 
-// spotlessCheck タスクを無効化
-tasks.named("spotlessCheck") {
-    enabled = false
+// Dependency version management
+tasks.register("checkDependencyUpdates") {
+    group = "help"
+    description = "Check for dependency updates"
+    dependsOn("dependencyUpdates")
 }
 
-// check タスクの実行時に spotlessApply を依存タスクとして実行する
+// Configure dependency updates check  
+tasks.withType<com.github.benmanes.gradle.versions.updates.DependencyUpdatesTask> {
+    // Reject preview/alpha/beta/rc versions
+    rejectVersionIf {
+        val version = candidate.version.uppercase()
+        listOf("ALPHA", "BETA", "RC", "SNAPSHOT", "M", "PREVIEW").any { version.contains(it) }
+    }
+}
+
+// Ensure code formatting is checked in CI and development
 tasks.named("check") {
-    dependsOn("spotlessApply")
+    dependsOn("spotlessCheck")
 }

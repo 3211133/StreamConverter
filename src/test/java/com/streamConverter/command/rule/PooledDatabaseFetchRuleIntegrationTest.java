@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
+import java.time.Duration;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -19,14 +20,14 @@ import org.junit.jupiter.api.Test;
 /**
  * PooledDatabaseFetchRuleの統合テスト
  *
- * <p>H2インメモリデータベースとコネクションプールを使用してPooledDatabaseFetchRuleの パフォーマンスと並行処理能力をテストします。
+ * <p>H2インメモリデータベースとHikariCP接続プールを使用してPooledDatabaseFetchRuleの パフォーマンスと並行処理能力をテストします。
  */
 public class PooledDatabaseFetchRuleIntegrationTest {
 
   private static final String DB_URL_BASE = "jdbc:h2:mem:pooltest";
   private String dbUrl;
   private Connection connection;
-  private DatabaseConnectionPool connectionPool;
+  private HikariConnectionPoolConfig connectionPool;
 
   @BeforeEach
   public void setUp() throws Exception {
@@ -51,14 +52,14 @@ public class PooledDatabaseFetchRuleIntegrationTest {
       }
     }
 
-    // コネクションプールを初期化
-    connectionPool = new DatabaseConnectionPool(dbUrl, 5, 30000);
+    // HikariCP接続プールを初期化
+    connectionPool = new HikariConnectionPoolConfig(dbUrl, 5, Duration.ofSeconds(30));
   }
 
   @AfterEach
   public void tearDown() throws Exception {
     if (connectionPool != null) {
-      connectionPool.shutdown();
+      connectionPool.close();
     }
     if (connection != null && !connection.isClosed()) {
       connection.close();
@@ -88,10 +89,10 @@ public class PooledDatabaseFetchRuleIntegrationTest {
         new PooledDatabaseFetchRule(connectionPool, "SELECT name FROM users WHERE id = ?");
 
     String stats = rule.getPoolStats();
-    assertTrue(stats.contains("ConnectionPool"));
+    assertTrue(stats.contains("HikariCP"));
     assertTrue(stats.contains("active="));
-    assertTrue(stats.contains("pooled="));
-    assertTrue(stats.contains("max=5"));
+    assertTrue(stats.contains("idle="));
+    assertTrue(stats.contains("total="));
   }
 
   @Test
@@ -168,7 +169,8 @@ public class PooledDatabaseFetchRuleIntegrationTest {
   @DisplayName("プール枯渇時の動作テスト")
   public void testPoolExhaustion() throws InterruptedException {
     // 小さなプールを作成（最大2接続）
-    DatabaseConnectionPool smallPool = new DatabaseConnectionPool(dbUrl, 2, 1000);
+    HikariConnectionPoolConfig smallPool =
+        new HikariConnectionPoolConfig(dbUrl, 2, Duration.ofSeconds(1));
 
     try {
       PooledDatabaseFetchRule rule =
@@ -199,7 +201,7 @@ public class PooledDatabaseFetchRuleIntegrationTest {
 
       executor.shutdown();
     } finally {
-      smallPool.shutdown();
+      smallPool.close();
     }
   }
 
@@ -252,7 +254,8 @@ public class PooledDatabaseFetchRuleIntegrationTest {
   @Test
   @DisplayName("プールシャットダウン後の動作テスト")
   public void testPoolShutdownBehavior() {
-    DatabaseConnectionPool testPool = new DatabaseConnectionPool(dbUrl, 3, 5000);
+    HikariConnectionPoolConfig testPool =
+        new HikariConnectionPoolConfig(dbUrl, 3, Duration.ofSeconds(5));
 
     PooledDatabaseFetchRule rule =
         new PooledDatabaseFetchRule(testPool, "SELECT data FROM performance_test WHERE id = ?");
@@ -262,7 +265,7 @@ public class PooledDatabaseFetchRuleIntegrationTest {
     assertEquals("Data 1", result);
 
     // プールをシャットダウン
-    testPool.shutdown();
+    testPool.close();
 
     // シャットダウン後はエラーになることを確認
     result = rule.apply("2");

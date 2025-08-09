@@ -1,7 +1,6 @@
 package com.streamConverter.test;
 
 import java.util.Arrays;
-import java.util.stream.Collectors;
 
 /** Test utilities for cross-platform testing */
 public class TestUtils {
@@ -28,11 +27,8 @@ public class TestUtils {
    */
   public static String createCsvData(String headers, String... rows) {
     return createTestData(
-            Arrays.stream(new String[] {headers})
-                .collect(Collectors.toList())
-                .toArray(new String[0]))
-        + LINE_SEPARATOR
-        + createTestData(rows);
+        java.util.stream.Stream.concat(java.util.stream.Stream.of(headers), Arrays.stream(rows))
+            .toArray(String[]::new));
   }
 
   /**

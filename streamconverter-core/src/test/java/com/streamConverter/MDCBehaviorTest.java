@@ -252,10 +252,11 @@ class MDCBehaviorTest {
   @Test
   void testMDCPerformanceImpact() throws IOException, InterruptedException {
     String testData =
-        createTestData("performance,test,data")
-            + System.lineSeparator()
-            + String.join(
-                System.lineSeparator(), java.util.Collections.nCopies(1000, "row,data,value"));
+        createTestData(
+            java.util.stream.Stream.concat(
+                    java.util.stream.Stream.of("performance,test,data"),
+                    java.util.stream.Stream.generate(() -> "row,data,value").limit(1000))
+                .toArray(String[]::new));
 
     // MDCなしでの実行時間測定
     long startTime = System.currentTimeMillis();

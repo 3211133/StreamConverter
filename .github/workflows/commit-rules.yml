@@ -13,6 +13,8 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
+    env:
+      JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8
     strategy:
       fail-fast: false
       matrix: # mac osは特に高いので、コスト面の問題でubuntu以外を偶にしか走らないように設定する必要がある場合がある。

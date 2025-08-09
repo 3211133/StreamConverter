@@ -13,7 +13,11 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,11 +29,12 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission for gradlew (Linux/Mac only)
+        if: runner.os != 'Windows'
         run: chmod +x gradlew
         
       - name: Apply code style with Spotless
         run: ./gradlew spotlessApply
         
       - name: Build and run tests
-        run: ./gradlew build
+        run: ./gradlew build -Dfile.encoding=UTF-8

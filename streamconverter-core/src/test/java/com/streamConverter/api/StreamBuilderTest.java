@@ -1,5 +1,6 @@
 package com.streamConverter.api;
 
+import static com.streamConverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamConverter.CommandResult;
@@ -30,7 +31,7 @@ class StreamBuilderTest {
         """;
 
   private static final String SAMPLE_CSV =
-      "id,name,department\n" + "1,John,Engineering\n" + "2,Jane,Marketing\n";
+      createTestData("id,name,department", "1,John,Engineering", "2,Jane,Marketing");
 
   private static final String SAMPLE_XML =
       """

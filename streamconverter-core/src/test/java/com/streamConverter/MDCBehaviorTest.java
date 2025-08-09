@@ -1,5 +1,6 @@
 package com.streamConverter;
 
+import static com.streamConverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
 import ch.qos.logback.classic.Logger;
@@ -148,7 +149,7 @@ class MDCBehaviorTest {
 
   @Test
   void testStreamConverterMDCBehavior() throws IOException {
-    String testData = "test,data,content\n1,2,3\n4,5,6\n";
+    String testData = createTestData("test,data,content", "1,2,3", "4,5,6");
 
     // MDC設定コマンド
     IStreamCommand mdcCommand =
@@ -207,7 +208,7 @@ class MDCBehaviorTest {
 
   @Test
   void testMDCCleanupInPipeline() throws IOException {
-    String testData = "cleanup,test\na,b\n";
+    String testData = createTestData("cleanup,test", "a,b");
 
     IStreamCommand setupCommand =
         new IStreamCommand() {
@@ -250,7 +251,11 @@ class MDCBehaviorTest {
 
   @Test
   void testMDCPerformanceImpact() throws IOException, InterruptedException {
-    String testData = "performance,test,data\n" + "row,data,value\n".repeat(1000);
+    String testData =
+        createTestData("performance,test,data")
+            + System.lineSeparator()
+            + String.join(
+                System.lineSeparator(), java.util.Collections.nCopies(1000, "row,data,value"));
 
     // MDCなしでの実行時間測定
     long startTime = System.currentTimeMillis();

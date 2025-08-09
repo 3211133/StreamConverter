@@ -1,5 +1,6 @@
 package com.streamConverter;
 
+import static com.streamConverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamConverter.command.impl.SampleStreamCommand;
@@ -20,7 +21,7 @@ class StreamConverterMDCIntegrationTest {
     SampleStreamCommand command = new SampleStreamCommand("test");
     StreamConverter converter = StreamConverter.create(command);
 
-    String testData = "test,data\n1,value1\n2,value2\n";
+    String testData = createTestData("test,data", "1,value1", "2,value2");
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -50,7 +51,7 @@ class StreamConverterMDCIntegrationTest {
     SampleStreamCommand command = new SampleStreamCommand("contextTest");
     StreamConverter converter = StreamConverter.createWithContext(context, command);
 
-    String testData = "custom,context,test\na,b,c\n";
+    String testData = createTestData("custom,context,test", "a,b,c");
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -73,7 +74,7 @@ class StreamConverterMDCIntegrationTest {
     SampleStreamCommand command2 = new SampleStreamCommand("second");
     StreamConverter converter = StreamConverter.create(command1, command2);
 
-    String testData = "multi,command,test\nx,y,z\n";
+    String testData = createTestData("multi,command,test", "x,y,z");
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -103,7 +104,7 @@ class StreamConverterMDCIntegrationTest {
 
     // 複数回実行して同じコンテキストが使用されることを確認
     for (int i = 0; i < 3; i++) {
-      String testData = "persistence,test," + i + "\ndata,value," + i + "\n";
+      String testData = createTestData("persistence,test," + i, "data,value," + i);
       ByteArrayInputStream inputStream =
           new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

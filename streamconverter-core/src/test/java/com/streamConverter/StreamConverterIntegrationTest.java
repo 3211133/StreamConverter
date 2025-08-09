@@ -48,7 +48,7 @@ public class StreamConverterIntegrationTest {
   public void testLargeDataProcessing() throws IOException {
     StringBuilder largeData = new StringBuilder();
     for (int i = 0; i < 10000; i++) {
-      largeData.append("Line ").append(i).append("\n");
+      largeData.append("Line ").append(i).append(System.lineSeparator());
     }
 
     String testData = largeData.toString();

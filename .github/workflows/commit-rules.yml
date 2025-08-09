@@ -37,4 +37,4 @@ jobs:
         run: ./gradlew spotlessApply
         
       - name: Build and run tests
-        run: ./gradlew build -Dfile.encoding=UTF-8
+        run: ${{ runner.os == 'Windows' && 'gradlew.bat' || './gradlew' }} build -Dfile.encoding=UTF-8

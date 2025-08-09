@@ -270,3 +270,36 @@ tasks.named("spotlessCheck") {
 tasks.named("check") {
     dependsOn("spotlessApply")
 }
+
+// Root project configuration for multi-module build
+allprojects {
+    group = "com.streamConverter"
+    version = "1.2.0"
+}
+
+tasks.register("buildAll") {
+    group = "build"
+    description = "Build all modules"
+    dependsOn(subprojects.map { it.tasks.named("build") })
+}
+
+tasks.register("testAll") {
+    group = "verification"
+    description = "Test all modules"
+    dependsOn(subprojects.map { it.tasks.named("test") })
+}
+
+// Javadoc aggregation tasks
+tasks.register("javadocAll") {
+    group = "documentation"
+    description = "Generate Javadoc for all modules"
+    dependsOn(subprojects.map { it.tasks.named("javadoc") })
+    
+    doLast {
+        println("✅ Javadoc generated for all modules:")
+        println("   📖 Unified index: docs/javadoc/index.html")
+        println("   🏗️ Core module: streamconverter-core/docs/javadoc/")
+        println("   📚 Examples: streamconverter-examples/build/docs/javadoc/")
+        println("   🔧 Tools: streamconverter-tools/build/docs/javadoc/")
+    }
+}

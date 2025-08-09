@@ -7,15 +7,21 @@
  */
 
 rootProject.name = "StreamConverter"
-// settings.gradle.kts
 
 pluginManagement {
     repositories {
-        // Spotless プラグインなど、plugins.gradle.org にあるものを探す
         gradlePluginPortal()
-
-        // 必要なら他のリポジトリも順に追加
         mavenCentral()
         google()
     }
 }
+
+// Multi-module configuration
+include("streamconverter-core")
+include("streamconverter-examples") 
+include("streamconverter-tools")
+
+// Project configuration
+project(":streamconverter-core").projectDir = file("streamconverter-core")
+project(":streamconverter-examples").projectDir = file("streamconverter-examples")
+project(":streamconverter-tools").projectDir = file("streamconverter-tools")

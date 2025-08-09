@@ -39,7 +39,7 @@ jobs:
       
       - name: Apply code style with Spotless (Windows)
         if: runner.os == 'Windows'
-        run: gradlew.bat spotlessApply
+        run: ./gradlew.bat spotlessApply
         
       - name: Build and run tests (Linux/Mac)
         if: runner.os != 'Windows'
@@ -47,4 +47,4 @@ jobs:
       
       - name: Build and run tests (Windows)
         if: runner.os == 'Windows'
-        run: gradlew.bat build -Dfile.encoding=UTF-8
+        run: ./gradlew.bat build -Dfile.encoding=UTF-8

@@ -33,8 +33,13 @@ jobs:
         if: runner.os != 'Windows'
         run: chmod +x gradlew
         
-      - name: Apply code style with Spotless
-        run: ${{ runner.os == 'Windows' && '.\\gradlew.bat spotlessApply' || './gradlew spotlessApply' }}
+      - name: Apply code style with Spotless (Linux/Mac)
+        if: runner.os != 'Windows'
+        run: ./gradlew spotlessApply
+      
+      - name: Apply code style with Spotless (Windows)
+        if: runner.os == 'Windows'
+        run: gradlew.bat spotlessApply
         
       - name: Build and run tests (Linux/Mac)
         if: runner.os != 'Windows'

@@ -34,7 +34,7 @@ jobs:
         run: chmod +x gradlew
         
       - name: Apply code style with Spotless
-        run: ./gradlew spotlessApply
+        run: ${{ runner.os == 'Windows' && '.\\gradlew.bat spotlessApply' || './gradlew spotlessApply' }}
         
       - name: Build and run tests
         run: ${{ runner.os == 'Windows' && 'gradlew.bat' || './gradlew' }} build -Dfile.encoding=UTF-8

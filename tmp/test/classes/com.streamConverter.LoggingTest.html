@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+<meta http-equiv="x-ua-compatible" content="IE=edge"/>
+<title>Test results - LoggingTest</title>
+<link href="../css/base-style.css" rel="stylesheet" type="text/css"/>
+<link href="../css/style.css" rel="stylesheet" type="text/css"/>
+<script src="../js/report.js" type="text/javascript"></script>
+</head>
+<body>
+<div id="content">
+<h1>LoggingTest</h1>
+<div class="breadcrumbs">
+<a href="../index.html">all</a> &gt; 
+<a href="../packages/com.streamConverter.html">com.streamConverter</a> &gt; LoggingTest</div>
+<div id="summary">
+<table>
+<tr>
+<td>
+<div class="summaryGroup">
+<table>
+<tr>
+<td>
+<div class="infoBox" id="tests">
+<div class="counter">1</div>
+<p>tests</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="failures">
+<div class="counter">0</div>
+<p>failures</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="ignored">
+<div class="counter">0</div>
+<p>ignored</p>
+</div>
+</td>
+<td>
+<div class="infoBox" id="duration">
+<div class="counter">0.027s</div>
+<p>duration</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+</td>
+<td>
+<div class="infoBox success" id="successRate">
+<div class="percent">100%</div>
+<p>successful</p>
+</div>
+</td>
+</tr>
+</table>
+</div>
+<div class="tab-container">
+<ul class="tabLinks">
+<li>
+<a href="#">Tests</a>
+</li>
+<li>
+<a href="#">Standard output</a>
+</li>
+</ul>
+<div class="tab">
+<h2>Tests</h2>
+<table>
+<thead>
+<tr>
+<th>Test</th>
+<th>Method name</th>
+<th>Duration</th>
+<th>Result</th>
+</tr>
+</thead>
+<tr>
+<td class="success">Logging Test</td>
+<td class="success">testLogging()</td>
+<td class="success">0.027s</td>
+<td class="success">passed</td>
+</tr>
+</table>
+</div>
+<div class="tab">
+<h2>Standard output</h2>
+<span class="code">
+<pre>22:58:47,652 |-INFO in ch.qos.logback.classic.LoggerContext[default] - This is logback-classic version 1.5.12
+22:58:47,656 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - Here is a list of configurators discovered as a service, by rank: 
+22:58:47,656 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 -   org.springframework.boot.logging.logback.RootLogLevelConfigurator
+22:58:47,656 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - They will be invoked in order until ExecutionStatus.DO_NOT_INVOKE_NEXT_IF_ANY is returned.
+22:58:47,656 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - Constructed configurator of type class org.springframework.boot.logging.logback.RootLogLevelConfigurator
+22:58:47,663 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - org.springframework.boot.logging.logback.RootLogLevelConfigurator.configure() call lasted 0 milliseconds. ExecutionStatus=INVOKE_NEXT_IF_ANY
+22:58:47,663 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - Trying to configure with ch.qos.logback.classic.joran.SerializedModelConfigurator
+22:58:47,664 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - Constructed configurator of type class ch.qos.logback.classic.joran.SerializedModelConfigurator
+22:58:47,666 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.scmo]
+22:58:47,666 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback.scmo]
+22:58:47,666 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - ch.qos.logback.classic.joran.SerializedModelConfigurator.configure() call lasted 2 milliseconds. ExecutionStatus=INVOKE_NEXT_IF_ANY
+22:58:47,666 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - Trying to configure with ch.qos.logback.classic.util.DefaultJoranConfigurator
+22:58:47,668 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - Constructed configurator of type class ch.qos.logback.classic.util.DefaultJoranConfigurator
+22:58:47,668 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Could NOT find resource [logback-test.xml]
+22:58:47,670 |-INFO in ch.qos.logback.classic.LoggerContext[default] - Found resource [logback.xml] at [file:/C:/Users/sempa/Documents/GitHub/StreamConverter/streamconverter-core/build/resources/test/logback.xml]
+22:58:47,671 |-WARN in ch.qos.logback.classic.util.DefaultJoranConfigurator@77f991c - Resource [logback.xml] occurs multiple times on the classpath.
+22:58:47,671 |-WARN in ch.qos.logback.classic.util.DefaultJoranConfigurator@77f991c - Resource [logback.xml] occurs at [file:/C:/Users/sempa/Documents/GitHub/StreamConverter/streamconverter-core/build/resources/main/logback.xml]
+22:58:47,671 |-WARN in ch.qos.logback.classic.util.DefaultJoranConfigurator@77f991c - Resource [logback.xml] occurs at [file:/C:/Users/sempa/Documents/GitHub/StreamConverter/streamconverter-core/build/resources/test/logback.xml]
+22:58:47,822 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [STDOUT]
+22:58:47,822 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.ConsoleAppender]
+22:58:47,837 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [ch.qos.logback.classic.encoder.PatternLayoutEncoder] for [encoder] property
+22:58:47,884 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - Processing appender named [FILE]
+22:58:47,884 |-INFO in ch.qos.logback.core.model.processor.AppenderModelHandler - About to instantiate appender of type [ch.qos.logback.core.rolling.RollingFileAppender]
+22:58:47,896 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@61334373 - setting totalSizeCap to 100 MB
+22:58:47,900 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@61334373 - Archive files will be limited to [10 MB] each.
+22:58:47,904 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@61334373 - No compression will be used
+22:58:47,907 |-INFO in c.q.l.core.rolling.SizeAndTimeBasedRollingPolicy@61334373 - Will use the pattern logs/streamconverter-test.%d{yyyy-MM-dd}.%i.log for the active file
+22:58:47,911 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy@2ceee4b6 - The date pattern is 'yyyy-MM-dd' from file name pattern 'logs/streamconverter-test.%d{yyyy-MM-dd}.%i.log'.
+22:58:47,911 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy@2ceee4b6 - Roll-over at midnight.
+22:58:47,912 |-INFO in ch.qos.logback.core.rolling.SizeAndTimeBasedFileNamingAndTriggeringPolicy@2ceee4b6 - Setting initial period to 2025-08-09T13:48:11.931Z
+22:58:47,915 |-INFO in ch.qos.logback.core.model.processor.ImplicitModelHandler - Assuming default type [ch.qos.logback.classic.encoder.PatternLayoutEncoder] for [encoder] property
+22:58:47,920 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - Active log file name: logs/streamconverter-test.log
+22:58:47,922 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - Setting currentFileLength to 1445054 for logs\streamconverter-test.log
+22:58:47,922 |-INFO in ch.qos.logback.core.rolling.RollingFileAppender[FILE] - File property is set to [logs/streamconverter-test.log]
+22:58:47,925 |-INFO in ch.qos.logback.classic.model.processor.RootLoggerModelHandler - Setting level of ROOT logger to INFO
+22:58:47,925 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [STDOUT] to Logger[ROOT]
+22:58:47,926 |-INFO in ch.qos.logback.core.model.processor.AppenderRefModelHandler - Attaching appender named [FILE] to Logger[ROOT]
+22:58:47,926 |-INFO in ch.qos.logback.core.model.processor.DefaultProcessor@12a470dd - End of configuration.
+22:58:47,928 |-INFO in ch.qos.logback.classic.joran.JoranConfigurator@6968bcec - Registering current configuration as safe fallback point
+22:58:47,928 |-INFO in ch.qos.logback.classic.util.ContextInitializer@7d986d83 - ch.qos.logback.classic.util.DefaultJoranConfigurator.configure() call lasted 260 milliseconds. ExecutionStatus=DO_NOT_INVOKE_NEXT_IF_ANY
+
+</pre>
+</span>
+</div>
+</div>
+<div id="footer">
+<p>
+<div>
+<label class="hidden" id="label-for-line-wrapping-toggle" for="line-wrapping-toggle">Wrap lines
+<input id="line-wrapping-toggle" type="checkbox" autocomplete="off"/>
+</label>
+</div>Generated by 
+<a href="https://www.gradle.org">Gradle 8.14.3</a> at 2025/08/09 22:59:34</p>
+</div>
+</div>
+</body>
+</html>

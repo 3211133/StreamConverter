@@ -1,5 +1,6 @@
 package com.streamConverter.command.impl;
 
+import static com.streamConverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
@@ -58,7 +59,7 @@ class FilterCommandBasicTest {
   @Test
   void testCsvFilterCommand_SingleColumn() throws IOException {
     // Test data
-    String csvInput = "name,age,city\n田中太郎,30,東京\n佐藤花子,25,大阪";
+    String csvInput = createTestData("name,age,city", "田中太郎,30,東京", "佐藤花子,25,大阪");
 
     // Create command to extract "name" column
     CsvFilterCommand command = new CsvFilterCommand("name");
@@ -71,14 +72,14 @@ class FilterCommandBasicTest {
 
     // Verify
     String result = output.toString(StandardCharsets.UTF_8);
-    String expected = "name\n田中太郎\n佐藤花子\n";
+    String expected = createTestData("name", "田中太郎", "佐藤花子", "");
     assertEquals(expected, result);
   }
 
   @Test
   void testCsvFilterCommand_MultipleColumns() throws IOException {
     // Test data
-    String csvInput = "name,age,city,country\n田中太郎,30,東京,日本\n佐藤花子,25,大阪,日本";
+    String csvInput = createTestData("name,age,city,country", "田中太郎,30,東京,日本", "佐藤花子,25,大阪,日本");
 
     // Create command to extract "name" and "city" columns
     CsvFilterCommand command = new CsvFilterCommand(Arrays.asList("name", "city"));
@@ -91,7 +92,7 @@ class FilterCommandBasicTest {
 
     // Verify
     String result = output.toString(StandardCharsets.UTF_8);
-    String expected = "name,city\n田中太郎,東京\n佐藤花子,大阪\n";
+    String expected = createTestData("name,city", "田中太郎,東京", "佐藤花子,大阪", "");
     assertEquals(expected, result);
   }
 
@@ -138,7 +139,7 @@ class FilterCommandBasicTest {
   @Test
   void testCsvFilterCommand_NumericIndex() throws IOException {
     // Test data - no header
-    String csvInput = "田中太郎,30,東京\n佐藤花子,25,大阪";
+    String csvInput = createTestData("田中太郎,30,東京", "佐藤花子,25,大阪");
 
     // Create command to extract first column (index 0) without header
     CsvFilterCommand command = new CsvFilterCommand("0", false);
@@ -151,7 +152,7 @@ class FilterCommandBasicTest {
 
     // Verify
     String result = output.toString(StandardCharsets.UTF_8);
-    String expected = "田中太郎\n佐藤花子\n";
+    String expected = createTestData("田中太郎", "佐藤花子", "");
     assertEquals(expected, result);
   }
 }

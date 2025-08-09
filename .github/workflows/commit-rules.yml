@@ -15,7 +15,7 @@ jobs:
       pull-requests: write
     strategy:
       fail-fast: false
-      matrix:
+      matrix: # mac osは特に高いので、コスト面の問題でubuntu以外を偶にしか走らないように設定する必要がある場合がある。
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
     steps:

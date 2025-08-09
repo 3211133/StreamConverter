@@ -43,8 +43,8 @@ jobs:
         
       - name: Build and run tests (Linux/Mac)
         if: runner.os != 'Windows'
-        run: ./gradlew build -Dfile.encoding=UTF-8
+        run: ./gradlew build
       
       - name: Build and run tests (Windows)
         if: runner.os == 'Windows'
-        run: ./gradlew.bat build -Dfile.encoding=UTF-8
+        run: ./gradlew.bat build

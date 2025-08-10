@@ -91,18 +91,29 @@ class JsonNavigateCommandTest {
   void testMemoryEfficiencyWithLargeData() throws IOException {
     // Generate larger JSON data to test memory efficiency
     StringBuilder jsonBuilder = new StringBuilder();
-    jsonBuilder.append("{\n  \"data\": [\n");
+    jsonBuilder
+        .append("{")
+        .append(System.lineSeparator())
+        .append("  \"data\": [")
+        .append(System.lineSeparator());
 
     // Create 1MB of JSON data (simulating larger processing)
     for (int i = 0; i < LARGE_JSON_USER_COUNT; i++) {
       jsonBuilder.append(
           String.format(
-              "    {\"id\": %d, \"name\": \"User %d\", \"description\": \"Extended user description with additional data to increase JSON size %d\"},\n",
-              i, i, i));
+              "    {\"id\": %d, \"name\": \"User %d\", \"description\": \"Extended user description with additional data to increase JSON size %d\"},"
+                  + System.lineSeparator(),
+              i,
+              i,
+              i));
     }
     // Remove trailing comma and close structure
     jsonBuilder.setLength(jsonBuilder.length() - 2); // Remove last comma and newline
-    jsonBuilder.append("\n  ]\n}");
+    jsonBuilder
+        .append(System.lineSeparator())
+        .append("  ]")
+        .append(System.lineSeparator())
+        .append("}");
 
     String largeJson = jsonBuilder.toString();
     long dataSize = largeJson.getBytes(StandardCharsets.UTF_8).length;

@@ -2,6 +2,7 @@ package com.streamConverter.web;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.streamConverter.test.TestUtils;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,7 @@ class StreamProcessingControllerTest {
   @Test
   @DisplayName("CSV extraction endpoint test")
   void testCsvExtractionEndpoint() {
-    String csvData = "name,age,city\nJohn,30,NYC\nJane,25,LA\n";
+    String csvData = TestUtils.createTestData("name,age,city", "John,30,NYC", "Jane,25,LA", "");
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap(csvData.getBytes(StandardCharsets.UTF_8));
 
@@ -140,7 +141,7 @@ class StreamProcessingControllerTest {
   @Test
   @DisplayName("Pipeline processing endpoint test")
   void testPipelineProcessingEndpoint() {
-    String csvData = "name,age,city\nJohn,30,NYC\nJane,25,LA\n";
+    String csvData = TestUtils.createTestData("name,age,city", "John,30,NYC", "Jane,25,LA", "");
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap(csvData.getBytes(StandardCharsets.UTF_8));
 
@@ -196,7 +197,7 @@ class StreamProcessingControllerTest {
   @Test
   @DisplayName("Invalid pipeline configuration test")
   void testInvalidPipelineConfiguration() {
-    String csvData = "name,age,city\nJohn,30,NYC\n";
+    String csvData = TestUtils.createTestData("name,age,city", "John,30,NYC", "");
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap(csvData.getBytes(StandardCharsets.UTF_8));
 

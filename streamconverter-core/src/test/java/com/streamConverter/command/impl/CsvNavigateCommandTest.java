@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.streamConverter.benchmark.ResourceMonitor;
 import com.streamConverter.benchmark.ResourceUsage;
+import com.streamConverter.test.TestUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -34,7 +35,7 @@ class CsvNavigateCommandTest {
 
   @Test
   void testBasicCsvProcessing() throws IOException {
-    String csvInput = "name,age,city\nJohn,30,NYC\nJane,25,LA";
+    String csvInput = TestUtils.createTestData("name,age,city", "John,30,NYC", "Jane,25,LA");
     InputStream inputStream = new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
     OutputStream outputStream = new ByteArrayOutputStream();
 
@@ -58,7 +59,7 @@ class CsvNavigateCommandTest {
   @Test
   void testLargeInput() throws IOException {
     StringBuilder largeInput = new StringBuilder();
-    largeInput.append("name,age,city\n");
+    largeInput.append("name,age,city").append(System.lineSeparator());
     for (int i = 0; i < 1000; i++) {
       largeInput
           .append("Person")
@@ -67,7 +68,7 @@ class CsvNavigateCommandTest {
           .append(20 + i % 50)
           .append(",City")
           .append(i % 10)
-          .append("\n");
+          .append(System.lineSeparator());
     }
 
     InputStream inputStream =

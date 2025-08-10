@@ -19,7 +19,8 @@ import org.junit.jupiter.api.Test;
 /** DatabaseFetchRuleとNavigateCommandsの統合テスト 実際のDBデータを使用してJSON/CSVの値を置換する動作を検証 */
 class DatabaseRuleIntegrationTest {
 
-  private static final String DB_URL = "jdbc:h2:mem:integrationtest;DB_CLOSE_DELAY=-1";
+  private static final String DB_URL =
+      "jdbc:h2:mem:integrationtest_" + System.currentTimeMillis() + ";DB_CLOSE_DELAY=-1";
 
   @BeforeEach
   void setUp() throws SQLException {

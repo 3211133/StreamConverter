@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -25,10 +24,11 @@ class ValidateTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    // テストリソースのパスを設定
-    schemaPath = new File("src/test/resources/test-schema.xsd").getAbsolutePath();
-    validXmlPath = new File("src/test/resources/valid-test.xml").getAbsolutePath();
-    invalidXmlPath = new File("src/test/resources/invalid-test.xml").getAbsolutePath();
+    // テストリソースをクラスパスから取得
+    ClassLoader classLoader = getClass().getClassLoader();
+    schemaPath = classLoader.getResource("test-schema.xsd").getPath();
+    validXmlPath = classLoader.getResource("valid-test.xml").getPath();
+    invalidXmlPath = classLoader.getResource("invalid-test.xml").getPath();
 
     // XMLコンテンツを読み込み
     validXmlContent = Files.readString(Paths.get(validXmlPath));

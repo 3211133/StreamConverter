@@ -24,11 +24,15 @@ class ValidateTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    // テストリソースをクラスパスから取得
+    // テストリソースをクラスパスから取得（Windows互換）
     ClassLoader classLoader = getClass().getClassLoader();
-    schemaPath = classLoader.getResource("test-schema.xsd").getPath();
-    validXmlPath = classLoader.getResource("valid-test.xml").getPath();
-    invalidXmlPath = classLoader.getResource("invalid-test.xml").getPath();
+    try {
+      schemaPath = Paths.get(classLoader.getResource("test-schema.xsd").toURI()).toString();
+      validXmlPath = Paths.get(classLoader.getResource("valid-test.xml").toURI()).toString();
+      invalidXmlPath = Paths.get(classLoader.getResource("invalid-test.xml").toURI()).toString();
+    } catch (Exception e) {
+      throw new IOException("Failed to load test resources", e);
+    }
 
     // XMLコンテンツを読み込み
     validXmlContent = Files.readString(Paths.get(validXmlPath));

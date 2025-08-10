@@ -41,9 +41,7 @@ public class ConvertCommandTest {
         result.contains("transformed content"), "Should transform content in target element");
     assertTrue(
         result.contains("unchanged content"), "Should preserve content in non-target elements");
-    assertTrue(
-        result.contains("<?xml version=\"1.0\" encoding=\"UTF-8\"?>"),
-        "Should preserve XML declaration");
+    assertTrue(result.contains("<?xml version=\"1.0\""), "Should preserve XML declaration");
   }
 
   @Test

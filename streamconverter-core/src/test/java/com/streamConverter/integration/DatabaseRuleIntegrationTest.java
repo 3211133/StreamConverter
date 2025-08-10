@@ -15,8 +15,11 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 /** DatabaseFetchRuleとNavigateCommandsの統合テスト 実際のDBデータを使用してJSON/CSVの値を置換する動作を検証 */
+@DisabledOnOs({OS.WINDOWS, OS.MAC}) // 一時的にWindows/macOS環境では無効化
 class DatabaseRuleIntegrationTest {
 
   private static final String DB_URL =

@@ -31,9 +31,6 @@ class DatabaseRuleIntegrationTest {
   void setUp() throws SQLException {
     // テスト用データベースの初期化（クロスプラットフォーム対応）
     try (Connection conn = DriverManager.getConnection(DB_URL)) {
-      // AutoCommitモードを有効にしてテスト環境の一貫性を保つ
-      conn.setAutoCommit(true);
-
       // テストテーブルの作成
       conn.prepareStatement("DROP TABLE IF EXISTS users").execute();
       conn.prepareStatement("DROP TABLE IF EXISTS products").execute();

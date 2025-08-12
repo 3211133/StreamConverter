@@ -15,20 +15,25 @@ import java.sql.SQLException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 /** DatabaseFetchRuleとNavigateCommandsの統合テスト 実際のDBデータを使用してJSON/CSVの値を置換する動作を検証 */
-@DisabledOnOs({OS.WINDOWS, OS.MAC}) // 一時的にWindows/macOS環境では無効化
 class DatabaseRuleIntegrationTest {
 
+  // クロスプラットフォーム対応: ユニークな識別子でデータベース名を生成
   private static final String DB_URL =
-      "jdbc:h2:mem:integrationtest_" + System.currentTimeMillis() + ";DB_CLOSE_DELAY=-1";
+      "jdbc:h2:mem:integrationtest_"
+          + System.nanoTime()
+          + "_"
+          + Thread.currentThread().getId()
+          + ";DB_CLOSE_DELAY=-1;DATABASE_TO_UPPER=false;CASE_INSENSITIVE_IDENTIFIERS=true";
 
   @BeforeEach
   void setUp() throws SQLException {
-    // テスト用データベースの初期化
+    // テスト用データベースの初期化（クロスプラットフォーム対応）
     try (Connection conn = DriverManager.getConnection(DB_URL)) {
+      // AutoCommitモードを有効にしてテスト環境の一貫性を保つ
+      conn.setAutoCommit(true);
+
       // テストテーブルの作成
       conn.prepareStatement("DROP TABLE IF EXISTS users").execute();
       conn.prepareStatement("DROP TABLE IF EXISTS products").execute();

@@ -16,9 +16,7 @@ import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledIf;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.Logger;
@@ -452,9 +450,8 @@ class LargeDataBenchmark {
   }
 
   @Test
-  @DisabledOnOs({OS.WINDOWS, OS.MAC}) // Platform-specific performance issues in CI
-  @DisplayName("複雑なデータ変換パイプラインベンチマーク")
-  @Timeout(value = 60, unit = TimeUnit.SECONDS)
+  @DisplayName("複雑なデータ変換パイプラインベンチマーク（クロスプラットフォーム対応）")
+  @Timeout(value = 120, unit = TimeUnit.SECONDS) // タイムアウトを延長してCI環境での安定性を向上
   @EnabledIf("hasEnoughMemory")
   void testComplexPipelineBenchmark() throws IOException {
     logger.info("=== Complex Pipeline Benchmark ===");
@@ -501,8 +498,8 @@ class LargeDataBenchmark {
   }
 
   @Test
-  @DisabledOnOs({OS.WINDOWS, OS.MAC}) // Platform-specific timeout issues in CI
-  @DisplayName("複雑なパイプラインベンチマーク (PerformanceAnalyzer)")
+  @DisplayName("複雑なパイプラインベンチマーク（PerformanceAnalyzer - クロスプラットフォーム対応）")
+  @Timeout(value = 180, unit = TimeUnit.SECONDS) // より長いタイムアウトでCI環境に対応
   @EnabledIf("hasEnoughMemory")
   void benchmarkComplexPipeline() throws IOException {
     logger.info("=== Complex Pipeline Benchmark ===");

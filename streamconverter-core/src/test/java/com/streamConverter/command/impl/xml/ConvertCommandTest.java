@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
+@org.junit.jupiter.api.Disabled("CI環境のセキュリティ制約により一時的に無効化 - Issue #169")
 public class ConvertCommandTest {
 
   @Test

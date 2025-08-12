@@ -6,7 +6,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -131,7 +130,8 @@ class SendHttpCommandTest {
   }
 
   @Test
-  @Disabled("Network-dependent test with httpbin.org")
+  @org.junit.jupiter.api.Disabled(
+      "Network-dependent test causing Netty compatibility issues after security updates")
   @DisplayName("httpbin.orgを使った実際のHTTP通信テスト")
   void testActualHttpRequest() {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
@@ -216,7 +216,8 @@ class SendHttpCommandTest {
   }
 
   @Test
-  @Disabled("Network-dependent test with httpbin.org")
+  @org.junit.jupiter.api.Disabled(
+      "Network-dependent test causing Netty compatibility issues after security updates")
   @DisplayName("Large data streaming processing test with memory-efficient approach")
   void testLargeDataStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
@@ -288,7 +289,8 @@ class SendHttpCommandTest {
   }
 
   @Test
-  @Disabled("Network-dependent test with httpbin.org")
+  @org.junit.jupiter.api.Disabled(
+      "Network-dependent test causing Netty compatibility issues after security updates")
   @DisplayName("Memory-efficient streaming processing validation test with small data")
   void testMemoryEfficientStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
@@ -356,7 +358,8 @@ class SendHttpCommandTest {
   }
 
   @Test
-  @Disabled("Network-dependent test causing intermittent CI failures")
+  @org.junit.jupiter.api.Disabled(
+      "Network-dependent test causing Netty compatibility issues after security updates")
   @DisplayName("Streaming processing blocking behavior verification test")
   void testStreamingBlockingBehavior() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");

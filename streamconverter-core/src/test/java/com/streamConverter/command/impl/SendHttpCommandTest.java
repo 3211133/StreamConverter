@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -130,6 +131,7 @@ class SendHttpCommandTest {
   }
 
   @Test
+  @Disabled("Network-dependent test with httpbin.org")
   @DisplayName("httpbin.orgを使った実際のHTTP通信テスト")
   void testActualHttpRequest() {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
@@ -214,6 +216,7 @@ class SendHttpCommandTest {
   }
 
   @Test
+  @Disabled("Network-dependent test with httpbin.org")
   @DisplayName("Large data streaming processing test with memory-efficient approach")
   void testLargeDataStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
@@ -285,6 +288,7 @@ class SendHttpCommandTest {
   }
 
   @Test
+  @Disabled("Network-dependent test with httpbin.org")
   @DisplayName("Memory-efficient streaming processing validation test with small data")
   void testMemoryEfficientStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
@@ -352,6 +356,7 @@ class SendHttpCommandTest {
   }
 
   @Test
+  @Disabled("Network-dependent test causing intermittent CI failures")
   @DisplayName("Streaming processing blocking behavior verification test")
   void testStreamingBlockingBehavior() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");

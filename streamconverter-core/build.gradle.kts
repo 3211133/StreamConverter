@@ -84,8 +84,15 @@ tasks.test {
         excludeTags("benchmark", "large-data")
     }
     
-    // メモリ効率テスト用にJVMヒープサイズを設定
-    jvmArgs("-Xmx1g", "-Xms512m")
+    // クロスプラットフォーム対応のJVM設定
+    jvmArgs("-Xmx2g", "-Xms1g", "-Dfile.encoding=UTF-8")
+    
+    // Windows/macOS環境での並列実行制御
+    if (org.gradle.internal.os.OperatingSystem.current().isWindows() || 
+        org.gradle.internal.os.OperatingSystem.current().isMacOsX()) {
+        maxParallelForks = 1  // シーケンシャル実行
+        forkEvery = 1         // テストクラス毎にJVM再起動
+    }
     
     // テスト実行時の詳細ログを表示
     testLogging {

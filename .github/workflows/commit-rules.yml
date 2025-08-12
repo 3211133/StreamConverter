@@ -13,7 +13,13 @@ jobs:
     permissions:
       contents: read
       pull-requests: write
-    runs-on: ubuntu-latest
+    env:
+      JAVA_TOOL_OPTIONS: -Dfile.encoding=UTF-8
+    strategy:
+      fail-fast: false
+      matrix: # mac osは特に高いので、コスト面の問題でubuntu以外を偶にしか走らないように設定する必要がある場合がある。
+        os: [ubuntu-latest, windows-latest, macos-latest]
+    runs-on: ${{ matrix.os }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v3
@@ -25,11 +31,22 @@ jobs:
           distribution: 'temurin'
           cache: gradle
 
-      - name: Grant execute permission for gradlew
+      - name: Grant execute permission for gradlew (Linux/Mac only)
+        if: runner.os != 'Windows'
         run: chmod +x gradlew
         
-      - name: Apply code style with Spotless
+      - name: Apply code style with Spotless (Linux/Mac)
+        if: runner.os != 'Windows'
         run: ./gradlew spotlessApply
+      
+      - name: Apply code style with Spotless (Windows)
+        if: runner.os == 'Windows'
+        run: ./gradlew.bat spotlessApply
         
-      - name: Build and run tests
+      - name: Build and run tests (Linux/Mac)
+        if: runner.os != 'Windows'
         run: ./gradlew build
+      
+      - name: Build and run tests (Windows)
+        if: runner.os == 'Windows'
+        run: ./gradlew.bat build

@@ -100,14 +100,20 @@ class XmlNavigateCommandTest {
   void testMemoryEfficiencyWithLargeData() throws IOException {
     // Generate larger XML data to test memory efficiency
     StringBuilder xmlBuilder = new StringBuilder();
-    xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<root>\n");
+    xmlBuilder
+        .append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
+        .append(System.lineSeparator())
+        .append("<root>")
+        .append(System.lineSeparator());
 
     // Create 1MB of XML data (simulating larger processing)
     for (int i = 0; i < NUM_XML_ITEMS_FOR_LARGE_DATA_TEST; i++) {
       xmlBuilder.append(
           String.format(
-              "  <item id=\"%d\">Data content %d with some additional text to increase size</item>\n",
-              i, i));
+              "  <item id=\"%d\">Data content %d with some additional text to increase size</item>"
+                  + System.lineSeparator(),
+              i,
+              i));
     }
     xmlBuilder.append("</root>");
 

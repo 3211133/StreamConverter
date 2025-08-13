@@ -79,10 +79,12 @@ public class ValidateCommand extends ConsumerCommand {
 
     // テスト環境での絶対パスを許可（テストリソースディレクトリのみ）
     if (trimmedPath.startsWith("/") || trimmedPath.contains(":")) {
+      // パス区切り文字を正規化して検証（Windows/Unix対応）
+      String normalizedPath = trimmedPath.replace("\\", "/");
       // テストリソースパスの場合は許可
-      if (trimmedPath.contains("src/test/resources")
-          || trimmedPath.contains("build/resources/test")
-          || trimmedPath.contains("junit")) {
+      if (normalizedPath.contains("src/test/resources")
+          || normalizedPath.contains("build/resources/test")
+          || normalizedPath.contains("junit")) {
         logger.debug("Test resource path allowed: {}", trimmedPath);
         return trimmedPath;
       }

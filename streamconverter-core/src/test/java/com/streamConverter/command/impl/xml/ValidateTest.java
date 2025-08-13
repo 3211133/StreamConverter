@@ -6,16 +6,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 @DisplayName("XMLバリデーションコマンドのテスト")
-@DisabledOnOs({OS.WINDOWS, OS.MAC}) // Platform-specific XML resource loading issues in CI
 class ValidateTest {
 
   private String schemaPath;
@@ -23,17 +21,27 @@ class ValidateTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    // テストリソースをクラスパスから取得（Windows完全対応）
+    // Use classpath resource URLs for cross-platform compatibility
     ClassLoader classLoader = getClass().getClassLoader();
-    try {
-      schemaPath = Paths.get(classLoader.getResource("test-schema.xsd").toURI()).toString();
 
-      // XMLコンテンツを直接クラスパスから読み込み
-      try (InputStream validXmlStream = classLoader.getResourceAsStream("valid-test.xml")) {
-        validXmlContent = new String(validXmlStream.readAllBytes(), StandardCharsets.UTF_8);
-      }
+    // Get schema path from classpath - works across all platforms
+    URL schemaResource = classLoader.getResource("test-schema.xsd");
+    if (schemaResource == null) {
+      throw new IOException("test-schema.xsd not found in classpath");
+    }
+
+    try {
+      schemaPath = Paths.get(schemaResource.toURI()).toString();
     } catch (Exception e) {
-      throw new IOException("Failed to load test resources", e);
+      throw new IOException("Failed to resolve schema path", e);
+    }
+
+    // Load XML content for tests
+    try (InputStream validXmlStream = classLoader.getResourceAsStream("valid-test.xml")) {
+      if (validXmlStream == null) {
+        throw new IOException("valid-test.xml not found in classpath");
+      }
+      validXmlContent = new String(validXmlStream.readAllBytes(), StandardCharsets.UTF_8);
     }
   }
 

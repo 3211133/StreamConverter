@@ -71,6 +71,9 @@ dependencies {
     // Mockito の依存関係（テスト用）
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
+    
+    // In-memory filesystem for cross-platform file system tests
+    testImplementation("com.google.jimfs:jimfs:1.3.0")
 }
 
 // Spotless configuration for code formatting

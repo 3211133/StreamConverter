@@ -26,8 +26,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.client.reactive.ReactorClientHttpConnector;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
+import reactor.netty.http.client.HttpClient;
 
 /** 指定された通信先にOutputStreamを送信するコマンドクラス。 */
 public class SendHttpCommand extends AbstractStreamCommand {
@@ -46,8 +48,17 @@ public class SendHttpCommand extends AbstractStreamCommand {
   public SendHttpCommand(String url) {
     super();
     this.url = validateAndSanitizeUrl(url);
+
+    // Simple HttpClient configuration for Netty 4.1.118.Final compatibility
+    HttpClient httpClient =
+        HttpClient.create()
+            .responseTimeout(Duration.ofSeconds(30))
+            .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+            .keepAlive(false); // Disable keep-alive to avoid connection pool issues
+
     this.webClient =
         WebClient.builder()
+            .clientConnector(new ReactorClientHttpConnector(httpClient))
             .codecs(
                 configurer ->
                     configurer.defaultCodecs().maxInMemorySize(-1)) // Unlimited for streaming

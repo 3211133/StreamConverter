@@ -3,8 +3,10 @@ package com.streamConverter.command.impl;
 import com.streamConverter.command.AbstractStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Objects;
@@ -63,7 +65,7 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
    * Creates a new line ending normalization command.
    *
    * @param targetType the target line ending type to convert to
-   * @throws IllegalArgumentException if targetType is null
+   * @throws NullPointerException if targetType is null
    */
   public LineEndingNormalizeCommand(LineEndingType targetType) {
     this.targetType = Objects.requireNonNull(targetType, "Target type cannot be null");
@@ -73,51 +75,51 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
   protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     logger.debug("Starting line ending normalization to: {}", targetType);
 
-    // Read all input as bytes to preserve exact line ending detection
-    byte[] inputBytes = inputStream.readAllBytes();
-    String inputText = new String(inputBytes, StandardCharsets.UTF_8);
+    // Stream processing for memory efficiency
+    try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
 
-    if (inputText.isEmpty()) {
-      return; // Empty input, nothing to process
-    }
+      if (targetType == LineEndingType.PRESERVE_INPUT) {
+        // For PRESERVE_INPUT, copy directly without modification
+        char[] buffer = new char[8192];
+        int bytesRead;
+        while ((bytesRead = reader.read(buffer)) != -1) {
+          writer.write(buffer, 0, bytesRead);
+        }
+      } else {
+        // Process character by character for line ending normalization
+        String targetSeparator = targetType.getSeparator();
+        int current;
 
-    // Normalize line endings based on target type
-    String normalizedText = normalizeLineEndings(inputText);
+        while ((current = reader.read()) != -1) {
+          if (current == '\r') {
+            // Handle CR - could be CR, CRLF, or standalone CR
+            int next = reader.read();
+            if (next == '\n') {
+              // CRLF -> convert to target
+              writer.write(targetSeparator);
+            } else {
+              // Standalone CR -> convert to target
+              writer.write(targetSeparator);
+              // Write the next character that wasn't part of line ending
+              if (next != -1) {
+                writer.write(next);
+              }
+            }
+          } else if (current == '\n') {
+            // LF -> convert to target (handles Unix style)
+            writer.write(targetSeparator);
+          } else {
+            // Regular character
+            writer.write(current);
+          }
+        }
+      }
 
-    try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-      writer.write(normalizedText);
       writer.flush();
     }
 
     logger.debug("Line ending normalization completed successfully");
-  }
-
-  /**
-   * Normalizes all line endings in the text to the target format.
-   *
-   * @param text the input text
-   * @return text with normalized line endings
-   */
-  private String normalizeLineEndings(String text) {
-    if (text == null || text.isEmpty()) {
-      return text;
-    }
-
-    if (targetType == LineEndingType.PRESERVE_INPUT) {
-      // For PRESERVE_INPUT, we return the text as-is
-      return text;
-    }
-
-    // First normalize all line endings to \n (this handles mixed line endings)
-    String normalized = text.replace("\r\n", "\n").replace("\r", "\n");
-
-    // Then convert to target format if it's not Unix
-    String targetSeparator = targetType.getSeparator();
-    if (!"\n".equals(targetSeparator)) {
-      normalized = normalized.replace("\n", targetSeparator);
-    }
-
-    return normalized;
   }
 
   @Override

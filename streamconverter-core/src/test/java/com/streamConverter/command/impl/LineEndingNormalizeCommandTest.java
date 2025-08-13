@@ -216,6 +216,102 @@ class LineEndingNormalizeCommandTest {
     assertEquals(expected, result);
   }
 
+  @Test
+  @DisplayName("Handle buffer boundary with line endings")
+  void testBufferBoundaryLineEndings() throws IOException {
+    // Given - create input that puts line endings exactly at buffer boundaries
+    // Buffer size is 8192 for PRESERVE_INPUT mode
+    StringBuilder inputBuilder = new StringBuilder();
+
+    // Create content that approaches 8192 characters
+    String baseContent = "A".repeat(100); // 100 chars per line
+    for (int i = 0; i < 81; i++) { // 81 * 100 = 8100 chars
+      if (i > 0) {
+        inputBuilder.append("\n");
+      }
+      inputBuilder.append(baseContent);
+    }
+
+    // Add content to get close to 8192 boundary, then add line ending
+    inputBuilder.append("\n"); // This should be near buffer boundary
+    inputBuilder.append("Final line content");
+
+    String input = inputBuilder.toString();
+
+    // Test PRESERVE_INPUT (uses buffer reading)
+    LineEndingNormalizeCommand preserveCommand =
+        new LineEndingNormalizeCommand(LineEndingType.PRESERVE_INPUT);
+    String preserveResult = executeCommand(preserveCommand, input);
+    assertEquals(
+        input,
+        preserveResult,
+        "PRESERVE_INPUT should maintain exact input including boundary line endings");
+
+    // Test conversion (uses character-by-character reading)
+    LineEndingNormalizeCommand windowsCommand =
+        new LineEndingNormalizeCommand(LineEndingType.WINDOWS);
+    String windowsResult = executeCommand(windowsCommand, input);
+    String expectedWindows = input.replace("\n", "\r\n");
+    assertEquals(
+        expectedWindows,
+        windowsResult,
+        "Windows conversion should work correctly across buffer boundaries");
+  }
+
+  @Test
+  @DisplayName("Handle CRLF spanning buffer boundary")
+  void testCRLFSpanningBufferBoundary() throws IOException {
+    // Given - create input where \r\n spans across buffer boundary
+    StringBuilder inputBuilder = new StringBuilder();
+
+    // Fill almost exactly to buffer boundary minus 1
+    String padding = "X".repeat(8191); // 8191 chars
+    inputBuilder.append(padding);
+    inputBuilder.append("\r\n"); // CRLF spans boundary at position 8191-8192
+    inputBuilder.append("After boundary");
+
+    String input = inputBuilder.toString();
+
+    // Test Unix conversion - should handle CRLF correctly even when spanning boundary
+    LineEndingNormalizeCommand unixCommand = new LineEndingNormalizeCommand(LineEndingType.UNIX);
+    String result = executeCommand(unixCommand, input);
+
+    String expectedOutput = padding + "\n" + "After boundary";
+    assertEquals(expectedOutput, result, "CRLF spanning buffer boundary should be converted to LF");
+  }
+
+  @Test
+  @DisplayName("Handle multiple mixed line endings near buffer boundary")
+  void testMixedLineEndingsNearBoundary() throws IOException {
+    // Given - create input with different line ending types near buffer boundary
+    StringBuilder inputBuilder = new StringBuilder();
+
+    // Content approaching buffer boundary
+    String baseContent = "Data".repeat(2000); // 8000 chars
+    inputBuilder.append(baseContent);
+
+    // Add mixed line endings near boundary
+    inputBuilder.append("Line1\r\n"); // CRLF
+    inputBuilder.append("Line2\n"); // LF
+    inputBuilder.append("Line3\r"); // CR
+    inputBuilder.append("Line4\r\n"); // CRLF again
+    inputBuilder.append("Final");
+
+    String input = inputBuilder.toString();
+
+    // Test conversion to Windows format
+    LineEndingNormalizeCommand windowsCommand =
+        new LineEndingNormalizeCommand(LineEndingType.WINDOWS);
+    String result = executeCommand(windowsCommand, input);
+
+    String expectedOutput =
+        baseContent + "Line1\r\n" + "Line2\r\n" + "Line3\r\n" + "Line4\r\n" + "Final";
+    assertEquals(
+        expectedOutput,
+        result,
+        "Mixed line endings near buffer boundary should be normalized correctly");
+  }
+
   /**
    * Helper method to execute a command with string input and return string output.
    *

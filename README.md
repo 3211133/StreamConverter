@@ -75,7 +75,8 @@ converter.run(inputStream, outputStream);
 ## 📖 詳細ドキュメント
 
 - **[📚 ドキュメント一覧](docs/)** - 全ドキュメントのインデックス
-- **[🏗️ コマンドアーキテクチャ](docs/COMMAND_ARCHITECTURE.md)** - 設計思想と拡張方法
+- **[🏗️ システムアーキテクチャ](docs/ARCHITECTURE.md)** - StreamConverter全体アーキテクチャと設計原則
+- **[🔧 コマンドアーキテクチャ](docs/COMMAND_ARCHITECTURE.md)** - コマンドパターンと拡張方法
 - **[📝 自動ログ機能](docs/AUTO_LOGGING.md)** - ログ機能の詳細と設定
 - **[🔗 コンテキスト伝播](docs/reports/CONTEXT_PROPAGATION_ARCHITECTURE.md)** - マルチスレッド環境でのMDC管理
 - **[🔢 バージョン管理](docs/VERSION_MANAGEMENT.md)** - サポートバージョンとポリシー
@@ -134,7 +135,8 @@ converter.run(inputStream, outputStream);
 プロジェクトの詳細な情報は [`docs/`](docs/) ディレクトリにあります：
 
 - **[テスト戦略とガイド](docs/TESTING.md)** - 包括的なテスト実行方法とベンチマーク
-- **[アーキテクチャドキュメント](docs/COMMAND_ARCHITECTURE.md)** - コマンドパターンとController層の設計
+- **[システムアーキテクチャ](docs/ARCHITECTURE.md)** - StreamConverter全体の設計思想と4層アーキテクチャ
+- **[コマンドアーキテクチャ](docs/COMMAND_ARCHITECTURE.md)** - コマンドパターンとController層の設計
 - **[セキュリティ分析](docs/SECURITY_ANALYSIS.md)** - セキュリティ対策と脆弱性分析
 - **[ベンチマーク実装](docs/BENCHMARK_IMPLEMENTATION.md)** - 大容量データ処理のパフォーマンス測定
 - **[自動ログ機能](docs/AUTO_LOGGING.md)** - MDCとコンテキスト伝播の詳細

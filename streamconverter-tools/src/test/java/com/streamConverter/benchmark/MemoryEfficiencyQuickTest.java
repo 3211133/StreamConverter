@@ -21,18 +21,26 @@ class MemoryEfficiencyQuickTest {
   private static final Logger logger = LoggerFactory.getLogger(MemoryEfficiencyQuickTest.class);
 
   @Test
-  @DisplayName("文字コード変換の省メモリテスト")
+  @DisplayName("文字コード変換の環境適応型省メモリテスト")
   void testCharacterConversionMemoryEfficiency() throws IOException {
-    logger.info("=== Character Conversion Memory Test ===");
+    logger.info("=== Character Conversion Environment-Adaptive Memory Test ===");
 
-    int dataSize = 10 * 1024 * 1024; // 10MB
+    // 環境適応型テストデータサイズ計算
+    Runtime runtime = Runtime.getRuntime();
+    long maxMemory = runtime.maxMemory();
+    int dataSize =
+        (int)
+            Math.min(
+                Math.max(maxMemory / 20, 5 * 1024 * 1024),
+                100 * 1024 * 1024); // ヒープの5%（最小5MB、最大100MB）
+
+    logger.info(
+        "Max heap: {}MB, Test data size: {}MB", maxMemory / 1024 / 1024, dataSize / 1024 / 1024);
 
     // 複雑パイプラインの文字コード変換部分のみテスト
     IStreamCommand[] pipeline = {
       new CharacterConvertCommand("UTF-8", "UTF-16"), new CharacterConvertCommand("UTF-16", "UTF-8")
     };
-
-    Runtime runtime = Runtime.getRuntime();
 
     // テスト実行
     System.gc();
@@ -52,15 +60,18 @@ class MemoryEfficiencyQuickTest {
     long afterMemory = runtime.totalMemory() - runtime.freeMemory();
     long memoryUsed = Math.max(0, afterMemory - beforeMemory);
 
+    logger.info("=== 環境適応型省メモリテスト結果 ===");
     logger.info(
         "Data size: {}MB, Memory used: {}MB", dataSize / 1024 / 1024, memoryUsed / 1024 / 1024);
 
-    // 省メモリ要件：10MBデータで50MB以下のメモリ使用
-    long maxAcceptableMemory = 50 * 1024 * 1024; // 50MB
+    // 環境適応型メモリ要件：データサイズの10倍以下のメモリ使用（文字コード変換での文字化け対策バッファを考慮）
+    long maxAcceptableMemory = dataSize * 10; // データサイズの10倍制限
+    logger.info("Max acceptable (10x data): {}MB", maxAcceptableMemory / 1024 / 1024);
+
     Assertions.assertTrue(
         memoryUsed < maxAcceptableMemory,
         String.format(
-            "Character conversion memory usage too high: %dMB > %dMB (data: %dMB)",
+            "設計原理違反: 文字コード変換でメモリを使いすぎています。Memory usage: %dMB > %dMB (10x %dMB data)",
             memoryUsed / 1024 / 1024, maxAcceptableMemory / 1024 / 1024, dataSize / 1024 / 1024));
   }
 

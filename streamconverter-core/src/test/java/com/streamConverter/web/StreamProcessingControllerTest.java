@@ -17,7 +17,7 @@ import reactor.core.publisher.Flux;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("StreamProcessingController Web API Test")
 @org.junit.jupiter.api.Disabled(
-    "Temporary disable due to Netty version compatibility issues after security updates")
+    "Persistent Netty 4.1.123.Final compatibility issue: isExplicitNoPreferDirect() method not found in WebTestClient despite version alignment")
 class StreamProcessingControllerTest {
 
   @Autowired private WebTestClient webTestClient;

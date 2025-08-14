@@ -4,7 +4,6 @@ import com.streamConverter.*;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.util.*;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -25,21 +24,12 @@ class MemoryEfficiencyQuickTest {
   void testCharacterConversionMemoryEfficiency() throws IOException {
     logger.info("=== Character Conversion Environment-Adaptive Memory Test ===");
 
-    // 環境適応型テストデータサイズ計算
+    // 環境適応型テストデータサイズ計算（long型完全対応）
     Runtime runtime = Runtime.getRuntime();
     long maxMemory = runtime.maxMemory();
-    long calculatedSize =
+    long dataSize =
         Math.min(
-            Math.max(maxMemory / 20, 5L * 1024 * 1024),
-            100L * 1024 * 1024); // ヒープの5%（最小5MB、最大100MB）
-
-    // 型安全性: Integer.MAX_VALUE以下であることを保証
-    if (calculatedSize > Integer.MAX_VALUE) {
-      throw new IllegalStateException(
-          "Calculated test data size exceeds integer range: " + calculatedSize + " bytes");
-    }
-
-    int dataSize = (int) calculatedSize;
+            Math.max(maxMemory / 20, 5L * 1024 * 1024), 100L * 1024 * 1024); // ヒープの5%（最小5MB、上限なし）
 
     logger.info(
         "Max heap: {}MB, Test data size: {}MB", maxMemory / 1024 / 1024, dataSize / 1024 / 1024);
@@ -53,7 +43,7 @@ class MemoryEfficiencyQuickTest {
     System.gc();
     long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
 
-    try (InputStream input = new LargeDataInputStream(dataSize);
+    try (InputStream input = LargeDataGenerator.createLargeDataStream("CSV", dataSize);
         OutputStream output = new NullOutputStream()) {
 
       StreamConverter converter = new StreamConverter(pipeline);
@@ -95,48 +85,6 @@ class MemoryEfficiencyQuickTest {
     }
   }
 
-  /** 大容量データを生成するInputStream */
-  private static class LargeDataInputStream extends InputStream {
-    private final int totalSize;
-    private int bytesRead = 0;
-    private final byte[] pattern;
-    private int patternIndex = 0;
-
-    public LargeDataInputStream(int totalSize) {
-      this.totalSize = totalSize;
-      this.pattern =
-          "StreamConverter,Character,Encoding,Test,1234567890,ABCDEF\n"
-              .getBytes(StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public int read() throws IOException {
-      if (bytesRead >= totalSize) {
-        return -1;
-      }
-
-      byte b = pattern[patternIndex];
-      patternIndex = (patternIndex + 1) % pattern.length;
-      bytesRead++;
-      return b & 0xFF;
-    }
-
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-      if (bytesRead >= totalSize) {
-        return -1;
-      }
-
-      int remaining = totalSize - bytesRead;
-      int toRead = Math.min(len, remaining);
-
-      for (int i = 0; i < toRead; i++) {
-        b[off + i] = pattern[patternIndex];
-        patternIndex = (patternIndex + 1) % pattern.length;
-      }
-
-      bytesRead += toRead;
-      return toRead;
-    }
-  }
+  // LargeDataInputStreamを削除 - LargeDataGenerator.createLargeDataStream()に統合完了
+  // 技術的負債解消: int制限を解除し、既存のlong対応実装を利用
 }

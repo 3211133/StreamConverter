@@ -10,7 +10,6 @@ import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.XmlNavigateCommand;
 import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
@@ -673,7 +672,7 @@ class LargeDataBenchmark {
 
   /** 単一のベンチマーク実行 */
   private void runSingleBenchmark(int dataSize, IStreamCommand[] pipeline) throws IOException {
-    try (InputStream input = new LargeDataInputStream(dataSize);
+    try (InputStream input = LargeDataGenerator.createLargeDataStream("CSV", dataSize);
         OutputStream output = new NullOutputStream()) {
 
       StreamConverter converter = new StreamConverter(pipeline);
@@ -767,64 +766,10 @@ class LargeDataBenchmark {
   }
 
   /** 大容量データを生成するInputStream */
-  private static class LargeDataInputStream extends InputStream {
-    private final int totalSize;
-    private int bytesRead = 0;
-    private final byte[] pattern;
-    private int patternIndex = 0;
-
-    public LargeDataInputStream(int totalSize) {
-      this.totalSize = totalSize;
-      // より複雑なパターンでリアルなデータをシミュレート
-      this.pattern =
-          "StreamConverter,Large,Data,Processing,Benchmark,Test,1234567890,ABCDEF\n"
-              .getBytes(StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public int read() throws IOException {
-      if (bytesRead >= totalSize) {
-        return -1;
-      }
-
-      byte b = pattern[patternIndex];
-      patternIndex = (patternIndex + 1) % pattern.length;
-      bytesRead++;
-      return b & 0xFF;
-    }
-
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-      if (bytesRead >= totalSize) {
-        return -1;
-      }
-
-      int remaining = totalSize - bytesRead;
-      int toRead = Math.min(len, remaining);
-
-      for (int i = 0; i < toRead; i++) {
-        b[off + i] = pattern[patternIndex];
-        patternIndex = (patternIndex + 1) % pattern.length;
-      }
-
-      bytesRead += toRead;
-      return toRead;
-    }
-
-    @Override
-    public long skip(long n) throws IOException {
-      long remaining = totalSize - bytesRead;
-      long toSkip = Math.min(n, remaining);
-      bytesRead += (int) toSkip;
-      patternIndex = (patternIndex + (int) (toSkip % pattern.length)) % pattern.length;
-      return toSkip;
-    }
-
-    @Override
-    public int available() throws IOException {
-      return totalSize - bytesRead;
-    }
-  }
+  // LargeDataInputStream削除 - LargeDataGenerator.createLargeDataStream()に統合完了
+  // 技術的負債解消: int制限を解除し、既存のlong対応実装を利用
+  // Note: BenchmarkResultでdataSizeがint型で使用されているため、
+  //       インターフェース維持のためrunSingleBenchmarkはintを保持
 
   /** フォーマット特化コマンドを作成 */
   private IStreamCommand createFormatSpecificCommand(String format) {

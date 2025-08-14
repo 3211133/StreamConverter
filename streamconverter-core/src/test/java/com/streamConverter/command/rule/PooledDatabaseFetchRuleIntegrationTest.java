@@ -16,15 +16,13 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.DisabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 /**
  * PooledDatabaseFetchRuleの統合テスト
  *
  * <p>H2インメモリデータベースとHikariCP接続プールを使用してPooledDatabaseFetchRuleの パフォーマンスと並行処理能力をテストします。
  */
-@DisabledOnOs({OS.WINDOWS, OS.MAC}) // 一時的にWindows/macOS環境では無効化
+// Re-enabled for cross-platform testing with improved H2 configuration
 public class PooledDatabaseFetchRuleIntegrationTest {
 
   private static final String DB_URL_BASE = "jdbc:h2:mem:pooltest";
@@ -34,8 +32,11 @@ public class PooledDatabaseFetchRuleIntegrationTest {
 
   @BeforeEach
   public void setUp() throws Exception {
-    // 各テスト毎に一意のデータベースURLを生成
-    dbUrl = DB_URL_BASE + System.nanoTime() + ";DB_CLOSE_DELAY=-1";
+    // 各テスト毎に一意のデータベースURLを生成 - クロスプラットフォーム対応
+    dbUrl =
+        DB_URL_BASE
+            + System.nanoTime()
+            + ";DB_CLOSE_DELAY=-1;MODE=REGULAR;DATABASE_TO_LOWER=TRUE;DEFAULT_NULL_ORDERING=HIGH";
 
     // H2インメモリデータベースに接続
     connection = DriverManager.getConnection(dbUrl);

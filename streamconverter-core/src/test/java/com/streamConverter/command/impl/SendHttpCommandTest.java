@@ -130,9 +130,9 @@ class SendHttpCommandTest {
   }
 
   @Test
-  @org.junit.jupiter.api.Disabled(
-      "Network-dependent test causing Netty compatibility issues after security updates")
   @DisplayName("httpbin.orgを使った実際のHTTP通信テスト")
+  @org.junit.jupiter.api.Disabled(
+      "Persistent Netty 4.1.123.Final compatibility issue: isExplicitNoPreferDirect() method not found despite complete version alignment")
   void testActualHttpRequest() {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 

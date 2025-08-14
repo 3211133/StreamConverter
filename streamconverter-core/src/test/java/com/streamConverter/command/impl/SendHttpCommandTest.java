@@ -203,9 +203,9 @@ class SendHttpCommandTest {
   }
 
   @Test
+  @DisplayName("存在しないホストでIOExceptionがスローされる")
   @org.junit.jupiter.api.Disabled(
       "Network-dependent test causing Netty compatibility issues after security updates")
-  @DisplayName("存在しないホストでIOExceptionがスローされる")
   void testNonExistentHost() {
     SendHttpCommand command = new SendHttpCommand("https://this-domain-does-not-exist-12345.com");
     ByteArrayInputStream inputStream = new ByteArrayInputStream("test".getBytes());
@@ -218,9 +218,9 @@ class SendHttpCommandTest {
   }
 
   @Test
+  @DisplayName("Large data streaming processing test with memory-efficient approach")
   @org.junit.jupiter.api.Disabled(
       "Network-dependent test causing Netty compatibility issues after security updates")
-  @DisplayName("Large data streaming processing test with memory-efficient approach")
   void testLargeDataStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 
@@ -291,9 +291,9 @@ class SendHttpCommandTest {
   }
 
   @Test
+  @DisplayName("Memory-efficient streaming processing validation test with small data")
   @org.junit.jupiter.api.Disabled(
       "Network-dependent test causing Netty compatibility issues after security updates")
-  @DisplayName("Memory-efficient streaming processing validation test with small data")
   void testMemoryEfficientStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 
@@ -360,9 +360,9 @@ class SendHttpCommandTest {
   }
 
   @Test
+  @DisplayName("Streaming processing blocking behavior verification test")
   @org.junit.jupiter.api.Disabled(
       "Network-dependent test causing Netty compatibility issues after security updates")
-  @DisplayName("Streaming processing blocking behavior verification test")
   void testStreamingBlockingBehavior() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 

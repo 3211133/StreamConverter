@@ -38,6 +38,8 @@ class MemoryEfficiencyTest {
     long maxMemory = runtime.maxMemory();
 
     // ヒープサイズの30%をテストデータサイズとして使用（最小50MB、上限なし）
+    // 注意: 上限がないため、非常に大きなヒープサイズの環境では極端に大きなメモリ割り当てが発生する可能性があります。
+    // そのため、テスト実行時のヒープサイズ設定に注意してください。必要に応じて上限を設けることを推奨します。
     long calculatedLargeSize = Math.max(maxMemory / 3, 50L * 1024 * 1024);
 
     System.out.println(

@@ -29,7 +29,8 @@ class MemoryEfficiencyQuickTest {
     long maxMemory = runtime.maxMemory();
     long dataSize =
         Math.min(
-            Math.max(maxMemory / 20, 5L * 1024 * 1024), 100L * 1024 * 1024); // ヒープの5%（最小5MB、上限なし）
+            Math.max(maxMemory / 20, 5L * 1024 * 1024),
+            100L * 1024 * 1024); // ヒープの5%（最小5MB、最大100MB）
 
     logger.info(
         "Max heap: {}MB, Test data size: {}MB", maxMemory / 1024 / 1024, dataSize / 1024 / 1024);

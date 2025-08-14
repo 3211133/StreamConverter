@@ -28,11 +28,18 @@ class MemoryEfficiencyQuickTest {
     // 環境適応型テストデータサイズ計算
     Runtime runtime = Runtime.getRuntime();
     long maxMemory = runtime.maxMemory();
-    int dataSize =
-        (int)
-            Math.min(
-                Math.max(maxMemory / 20, 5 * 1024 * 1024),
-                100 * 1024 * 1024); // ヒープの5%（最小5MB、最大100MB）
+    long calculatedSize =
+        Math.min(
+            Math.max(maxMemory / 20, 5L * 1024 * 1024),
+            100L * 1024 * 1024); // ヒープの5%（最小5MB、最大100MB）
+
+    // 型安全性: Integer.MAX_VALUE以下であることを保証
+    if (calculatedSize > Integer.MAX_VALUE) {
+      throw new IllegalStateException(
+          "Calculated test data size exceeds integer range: " + calculatedSize + " bytes");
+    }
+
+    int dataSize = (int) calculatedSize;
 
     logger.info(
         "Max heap: {}MB, Test data size: {}MB", maxMemory / 1024 / 1024, dataSize / 1024 / 1024);

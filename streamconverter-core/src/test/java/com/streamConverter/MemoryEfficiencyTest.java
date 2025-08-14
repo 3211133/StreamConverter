@@ -20,8 +20,15 @@ class MemoryEfficiencyTest {
     long maxMemory = runtime.maxMemory();
 
     // ヒープサイズの10%をテストデータサイズとして使用（最小10MB、最大500MB）
-    int adaptiveSize =
-        (int) Math.min(Math.max(maxMemory / 10, 10 * 1024 * 1024), 500 * 1024 * 1024);
+    long calculatedSize = Math.min(Math.max(maxMemory / 10, 10L * 1024 * 1024), 500L * 1024 * 1024);
+
+    // 型安全性: Integer.MAX_VALUE以下であることを保証
+    if (calculatedSize > Integer.MAX_VALUE) {
+      throw new IllegalStateException(
+          "Calculated test data size exceeds integer range: " + calculatedSize + " bytes");
+    }
+
+    int adaptiveSize = (int) calculatedSize;
     System.out.println(
         "Max heap: "
             + (maxMemory / 1024 / 1024)
@@ -37,7 +44,18 @@ class MemoryEfficiencyTest {
     long maxMemory = runtime.maxMemory();
 
     // ヒープサイズの30%をテストデータサイズとして使用（最小50MB、最大1GB）
-    int largeSize = (int) Math.min(Math.max(maxMemory / 3, 50 * 1024 * 1024), 1024 * 1024 * 1024);
+    long calculatedLargeSize =
+        Math.min(Math.max(maxMemory / 3, 50L * 1024 * 1024), 1024L * 1024 * 1024);
+
+    // 型安全性: Integer.MAX_VALUE以下であることを保証
+    if (calculatedLargeSize > Integer.MAX_VALUE) {
+      throw new IllegalStateException(
+          "Calculated large test data size exceeds integer range: "
+              + calculatedLargeSize
+              + " bytes");
+    }
+
+    int largeSize = (int) calculatedLargeSize;
     System.out.println(
         "Large test - Max heap: "
             + (maxMemory / 1024 / 1024)

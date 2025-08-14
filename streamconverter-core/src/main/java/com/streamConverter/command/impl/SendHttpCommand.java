@@ -49,7 +49,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
     super();
     this.url = validateAndSanitizeUrl(url);
 
-    // Simple HttpClient configuration for Netty 4.1.118.Final compatibility
+    // Simple HttpClient configuration for Netty 4.1.123.Final compatibility
     HttpClient httpClient =
         HttpClient.create()
             .responseTimeout(Duration.ofSeconds(30))

@@ -2,6 +2,7 @@ package com.streamConverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.streamConverter.benchmark.LargeDataGenerator;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
 import java.io.*;
@@ -14,69 +15,54 @@ import org.junit.jupiter.api.Timeout;
 /** メモリ効率とパフォーマンスのテスト */
 class MemoryEfficiencyTest {
 
-  /** 環境適応型のテストデータサイズを計算 */
-  static int getAdaptiveTestDataSize() {
+  /** 環境適応型のテストデータサイズを計算 - long型で完全対応 */
+  static long getAdaptiveTestDataSize() {
     Runtime runtime = Runtime.getRuntime();
     long maxMemory = runtime.maxMemory();
 
     // ヒープサイズの10%をテストデータサイズとして使用（最小10MB、最大500MB）
     long calculatedSize = Math.min(Math.max(maxMemory / 10, 10L * 1024 * 1024), 500L * 1024 * 1024);
 
-    // 型安全性: Integer.MAX_VALUE以下であることを保証
-    if (calculatedSize > Integer.MAX_VALUE) {
-      throw new IllegalStateException(
-          "Calculated test data size exceeds integer range: " + calculatedSize + " bytes");
-    }
-
-    int adaptiveSize = (int) calculatedSize;
     System.out.println(
         "Max heap: "
             + (maxMemory / 1024 / 1024)
             + "MB, Test data size: "
-            + (adaptiveSize / 1024 / 1024)
+            + (calculatedSize / 1024 / 1024)
             + "MB");
-    return adaptiveSize;
+    return calculatedSize;
   }
 
-  /** 大容量テスト用の環境適応型サイズ計算 */
-  static int getLargeTestDataSize() {
+  /** 大容量テスト用の環境適応型サイズ計算 - long型で完全対応 */
+  static long getLargeTestDataSize() {
     Runtime runtime = Runtime.getRuntime();
     long maxMemory = runtime.maxMemory();
 
-    // ヒープサイズの30%をテストデータサイズとして使用（最小50MB、最大1GB）
-    long calculatedLargeSize =
-        Math.min(Math.max(maxMemory / 3, 50L * 1024 * 1024), 1024L * 1024 * 1024);
+    // ヒープサイズの30%をテストデータサイズとして使用（最小50MB、上限なし）
+    // 注意: 上限がないため、非常に大きなヒープサイズの環境では極端に大きなメモリ割り当てが発生する可能性があります。
+    // そのため、テスト実行時のヒープサイズ設定に注意してください。必要に応じて上限を設けることを推奨します。
+    long calculatedLargeSize = Math.max(maxMemory / 3, 50L * 1024 * 1024);
 
-    // 型安全性: Integer.MAX_VALUE以下であることを保証
-    if (calculatedLargeSize > Integer.MAX_VALUE) {
-      throw new IllegalStateException(
-          "Calculated large test data size exceeds integer range: "
-              + calculatedLargeSize
-              + " bytes");
-    }
-
-    int largeSize = (int) calculatedLargeSize;
     System.out.println(
         "Large test - Max heap: "
             + (maxMemory / 1024 / 1024)
             + "MB, Test data size: "
-            + (largeSize / 1024 / 1024)
+            + (calculatedLargeSize / 1024 / 1024)
             + "MB");
-    return largeSize;
+    return calculatedLargeSize;
   }
 
   @Test
   @DisplayName("環境適応型メモリ効率テスト - 設計原理検証")
   @Timeout(value = 60, unit = TimeUnit.SECONDS)
   void testAdaptiveMemoryEfficiency() throws IOException {
-    // 環境適応型テストデータサイズを取得
-    int dataSize = getAdaptiveTestDataSize();
+    // 環境適応型テストデータサイズを取得（long型完全対応）
+    long dataSize = getAdaptiveTestDataSize();
 
     // メモリ使用量監視
     Runtime runtime = Runtime.getRuntime();
     long initialMemory = runtime.totalMemory() - runtime.freeMemory();
 
-    InputStream largeInput = new LargeDataInputStream(dataSize);
+    InputStream largeInput = LargeDataGenerator.createLargeDataStream("CSV", dataSize);
     // メモリ効率測定のため、出力は捨てる（設計原理：メモリに全て持たない）
     OutputStream output = new NullOutputStream();
 
@@ -133,9 +119,9 @@ class MemoryEfficiencyTest {
   void testSingleCommandOptimalPath() throws IOException {
     Runtime runtime = Runtime.getRuntime();
 
-    // 環境適応型のデータサイズを使用
-    int dataSize = getAdaptiveTestDataSize() / 2; // より小さなサイズでテスト
-    InputStream input = new LargeDataInputStream(dataSize);
+    // 環境適応型のデータサイズを使用（long型完全対応）
+    long dataSize = getAdaptiveTestDataSize() / 2; // より小さなサイズでテスト
+    InputStream input = LargeDataGenerator.createLargeDataStream("CSV", dataSize);
     // メモリ効率測定のため、出力は捨てる
     OutputStream output = new NullOutputStream();
 
@@ -181,9 +167,9 @@ class MemoryEfficiencyTest {
   void testParallelProcessingNoStack() throws IOException {
     Runtime runtime = Runtime.getRuntime();
 
-    // 環境適応型の大容量データサイズを取得
-    int dataSize = getLargeTestDataSize();
-    InputStream largeInput = new LargeDataInputStream(dataSize);
+    // 環境適応型の大容量データサイズを取得（long型完全対応）
+    long dataSize = getLargeTestDataSize();
+    InputStream largeInput = LargeDataGenerator.createLargeDataStream("CSV", dataSize);
     // メモリ効率測定のため、出力は捨てる
     OutputStream output = new NullOutputStream();
 
@@ -276,59 +262,6 @@ class MemoryEfficiencyTest {
     }
   }
 
-  /** 大容量データを生成するInputStream */
-  private static class LargeDataInputStream extends InputStream {
-    private final int totalSize;
-    private int bytesRead = 0;
-    private final byte[] pattern = "0123456789ABCDEF".getBytes();
-    private int patternIndex = 0;
-
-    public LargeDataInputStream(int totalSize) {
-      this.totalSize = totalSize;
-    }
-
-    @Override
-    public int read() throws IOException {
-      if (bytesRead >= totalSize) {
-        return -1; // EOF
-      }
-
-      byte b = pattern[patternIndex];
-      patternIndex = (patternIndex + 1) % pattern.length;
-      bytesRead++;
-      return b & 0xFF;
-    }
-
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-      if (bytesRead >= totalSize) {
-        return -1; // EOF
-      }
-
-      int remaining = totalSize - bytesRead;
-      int toRead = Math.min(len, remaining);
-
-      for (int i = 0; i < toRead; i++) {
-        b[off + i] = pattern[patternIndex];
-        patternIndex = (patternIndex + 1) % pattern.length;
-      }
-
-      bytesRead += toRead;
-      return toRead;
-    }
-
-    @Override
-    public long skip(long n) throws IOException {
-      long remaining = totalSize - bytesRead;
-      long toSkip = Math.min(n, remaining);
-      bytesRead += (int) toSkip;
-      patternIndex = (patternIndex + (int) (toSkip % pattern.length)) % pattern.length;
-      return toSkip;
-    }
-
-    @Override
-    public int available() throws IOException {
-      return totalSize - bytesRead;
-    }
-  }
+  // LargeDataInputStreamを削除 - LargeDataGenerator.createLargeDataStream()に統合完了
+  // 技術的負債解消: int制限を解除し、既存のlong対応実装を利用
 }

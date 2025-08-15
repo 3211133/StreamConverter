@@ -9,16 +9,14 @@ import com.streamConverter.command.impl.JsonNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.XmlNavigateCommand;
 import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
+import com.streamConverter.test.PlatformAdaptiveTestUtils;
 import java.io.*;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.condition.DisabledOnOs;
 import org.junit.jupiter.api.condition.EnabledIf;
-import org.junit.jupiter.api.condition.OS;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.slf4j.Logger;
@@ -79,16 +77,27 @@ class LargeDataBenchmark {
     return maxMemory > 800 * 1024 * 1024; // 800MB以上
   }
 
+  /** プラットフォーム適応型リソース十分性チェック */
+  static boolean hasAdequateResourcesForComplexPipeline() {
+    return PlatformAdaptiveTestUtils.hasAdequateResources();
+  }
+
   /** JVMに十分なメモリがあるかチェック（512MB以上で十分） */
   static boolean hasEnoughMemory() {
     long maxMemory = Runtime.getRuntime().maxMemory();
     return maxMemory >= 512 * 1024 * 1024; // 512MB以上
   }
 
-  /** 大容量テスト用のメモリチェック（1GB以上） */
+  /** 大容量テスト用プラットフォーム適応型リソースチェック */
   static boolean hasEnoughMemoryForLarge() {
-    long maxMemory = Runtime.getRuntime().maxMemory();
-    return maxMemory >= 1024 * 1024 * 1024; // 1GB以上
+    Runtime runtime = Runtime.getRuntime();
+    long maxMemory = runtime.maxMemory();
+    long adaptiveMinMemory =
+        PlatformAdaptiveTestUtils.hasAdequateResources()
+            ? 1L * 1024 * 1024 * 1024
+            : // 基本リソースOKなら1GB
+            2L * 1024 * 1024 * 1024; // 制約環境なら2GB必要
+    return maxMemory >= adaptiveMinMemory;
   }
 
   @BeforeEach
@@ -452,14 +461,15 @@ class LargeDataBenchmark {
   }
 
   @Test
-  @DisabledOnOs({OS.WINDOWS, OS.MAC}) // Platform-specific performance issues in CI
-  @DisplayName("複雑なデータ変換パイプラインベンチマーク")
-  @Timeout(value = 60, unit = TimeUnit.SECONDS)
-  @EnabledIf("hasEnoughMemory")
+  @DisplayName("プラットフォーム適応型複雑パイプラインベンチマーク")
+  @Timeout(value = 120, unit = TimeUnit.SECONDS)
+  @EnabledIf("hasAdequateResourcesForComplexPipeline")
   void testComplexPipelineBenchmark() throws IOException {
-    logger.info("=== Complex Pipeline Benchmark ===");
+    PlatformAdaptiveTestUtils.logPlatformInfo();
+    logger.info("=== Platform-Adaptive Complex Pipeline Benchmark ===");
 
-    long testDataSize = 1024 * 1024; // 1MB（複雑パイプライン用）
+    long baseDataSize = 1024 * 1024; // 1MB base
+    long testDataSize = PlatformAdaptiveTestUtils.getAdaptiveDataSize(baseDataSize);
     Path testFile = LargeDataGenerator.generateLargeXmlFile(testDataSize);
 
     try (InputStream input = Files.newInputStream(testFile);
@@ -488,10 +498,13 @@ class LargeDataBenchmark {
           usage.getMemoryUsedMB(),
           usage.getThroughputMBps());
 
-      // 複雑パイプラインでも効率的であることを確認（1MBデータに対して100MB以下）
+      // プラットフォーム適応型メモリしきい値
+      long adaptiveMemoryThreshold = PlatformAdaptiveTestUtils.getAdaptiveMemoryThreshold(100L);
       assertTrue(
-          usage.getMemoryUsedMB() <= 100.0,
-          String.format("Complex pipeline memory usage %.2f MB too high", usage.getMemoryUsedMB()));
+          usage.getMemoryUsedMB() <= adaptiveMemoryThreshold,
+          String.format(
+              "Complex pipeline memory usage %.2f MB > adaptive threshold %d MB",
+              usage.getMemoryUsedMB(), adaptiveMemoryThreshold));
 
       logger.info("✅ Complex pipeline benchmark passed!");
 
@@ -501,16 +514,20 @@ class LargeDataBenchmark {
   }
 
   @Test
-  @DisabledOnOs({OS.WINDOWS, OS.MAC}) // Platform-specific timeout issues in CI
-  @DisplayName("複雑なパイプラインベンチマーク (PerformanceAnalyzer)")
-  @EnabledIf("hasEnoughMemory")
+  @DisplayName("プラットフォーム適応型パイプラインベンチマーク (PerformanceAnalyzer)")
+  @EnabledIf("hasAdequateResourcesForComplexPipeline")
   void benchmarkComplexPipeline() throws IOException {
-    logger.info("=== Complex Pipeline Benchmark ===");
+    PlatformAdaptiveTestUtils.logPlatformInfo();
+    logger.info("=== Platform-Adaptive Complex Pipeline Benchmark ===");
 
-    BenchmarkResults results = new BenchmarkResults("Complex Pipeline");
+    BenchmarkResults results = new BenchmarkResults("Platform-Adaptive Complex Pipeline");
 
-    // 軽量版：最小サイズのみでテストして確実に完了させる
-    int[] testSizes = {1 * 1024 * 1024, 5 * 1024 * 1024}; // 1MB, 5MB
+    // プラットフォーム適応型テストサイズ配列
+    long[] baseSizes = {1 * 1024 * 1024, 5 * 1024 * 1024}; // 1MB, 5MB base
+    int[] testSizes = new int[baseSizes.length];
+    for (int i = 0; i < baseSizes.length; i++) {
+      testSizes[i] = (int) PlatformAdaptiveTestUtils.getAdaptiveDataSize(baseSizes[i]);
+    }
 
     for (int dataSize : testSizes) {
       logger.info("Testing complex pipeline with data size: {}MB", dataSize / 1024 / 1024);
@@ -528,8 +545,9 @@ class LargeDataBenchmark {
 
       results.addResult(result);
 
-      // 複雑パイプラインでも省メモリ制限（100MB以下）
-      long maxAcceptableMemory = 100 * 1024 * 1024; // 100MB固定上限
+      // プラットフォーム適応型メモリ制限
+      long maxAcceptableMemory =
+          PlatformAdaptiveTestUtils.getAdaptiveMemoryThreshold(100L) * 1024 * 1024;
       Assertions.assertTrue(
           result.peakMemoryUsage < maxAcceptableMemory,
           String.format(
@@ -673,7 +691,7 @@ class LargeDataBenchmark {
 
   /** 単一のベンチマーク実行 */
   private void runSingleBenchmark(int dataSize, IStreamCommand[] pipeline) throws IOException {
-    try (InputStream input = new LargeDataInputStream(dataSize);
+    try (InputStream input = LargeDataGenerator.createLargeDataStream("CSV", dataSize);
         OutputStream output = new NullOutputStream()) {
 
       StreamConverter converter = new StreamConverter(pipeline);
@@ -767,64 +785,10 @@ class LargeDataBenchmark {
   }
 
   /** 大容量データを生成するInputStream */
-  private static class LargeDataInputStream extends InputStream {
-    private final int totalSize;
-    private int bytesRead = 0;
-    private final byte[] pattern;
-    private int patternIndex = 0;
-
-    public LargeDataInputStream(int totalSize) {
-      this.totalSize = totalSize;
-      // より複雑なパターンでリアルなデータをシミュレート
-      this.pattern =
-          "StreamConverter,Large,Data,Processing,Benchmark,Test,1234567890,ABCDEF\n"
-              .getBytes(StandardCharsets.UTF_8);
-    }
-
-    @Override
-    public int read() throws IOException {
-      if (bytesRead >= totalSize) {
-        return -1;
-      }
-
-      byte b = pattern[patternIndex];
-      patternIndex = (patternIndex + 1) % pattern.length;
-      bytesRead++;
-      return b & 0xFF;
-    }
-
-    @Override
-    public int read(byte[] b, int off, int len) throws IOException {
-      if (bytesRead >= totalSize) {
-        return -1;
-      }
-
-      int remaining = totalSize - bytesRead;
-      int toRead = Math.min(len, remaining);
-
-      for (int i = 0; i < toRead; i++) {
-        b[off + i] = pattern[patternIndex];
-        patternIndex = (patternIndex + 1) % pattern.length;
-      }
-
-      bytesRead += toRead;
-      return toRead;
-    }
-
-    @Override
-    public long skip(long n) throws IOException {
-      long remaining = totalSize - bytesRead;
-      long toSkip = Math.min(n, remaining);
-      bytesRead += (int) toSkip;
-      patternIndex = (patternIndex + (int) (toSkip % pattern.length)) % pattern.length;
-      return toSkip;
-    }
-
-    @Override
-    public int available() throws IOException {
-      return totalSize - bytesRead;
-    }
-  }
+  // LargeDataInputStream削除 - LargeDataGenerator.createLargeDataStream()に統合完了
+  // 技術的負債解消: int制限を解除し、既存のlong対応実装を利用
+  // Note: BenchmarkResultでdataSizeがint型で使用されているため、
+  //       インターフェース維持のためrunSingleBenchmarkはintを保持
 
   /** フォーマット特化コマンドを作成 */
   private IStreamCommand createFormatSpecificCommand(String format) {

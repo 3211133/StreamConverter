@@ -28,10 +28,21 @@ StreamConverterプロジェクトでは、以下の包括的なテストアプ�
 
 #### 3. **パフォーマンステスト (Performance Tests)**
 - **ベンチマークテスト**: 大容量データ処理性能測定
-- **メモリ効率テスト**: メモリ使用量の制約確認
+- **メモリ効率テスト**: メモリ使用量の制約確認（設計原理ベース）
 - **スループットテスト**: 処理速度とリソース使用量の最適化検証
+- **プラットフォーム適応型テスト**: OS/環境別性能特性への自動適応
 
-#### 4. **テスト手法とフレームワーク**
+#### 4. **メモリ効率化テスト (Memory Efficiency Tests)**
+- **設計原理検証**: 2つの核となる設計原理の確実な検証
+  - 原理1: メモリに全て持ってしまわないこと（ストリーミング効率）
+  - 原理2: 逐次処理の並列化でスタックしないこと（並列処理安定性）
+- **環境適応型測定**: プラットフォームとリソースに応じた動的テスト調整
+- **プロファイラベース測定**: GC非依存の正確なメモリ使用量監視
+- **段階的容量テスト**: SMALL/MEDIUM/LARGE/XLARGEカテゴリ別検証
+
+> 📖 **詳細**: [Memory Efficiency Test Strategy](MEMORY_EFFICIENCY_TEST_STRATEGY.md) - メモリ効率化テストの包括的な設計書
+
+#### 5. **テスト手法とフレームワーク**
 - **JUnit 5**: 最新のテストフレームワーク活用
   - `@DisplayName`: 分かりやすいテスト名
   - `@ParameterizedTest`: データ駆動テスト
@@ -233,6 +244,72 @@ static boolean hasEnoughMemoryFor5GB() {
 }
 ```
 
+## 🧠 メモリ効率化テスト戦略
+
+### 改善されたメモリ効率テストアプローチ
+
+従来のGC依存測定から、プロファイラベースの正確な測定への移行：
+
+#### 従来の問題のあるアプローチ
+```java
+// ❌ 不安定なGC依存測定
+System.gc();
+long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
+// 処理実行
+System.gc();
+long afterMemory = runtime.totalMemory() - runtime.freeMemory();
+```
+
+#### 改善されたアプローチ
+```java
+// ✅ 安定したプロファイラベース測定
+@Test
+@DisplayName("設計原理検証: ストリーミング効率")
+@EnabledIf("PlatformAdaptiveTestUtils.hasAdequateResources")
+void testStreamingEfficiencyPrinciple() {
+    // 環境適応型データサイズ決定
+    long dataSize = PlatformAdaptiveTestUtils.getAdaptiveDataSize(100L * 1024 * 1024);
+    
+    // プロファイラベース測定
+    EnhancedResourceMonitor monitor = new EnhancedResourceMonitor();
+    ResourceUsage usage = monitor.measureExecution(() -> {
+        converter.run(createLargeDataStream(dataSize), new NullOutputStream());
+    });
+    
+    // 設計原理1: メモリに全て持たないこと
+    assertThat(usage.getMemoryEfficiencyRatio())
+        .describedAs("メモリ効率比はデータサイズの5%以下であること")
+        .isLessThan(0.05);
+    
+    // 絶対的メモリ制限
+    assertThat(usage.getPeakMemoryUsage())
+        .describedAs("ピークメモリ使用量は50MB以下であること")
+        .isLessThan(50L * 1024 * 1024);
+}
+```
+
+### 設計原理ベーステストマトリックス
+
+| テストカテゴリ | データサイズ | メモリ制限 | 検証原理 | 期待結果 |
+|---------------|-------------|-----------|---------|---------|
+| **ストリーミング効率** | 環境適応型 | 50MB | 原理1 | 効率比 < 5% |
+| **並列処理安定性** | 大容量 | 30% | 原理2 | 120秒以内完了 |
+| **スケーラビリティ** | 段階的 | カテゴリ別 | 両方 | 線形スケーリング |
+
+### プラットフォーム適応型制限値
+
+```java
+// OS別制限値の動的調整
+public class MemoryTestLimits {
+    public static long getAdaptiveMemoryLimit(long baseLimit) {
+        double platformFactor = PlatformAdaptiveTestUtils.getPlatformPerformanceFactor();
+        double ciRelaxation = PlatformAdaptiveTestUtils.isCI() ? 1.5 : 1.0;
+        
+        return Math.round(baseLimit / platformFactor * ciRelaxation);
+    }
+}
+```
+
 ## 環境依存テスト
 
 以下のテストは特定の環境条件により失敗する可能性があります：
@@ -388,6 +465,8 @@ void testBenchmarkConsistency()          // 性能一貫性テスト
 
 ## 関連ドキュメント
 
+- [Memory Efficiency Test Strategy](MEMORY_EFFICIENCY_TEST_STRATEGY.md) - メモリ効率化テストの包括的な設計書
 - [Command Architecture](COMMAND_ARCHITECTURE.md) - コマンドパターンとテストアーキテクチャ
 - [Auto-Logging](AUTO_LOGGING.md) - ログ機能とテスト環境での活用
+- [Benchmark Implementation](BENCHMARK_IMPLEMENTATION.md) - ベンチマーク実装詳細
 - [Documentation Index](README.md) - その他のドキュメント

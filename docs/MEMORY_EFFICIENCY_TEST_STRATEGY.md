@@ -11,7 +11,8 @@ StreamConverterのメモリ効率化テストの設計原理と実装戦略を�
 
 1. **原理1: メモリに全て持ってしまわないこと**
    - ストリーミング処理によりデータをメモリに蓄積しない
-   - データサイズに関係なく一定のメモリ使用量を維持
+   - 検証方法: データサイズが10倍、100倍になってもメモリ使用量がほぼ変わらない
+   - 判定基準: **データサイズとメモリ使用量が比例関係にない**（Yes/No判定）
 
 2. **原理2: 逐次処理の並列化でスタックしないこと**
    - 並列パイプライン処理でデッドロックやメモリリークを発生させない
@@ -29,10 +30,12 @@ void testStreamingEfficiency()
 ```
 
 **検証内容:**
-- **データサイズ**: 環境適応型（ヒープの10-30%）
-- **メモリ制限**: 絶対値（50MB以下）
+- **データサイズ**: 段階的増加（10MB → 100MB → 1GB → 10GB）
 - **測定方法**: プロファイラベース測定（GC非依存）
-- **期待結果**: データサイズに関係なく一定メモリ使用量
+- **検証原理**: ストリーミング処理の確認
+  - 10MBと10GBで **ほぼ同じメモリ使用量** であることを確認
+  - データサイズ1000倍に対してメモリが比例増加していない
+- **判定**: データをメモリに全て持っているか？ **Yes/No**
 
 #### 1.2 並列処理安定性テスト
 ```java
@@ -58,12 +61,15 @@ void testScalableCapacity(String sizeCategory)
 ```
 
 **テストマトリックス:**
-| カテゴリ | データサイズ | メモリ制限 | 目標スループット |
-|---------|-------------|-----------|-----------------|
-| SMALL   | 10MB        | 5MB       | 50MB/s          |
-| MEDIUM  | 100MB       | 15MB      | 80MB/s          |
-| LARGE   | 500MB       | 30MB      | 100MB/s         |
-| XLARGE  | 1GB+        | 50MB      | 120MB/s         |
+| カテゴリ | データサイズ | メモリ使用量期待値 | 判定基準 |
+|---------|-------------|------------------|---------|
+| SMALL   | 10MB        | ~30MB            | ベースライン |
+| MEDIUM  | 100MB       | ~30MB            | **10倍データでも同じメモリ** |
+| LARGE   | 1GB         | ~30MB            | **100倍データでも同じメモリ** |
+| XLARGE  | 10GB        | ~30MB            | **1000倍データでも同じメモリ** |
+
+**判定**: 全サイズで同程度のメモリ使用量 → **ストリーミング成功**  
+**判定**: データサイズに比例してメモリ増加 → **ストリーミング失敗（全データをメモリに保持）**
 
 ### 3. プラットフォーム適応型テスト
 
@@ -125,44 +131,45 @@ public class EnhancedResourceMonitor {
 }
 ```
 
-## 📊 メモリ効率評価メトリクス
+## 📊 ストリーミング処理検証
 
-### 主要メトリクス
+### 判定基準（Yes/No判定）
 
-1. **メモリ効率比 (Memory Efficiency Ratio)**
-   ```
-   効率比 = 使用メモリ量 / 処理データサイズ
-   目標: < 0.05 (5%以下)
-   ```
+#### 1. **ストリーミング処理検証**
+```java
+// 単純明快な判定
+boolean isStreaming = (memory_10GB <= memory_10MB * 2);
+// データサイズ1000倍でもメモリが2倍以下 → ストリーミング成功
 
-2. **メモリ安定性指標 (Memory Stability Index)**
-   ```
-   安定性 = メモリピーク値 / メモリ平均値
-   目標: < 1.2 (20%以内の変動)
-   ```
+if (isStreaming) {
+    System.out.println("✅ ストリーミング処理: データをメモリに全て持っていない");
+} else {
+    System.out.println("❌ 非ストリーミング処理: データをメモリに全て持っている");
+}
+```
 
-3. **スループット効率 (Throughput Efficiency)**
-   ```
-   効率 = (データサイズ/処理時間) / メモリ使用量
-   目標: > 2.0 MB/s/MB
-   ```
+#### 2. **並列処理安定性検証**
+```java
+// 処理完了の確認
+boolean isStable = (processingCompleted && !timeoutOccurred);
 
-### テスト合格基準
+if (isStable) {
+    System.out.println("✅ 並列処理安定: スタックしていない");  
+} else {
+    System.out.println("❌ 並列処理不安定: スタックまたはタイムアウト");
+}
+```
 
-#### レベル1: 基本要件
-- メモリ効率比 < 10%
-- 処理完了率 = 100%
-- タイムアウトなし
+### テスト合格基準（シンプル）
 
-#### レベル2: 推奨要件  
-- メモリ効率比 < 5%
-- メモリ安定性指標 < 1.5
-- スループット > 50MB/s
+#### 必須要件
+- **ストリーミング処理**: `true` （データを全て持っていない）
+- **並列処理安定性**: `true` （スタックしていない）
+- **処理完了率**: `100%`
 
-#### レベル3: 優秀レベル
-- メモリ効率比 < 2%
-- メモリ安定性指標 < 1.2
-- スループット > 100MB/s
+#### 失敗ケース
+- データサイズに比例してメモリ使用量が増加 → **ストリーミング失敗**
+- 処理がタイムアウトまたは停止 → **並列処理失敗**
 
 ## 🏗️ テスト実装パターン
 
@@ -170,26 +177,33 @@ public class EnhancedResourceMonitor {
 
 ```java
 @Test
-@DisplayName("設計原理検証: {principle}")
+@DisplayName("設計原理検証: ストリーミング処理確認")
 @Timeout(value = 120, unit = TimeUnit.SECONDS)
-void testDesignPrinciple_{principle}() {
-    // 1. 環境適応型データサイズ決定
-    long dataSize = MemoryTestStrategy.getAdaptiveDataSize();
+void testStreamingPrinciple() {
+    // 1. 小容量データでベースライン測定
+    long memory10MB = measureMemoryUsage(10_000_000L);    // 10MB
     
-    // 2. リソースモニタリング開始
-    EnhancedResourceMonitor monitor = new EnhancedResourceMonitor();
+    // 2. 大容量データで測定
+    long memory10GB = measureMemoryUsage(10_000_000_000L); // 10GB (1000倍)
     
-    // 3. テスト実行
-    ResourceUsage usage = monitor.measureExecution(() -> {
-        // StreamConverter実行
-    });
+    // 3. ストリーミング処理判定（Yes/No）
+    boolean isStreaming = (memory10GB <= memory10MB * 2);
     
-    // 4. 設計原理検証
-    assertThat(usage.getMemoryEfficiencyRatio())
-        .isLessThan(PRINCIPLE_MEMORY_LIMIT);
+    // 4. 判定結果
+    if (isStreaming) {
+        logger.info("✅ ストリーミング処理: データをメモリに全て持っていない");
+        logger.info("   10MB: {}MB, 10GB: {}MB", 
+                   memory10MB/1024/1024, memory10GB/1024/1024);
+    } else {
+        logger.error("❌ 非ストリーミング処理: データをメモリに全て持っている");
+        logger.error("   10MB: {}MB, 10GB: {}MB ({}倍増加)", 
+                    memory10MB/1024/1024, memory10GB/1024/1024,
+                    (double)memory10GB/memory10MB);
+    }
     
-    // 5. 結果レポート
-    reportPrincipleVerification(principle, usage);
+    // 5. アサーション（単純明快）
+    assertTrue(isStreaming, 
+        "データをメモリに全て持ってしまっている: 10GB処理時のメモリが10MB処理時の2倍を超過");
 }
 ```
 

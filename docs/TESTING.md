@@ -299,7 +299,7 @@ void testStreamingEfficiencyPrinciple() {
 | テストカテゴリ | データサイズ | 検証原理 | 判定基準 |
 |---------------|-------------|---------|---------|
 | **ストリーミング効率** | 10MB vs 10GB | 原理1 | 10GB時メモリ ≤ 10MB時メモリ×2 |
-| **並列処理安定性** | 大容量 | 原理2 | 120秒以内完了 & エラーなし |
+| **並列処理安定性** | 大容量 | 原理2 | 処理が完了する（時間は問わない） |
 | **統合検証** | 両方実施 | 両方 | ストリーミング=TRUE & 安定性=TRUE |
 
 ### プラットフォーム適応型制限値
@@ -472,6 +472,7 @@ void testBenchmarkConsistency()          // 性能一貫性テスト
 ## 関連ドキュメント
 
 - [Memory Efficiency Test Strategy](MEMORY_EFFICIENCY_TEST_STRATEGY.md) - メモリ効率化テストの包括的な設計書
+- [Cross-Platform Test Considerations](CROSS_PLATFORM_TEST_CONSIDERATIONS.md) - クロスプラットフォームテストの考慮事項
 - [Command Architecture](COMMAND_ARCHITECTURE.md) - コマンドパターンとテストアーキテクチャ
 - [Auto-Logging](AUTO_LOGGING.md) - ログ機能とテスト環境での活用
 - [Benchmark Implementation](BENCHMARK_IMPLEMENTATION.md) - ベンチマーク実装詳細

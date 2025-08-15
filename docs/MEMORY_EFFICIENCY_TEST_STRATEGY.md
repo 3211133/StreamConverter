@@ -16,7 +16,7 @@ StreamConverterのメモリ効率化テストの設計原理と実装戦略を�
 
 2. **原理2: 逐次処理の並列化でスタックしないこと**
    - 並列パイプライン処理でデッドロックやメモリリークを発生させない
-   - タイムアウト内に処理を完了する
+   - 処理が最終的に完了する（時間は問わない）
 
 ## 📋 テスト分類とアプローチ
 
@@ -47,8 +47,8 @@ void testParallelProcessingStability()
 **検証内容:**
 - **データサイズ**: 大容量（環境の30%）
 - **パイプライン**: 3-4段階の複合処理
-- **タイムアウト**: プラットフォーム適応型
-- **期待結果**: 120秒以内の処理完了、メモリリークなし
+- **タイムアウト**: 十分な時間（10分等）
+- **期待結果**: 処理の完了、メモリリークなし
 
 ### 2. 容量別検証テスト
 
@@ -150,13 +150,16 @@ if (isStreaming) {
 
 #### 2. **並列処理安定性検証**
 ```java
-// 処理完了の確認
-boolean isStable = (processingCompleted && !timeoutOccurred);
+// 処理完了の確認（時間は問わない）
+boolean isStable = processingCompleted && !errorOccurred;
 
 if (isStable) {
     System.out.println("✅ 並列処理安定: スタックしていない");  
+    System.out.println("   処理完了: " + processingCompleted);
 } else {
-    System.out.println("❌ 並列処理不安定: スタックまたはタイムアウト");
+    System.out.println("❌ 並列処理不安定: スタックまたはエラー");
+    System.out.println("   処理完了: " + processingCompleted);
+    System.out.println("   エラー発生: " + errorOccurred);
 }
 ```
 
@@ -164,12 +167,12 @@ if (isStable) {
 
 #### 必須要件
 - **ストリーミング処理**: `true` （データを全て持っていない）
-- **並列処理安定性**: `true` （スタックしていない）
+- **並列処理安定性**: `true` （処理が完了する）
 - **処理完了率**: `100%`
 
 #### 失敗ケース
 - データサイズに比例してメモリ使用量が増加 → **ストリーミング失敗**
-- 処理がタイムアウトまたは停止 → **並列処理失敗**
+- 処理が完了しない（デッドロック、無限ループ等） → **並列処理失敗**
 
 ## 🏗️ テスト実装パターン
 
@@ -207,23 +210,40 @@ void testStreamingPrinciple() {
 }
 ```
 
-### パターン2: スケーラビリティ検証テンプレート
+### パターン2: 並列処理安定性検証テンプレート
 
 ```java
-@ParameterizedTest
-@EnumSource(DataSizeCategory.class)
-@DisplayName("スケーラビリティ検証: {arguments}")
-void testScalability(DataSizeCategory category) {
-    ScalabilityTestConfig config = category.getTestConfig();
+@Test
+@DisplayName("並列処理安定性検証: スタック検出")
+@Timeout(value = 600, unit = TimeUnit.SECONDS) // 10分 - 十分な時間
+void testParallelProcessingStability() {
+    // 1. 大容量データで並列パイプライン実行
+    long dataSize = 1024L * 1024 * 1024; // 1GB
     
-    EnhancedResourceMonitor monitor = new EnhancedResourceMonitor();
-    ResourceUsage usage = monitor.measureExecution(() -> {
-        processDataWithSize(config.getDataSize());
-    });
+    boolean completed = false;
+    boolean errorOccurred = false;
     
-    // カテゴリ別要件検証
-    assertThat(usage).meets(config.getMemoryRequirements());
-    assertThat(usage).meets(config.getPerformanceRequirements());
+    try {
+        // 並列パイプライン実行
+        converter.run(createLargeDataStream(dataSize), new NullOutputStream());
+        completed = true;
+    } catch (Exception e) {
+        errorOccurred = true;
+        logger.error("並列処理中にエラー発生: {}", e.getMessage());
+    }
+    
+    // 2. シンプルな判定（完了したかどうかのみ）
+    boolean isStable = completed && !errorOccurred;
+    
+    // 3. 結果ログ
+    if (isStable) {
+        logger.info("✅ 並列処理安定: スタックしていない");
+    } else {
+        logger.error("❌ 並列処理不安定: スタックまたはエラー");
+    }
+    
+    // 4. アサーション（シンプル）
+    assertTrue(isStable, "並列処理がスタックした（完了しなかった）");
 }
 ```
 

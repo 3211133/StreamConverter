@@ -18,10 +18,12 @@ pluginManagement {
 
 // Multi-module configuration
 include("streamconverter-core")
+include("streamconverter-web")
 include("streamconverter-examples") 
 include("streamconverter-tools")
 
 // Project configuration
 project(":streamconverter-core").projectDir = file("streamconverter-core")
+project(":streamconverter-web").projectDir = file("streamconverter-web")
 project(":streamconverter-examples").projectDir = file("streamconverter-examples")
 project(":streamconverter-tools").projectDir = file("streamconverter-tools")

@@ -115,9 +115,9 @@ tasks.test {
         showStandardStreams = true
     }
     
-    // Windows環境での安定性を考慮した条件付きタスク実行
-    if (!org.gradle.internal.os.OperatingSystem.current().isWindows()) {
-        // テスト完了後にJaCoCoレポートを生成（Windows以外）
+    // CI環境での安定性を考慮した条件付きタスク実行
+    if (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
+        // テスト完了後にJaCoCoレポートを生成（Linuxのみ、より安定）
         finalizedBy(tasks.jacocoTestReport)
     }
     // テスト実行後にjavadocを生成
@@ -131,8 +131,8 @@ tasks.jacocoTestReport {
         xml.required.set(true)
         csv.required.set(false)
     }
-    // Windows環境では無効化してネットワーク問題を回避
-    enabled = !org.gradle.internal.os.OperatingSystem.current().isWindows()
+    // Linux以外では無効化してネットワーク問題を回避（Windows/macOS対策）
+    enabled = org.gradle.internal.os.OperatingSystem.current().isLinux()
 }
 
 // PITレポートの設定

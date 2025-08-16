@@ -1,6 +1,6 @@
 # StreamConverter
 
-**Version**: 1.2.0 | [📚 Documentation](docs/) | [🔗 Javadoc](https://3211133.github.io/StreamConverter/javadoc/)
+**Version**: 1.2.0 | [📚 Documentation](docs/) | [🔗 Javadoc](https://3211133.github.io/StreamConverter/)
 
 大容量ファイルのストリーム処理を効率的に行うためのJavaライブラリです。メモリ使用量を抑えながら、複数の処理を連結するパイプライン型アーキテクチャを提供します。
 
@@ -150,7 +150,7 @@ Javadocは全モジュールを統合して生成されます：
 open build/docs/javadoc/index.html
 ```
 
-**オンライン版**: [📖 API Documentation](https://3211133.github.io/StreamConverter/javadoc/)
+**オンライン版**: [📖 API Documentation](https://3211133.github.io/StreamConverter/)
 
 - 🔄 **自動更新**: developブランチへのpush時に自動的にGitHub Pagesで更新
 - 🗂️ **統合表示**: 全モジュール（core、web、examples、tools）のAPIを統一表示

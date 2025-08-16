@@ -154,7 +154,7 @@ open build/docs/javadoc/index.html
 
 - 🔄 **自動更新**: developブランチへのpush時に自動的にGitHub Pagesで更新
 - 🗂️ **統合表示**: 全モジュール（core、web、examples、tools）のAPIを統一表示
-- 🚫 **コンフリクト防止**: 生成ファイルはGitの追跡対象外でマージコンフリクトを回避
+- 🚫 **競合防止**: 生成ファイルはGitの追跡対象外でマージ競合を回避
 
 ## 📚 詳細ドキュメント
 

@@ -41,7 +41,9 @@ jobs:
       
       - name: Apply code style with Spotless (Windows)
         if: runner.os == 'Windows'
-        run: ./gradlew.bat spotlessApply
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon.timeout=60000 -Xmx2g -Xms1g"
+        run: ./gradlew.bat spotlessApply --daemon --parallel
         
       - name: Build and run tests (Linux/Mac)
         if: runner.os != 'Windows'
@@ -49,4 +51,6 @@ jobs:
       
       - name: Build and run tests (Windows)
         if: runner.os == 'Windows'
-        run: ./gradlew.bat build
+        env:
+          GRADLE_OPTS: "-Dorg.gradle.daemon.timeout=60000 -Xmx2g -Xms1g"
+        run: ./gradlew.bat build --daemon --parallel

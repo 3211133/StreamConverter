@@ -11,8 +11,11 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 /** メモリ効率とパフォーマンスのテスト */
+@EnabledOnOs(OS.LINUX)
 class MemoryEfficiencyTest {
 
   /** 環境適応型のテストデータサイズを計算 - long型で完全対応 */

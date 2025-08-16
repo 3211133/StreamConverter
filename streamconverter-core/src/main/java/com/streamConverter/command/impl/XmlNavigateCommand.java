@@ -58,14 +58,48 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * Constructor for XML navigation with XPath selector using PassThroughRule.
    *
    * @param xpath the XPath expression to select elements (e.g., "users/user/name")
+   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
+   *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
+   *     transformation rule. For data extraction without transformation, use {@link
+   *     #extractOnly(String)}.
    */
+  @Deprecated(since = "1.2.0", forRemoval = true)
   public XmlNavigateCommand(String xpath) {
     this(xpath, new PassThroughRule());
   }
 
-  /** Default constructor - processes entire XML with PassThroughRule. */
+  /**
+   * Default constructor - processes entire XML with PassThroughRule.
+   *
+   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
+   *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
+   *     transformation rule. For data extraction without transformation, use {@link #extractAll()}.
+   */
+  @Deprecated(since = "1.2.0", forRemoval = true)
   public XmlNavigateCommand() {
     this(null, new PassThroughRule());
+  }
+
+  /**
+   * Factory method for creating an XML navigation command that extracts data without
+   * transformation. This method makes the intention explicit: extract data from the specified XPath
+   * as-is.
+   *
+   * @param xpath the XPath expression to select elements (e.g., "users/user/name")
+   * @return an XmlNavigateCommand that extracts the specified XPath without transformation
+   */
+  public static XmlNavigateCommand extractOnly(String xpath) {
+    return new XmlNavigateCommand(xpath, new PassThroughRule());
+  }
+
+  /**
+   * Factory method for creating an XML navigation command that processes entire XML without
+   * transformation. This method makes the intention explicit: process all XML data as-is.
+   *
+   * @return an XmlNavigateCommand that processes entire XML without transformation
+   */
+  public static XmlNavigateCommand extractAll() {
+    return new XmlNavigateCommand(null, new PassThroughRule());
   }
 
   @Override

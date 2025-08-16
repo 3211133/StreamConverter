@@ -56,14 +56,48 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * Constructor for JSON navigation with JSONPath selector using PassThroughRule.
    *
    * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
+   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
+   *     behavior. Use {@link #JsonNavigateCommand(String, IRule)} to explicitly specify the
+   *     transformation rule. For data extraction without transformation, use {@link
+   *     #extractOnly(String)}.
    */
+  @Deprecated(since = "1.2.0", forRemoval = true)
   public JsonNavigateCommand(String jsonPath) {
     this(jsonPath, new PassThroughRule());
   }
 
-  /** Default constructor - processes entire JSON with PassThroughRule. */
+  /**
+   * Default constructor - processes entire JSON with PassThroughRule.
+   *
+   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
+   *     behavior. Use {@link #JsonNavigateCommand(String, IRule)} to explicitly specify the
+   *     transformation rule. For data extraction without transformation, use {@link #extractAll()}.
+   */
+  @Deprecated(since = "1.2.0", forRemoval = true)
   public JsonNavigateCommand() {
     this(null, new PassThroughRule());
+  }
+
+  /**
+   * Factory method for creating a JSON navigation command that extracts data without
+   * transformation. This method makes the intention explicit: extract data from the specified
+   * JSONPath as-is.
+   *
+   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
+   * @return a JsonNavigateCommand that extracts the specified path without transformation
+   */
+  public static JsonNavigateCommand extractOnly(String jsonPath) {
+    return new JsonNavigateCommand(jsonPath, new PassThroughRule());
+  }
+
+  /**
+   * Factory method for creating a JSON navigation command that processes entire JSON without
+   * transformation. This method makes the intention explicit: process all JSON data as-is.
+   *
+   * @return a JsonNavigateCommand that processes entire JSON without transformation
+   */
+  public static JsonNavigateCommand extractAll() {
+    return new JsonNavigateCommand(null, new PassThroughRule());
   }
 
   @Override

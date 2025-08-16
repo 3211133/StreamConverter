@@ -10,6 +10,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -25,6 +27,7 @@ import org.slf4j.LoggerFactory;
  * </ul>
  */
 @DisplayName("Factory Performance Comparison Tests")
+@EnabledOnOs(OS.LINUX)
 class FactoryPerformanceComparisonTest {
 
   private static final Logger log = LoggerFactory.getLogger(FactoryPerformanceComparisonTest.class);

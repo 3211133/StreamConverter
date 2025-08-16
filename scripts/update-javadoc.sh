@@ -109,12 +109,12 @@ else
     fi
 fi
 
-# Generate fresh Javadoc
-print_info "Generating fresh Javadoc..."
-if ./gradlew clean javadoc; then
-    print_status "Javadoc generation completed successfully"
+# Generate fresh unified Javadoc
+print_info "Generating fresh unified Javadoc..."
+if ./gradlew clean javadocAll; then
+    print_status "Unified Javadoc generation completed successfully"
 else
-    print_error "Javadoc generation failed"
+    print_error "Unified Javadoc generation failed"
     
     # Restore backup if available
     if [ -d "$backup_dir" ]; then

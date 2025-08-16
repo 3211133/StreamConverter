@@ -116,11 +116,17 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">CsvNavigateCommand</a>()</code></div>
 <div class="col-last even-row-color">
-<div class="block">Default constructor - processes all columns with PassThroughRule.</div>
+<div class="block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
+<div class="deprecation-comment">This constructor uses PassThroughRule by default, which may not be the intended
+     behavior.</div>
+</div>
 </div>
 <div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String)" class="member-name-link">CsvNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Constructor for CSV navigation with column selector using PassThroughRule.</div>
+<div class="block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
+<div class="deprecation-comment">This constructor uses PassThroughRule by default, which may not be the intended
+     behavior.</div>
+</div>
 </div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
  <a href="../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
@@ -135,7 +141,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -146,6 +152,17 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Abstract method to be implemented by subclasses for executing the command.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#extractAll()" class="member-name-link">extractAll</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Factory method for creating a CSV navigation command that processes all columns without
+ transformation.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#extractOnly(java.lang.String)" class="member-name-link">extractOnly</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Factory method for creating a CSV navigation command that extracts data without transformation.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCommandDetails()" class="member-name-link">getCommandDetails</a>()</code></div>
@@ -193,7 +210,14 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String)">
 <h3>CsvNavigateCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CsvNavigateCommand</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</span></div>
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html#since()" title="class or interface in java.lang" class="external-link">since</a>="1.2.0",
+            <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html#forRemoval()" title="class or interface in java.lang" class="external-link">forRemoval</a>=true)
+</span><span class="modifiers">public</span>&nbsp;<span class="element-name">CsvNavigateCommand</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
+<div class="deprecation-comment">This constructor uses PassThroughRule by default, which may not be the intended
+     behavior. Use <a href="#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand(String, IRule)</code></a> to explicitly specify the
+     transformation rule. For data extraction without transformation, use <a href="#extractOnly(java.lang.String)"><code>extractOnly(String)</code></a>.</div>
+</div>
 <div class="block">Constructor for CSV navigation with column selector using PassThroughRule.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -204,7 +228,14 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>CsvNavigateCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">CsvNavigateCommand</span>()</div>
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html#since()" title="class or interface in java.lang" class="external-link">since</a>="1.2.0",
+            <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html#forRemoval()" title="class or interface in java.lang" class="external-link">forRemoval</a>=true)
+</span><span class="modifiers">public</span>&nbsp;<span class="element-name">CsvNavigateCommand</span>()</div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
+<div class="deprecation-comment">This constructor uses PassThroughRule by default, which may not be the intended
+     behavior. Use <a href="#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand(String, IRule)</code></a> to explicitly specify the
+     transformation rule. For data extraction without transformation, use <a href="#extractOnly(java.lang.String)"><code>extractOnly(String)</code></a>.</div>
+</div>
 <div class="block">Default constructor - processes all columns with PassThroughRule.</div>
 </section>
 </li>
@@ -216,6 +247,32 @@ loadScripts(document, 'script');</script>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
+<li>
+<section class="detail" id="extractOnly(java.lang.String)">
+<h3>extractOnly</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a></span>&nbsp;<span class="element-name">extractOnly</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</span></div>
+<div class="block">Factory method for creating a CSV navigation command that extracts data without transformation.
+ This method makes the intention explicit: extract data from the specified column as-is.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>columnSelector</code> - the column name or index to select (e.g., "name", "2")</dd>
+<dt>Returns:</dt>
+<dd>a CsvNavigateCommand that extracts the specified column without transformation</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="extractAll()">
+<h3>extractAll</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl">CsvNavigateCommand</a></span>&nbsp;<span class="element-name">extractAll</span>()</div>
+<div class="block">Factory method for creating a CSV navigation command that processes all columns without
+ transformation. This method makes the intention explicit: process all CSV data as-is.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>a CsvNavigateCommand that processes all columns without transformation</dd>
+</dl>
+</section>
+</li>
 <li>
 <section class="detail" id="getCommandDetails()">
 <h3>getCommandDetails</h3>

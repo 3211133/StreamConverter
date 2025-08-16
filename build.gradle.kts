@@ -316,17 +316,41 @@ tasks.register("testAll") {
     dependsOn(subprojects.map { it.tasks.named("test") })
 }
 
-// Javadoc aggregation tasks
-tasks.register("javadocAll") {
+// Unified Javadoc generation for all modules
+tasks.register<Javadoc>("javadocAll") {
     group = "documentation"
-    description = "Generate Javadoc for all modules"
-    dependsOn(subprojects.map { it.tasks.named("javadoc") })
+    description = "Generate unified Javadoc for all modules"
+    
+    // Aggregate source from all modules
+    val allSourceSets = subprojects.map { it.extensions.getByType<SourceSetContainer>().main.get().allJava }
+    source(allSourceSets)
+    
+    // Aggregate classpath from all modules
+    val allClasspaths = subprojects.map { it.extensions.getByType<SourceSetContainer>().main.get().compileClasspath }
+    classpath = files(allClasspaths)
+    
+    // Configure for unified output
+    options.encoding = "UTF-8"
+    options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
+    setDestinationDir(file("build/docs/javadoc"))
+    
+    // Javadoc options for better presentation
+    if (options is StandardJavadocDocletOptions) {
+        (options as StandardJavadocDocletOptions).apply {
+            windowTitle("StreamConverter $version API")
+            docTitle("StreamConverter $version API Documentation")
+            author(true)
+            use(true)
+            version(true)
+            splitIndex(true)
+            linkSource(true)
+            addStringOption("Xdoclint:none", "-quiet")
+        }
+    }
     
     doLast {
-        println("✅ Javadoc generated for all modules:")
-        println("   📖 Unified index: docs/javadoc/index.html")
-        println("   🏗️ Core module: streamconverter-core/docs/javadoc/")
-        println("   📚 Examples: streamconverter-examples/build/docs/javadoc/")
-        println("   🔧 Tools: streamconverter-tools/build/docs/javadoc/")
+        println("✅ Unified Javadoc generated:")
+        println("   📖 Location: build/docs/javadoc/index.html")
+        println("   🚀 Ready for GitHub Actions deployment")
     }
 }

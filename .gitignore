@@ -37,10 +37,14 @@ lib/
 
 # Documentation (generated)
 docs/javadoc/
+build/docs/javadoc/
 
 # Log files
 *.log
 logs/
+
+# Temporary files
+temp/
 
 #Agentic Hooks
 .claude/hooks/

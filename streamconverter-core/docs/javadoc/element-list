@@ -14,5 +14,6 @@ com.streamConverter.controller
 com.streamConverter.factory
 com.streamConverter.pathHandler
 com.streamConverter.security
+com.streamConverter.test
 com.streamConverter.util
 com.streamConverter.validation

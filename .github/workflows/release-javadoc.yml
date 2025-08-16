@@ -2,14 +2,34 @@ name: Deploy Javadoc
 
 on:
   push:
-    branches: [ develop ] 
+    branches: [ develop ]
+    paths:
+      - 'streamconverter-*/src/**/*.java'
+      - 'src/**/*.java'
+      - '*.gradle.kts'
+      - '.github/workflows/release-javadoc.yml'
 
 jobs:
   publish:
     runs-on: ubuntu-latest
     permissions:
-      contents: write  # if you have a protection rule on your repository, you'll need to give write permission to the workflow.
+      contents: write
     steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: 'temurin'
+          java-version: '17'
+          
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@v3
+        
+      - name: Generate unified Javadoc
+        run: ./gradlew javadocAll --no-daemon
+        
       - name: Deploy JavaDoc 🚀
         uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
         with:
@@ -18,3 +38,4 @@ jobs:
           java-version: 17
           target-folder: /
           project: gradle
+          javadoc-source-folder: build/docs/javadoc

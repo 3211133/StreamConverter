@@ -206,13 +206,16 @@ public class AdvancedStreamController {
 #### リアクティブストリーミング処理
 
 ```java
+@Value("${stream.buffer.size:1000}")
+private int bufferSize;
+
 @PostMapping("/stream/reactive")
 public Flux<DataBuffer> processReactiveStream(
     @RequestBody Flux<DataBuffer> inputData,
     @RequestParam String command) {
     
     return inputData
-        .buffer(1000) // バッファリング
+        .buffer(bufferSize) // バッファリング（設定値を利用）
         .flatMap(buffers -> Mono.fromCallable(() -> {
             byte[] data = combineDataBuffers(buffers);
             IStreamCommand cmd = createCommandFromString(command);

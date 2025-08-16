@@ -183,3 +183,24 @@ tasks.register("analyzeTestFailures", JavaExec::class) {
         file("build/test-results/test").exists()
     }
 }
+
+// JaCoCoレポート集約タスク
+tasks.register("aggregateJacocoReports", JavaExec::class) {
+    group = "reporting"
+    description = "Aggregates JaCoCo coverage reports from all modules into a consolidated CSV format"
+    
+    dependsOn(tasks.compileJava)
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.test.JacocoReportAggregator")
+    
+    // プロジェクトルートと出力ファイルをパラメータとして渡す
+    val rootDirPath = rootProject.projectDir.absolutePath
+    val outputFilePath = "docs/reports/jacoco/coverage-history.csv"
+    args(rootDirPath, outputFilePath)
+    
+    // JaCoCoレポートが存在する場合のみ実行
+    onlyIf {
+        file("build/reports/jacoco/test/jacocoTestReport.xml").exists() ||
+        project.hasProperty("forceAggregation")
+    }
+}

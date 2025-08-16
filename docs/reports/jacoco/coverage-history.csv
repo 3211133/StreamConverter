@@ -1,0 +1,9 @@
+timestamp,module,total_lines,covered_lines,line_coverage,total_branches,covered_branches,branch_coverage
+2025-08-16T18:35:01,streamconverter-core,N/A,N/A,N/A,N/A,N/A,N/A
+2025-08-16T18:35:01,streamconverter-web,N/A,N/A,N/A,N/A,N/A,N/A
+2025-08-16T18:35:01,streamconverter-examples,N/A,N/A,N/A,N/A,N/A,N/A
+2025-08-16T18:35:01,streamconverter-tools,N/A,N/A,N/A,N/A,N/A,N/A
+2025-08-16T18:35:23,streamconverter-core,18855,9894,52.5,6945,3165,45.6
+2025-08-16T18:35:23,streamconverter-web,N/A,N/A,N/A,N/A,N/A,N/A
+2025-08-16T18:35:23,streamconverter-examples,N/A,N/A,N/A,N/A,N/A,N/A
+2025-08-16T18:35:23,streamconverter-tools,N/A,N/A,N/A,N/A,N/A,N/A

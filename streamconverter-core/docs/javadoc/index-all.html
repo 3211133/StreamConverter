@@ -97,6 +97,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">警告メッセージを追加</div>
 </dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.html#aggregateReports(java.lang.String,java.lang.String)" class="member-name-link">aggregateReports(String, String)</a> - Static method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.html" title="class in com.streamConverter.test">JacocoReportAggregator</a></dt>
+<dd>
+<div class="block">Aggregates JaCoCo reports from all modules in the project</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.html#analyzeTestResults(java.lang.String)" class="member-name-link">analyzeTestResults(String)</a> - Static method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.html" title="class in com.streamConverter.test">TestFailureAnalyzer</a></dt>
+<dd>
+<div class="block">Analyzes test results from XML reports in the given directory</div>
+</dd>
 <dt><a href="com/streamConverter/command/rule/DatabaseFetchRule.html#apply(java.lang.String)" class="member-name-link">apply(String)</a> - Method in class com.streamConverter.command.rule.<a href="com/streamConverter/command/rule/DatabaseFetchRule.html" title="class in com.streamConverter.command.rule">DatabaseFetchRule</a></dt>
 <dd>
 <div class="block">ルールの適用を実行します。</div>
@@ -269,6 +277,8 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/security/package-summary.html">com.streamConverter.security</a> - package com.streamConverter.security</dt>
 <dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/test/package-summary.html">com.streamConverter.test</a> - package com.streamConverter.test</dt>
+<dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/util/package-summary.html">com.streamConverter.util</a> - package com.streamConverter.util</dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/validation/package-summary.html">com.streamConverter.validation</a> - package com.streamConverter.validation</dt>
@@ -399,6 +409,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">コンテキストのコピーを作成 ユーザーコンテキストは複製されますが、グローバルコンテキストは共有されます。 コピー時はコマンドシーケンスは0にリセットされます。</div>
 </dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#%3Cinit%3E(java.lang.String,int,int,double,int,int,double,java.time.LocalDateTime)" class="member-name-link">CoverageMetrics(String, int, int, double, int, int, double, LocalDateTime)</a> - Constructor for class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Creates a new CoverageMetrics instance</div>
+</dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#create()" class="member-name-link">create()</a> - Static method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
 <div class="block">新しいStreamBuilderインスタンスを作成します</div>
@@ -487,6 +501,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createPipelineWithLoggingChecked(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineWithLoggingChecked(CommandConfig...)</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
 <dd>
 <div class="block">Creates pipeline with logging using default instance, allowing FactoryException to propagate.</div>
+</dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.html#createPlaceholderMetrics(java.lang.String)" class="member-name-link">createPlaceholderMetrics(String)</a> - Static method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.html" title="class in com.streamConverter.test">JacocoReportAggregator</a></dt>
+<dd>
+<div class="block">Creates a placeholder metrics object for modules without JaCoCo reports</div>
 </dd>
 <dt><a href="com/streamConverter/command/EnhancedCommandFactory.html#createProductionInstance()" class="member-name-link">createProductionInstance()</a> - Static method in class com.streamConverter.command.<a href="com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
 <dd>
@@ -975,6 +993,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">コンストラクタ引数を取得</div>
 </dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#getBranchCoverage()" class="member-name-link">getBranchCoverage()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Gets the branch coverage percentage</div>
+</dd>
 <dt><a href="com/streamConverter/util/MeasuredInputStream.html#getBytesRead()" class="member-name-link">getBytesRead()</a> - Method in class com.streamConverter.util.<a href="com/streamConverter/util/MeasuredInputStream.html" title="class in com.streamConverter.util">MeasuredInputStream</a></dt>
 <dd>
 <div class="block">現在までに読み取ったバイト数を取得</div>
@@ -1077,6 +1099,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Gets a controller for the specified input and output data types.</div>
 </dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#getCoveredBranches()" class="member-name-link">getCoveredBranches()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Gets the number of covered branches</div>
+</dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#getCoveredLines()" class="member-name-link">getCoveredLines()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Gets the number of covered lines</div>
+</dd>
 <dt><a href="com/streamConverter/controller/ControllerFactory.html#getCsvController()" class="member-name-link">getCsvController()</a> - Static method in class com.streamConverter.controller.<a href="com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
 <dd>
 <div class="block">Gets a CSV controller builder for advanced configuration.</div>
@@ -1145,6 +1175,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">エラーメッセージを取得（エラー時のみ）</div>
 </dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html#getErrors()" class="member-name-link">getErrors()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestSummary</a></dt>
+<dd>
+<div class="block">Gets the number of test errors</div>
+</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#getErrors()" class="member-name-link">getErrors()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>
 <div class="block">エラーメッセージのリストを取得</div>
@@ -1153,6 +1187,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">実行ID（一意識別子）を取得</div>
 </dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html#getExecutionTime()" class="member-name-link">getExecutionTime()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestFailure</a></dt>
+<dd>
+<div class="block">Gets the execution time for the test</div>
+</dd>
 <dt><a href="com/streamConverter/CommandResult.html#getExecutionTimeMillis()" class="member-name-link">getExecutionTimeMillis()</a> - Method in class com.streamConverter.<a href="com/streamConverter/CommandResult.html" title="class in com.streamConverter">CommandResult</a></dt>
 <dd>
 <div class="block">実行時間（ミリ秒）を取得</div>
@@ -1160,6 +1198,22 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#getExecutionTimeMillis()" class="member-name-link">getExecutionTimeMillis()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>
 <div class="block">実行時間を取得</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html#getFailureDetails()" class="member-name-link">getFailureDetails()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestSummary</a></dt>
+<dd>
+<div class="block">Gets the list of detailed failure information</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html#getFailureMessage()" class="member-name-link">getFailureMessage()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestFailure</a></dt>
+<dd>
+<div class="block">Gets the failure message</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html#getFailures()" class="member-name-link">getFailures()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestSummary</a></dt>
+<dd>
+<div class="block">Gets the number of test failures</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html#getFailureType()" class="member-name-link">getFailureType()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestFailure</a></dt>
+<dd>
+<div class="block">Gets the type of failure</div>
 </dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#getFormat()" class="member-name-link">getFormat()</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
@@ -1189,6 +1243,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Gets a JSON controller builder for advanced configuration.</div>
 </dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#getLineCoverage()" class="member-name-link">getLineCoverage()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Gets the line coverage percentage</div>
+</dd>
 <dt><a href="com/streamConverter/factory/FactoryConfiguration.html#getMaxCacheSize()" class="member-name-link">getMaxCacheSize()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
 <dd>
 <div class="block">Gets maximum cache size.</div>
@@ -1216,6 +1274,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/benchmark/ResourceUsage.html#getMemoryUsedMB()" class="member-name-link">getMemoryUsedMB()</a> - Method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/ResourceUsage.html" title="class in com.streamConverter.benchmark">ResourceUsage</a></dt>
 <dd>
 <div class="block">使用メモリ量を取得（MB）</div>
+</dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#getModuleName()" class="member-name-link">getModuleName()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Gets the module name</div>
 </dd>
 <dt><a href="com/streamConverter/api/DataFormat.html#getName()" class="member-name-link">getName()</a> - Method in enum class com.streamConverter.api.<a href="com/streamConverter/api/DataFormat.html" title="enum class in com.streamConverter.api">DataFormat</a></dt>
 <dd>
@@ -1305,6 +1367,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Gets the line separator string for this type.</div>
 </dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html#getSkipped()" class="member-name-link">getSkipped()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestSummary</a></dt>
+<dd>
+<div class="block">Gets the number of skipped tests</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html#getStackTrace()" class="member-name-link">getStackTrace()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestFailure</a></dt>
+<dd>
+<div class="block">Gets the complete stack trace of the failure</div>
+</dd>
 <dt><a href="com/streamConverter/benchmark/ResourceUsage.html#getStartMemoryBytes()" class="member-name-link">getStartMemoryBytes()</a> - Method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/ResourceUsage.html" title="class in com.streamConverter.benchmark">ResourceUsage</a></dt>
 <dd>
 <div class="block">開始時メモリ使用量を取得（バイト）</div>
@@ -1329,9 +1399,33 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Xpathを取得します。</div>
 </dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html#getTestClass()" class="member-name-link">getTestClass()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestFailure</a></dt>
+<dd>
+<div class="block">Gets the fully qualified name of the test class</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html#getTestMethod()" class="member-name-link">getTestMethod()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestFailure</a></dt>
+<dd>
+<div class="block">Gets the name of the failed test method</div>
+</dd>
 <dt><a href="com/streamConverter/benchmark/ResourceUsage.html#getThroughputMBps()" class="member-name-link">getThroughputMBps()</a> - Method in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/ResourceUsage.html" title="class in com.streamConverter.benchmark">ResourceUsage</a></dt>
 <dd>
 <div class="block">スループットを取得（MB/秒）</div>
+</dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#getTimestamp()" class="member-name-link">getTimestamp()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Gets the timestamp when metrics were collected</div>
+</dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#getTotalBranches()" class="member-name-link">getTotalBranches()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Gets the total number of branches</div>
+</dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#getTotalLines()" class="member-name-link">getTotalLines()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Gets the total number of lines</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html#getTotalTests()" class="member-name-link">getTotalTests()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestSummary</a></dt>
+<dd>
+<div class="block">Gets the total number of tests executed</div>
 </dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#getUserContext(java.lang.String)" class="member-name-link">getUserContext(String)</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
@@ -1372,6 +1466,10 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:H">H</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html#hasFailures()" class="member-name-link">hasFailures()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestSummary</a></dt>
+<dd>
+<div class="block">Checks if there are any failures or errors</div>
+</dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#hashCode()" class="member-name-link">hashCode()</a> - Method in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#hashCode()" class="member-name-link">hashCode()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
@@ -1538,6 +1636,14 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:J">J</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.html" class="type-name-link" title="class in com.streamConverter.test">JacocoReportAggregator</a> - Class in <a href="com/streamConverter/test/package-summary.html">com.streamConverter.test</a></dt>
+<dd>
+<div class="block">Aggregates JaCoCo coverage reports from multiple modules into a consolidated CSV format</div>
+</dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" class="type-name-link" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a> - Class in <a href="com/streamConverter/test/package-summary.html">com.streamConverter.test</a></dt>
+<dd>
+<div class="block">Represents coverage metrics for a single module</div>
+</dd>
 <dt><a href="com/streamConverter/api/Streams.html#json(java.lang.String)" class="member-name-link">json(String)</a> - Static method in class com.streamConverter.api.<a href="com/streamConverter/api/Streams.html" title="class in com.streamConverter.api">Streams</a></dt>
 <dd>
 <div class="block">JSON文字列からストリーム処理を開始</div>
@@ -1648,6 +1754,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Main method to run the StreamConverter application.</div>
 </dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.html" title="class in com.streamConverter.test">JacocoReportAggregator</a></dt>
+<dd>
+<div class="block">Main method for command-line usage</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.html#main(java.lang.String%5B%5D)" class="member-name-link">main(String[])</a> - Static method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.html" title="class in com.streamConverter.test">TestFailureAnalyzer</a></dt>
+<dd>
+<div class="block">Main method for command-line usage</div>
+</dd>
 <dt><a href="com/streamConverter/Main.html" class="type-name-link" title="class in com.streamConverter">Main</a> - Class in <a href="com/streamConverter/package-summary.html">com.streamConverter</a></dt>
 <dd>
 <div class="block">Main class for the StreamConverter application.</div>
@@ -1728,6 +1842,14 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:P">P</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.html#parseJacocoReport(java.io.File,java.lang.String)" class="member-name-link">parseJacocoReport(File, String)</a> - Static method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.html" title="class in com.streamConverter.test">JacocoReportAggregator</a></dt>
+<dd>
+<div class="block">Parses a JaCoCo XML report file and extracts coverage metrics</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.html#parseXmlTestReport(java.io.File)" class="member-name-link">parseXmlTestReport(File)</a> - Static method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.html" title="class in com.streamConverter.test">TestFailureAnalyzer</a></dt>
+<dd>
+<div class="block">Parses a single XML test report file</div>
+</dd>
 <dt><a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html#PASS_THROUGH" class="member-name-link">PASS_THROUGH</a> - Enum constant in enum class com.streamConverter.controller.<a href="com/streamConverter/controller/CsvProcessingController.ProcessingMode.html" title="enum class in com.streamConverter.controller">CsvProcessingController.ProcessingMode</a></dt>
 <dd>
 <div class="block">Pass through CSV data unchanged</div>
@@ -1979,9 +2101,29 @@ loadScripts(document, 'script');</script>
 </dl>
 <h2 class="title" id="I:T">T</h2>
 <dl class="index">
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html#%3Cinit%3E(java.lang.String,java.lang.String,java.lang.String,java.lang.String,java.lang.String,double)" class="member-name-link">TestFailure(String, String, String, String, String, double)</a> - Constructor for class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestFailure</a></dt>
+<dd>
+<div class="block">Creates a new TestFailure instance with the provided details</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.html" class="type-name-link" title="class in com.streamConverter.test">TestFailureAnalyzer</a> - Class in <a href="com/streamConverter/test/package-summary.html">com.streamConverter.test</a></dt>
+<dd>
+<div class="block">Utility class to analyze test failures from XML test reports</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html" class="type-name-link" title="class in com.streamConverter.test">TestFailureAnalyzer.TestFailure</a> - Class in <a href="com/streamConverter/test/package-summary.html">com.streamConverter.test</a></dt>
+<dd>
+<div class="block">Represents a single test failure with detailed information</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html" class="type-name-link" title="class in com.streamConverter.test">TestFailureAnalyzer.TestSummary</a> - Class in <a href="com/streamConverter/test/package-summary.html">com.streamConverter.test</a></dt>
+<dd>
+<div class="block">Represents a summary of test execution results including failure details</div>
+</dd>
 <dt><a href="com/streamConverter/factory/FactoryConfiguration.html#testingConfig()" class="member-name-link">testingConfig()</a> - Static method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
 <dd>
 <div class="block">Creates a testing configuration.</div>
+</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html#%3Cinit%3E(int,int,int,int,java.util.List)" class="member-name-link">TestSummary(int, int, int, int, List&lt;TestFailureAnalyzer.TestFailure&gt;)</a> - Constructor for class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestSummary</a></dt>
+<dd>
+<div class="block">Creates a new TestSummary instance</div>
 </dd>
 <dt><a href="com/streamConverter/context/ExecutionContext.html#THREAD_NAME_KEY" class="member-name-link">THREAD_NAME_KEY</a> - Static variable in class com.streamConverter.context.<a href="com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
@@ -1990,6 +2132,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#throughputStdDev" class="member-name-link">throughputStdDev</a> - Variable in class com.streamConverter.benchmark.<a href="com/streamConverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html" title="class in com.streamConverter.benchmark">PerformanceAnalyzer.PerformanceStatistics</a></dt>
 <dd>
 <div class="block">スループットの標準偏差</div>
+</dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#toCsvLine()" class="member-name-link">toCsvLine()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>
+<div class="block">Converts the metrics to CSV format</div>
 </dd>
 <dt><a href="com/streamConverter/api/StreamBuilder.html#toFile(java.lang.String)" class="member-name-link">toFile(String)</a> - Method in class com.streamConverter.api.<a href="com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
@@ -2018,6 +2164,12 @@ loadScripts(document, 'script');</script>
 <div class="block">Returns the string representation of this output type.</div>
 </dd>
 <dt><a href="com/streamConverter/factory/FactoryConfiguration.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.factory.<a href="com/streamConverter/factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/JacocoReportAggregator.CoverageMetrics.html" title="class in com.streamConverter.test">JacocoReportAggregator.CoverageMetrics</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestFailure.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestFailure</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.test.<a href="com/streamConverter/test/TestFailureAnalyzer.TestSummary.html" title="class in com.streamConverter.test">TestFailureAnalyzer.TestSummary</a></dt>
 <dd>&nbsp;</dd>
 <dt><a href="com/streamConverter/validation/ValidationResult.html#toString()" class="member-name-link">toString()</a> - Method in class com.streamConverter.validation.<a href="com/streamConverter/validation/ValidationResult.html" title="class in com.streamConverter.validation">ValidationResult</a></dt>
 <dd>&nbsp;</dd>

@@ -1,0 +1,9 @@
+{
+  "id": "java-jdtls",
+  "name": "Java Language Server (JDTLS)",
+  "bin": "./.lsmcp/jdtls.sh",
+  "args": [],
+  "ignorePatterns": ["**/.git/**", "**/build/**", "**/.gradle/**"],
+  "fileExtensions": [".java"],
+  "languageIds": ["java"]
+}

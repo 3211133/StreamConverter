@@ -31,11 +31,7 @@ jobs:
         run: ./gradlew javadocAll --no-daemon
         
       - name: Deploy JavaDoc 🚀
-        uses: MathieuSoysal/Javadoc-publisher.yml@v3.0.2
+        uses: peaceiris/actions-gh-pages@v3
         with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          javadoc-branch: gh-pages
-          java-version: 17
-          target-folder: /
-          project: gradle
-          javadoc-source-folder: build/docs/javadoc
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./build/docs/javadoc

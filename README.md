@@ -68,9 +68,15 @@ converter.run(inputStream, outputStream);
 | | `JsonNavigateCommand` | JSON 特定パスの変換 | `new JsonNavigateCommand("$.user.id")` |
 | | `XmlNavigateCommand` | XML 特定要素の変換 | `new XmlNavigateCommand("//item/@id")` |
 | | `CharacterConvertCommand` | 文字エンコーディング変換 | `new CharacterConvertCommand("UTF-8", "Shift_JIS")` |
+| | `LineEndingNormalizeCommand` | 改行コード正規化 | `new LineEndingNormalizeCommand(LineEndingType.UNIX)` |
 | | `xml.ConvertCommand` | XSLT 変換 | `new ConvertCommand("style.xsl")` |
+| **フィルタリング** | `CsvFilterCommand` | CSV 行フィルタリング | `new CsvFilterCommand(predicate)` |
+| | `JsonFilterCommand` | JSON 要素フィルタリング | `new JsonFilterCommand(jsonPath, predicate)` |
+| | `XmlFilterCommand` | XML 要素フィルタリング | `new XmlFilterCommand(xpath, predicate)` |
 | **通信** | `SendHttpCommand` | HTTP リクエスト | `new SendHttpCommand("http://api.example.com")` |
-| **検証** | `xml.ValidateCommand` | XML スキーマ検証 | `new ValidateCommand("schema.xsd")` |
+| **検証** | `CsvValidateCommand` | CSV 構造検証 | `new CsvValidateCommand(requiredColumns)` |
+| | `JsonValidateCommand` | JSON スキーマ検証 | `new JsonValidateCommand("schema.json")` |
+| | `xml.ValidateCommand` | XML スキーマ検証 | `new ValidateCommand("schema.xsd")` |
 
 ## 📖 詳細ドキュメント
 
@@ -86,12 +92,12 @@ converter.run(inputStream, outputStream);
 
 詳細な使用例は以下のサンプルコードを参照してください：
 
-- **[QuickStart.java](src/main/java/com/streamConverter/examples/QuickStart.java)** - 基本的な使用方法
-- **[AutoLoggingDemo.java](src/main/java/com/streamConverter/examples/AutoLoggingDemo.java)** - ログ機能のデモ
-- **[ContextPropagationDemo.java](src/main/java/com/streamConverter/examples/ContextPropagationDemo.java)** - コンテキスト伝播のデモ
-- **[MDCMultiThreadExample.java](src/main/java/com/streamConverter/examples/MDCMultiThreadExample.java)** - MDCマルチスレッド検証
-- **[DataProcessingExamples.java](src/main/java/com/streamConverter/examples/DataProcessingExamples.java)** - 実用的な処理例
-- **[EnterpriseIntegrationPatterns.java](src/main/java/com/streamConverter/examples/EnterpriseIntegrationPatterns.java)** - エンタープライズパターン
+- **[QuickStart.java](streamconverter-examples/src/main/java/com/streamConverter/QuickStart.java)** - 基本的な使用方法
+- **[AutoLoggingDemo.java](streamconverter-examples/src/main/java/com/streamConverter/examples/AutoLoggingDemo.java)** - ログ機能のデモ
+- **[ContextPropagationDemo.java](streamconverter-examples/src/main/java/com/streamConverter/examples/ContextPropagationDemo.java)** - コンテキスト伝播のデモ
+- **[MDCMultiThreadExample.java](streamconverter-examples/src/main/java/com/streamConverter/examples/MDCMultiThreadExample.java)** - MDCマルチスレッド検証
+- **[DataProcessingExamples.java](streamconverter-examples/src/main/java/com/streamConverter/examples/DataProcessingExamples.java)** - 実用的な処理例
+- **[EnterpriseIntegrationPatterns.java](streamconverter-examples/src/main/java/com/streamConverter/examples/EnterpriseIntegrationPatterns.java)** - エンタープライズパターン
 
 ## 🛠️ ビルドとテスト
 

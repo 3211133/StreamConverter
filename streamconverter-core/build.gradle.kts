@@ -24,6 +24,7 @@ dependencies {
     
     // Reactive HTTP Client (needed for SendHttpCommand)
     implementation("org.springframework:spring-webflux:6.2.8")
+    implementation("org.springframework:spring-context:6.2.7")
     implementation("io.projectreactor.netty:reactor-netty-http:1.2.8")
     implementation("io.netty:netty-handler:4.1.118.Final")
     implementation("io.netty:netty-common:4.1.118.Final")

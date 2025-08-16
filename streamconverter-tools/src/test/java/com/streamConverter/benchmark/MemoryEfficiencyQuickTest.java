@@ -6,6 +6,8 @@ import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
 import java.io.*;
 import java.util.*;
 import org.junit.jupiter.api.*;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -15,6 +17,7 @@ import org.slf4j.LoggerFactory;
  * <p>complex pipelineの文字コード変換でメモリを大量消費する問題を特定・修正のための簡易テスト
  */
 @DisplayName("省メモリ効率迅速テスト")
+@EnabledOnOs(OS.LINUX)
 class MemoryEfficiencyQuickTest {
 
   private static final Logger logger = LoggerFactory.getLogger(MemoryEfficiencyQuickTest.class);

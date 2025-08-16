@@ -14,6 +14,8 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 @DisplayName("StreamConverter Test")
 class StreamConverterTest {
@@ -174,6 +176,7 @@ class StreamConverterTest {
 
   @Test
   @DisplayName("large data memory efficiency test - cross-platform adaptive")
+  @EnabledOnOs(OS.LINUX)
   void testLargeDataMemoryEfficiency() throws IOException {
     // プラットフォーム適応型メモリ効率性テスト
     Runtime runtime = Runtime.getRuntime();

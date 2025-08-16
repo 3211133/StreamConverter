@@ -156,19 +156,41 @@ public class CustomProcessingCommand extends AbstractStreamCommand {
 | `JsonNavigateCommand` | JSON特定パスの変換 | `"$.user.name"` |
 | `XmlNavigateCommand` | XML特定要素の変換 | `"//product/@id"` |
 
+### フィルタリングコマンド
+
+| クラス | 用途 | 引数例 |
+|--------|------|--------|
+| `CsvFilterCommand` | CSV行フィルタリング | `columnSelectors, hasHeader` |
+| `JsonFilterCommand` | JSON要素フィルタリング | `jsonPath, predicate` |
+| `XmlFilterCommand` | XML要素フィルタリング | `xpath, predicate` |
+
 ### 変換コマンド
 
 | クラス | 用途 | 引数例 |
 |--------|------|--------|
 | `CharacterConvertCommand` | 文字エンコーディング変換 | `"UTF-8", "Shift_JIS"` |
+| `LineEndingNormalizeCommand` | 改行コード正規化 | `LineEndingType.UNIX` |
 | `xml.ConvertCommand` | XML変換 | `"stylesheet.xsl"` |
-| `xml.ValidateCommand` | XMLバリデーション | `"schema.xsd"` |
+
+### バリデーションコマンド
+
+| クラス | 用途 | 引数例 |
+|--------|------|--------|
+| `CsvValidateCommand` | CSV構造検証 | `requiredColumns` |
+| `JsonValidateCommand` | JSONスキーマ検証 | `"schema.json"` |
+| `xml.ValidateCommand` | XMLスキーマ検証 | `"schema.xsd"` |
 
 ### 通信コマンド
 
 | クラス | 用途 | 引数例 |
 |--------|------|--------|
 | `SendHttpCommand` | HTTP送信 | `"http://api.example.com"` |
+
+### ユーティリティコマンド
+
+| クラス | 用途 | 引数例 |
+|--------|------|--------|
+| `SampleStreamCommand` | サンプル処理・デバッグ | `"processor"` |
 
 ## パフォーマンス考慮事項
 

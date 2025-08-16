@@ -1,6 +1,6 @@
 # StreamConverter
 
-**Version**: 1.0.0-SNAPSHOT | [📚 Documentation](docs/) | [🔗 Javadoc](https://3211133.github.io/StreamConverter/javadoc/)
+**Version**: 1.2.0 | [📚 Documentation](docs/) | [🔗 Javadoc](https://3211133.github.io/StreamConverter/javadoc/)
 
 大容量ファイルのストリーム処理を効率的に行うためのJavaライブラリです。メモリ使用量を抑えながら、複数の処理を連結するパイプライン型アーキテクチャを提供します。
 
@@ -111,6 +111,9 @@ converter.run(inputStream, outputStream);
 # ベンチマークテスト
 ./gradlew benchmarkAll
 
+# 統合Javadoc生成
+./gradlew javadocAll
+
 # 詳細なテスト戦略とガイドは docs/TESTING.md を参照
 
 # コードスタイル適用
@@ -135,6 +138,23 @@ converter.run(inputStream, outputStream);
 ```bash
 ./gradlew spotlessApply
 ```
+
+### ドキュメント生成
+Javadocは全モジュールを統合して生成されます：
+
+```bash
+# 統合Javadoc生成（全モジュール）
+./gradlew javadocAll
+
+# 生成されたドキュメント
+open build/docs/javadoc/index.html
+```
+
+**オンライン版**: [📖 API Documentation](https://3211133.github.io/StreamConverter/javadoc/)
+
+- 🔄 **自動更新**: developブランチへのpush時に自動的にGitHub Pagesで更新
+- 🗂️ **統合表示**: 全モジュール（core、web、examples、tools）のAPIを統一表示
+- 🚫 **コンフリクト防止**: 生成ファイルはGitの追跡対象外でマージコンフリクトを回避
 
 ## 📚 詳細ドキュメント
 

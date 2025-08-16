@@ -93,11 +93,11 @@ converter.run(inputStream, outputStream);
 詳細な使用例は以下のサンプルコードを参照してください：
 
 - **[QuickStart.java](streamconverter-examples/src/main/java/com/streamConverter/QuickStart.java)** - 基本的な使用方法
-- **[AutoLoggingDemo.java](streamconverter-examples/src/main/java/com/streamConverter/examples/AutoLoggingDemo.java)** - ログ機能のデモ
-- **[ContextPropagationDemo.java](streamconverter-examples/src/main/java/com/streamConverter/examples/ContextPropagationDemo.java)** - コンテキスト伝播のデモ
-- **[MDCMultiThreadExample.java](streamconverter-examples/src/main/java/com/streamConverter/examples/MDCMultiThreadExample.java)** - MDCマルチスレッド検証
-- **[DataProcessingExamples.java](streamconverter-examples/src/main/java/com/streamConverter/examples/DataProcessingExamples.java)** - 実用的な処理例
-- **[EnterpriseIntegrationPatterns.java](streamconverter-examples/src/main/java/com/streamConverter/examples/EnterpriseIntegrationPatterns.java)** - エンタープライズパターン
+- **[AutoLoggingDemo.java](streamconverter-examples/src/main/java/com/streamConverter/AutoLoggingDemo.java)** - ログ機能のデモ
+- **[ContextPropagationDemo.java](streamconverter-examples/src/main/java/com/streamConverter/ContextPropagationDemo.java)** - コンテキスト伝播のデモ
+- **[MDCMultiThreadExample.java](streamconverter-examples/src/main/java/com/streamConverter/MDCMultiThreadExample.java)** - MDCマルチスレッド検証
+- **[DataProcessingExamples.java](streamconverter-examples/src/main/java/com/streamConverter/DataProcessingExamples.java)** - 実用的な処理例
+- **[EnterpriseIntegrationPatterns.java](streamconverter-examples/src/main/java/com/streamConverter/EnterpriseIntegrationPatterns.java)** - エンタープライズパターン
 
 ## 🛠️ ビルドとテスト
 

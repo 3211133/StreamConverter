@@ -43,6 +43,9 @@ build/docs/javadoc/
 *.log
 logs/
 
+# Temporary files
+temp/
+
 #Agentic Hooks
 .claude/hooks/
 .claude/logs/

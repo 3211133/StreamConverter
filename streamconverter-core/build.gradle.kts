@@ -5,8 +5,6 @@ plugins {
     id("jacoco")
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
-    id("org.springframework.boot") version "3.4.7"
-    id("io.spring.dependency-management") version "1.1.7"
 }
 
 java {
@@ -23,18 +21,16 @@ repositories {
 }
 
 dependencies {
-    // Spring Boot WebFlux
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    // Reactive HTTP Client (needed for SendHttpCommand)
+    implementation("org.springframework:spring-webflux:6.2.8")
+    implementation("org.springframework:spring-context:6.2.7")
+    implementation("io.projectreactor.netty:reactor-netty-http:1.2.8")
+    implementation("io.netty:netty-handler:4.1.118.Final")
+    implementation("io.netty:netty-common:4.1.118.Final")
     
-    // セキュリティ脆弱性修正のための強制バージョン指定
-    implementation("net.minidev:json-smart:2.5.2") // CVE-2024-57699修正
-    implementation("io.netty:netty-handler:4.1.118.Final") // CVE-2025-24970修正
-    implementation("io.netty:netty-common:4.1.118.Final") // CVE-2025-25193修正
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.4.3") // CVE-2025-27820修正
+    // Logging
     implementation("ch.qos.logback:logback-core:1.5.13") // CVE-2024-12798, CVE-2024-12801修正
-    implementation("io.projectreactor.netty:reactor-netty-http:1.2.8") // CVE-2025-22227修正
-    implementation("org.springframework:spring-web:6.2.8") // CVE-2025-41234修正
-    implementation("org.springframework:spring-context:6.2.7") // CVE-2025-22233修正
+    implementation("ch.qos.logback:logback-classic:1.5.13")
     
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.18.0") // Already fixed CVE-2025-48924
@@ -57,10 +53,6 @@ dependencies {
     // Database support
     implementation("com.zaxxer:HikariCP:6.2.1")
     testImplementation("com.h2database:h2:2.2.224")
-    
-    // Spring Boot Test
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:5.13.4"))

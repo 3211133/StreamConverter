@@ -44,14 +44,48 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * Constructor for CSV navigation with column selector using PassThroughRule.
    *
    * @param columnSelector the column name or index to select (e.g., "name", "2")
+   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
+   *     behavior. Use {@link #CsvNavigateCommand(String, IRule)} to explicitly specify the
+   *     transformation rule. For data extraction without transformation, use {@link
+   *     #extractOnly(String)}.
    */
+  @Deprecated(since = "1.2.0", forRemoval = true)
   public CsvNavigateCommand(String columnSelector) {
     this(columnSelector, new PassThroughRule());
   }
 
-  /** Default constructor - processes all columns with PassThroughRule. */
+  /**
+   * Default constructor - processes all columns with PassThroughRule.
+   *
+   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
+   *     behavior. Use {@link #CsvNavigateCommand(String, IRule)} to explicitly specify the
+   *     transformation rule. For data extraction without transformation, use {@link
+   *     #extractOnly(String)}.
+   */
+  @Deprecated(since = "1.2.0", forRemoval = true)
   public CsvNavigateCommand() {
     this(null, new PassThroughRule());
+  }
+
+  /**
+   * Factory method for creating a CSV navigation command that extracts data without transformation.
+   * This method makes the intention explicit: extract data from the specified column as-is.
+   *
+   * @param columnSelector the column name or index to select (e.g., "name", "2")
+   * @return a CsvNavigateCommand that extracts the specified column without transformation
+   */
+  public static CsvNavigateCommand extractOnly(String columnSelector) {
+    return new CsvNavigateCommand(columnSelector, new PassThroughRule());
+  }
+
+  /**
+   * Factory method for creating a CSV navigation command that processes all columns without
+   * transformation. This method makes the intention explicit: process all CSV data as-is.
+   *
+   * @return a CsvNavigateCommand that processes all columns without transformation
+   */
+  public static CsvNavigateCommand extractAll() {
+    return new CsvNavigateCommand(null, new PassThroughRule());
   }
 
   @Override

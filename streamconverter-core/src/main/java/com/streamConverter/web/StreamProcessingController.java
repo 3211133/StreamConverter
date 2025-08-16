@@ -50,7 +50,7 @@ public class StreamProcessingController {
     return inputData
         .collectList()
         .map(this::combineDataBuffers)
-        .map(data -> processWithStreamConverter(data, new CsvNavigateCommand(columnName)))
+        .map(data -> processWithStreamConverter(data, CsvNavigateCommand.extractOnly(columnName)))
         .map(result -> ResponseEntity.ok(createDataBufferFlux(result)))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
@@ -74,7 +74,7 @@ public class StreamProcessingController {
     return inputData
         .collectList()
         .map(this::combineDataBuffers)
-        .map(data -> processWithStreamConverter(data, new JsonNavigateCommand(jsonPath)))
+        .map(data -> processWithStreamConverter(data, JsonNavigateCommand.extractOnly(jsonPath)))
         .map(result -> ResponseEntity.ok(createDataBufferFlux(result)))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
@@ -184,8 +184,8 @@ public class StreamProcessingController {
 
       commands[i] =
           switch (commandType.toLowerCase()) {
-            case "csv" -> new CsvNavigateCommand(parameter);
-            case "json" -> new JsonNavigateCommand(parameter);
+            case "csv" -> CsvNavigateCommand.extractOnly(parameter);
+            case "json" -> JsonNavigateCommand.extractOnly(parameter);
             case "process" -> new SampleStreamCommand(parameter);
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
           };

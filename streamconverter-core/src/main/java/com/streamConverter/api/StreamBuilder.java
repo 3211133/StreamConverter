@@ -218,13 +218,13 @@ public class StreamBuilder {
 
     switch (format) {
       case JSON:
-        this.commands.add(new JsonNavigateCommand(path));
+        this.commands.add(JsonNavigateCommand.extractOnly(path));
         break;
       case XML:
-        this.commands.add(new XmlNavigateCommand(path));
+        this.commands.add(XmlNavigateCommand.extractOnly(path));
         break;
       case CSV:
-        this.commands.add(new CsvNavigateCommand(path));
+        this.commands.add(CsvNavigateCommand.extractOnly(path));
         break;
       case GENERIC:
       default:
@@ -244,7 +244,7 @@ public class StreamBuilder {
     if (format != DataFormat.JSON) {
       throw new IllegalStateException("Format operation is only supported for JSON data format");
     }
-    this.commands.add(new JsonNavigateCommand());
+    this.commands.add(JsonNavigateCommand.extractAll());
     return this;
   }
 
@@ -258,7 +258,7 @@ public class StreamBuilder {
    */
   public StreamBuilder extractJson(String jsonPath) {
     Objects.requireNonNull(jsonPath, "JSONPath cannot be null");
-    this.commands.add(new JsonNavigateCommand(jsonPath));
+    this.commands.add(JsonNavigateCommand.extractOnly(jsonPath));
     return this;
   }
 
@@ -268,7 +268,7 @@ public class StreamBuilder {
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
   public StreamBuilder formatJson() {
-    this.commands.add(new JsonNavigateCommand());
+    this.commands.add(JsonNavigateCommand.extractAll());
     return this;
   }
 
@@ -280,7 +280,7 @@ public class StreamBuilder {
    */
   public StreamBuilder extractXml(String xpath) {
     Objects.requireNonNull(xpath, "XPath cannot be null");
-    this.commands.add(new XmlNavigateCommand(xpath));
+    this.commands.add(XmlNavigateCommand.extractOnly(xpath));
     return this;
   }
 
@@ -292,7 +292,7 @@ public class StreamBuilder {
    */
   public StreamBuilder extractCsv(String columnName) {
     Objects.requireNonNull(columnName, "Column name cannot be null");
-    this.commands.add(new CsvNavigateCommand(columnName));
+    this.commands.add(CsvNavigateCommand.extractOnly(columnName));
     return this;
   }
 

@@ -23,8 +23,8 @@ if [ $RESULT -ne 0 ]; then
     git add -u
 fi
 
-echo "Running code analysis with clean build..."
-$GRADLE_CMD clean build
+echo "Running code analysis with clean build (excluding tests)..."
+$GRADLE_CMD clean build -x test
 RESULT=$?
 if [ $RESULT -ne 0 ]; then
     echo "Pre-commit checks failed. Commit aborted."

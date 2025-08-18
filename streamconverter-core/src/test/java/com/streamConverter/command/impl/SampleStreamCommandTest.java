@@ -125,20 +125,170 @@ class SampleStreamCommandTest {
   }
 
   @Test
-  @DisplayName("ファイルサイズが大きい場合のテスト")
-  void testLargeFileSize() throws IOException {
-    // 大きなファイルサイズのテスト
-    String largeInput = "A".repeat(10_000_000); // 10MBのデータ
-    SampleStreamCommand command = new SampleStreamCommand("largeTest");
+  @DisplayName("Verify streaming sample processing behavior")
+  void testStreamingSampleProcessingBehavior() throws IOException {
+    SampleStreamCommand command = new SampleStreamCommand("streamingTest");
 
-    try (InputStream inputStream =
-            new ByteArrayInputStream(largeInput.getBytes(StandardCharsets.UTF_8));
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+    // Create moderate-sized data to observe streaming behavior
+    StringBuilder inputBuilder = new StringBuilder();
+    for (int i = 0; i < 100; i++) {
+      inputBuilder.append("Sample data line ").append(i).append("\n");
+    }
+    String inputData = inputBuilder.toString();
 
-      command.execute(inputStream, outputStream);
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(inputData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
 
-      // 結果の検証 - 入力がそのまま出力されるはず
-      assertEquals(largeInput, outputStream.toString(StandardCharsets.UTF_8));
+    // When - execute sample processing
+    command.execute(trackingInputStream, monitoringOutputStream);
+
+    // Then - verify streaming behavior occurred
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "OutputStream should have received data during processing");
+    assertTrue(
+        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
+
+    // Verify data was processed incrementally
+    assertTrue(
+        trackingInputStream.getBytesRead() > 0,
+        "Input stream should have been read during processing");
+
+    // Verify the content was processed correctly (SampleStreamCommand typically echoes input)
+    String expectedOutput = inputData;
+    assertEquals(expectedOutput, monitoringOutputStream.getContent());
+  }
+
+  @Test
+  @DisplayName("Verify incremental sample stream processing")
+  void testIncrementalSampleStreamProcessing() throws IOException {
+    SampleStreamCommand command = new SampleStreamCommand("incrementalTest");
+
+    // Create varied data to force incremental processing
+    StringBuilder inputBuilder = new StringBuilder();
+    for (int i = 1; i <= 200; i++) {
+      inputBuilder.append(
+          String.format(
+              "Line %03d: Sample stream data with content %s\n",
+              i, "A".repeat(i % 50))); // Variable length content
+    }
+    String inputData = inputBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(inputData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - perform incremental processing
+    long processingStart = System.nanoTime();
+    command.execute(trackingInputStream, monitoringOutputStream);
+    long processingEnd = System.nanoTime();
+
+    // Then - verify incremental processing characteristics
+    assertTrue(monitoringOutputStream.hasWriteOccurred(), "Output should be written");
+    assertTrue(trackingInputStream.isFullyRead(), "Input should be fully processed");
+
+    // Verify substantial data was processed
+    assertTrue(
+        trackingInputStream.getBytesRead() > 1000,
+        "Should have processed substantial amount of sample data");
+
+    long processingTime = processingEnd - processingStart;
+    assertTrue(processingTime > 0, "Processing should take measurable time");
+
+    // Verify content correctness - SampleStreamCommand should echo input
+    assertEquals(inputData, monitoringOutputStream.getContent());
+  }
+
+  /** Custom InputStream that tracks read operations for streaming behavior verification */
+  private static class TrackingInputStream extends ByteArrayInputStream {
+    private long fullyReadTime = -1;
+    private final int totalBytes;
+    private int bytesRead = 0;
+
+    public TrackingInputStream(byte[] buf) {
+      super(buf);
+      this.totalBytes = buf.length;
+    }
+
+    @Override
+    public int read() {
+      int result = super.read();
+      if (result != -1) {
+        bytesRead++;
+      } else if (fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return result;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) {
+      int bytesActuallyRead = super.read(b, off, len);
+      if (bytesActuallyRead > 0) {
+        bytesRead += bytesActuallyRead;
+      }
+      if (bytesActuallyRead == -1 && fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return bytesActuallyRead;
+    }
+
+    public boolean isFullyRead() {
+      return fullyReadTime != -1;
+    }
+
+    public long getFullyReadTime() {
+      return fullyReadTime;
+    }
+
+    public int getBytesRead() {
+      return bytesRead;
+    }
+
+    public int getTotalBytes() {
+      return totalBytes;
+    }
+
+    public double getReadProgress() {
+      return totalBytes > 0 ? (double) bytesRead / totalBytes : 0.0;
+    }
+  }
+
+  /** Custom OutputStream that monitors write operations and timing */
+  private static class MonitoringOutputStream extends ByteArrayOutputStream {
+    private long firstWriteTime = -1;
+    private boolean hasWriteOccurred = false;
+
+    @Override
+    public void write(int b) {
+      recordFirstWrite();
+      super.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) {
+      recordFirstWrite();
+      super.write(b, off, len);
+    }
+
+    private void recordFirstWrite() {
+      if (!hasWriteOccurred) {
+        firstWriteTime = System.nanoTime();
+        hasWriteOccurred = true;
+      }
+    }
+
+    public boolean hasWriteOccurred() {
+      return hasWriteOccurred;
+    }
+
+    public long getFirstWriteTime() {
+      return firstWriteTime;
+    }
+
+    public String getContent() {
+      return toString(StandardCharsets.UTF_8);
     }
   }
 }

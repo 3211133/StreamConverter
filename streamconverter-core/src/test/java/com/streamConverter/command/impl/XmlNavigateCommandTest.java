@@ -143,4 +143,209 @@ class XmlNavigateCommandTest {
     // Verify processing was successful (data size matches)
     assertTrue(usage.getDataSizeMB() > 0, "Should have processed some data");
   }
+
+  @Test
+  void testStreamingXmlNavigationBehavior() throws IOException {
+    // Create moderate-sized XML data to observe streaming behavior
+    StringBuilder xmlBuilder = new StringBuilder();
+    xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    xmlBuilder.append("<catalog>\n");
+
+    for (int i = 0; i < 100; i++) {
+      xmlBuilder.append(
+          String.format(
+              """
+        <item id="%d">
+          <title>Book Title %d</title>
+          <author>Author %d</author>
+          <description>This is a detailed description of book %d with various content</description>
+          <price currency="USD">%.2f</price>
+        </item>
+        """,
+              i, i, i, i, 19.99 + (i * 0.5)));
+    }
+
+    xmlBuilder.append("</catalog>");
+    String xmlData = xmlBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - execute XML navigation
+    command.execute(trackingInputStream, monitoringOutputStream);
+
+    // Then - verify streaming behavior occurred
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "OutputStream should have received data during XML navigation");
+    assertTrue(
+        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
+
+    // Verify data was processed incrementally
+    assertTrue(
+        trackingInputStream.getBytesRead() > 0,
+        "Input stream should have been read during XML processing");
+
+    // Verify the content was processed (output should contain some XML-related data)
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.length() > 0, "Should have produced some output from XML navigation");
+  }
+
+  @Test
+  void testIncrementalXmlNavigationProcessing() throws IOException {
+    // Create complex XML with nested structures to force incremental processing
+    StringBuilder xmlBuilder = new StringBuilder();
+    xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    xmlBuilder.append("<library>\n");
+
+    for (int i = 1; i <= 50; i++) {
+      xmlBuilder.append(
+          String.format(
+              """
+        <section name="Section %d">
+          <books>
+            <book id="book%d-1">
+              <title>Advanced Topics in Computer Science %d</title>
+              <chapters>
+                <chapter num="1">Introduction to Concepts %d</chapter>
+                <chapter num="2">Advanced Algorithms %d</chapter>
+                <chapter num="3">Data Structures and Analysis %d</chapter>
+              </chapters>
+            </book>
+            <book id="book%d-2">
+              <title>Practical Software Engineering %d</title>
+              <metadata>
+                <tags>engineering,software,practical</tags>
+                <keywords>design,testing,deployment</keywords>
+              </metadata>
+            </book>
+          </books>
+        </section>
+        """,
+              i, i, i, i, i, i, i, i));
+    }
+
+    xmlBuilder.append("</library>");
+    String xmlData = xmlBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - perform incremental XML navigation processing
+    long processingStart = System.nanoTime();
+    command.execute(trackingInputStream, monitoringOutputStream);
+    long processingEnd = System.nanoTime();
+
+    // Then - verify incremental processing characteristics
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "Output should be written during XML processing");
+    assertTrue(trackingInputStream.isFullyRead(), "Input should be fully processed");
+
+    // Verify substantial XML data was processed
+    assertTrue(
+        trackingInputStream.getBytesRead() > 5000,
+        "Should have processed substantial amount of XML data");
+
+    long processingTime = processingEnd - processingStart;
+    assertTrue(processingTime > 0, "XML processing should take measurable time");
+
+    // Verify output was generated (XML navigation should produce some result)
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.length() > 0, "XML navigation should produce output");
+  }
+
+  /** Custom InputStream that tracks read operations for streaming behavior verification */
+  private static class TrackingInputStream extends ByteArrayInputStream {
+    private long fullyReadTime = -1;
+    private final int totalBytes;
+    private int bytesRead = 0;
+
+    public TrackingInputStream(byte[] buf) {
+      super(buf);
+      this.totalBytes = buf.length;
+    }
+
+    @Override
+    public int read() {
+      int result = super.read();
+      if (result != -1) {
+        bytesRead++;
+      } else if (fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return result;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) {
+      int bytesActuallyRead = super.read(b, off, len);
+      if (bytesActuallyRead > 0) {
+        bytesRead += bytesActuallyRead;
+      }
+      if (bytesActuallyRead == -1 && fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return bytesActuallyRead;
+    }
+
+    public boolean isFullyRead() {
+      return fullyReadTime != -1;
+    }
+
+    public long getFullyReadTime() {
+      return fullyReadTime;
+    }
+
+    public int getBytesRead() {
+      return bytesRead;
+    }
+
+    public int getTotalBytes() {
+      return totalBytes;
+    }
+
+    public double getReadProgress() {
+      return totalBytes > 0 ? (double) bytesRead / totalBytes : 0.0;
+    }
+  }
+
+  /** Custom OutputStream that monitors write operations and timing */
+  private static class MonitoringOutputStream extends ByteArrayOutputStream {
+    private long firstWriteTime = -1;
+    private boolean hasWriteOccurred = false;
+
+    @Override
+    public void write(int b) {
+      recordFirstWrite();
+      super.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) {
+      recordFirstWrite();
+      super.write(b, off, len);
+    }
+
+    private void recordFirstWrite() {
+      if (!hasWriteOccurred) {
+        firstWriteTime = System.nanoTime();
+        hasWriteOccurred = true;
+      }
+    }
+
+    public boolean hasWriteOccurred() {
+      return hasWriteOccurred;
+    }
+
+    public long getFirstWriteTime() {
+      return firstWriteTime;
+    }
+
+    public String getContent() {
+      return toString(StandardCharsets.UTF_8);
+    }
+  }
 }

@@ -21,7 +21,7 @@ class CsvFilterCommandTest {
   void testBasicColumnFilteringByName() throws IOException {
     // Given
     String input = "name,age,city\nJohn,25,Tokyo\nJane,30,Osaka";
-    String expected = "name,city\nJohn,Tokyo\nJane,Osaka";
+    String expected = "name\nJohn\nJane\n";
 
     CsvFilterCommand command = new CsvFilterCommand("name", true);
 
@@ -37,7 +37,7 @@ class CsvFilterCommandTest {
   void testBasicColumnFilteringByIndex() throws IOException {
     // Given
     String input = "name,age,city\nJohn,25,Tokyo\nJane,30,Osaka";
-    String expected = "name,city\nJohn,Tokyo\nJane,Osaka";
+    String expected = "name,city\nJohn,Tokyo\nJane,Osaka\n";
 
     CsvFilterCommand command = new CsvFilterCommand(Arrays.asList("0", "2"), true);
 
@@ -53,7 +53,7 @@ class CsvFilterCommandTest {
   void testMultipleColumnFilteringByName() throws IOException {
     // Given
     String input = "name,age,city,country\nJohn,25,Tokyo,Japan\nJane,30,Osaka,Japan";
-    String expected = "name,city\nJohn,Tokyo\nJane,Osaka";
+    String expected = "name,city\nJohn,Tokyo\nJane,Osaka\n";
 
     List<String> columns = Arrays.asList("name", "city");
     CsvFilterCommand command = new CsvFilterCommand(columns, true);
@@ -70,7 +70,7 @@ class CsvFilterCommandTest {
   void testNoHeaderFiltering() throws IOException {
     // Given
     String input = "John,25,Tokyo\nJane,30,Osaka";
-    String expected = "John,Tokyo\nJane,Osaka";
+    String expected = "John,Tokyo\nJane,Osaka\n";
 
     CsvFilterCommand command = new CsvFilterCommand(Arrays.asList("0", "2"), false);
 
@@ -87,7 +87,7 @@ class CsvFilterCommandTest {
     // Given
     String input =
         "\"name\",\"age\",\"city\"\n\"John, Jr.\",25,\"Tokyo, Japan\"\n\"Jane\",30,\"Osaka\"";
-    String expected = "\"name\",\"city\"\n\"John, Jr.\",\"Tokyo, Japan\"\n\"Jane\",\"Osaka\"";
+    String expected = "name,city\n\"John, Jr.\",\"Tokyo, Japan\"\nJane,Osaka\n";
 
     CsvFilterCommand command = new CsvFilterCommand(Arrays.asList("name", "city"), true);
 
@@ -186,7 +186,7 @@ class CsvFilterCommandTest {
   void testIncompleteRows() throws IOException {
     // Given
     String input = "name,age,city\nJohn,25,Tokyo\nJane,30\nBob,,Kyoto";
-    String expected = "name,city\nJohn,Tokyo\nJane,\nBob,Kyoto";
+    String expected = "name,city\nJohn,Tokyo\nJane,\nBob,Kyoto\n";
 
     CsvFilterCommand command = new CsvFilterCommand(Arrays.asList("name", "city"), true);
 

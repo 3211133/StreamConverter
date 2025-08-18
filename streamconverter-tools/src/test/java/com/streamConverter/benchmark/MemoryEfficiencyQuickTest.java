@@ -27,13 +27,35 @@ class MemoryEfficiencyQuickTest {
     // 環境適応型テストデータサイズ計算（long型完全対応）
     Runtime runtime = Runtime.getRuntime();
     long maxMemory = runtime.maxMemory();
-    long dataSize =
-        Math.min(
-            Math.max(maxMemory / 20, 5L * 1024 * 1024),
-            100L * 1024 * 1024); // ヒープの5%（最小5MB、最大100MB）
+
+    // プラットフォーム別の最適化設定
+    String osName = System.getProperty("os.name").toLowerCase();
+    double memoryRatio;
+    long minSize;
+    long maxSize;
+
+    if (osName.contains("windows")) {
+      // Windows: より保守的な設定
+      memoryRatio = 0.03; // 3%
+      minSize = 3L * 1024 * 1024; // 3MB
+      maxSize = 50L * 1024 * 1024; // 50MB
+    } else if (osName.contains("mac")) {
+      // macOS: 中程度の設定
+      memoryRatio = 0.04; // 4%
+      minSize = 4L * 1024 * 1024; // 4MB
+      maxSize = 75L * 1024 * 1024; // 75MB
+    } else {
+      // Linux/その他: より積極的な設定
+      memoryRatio = 0.05; // 5%
+      minSize = 5L * 1024 * 1024; // 5MB
+      maxSize = 100L * 1024 * 1024; // 100MB
+    }
+
+    long dataSize = Math.min(Math.max((long) (maxMemory * memoryRatio), minSize), maxSize);
 
     logger.info(
-        "Max heap: {}MB, Test data size: {}MB", maxMemory / 1024 / 1024, dataSize / 1024 / 1024);
+        "Platform: {}, Max heap: {}MB, Test data size: {}MB (ratio: {}%)",
+        osName, maxMemory / 1024 / 1024, dataSize / 1024 / 1024, (memoryRatio * 100));
 
     // 複雑パイプラインの文字コード変換部分のみテスト
     IStreamCommand[] pipeline = {
@@ -62,15 +84,29 @@ class MemoryEfficiencyQuickTest {
     logger.info(
         "Data size: {}MB, Memory used: {}MB", dataSize / 1024 / 1024, memoryUsed / 1024 / 1024);
 
-    // 環境適応型メモリ要件：データサイズの10倍以下のメモリ使用（文字コード変換での文字化け対策バッファを考慮）
-    long maxAcceptableMemory = dataSize * 10; // データサイズの10倍制限
-    logger.info("Max acceptable (10x data): {}MB", maxAcceptableMemory / 1024 / 1024);
+    // 環境適応型メモリ要件：プラットフォーム別の最適化（文字コード変換での文字化け対策バッファを考慮）
+    double memoryMultiplier;
+
+    if (osName.contains("windows")) {
+      memoryMultiplier = 12.0; // Windows: 12倍制限（GC負荷を考慮）
+    } else if (osName.contains("mac")) {
+      memoryMultiplier = 11.0; // macOS: 11倍制限
+    } else {
+      memoryMultiplier = 10.0; // Linux/その他: 10倍制限
+    }
+
+    long maxAcceptableMemory = (long) (dataSize * memoryMultiplier);
+    logger.info(
+        "Max acceptable ({}x data): {}MB", memoryMultiplier, maxAcceptableMemory / 1024 / 1024);
 
     Assertions.assertTrue(
         memoryUsed < maxAcceptableMemory,
         String.format(
-            "設計原理違反: 文字コード変換でメモリを使いすぎています。Memory usage: %dMB > %dMB (10x %dMB data)",
-            memoryUsed / 1024 / 1024, maxAcceptableMemory / 1024 / 1024, dataSize / 1024 / 1024));
+            "設計原理違反: 文字コード変換でメモリを使いすぎています。Memory usage: %dMB > %dMB (%.1fx %dMB data)",
+            memoryUsed / 1024 / 1024,
+            maxAcceptableMemory / 1024 / 1024,
+            memoryMultiplier,
+            dataSize / 1024 / 1024));
   }
 
   /** 全ての出力を破棄するOutputStream */

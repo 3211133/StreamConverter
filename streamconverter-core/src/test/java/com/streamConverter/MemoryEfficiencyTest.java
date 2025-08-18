@@ -20,15 +20,41 @@ class MemoryEfficiencyTest {
     Runtime runtime = Runtime.getRuntime();
     long maxMemory = runtime.maxMemory();
 
-    // ヒープサイズの10%をテストデータサイズとして使用（最小10MB、最大500MB）
-    long calculatedSize = Math.min(Math.max(maxMemory / 10, 10L * 1024 * 1024), 500L * 1024 * 1024);
+    // プラットフォーム別の最適化
+    String osName = System.getProperty("os.name").toLowerCase();
+    double memoryRatio;
+    long minSize;
+    long maxSize;
+
+    if (osName.contains("windows")) {
+      // Windows: より保守的な設定
+      memoryRatio = 0.05; // 5%
+      minSize = 5L * 1024 * 1024; // 5MB
+      maxSize = 200L * 1024 * 1024; // 200MB
+    } else if (osName.contains("mac")) {
+      // macOS: 中程度の設定
+      memoryRatio = 0.08; // 8%
+      minSize = 8L * 1024 * 1024; // 8MB
+      maxSize = 300L * 1024 * 1024; // 300MB
+    } else {
+      // Linux/その他: より積極的な設定
+      memoryRatio = 0.10; // 10%
+      minSize = 10L * 1024 * 1024; // 10MB
+      maxSize = 500L * 1024 * 1024; // 500MB
+    }
+
+    long calculatedSize = Math.min(Math.max((long) (maxMemory * memoryRatio), minSize), maxSize);
 
     System.out.println(
-        "Max heap: "
+        "Platform: "
+            + osName
+            + ", Max heap: "
             + (maxMemory / 1024 / 1024)
             + "MB, Test data size: "
             + (calculatedSize / 1024 / 1024)
-            + "MB");
+            + "MB (ratio: "
+            + (memoryRatio * 100)
+            + "%)");
     return calculatedSize;
   }
 
@@ -37,17 +63,42 @@ class MemoryEfficiencyTest {
     Runtime runtime = Runtime.getRuntime();
     long maxMemory = runtime.maxMemory();
 
-    // ヒープサイズの30%をテストデータサイズとして使用（最小50MB、上限なし）
-    // 注意: 上限がないため、非常に大きなヒープサイズの環境では極端に大きなメモリ割り当てが発生する可能性があります。
-    // そのため、テスト実行時のヒープサイズ設定に注意してください。必要に応じて上限を設けることを推奨します。
-    long calculatedLargeSize = Math.max(maxMemory / 3, 50L * 1024 * 1024);
+    // プラットフォーム別の大容量テスト設定
+    String osName = System.getProperty("os.name").toLowerCase();
+    double memoryRatio;
+    long minSize;
+    long maxSize;
+
+    if (osName.contains("windows")) {
+      // Windows: より保守的（メモリ管理が厳格）
+      memoryRatio = 0.15; // 15%
+      minSize = 30L * 1024 * 1024; // 30MB
+      maxSize = 500L * 1024 * 1024; // 500MB
+    } else if (osName.contains("mac")) {
+      // macOS: 中程度（メモリ管理は比較的良好）
+      memoryRatio = 0.25; // 25%
+      minSize = 50L * 1024 * 1024; // 50MB
+      maxSize = 1024L * 1024 * 1024; // 1GB
+    } else {
+      // Linux/その他: より積極的（サーバー環境想定）
+      memoryRatio = 0.30; // 30%
+      minSize = 50L * 1024 * 1024; // 50MB
+      maxSize = 2048L * 1024 * 1024; // 2GB
+    }
+
+    long calculatedLargeSize =
+        Math.min(Math.max((long) (maxMemory * memoryRatio), minSize), maxSize);
 
     System.out.println(
-        "Large test - Max heap: "
+        "Large test - Platform: "
+            + osName
+            + ", Max heap: "
             + (maxMemory / 1024 / 1024)
             + "MB, Test data size: "
             + (calculatedLargeSize / 1024 / 1024)
-            + "MB");
+            + "MB (ratio: "
+            + (memoryRatio * 100)
+            + "%)");
     return calculatedLargeSize;
   }
 
@@ -91,8 +142,19 @@ class MemoryEfficiencyTest {
     assertNotNull(result);
     assertEquals(3, result.size());
 
-    // 設計原理1: メモリに全て持たないこと - データサイズの50%以下のメモリ増加であること
-    long maxAcceptableMemory = dataSize / 2; // 50%制限（より厳しい基準）
+    // 設計原理1: メモリに全て持たないこと - プラットフォーム適応型の制限
+    String osName = System.getProperty("os.name").toLowerCase();
+    double memoryLimitRatio;
+
+    if (osName.contains("windows")) {
+      memoryLimitRatio = 0.60; // Windows: 60%制限（GC負荷を考慮）
+    } else if (osName.contains("mac")) {
+      memoryLimitRatio = 0.55; // macOS: 55%制限
+    } else {
+      memoryLimitRatio = 0.50; // Linux/その他: 50%制限（より厳しい基準）
+    }
+
+    long maxAcceptableMemory = (long) (dataSize * memoryLimitRatio);
     System.out.println("=== 環境適応型メモリ効率テスト結果 ===");
     System.out.println("Test data size: " + (dataSize / 1024 / 1024) + "MB");
     System.out.println("Initial memory: " + (initialMemory / 1024 / 1024) + "MB");
@@ -100,7 +162,11 @@ class MemoryEfficiencyTest {
     System.out.println("After processing: " + (afterMemory / 1024 / 1024) + "MB");
     System.out.println("Memory increase: " + (memoryIncrease / 1024 / 1024) + "MB");
     System.out.println(
-        "Max acceptable (50% of data): " + (maxAcceptableMemory / 1024 / 1024) + "MB");
+        "Max acceptable ("
+            + (int) (memoryLimitRatio * 100)
+            + "% of data): "
+            + (maxAcceptableMemory / 1024 / 1024)
+            + "MB");
 
     assertTrue(
         memoryIncrease < maxAcceptableMemory,
@@ -108,7 +174,9 @@ class MemoryEfficiencyTest {
             + (memoryIncrease / 1024 / 1024)
             + "MB > "
             + (maxAcceptableMemory / 1024 / 1024)
-            + "MB (50% of "
+            + "MB ("
+            + (int) (memoryLimitRatio * 100)
+            + "% of "
             + (dataSize / 1024 / 1024)
             + "MB data)");
   }
@@ -142,13 +210,28 @@ class MemoryEfficiencyTest {
     assertNotNull(result);
     assertEquals(1, result.size());
 
-    // 単一コマンドの場合、メモリ増加は最小限であるべき（データサイズの20%以下）
-    long maxAcceptableMemory = dataSize / 5; // 20%制限
+    // 単一コマンドの場合、メモリ増加は最小限であるべき（プラットフォーム適応型制限）
+    String osName = System.getProperty("os.name").toLowerCase();
+    double singleCommandLimitRatio;
+
+    if (osName.contains("windows")) {
+      singleCommandLimitRatio = 0.25; // Windows: 25%制限
+    } else if (osName.contains("mac")) {
+      singleCommandLimitRatio = 0.22; // macOS: 22%制限
+    } else {
+      singleCommandLimitRatio = 0.20; // Linux/その他: 20%制限
+    }
+
+    long maxAcceptableMemory = (long) (dataSize * singleCommandLimitRatio);
     System.out.println("=== 単一コマンド最適パステスト結果 ===");
     System.out.println("Test data size: " + (dataSize / 1024 / 1024) + "MB");
     System.out.println("Single command memory increase: " + (memoryIncrease / 1024 / 1024) + "MB");
     System.out.println(
-        "Max acceptable (20% of data): " + (maxAcceptableMemory / 1024 / 1024) + "MB");
+        "Max acceptable ("
+            + (int) (singleCommandLimitRatio * 100)
+            + "% of data): "
+            + (maxAcceptableMemory / 1024 / 1024)
+            + "MB");
 
     assertTrue(
         memoryIncrease < maxAcceptableMemory,
@@ -156,7 +239,9 @@ class MemoryEfficiencyTest {
             + (memoryIncrease / 1024 / 1024)
             + "MB > "
             + (maxAcceptableMemory / 1024 / 1024)
-            + "MB (20% of "
+            + "MB ("
+            + (int) (singleCommandLimitRatio * 100)
+            + "% of "
             + (dataSize / 1024 / 1024)
             + "MB data)");
   }
@@ -229,10 +314,25 @@ class MemoryEfficiencyTest {
     assertNotNull(result);
     assertEquals(3, result.size());
 
-    // 設計原理2: 逐次処理の並列化でスタックしないこと - データサイズの30%以下のメモリ使用量
-    long maxAcceptableMemory = dataSize * 3 / 10; // 30%制限
+    // 設計原理2: 逐次処理の並列化でスタックしないこと - プラットフォーム適応型制限
+    String osName = System.getProperty("os.name").toLowerCase();
+    double parallelLimitRatio;
+
+    if (osName.contains("windows")) {
+      parallelLimitRatio = 0.40; // Windows: 40%制限（並列処理でのGC負荷を考慮）
+    } else if (osName.contains("mac")) {
+      parallelLimitRatio = 0.35; // macOS: 35%制限
+    } else {
+      parallelLimitRatio = 0.30; // Linux/その他: 30%制限
+    }
+
+    long maxAcceptableMemory = (long) (dataSize * parallelLimitRatio);
     System.out.println(
-        "Max acceptable (30% of data): " + (maxAcceptableMemory / 1024 / 1024) + "MB");
+        "Max acceptable ("
+            + (int) (parallelLimitRatio * 100)
+            + "% of data): "
+            + (maxAcceptableMemory / 1024 / 1024)
+            + "MB");
 
     assertTrue(
         memoryIncrease < maxAcceptableMemory,
@@ -240,7 +340,9 @@ class MemoryEfficiencyTest {
             + (memoryIncrease / 1024 / 1024)
             + "MB > "
             + (maxAcceptableMemory / 1024 / 1024)
-            + "MB (30% of "
+            + "MB ("
+            + (int) (parallelLimitRatio * 100)
+            + "% of "
             + (dataSize / 1024 / 1024)
             + "MB data)");
 

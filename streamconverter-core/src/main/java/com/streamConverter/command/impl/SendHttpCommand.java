@@ -46,22 +46,38 @@ public class SendHttpCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException URLが無効な場合
    */
   public SendHttpCommand(String url) {
-    super();
-    this.url = validateAndSanitizeUrl(url);
+    this(url, false);
+  }
 
-    // Simple HttpClient configuration for Netty 4.1.123.Final compatibility
+  /**
+   * テスト用コンストラクタ（ローカルホストアクセス許可オプション付き）
+   *
+   * @param url 送信先のURL
+   * @param allowLocalhost ローカルホストアクセスを許可するかどうか（テスト用）
+   * @throws IllegalArgumentException URLが無効な場合
+   */
+  public SendHttpCommand(String url, boolean allowLocalhost) {
+    super();
+    this.url = validateAndSanitizeUrl(url, allowLocalhost);
+
+    // HttpClient configuration optimized for HTTP/1.1 parallel processing
     HttpClient httpClient =
         HttpClient.create()
+            .protocol(reactor.netty.http.HttpProtocol.HTTP11) // HTTP/1.1 with chunked encoding
             .responseTimeout(Duration.ofSeconds(30))
             .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
-            .keepAlive(false); // Disable keep-alive to avoid connection pool issues
+            .option(io.netty.channel.ChannelOption.SO_SNDBUF, 256) // 256バイト送信バッファ
+            .option(io.netty.channel.ChannelOption.SO_RCVBUF, 256) // 256バイト受信バッファ
+            .option(io.netty.channel.ChannelOption.TCP_NODELAY, true) // Nagleアルゴリズム無効化
+            .keepAlive(false) // Disable keep-alive for simpler chunked processing
+            .wiretap(true); // Enable wire-level logging
 
     this.webClient =
         WebClient.builder()
             .clientConnector(new ReactorClientHttpConnector(httpClient))
             .codecs(
                 configurer ->
-                    configurer.defaultCodecs().maxInMemorySize(-1)) // Unlimited for streaming
+                    configurer.defaultCodecs().maxInMemorySize(512)) // 512バイトの極小バッファで並列処理を強制
             .build();
   }
 
@@ -73,6 +89,18 @@ public class SendHttpCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException URLが無効な場合
    */
   private String validateAndSanitizeUrl(String url) {
+    return validateAndSanitizeUrl(url, false);
+  }
+
+  /**
+   * URLの検証とサニタイゼーションを行う（ローカルホスト許可オプション付き）
+   *
+   * @param url 検証するURL
+   * @param allowLocalhost ローカルホストアクセスを許可するかどうか
+   * @return 検証済みURL
+   * @throws IllegalArgumentException URLが無効な場合
+   */
+  private String validateAndSanitizeUrl(String url, boolean allowLocalhost) {
     Objects.requireNonNull(url, "URL cannot be null");
 
     String trimmedUrl = url.trim();
@@ -97,8 +125,8 @@ public class SendHttpCommand extends AbstractStreamCommand {
         throw new IllegalArgumentException("URL must have a valid host");
       }
 
-      // ローカルホストや内部IPアドレスへのアクセスを防ぐ
-      if (isLocalhost(host) || isPrivateIpAddress(host)) {
+      // ローカルホストや内部IPアドレスへのアクセスを防ぐ（テスト時は許可）
+      if (!allowLocalhost && (isLocalhost(host) || isPrivateIpAddress(host))) {
         throw new IllegalArgumentException(
             "Access to localhost or private IP addresses is not allowed");
       }
@@ -154,68 +182,189 @@ public class SendHttpCommand extends AbstractStreamCommand {
     try {
       // Track total bytes written for better error reporting
       final long[] totalBytesWritten = {0L};
+      final java.util.concurrent.CompletableFuture<Void> completionFuture =
+          new java.util.concurrent.CompletableFuture<>();
+      final java.util.concurrent.atomic.AtomicReference<Throwable> errorRef =
+          new java.util.concurrent.atomic.AtomicReference<>();
 
-      // 大容量データに対応するため、ストリーミング処理を使用
-      // WebClientでストリーミングレスポンスを処理
-      webClient
-          .post()
-          .uri(url)
-          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
-          .header(HttpHeaders.USER_AGENT, "StreamConverter/1.0")
-          .body(
-              BodyInserters.fromDataBuffers(
-                  org.springframework.core.io.buffer.DataBufferUtils.readInputStream(
-                      () -> inputStream,
-                      org.springframework.core.io.buffer.DefaultDataBufferFactory.sharedInstance,
-                      8192))) // 8KB chunks for memory efficiency
-          .retrieve()
-          .onStatus(
-              status -> !status.is2xxSuccessful(),
-              response ->
-                  response
-                      .bodyToMono(String.class)
-                      .defaultIfEmpty("")
-                      .map(
-                          errorBody ->
-                              new RuntimeException(
-                                  String.format(
-                                      "HTTP request failed: status=%d, url=%s, response=%s",
-                                      response.statusCode().value(), url, errorBody))))
-          .bodyToFlux(org.springframework.core.io.buffer.DataBuffer.class)
-          .timeout(Duration.ofMinutes(5)) // 大容量データ処理のため5分に延長
-          .doOnNext(
-              dataBuffer -> {
-                // Ensure DataBuffer is always released, even if write fails
-                try {
-                  // ストリーミング処理：8KBずつレスポンスを処理
-                  byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                  dataBuffer.read(bytes);
-                  outputStream.write(bytes);
-                  totalBytesWritten[0] += bytes.length;
-                } catch (IOException e) {
-                  throw new RuntimeException(
-                      String.format(
-                          "Failed to write response data to output stream (url=%s, bytesWritten=%d)",
-                          url, totalBytesWritten[0]),
-                      e);
-                } finally {
-                  org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);
-                }
-              })
-          .doOnComplete(
+      // 並列処理ライブラリ要件実装：InputStreamクローズ前にOutputStreamへデータ流出
+      // 背景読み込みスレッドで小さなチャンクを即座に送信し、レスポンスストリーミングを並列実行
+      java.util.concurrent.ExecutorService backgroundExecutor =
+          java.util.concurrent.Executors.newSingleThreadExecutor(
+              r -> {
+                Thread t = new Thread(r, "background-input-reader");
+                t.setDaemon(true);
+                return t;
+              });
+
+      // 背景でInputStreamからデータを読み取り、即座に送信開始
+      java.util.concurrent.BlockingQueue<byte[]> dataQueue =
+          new java.util.concurrent.LinkedBlockingQueue<>();
+      final java.util.concurrent.atomic.AtomicBoolean inputComplete =
+          new java.util.concurrent.atomic.AtomicBoolean(false);
+
+      // 背景スレッドでInputStreamを小さなチャンクで読み取り
+      java.util.concurrent.Future<?> readerTask =
+          backgroundExecutor.submit(
               () -> {
-                try {
-                  outputStream.flush();
-                  logger.info("HTTP response streaming completed successfully");
-                } catch (IOException e) {
-                  throw new RuntimeException("Failed to flush output stream", e);
-                }
-              })
-          .blockLast(); // Intentionally synchronous: AbstractStreamCommand interface requires
-      // blocking execution
-      // for compatibility with existing command pipeline. Alternative: use subscribe()
-      // with CompletableFuture for true async, but would break command interface contract.
+                try (java.io.BufferedInputStream bufferedInput =
+                    new java.io.BufferedInputStream(inputStream, 128)) {
+                  byte[] buffer = new byte[128]; // 128バイトの極小チャンクで即座に処理開始
+                  int bytesRead;
+                  while ((bytesRead = bufferedInput.read(buffer)) != -1) {
+                    byte[] chunk = java.util.Arrays.copyOf(buffer, bytesRead);
+                    dataQueue.offer(chunk);
 
+                    // 各チャンク後にわずかに待機（並列処理を促進）
+                    try {
+                      Thread.sleep(0, 500000); // 0.5ms待機でHTTPレスポンス開始を促進
+                    } catch (InterruptedException e) {
+                      Thread.currentThread().interrupt();
+                      break;
+                    }
+                  }
+                } catch (IOException e) {
+                  errorRef.set(new RuntimeException("Input reading failed", e));
+                } finally {
+                  inputComplete.set(true);
+                }
+              });
+
+      try {
+        // リアクティブなFluxストリームを作成（背景読み取りと並列）
+        reactor.core.publisher.Flux<org.springframework.core.io.buffer.DataBuffer> inputFlux =
+            reactor.core.publisher.Flux.<org.springframework.core.io.buffer.DataBuffer>create(
+                sink -> {
+                  reactor.core.scheduler.Schedulers.boundedElastic()
+                      .schedule(
+                          () -> {
+                            try {
+                              while (!inputComplete.get() || !dataQueue.isEmpty()) {
+                                byte[] chunk =
+                                    dataQueue.poll(1, java.util.concurrent.TimeUnit.MILLISECONDS);
+                                if (chunk != null) {
+                                  org.springframework.core.io.buffer.DataBuffer dataBuffer =
+                                      org.springframework.core.io.buffer.DefaultDataBufferFactory
+                                          .sharedInstance
+                                          .wrap(chunk);
+                                  sink.next(dataBuffer);
+                                }
+                              }
+                              sink.complete();
+                            } catch (InterruptedException e) {
+                              Thread.currentThread().interrupt();
+                              sink.error(e);
+                            } catch (Exception e) {
+                              sink.error(e);
+                            }
+                          });
+                },
+                reactor.core.publisher.FluxSink.OverflowStrategy.BUFFER);
+
+        // HTTP並列ストリーミング実行（背景入力読み取りと同時）
+        webClient
+            .post()
+            .uri(url)
+            .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)
+            .header(HttpHeaders.USER_AGENT, "StreamConverter/1.0")
+            .header(HttpHeaders.TRANSFER_ENCODING, "chunked")
+            .body(BodyInserters.fromDataBuffers(inputFlux))
+            .exchange()
+            .flatMapMany(
+                response -> {
+                  if (!response.statusCode().is2xxSuccessful()) {
+                    return reactor.core.publisher.Mono.error(
+                        new RuntimeException(
+                            String.format(
+                                "HTTP request failed: status=%d, url=%s",
+                                response.statusCode().value(), url)));
+                  }
+                  return response.bodyToFlux(org.springframework.core.io.buffer.DataBuffer.class);
+                })
+            .subscribeOn(reactor.core.scheduler.Schedulers.parallel())
+            .timeout(Duration.ofMinutes(5))
+            .doOnNext(
+                dataBuffer -> {
+                  try {
+                    byte[] bytes = new byte[dataBuffer.readableByteCount()];
+                    dataBuffer.read(bytes);
+                    synchronized (outputStream) {
+                      outputStream.write(bytes);
+                      outputStream.flush(); // 即座にフラッシュして並列処理実現
+                    }
+                    totalBytesWritten[0] += bytes.length;
+                  } catch (IOException e) {
+                    errorRef.set(
+                        new RuntimeException(
+                            String.format(
+                                "Failed to write response data (url=%s, bytesWritten=%d)",
+                                url, totalBytesWritten[0]),
+                            e));
+                  } finally {
+                    org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);
+                  }
+                })
+            .doOnComplete(
+                () -> {
+                  try {
+                    outputStream.flush();
+                    logger.info("HTTP response streaming completed successfully");
+                    completionFuture.complete(null);
+                  } catch (IOException e) {
+                    errorRef.set(new RuntimeException("Failed to flush output stream", e));
+                    completionFuture.completeExceptionally(e);
+                  }
+                })
+            .doOnError(
+                error -> {
+                  errorRef.set(error);
+                  completionFuture.completeExceptionally(error);
+                })
+            .subscribe(); // 非同期実行で並列処理実現
+
+        // 完了を待機
+        try {
+          completionFuture.get(6, java.util.concurrent.TimeUnit.MINUTES);
+        } finally {
+          // Cleanup
+          backgroundExecutor.shutdown();
+          try {
+            if (!backgroundExecutor.awaitTermination(5, java.util.concurrent.TimeUnit.SECONDS)) {
+              backgroundExecutor.shutdownNow();
+            }
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            backgroundExecutor.shutdownNow();
+          }
+        }
+      } finally {
+        backgroundExecutor.shutdown();
+      }
+
+      if (errorRef.get() != null) {
+        Throwable error = errorRef.get();
+        if (error instanceof RuntimeException) {
+          throw (RuntimeException) error;
+        } else if (error instanceof IOException) {
+          throw (IOException) error;
+        } else {
+          throw new IOException("Unexpected error during HTTP processing", error);
+        }
+      }
+    } catch (java.util.concurrent.TimeoutException e) {
+      throw new IOException("HTTP request timeout: " + url, e);
+    } catch (java.util.concurrent.ExecutionException e) {
+      Throwable cause = e.getCause();
+      if (cause instanceof RuntimeException) {
+        throw (RuntimeException) cause;
+      } else if (cause instanceof IOException) {
+        throw (IOException) cause;
+      } else {
+        throw new IOException("HTTP request failed: " + url, cause);
+      }
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IOException("HTTP request interrupted: " + url, e);
     } catch (RuntimeException e) {
       // WebClient error responses are wrapped in RuntimeException
       String errorMessage = "HTTP request failed: " + url + " - " + e.getMessage();

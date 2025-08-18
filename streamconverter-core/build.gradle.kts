@@ -76,6 +76,9 @@ dependencies {
     
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.0")
+    
+    // WireMock for HTTP mocking in tests
+    testImplementation("org.wiremock:wiremock:3.10.0")
 }
 
 // Spotless configuration for code formatting

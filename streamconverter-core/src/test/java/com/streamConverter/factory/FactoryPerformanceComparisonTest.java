@@ -101,7 +101,7 @@ class FactoryPerformanceComparisonTest {
     // Create instances using simple new
     JsonNavigateCommand[] simpleCommands = new JsonNavigateCommand[100];
     for (int i = 0; i < 100; i++) {
-      simpleCommands[i] = new JsonNavigateCommand(TEST_JSON_PATH);
+      simpleCommands[i] = JsonNavigateCommand.extractOnly(TEST_JSON_PATH);
     }
 
     System.gc();
@@ -206,7 +206,7 @@ class FactoryPerformanceComparisonTest {
 
   private long measureSimpleNewCreation() {
     long startTime = System.currentTimeMillis();
-    JsonNavigateCommand command = new JsonNavigateCommand(TEST_JSON_PATH);
+    JsonNavigateCommand command = JsonNavigateCommand.extractOnly(TEST_JSON_PATH);
     assertNotNull(command);
     return System.currentTimeMillis() - startTime;
   }
@@ -234,7 +234,7 @@ class FactoryPerformanceComparisonTest {
   private long measureSimpleNewRepeated() {
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < ITERATION_COUNT; i++) {
-      JsonNavigateCommand command = new JsonNavigateCommand(TEST_JSON_PATH);
+      JsonNavigateCommand command = JsonNavigateCommand.extractOnly(TEST_JSON_PATH);
       assertNotNull(command);
     }
     return System.currentTimeMillis() - startTime;
@@ -265,7 +265,7 @@ class FactoryPerformanceComparisonTest {
   }
 
   private long measureSimpleNewExecution() throws IOException {
-    JsonNavigateCommand command = new JsonNavigateCommand(TEST_JSON_PATH);
+    JsonNavigateCommand command = JsonNavigateCommand.extractOnly(TEST_JSON_PATH);
 
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < 10; i++) {

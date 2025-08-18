@@ -114,6 +114,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">デフォルトコンストラクタ</div>
 </div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,boolean)" class="member-name-link">SendHttpCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;url,
+ boolean&nbsp;allowLocalhost)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">テスト用コンストラクタ（ローカルホストアクセス許可オプション付き）</div>
+</div>
 </div>
 </section>
 </li>
@@ -165,6 +170,21 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>url</code> - 送信先のURL</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - URLが無効な場合</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(java.lang.String,boolean)">
+<h3>SendHttpCommand</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name">SendHttpCommand</span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;url,
+ boolean&nbsp;allowLocalhost)</span></div>
+<div class="block">テスト用コンストラクタ（ローカルホストアクセス許可オプション付き）</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>url</code> - 送信先のURL</dd>
+<dd><code>allowLocalhost</code> - ローカルホストアクセスを許可するかどうか（テスト用）</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - URLが無効な場合</dd>
 </dl>

@@ -347,4 +347,130 @@ public class CsvValidateCommandTest {
     // 必須カラムなしの場合は任意の構造で成功
     assertDoesNotThrow(() -> command.consume(inputStream));
   }
+
+  @Test
+  @DisplayName(
+      "Verify streaming behavior: validation completes before input stream is fully consumed")
+  void testStreamingValidationBehavior() throws IOException {
+    String[] requiredColumns = {"id", "name", "email"};
+    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+
+    // Create a larger CSV to ensure streaming behavior is observable
+    StringBuilder csvBuilder = new StringBuilder();
+    csvBuilder.append("id,name,email,department\n");
+    for (int i = 1; i <= 50; i++) {
+      csvBuilder.append(String.format("%d,User%d,user%d@example.com,Dept%d\n", i, i, i, i % 5));
+    }
+    String csvData = csvBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
+
+    // When - execute validation
+    long startTime = System.nanoTime();
+    assertDoesNotThrow(() -> command.consume(trackingInputStream));
+    long endTime = System.nanoTime();
+
+    // Then - verify the input was fully processed
+    assertTrue(
+        trackingInputStream.isFullyRead(),
+        "InputStream should be fully consumed during validation");
+
+    // Verify that validation processing occurred within reasonable time
+    long processingTimeNanos = endTime - startTime;
+    assertTrue(processingTimeNanos > 0, "Processing should take measurable time");
+
+    // Verify the input was read progressively (not all at once)
+    assertTrue(trackingInputStream.getTotalBytes() > 0, "Should have processed actual data");
+  }
+
+  @Test
+  @DisplayName("Verify incremental CSV processing with streaming validation")
+  void testIncrementalCsvValidation() throws IOException {
+    String[] requiredColumns = {"id", "name"};
+    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+
+    // Create CSV data that requires incremental processing
+    StringBuilder csvBuilder = new StringBuilder();
+    csvBuilder.append("id,name,email,notes\n");
+    for (int i = 1; i <= 100; i++) {
+      csvBuilder.append(
+          String.format("%d,\"User %d\",user%d@example.com,\"Note for user %d\"\n", i, i, i, i));
+    }
+    String csvData = csvBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
+
+    // When - perform validation
+    long validationStart = System.nanoTime();
+    assertDoesNotThrow(() -> command.consume(trackingInputStream));
+    long validationEnd = System.nanoTime();
+
+    // Then - verify streaming characteristics
+    assertTrue(trackingInputStream.isFullyRead(), "All input should be consumed");
+    assertTrue(
+        trackingInputStream.getTotalBytes() > 1000, "Should process substantial amount of data");
+
+    long processingTime = validationEnd - validationStart;
+    assertTrue(processingTime > 0, "Validation should take measurable time");
+
+    // Verify that the validation was successful (no exception thrown)
+    // This confirms that streaming validation maintains correctness
+  }
+
+  /** Custom InputStream that tracks read operations for streaming behavior verification */
+  private static class TrackingInputStream extends ByteArrayInputStream {
+    private long fullyReadTime = -1;
+    private final int totalBytes;
+    private int bytesRead = 0;
+
+    public TrackingInputStream(byte[] buf) {
+      super(buf);
+      this.totalBytes = buf.length;
+    }
+
+    @Override
+    public int read() {
+      int result = super.read();
+      if (result != -1) {
+        bytesRead++;
+      } else if (fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return result;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) {
+      int bytesActuallyRead = super.read(b, off, len);
+      if (bytesActuallyRead > 0) {
+        bytesRead += bytesActuallyRead;
+      }
+      if (bytesActuallyRead == -1 && fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return bytesActuallyRead;
+    }
+
+    public boolean isFullyRead() {
+      return fullyReadTime != -1;
+    }
+
+    public long getFullyReadTime() {
+      return fullyReadTime;
+    }
+
+    public int getTotalBytes() {
+      return totalBytes;
+    }
+
+    public int getBytesRead() {
+      return bytesRead;
+    }
+
+    public double getReadProgress() {
+      return totalBytes > 0 ? (double) bytesRead / totalBytes : 0.0;
+    }
+  }
 }

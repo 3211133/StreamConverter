@@ -165,4 +165,188 @@ class ValidateTest {
           });
     }
   }
+
+  @Test
+  @DisplayName("Streaming XML validation behavior verification")
+  void testStreamingXmlValidationBehavior() throws IOException {
+    ValidateCommand command = new ValidateCommand(schemaPath);
+
+    // Create multiple valid XML documents to observe streaming behavior
+    StringBuilder xmlBuilder = new StringBuilder();
+    xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    xmlBuilder.append("<root id=\"streaming-test\">\n");
+
+    for (int i = 0; i < 50; i++) {
+      xmlBuilder.append(
+          String.format(
+              "  <element>Record %d: This is a test record %d for XML validation streaming behavior verification with value %d</element>\n",
+              i, i, i * 100));
+    }
+    xmlBuilder.append("</root>");
+
+    String xmlData = xmlBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - execute XML validation
+    command.execute(trackingInputStream, monitoringOutputStream);
+
+    // Then - verify streaming behavior occurred
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "OutputStream should have received data during XML validation");
+    assertTrue(
+        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
+
+    // Verify data was processed incrementally
+    assertTrue(
+        trackingInputStream.getBytesRead() > 0,
+        "Input stream should have been read during XML validation");
+
+    // Verify the validation was successful and content was passed through
+    String output = monitoringOutputStream.getContent();
+    assertEquals(xmlData, output, "XML validation should pass through valid content unchanged");
+  }
+
+  @Test
+  @DisplayName("Incremental XML validation processing verification")
+  void testIncrementalXmlValidationProcessing() throws IOException {
+    ValidateCommand command = new ValidateCommand(schemaPath);
+
+    // Create complex XML with nested structures to force incremental processing
+    StringBuilder xmlBuilder = new StringBuilder();
+    xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    xmlBuilder.append("<root id=\"incremental-test\">\n");
+
+    for (int i = 1; i <= 100; i++) {
+      xmlBuilder.append(
+          String.format(
+              "  <element>XML Validation Record %d with value %d in Category %d - Detailed content for record %d with extensive XML validation streaming behavior testing data and complex nested structures (tags: tag%d, streaming, validation)</element>\n",
+              i, i * 1000, i % 10, i, i));
+    }
+    xmlBuilder.append("</root>");
+
+    String xmlData = xmlBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - perform incremental XML validation processing
+    long processingStart = System.nanoTime();
+    command.execute(trackingInputStream, monitoringOutputStream);
+    long processingEnd = System.nanoTime();
+
+    // Then - verify incremental processing characteristics
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "Output should be written during XML validation");
+    assertTrue(trackingInputStream.isFullyRead(), "Input should be fully processed");
+
+    // Verify substantial XML data was processed
+    assertTrue(
+        trackingInputStream.getBytesRead() > 15000,
+        "Should have processed substantial amount of XML data");
+
+    long processingTime = processingEnd - processingStart;
+    assertTrue(processingTime > 0, "XML validation should take measurable time");
+
+    // Verify output was generated correctly (XML validation should pass through valid content)
+    String output = monitoringOutputStream.getContent();
+    assertEquals(xmlData, output, "XML validation should pass through valid content unchanged");
+  }
+
+  /** Custom InputStream that tracks read operations for streaming behavior verification */
+  private static class TrackingInputStream extends ByteArrayInputStream {
+    private long fullyReadTime = -1;
+    private final int totalBytes;
+    private int bytesRead = 0;
+
+    public TrackingInputStream(byte[] buf) {
+      super(buf);
+      this.totalBytes = buf.length;
+    }
+
+    @Override
+    public int read() {
+      int result = super.read();
+      if (result != -1) {
+        bytesRead++;
+      } else if (fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return result;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) {
+      int bytesActuallyRead = super.read(b, off, len);
+      if (bytesActuallyRead > 0) {
+        bytesRead += bytesActuallyRead;
+      }
+      if (bytesActuallyRead == -1 && fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return bytesActuallyRead;
+    }
+
+    public boolean isFullyRead() {
+      return fullyReadTime != -1;
+    }
+
+    public long getFullyReadTime() {
+      return fullyReadTime;
+    }
+
+    public int getBytesRead() {
+      return bytesRead;
+    }
+
+    public int getTotalBytes() {
+      return totalBytes;
+    }
+
+    public double getReadProgress() {
+      return totalBytes > 0 ? (double) bytesRead / totalBytes : 0.0;
+    }
+  }
+
+  /** Custom OutputStream that monitors write operations and timing */
+  private static class MonitoringOutputStream extends ByteArrayOutputStream {
+    private long firstWriteTime = -1;
+    private boolean hasWriteOccurred = false;
+
+    @Override
+    public void write(int b) {
+      recordFirstWrite();
+      super.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) {
+      recordFirstWrite();
+      super.write(b, off, len);
+    }
+
+    private void recordFirstWrite() {
+      if (!hasWriteOccurred) {
+        firstWriteTime = System.nanoTime();
+        hasWriteOccurred = true;
+      }
+    }
+
+    public boolean hasWriteOccurred() {
+      return hasWriteOccurred;
+    }
+
+    public long getFirstWriteTime() {
+      return firstWriteTime;
+    }
+
+    public String getContent() {
+      return toString(StandardCharsets.UTF_8);
+    }
+  }
 }

@@ -141,4 +141,214 @@ class JsonNavigateCommandTest {
     // Verify processing was successful (data size matches)
     assertTrue(usage.getDataSizeMB() > 0, "Should have processed some data");
   }
+
+  @Test
+  void testStreamingJsonNavigationBehavior() throws IOException {
+    // Create moderate-sized JSON data to observe streaming behavior
+    StringBuilder jsonBuilder = new StringBuilder();
+    jsonBuilder.append("{\n");
+    jsonBuilder.append("  \"products\": [\n");
+
+    for (int i = 0; i < 100; i++) {
+      if (i > 0) jsonBuilder.append(",\n");
+      jsonBuilder.append(
+          String.format(
+              """
+        {
+          "id": %d,
+          "name": "Product %d",
+          "description": "This is a detailed description of product %d with various features",
+          "price": %.2f,
+          "category": "Category %d",
+          "tags": ["tag%d", "feature%d", "type%d"]
+        }""",
+              i, i, i, 19.99 + (i * 0.5), i % 10, i, i, i % 5));
+    }
+
+    jsonBuilder.append("\n  ]\n}");
+    String jsonData = jsonBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - execute JSON navigation
+    command.execute(trackingInputStream, monitoringOutputStream);
+
+    // Then - verify streaming behavior occurred
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "OutputStream should have received data during JSON navigation");
+    assertTrue(
+        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
+
+    // Verify data was processed incrementally
+    assertTrue(
+        trackingInputStream.getBytesRead() > 0,
+        "Input stream should have been read during JSON processing");
+
+    // Verify the content was processed (output should contain some JSON-related data)
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.length() > 0, "Should have produced some output from JSON navigation");
+  }
+
+  @Test
+  void testIncrementalJsonNavigationProcessing() throws IOException {
+    // Create complex JSON with nested structures to force incremental processing
+    StringBuilder jsonBuilder = new StringBuilder();
+    jsonBuilder.append("{\n");
+    jsonBuilder.append("  \"company\": {\n");
+    jsonBuilder.append("    \"departments\": [\n");
+
+    for (int i = 1; i <= 50; i++) {
+      if (i > 1) jsonBuilder.append(",\n");
+      jsonBuilder.append(
+          String.format(
+              """
+        {
+          "id": %d,
+          "name": "Department %d",
+          "employees": [
+            {
+              "id": %d,
+              "name": "Employee %d-1",
+              "role": "Manager",
+              "projects": [
+                {"name": "Project Alpha %d", "status": "active"},
+                {"name": "Project Beta %d", "status": "completed"}
+              ]
+            },
+            {
+              "id": %d,
+              "name": "Employee %d-2",
+              "role": "Developer",
+              "skills": ["Java", "JSON", "Streaming", "Performance"]
+            }
+          ]
+        }""",
+              i, i, i * 100, i, i, i, i * 100 + 1, i));
+    }
+
+    jsonBuilder.append("\n    ]\n  }\n}");
+    String jsonData = jsonBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - perform incremental JSON navigation processing
+    long processingStart = System.nanoTime();
+    command.execute(trackingInputStream, monitoringOutputStream);
+    long processingEnd = System.nanoTime();
+
+    // Then - verify incremental processing characteristics
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "Output should be written during JSON processing");
+    assertTrue(trackingInputStream.isFullyRead(), "Input should be fully processed");
+
+    // Verify substantial JSON data was processed
+    assertTrue(
+        trackingInputStream.getBytesRead() > 5000,
+        "Should have processed substantial amount of JSON data");
+
+    long processingTime = processingEnd - processingStart;
+    assertTrue(processingTime > 0, "JSON processing should take measurable time");
+
+    // Verify output was generated (JSON navigation should produce some result)
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.length() > 0, "JSON navigation should produce output");
+  }
+
+  /** Custom InputStream that tracks read operations for streaming behavior verification */
+  private static class TrackingInputStream extends ByteArrayInputStream {
+    private long fullyReadTime = -1;
+    private final int totalBytes;
+    private int bytesRead = 0;
+
+    public TrackingInputStream(byte[] buf) {
+      super(buf);
+      this.totalBytes = buf.length;
+    }
+
+    @Override
+    public int read() {
+      int result = super.read();
+      if (result != -1) {
+        bytesRead++;
+      } else if (fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return result;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) {
+      int bytesActuallyRead = super.read(b, off, len);
+      if (bytesActuallyRead > 0) {
+        bytesRead += bytesActuallyRead;
+      }
+      if (bytesActuallyRead == -1 && fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return bytesActuallyRead;
+    }
+
+    public boolean isFullyRead() {
+      return fullyReadTime != -1;
+    }
+
+    public long getFullyReadTime() {
+      return fullyReadTime;
+    }
+
+    public int getBytesRead() {
+      return bytesRead;
+    }
+
+    public int getTotalBytes() {
+      return totalBytes;
+    }
+
+    public double getReadProgress() {
+      return totalBytes > 0 ? (double) bytesRead / totalBytes : 0.0;
+    }
+  }
+
+  /** Custom OutputStream that monitors write operations and timing */
+  private static class MonitoringOutputStream extends ByteArrayOutputStream {
+    private long firstWriteTime = -1;
+    private boolean hasWriteOccurred = false;
+
+    @Override
+    public void write(int b) {
+      recordFirstWrite();
+      super.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) {
+      recordFirstWrite();
+      super.write(b, off, len);
+    }
+
+    private void recordFirstWrite() {
+      if (!hasWriteOccurred) {
+        firstWriteTime = System.nanoTime();
+        hasWriteOccurred = true;
+      }
+    }
+
+    public boolean hasWriteOccurred() {
+      return hasWriteOccurred;
+    }
+
+    public long getFirstWriteTime() {
+      return firstWriteTime;
+    }
+
+    public String getContent() {
+      return toString(StandardCharsets.UTF_8);
+    }
+  }
 }

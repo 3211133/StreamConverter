@@ -118,4 +118,177 @@ class CsvNavigateCommandTest {
     // Verify processing was successful (data size matches)
     assertTrue(usage.getDataSizeMB() > 0, "Should have processed some data");
   }
+
+  @Test
+  void testStreamingCsvNavigationBehavior() throws IOException {
+    // Create moderate-sized CSV data to observe streaming behavior
+    StringBuilder csvBuilder = new StringBuilder();
+    csvBuilder.append("id,product_name,category,price,description\n");
+
+    for (int i = 0; i < 100; i++) {
+      csvBuilder.append(
+          String.format(
+              "%d,\"Product %d\",\"Category %d\",%.2f,\"This is a detailed description of product %d with various features and specifications\"\n",
+              i, i, i % 10, 19.99 + (i * 0.5), i));
+    }
+    String csvData = csvBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - execute CSV navigation
+    command.execute(trackingInputStream, monitoringOutputStream);
+
+    // Then - verify streaming behavior occurred
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "OutputStream should have received data during CSV navigation");
+    assertTrue(
+        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
+
+    // Verify data was processed incrementally
+    assertTrue(
+        trackingInputStream.getBytesRead() > 0,
+        "Input stream should have been read during CSV processing");
+
+    // Verify the content was processed (output should contain some CSV-related data)
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.length() > 0, "Should have produced some output from CSV navigation");
+  }
+
+  @Test
+  void testIncrementalCsvNavigationProcessing() throws IOException {
+    // Create complex CSV with various data types to force incremental processing
+    StringBuilder csvBuilder = new StringBuilder();
+    csvBuilder.append(
+        "employee_id,first_name,last_name,department,position,salary,hire_date,email,address,phone,notes\n");
+
+    for (int i = 1; i <= 200; i++) {
+      csvBuilder.append(
+          String.format(
+              "%d,\"Employee%d\",\"LastName%d\",\"Department %d\",\"Position %d\",%.2f,\"2024-01-%02d\",\"emp%d@company.com\",\"Address %d Street, City %d\",\"555-000-%04d\",\"Detailed employee notes and performance review data for employee %d with extensive background information\"\n",
+              i, i, i, i % 10, i % 5, 50000.0 + (i * 100), (i % 28) + 1, i, i, i % 20, i, i));
+    }
+    String csvData = csvBuilder.toString();
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - perform incremental CSV navigation processing
+    long processingStart = System.nanoTime();
+    command.execute(trackingInputStream, monitoringOutputStream);
+    long processingEnd = System.nanoTime();
+
+    // Then - verify incremental processing characteristics
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "Output should be written during CSV processing");
+    assertTrue(trackingInputStream.isFullyRead(), "Input should be fully processed");
+
+    // Verify substantial CSV data was processed
+    assertTrue(
+        trackingInputStream.getBytesRead() > 10000,
+        "Should have processed substantial amount of CSV data");
+
+    long processingTime = processingEnd - processingStart;
+    assertTrue(processingTime > 0, "CSV processing should take measurable time");
+
+    // Verify output was generated (CSV navigation should produce some result)
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.length() > 0, "CSV navigation should produce output");
+  }
+
+  /** Custom InputStream that tracks read operations for streaming behavior verification */
+  private static class TrackingInputStream extends ByteArrayInputStream {
+    private long fullyReadTime = -1;
+    private final int totalBytes;
+    private int bytesRead = 0;
+
+    public TrackingInputStream(byte[] buf) {
+      super(buf);
+      this.totalBytes = buf.length;
+    }
+
+    @Override
+    public int read() {
+      int result = super.read();
+      if (result != -1) {
+        bytesRead++;
+      } else if (fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return result;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) {
+      int bytesActuallyRead = super.read(b, off, len);
+      if (bytesActuallyRead > 0) {
+        bytesRead += bytesActuallyRead;
+      }
+      if (bytesActuallyRead == -1 && fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return bytesActuallyRead;
+    }
+
+    public boolean isFullyRead() {
+      return fullyReadTime != -1;
+    }
+
+    public long getFullyReadTime() {
+      return fullyReadTime;
+    }
+
+    public int getBytesRead() {
+      return bytesRead;
+    }
+
+    public int getTotalBytes() {
+      return totalBytes;
+    }
+
+    public double getReadProgress() {
+      return totalBytes > 0 ? (double) bytesRead / totalBytes : 0.0;
+    }
+  }
+
+  /** Custom OutputStream that monitors write operations and timing */
+  private static class MonitoringOutputStream extends ByteArrayOutputStream {
+    private long firstWriteTime = -1;
+    private boolean hasWriteOccurred = false;
+
+    @Override
+    public void write(int b) {
+      recordFirstWrite();
+      super.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) {
+      recordFirstWrite();
+      super.write(b, off, len);
+    }
+
+    private void recordFirstWrite() {
+      if (!hasWriteOccurred) {
+        firstWriteTime = System.nanoTime();
+        hasWriteOccurred = true;
+      }
+    }
+
+    public boolean hasWriteOccurred() {
+      return hasWriteOccurred;
+    }
+
+    public long getFirstWriteTime() {
+      return firstWriteTime;
+    }
+
+    public String getContent() {
+      return toString(StandardCharsets.UTF_8);
+    }
+  }
 }

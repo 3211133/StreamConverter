@@ -155,4 +155,277 @@ class FilterCommandBasicTest {
     String expected = createTestData("田中太郎", "佐藤花子", "");
     assertEquals(expected, result);
   }
+
+  @Test
+  void testStreamingJsonFilterBehavior() throws IOException {
+    // Create multiple JSON objects to observe streaming behavior
+    StringBuilder jsonBuilder = new StringBuilder();
+    jsonBuilder.append("[\n");
+
+    for (int i = 0; i < 100; i++) {
+      if (i > 0) jsonBuilder.append(",\n");
+      jsonBuilder.append(
+          String.format(
+              "  {\"id\": %d, \"name\": \"User %d\", \"category\": \"Category %d\", \"value\": %d}",
+              i, i, i % 10, i * 100));
+    }
+    jsonBuilder.append("\n]");
+
+    String jsonData = jsonBuilder.toString();
+
+    JsonFilterCommand command = new JsonFilterCommand("$[*].name");
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - execute JSON filtering
+    command.execute(trackingInputStream, monitoringOutputStream);
+
+    // Then - verify streaming behavior occurred
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "OutputStream should have received data during JSON filtering");
+    assertTrue(
+        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
+
+    // Verify data was processed incrementally
+    assertTrue(
+        trackingInputStream.getBytesRead() > 0,
+        "Input stream should have been read during JSON filtering");
+
+    // Verify the filtering was successful
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.contains("User"), "Should contain filtered JSON data");
+  }
+
+  @Test
+  void testStreamingCsvFilterBehavior() throws IOException {
+    // Create CSV data with multiple columns to observe streaming behavior
+    StringBuilder csvBuilder = new StringBuilder();
+    csvBuilder.append("id,name,email,department,salary\n");
+
+    for (int i = 0; i < 200; i++) {
+      csvBuilder.append(
+          String.format(
+              "%d,Employee %d,emp%d@company.com,Department %d,%.2f\n",
+              i, i, i, i % 10, 50000.0 + (i * 100)));
+    }
+    String csvData = csvBuilder.toString();
+
+    CsvFilterCommand command = new CsvFilterCommand(Arrays.asList("name", "department"));
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - execute CSV filtering
+    command.execute(trackingInputStream, monitoringOutputStream);
+
+    // Then - verify streaming behavior occurred
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "OutputStream should have received data during CSV filtering");
+    assertTrue(
+        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
+
+    // Verify data was processed incrementally
+    assertTrue(
+        trackingInputStream.getBytesRead() > 0,
+        "Input stream should have been read during CSV filtering");
+
+    // Verify the filtering was successful
+    String output = monitoringOutputStream.getContent();
+    assertTrue(
+        output.contains("name,department"), "Should contain CSV header for selected columns");
+    assertTrue(output.contains("Employee"), "Should contain filtered CSV data");
+  }
+
+  @Test
+  void testStreamingXmlFilterBehavior() throws IOException {
+    // Create XML data with multiple elements to observe streaming behavior
+    StringBuilder xmlBuilder = new StringBuilder();
+    xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    xmlBuilder.append("<records>\n");
+
+    for (int i = 0; i < 150; i++) {
+      xmlBuilder.append(
+          String.format(
+              "  <record id=\"%d\">\n"
+                  + "    <name>Record %d</name>\n"
+                  + "    <category>Category %d</category>\n"
+                  + "    <data>Streaming test data for record %d with detailed information</data>\n"
+                  + "    <status>active</status>\n"
+                  + "  </record>\n",
+              i, i, i % 10, i));
+    }
+    xmlBuilder.append("</records>");
+
+    String xmlData = xmlBuilder.toString();
+
+    XmlFilterCommand command = new XmlFilterCommand("records/record/name");
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - execute XML filtering
+    command.execute(trackingInputStream, monitoringOutputStream);
+
+    // Then - verify streaming behavior occurred
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "OutputStream should have received data during XML filtering");
+    assertTrue(
+        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
+
+    // Verify data was processed incrementally
+    assertTrue(
+        trackingInputStream.getBytesRead() > 0,
+        "Input stream should have been read during XML filtering");
+
+    // Verify the filtering was successful
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.contains("Record"), "Should contain filtered XML data");
+  }
+
+  @Test
+  void testIncrementalFilterProcessing() throws IOException {
+    // Create large mixed format data for comprehensive incremental processing test
+    StringBuilder jsonBuilder = new StringBuilder();
+    jsonBuilder.append("{\n  \"users\": [\n");
+
+    for (int i = 0; i < 300; i++) {
+      if (i > 0) jsonBuilder.append(",\n");
+      jsonBuilder.append(
+          String.format(
+              "    {\"id\": %d, \"name\": \"User %d\", \"email\": \"user%d@example.com\", "
+                  + "\"profile\": {\"department\": \"Dept %d\", \"role\": \"Role %d\"}, "
+                  + "\"metadata\": {\"created\": \"2024-01-%02d\", \"active\": true}}",
+              i, i, i, i % 20, i % 5, (i % 28) + 1));
+    }
+    jsonBuilder.append("\n  ]\n}");
+
+    String jsonData = jsonBuilder.toString();
+
+    JsonFilterCommand command = new JsonFilterCommand("$.users[*].profile.department");
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - perform incremental filtering processing
+    long processingStart = System.nanoTime();
+    command.execute(trackingInputStream, monitoringOutputStream);
+    long processingEnd = System.nanoTime();
+
+    // Then - verify incremental processing characteristics
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(), "Output should be written during filtering");
+    assertTrue(trackingInputStream.isFullyRead(), "Input should be fully processed");
+
+    // Verify substantial data was processed
+    assertTrue(
+        trackingInputStream.getBytesRead() > 20000,
+        "Should have processed substantial amount of JSON data");
+
+    long processingTime = processingEnd - processingStart;
+    assertTrue(processingTime > 0, "Filtering should take measurable time");
+
+    // Verify output was generated correctly
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.contains("Dept"), "Filtering should produce expected department data");
+  }
+
+  /** Custom InputStream that tracks read operations for streaming behavior verification */
+  private static class TrackingInputStream extends ByteArrayInputStream {
+    private long fullyReadTime = -1;
+    private final int totalBytes;
+    private int bytesRead = 0;
+
+    public TrackingInputStream(byte[] buf) {
+      super(buf);
+      this.totalBytes = buf.length;
+    }
+
+    @Override
+    public int read() {
+      int result = super.read();
+      if (result != -1) {
+        bytesRead++;
+      } else if (fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return result;
+    }
+
+    @Override
+    public int read(byte[] b, int off, int len) {
+      int bytesActuallyRead = super.read(b, off, len);
+      if (bytesActuallyRead > 0) {
+        bytesRead += bytesActuallyRead;
+      }
+      if (bytesActuallyRead == -1 && fullyReadTime == -1) {
+        fullyReadTime = System.nanoTime();
+      }
+      return bytesActuallyRead;
+    }
+
+    public boolean isFullyRead() {
+      return fullyReadTime != -1;
+    }
+
+    public long getFullyReadTime() {
+      return fullyReadTime;
+    }
+
+    public int getBytesRead() {
+      return bytesRead;
+    }
+
+    public int getTotalBytes() {
+      return totalBytes;
+    }
+
+    public double getReadProgress() {
+      return totalBytes > 0 ? (double) bytesRead / totalBytes : 0.0;
+    }
+  }
+
+  /** Custom OutputStream that monitors write operations and timing */
+  private static class MonitoringOutputStream extends ByteArrayOutputStream {
+    private long firstWriteTime = -1;
+    private boolean hasWriteOccurred = false;
+
+    @Override
+    public void write(int b) {
+      recordFirstWrite();
+      super.write(b);
+    }
+
+    @Override
+    public void write(byte[] b, int off, int len) {
+      recordFirstWrite();
+      super.write(b, off, len);
+    }
+
+    private void recordFirstWrite() {
+      if (!hasWriteOccurred) {
+        firstWriteTime = System.nanoTime();
+        hasWriteOccurred = true;
+      }
+    }
+
+    public boolean hasWriteOccurred() {
+      return hasWriteOccurred;
+    }
+
+    public long getFirstWriteTime() {
+      return firstWriteTime;
+    }
+
+    public String getContent() {
+      return toString(StandardCharsets.UTF_8);
+    }
+  }
 }

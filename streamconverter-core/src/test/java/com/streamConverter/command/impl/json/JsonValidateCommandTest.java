@@ -501,7 +501,7 @@ public class JsonValidateCommandTest {
     }
 
     public boolean isFullyRead() {
-      return fullyReadTime != -1 || bytesRead >= totalBytes;
+      return fullyReadTime != -1;
     }
 
     public long getFullyReadTime() {

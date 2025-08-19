@@ -1,5 +1,7 @@
 package com.streamConverter.command.impl.json;
 
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
@@ -11,7 +13,6 @@ import com.streamConverter.command.ConsumerCommand;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.Objects;
 import java.util.Set;
 import org.slf4j.Logger;
@@ -85,31 +86,22 @@ public class JsonValidateCommand extends ConsumerCommand {
       // スキーマファイルの読み込み
       JsonSchema schema = loadSchema();
 
-      // JSONデータの読み込み
+      // JSONデータのストリーミング読み込み
       JsonNode jsonNode;
       try {
-        // 入力ストリームの内容を確認
-        byte[] inputBytes = inputStream.readAllBytes();
-        if (inputBytes.length == 0) {
-          throw new StreamProcessingException("Failed to parse JSON input: Input stream is empty");
+        JsonFactory jsonFactory = objectMapper.getFactory();
+        try (JsonParser parser = jsonFactory.createParser(inputStream)) {
+          // ストリーミングでJSONを解析
+          jsonNode = objectMapper.readTree(parser);
+          if (jsonNode == null) {
+            throw new StreamProcessingException(
+                "Failed to parse JSON input: Input stream is empty or contains no valid JSON data");
+          }
         }
-
-        String inputString = new String(inputBytes, StandardCharsets.UTF_8).trim();
-        if (inputString.isEmpty()) {
-          throw new StreamProcessingException(
-              "Failed to parse JSON input: Input contains only whitespace");
-        }
-
-        jsonNode = objectMapper.readTree(inputString);
       } catch (StreamProcessingException e) {
         throw e;
       } catch (Exception e) {
         throw new StreamProcessingException("Failed to parse JSON input: " + e.getMessage(), e);
-      }
-
-      if (jsonNode == null) {
-        throw new StreamProcessingException(
-            "Failed to parse JSON input: Input stream contains no valid JSON data");
       }
 
       logger.debug("JSON data loaded successfully, validating against schema");

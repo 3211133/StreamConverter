@@ -3,6 +3,7 @@ package com.streamConverter.command.impl.csv;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamConverter.StreamProcessingException;
+import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -417,60 +418,5 @@ public class CsvValidateCommandTest {
 
     // Verify that the validation was successful (no exception thrown)
     // This confirms that streaming validation maintains correctness
-  }
-
-  /** Custom InputStream that tracks read operations for streaming behavior verification */
-  private static class TrackingInputStream extends ByteArrayInputStream {
-    private long fullyReadTime = -1;
-    private final int totalBytes;
-    private int bytesRead = 0;
-
-    public TrackingInputStream(byte[] buf) {
-      super(buf);
-      this.totalBytes = buf.length;
-    }
-
-    @Override
-    public int read() {
-      int result = super.read();
-      if (result != -1) {
-        bytesRead++;
-      } else if (fullyReadTime == -1) {
-        fullyReadTime = System.nanoTime();
-      }
-      return result;
-    }
-
-    @Override
-    public int read(byte[] b, int off, int len) {
-      int bytesActuallyRead = super.read(b, off, len);
-      if (bytesActuallyRead > 0) {
-        bytesRead += bytesActuallyRead;
-      }
-      if (bytesActuallyRead == -1 && fullyReadTime == -1) {
-        fullyReadTime = System.nanoTime();
-      }
-      return bytesActuallyRead;
-    }
-
-    public boolean isFullyRead() {
-      return fullyReadTime != -1;
-    }
-
-    public long getFullyReadTime() {
-      return fullyReadTime;
-    }
-
-    public int getTotalBytes() {
-      return totalBytes;
-    }
-
-    public int getBytesRead() {
-      return bytesRead;
-    }
-
-    public double getReadProgress() {
-      return totalBytes > 0 ? (double) bytesRead / totalBytes : 0.0;
-    }
   }
 }

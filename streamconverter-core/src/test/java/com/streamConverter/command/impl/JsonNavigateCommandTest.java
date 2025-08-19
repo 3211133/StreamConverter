@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.streamConverter.benchmark.ResourceMonitor;
 import com.streamConverter.benchmark.ResourceUsage;
+import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
+import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -258,97 +260,5 @@ class JsonNavigateCommandTest {
     // Verify output was generated (JSON navigation should produce some result)
     String output = monitoringOutputStream.getContent();
     assertTrue(output.length() > 0, "JSON navigation should produce output");
-  }
-
-  /** Custom InputStream that tracks read operations for streaming behavior verification */
-  private static class TrackingInputStream extends ByteArrayInputStream {
-    private long fullyReadTime = -1;
-    private final int totalBytes;
-    private int bytesRead = 0;
-
-    public TrackingInputStream(byte[] buf) {
-      super(buf);
-      this.totalBytes = buf.length;
-    }
-
-    @Override
-    public int read() {
-      int result = super.read();
-      if (result != -1) {
-        bytesRead++;
-      } else if (fullyReadTime == -1) {
-        fullyReadTime = System.nanoTime();
-      }
-      return result;
-    }
-
-    @Override
-    public int read(byte[] b, int off, int len) {
-      int bytesActuallyRead = super.read(b, off, len);
-      if (bytesActuallyRead > 0) {
-        bytesRead += bytesActuallyRead;
-      }
-      if (bytesActuallyRead == -1 && fullyReadTime == -1) {
-        fullyReadTime = System.nanoTime();
-      }
-      return bytesActuallyRead;
-    }
-
-    public boolean isFullyRead() {
-      return fullyReadTime != -1;
-    }
-
-    public long getFullyReadTime() {
-      return fullyReadTime;
-    }
-
-    public int getBytesRead() {
-      return bytesRead;
-    }
-
-    public int getTotalBytes() {
-      return totalBytes;
-    }
-
-    public double getReadProgress() {
-      return totalBytes > 0 ? (double) bytesRead / totalBytes : 0.0;
-    }
-  }
-
-  /** Custom OutputStream that monitors write operations and timing */
-  private static class MonitoringOutputStream extends ByteArrayOutputStream {
-    private long firstWriteTime = -1;
-    private boolean hasWriteOccurred = false;
-
-    @Override
-    public void write(int b) {
-      recordFirstWrite();
-      super.write(b);
-    }
-
-    @Override
-    public void write(byte[] b, int off, int len) {
-      recordFirstWrite();
-      super.write(b, off, len);
-    }
-
-    private void recordFirstWrite() {
-      if (!hasWriteOccurred) {
-        firstWriteTime = System.nanoTime();
-        hasWriteOccurred = true;
-      }
-    }
-
-    public boolean hasWriteOccurred() {
-      return hasWriteOccurred;
-    }
-
-    public long getFirstWriteTime() {
-      return firstWriteTime;
-    }
-
-    public String getContent() {
-      return toString(StandardCharsets.UTF_8);
-    }
   }
 }

@@ -38,6 +38,7 @@ lib/
 # Documentation (generated)
 docs/javadoc/
 build/docs/javadoc/
+**/docs/javadoc/
 
 # Log files
 *.log

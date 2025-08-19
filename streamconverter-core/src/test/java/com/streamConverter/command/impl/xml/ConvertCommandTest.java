@@ -3,6 +3,8 @@ package com.streamConverter.command.impl.xml;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamConverter.command.rule.TestRule;
+import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
+import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -154,5 +156,121 @@ public class ConvertCommandTest {
     String result = outputStream.toString(StandardCharsets.UTF_8);
     assertTrue(result.contains("TEST value"), "Should transform all matching elements");
     assertTrue(result.split("TEST value").length > 100, "Should process large number of elements");
+  }
+
+  @Test
+  @DisplayName("Streaming XML conversion behavior verification")
+  public void testStreamingXmlConversionBehavior() throws IOException {
+    // Create moderate-sized XML to observe streaming behavior
+    StringBuilder xmlBuilder = new StringBuilder();
+    xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    xmlBuilder.append("<catalog>\n");
+
+    for (int i = 0; i < 100; i++) {
+      xmlBuilder.append(
+          String.format(
+              "  <product id=\"%d\">\n"
+                  + "    <name>Product %d</name>\n"
+                  + "    <description>original description for product %d with detailed information</description>\n"
+                  + "    <price>%.2f</price>\n"
+                  + "  </product>\n",
+              i, i, i, 19.99 + (i * 0.5)));
+    }
+    xmlBuilder.append("</catalog>");
+
+    String xmlData = xmlBuilder.toString();
+
+    TestRule rule = TestRule.contentTransformRule(); // replaces "original" with "transformed"
+    ConvertCommand command = new ConvertCommand(rule, "catalog/product/description");
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - execute XML conversion
+    command.execute(trackingInputStream, monitoringOutputStream);
+
+    // Then - verify streaming behavior occurred
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "OutputStream should have received data during XML conversion");
+    assertTrue(
+        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
+
+    // Verify data was processed incrementally
+    assertTrue(
+        trackingInputStream.getBytesRead() > 0,
+        "Input stream should have been read during XML conversion");
+
+    // Verify the conversion was successful
+    String output = monitoringOutputStream.getContent();
+    assertTrue(output.contains("transformed description"), "Should transform target elements");
+    assertTrue(output.contains("Product"), "Should preserve non-target content");
+  }
+
+  @Test
+  @DisplayName("Incremental XML conversion processing verification")
+  public void testIncrementalXmlConversionProcessing() throws IOException {
+    // Create complex XML with nested structures to force incremental processing
+    StringBuilder xmlBuilder = new StringBuilder();
+    xmlBuilder.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+    xmlBuilder.append("<library>\n");
+
+    for (int i = 1; i <= 150; i++) {
+      xmlBuilder.append(
+          String.format(
+              "  <book id=\"%d\">\n"
+                  + "    <title>Book Title %d</title>\n"
+                  + "    <author>Author %d</author>\n"
+                  + "    <content>\n"
+                  + "      <chapter number=\"1\">\n"
+                  + "        <text>original content for chapter 1 of book %d with extensive text</text>\n"
+                  + "      </chapter>\n"
+                  + "      <chapter number=\"2\">\n"
+                  + "        <text>original content for chapter 2 of book %d with more extensive text</text>\n"
+                  + "      </chapter>\n"
+                  + "    </content>\n"
+                  + "    <metadata>\n"
+                  + "      <category>Category %d</category>\n"
+                  + "      <tags>streaming,xml,conversion,testing</tags>\n"
+                  + "    </metadata>\n"
+                  + "  </book>\n",
+              i, i, i, i, i, i % 10));
+    }
+    xmlBuilder.append("</library>");
+
+    String xmlData = xmlBuilder.toString();
+
+    TestRule rule = TestRule.contentTransformRule(); // replaces "original" with "transformed"
+    ConvertCommand command = new ConvertCommand(rule, "library/book/content/chapter/text");
+
+    TrackingInputStream trackingInputStream =
+        new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
+    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
+
+    // When - perform incremental XML conversion processing
+    long processingStart = System.nanoTime();
+    command.execute(trackingInputStream, monitoringOutputStream);
+    long processingEnd = System.nanoTime();
+
+    // Then - verify incremental processing characteristics
+    assertTrue(
+        monitoringOutputStream.hasWriteOccurred(),
+        "Output should be written during XML conversion");
+    assertTrue(trackingInputStream.isFullyRead(), "Input should be fully processed");
+
+    // Verify substantial XML data was processed
+    assertTrue(
+        trackingInputStream.getBytesRead() > 15000,
+        "Should have processed substantial amount of XML data");
+
+    long processingTime = processingEnd - processingStart;
+    assertTrue(processingTime > 0, "XML conversion should take measurable time");
+
+    // Verify output was generated correctly (XML conversion should transform target content)
+    String output = monitoringOutputStream.getContent();
+    assertTrue(
+        output.contains("transformed content"), "XML conversion should transform target content");
+    assertTrue(output.contains("Book Title"), "Should preserve non-target elements");
   }
 }

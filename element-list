@@ -1,8 +1,10 @@
 com.streamConverter
+com.streamConverter.analysis
 com.streamConverter.api
 com.streamConverter.benchmark
 com.streamConverter.command
 com.streamConverter.command.impl
+com.streamConverter.command.impl.analysis
 com.streamConverter.command.impl.charaCode
 com.streamConverter.command.impl.csv
 com.streamConverter.command.impl.json

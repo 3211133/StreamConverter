@@ -62,6 +62,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:2.18.2")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.18.2")
     
     // Database support
     implementation("com.zaxxer:HikariCP:6.2.1")
@@ -232,5 +233,24 @@ tasks.register("analyzeTestFailures", JavaExec::class) {
     // テスト実行後にのみ実行されるよう条件付きで設定
     onlyIf {
         file("build/test-results/test").exists()
+    }
+}
+
+// StreamConverter PMD実装テストタスク
+tasks.register("testPmdConverter", JavaExec::class) {
+    group = "verification"
+    description = "Test StreamConverter-compliant PMD analysis implementation"
+    
+    dependsOn(tasks.compileJava, tasks.pmdMain)
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.test.PmdConverterTest")
+    
+    // PMD実行後にのみ実行されるよう条件付きで設定
+    onlyIf {
+        file("build/reports/pmd/main.xml").exists()
+    }
+    
+    doFirst {
+        println("🚀 Testing StreamConverter PMD Analysis Implementation...")
     }
 }

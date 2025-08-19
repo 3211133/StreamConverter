@@ -5,12 +5,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
+import com.networknt.schema.ValidationMessage;
 import com.streamConverter.StreamProcessingException;
 import com.streamConverter.command.ConsumerCommand;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Objects;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jsfr.json.JsonSurfer;
@@ -60,6 +62,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
   private final ObjectMapper objectMapper;
   private final JsonSchemaFactory schemaFactory;
   private final JsonSurfer surfer;
+  private volatile JsonSchema cachedSchema;
 
   /**
    * コンストラクタ
@@ -74,12 +77,8 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
     this.schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
     this.surfer = JsonSurferJackson.INSTANCE;
 
-    // コンストラクタでスキーマファイルの妥当性を検証
-    try {
-      loadSchema();
-    } catch (StreamProcessingException e) {
-      throw e;
-    }
+    // パフォーマンス改善: 遅延読み込みによりコンストラクタでのI/O操作を回避
+    // スキーマの妥当性検証は最初の使用時に実行
   }
 
   /** スキーマパスの検証 */
@@ -108,21 +107,37 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
     logger.info("Starting streaming JSON validation with schema: {}", schemaPath);
 
     try {
-      // Phase 1: JsonSurferによる高速ストリーミング事前検証
-      StreamingValidationResult streamingResult = performStreamingValidation(inputStream);
-
-      if (!streamingResult.isValid()) {
-        throw new StreamProcessingException(
-            String.format(
-                "JSON streaming validation failed: %s", streamingResult.getErrorMessage()));
+      // 入力ストリームをバッファリングして再利用可能にする
+      byte[] inputBuffer;
+      try {
+        inputBuffer = inputStream.readAllBytes();
+      } catch (IOException e) {
+        throw new StreamProcessingException("Failed to buffer input stream for validation", e);
       }
 
-      logger.debug("Streaming validation passed, proceeding to schema validation");
+      // Phase 1: JsonSurferによる高速ストリーミング事前検証
+      try (java.io.ByteArrayInputStream streamingInputStream =
+          new java.io.ByteArrayInputStream(inputBuffer)) {
+        StreamingValidationResult streamingResult =
+            performStreamingValidation(streamingInputStream);
+
+        if (!streamingResult.isValid()) {
+          throw new StreamProcessingException(
+              String.format(
+                  "JSON streaming validation failed: %s", streamingResult.getErrorMessage()));
+        }
+
+        logger.debug(
+            "Streaming validation passed ({} elements), proceeding to schema validation",
+            streamingResult.getElementCount());
+      }
 
       // Phase 2: 事前検証通過時のみJSON Schema検証を実行
-      // 注意: この段階では既にストリームが消費されているため、
-      // 実際の実装では入力ストリームの複製やバッファリングが必要
-      logger.info("JSON validation completed successfully (streaming + schema validation)");
+      try (java.io.ByteArrayInputStream schemaInputStream =
+          new java.io.ByteArrayInputStream(inputBuffer)) {
+        performSchemaValidation(schemaInputStream);
+        logger.info("JSON validation completed successfully (streaming + schema validation)");
+      }
 
     } catch (StreamProcessingException e) {
       throw e;
@@ -203,39 +218,87 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
         isValid.get(), errorMessages.toString(), elementCount.get());
   }
 
-  /** JSONスキーマを読み込み */
+  /** JSONスキーマを遅延読み込み（スレッドセーフ） */
   private JsonSchema loadSchema() throws StreamProcessingException {
-    try {
-      File schemaFile = new File(schemaPath);
-      if (!schemaFile.exists()) {
-        throw new StreamProcessingException(
-            "Failed to load JSON schema: Schema file not found: " + schemaPath);
-      }
+    if (cachedSchema != null) {
+      return cachedSchema;
+    }
 
-      if (!schemaFile.canRead()) {
-        throw new StreamProcessingException(
-            "Failed to load JSON schema: Schema file is not readable: " + schemaPath);
+    synchronized (this) {
+      if (cachedSchema != null) {
+        return cachedSchema;
       }
-
-      JsonNode schemaNode;
       try {
-        schemaNode = objectMapper.readTree(schemaFile);
+        File schemaFile = new File(schemaPath);
+        if (!schemaFile.exists()) {
+          throw new StreamProcessingException(
+              "Failed to load JSON schema: Schema file not found: " + schemaPath);
+        }
+
+        if (!schemaFile.canRead()) {
+          throw new StreamProcessingException(
+              "Failed to load JSON schema: Schema file is not readable: " + schemaPath);
+        }
+
+        JsonNode schemaNode;
+        try {
+          schemaNode = objectMapper.readTree(schemaFile);
+        } catch (Exception e) {
+          throw new StreamProcessingException(
+              "Failed to load JSON schema: Invalid schema file format: " + schemaPath, e);
+        }
+
+        if (schemaNode == null) {
+          throw new StreamProcessingException(
+              "Failed to load JSON schema: Schema file is empty: " + schemaPath);
+        }
+
+        cachedSchema = schemaFactory.getSchema(schemaNode);
+        return cachedSchema;
+
+      } catch (StreamProcessingException e) {
+        throw e;
       } catch (Exception e) {
-        throw new StreamProcessingException(
-            "Failed to load JSON schema: Invalid schema file format: " + schemaPath, e);
+        throw new StreamProcessingException("Failed to load JSON schema from: " + schemaPath, e);
+      }
+    }
+  }
+
+  /** JSON Schema検証を実行 */
+  private void performSchemaValidation(InputStream inputStream) throws StreamProcessingException {
+    try {
+      JsonSchema schema = loadSchema();
+      JsonNode jsonNode = objectMapper.readTree(inputStream);
+
+      if (jsonNode == null) {
+        throw new StreamProcessingException("Failed to parse JSON for schema validation");
       }
 
-      if (schemaNode == null) {
-        throw new StreamProcessingException(
-            "Failed to load JSON schema: Schema file is empty: " + schemaPath);
+      Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
+
+      if (!validationMessages.isEmpty()) {
+        StringBuilder errorBuilder = new StringBuilder();
+        errorBuilder
+            .append("JSON schema validation failed with ")
+            .append(validationMessages.size())
+            .append(" validation errors:");
+
+        int errorCount = 0;
+        for (ValidationMessage message : validationMessages) {
+          errorBuilder.append("\n  ").append(++errorCount).append(". ");
+          errorBuilder.append("Path: ").append(message.getInstanceLocation());
+          errorBuilder.append(" - ").append(message.getMessage());
+        }
+
+        throw new StreamProcessingException(errorBuilder.toString());
       }
 
-      return schemaFactory.getSchema(schemaNode);
+      logger.debug("JSON schema validation completed successfully");
 
     } catch (StreamProcessingException e) {
       throw e;
     } catch (Exception e) {
-      throw new StreamProcessingException("Failed to load JSON schema from: " + schemaPath, e);
+      throw new StreamProcessingException("JSON schema validation failed: " + e.getMessage(), e);
     }
   }
 

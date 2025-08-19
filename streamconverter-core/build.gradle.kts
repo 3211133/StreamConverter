@@ -3,6 +3,7 @@ import java.math.BigDecimal
 plugins {
     id("java")
     id("jacoco")
+    id("pmd")
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
 }
@@ -164,9 +165,56 @@ tasks.named("spotlessCheck") {
     enabled = false
 }
 
+// PMD configuration for code smell detection
+pmd {
+    isConsoleOutput = true
+    toolVersion = "7.16.0"
+    rulesMinimumPriority = 5
+    ruleSets = listOf(
+        "category/java/bestpractices.xml",
+        "category/java/codestyle.xml", 
+        "category/java/design.xml",
+        "category/java/errorprone.xml",
+        "category/java/performance.xml",
+        "category/java/security.xml"
+    )
+    isIgnoreFailures = true // PMD違反があってもビルドを継続
+}
+
+// PMD task configuration
+tasks.pmdMain {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+    exclude("**/examples/**", "**/demo/**")
+}
+
 // check タスクの実行時に spotlessApply を依存タスクとして実行する
 tasks.named("check") {
     dependsOn("spotlessApply")
+}
+
+// PMD XMLレポートをAI可読形式に変換するタスク
+tasks.register("convertPmdReport", JavaExec::class) {
+    group = "verification"
+    description = "Convert PMD XML report to AI-readable formats (Markdown, CSV, JSON)"
+    
+    dependsOn(tasks.compileJava, tasks.pmdMain)
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamConverter.analysis.PmdReportConverter")
+    
+    // PMD XMLレポートのパスを引数として渡す
+    args("build/reports/pmd/main.xml", "build/reports/pmd/converted")
+    
+    // PMD実行後にのみ実行されるよう条件付きで設定
+    onlyIf {
+        file("build/reports/pmd/main.xml").exists()
+    }
+    
+    doFirst {
+        println("🔄 Converting PMD XML report to AI-readable formats...")
+    }
 }
 
 // テスト失敗解析タスク

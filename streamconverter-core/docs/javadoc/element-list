@@ -1,4 +1,5 @@
 com.streamConverter
+com.streamConverter.analysis
 com.streamConverter.api
 com.streamConverter.benchmark
 com.streamConverter.command

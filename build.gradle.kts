@@ -13,6 +13,7 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
+    id("pmd")
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
     id("org.springframework.boot") version "3.4.7"
@@ -291,6 +292,30 @@ tasks.javadoc {
 // spotlessCheck タスクを無効化
 tasks.named("spotlessCheck") {
     enabled = false
+}
+
+// PMD configuration for code smell detection
+pmd {
+    isConsoleOutput = true
+    toolVersion = "7.16.0"
+    rulesMinimumPriority = 5
+    ruleSets = listOf(
+        "category/java/bestpractices.xml",
+        "category/java/codestyle.xml",
+        "category/java/design.xml",
+        "category/java/errorprone.xml",
+        "category/java/performance.xml",
+        "category/java/security.xml"
+    )
+}
+
+// PMD task configuration
+tasks.pmdMain {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+    exclude("**/examples/**", "**/demo/**")
 }
 
 // check タスクの実行時に spotlessApply を依存タスクとして実行する

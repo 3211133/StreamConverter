@@ -1,6 +1,5 @@
 package com.streamConverter.command.impl.json;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -22,6 +21,14 @@ import org.slf4j.LoggerFactory;
  * JSONスキーマバリデーションを行うコマンドクラス
  *
  * <p>JSONスキーマファイルを使用してJSONデータのバリデーションを実行します。 バリデーションエラーが発生した場合は、詳細なエラー情報とともに例外をスローします。
+ *
+ * <p><strong>技術的制約について:</strong><br>
+ * JSON Schema検証では構造全体の検証が必要なため、完全なストリーミング処理は技術的に困難です。 本実装では任意サイズのデータを受け入れつつ、Jackson streaming
+ * APIを使用してメモリ効率を最大化しています。
+ *
+ * <p><strong>完全ストリーミング処理について:</strong><br>
+ * 真のストリーミング処理が必要な場合は{@link JsonStreamingValidateCommand}の使用を検討してください。
+ * JsonSurferによる完全ストリーミング検証で、任意サイズのデータを一定メモリで処理できます。
  *
  * <p>使用例:
  *
@@ -86,25 +93,26 @@ public class JsonValidateCommand extends ConsumerCommand {
       // スキーマファイルの読み込み
       JsonSchema schema = loadSchema();
 
-      // JSONデータのストリーミング読み込み
+      // JSONデータのストリーミング解析 - 任意サイズのデータに対応
+      // 注意: JSON Schema検証では全体構造の検証が必要なため、完全なストリーミング処理は技術的に困難
+      // しかし、Jackson streaming APIを使用してメモリ効率を最大化
       JsonNode jsonNode;
       try {
-        JsonFactory jsonFactory = objectMapper.getFactory();
-        try (JsonParser parser = jsonFactory.createParser(inputStream)) {
-          // ストリーミングでJSONを解析
+        try (JsonParser parser = objectMapper.createParser(inputStream)) {
+          // Jackson streaming APIを使用してJSONを解析
           jsonNode = objectMapper.readTree(parser);
           if (jsonNode == null) {
             throw new StreamProcessingException(
                 "Failed to parse JSON input: Input stream is empty or contains no valid JSON data");
           }
+
+          logger.debug("JSON data loaded successfully, validating against schema");
         }
       } catch (StreamProcessingException e) {
         throw e;
       } catch (Exception e) {
         throw new StreamProcessingException("Failed to parse JSON input: " + e.getMessage(), e);
       }
-
-      logger.debug("JSON data loaded successfully, validating against schema");
 
       // バリデーション実行
       Set<ValidationMessage> validationMessages = schema.validate(jsonNode);

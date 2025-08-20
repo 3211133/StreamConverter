@@ -27,7 +27,7 @@ import org.slf4j.LoggerFactory;
  * <p>ストリームを変換するコマンドは、IStreamCommandインターフェースを実装したクラスである必要がある。
  */
 public class StreamConverter {
-  private static final Logger log = LoggerFactory.getLogger(StreamConverter.class);
+  private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
   private ExecutionContext defaultContext;
@@ -168,7 +168,7 @@ public class StreamConverter {
     // パイプライン開始時にMDCコンテキストを設定
     context.applyToMDCWithStage("pipeline-start");
 
-    log.info(
+    LOG.info(
         "Starting StreamConverter with {} commands (executionId: {})",
         commands.size(),
         context.getExecutionId());
@@ -218,7 +218,7 @@ public class StreamConverter {
                   String stageName = command.getClass().getSimpleName() + "-" + sequence;
                   context.applyToMDCWithStage(stageName);
 
-                  log.info(
+                  LOG.info(
                       "Setting up command {} of {}: {} (sequence: {})",
                       commandIndex + 1,
                       commands.size(),
@@ -240,7 +240,7 @@ public class StreamConverter {
                     long endTime = System.currentTimeMillis();
                     java.time.Instant endInstant = java.time.Instant.now();
 
-                    log.info(
+                    LOG.info(
                         "Completed command: {} (sequence: {})",
                         command.getClass().getSimpleName(),
                         sequence);
@@ -257,7 +257,7 @@ public class StreamConverter {
                     long endTime = System.currentTimeMillis();
                     java.time.Instant endInstant = java.time.Instant.now();
 
-                    log.error(
+                    LOG.error(
                         "Command execution failed: {} (sequence: {}) - {}",
                         command.getClass().getSimpleName(),
                         sequence,
@@ -306,7 +306,7 @@ public class StreamConverter {
         }
       }
 
-      log.info("All commands completed successfully (executionId: {})", context.getExecutionId());
+      LOG.info("All commands completed successfully (executionId: {})", context.getExecutionId());
       return results;
 
     } finally {
@@ -325,10 +325,10 @@ public class StreamConverter {
     executor.shutdown();
     try {
       if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-        log.warn("Executor did not terminate gracefully, forcing shutdown");
+        LOG.warn("Executor did not terminate gracefully, forcing shutdown");
         executor.shutdownNow();
         if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-          log.error("Executor did not terminate after forced shutdown");
+          LOG.error("Executor did not terminate after forced shutdown");
         }
       }
     } catch (InterruptedException e) {
@@ -347,7 +347,7 @@ public class StreamConverter {
       try {
         resource.close();
       } catch (Exception e) {
-        log.warn("Failed to close resource: {}", e.getMessage());
+        LOG.warn("Failed to close resource: {}", e.getMessage());
       }
     }
   }

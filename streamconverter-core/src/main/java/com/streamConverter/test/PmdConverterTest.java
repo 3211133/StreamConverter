@@ -14,6 +14,14 @@ import java.util.List;
  */
 public class PmdConverterTest {
 
+  /** Creates a new test instance. */
+
+  /**
+   * Executes manual tests for PMD conversions.
+   *
+   * @param args unused
+   * @throws IOException if an I/O error occurs
+   */
   public static void main(String[] args) throws IOException {
     String xmlPath = "build/reports/pmd/main.xml";
 

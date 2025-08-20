@@ -32,6 +32,9 @@ public class PerformanceAnalyzer {
 
   private final List<PerformanceRecord> records = new ArrayList<>();
 
+  /** Creates a new analyzer. */
+  public PerformanceAnalyzer() {}
+
   /**
    * CommandResult配列からパフォーマンス記録を追加
    *

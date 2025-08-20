@@ -8,6 +8,9 @@ package com.streamConverter.command.rule;
  */
 public class PassThroughRule implements IRule {
 
+  /** Default constructor. */
+  public PassThroughRule() {}
+
   /**
    * Apply the pass-through rule - returns input unchanged.
    *

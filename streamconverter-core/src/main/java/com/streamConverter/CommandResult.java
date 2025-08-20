@@ -133,6 +133,9 @@ public final class CommandResult {
     private Instant startTime;
     private Instant endTime;
 
+    /** Creates a new builder instance. */
+    public Builder() {}
+
     /**
      * コマンド名を設定
      *

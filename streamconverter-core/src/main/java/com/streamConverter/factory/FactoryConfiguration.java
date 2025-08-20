@@ -175,6 +175,9 @@ public class FactoryConfiguration {
     private long cacheExpirationMinutes = 0;
     private boolean failFastOnError = true;
 
+    /** Creates a new builder. */
+    public Builder() {}
+
     /**
      * Sets caching enabled flag.
      *

@@ -18,6 +18,9 @@ import org.slf4j.LoggerFactory;
 public class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
+  /** Prevent instantiation. */
+  private Main() {}
+
   /**
    * Main method to run the StreamConverter application.
    *

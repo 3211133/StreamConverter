@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * to output streams.
  */
 public abstract class AbstractStreamCommand implements IStreamCommand {
-  private static final Logger log = LoggerFactory.getLogger(AbstractStreamCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(AbstractStreamCommand.class);
 
   /**
    * Default constructor.
@@ -29,7 +29,7 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
   /**
    * Executes the command on the provided input stream and writes the result to the output stream.
    *
-   * <p>This method automatically logs execution details including: - Command name and execution
+   * <p>This method automatically LOGs execution details including: - Command name and execution
    * time - Input/output data sizes - Exception details if execution fails - Performance metrics
    *
    * @param inputStream The input stream to read data from.
@@ -43,8 +43,8 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
     long startMemory = getUsedMemory();
 
     // 実行開始ログ
-    log.info("Starting command execution: {}", commandName);
-    log.debug("Command details: {}", getCommandDetails());
+    LOG.info("Starting command execution: {}", commandName);
+    LOG.debug("Command details: {}", getCommandDetails());
 
     // データサイズ測定用のストリームでラップ
     MeasuredInputStream measuredInput = null;
@@ -53,13 +53,13 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
       measuredInput = new MeasuredInputStream(inputStream);
       measuredOutput = new MeasuredOutputStream(outputStream);
       // 実際の処理実行
-      _execute(measuredInput, measuredOutput);
+      executeInternal(measuredInput, measuredOutput);
 
       // 成功時のログ出力
       long duration = System.currentTimeMillis() - startTime;
       long memoryUsed = getUsedMemory() - startMemory;
 
-      log.info(
+      LOG.info(
           "Command execution completed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB)",
           commandName,
           duration,
@@ -69,7 +69,7 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
 
       // パフォーマンス警告
       if (duration > 5000) { // 5秒以上
-        log.warn("Command {} took longer than expected: {}ms", commandName, duration);
+        LOG.warn("Command {} took longer than expected: {}ms", commandName, duration);
       }
 
     } catch (Exception e) {
@@ -81,7 +81,7 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
       long inputBytes = (measuredInput != null) ? measuredInput.getBytesRead() : 0;
       long outputBytes = (measuredOutput != null) ? measuredOutput.getBytesWritten() : 0;
 
-      log.error(
+      LOG.error(
           "Command execution failed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB) - {}",
           commandName,
           duration,
@@ -107,7 +107,7 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
    * @param outputStream The output stream to write data to.
    * @throws IOException If an I/O error occurs during the execution of the command.
    */
-  protected abstract void _execute(InputStream inputStream, OutputStream outputStream)
+  protected abstract void executeInternal(InputStream inputStream, OutputStream outputStream)
       throws IOException;
 
   /**

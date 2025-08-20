@@ -16,7 +16,7 @@ import org.slf4j.MDC;
  */
 public class ContextPropagatingDecorator implements IStreamCommand {
 
-  private static final Logger logger = LoggerFactory.getLogger(ContextPropagatingDecorator.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ContextPropagatingDecorator.class);
 
   private final IStreamCommand wrappedCommand;
   private final String commandName;
@@ -69,16 +69,16 @@ public class ContextPropagatingDecorator implements IStreamCommand {
       context.setUserContext("currentCommand", commandName);
       context.setUserContext("currentSequence", String.valueOf(sequence));
 
-      logger.info("Starting command execution: {} (sequence: {})", commandName, sequence);
+      LOG.info("Starting command execution: {} (sequence: {})", commandName, sequence);
 
       // ラップしたコマンドの実行
       // 統合されたIStreamCommandインターフェースを使用
       wrappedCommand.execute(inputStream, outputStream, context);
 
-      logger.info("Completed command execution: {} (sequence: {})", commandName, sequence);
+      LOG.info("Completed command execution: {} (sequence: {})", commandName, sequence);
 
     } catch (IOException e) {
-      logger.error(
+      LOG.error(
           "Command execution failed: {} (sequence: {}) - {}",
           commandName,
           sequence,
@@ -86,7 +86,7 @@ public class ContextPropagatingDecorator implements IStreamCommand {
           e);
       throw e;
     } catch (Exception e) {
-      logger.error(
+      LOG.error(
           "Unexpected error in command execution: {} (sequence: {}) - {}",
           commandName,
           sequence,

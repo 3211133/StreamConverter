@@ -351,9 +351,9 @@ public class LargeDataGenerator {
       } else {
         // レコード生成（メモリ効率重視、チャンクサイズ制限）
         long availableSpace = remainingBytes - footerSize - 50; // 安全マージン
-        final int MAX_CHUNK_SIZE = 64 * 1024; // 64KB制限でメモリ効率向上
+        final int maxChunkSize = 64 * 1024; // 64KB制限でメモリ効率向上
 
-        while (availableSpace > 0 && !shouldGenerateFooter && chunk.length() < MAX_CHUNK_SIZE) {
+        while (availableSpace > 0 && !shouldGenerateFooter && chunk.length() < maxChunkSize) {
           // JSON カンマ追加
           String separator = "";
           if (format.equals("JSON") && recordCount > 0 && chunk.length() > 50) {
@@ -378,7 +378,7 @@ public class LargeDataGenerator {
           // サイズチェック（より厳密）
           int nextAdditionSize = separator.length() + record.length();
           if (nextAdditionSize > availableSpace
-              || chunk.length() + nextAdditionSize > MAX_CHUNK_SIZE) {
+              || chunk.length() + nextAdditionSize > maxChunkSize) {
             break; // これ以上追加できない
           }
 

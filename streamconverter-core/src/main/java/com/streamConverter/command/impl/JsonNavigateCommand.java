@@ -108,7 +108,8 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   }
 
   @Override
-  protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
+      throws IOException {
     if (jsonPath == null || isSimpleTransformation()) {
       // Use Jackson streaming for simple transformations
       processJsonWithJacksonStreaming(inputStream, outputStream);

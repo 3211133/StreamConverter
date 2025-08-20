@@ -61,7 +61,7 @@ public class PmdXmlToCsvCommand extends AbstractStreamCommand {
    * @throws IOException XML解析エラーまたはI/O例外の場合
    */
   @Override
-  protected void _execute(InputStream input, OutputStream output) throws IOException {
+  protected void executeInternal(InputStream input, OutputStream output) throws IOException {
     try {
       // StreamConverter原則に従った変換処理
       List<PmdViolation> violations = parseXmlStream(input);

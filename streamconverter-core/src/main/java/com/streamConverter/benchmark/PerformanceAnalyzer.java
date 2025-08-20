@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  */
 public class PerformanceAnalyzer {
 
-  private static final Logger logger = LoggerFactory.getLogger(PerformanceAnalyzer.class);
+  private static final Logger LOG = LoggerFactory.getLogger(PerformanceAnalyzer.class);
 
   private final List<PerformanceRecord> records = new ArrayList<>();
 
@@ -41,14 +41,14 @@ public class PerformanceAnalyzer {
    */
   public void addRecord(String testName, List<CommandResult> results, long totalDataSize) {
     if (results == null || results.isEmpty()) {
-      logger.warn("Empty results provided for test: {}", testName);
+      LOG.warn("Empty results provided for test: {}", testName);
       return;
     }
 
     PerformanceRecord record = new PerformanceRecord(testName, results, totalDataSize);
     records.add(record);
 
-    logger.debug("Added performance record: {} with {} commands", testName, results.size());
+    LOG.debug("Added performance record: {} with {} commands", testName, results.size());
   }
 
   /** 全記録をクリア */
@@ -63,7 +63,7 @@ public class PerformanceAnalyzer {
    */
   public PerformanceStatistics getStatistics() {
     if (records.isEmpty()) {
-      logger.warn("No performance records available for statistics");
+      LOG.warn("No performance records available for statistics");
       return new PerformanceStatistics();
     }
 

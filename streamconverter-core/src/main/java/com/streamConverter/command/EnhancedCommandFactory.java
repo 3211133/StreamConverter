@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * <ul>
  *   <li>Intelligent caching with configurable cache policies
- *   <li>Unified error handling and logging integration
+ *   <li>Unified error handling and LOGging integration
  *   <li>Performance optimizations for high-throughput scenarios
  *   <li>Seamless integration with ControllerFactory
  *   <li>Backward compatibility with existing CommandFactory API
@@ -44,7 +44,7 @@ import org.slf4j.LoggerFactory;
  * @since 1.0
  */
 public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
-  private static final Logger log = LoggerFactory.getLogger(EnhancedCommandFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(EnhancedCommandFactory.class);
 
   /** Default singleton instance for static methods */
   private static final EnhancedCommandFactory DEFAULT_INSTANCE = new EnhancedCommandFactory();
@@ -66,13 +66,13 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   // ========== Static Methods (Backward Compatibility) ==========
 
   /**
-   * Creates command with logging using default instance. Maintains backward compatibility with
+   * Creates command with LOGging using default instance. Maintains backward compatibility with
    * existing CommandFactory.
    *
    * @param <T> command type
    * @param commandClass command class
    * @param args constructor arguments
-   * @return command with logging enabled
+   * @return command with LOGging enabled
    */
   public static <T extends IStreamCommand> T createWithLogging(
       Class<T> commandClass, Object... args) {
@@ -84,13 +84,13 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
-   * Creates command with logging using default instance, allowing FactoryException to propagate.
+   * Creates command with LOGging using default instance, allowing FactoryException to propagate.
    * This method provides better error handling by preserving the specific exception type.
    *
    * @param <T> command type
    * @param commandClass command class
    * @param args constructor arguments
-   * @return command with logging enabled
+   * @return command with LOGging enabled
    * @throws FactoryException if command creation fails
    */
   public static <T extends IStreamCommand> T createWithLoggingChecked(
@@ -99,13 +99,13 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
-   * Creates command with detailed logging using default instance.
+   * Creates command with detailed LOGging using default instance.
    *
    * @param <T> command type
    * @param commandClass command class
-   * @param enableDetailedLogging whether to enable detailed logging
+   * @param enableDetailedLogging whether to enable detailed LOGging
    * @param args constructor arguments
-   * @return command with configured logging
+   * @return command with configured LOGging
    */
   public static <T extends IStreamCommand> T createWithLogging(
       Class<T> commandClass, boolean enableDetailedLogging, Object... args) {
@@ -117,15 +117,15 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
-   * Creates command with detailed logging using default instance, allowing FactoryException to
+   * Creates command with detailed LOGging using default instance, allowing FactoryException to
    * propagate. This method provides better error handling by preserving the specific exception
    * type.
    *
    * @param <T> command type
    * @param commandClass command class
-   * @param enableDetailedLogging whether to enable detailed logging
+   * @param enableDetailedLogging whether to enable detailed LOGging
    * @param args constructor arguments
-   * @return command with configured logging
+   * @return command with configured LOGging
    * @throws FactoryException if command creation fails
    */
   public static <T extends IStreamCommand> T createWithLoggingChecked(
@@ -135,10 +135,10 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
-   * Creates pipeline with logging using default instance.
+   * Creates pipeline with LOGging using default instance.
    *
    * @param configs command configurations
-   * @return array of commands with logging
+   * @return array of commands with LOGging
    */
   public static IStreamCommand[] createPipelineWithLogging(CommandConfig... configs) {
     try {
@@ -149,10 +149,10 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
-   * Creates pipeline with detailed logging using default instance.
+   * Creates pipeline with detailed LOGging using default instance.
    *
    * @param configs command configurations
-   * @return array of commands with detailed logging
+   * @return array of commands with detailed LOGging
    */
   public static IStreamCommand[] createPipelineWithDetailedLogging(CommandConfig... configs) {
     try {
@@ -163,11 +163,11 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
-   * Creates pipeline with logging using default instance, allowing FactoryException to propagate.
+   * Creates pipeline with LOGging using default instance, allowing FactoryException to propagate.
    * This method provides better error handling by preserving the specific exception type.
    *
    * @param configs command configurations
-   * @return array of commands with logging
+   * @return array of commands with LOGging
    * @throws FactoryException if pipeline creation fails
    */
   public static IStreamCommand[] createPipelineWithLoggingChecked(CommandConfig... configs)
@@ -176,12 +176,12 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
-   * Creates pipeline with detailed logging using default instance, allowing FactoryException to
+   * Creates pipeline with detailed LOGging using default instance, allowing FactoryException to
    * propagate. This method provides better error handling by preserving the specific exception
    * type.
    *
    * @param configs command configurations
-   * @return array of commands with detailed logging
+   * @return array of commands with detailed LOGging
    * @throws FactoryException if pipeline creation fails
    */
   public static IStreamCommand[] createPipelineWithDetailedLoggingChecked(CommandConfig... configs)
@@ -207,7 +207,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
     @SuppressWarnings("unchecked")
     T cached = (T) getCachedInstance(cacheKey);
     if (cached != null) {
-      log.debug("Retrieved cached command: {} (key: {})", commandClass.getSimpleName(), cacheKey);
+      LOG.debug("Retrieved cached command: {} (key: {})", commandClass.getSimpleName(), cacheKey);
       return cached;
     }
 
@@ -234,7 +234,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
    *
    * @param <T> command type
    * @param commandClass command class
-   * @param enableDetailedLogging whether to enable detailed logging
+   * @param enableDetailedLogging whether to enable detailed LOGging
    * @param args constructor arguments
    * @return command optimized for controller integration
    * @throws FactoryException if creation fails
@@ -247,7 +247,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
 
   // ========== Private Implementation Methods ==========
 
-  /** Core command creation method with logging integration. */
+  /** Core command creation method with LOGging integration. */
   @SuppressWarnings("unchecked")
   private <T extends IStreamCommand> T createCommandWithLogging(
       Class<T> commandClass, boolean enableDetailedLogging, Object... args)
@@ -256,16 +256,16 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
     T command = createInstance(commandClass, args);
 
     if (config.isDetailedLoggingEnabled() || enableDetailedLogging) {
-      log.info(
-          "Created command instance: {} with {} args (detailed logging: {})",
+      LOG.info(
+          "Created command instance: {} with {} args (detailed LOGging: {})",
           commandClass.getSimpleName(),
           args.length,
           enableDetailedLogging);
     }
 
-    // Handle logging decoration
+    // Handle LOGging decoration
     if (command instanceof AbstractStreamCommand) {
-      // AbstractStreamCommand already has integrated logging
+      // AbstractStreamCommand already has integrated LOGging
       return command;
     } else if (enableDetailedLogging) {
       // Wrap with LoggingDecorator for non-AbstractStreamCommand instances
@@ -275,13 +275,13 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
     }
   }
 
-  /** Creates pipeline with specified logging configuration. */
+  /** Creates pipeline with specified LOGging configuration. */
   private IStreamCommand[] createPipeline(CommandConfig[] configs, boolean enableDetailedLogging)
       throws FactoryException {
     List<IStreamCommand> commands = new ArrayList<>();
 
-    log.info(
-        "Creating pipeline with {} commands (detailed logging: {})",
+    LOG.info(
+        "Creating pipeline with {} commands (detailed LOGging: {})",
         configs.length,
         enableDetailedLogging);
 
@@ -293,15 +293,15 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
                 config.getCommandClass(), enableDetailedLogging, config.getArgs());
         commands.add(command);
 
-        if (log.isDebugEnabled()) {
-          log.debug("Added command {}/{}: {}", i + 1, configs.length, config.getDescription());
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Added command {}/{}: {}", i + 1, configs.length, config.getDescription());
         }
       } catch (Exception e) {
         String message =
             String.format(
                 "Failed to create command %d/%d: %s",
                 i + 1, configs.length, config.getDescription());
-        log.error(message, e);
+        LOG.error(message, e);
 
         if (this.config.isFailFastOnError()) {
           throw new FactoryException(message, e);
@@ -310,7 +310,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
       }
     }
 
-    log.info("Created pipeline with {}/{} commands successfully", commands.size(), configs.length);
+    LOG.info("Created pipeline with {}/{} commands successfully", commands.size(), configs.length);
     return commands.toArray(new IStreamCommand[0]);
   }
 

@@ -26,7 +26,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  */
 public class CommandFactory {
-  private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CommandFactory.class);
 
   /**
    * ログ機能付きコマンドを生成
@@ -41,7 +41,7 @@ public class CommandFactory {
       Class<T> commandClass, Object... args) {
     try {
       T command = createInstance(commandClass, args);
-      log.info(
+      LOG.info(
           "Created command instance: {} with {} args", commandClass.getSimpleName(), args.length);
 
       // AbstractStreamCommandの場合は既にログ機能があるため、重複を避ける
@@ -52,7 +52,7 @@ public class CommandFactory {
         return (T) new LoggingDecorator(command);
       }
     } catch (Exception e) {
-      log.error("Failed to create command instance: {}", commandClass.getSimpleName(), e);
+      LOG.error("Failed to create command instance: {}", commandClass.getSimpleName(), e);
       throw new RuntimeException("Command creation failed: " + commandClass.getSimpleName(), e);
     }
   }
@@ -71,8 +71,8 @@ public class CommandFactory {
       Class<T> commandClass, boolean enableDetailedLogging, Object... args) {
     try {
       T command = createInstance(commandClass, args);
-      log.info(
-          "Created command instance: {} with {} args (detailed logging: {})",
+      LOG.info(
+          "Created command instance: {} with {} args (detailed LOGging: {})",
           commandClass.getSimpleName(),
           args.length,
           enableDetailedLogging);
@@ -85,7 +85,7 @@ public class CommandFactory {
         return command;
       }
     } catch (Exception e) {
-      log.error("Failed to create command instance: {}", commandClass.getSimpleName(), e);
+      LOG.error("Failed to create command instance: {}", commandClass.getSimpleName(), e);
       throw new RuntimeException("Command creation failed: " + commandClass.getSimpleName(), e);
     }
   }
@@ -99,16 +99,16 @@ public class CommandFactory {
   public static IStreamCommand[] createPipelineWithLogging(CommandConfig... configs) {
     List<IStreamCommand> commands = new ArrayList<>();
 
-    log.info("Creating pipeline with {} commands", configs.length);
+    LOG.info("Creating pipeline with {} commands", configs.length);
 
     for (int i = 0; i < configs.length; i++) {
       CommandConfig config = configs[i];
       try {
         IStreamCommand command = createWithLogging(config.getCommandClass(), config.getArgs());
         commands.add(command);
-        log.debug("Added command {}/{}: {}", i + 1, configs.length, config.getDescription());
+        LOG.debug("Added command {}/{}: {}", i + 1, configs.length, config.getDescription());
       } catch (Exception e) {
-        log.error(
+        LOG.error(
             "Failed to create command {}/{}: {}",
             i + 1,
             configs.length,
@@ -118,7 +118,7 @@ public class CommandFactory {
       }
     }
 
-    log.info("Created pipeline with {} commands successfully", commands.size());
+    LOG.info("Created pipeline with {} commands successfully", commands.size());
     return commands.toArray(new IStreamCommand[0]);
   }
 
@@ -131,7 +131,7 @@ public class CommandFactory {
   public static IStreamCommand[] createPipelineWithDetailedLogging(CommandConfig... configs) {
     List<IStreamCommand> commands = new ArrayList<>();
 
-    log.info("Creating pipeline with detailed logging for {} commands", configs.length);
+    LOG.info("Creating pipeline with detailed LOGging for {} commands", configs.length);
 
     for (int i = 0; i < configs.length; i++) {
       CommandConfig config = configs[i];
@@ -139,13 +139,13 @@ public class CommandFactory {
         IStreamCommand command =
             createWithLogging(config.getCommandClass(), true, config.getArgs());
         commands.add(command);
-        log.debug(
-            "Added command {}/{} with detailed logging: {}",
+        LOG.debug(
+            "Added command {}/{} with detailed LOGging: {}",
             i + 1,
             configs.length,
             config.getDescription());
       } catch (Exception e) {
-        log.error(
+        LOG.error(
             "Failed to create command {}/{}: {}",
             i + 1,
             configs.length,
@@ -155,8 +155,8 @@ public class CommandFactory {
       }
     }
 
-    log.info(
-        "Created pipeline with detailed logging for {} commands successfully", commands.size());
+    LOG.info(
+        "Created pipeline with detailed LOGging for {} commands successfully", commands.size());
     return commands.toArray(new IStreamCommand[0]);
   }
 

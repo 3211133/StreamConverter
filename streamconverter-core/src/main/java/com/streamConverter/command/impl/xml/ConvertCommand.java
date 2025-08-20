@@ -57,7 +57,8 @@ public class ConvertCommand extends AbstractStreamCommand {
    * @throws StreamProcessingException XML処理エラーが発生した場合
    */
   @Override
-  protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
+      throws IOException {
     // StaXを使用したXML変換処理を実装する
     // ここでは、IRuleを使用して変換処理を行うことを想定しています。
     // 例: XMLを読み込み、IRuleを適用して変換し、出力ストリームに書き込む処理を実装する

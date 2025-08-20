@@ -245,7 +245,7 @@ public class StreamConverter {
                         command.getClass().getSimpleName(),
                         sequence);
 
-                    return CommandResult.success(
+                    return CommandResult.successResult(
                         command.getClass().getSimpleName(),
                         endTime - startTime,
                         0L, // 入力バイト数

@@ -62,7 +62,7 @@ public class ValidationResultTest {
             .addError("Invalid data in row 5")
             .addWarning("Column 'notes' has empty values")
             .validationTime(now)
-            .executionTimeMillis(300L)
+            .executionTime(300L)
             .dataSource("test-data.csv")
             .build();
 
@@ -268,7 +268,7 @@ public class ValidationResultTest {
             .schemaPath("schema/user.json")
             .success(false)
             .addError("Missing required field")
-            .executionTimeMillis(123L)
+            .executionTime(123L)
             .build();
 
     String toString = result.toString();
@@ -291,7 +291,7 @@ public class ValidationResultTest {
             .validationType("JSON")
             .schemaPath("schema.json")
             .success(true)
-            .executionTimeMillis(executionTime)
+            .executionTime(executionTime)
             .dataSource(dataSource)
             .build();
 
@@ -316,7 +316,7 @@ public class ValidationResultTest {
             .validationType("CSV")
             .schemaPath("schema.csv")
             .success(false)
-            .executionTimeMillis(executionTime)
+            .executionTime(executionTime)
             .dataSource(dataSource)
             .addError("Error 1")
             .addError("Error 2")
@@ -340,7 +340,7 @@ public class ValidationResultTest {
             .validationType("JSON")
             .schemaPath("test.json")
             .success(true)
-            .executionTimeMillis(-10L)
+            .executionTime(-10L)
             .build();
 
     assertEquals(-10L, result1.getExecutionTimeMillis());
@@ -351,7 +351,7 @@ public class ValidationResultTest {
             .validationType("JSON")
             .schemaPath("test.json")
             .success(true)
-            .executionTimeMillis(Long.MAX_VALUE)
+            .executionTime(Long.MAX_VALUE)
             .build();
 
     assertEquals(Long.MAX_VALUE, result2.getExecutionTimeMillis());
@@ -368,7 +368,7 @@ public class ValidationResultTest {
             .schemaPath("test.json")
             .success(true)
             .validationTime(now)
-            .executionTimeMillis(100L)
+            .executionTime(100L)
             .build();
 
     ValidationResult result2 =
@@ -377,7 +377,7 @@ public class ValidationResultTest {
             .schemaPath("test.json")
             .success(true)
             .validationTime(now)
-            .executionTimeMillis(100L)
+            .executionTime(100L)
             .build();
 
     ValidationResult result3 =
@@ -386,7 +386,7 @@ public class ValidationResultTest {
             .schemaPath("test.csv")
             .success(true)
             .validationTime(now)
-            .executionTimeMillis(100L)
+            .executionTime(100L)
             .build();
 
     // 同じ内容のオブジェクトは等しい

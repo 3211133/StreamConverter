@@ -1,4 +1,4 @@
-package com.streamConverter;
+package com.streamConverter; // NOPMD - PackageCase
 
 import java.time.Duration;
 import java.time.Instant;
@@ -11,17 +11,18 @@ import java.time.Instant;
 public final class CommandResult {
   private final String commandName;
   private final boolean success;
-  private final long executionTimeMillis;
+  private final long timeMillis;
   private final long inputBytes;
   private final long outputBytes;
   private final String errorMessage;
   private final Instant startTime;
   private final Instant endTime;
 
+  @SuppressWarnings("PMD.LawOfDemeter")
   private CommandResult(final Builder builder) {
     this.commandName = builder.commandName;
     this.success = builder.success;
-    this.executionTimeMillis = builder.executionTimeMillis;
+    this.timeMillis = builder.timeMillis;
     this.inputBytes = builder.inputBytes;
     this.outputBytes = builder.outputBytes;
     this.errorMessage = builder.errorMessage;
@@ -53,7 +54,7 @@ public final class CommandResult {
    * @return 実行時間（ミリ秒）
    */
   public long getExecutionTimeMillis() {
-    return executionTimeMillis;
+    return timeMillis;
   }
 
   /**
@@ -116,7 +117,7 @@ public final class CommandResult {
         "CommandResult{name='%s', success=%s, time=%dms, input=%db, output=%db%s}",
         commandName,
         success,
-        executionTimeMillis,
+        timeMillis,
         inputBytes,
         outputBytes,
         errorMessage != null ? ", error='" + errorMessage + "'" : "");
@@ -126,7 +127,7 @@ public final class CommandResult {
   public static final class Builder {
     private String commandName;
     private boolean success;
-    private long executionTimeMillis;
+    private long timeMillis;
     private long inputBytes;
     private long outputBytes;
     private String errorMessage;
@@ -150,7 +151,7 @@ public final class CommandResult {
      * @param success 成功フラグ
      * @return Builderインスタンス
      */
-    public Builder success(final boolean success) {
+    public Builder withSuccess(final boolean success) {
       this.success = success;
       return this;
     }
@@ -158,11 +159,11 @@ public final class CommandResult {
     /**
      * 実行時間を設定
      *
-     * @param executionTimeMillis 実行時間（ミリ秒）
+     * @param timeMillis 実行時間（ミリ秒）
      * @return Builderインスタンス
      */
-    public Builder executionTime(final long executionTimeMillis) {
-      this.executionTimeMillis = executionTimeMillis;
+    public Builder executionTime(final long timeMillis) {
+      this.timeMillis = timeMillis;
       return this;
     }
 
@@ -242,7 +243,7 @@ public final class CommandResult {
    * @param endTime 終了時刻
    * @return 成功結果のCommandResult
    */
-  public static CommandResult success(
+  public static CommandResult successResult(
       final String commandName,
       final long executionTime,
       final long inputBytes,
@@ -251,7 +252,7 @@ public final class CommandResult {
       final Instant endTime) {
     return new Builder()
         .commandName(commandName)
-        .success(true)
+        .withSuccess(true)
         .executionTime(executionTime)
         .inputBytes(inputBytes)
         .outputBytes(outputBytes)
@@ -278,7 +279,7 @@ public final class CommandResult {
       final Instant endTime) {
     return new Builder()
         .commandName(commandName)
-        .success(false)
+        .withSuccess(false)
         .executionTime(executionTime)
         .errorMessage(errorMessage)
         .startTime(startTime)

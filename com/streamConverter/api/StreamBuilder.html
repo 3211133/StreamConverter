@@ -77,7 +77,7 @@ loadScripts(document, 'script');</script>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-39">StreamBuilder</a></span>
+<div class="type-signature"><span class="modifiers">public final class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-41">StreamBuilder</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">流暢なAPI（Fluent API）を提供するStreamBuilderクラス
 
@@ -285,7 +285,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="create()">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-56">create</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-58">create</a></span>()</div>
 <div class="block">新しいStreamBuilderインスタンスを作成します</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -296,7 +296,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="fromString(java.lang.String)">
 <h3>fromString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-68">fromString</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-70">fromString</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span></div>
 <div class="block">文字列から入力ストリームを作成</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -309,7 +309,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="fromStream(java.io.InputStream)">
 <h3>fromStream</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-80">fromStream</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-82">fromStream</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</span></div>
 <div class="block">InputStreamから入力を設定</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -322,7 +322,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="fromFile(java.lang.String)">
 <h3>fromFile</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-93">fromFile</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;filePath)</span>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-95">fromFile</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;filePath)</span>
                        throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">ファイルから入力ストリームを作成</div>
 <dl class="notes">
@@ -338,7 +338,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="asJson()">
 <h3>asJson</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-106">asJson</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-108">asJson</a></span>()</div>
 <div class="block">データ形式をJSONに設定</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -349,7 +349,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="asCsv()">
 <h3>asCsv</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-116">asCsv</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-118">asCsv</a></span>()</div>
 <div class="block">データ形式をCSVに設定</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -360,7 +360,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="asXml()">
 <h3>asXml</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-126">asXml</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-128">asXml</a></span>()</div>
 <div class="block">データ形式をXMLに設定</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -371,7 +371,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getFormat()">
 <h3>getFormat</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DataFormat.html" title="enum class in com.streamConverter.api">DataFormat</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-136">getFormat</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="DataFormat.html" title="enum class in com.streamConverter.api">DataFormat</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-138">getFormat</a></span>()</div>
 <div class="block">現在のデータ形式を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -382,7 +382,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="validateJson(java.lang.String)">
 <h3>validateJson</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-148">validateJson</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;schemaPath)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-150">validateJson</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;schemaPath)</span></div>
 <div class="block">JSONスキーマバリデーションを追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -395,7 +395,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="validateXml(java.lang.String)">
 <h3>validateXml</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-160">validateXml</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;schemaPath)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-162">validateXml</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;schemaPath)</span></div>
 <div class="block">XMLスキーマバリデーションを追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -408,7 +408,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="validateCsv(java.lang.String[])">
 <h3>validateCsv</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-172">validateCsv</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;requiredColumns)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-174">validateCsv</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;requiredColumns)</span></div>
 <div class="block">CSVスキーマバリデーションを追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -421,7 +421,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="validate(java.lang.String)">
 <h3>validate</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-186">validate</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;schemaPath)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-188">validate</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;schemaPath)</span></div>
 <div class="block">現在のデータ形式に応じたバリデーションを追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -434,7 +434,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="extract(java.lang.String)">
 <h3>extract</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-216">extract</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;path)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-218">extract</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;path)</span></div>
 <div class="block">現在のデータ形式に応じたデータ抽出を追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -447,7 +447,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="format()">
 <h3>format</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-243">format</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-245">format</a></span>()</div>
 <div class="block">JSONデータのフォーマット処理を追加（JSON形式のみ）</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -458,7 +458,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="extractJson(java.lang.String)">
 <h3>extractJson</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-259">extractJson</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-261">extractJson</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
 <div class="block">JSONパスによるデータ抽出を追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -471,7 +471,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="formatJson()">
 <h3>formatJson</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-270">formatJson</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-272">formatJson</a></span>()</div>
 <div class="block">JSONデータのフォーマット処理を追加（JSONPath指定なし）</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -482,7 +482,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="extractXml(java.lang.String)">
 <h3>extractXml</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-281">extractXml</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-283">extractXml</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath)</span></div>
 <div class="block">XPathによるXMLデータ抽出を追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -495,7 +495,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="extractCsv(java.lang.String)">
 <h3>extractCsv</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-293">extractCsv</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnName)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-295">extractCsv</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnName)</span></div>
 <div class="block">CSV列による抽出を追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -508,7 +508,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="convertEncoding(java.lang.String,java.lang.String)">
 <h3>convertEncoding</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-308">convertEncoding</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;fromEncoding,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-310">convertEncoding</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;fromEncoding,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;toEncoding)</span></div>
 <div class="block">文字エンコーディング変換を追加</div>
 <dl class="notes">
@@ -523,7 +523,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="process(java.lang.String)">
 <h3>process</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-321">process</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;commandName)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-323">process</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;commandName)</span></div>
 <div class="block">カスタム処理コマンドを追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -536,7 +536,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="addCommand(com.streamConverter.command.IStreamCommand)">
 <h3>addCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-333">addCommand</a></span><wbr><span class="parameters">(<a href="../command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>&nbsp;command)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-335">addCommand</a></span><wbr><span class="parameters">(<a href="../command/IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>&nbsp;command)</span></div>
 <div class="block">カスタムコマンドを追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -549,7 +549,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="sendHttp(java.lang.String)">
 <h3>sendHttp</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-347">sendHttp</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;url)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-349">sendHttp</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;url)</span></div>
 <div class="block">HTTP送信コマンドを追加</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -562,7 +562,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="sendHttpPost(java.lang.String)">
 <h3>sendHttpPost</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-359">sendHttpPost</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;url)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-361">sendHttpPost</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;url)</span></div>
 <div class="block">HTTP送信コマンドを追加（基本実装のみサポート）</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -575,7 +575,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="when(boolean,java.util.function.Consumer)">
 <h3>when</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-374">when</a></span><wbr><span class="parameters">(boolean&nbsp;condition,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-376">when</a></span><wbr><span class="parameters">(boolean&nbsp;condition,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/function/Consumer.html" title="class or interface in java.util.function" class="external-link">Consumer</a>&lt;<a href="StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a>&gt;&nbsp;configurer)</span></div>
 <div class="block">条件付きでコマンドを追加</div>
 <dl class="notes">
@@ -590,7 +590,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="asString()">
 <h3>asString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-390">asString</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-392">asString</a></span>()
                 throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">パイプラインを実行して結果を文字列として取得</div>
 <dl class="notes">
@@ -604,7 +604,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="toStream(java.io.OutputStream)">
 <h3>toStream</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-404">toStream</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-406">toStream</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">パイプラインを実行して指定されたOutputStreamに結果を書き込み</div>
 <dl class="notes">
@@ -620,7 +620,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="toFile(java.lang.String)">
 <h3>toFile</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-416">toFile</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;filePath)</span>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-418">toFile</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;filePath)</span>
                            throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">パイプラインを実行してファイルに結果を出力</div>
 <dl class="notes">
@@ -636,7 +636,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="build()">
 <h3>build</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-429">build</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="../StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-431">build</a></span>()</div>
 <div class="block">StreamConverterを構築（再利用可能）</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -649,7 +649,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getPipelineInfo()">
 <h3>getPipelineInfo</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-444">getPipelineInfo</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-446">getPipelineInfo</a></span>()</div>
 <div class="block">現在のパイプライン情報を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -660,7 +660,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getCommandCount()">
 <h3>getCommandCount</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-483">getCommandCount</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-485">getCommandCount</a></span>()</div>
 <div class="block">コマンド数を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -671,7 +671,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="isEmpty()">
 <h3>isEmpty</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-492">isEmpty</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/api/StreamBuilder.html#line-494">isEmpty</a></span>()</div>
 <div class="block">パイプラインが空かどうかを確認</div>
 <dl class="notes">
 <dt>Returns:</dt>

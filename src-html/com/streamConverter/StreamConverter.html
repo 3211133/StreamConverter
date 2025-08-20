@@ -40,7 +40,7 @@
 <span class="source-line-no">027</span><span id="line-27"> * &lt;p&gt;ストリームを変換するコマンドは、IStreamCommandインターフェースを実装したクラスである必要がある。</span>
 <span class="source-line-no">028</span><span id="line-28"> */</span>
 <span class="source-line-no">029</span><span id="line-29">public class StreamConverter {</span>
-<span class="source-line-no">030</span><span id="line-30">  private static final Logger log = LoggerFactory.getLogger(StreamConverter.class);</span>
+<span class="source-line-no">030</span><span id="line-30">  private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);</span>
 <span class="source-line-no">031</span><span id="line-31">  private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer</span>
 <span class="source-line-no">032</span><span id="line-32">  private List&lt;IStreamCommand&gt; commands;</span>
 <span class="source-line-no">033</span><span id="line-33">  private ExecutionContext defaultContext;</span>
@@ -181,7 +181,7 @@
 <span class="source-line-no">168</span><span id="line-168">    // パイプライン開始時にMDCコンテキストを設定</span>
 <span class="source-line-no">169</span><span id="line-169">    context.applyToMDCWithStage("pipeline-start");</span>
 <span class="source-line-no">170</span><span id="line-170"></span>
-<span class="source-line-no">171</span><span id="line-171">    log.info(</span>
+<span class="source-line-no">171</span><span id="line-171">    LOG.info(</span>
 <span class="source-line-no">172</span><span id="line-172">        "Starting StreamConverter with {} commands (executionId: {})",</span>
 <span class="source-line-no">173</span><span id="line-173">        commands.size(),</span>
 <span class="source-line-no">174</span><span id="line-174">        context.getExecutionId());</span>
@@ -231,7 +231,7 @@
 <span class="source-line-no">218</span><span id="line-218">                  String stageName = command.getClass().getSimpleName() + "-" + sequence;</span>
 <span class="source-line-no">219</span><span id="line-219">                  context.applyToMDCWithStage(stageName);</span>
 <span class="source-line-no">220</span><span id="line-220"></span>
-<span class="source-line-no">221</span><span id="line-221">                  log.info(</span>
+<span class="source-line-no">221</span><span id="line-221">                  LOG.info(</span>
 <span class="source-line-no">222</span><span id="line-222">                      "Setting up command {} of {}: {} (sequence: {})",</span>
 <span class="source-line-no">223</span><span id="line-223">                      commandIndex + 1,</span>
 <span class="source-line-no">224</span><span id="line-224">                      commands.size(),</span>
@@ -253,7 +253,7 @@
 <span class="source-line-no">240</span><span id="line-240">                    long endTime = System.currentTimeMillis();</span>
 <span class="source-line-no">241</span><span id="line-241">                    java.time.Instant endInstant = java.time.Instant.now();</span>
 <span class="source-line-no">242</span><span id="line-242"></span>
-<span class="source-line-no">243</span><span id="line-243">                    log.info(</span>
+<span class="source-line-no">243</span><span id="line-243">                    LOG.info(</span>
 <span class="source-line-no">244</span><span id="line-244">                        "Completed command: {} (sequence: {})",</span>
 <span class="source-line-no">245</span><span id="line-245">                        command.getClass().getSimpleName(),</span>
 <span class="source-line-no">246</span><span id="line-246">                        sequence);</span>
@@ -270,7 +270,7 @@
 <span class="source-line-no">257</span><span id="line-257">                    long endTime = System.currentTimeMillis();</span>
 <span class="source-line-no">258</span><span id="line-258">                    java.time.Instant endInstant = java.time.Instant.now();</span>
 <span class="source-line-no">259</span><span id="line-259"></span>
-<span class="source-line-no">260</span><span id="line-260">                    log.error(</span>
+<span class="source-line-no">260</span><span id="line-260">                    LOG.error(</span>
 <span class="source-line-no">261</span><span id="line-261">                        "Command execution failed: {} (sequence: {}) - {}",</span>
 <span class="source-line-no">262</span><span id="line-262">                        command.getClass().getSimpleName(),</span>
 <span class="source-line-no">263</span><span id="line-263">                        sequence,</span>
@@ -319,7 +319,7 @@
 <span class="source-line-no">306</span><span id="line-306">        }</span>
 <span class="source-line-no">307</span><span id="line-307">      }</span>
 <span class="source-line-no">308</span><span id="line-308"></span>
-<span class="source-line-no">309</span><span id="line-309">      log.info("All commands completed successfully (executionId: {})", context.getExecutionId());</span>
+<span class="source-line-no">309</span><span id="line-309">      LOG.info("All commands completed successfully (executionId: {})", context.getExecutionId());</span>
 <span class="source-line-no">310</span><span id="line-310">      return results;</span>
 <span class="source-line-no">311</span><span id="line-311"></span>
 <span class="source-line-no">312</span><span id="line-312">    } finally {</span>
@@ -338,10 +338,10 @@
 <span class="source-line-no">325</span><span id="line-325">    executor.shutdown();</span>
 <span class="source-line-no">326</span><span id="line-326">    try {</span>
 <span class="source-line-no">327</span><span id="line-327">      if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {</span>
-<span class="source-line-no">328</span><span id="line-328">        log.warn("Executor did not terminate gracefully, forcing shutdown");</span>
+<span class="source-line-no">328</span><span id="line-328">        LOG.warn("Executor did not terminate gracefully, forcing shutdown");</span>
 <span class="source-line-no">329</span><span id="line-329">        executor.shutdownNow();</span>
 <span class="source-line-no">330</span><span id="line-330">        if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {</span>
-<span class="source-line-no">331</span><span id="line-331">          log.error("Executor did not terminate after forced shutdown");</span>
+<span class="source-line-no">331</span><span id="line-331">          LOG.error("Executor did not terminate after forced shutdown");</span>
 <span class="source-line-no">332</span><span id="line-332">        }</span>
 <span class="source-line-no">333</span><span id="line-333">      }</span>
 <span class="source-line-no">334</span><span id="line-334">    } catch (InterruptedException e) {</span>
@@ -360,7 +360,7 @@
 <span class="source-line-no">347</span><span id="line-347">      try {</span>
 <span class="source-line-no">348</span><span id="line-348">        resource.close();</span>
 <span class="source-line-no">349</span><span id="line-349">      } catch (Exception e) {</span>
-<span class="source-line-no">350</span><span id="line-350">        log.warn("Failed to close resource: {}", e.getMessage());</span>
+<span class="source-line-no">350</span><span id="line-350">        LOG.warn("Failed to close resource: {}", e.getMessage());</span>
 <span class="source-line-no">351</span><span id="line-351">      }</span>
 <span class="source-line-no">352</span><span id="line-352">    }</span>
 <span class="source-line-no">353</span><span id="line-353">  }</span>

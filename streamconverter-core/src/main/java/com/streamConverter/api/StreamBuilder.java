@@ -14,6 +14,8 @@ import com.streamConverter.command.impl.json.JsonValidateCommand;
 import com.streamConverter.command.impl.xml.ValidateCommand;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -36,7 +38,7 @@ import java.util.function.Consumer;
  *     .toStream(outputStream);
  * }</pre>
  */
-public class StreamBuilder {
+public final class StreamBuilder {
 
   private final List<IStreamCommand> commands;
   private InputStream inputStream;
@@ -92,7 +94,7 @@ public class StreamBuilder {
    */
   public StreamBuilder fromFile(String filePath) throws IOException {
     Objects.requireNonNull(filePath, "File path cannot be null");
-    this.inputStream = new FileInputStream(filePath);
+    this.inputStream = Files.newInputStream(Paths.get(filePath));
     return this;
   }
 
@@ -415,7 +417,7 @@ public class StreamBuilder {
    */
   public List<CommandResult> toFile(String filePath) throws IOException {
     Objects.requireNonNull(filePath, "File path cannot be null");
-    try (FileOutputStream outputStream = new FileOutputStream(filePath)) {
+    try (OutputStream outputStream = Files.newOutputStream(Paths.get(filePath))) {
       return execute(outputStream);
     }
   }

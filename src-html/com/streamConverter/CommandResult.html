@@ -21,7 +21,7 @@
 <span class="source-line-no">008</span><span id="line-8"> *</span>
 <span class="source-line-no">009</span><span id="line-9"> * &lt;p&gt;各StreamCommandの実行結果、実行時間、エラー情報などを保持します。</span>
 <span class="source-line-no">010</span><span id="line-10"> */</span>
-<span class="source-line-no">011</span><span id="line-11">public class CommandResult {</span>
+<span class="source-line-no">011</span><span id="line-11">public final class CommandResult {</span>
 <span class="source-line-no">012</span><span id="line-12">  private final String commandName;</span>
 <span class="source-line-no">013</span><span id="line-13">  private final boolean success;</span>
 <span class="source-line-no">014</span><span id="line-14">  private final long executionTimeMillis;</span>
@@ -31,7 +31,7 @@
 <span class="source-line-no">018</span><span id="line-18">  private final Instant startTime;</span>
 <span class="source-line-no">019</span><span id="line-19">  private final Instant endTime;</span>
 <span class="source-line-no">020</span><span id="line-20"></span>
-<span class="source-line-no">021</span><span id="line-21">  private CommandResult(Builder builder) {</span>
+<span class="source-line-no">021</span><span id="line-21">  private CommandResult(final Builder builder) {</span>
 <span class="source-line-no">022</span><span id="line-22">    this.commandName = builder.commandName;</span>
 <span class="source-line-no">023</span><span id="line-23">    this.success = builder.success;</span>
 <span class="source-line-no">024</span><span id="line-24">    this.executionTimeMillis = builder.executionTimeMillis;</span>
@@ -136,7 +136,7 @@
 <span class="source-line-no">123</span><span id="line-123">  }</span>
 <span class="source-line-no">124</span><span id="line-124"></span>
 <span class="source-line-no">125</span><span id="line-125">  /** CommandResultのビルダークラス */</span>
-<span class="source-line-no">126</span><span id="line-126">  public static class Builder {</span>
+<span class="source-line-no">126</span><span id="line-126">  public static final class Builder {</span>
 <span class="source-line-no">127</span><span id="line-127">    private String commandName;</span>
 <span class="source-line-no">128</span><span id="line-128">    private boolean success;</span>
 <span class="source-line-no">129</span><span id="line-129">    private long executionTimeMillis;</span>
@@ -152,7 +152,7 @@
 <span class="source-line-no">139</span><span id="line-139">     * @param commandName コマンド名</span>
 <span class="source-line-no">140</span><span id="line-140">     * @return Builderインスタンス</span>
 <span class="source-line-no">141</span><span id="line-141">     */</span>
-<span class="source-line-no">142</span><span id="line-142">    public Builder commandName(String commandName) {</span>
+<span class="source-line-no">142</span><span id="line-142">    public Builder commandName(final String commandName) {</span>
 <span class="source-line-no">143</span><span id="line-143">      this.commandName = commandName;</span>
 <span class="source-line-no">144</span><span id="line-144">      return this;</span>
 <span class="source-line-no">145</span><span id="line-145">    }</span>
@@ -163,7 +163,7 @@
 <span class="source-line-no">150</span><span id="line-150">     * @param success 成功フラグ</span>
 <span class="source-line-no">151</span><span id="line-151">     * @return Builderインスタンス</span>
 <span class="source-line-no">152</span><span id="line-152">     */</span>
-<span class="source-line-no">153</span><span id="line-153">    public Builder success(boolean success) {</span>
+<span class="source-line-no">153</span><span id="line-153">    public Builder success(final boolean success) {</span>
 <span class="source-line-no">154</span><span id="line-154">      this.success = success;</span>
 <span class="source-line-no">155</span><span id="line-155">      return this;</span>
 <span class="source-line-no">156</span><span id="line-156">    }</span>
@@ -174,7 +174,7 @@
 <span class="source-line-no">161</span><span id="line-161">     * @param executionTimeMillis 実行時間（ミリ秒）</span>
 <span class="source-line-no">162</span><span id="line-162">     * @return Builderインスタンス</span>
 <span class="source-line-no">163</span><span id="line-163">     */</span>
-<span class="source-line-no">164</span><span id="line-164">    public Builder executionTime(long executionTimeMillis) {</span>
+<span class="source-line-no">164</span><span id="line-164">    public Builder executionTime(final long executionTimeMillis) {</span>
 <span class="source-line-no">165</span><span id="line-165">      this.executionTimeMillis = executionTimeMillis;</span>
 <span class="source-line-no">166</span><span id="line-166">      return this;</span>
 <span class="source-line-no">167</span><span id="line-167">    }</span>
@@ -185,7 +185,7 @@
 <span class="source-line-no">172</span><span id="line-172">     * @param inputBytes 入力バイト数</span>
 <span class="source-line-no">173</span><span id="line-173">     * @return Builderインスタンス</span>
 <span class="source-line-no">174</span><span id="line-174">     */</span>
-<span class="source-line-no">175</span><span id="line-175">    public Builder inputBytes(long inputBytes) {</span>
+<span class="source-line-no">175</span><span id="line-175">    public Builder inputBytes(final long inputBytes) {</span>
 <span class="source-line-no">176</span><span id="line-176">      this.inputBytes = inputBytes;</span>
 <span class="source-line-no">177</span><span id="line-177">      return this;</span>
 <span class="source-line-no">178</span><span id="line-178">    }</span>
@@ -196,7 +196,7 @@
 <span class="source-line-no">183</span><span id="line-183">     * @param outputBytes 出力バイト数</span>
 <span class="source-line-no">184</span><span id="line-184">     * @return Builderインスタンス</span>
 <span class="source-line-no">185</span><span id="line-185">     */</span>
-<span class="source-line-no">186</span><span id="line-186">    public Builder outputBytes(long outputBytes) {</span>
+<span class="source-line-no">186</span><span id="line-186">    public Builder outputBytes(final long outputBytes) {</span>
 <span class="source-line-no">187</span><span id="line-187">      this.outputBytes = outputBytes;</span>
 <span class="source-line-no">188</span><span id="line-188">      return this;</span>
 <span class="source-line-no">189</span><span id="line-189">    }</span>
@@ -207,7 +207,7 @@
 <span class="source-line-no">194</span><span id="line-194">     * @param errorMessage エラーメッセージ</span>
 <span class="source-line-no">195</span><span id="line-195">     * @return Builderインスタンス</span>
 <span class="source-line-no">196</span><span id="line-196">     */</span>
-<span class="source-line-no">197</span><span id="line-197">    public Builder errorMessage(String errorMessage) {</span>
+<span class="source-line-no">197</span><span id="line-197">    public Builder errorMessage(final String errorMessage) {</span>
 <span class="source-line-no">198</span><span id="line-198">      this.errorMessage = errorMessage;</span>
 <span class="source-line-no">199</span><span id="line-199">      return this;</span>
 <span class="source-line-no">200</span><span id="line-200">    }</span>
@@ -218,7 +218,7 @@
 <span class="source-line-no">205</span><span id="line-205">     * @param startTime 開始時刻</span>
 <span class="source-line-no">206</span><span id="line-206">     * @return Builderインスタンス</span>
 <span class="source-line-no">207</span><span id="line-207">     */</span>
-<span class="source-line-no">208</span><span id="line-208">    public Builder startTime(Instant startTime) {</span>
+<span class="source-line-no">208</span><span id="line-208">    public Builder startTime(final Instant startTime) {</span>
 <span class="source-line-no">209</span><span id="line-209">      this.startTime = startTime;</span>
 <span class="source-line-no">210</span><span id="line-210">      return this;</span>
 <span class="source-line-no">211</span><span id="line-211">    }</span>
@@ -229,7 +229,7 @@
 <span class="source-line-no">216</span><span id="line-216">     * @param endTime 終了時刻</span>
 <span class="source-line-no">217</span><span id="line-217">     * @return Builderインスタンス</span>
 <span class="source-line-no">218</span><span id="line-218">     */</span>
-<span class="source-line-no">219</span><span id="line-219">    public Builder endTime(Instant endTime) {</span>
+<span class="source-line-no">219</span><span id="line-219">    public Builder endTime(final Instant endTime) {</span>
 <span class="source-line-no">220</span><span id="line-220">      this.endTime = endTime;</span>
 <span class="source-line-no">221</span><span id="line-221">      return this;</span>
 <span class="source-line-no">222</span><span id="line-222">    }</span>
@@ -256,12 +256,12 @@
 <span class="source-line-no">243</span><span id="line-243">   * @return 成功結果のCommandResult</span>
 <span class="source-line-no">244</span><span id="line-244">   */</span>
 <span class="source-line-no">245</span><span id="line-245">  public static CommandResult success(</span>
-<span class="source-line-no">246</span><span id="line-246">      String commandName,</span>
-<span class="source-line-no">247</span><span id="line-247">      long executionTime,</span>
-<span class="source-line-no">248</span><span id="line-248">      long inputBytes,</span>
-<span class="source-line-no">249</span><span id="line-249">      long outputBytes,</span>
-<span class="source-line-no">250</span><span id="line-250">      Instant startTime,</span>
-<span class="source-line-no">251</span><span id="line-251">      Instant endTime) {</span>
+<span class="source-line-no">246</span><span id="line-246">      final String commandName,</span>
+<span class="source-line-no">247</span><span id="line-247">      final long executionTime,</span>
+<span class="source-line-no">248</span><span id="line-248">      final long inputBytes,</span>
+<span class="source-line-no">249</span><span id="line-249">      final long outputBytes,</span>
+<span class="source-line-no">250</span><span id="line-250">      final Instant startTime,</span>
+<span class="source-line-no">251</span><span id="line-251">      final Instant endTime) {</span>
 <span class="source-line-no">252</span><span id="line-252">    return new Builder()</span>
 <span class="source-line-no">253</span><span id="line-253">        .commandName(commandName)</span>
 <span class="source-line-no">254</span><span id="line-254">        .success(true)</span>
@@ -284,11 +284,11 @@
 <span class="source-line-no">271</span><span id="line-271">   * @return 失敗結果のCommandResult</span>
 <span class="source-line-no">272</span><span id="line-272">   */</span>
 <span class="source-line-no">273</span><span id="line-273">  public static CommandResult failure(</span>
-<span class="source-line-no">274</span><span id="line-274">      String commandName,</span>
-<span class="source-line-no">275</span><span id="line-275">      long executionTime,</span>
-<span class="source-line-no">276</span><span id="line-276">      String errorMessage,</span>
-<span class="source-line-no">277</span><span id="line-277">      Instant startTime,</span>
-<span class="source-line-no">278</span><span id="line-278">      Instant endTime) {</span>
+<span class="source-line-no">274</span><span id="line-274">      final String commandName,</span>
+<span class="source-line-no">275</span><span id="line-275">      final long executionTime,</span>
+<span class="source-line-no">276</span><span id="line-276">      final String errorMessage,</span>
+<span class="source-line-no">277</span><span id="line-277">      final Instant startTime,</span>
+<span class="source-line-no">278</span><span id="line-278">      final Instant endTime) {</span>
 <span class="source-line-no">279</span><span id="line-279">    return new Builder()</span>
 <span class="source-line-no">280</span><span id="line-280">        .commandName(commandName)</span>
 <span class="source-line-no">281</span><span id="line-281">        .success(false)</span>

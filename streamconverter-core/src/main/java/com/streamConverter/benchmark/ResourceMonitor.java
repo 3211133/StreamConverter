@@ -25,6 +25,9 @@ public class ResourceMonitor {
   private ScheduledExecutorService executor;
   private volatile boolean monitoring = false;
 
+  /** Creates a new {@code ResourceMonitor}. */
+  public ResourceMonitor() {}
+
   /**
    * モニタリングを開始します
    *

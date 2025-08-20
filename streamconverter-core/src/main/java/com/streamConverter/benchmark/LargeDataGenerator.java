@@ -29,6 +29,9 @@ public class LargeDataGenerator {
     "マウス", "モニター", "プリンター", "カメラ", "充電器"
   };
 
+  /** Prevent instantiation. */
+  private LargeDataGenerator() {}
+
   /**
    * 大容量XMLファイルを生成します
    *

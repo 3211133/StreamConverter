@@ -68,6 +68,7 @@ public class PmdXmlToJsonCommand extends AbstractStreamCommand {
 
   private final ObjectMapper objectMapper;
 
+  /** Creates a new command instance. */
   public PmdXmlToJsonCommand() {
     this.objectMapper =
         new ObjectMapper()
@@ -152,9 +153,19 @@ public class PmdXmlToJsonCommand extends AbstractStreamCommand {
     return new PmdJsonReport(summary, violations);
   }
 
-  /** JSON レポートのルートオブジェクト */
+  /**
+   * JSON レポートのルートオブジェクト
+   *
+   * @param summary サマリー情報
+   * @param violations バイオレーション一覧
+   */
   public static record PmdJsonReport(PmdJsonSummary summary, List<PmdViolation> violations) {}
 
-  /** JSON レポートのサマリー情報 */
+  /**
+   * JSON レポートのサマリー情報
+   *
+   * @param totalViolations 総違反数
+   * @param generatedAt 生成日時
+   */
   public static record PmdJsonSummary(int totalViolations, String generatedAt) {}
 }

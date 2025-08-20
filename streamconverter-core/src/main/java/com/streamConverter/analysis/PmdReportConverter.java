@@ -24,7 +24,16 @@ import org.w3c.dom.NodeList;
  * </ul>
  */
 public class PmdReportConverter {
+  /** Creates a new converter. */
+  public PmdReportConverter() {}
 
+  /**
+   * CLI entry point for converting a PMD XML report.
+   *
+   * @param args arguments where args[0] is the XML file and args[1] is the optional output
+   *     directory
+   * @throws Exception if conversion fails
+   */
   public static void main(String[] args) throws Exception {
     if (args.length < 1) {
       System.err.println("Usage: PmdReportConverter <pmd-xml-file> [output-dir]");
@@ -38,6 +47,13 @@ public class PmdReportConverter {
     converter.convertReport(xmlFile, outputDir);
   }
 
+  /**
+   * Converts the given PMD XML report into multiple formats.
+   *
+   * @param xmlFilePath path to the PMD XML file
+   * @param outputDir directory where converted reports will be written
+   * @throws Exception if processing fails
+   */
   public void convertReport(String xmlFilePath, String outputDir) throws Exception {
     Path xmlPath = Paths.get(xmlFilePath);
     Path outputPath = Paths.get(outputDir);
@@ -233,7 +249,19 @@ public class PmdReportConverter {
     Files.writeString(outputPath, json.toString());
   }
 
-  /** PMD違反情報を表すレコードクラス */
+  /**
+   * PMD違反情報を表すレコードクラス
+   *
+   * @param file ファイルパス
+   * @param line 行番号
+   * @param rule 違反ルール
+   * @param ruleset ルールセット
+   * @param priority 優先度
+   * @param description 説明
+   * @param className クラス名
+   * @param method メソッド名
+   * @param variable 変数名
+   */
   public record PmdViolation(
       String file,
       int line,

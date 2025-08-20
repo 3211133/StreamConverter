@@ -203,6 +203,9 @@ public class ExecutionContext {
     private Map<String, String> globalContext = new HashMap<>();
     private Map<String, String> userContext = new HashMap<>();
 
+    /** Creates a new builder. */
+    public Builder() {}
+
     /**
      * 実行IDを設定
      *

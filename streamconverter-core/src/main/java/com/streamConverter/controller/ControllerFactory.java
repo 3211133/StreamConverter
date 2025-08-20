@@ -55,6 +55,9 @@ public class ControllerFactory {
 
   private static final Logger log = LoggerFactory.getLogger(ControllerFactory.class);
 
+  /** Prevent instantiation. */
+  private ControllerFactory() {}
+
   /** Registry of controllers by type combination */
   private static final Map<String, IStreamController> controllerRegistry = new HashMap<>();
 
@@ -366,6 +369,9 @@ public class ControllerFactory {
   /** Builder for CSV controllers. */
   public static class CsvControllerBuilder implements CommandFactoryAwareBuilder {
 
+    /** Creates a new builder. */
+    public CsvControllerBuilder() {}
+
     @Override
     public IStreamController createForOutputType(String outputType) {
       OutputType type = OutputType.fromString(outputType);
@@ -448,6 +454,9 @@ public class ControllerFactory {
 
   /** Builder for JSON controllers. */
   public static class JsonControllerBuilder implements CommandFactoryAwareBuilder {
+
+    /** Creates a new builder. */
+    public JsonControllerBuilder() {}
 
     @Override
     public IStreamController createForOutputType(String outputType) {

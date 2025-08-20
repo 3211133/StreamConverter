@@ -39,6 +39,8 @@ import org.w3c.dom.NodeList;
  * </pre>
  */
 public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
+  /** Creates a new command instance. */
+  public PmdXmlToMarkdownCommand() {}
 
   /**
    * PMD XML InputStream を Markdown OutputStream に変換

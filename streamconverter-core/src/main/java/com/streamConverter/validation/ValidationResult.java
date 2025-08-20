@@ -245,6 +245,9 @@ public class ValidationResult {
     private long executionTimeMillis;
     private String dataSource;
 
+    /** Creates a new builder instance. */
+    public Builder() {}
+
     /**
      * バリデーションタイプを設定
      *

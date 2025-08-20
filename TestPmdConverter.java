@@ -1,9 +1,14 @@
 import com.streamConverter.controller.PmdAnalysisController;
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import com.streamConverter.CommandResult;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class TestPmdConverter {
+    private static final Logger LOG = LoggerFactory.getLogger(TestPmdConverter.class);
     public static void main(String[] args) throws IOException {
         // PMD XMLファイルをテスト
         String xmlPath = "build/reports/pmd/main.xml";
@@ -19,47 +24,56 @@ public class TestPmdConverter {
     }
     
     private static void testMarkdownConversion(String xmlPath) throws IOException {
-        System.out.println("🔄 Testing Markdown conversion...");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("🔄 Testing Markdown conversion...");
+        }
         PmdAnalysisController controller = PmdAnalysisController.forMarkdownConversion();
         
-        try (FileInputStream input = new FileInputStream(xmlPath);
-             FileOutputStream output = new FileOutputStream("test-output.md")) {
+        try (var input = Files.newInputStream(Paths.get(xmlPath));
+             var output = Files.newOutputStream(Paths.get("test-output.md"))) {
             
             List<CommandResult> results = controller.process(input, output);
-            System.out.println("✅ Markdown conversion successful: " + results.get(0));
+            if (LOG.isInfoEnabled()) {
+                LOG.info("✅ Markdown conversion successful: {}", results.get(0));
+            }
         } catch (Exception e) {
-            System.err.println("❌ Markdown conversion failed: " + e.getMessage());
-            e.printStackTrace();
+            LOG.error("❌ Markdown conversion failed: {}", e.getMessage(), e);
         }
     }
     
     private static void testCsvConversion(String xmlPath) throws IOException {
-        System.out.println("🔄 Testing CSV conversion...");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("🔄 Testing CSV conversion...");
+        }
         PmdAnalysisController controller = PmdAnalysisController.forCsvConversion();
         
-        try (FileInputStream input = new FileInputStream(xmlPath);
-             FileOutputStream output = new FileOutputStream("test-output.csv")) {
+        try (var input = Files.newInputStream(Paths.get(xmlPath));
+             var output = Files.newOutputStream(Paths.get("test-output.csv"))) {
             
             List<CommandResult> results = controller.process(input, output);
-            System.out.println("✅ CSV conversion successful: " + results.get(0));
+            if (LOG.isInfoEnabled()) {
+                LOG.info("✅ CSV conversion successful: {}", results.get(0));
+            }
         } catch (Exception e) {
-            System.err.println("❌ CSV conversion failed: " + e.getMessage());
-            e.printStackTrace();
+            LOG.error("❌ CSV conversion failed: {}", e.getMessage(), e);
         }
     }
     
     private static void testJsonConversion(String xmlPath) throws IOException {
-        System.out.println("🔄 Testing JSON conversion...");
+        if (LOG.isInfoEnabled()) {
+            LOG.info("🔄 Testing JSON conversion...");
+        }
         PmdAnalysisController controller = PmdAnalysisController.forJsonConversion();
         
-        try (FileInputStream input = new FileInputStream(xmlPath);
-             FileOutputStream output = new FileOutputStream("test-output.json")) {
+        try (var input = Files.newInputStream(Paths.get(xmlPath));
+             var output = Files.newOutputStream(Paths.get("test-output.json"))) {
             
             List<CommandResult> results = controller.process(input, output);
-            System.out.println("✅ JSON conversion successful: " + results.get(0));
+            if (LOG.isInfoEnabled()) {
+                LOG.info("✅ JSON conversion successful: {}", results.get(0));
+            }
         } catch (Exception e) {
-            System.err.println("❌ JSON conversion failed: " + e.getMessage());
-            e.printStackTrace();
+            LOG.error("❌ JSON conversion failed: {}", e.getMessage(), e);
         }
     }
 }

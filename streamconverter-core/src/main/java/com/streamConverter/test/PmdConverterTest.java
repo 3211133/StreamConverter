@@ -15,7 +15,6 @@ import java.util.List;
 public class PmdConverterTest {
 
   /** Creates a new test instance. */
-  public PmdConverterTest() {}
 
   /**
    * Executes manual tests for PMD conversions.

@@ -8,7 +8,7 @@ import java.time.Instant;
  *
  * <p>各StreamCommandの実行結果、実行時間、エラー情報などを保持します。
  */
-public class CommandResult {
+public final class CommandResult {
   private final String commandName;
   private final boolean success;
   private final long executionTimeMillis;
@@ -18,7 +18,7 @@ public class CommandResult {
   private final Instant startTime;
   private final Instant endTime;
 
-  private CommandResult(Builder builder) {
+  private CommandResult(final Builder builder) {
     this.commandName = builder.commandName;
     this.success = builder.success;
     this.executionTimeMillis = builder.executionTimeMillis;
@@ -123,7 +123,7 @@ public class CommandResult {
   }
 
   /** CommandResultのビルダークラス */
-  public static class Builder {
+  public static final class Builder {
     private String commandName;
     private boolean success;
     private long executionTimeMillis;
@@ -139,7 +139,7 @@ public class CommandResult {
      * @param commandName コマンド名
      * @return Builderインスタンス
      */
-    public Builder commandName(String commandName) {
+    public Builder commandName(final String commandName) {
       this.commandName = commandName;
       return this;
     }
@@ -150,7 +150,7 @@ public class CommandResult {
      * @param success 成功フラグ
      * @return Builderインスタンス
      */
-    public Builder success(boolean success) {
+    public Builder success(final boolean success) {
       this.success = success;
       return this;
     }
@@ -161,7 +161,7 @@ public class CommandResult {
      * @param executionTimeMillis 実行時間（ミリ秒）
      * @return Builderインスタンス
      */
-    public Builder executionTime(long executionTimeMillis) {
+    public Builder executionTime(final long executionTimeMillis) {
       this.executionTimeMillis = executionTimeMillis;
       return this;
     }
@@ -172,7 +172,7 @@ public class CommandResult {
      * @param inputBytes 入力バイト数
      * @return Builderインスタンス
      */
-    public Builder inputBytes(long inputBytes) {
+    public Builder inputBytes(final long inputBytes) {
       this.inputBytes = inputBytes;
       return this;
     }
@@ -183,7 +183,7 @@ public class CommandResult {
      * @param outputBytes 出力バイト数
      * @return Builderインスタンス
      */
-    public Builder outputBytes(long outputBytes) {
+    public Builder outputBytes(final long outputBytes) {
       this.outputBytes = outputBytes;
       return this;
     }
@@ -194,7 +194,7 @@ public class CommandResult {
      * @param errorMessage エラーメッセージ
      * @return Builderインスタンス
      */
-    public Builder errorMessage(String errorMessage) {
+    public Builder errorMessage(final String errorMessage) {
       this.errorMessage = errorMessage;
       return this;
     }
@@ -205,7 +205,7 @@ public class CommandResult {
      * @param startTime 開始時刻
      * @return Builderインスタンス
      */
-    public Builder startTime(Instant startTime) {
+    public Builder startTime(final Instant startTime) {
       this.startTime = startTime;
       return this;
     }
@@ -216,7 +216,7 @@ public class CommandResult {
      * @param endTime 終了時刻
      * @return Builderインスタンス
      */
-    public Builder endTime(Instant endTime) {
+    public Builder endTime(final Instant endTime) {
       this.endTime = endTime;
       return this;
     }
@@ -243,12 +243,12 @@ public class CommandResult {
    * @return 成功結果のCommandResult
    */
   public static CommandResult success(
-      String commandName,
-      long executionTime,
-      long inputBytes,
-      long outputBytes,
-      Instant startTime,
-      Instant endTime) {
+      final String commandName,
+      final long executionTime,
+      final long inputBytes,
+      final long outputBytes,
+      final Instant startTime,
+      final Instant endTime) {
     return new Builder()
         .commandName(commandName)
         .success(true)
@@ -271,11 +271,11 @@ public class CommandResult {
    * @return 失敗結果のCommandResult
    */
   public static CommandResult failure(
-      String commandName,
-      long executionTime,
-      String errorMessage,
-      Instant startTime,
-      Instant endTime) {
+      final String commandName,
+      final long executionTime,
+      final String errorMessage,
+      final Instant startTime,
+      final Instant endTime) {
     return new Builder()
         .commandName(commandName)
         .success(false)

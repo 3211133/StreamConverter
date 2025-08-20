@@ -103,6 +103,9 @@ tasks.test {
         // ベンチマークテストを通常のテスト実行から除外
         excludeTags("benchmark", "large-data")
     }
+
+    // Exclude benchmark-related tests by class name and path patterns as well
+    exclude("**/benchmark/**", "**/*Benchmark*", "**/MemoryEfficiencyTest*")
     
     // クロスプラットフォーム対応のJVM設定
     jvmArgs("-Xmx2g", "-Xms1g", "-Dfile.encoding=UTF-8")

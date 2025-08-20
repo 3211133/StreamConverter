@@ -105,10 +105,10 @@ converter.run(inputStream, outputStream);
 # ビルド
 ./gradlew build
 
-# テスト実行
+# テスト実行（ベンチマークはデフォルトでスキップされます）
 ./gradlew test
 
-# ベンチマークテスト
+# ベンチマークテスト（必要な場合のみ）
 ./gradlew benchmarkAll
 
 # 統合Javadoc生成

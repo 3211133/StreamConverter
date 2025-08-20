@@ -238,6 +238,9 @@ tasks.test {
         // ベンチマークテストを通常のテスト実行から除外
         excludeTags("benchmark", "large-data")
     }
+
+    // クラス名・パスパターンでもベンチマーク系テストを除外
+    exclude("**/benchmark/**", "**/*Benchmark*", "**/MemoryEfficiencyTest*")
     
     // メモリ効率テスト用にJVMヒープサイズを設定
     jvmArgs("-Xmx1g", "-Xms512m")

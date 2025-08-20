@@ -70,13 +70,17 @@ public class PmdXmlToJsonCommand extends AbstractStreamCommand {
 
   /**
    * Creates a new command instance.
-   * <p>
-   * Initializes the {@link ObjectMapper} with the following configuration:
+   *
+   * <p>Initializes the {@link ObjectMapper} with the following configuration:
+   *
    * <ul>
-   *   <li>Enables pretty-printing of JSON output ({@link SerializationFeature#INDENT_OUTPUT}).</li>
-   *   <li>Disables writing dates as timestamps, using ISO-8601 format instead ({@link SerializationFeature#WRITE_DATES_AS_TIMESTAMPS}).</li>
+   *   <li>Enables pretty-printing of JSON output ({@link SerializationFeature#INDENT_OUTPUT}).
+   *   <li>Disables writing dates as timestamps, using ISO-8601 format instead ({@link
+   *       SerializationFeature#WRITE_DATES_AS_TIMESTAMPS}).
    * </ul>
-   * This configuration affects the formatting and date representation in the generated JSON reports.
+   *
+   * This configuration affects the formatting and date representation in the generated JSON
+   * reports.
    */
   public PmdXmlToJsonCommand() {
     this.objectMapper =

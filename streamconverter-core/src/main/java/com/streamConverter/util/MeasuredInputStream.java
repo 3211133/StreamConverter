@@ -10,77 +10,76 @@ import java.io.InputStream;
  */
 public class MeasuredInputStream extends InputStream {
   private final InputStream delegate;
-  private long bytesRead = 0;
-  private boolean closed = false;
+  private long bytesRead;
+  private boolean closed;
 
   /**
    * コンストラクタ
    *
-   * @param delegate ラップ対象のInputStream
+   * @param delegateStream ラップ対象のInputStream
    */
-  public MeasuredInputStream(InputStream delegate) {
+  public MeasuredInputStream(final InputStream delegateStream) {
+    super();
     this.delegate =
-        java.util.Objects.requireNonNull(delegate, "delegate InputStream cannot be null");
+        java.util.Objects.requireNonNull(
+            delegateStream, "delegate InputStream cannot be null");
   }
 
   @Override
   public int read() throws IOException {
-    if (closed) {
-      return -1;
-    }
-
-    int result = delegate.read();
-    if (result != -1) {
-      bytesRead++;
-    }
-    return result;
-  }
-
-  @Override
-  public int read(byte[] b) throws IOException {
-    if (closed) {
-      return -1;
-    }
-
-    int result = delegate.read(b);
-    if (result > 0) {
-      bytesRead += result;
+    int result = -1;
+    if (!closed) {
+      result = delegate.read();
+      if (result != -1) {
+        bytesRead++;
+      }
     }
     return result;
   }
 
   @Override
-  public int read(byte[] b, int off, int len) throws IOException {
-    if (closed) {
-      return -1;
-    }
-
-    int result = delegate.read(b, off, len);
-    if (result > 0) {
-      bytesRead += result;
+  public int read(final byte[] buffer) throws IOException {
+    int result = -1;
+    if (!closed) {
+      result = delegate.read(buffer);
+      if (result > 0) {
+        bytesRead += result;
+      }
     }
     return result;
   }
 
   @Override
-  public long skip(long n) throws IOException {
-    if (closed) {
-      return 0;
+  public int read(final byte[] buffer, final int offset, final int length) throws IOException {
+    int result = -1;
+    if (!closed) {
+      result = delegate.read(buffer, offset, length);
+      if (result > 0) {
+        bytesRead += result;
+      }
     }
+    return result;
+  }
 
-    long result = delegate.skip(n);
-    if (result > 0) {
-      bytesRead += result;
+  @Override
+  public long skip(final long numBytes) throws IOException {
+    long result = 0;
+    if (!closed) {
+      result = delegate.skip(numBytes);
+      if (result > 0) {
+        bytesRead += result;
+      }
     }
     return result;
   }
 
   @Override
   public int available() throws IOException {
-    if (closed) {
-      return 0;
+    int result = 0;
+    if (!closed) {
+      result = delegate.available();
     }
-    return delegate.available();
+    return result;
   }
 
   @Override
@@ -92,9 +91,9 @@ public class MeasuredInputStream extends InputStream {
   }
 
   @Override
-  public synchronized void mark(int readlimit) {
+  public synchronized void mark(final int readLimit) {
     if (!closed) {
-      delegate.mark(readlimit);
+      delegate.mark(readLimit);
     }
   }
 

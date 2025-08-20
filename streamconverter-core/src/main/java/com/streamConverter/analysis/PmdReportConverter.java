@@ -27,6 +27,7 @@ import org.w3c.dom.NodeList;
  */
 public class PmdReportConverter {
   private static final Logger LOG = LoggerFactory.getLogger(PmdReportConverter.class);
+
   /** Creates a new converter. */
   public PmdReportConverter() {}
 

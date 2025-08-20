@@ -10,47 +10,50 @@ import java.io.OutputStream;
  */
 public class MeasuredOutputStream extends OutputStream {
   private final OutputStream delegate;
-  private long bytesWritten = 0;
-  private boolean closed = false;
+  private long bytesWritten;
+  private boolean closed;
 
   /**
    * コンストラクタ
    *
-   * @param delegate ラップ対象のOutputStream
+   * @param delegateStream ラップ対象のOutputStream
    */
-  public MeasuredOutputStream(OutputStream delegate) {
+  public MeasuredOutputStream(final OutputStream delegateStream) {
+    super();
     this.delegate =
-        java.util.Objects.requireNonNull(delegate, "delegate OutputStream cannot be null");
+        java.util.Objects.requireNonNull(
+            delegateStream, "delegate OutputStream cannot be null");
   }
 
   @Override
-  public void write(int b) throws IOException {
+  public void write(final int value) throws IOException {
     if (closed) {
       throw new IOException("Stream is closed");
     }
 
-    delegate.write(b);
+    delegate.write(value);
     bytesWritten++;
   }
 
   @Override
-  public void write(byte[] b) throws IOException {
+  public void write(final byte[] buffer) throws IOException {
     if (closed) {
       throw new IOException("Stream is closed");
     }
 
-    delegate.write(b);
-    bytesWritten += b.length;
+    delegate.write(buffer);
+    bytesWritten += buffer.length;
   }
 
   @Override
-  public void write(byte[] b, int off, int len) throws IOException {
+  public void write(final byte[] buffer, final int offset, final int length)
+      throws IOException {
     if (closed) {
       throw new IOException("Stream is closed");
     }
 
-    delegate.write(b, off, len);
-    bytesWritten += len;
+    delegate.write(buffer, offset, length);
+    bytesWritten += length;
   }
 
   @Override

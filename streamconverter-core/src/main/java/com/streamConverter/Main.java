@@ -16,7 +16,7 @@ import org.slf4j.LoggerFactory;
  * <p>This class demonstrates the usage of the StreamConverter with sample commands.
  */
 public class Main {
-  private static final Logger log = LoggerFactory.getLogger(Main.class);
+  private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   /**
    * Main method to run the StreamConverter application.
@@ -25,7 +25,7 @@ public class Main {
    * @throws IOException If an I/O error occurs during the execution.
    */
   public static void main(String[] args) throws IOException {
-    log.info("Starting StreamConverter application");
+    LOG.info("Starting StreamConverter application");
     IStreamCommand[] commands = {
       new SampleStreamCommand("0"), new SampleStreamCommand("1"), new SampleStreamCommand("2")
     };
@@ -33,11 +33,17 @@ public class Main {
     try (InputStream inputStream = new ByteArrayInputStream("any message".getBytes());
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       converter.run(inputStream, outputStream);
-      log.info("Processing result: {}", outputStream.toString(StandardCharsets.UTF_8));
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Processing result: {}", outputStream.toString(StandardCharsets.UTF_8));
+      }
     } catch (IOException e) {
-      log.error("Application execution failed: {}", e.getMessage(), e);
+      if (LOG.isErrorEnabled()) {
+        LOG.error("Application execution failed: {}", e.getMessage(), e);
+      }
     }
 
-    log.info("StreamConverter application completed");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("StreamConverter application completed");
+    }
   }
 }

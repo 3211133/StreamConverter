@@ -8,6 +8,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -25,9 +27,13 @@ import org.w3c.dom.NodeList;
  */
 public class PmdReportConverter {
 
+  private static final Logger LOG = LoggerFactory.getLogger(PmdReportConverter.class);
+
   public static void main(String[] args) throws Exception {
     if (args.length < 1) {
-      System.err.println("Usage: PmdReportConverter <pmd-xml-file> [output-dir]");
+      if (LOG.isErrorEnabled()) {
+        LOG.error("Usage: PmdReportConverter <pmd-xml-file> [output-dir]");
+      }
       System.exit(1);
     }
 
@@ -51,10 +57,18 @@ public class PmdReportConverter {
     generateCsvReport(violations, outputPath.resolve("pmd-violations.csv"));
     generateJsonReport(violations, outputPath.resolve("pmd-report.json"));
 
-    System.out.println("✅ PMD報告書変換完了:");
-    System.out.println("   📄 Markdown: " + outputPath.resolve("pmd-summary.md"));
-    System.out.println("   📊 CSV: " + outputPath.resolve("pmd-violations.csv"));
-    System.out.println("   🔗 JSON: " + outputPath.resolve("pmd-report.json"));
+    if (LOG.isInfoEnabled()) {
+      LOG.info("✅ PMD報告書変換完了:");
+    }
+    if (LOG.isInfoEnabled()) {
+      LOG.info("   📄 Markdown: {}", outputPath.resolve("pmd-summary.md"));
+    }
+    if (LOG.isInfoEnabled()) {
+      LOG.info("   📊 CSV: {}", outputPath.resolve("pmd-violations.csv"));
+    }
+    if (LOG.isInfoEnabled()) {
+      LOG.info("   🔗 JSON: {}", outputPath.resolve("pmd-report.json"));
+    }
   }
 
   private List<PmdViolation> parseXmlReport(Path xmlPath) throws Exception {

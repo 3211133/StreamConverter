@@ -8,7 +8,7 @@ import java.time.Instant;
  *
  * <p>各StreamCommandの実行結果、実行時間、エラー情報などを保持します。
  */
-public class CommandResult {
+public final class CommandResult {
   private final String commandName;
   private final boolean success;
   private final long executionTimeMillis;

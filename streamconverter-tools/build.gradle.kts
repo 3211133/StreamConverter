@@ -115,7 +115,7 @@ spotless {
 
 tasks.test {
     useJUnitPlatform {
-        // ベンチマークテストを通常のテスト実行から除外
+        // Exclude benchmark tests from normal test execution
         excludeTags("benchmark", "large-data")
     }
 

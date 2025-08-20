@@ -62,103 +62,104 @@
 <span class="source-line-no">049</span><span id="line-49"></span>
 <span class="source-line-no">050</span><span id="line-50">  private final CsvMapper csvMapper;</span>
 <span class="source-line-no">051</span><span id="line-51"></span>
-<span class="source-line-no">052</span><span id="line-52">  public PmdXmlToCsvCommand() {</span>
-<span class="source-line-no">053</span><span id="line-53">    this.csvMapper = new CsvMapper();</span>
-<span class="source-line-no">054</span><span id="line-54">  }</span>
-<span class="source-line-no">055</span><span id="line-55"></span>
-<span class="source-line-no">056</span><span id="line-56">  /**</span>
-<span class="source-line-no">057</span><span id="line-57">   * PMD XML InputStream を CSV OutputStream に変換</span>
-<span class="source-line-no">058</span><span id="line-58">   *</span>
-<span class="source-line-no">059</span><span id="line-59">   * @param input PMD XML レポートの入力ストリーム</span>
-<span class="source-line-no">060</span><span id="line-60">   * @param output CSV レポートの出力ストリーム</span>
-<span class="source-line-no">061</span><span id="line-61">   * @throws IOException XML解析エラーまたはI/O例外の場合</span>
-<span class="source-line-no">062</span><span id="line-62">   */</span>
-<span class="source-line-no">063</span><span id="line-63">  @Override</span>
-<span class="source-line-no">064</span><span id="line-64">  protected void _execute(InputStream input, OutputStream output) throws IOException {</span>
-<span class="source-line-no">065</span><span id="line-65">    try {</span>
-<span class="source-line-no">066</span><span id="line-66">      // StreamConverter原則に従った変換処理</span>
-<span class="source-line-no">067</span><span id="line-67">      List&lt;PmdViolation&gt; violations = parseXmlStream(input);</span>
-<span class="source-line-no">068</span><span id="line-68">      generateCsvOutput(violations, output);</span>
-<span class="source-line-no">069</span><span id="line-69"></span>
-<span class="source-line-no">070</span><span id="line-70">    } catch (Exception e) {</span>
-<span class="source-line-no">071</span><span id="line-71">      throw new IOException("Failed to convert PMD XML to CSV: " + e.getMessage(), e);</span>
-<span class="source-line-no">072</span><span id="line-72">    }</span>
-<span class="source-line-no">073</span><span id="line-73">  }</span>
-<span class="source-line-no">074</span><span id="line-74"></span>
-<span class="source-line-no">075</span><span id="line-75">  @Override</span>
-<span class="source-line-no">076</span><span id="line-76">  protected String getCommandDetails() {</span>
-<span class="source-line-no">077</span><span id="line-77">    return "PmdXmlToCsvCommand: Converts PMD XML reports to CSV format using Jackson CsvMapper";</span>
-<span class="source-line-no">078</span><span id="line-78">  }</span>
-<span class="source-line-no">079</span><span id="line-79"></span>
-<span class="source-line-no">080</span><span id="line-80">  /**</span>
-<span class="source-line-no">081</span><span id="line-81">   * PMD XML ストリームからバイオレーション情報を解析</span>
-<span class="source-line-no">082</span><span id="line-82">   *</span>
-<span class="source-line-no">083</span><span id="line-83">   * @param input PMD XML入力ストリーム</span>
-<span class="source-line-no">084</span><span id="line-84">   * @return 解析されたバイオレーションのリスト</span>
-<span class="source-line-no">085</span><span id="line-85">   * @throws Exception XML解析エラーの場合</span>
-<span class="source-line-no">086</span><span id="line-86">   */</span>
-<span class="source-line-no">087</span><span id="line-87">  private List&lt;PmdViolation&gt; parseXmlStream(InputStream input) throws Exception {</span>
-<span class="source-line-no">088</span><span id="line-88">    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();</span>
-<span class="source-line-no">089</span><span id="line-89">    Document doc = builder.parse(input);</span>
-<span class="source-line-no">090</span><span id="line-90"></span>
-<span class="source-line-no">091</span><span id="line-91">    NodeList fileNodes = doc.getElementsByTagName("file");</span>
-<span class="source-line-no">092</span><span id="line-92">    List&lt;PmdViolation&gt; violations = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">093</span><span id="line-93"></span>
-<span class="source-line-no">094</span><span id="line-94">    for (int i = 0; i &lt; fileNodes.getLength(); i++) {</span>
-<span class="source-line-no">095</span><span id="line-95">      Element fileElement = (Element) fileNodes.item(i);</span>
-<span class="source-line-no">096</span><span id="line-96">      String fileName = fileElement.getAttribute("name");</span>
-<span class="source-line-no">097</span><span id="line-97"></span>
-<span class="source-line-no">098</span><span id="line-98">      NodeList violationNodes = fileElement.getElementsByTagName("violation");</span>
-<span class="source-line-no">099</span><span id="line-99">      for (int j = 0; j &lt; violationNodes.getLength(); j++) {</span>
-<span class="source-line-no">100</span><span id="line-100">        Element violationElement = (Element) violationNodes.item(j);</span>
-<span class="source-line-no">101</span><span id="line-101"></span>
-<span class="source-line-no">102</span><span id="line-102">        PmdViolation violation =</span>
-<span class="source-line-no">103</span><span id="line-103">            new PmdViolation(</span>
-<span class="source-line-no">104</span><span id="line-104">                extractRelativePath(fileName),</span>
-<span class="source-line-no">105</span><span id="line-105">                Integer.parseInt(violationElement.getAttribute("beginline")),</span>
-<span class="source-line-no">106</span><span id="line-106">                violationElement.getAttribute("rule"),</span>
-<span class="source-line-no">107</span><span id="line-107">                violationElement.getAttribute("ruleset"),</span>
-<span class="source-line-no">108</span><span id="line-108">                Integer.parseInt(violationElement.getAttribute("priority")),</span>
-<span class="source-line-no">109</span><span id="line-109">                violationElement.getTextContent().trim(),</span>
-<span class="source-line-no">110</span><span id="line-110">                violationElement.getAttribute("class"),</span>
-<span class="source-line-no">111</span><span id="line-111">                violationElement.getAttribute("method"),</span>
-<span class="source-line-no">112</span><span id="line-112">                violationElement.getAttribute("variable"));</span>
-<span class="source-line-no">113</span><span id="line-113">        violations.add(violation);</span>
-<span class="source-line-no">114</span><span id="line-114">      }</span>
-<span class="source-line-no">115</span><span id="line-115">    }</span>
-<span class="source-line-no">116</span><span id="line-116"></span>
-<span class="source-line-no">117</span><span id="line-117">    return violations;</span>
-<span class="source-line-no">118</span><span id="line-118">  }</span>
-<span class="source-line-no">119</span><span id="line-119"></span>
-<span class="source-line-no">120</span><span id="line-120">  /** StreamConverterプロジェクト内の相対パスを抽出 */</span>
-<span class="source-line-no">121</span><span id="line-121">  private String extractRelativePath(String fullPath) {</span>
-<span class="source-line-no">122</span><span id="line-122">    int index = fullPath.indexOf("streamconverter-");</span>
-<span class="source-line-no">123</span><span id="line-123">    return index != -1 ? fullPath.substring(index) : fullPath;</span>
-<span class="source-line-no">124</span><span id="line-124">  }</span>
-<span class="source-line-no">125</span><span id="line-125"></span>
-<span class="source-line-no">126</span><span id="line-126">  /**</span>
-<span class="source-line-no">127</span><span id="line-127">   * Jackson CsvMapper を使用してCSV出力を生成</span>
-<span class="source-line-no">128</span><span id="line-128">   *</span>
-<span class="source-line-no">129</span><span id="line-129">   * @param violations バイオレーション情報</span>
-<span class="source-line-no">130</span><span id="line-130">   * @param output 出力ストリーム</span>
-<span class="source-line-no">131</span><span id="line-131">   * @throws IOException CSV生成エラーの場合</span>
-<span class="source-line-no">132</span><span id="line-132">   */</span>
-<span class="source-line-no">133</span><span id="line-133">  private void generateCsvOutput(List&lt;PmdViolation&gt; violations, OutputStream output)</span>
-<span class="source-line-no">134</span><span id="line-134">      throws IOException {</span>
-<span class="source-line-no">135</span><span id="line-135">    // CSV スキーマ定義（ヘッダー付き）</span>
-<span class="source-line-no">136</span><span id="line-136">    CsvSchema schema =</span>
-<span class="source-line-no">137</span><span id="line-137">        csvMapper</span>
-<span class="source-line-no">138</span><span id="line-138">            .schemaFor(PmdViolation.class)</span>
-<span class="source-line-no">139</span><span id="line-139">            .withHeader()</span>
-<span class="source-line-no">140</span><span id="line-140">            .withColumnSeparator(',')</span>
-<span class="source-line-no">141</span><span id="line-141">            .withQuoteChar('"')</span>
-<span class="source-line-no">142</span><span id="line-142">            .withEscapeChar('\\')</span>
-<span class="source-line-no">143</span><span id="line-143">            .withLineSeparator("\n");</span>
-<span class="source-line-no">144</span><span id="line-144"></span>
-<span class="source-line-no">145</span><span id="line-145">    // Jackson CsvMapper による型安全なCSV生成 - Listタイプ用のwriter使用</span>
-<span class="source-line-no">146</span><span id="line-146">    csvMapper.writer(schema).writeValue(output, violations);</span>
-<span class="source-line-no">147</span><span id="line-147">  }</span>
-<span class="source-line-no">148</span><span id="line-148">}</span>
+<span class="source-line-no">052</span><span id="line-52">  /** Creates a new command instance. */</span>
+<span class="source-line-no">053</span><span id="line-53">  public PmdXmlToCsvCommand() {</span>
+<span class="source-line-no">054</span><span id="line-54">    this.csvMapper = new CsvMapper();</span>
+<span class="source-line-no">055</span><span id="line-55">  }</span>
+<span class="source-line-no">056</span><span id="line-56"></span>
+<span class="source-line-no">057</span><span id="line-57">  /**</span>
+<span class="source-line-no">058</span><span id="line-58">   * PMD XML InputStream を CSV OutputStream に変換</span>
+<span class="source-line-no">059</span><span id="line-59">   *</span>
+<span class="source-line-no">060</span><span id="line-60">   * @param input PMD XML レポートの入力ストリーム</span>
+<span class="source-line-no">061</span><span id="line-61">   * @param output CSV レポートの出力ストリーム</span>
+<span class="source-line-no">062</span><span id="line-62">   * @throws IOException XML解析エラーまたはI/O例外の場合</span>
+<span class="source-line-no">063</span><span id="line-63">   */</span>
+<span class="source-line-no">064</span><span id="line-64">  @Override</span>
+<span class="source-line-no">065</span><span id="line-65">  protected void _execute(InputStream input, OutputStream output) throws IOException {</span>
+<span class="source-line-no">066</span><span id="line-66">    try {</span>
+<span class="source-line-no">067</span><span id="line-67">      // StreamConverter原則に従った変換処理</span>
+<span class="source-line-no">068</span><span id="line-68">      List&lt;PmdViolation&gt; violations = parseXmlStream(input);</span>
+<span class="source-line-no">069</span><span id="line-69">      generateCsvOutput(violations, output);</span>
+<span class="source-line-no">070</span><span id="line-70"></span>
+<span class="source-line-no">071</span><span id="line-71">    } catch (Exception e) {</span>
+<span class="source-line-no">072</span><span id="line-72">      throw new IOException("Failed to convert PMD XML to CSV: " + e.getMessage(), e);</span>
+<span class="source-line-no">073</span><span id="line-73">    }</span>
+<span class="source-line-no">074</span><span id="line-74">  }</span>
+<span class="source-line-no">075</span><span id="line-75"></span>
+<span class="source-line-no">076</span><span id="line-76">  @Override</span>
+<span class="source-line-no">077</span><span id="line-77">  protected String getCommandDetails() {</span>
+<span class="source-line-no">078</span><span id="line-78">    return "PmdXmlToCsvCommand: Converts PMD XML reports to CSV format using Jackson CsvMapper";</span>
+<span class="source-line-no">079</span><span id="line-79">  }</span>
+<span class="source-line-no">080</span><span id="line-80"></span>
+<span class="source-line-no">081</span><span id="line-81">  /**</span>
+<span class="source-line-no">082</span><span id="line-82">   * PMD XML ストリームからバイオレーション情報を解析</span>
+<span class="source-line-no">083</span><span id="line-83">   *</span>
+<span class="source-line-no">084</span><span id="line-84">   * @param input PMD XML入力ストリーム</span>
+<span class="source-line-no">085</span><span id="line-85">   * @return 解析されたバイオレーションのリスト</span>
+<span class="source-line-no">086</span><span id="line-86">   * @throws Exception XML解析エラーの場合</span>
+<span class="source-line-no">087</span><span id="line-87">   */</span>
+<span class="source-line-no">088</span><span id="line-88">  private List&lt;PmdViolation&gt; parseXmlStream(InputStream input) throws Exception {</span>
+<span class="source-line-no">089</span><span id="line-89">    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();</span>
+<span class="source-line-no">090</span><span id="line-90">    Document doc = builder.parse(input);</span>
+<span class="source-line-no">091</span><span id="line-91"></span>
+<span class="source-line-no">092</span><span id="line-92">    NodeList fileNodes = doc.getElementsByTagName("file");</span>
+<span class="source-line-no">093</span><span id="line-93">    List&lt;PmdViolation&gt; violations = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">094</span><span id="line-94"></span>
+<span class="source-line-no">095</span><span id="line-95">    for (int i = 0; i &lt; fileNodes.getLength(); i++) {</span>
+<span class="source-line-no">096</span><span id="line-96">      Element fileElement = (Element) fileNodes.item(i);</span>
+<span class="source-line-no">097</span><span id="line-97">      String fileName = fileElement.getAttribute("name");</span>
+<span class="source-line-no">098</span><span id="line-98"></span>
+<span class="source-line-no">099</span><span id="line-99">      NodeList violationNodes = fileElement.getElementsByTagName("violation");</span>
+<span class="source-line-no">100</span><span id="line-100">      for (int j = 0; j &lt; violationNodes.getLength(); j++) {</span>
+<span class="source-line-no">101</span><span id="line-101">        Element violationElement = (Element) violationNodes.item(j);</span>
+<span class="source-line-no">102</span><span id="line-102"></span>
+<span class="source-line-no">103</span><span id="line-103">        PmdViolation violation =</span>
+<span class="source-line-no">104</span><span id="line-104">            new PmdViolation(</span>
+<span class="source-line-no">105</span><span id="line-105">                extractRelativePath(fileName),</span>
+<span class="source-line-no">106</span><span id="line-106">                Integer.parseInt(violationElement.getAttribute("beginline")),</span>
+<span class="source-line-no">107</span><span id="line-107">                violationElement.getAttribute("rule"),</span>
+<span class="source-line-no">108</span><span id="line-108">                violationElement.getAttribute("ruleset"),</span>
+<span class="source-line-no">109</span><span id="line-109">                Integer.parseInt(violationElement.getAttribute("priority")),</span>
+<span class="source-line-no">110</span><span id="line-110">                violationElement.getTextContent().trim(),</span>
+<span class="source-line-no">111</span><span id="line-111">                violationElement.getAttribute("class"),</span>
+<span class="source-line-no">112</span><span id="line-112">                violationElement.getAttribute("method"),</span>
+<span class="source-line-no">113</span><span id="line-113">                violationElement.getAttribute("variable"));</span>
+<span class="source-line-no">114</span><span id="line-114">        violations.add(violation);</span>
+<span class="source-line-no">115</span><span id="line-115">      }</span>
+<span class="source-line-no">116</span><span id="line-116">    }</span>
+<span class="source-line-no">117</span><span id="line-117"></span>
+<span class="source-line-no">118</span><span id="line-118">    return violations;</span>
+<span class="source-line-no">119</span><span id="line-119">  }</span>
+<span class="source-line-no">120</span><span id="line-120"></span>
+<span class="source-line-no">121</span><span id="line-121">  /** StreamConverterプロジェクト内の相対パスを抽出 */</span>
+<span class="source-line-no">122</span><span id="line-122">  private String extractRelativePath(String fullPath) {</span>
+<span class="source-line-no">123</span><span id="line-123">    int index = fullPath.indexOf("streamconverter-");</span>
+<span class="source-line-no">124</span><span id="line-124">    return index != -1 ? fullPath.substring(index) : fullPath;</span>
+<span class="source-line-no">125</span><span id="line-125">  }</span>
+<span class="source-line-no">126</span><span id="line-126"></span>
+<span class="source-line-no">127</span><span id="line-127">  /**</span>
+<span class="source-line-no">128</span><span id="line-128">   * Jackson CsvMapper を使用してCSV出力を生成</span>
+<span class="source-line-no">129</span><span id="line-129">   *</span>
+<span class="source-line-no">130</span><span id="line-130">   * @param violations バイオレーション情報</span>
+<span class="source-line-no">131</span><span id="line-131">   * @param output 出力ストリーム</span>
+<span class="source-line-no">132</span><span id="line-132">   * @throws IOException CSV生成エラーの場合</span>
+<span class="source-line-no">133</span><span id="line-133">   */</span>
+<span class="source-line-no">134</span><span id="line-134">  private void generateCsvOutput(List&lt;PmdViolation&gt; violations, OutputStream output)</span>
+<span class="source-line-no">135</span><span id="line-135">      throws IOException {</span>
+<span class="source-line-no">136</span><span id="line-136">    // CSV スキーマ定義（ヘッダー付き）</span>
+<span class="source-line-no">137</span><span id="line-137">    CsvSchema schema =</span>
+<span class="source-line-no">138</span><span id="line-138">        csvMapper</span>
+<span class="source-line-no">139</span><span id="line-139">            .schemaFor(PmdViolation.class)</span>
+<span class="source-line-no">140</span><span id="line-140">            .withHeader()</span>
+<span class="source-line-no">141</span><span id="line-141">            .withColumnSeparator(',')</span>
+<span class="source-line-no">142</span><span id="line-142">            .withQuoteChar('"')</span>
+<span class="source-line-no">143</span><span id="line-143">            .withEscapeChar('\\')</span>
+<span class="source-line-no">144</span><span id="line-144">            .withLineSeparator("\n");</span>
+<span class="source-line-no">145</span><span id="line-145"></span>
+<span class="source-line-no">146</span><span id="line-146">    // Jackson CsvMapper による型安全なCSV生成 - Listタイプ用のwriter使用</span>
+<span class="source-line-no">147</span><span id="line-147">    csvMapper.writer(schema).writeValue(output, violations);</span>
+<span class="source-line-no">148</span><span id="line-148">  }</span>
+<span class="source-line-no">149</span><span id="line-149">}</span>
 
 
 

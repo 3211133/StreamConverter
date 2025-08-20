@@ -24,7 +24,7 @@ import org.slf4j.LoggerFactory;
  * including whether the input ends with a line terminator.
  */
 public class LineEndingNormalizeCommand extends AbstractStreamCommand {
-  private static final Logger logger = LoggerFactory.getLogger(LineEndingNormalizeCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(LineEndingNormalizeCommand.class);
 
   /** Supported line ending types for normalization. */
   public enum LineEndingType {
@@ -74,7 +74,7 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
   @Override
   protected void executeInternal(InputStream inputStream, OutputStream outputStream)
       throws IOException {
-    logger.debug("Starting line ending normalization to: {}", targetType);
+    LOG.debug("Starting line ending normalization to: {}", targetType);
 
     // Stream processing for memory efficiency
     try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
@@ -120,7 +120,7 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
       writer.flush();
     }
 
-    logger.debug("Line ending normalization completed successfully");
+    LOG.debug("Line ending normalization completed successfully");
   }
 
   @Override

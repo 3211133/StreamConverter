@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  */
 public class CsvValidateCommand extends ConsumerCommand {
-  private static final Logger logger = LoggerFactory.getLogger(CsvValidateCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(CsvValidateCommand.class);
 
   private final Set<String> requiredColumns;
   private final boolean hasHeader;
@@ -77,9 +77,9 @@ public class CsvValidateCommand extends ConsumerCommand {
     }
 
     if (requiredColumns.length == 0) {
-      logger.info("No required columns specified, column validation will be skipped");
+      LOG.info("No required columns specified, column validation will be skipped");
     } else {
-      logger.info("Required columns: {}", this.requiredColumns);
+      LOG.info("Required columns: {}", this.requiredColumns);
     }
   }
 
@@ -94,7 +94,7 @@ public class CsvValidateCommand extends ConsumerCommand {
   public void consume(InputStream inputStream) throws IOException {
     Objects.requireNonNull(inputStream, "InputStream cannot be null");
 
-    logger.info(
+    LOG.info(
         "Starting CSV validation - hasHeader: {}, requiredColumns: {}",
         hasHeader,
         requiredColumns.size());
@@ -110,7 +110,7 @@ public class CsvValidateCommand extends ConsumerCommand {
         throw new StreamProcessingException("CSV validation failed: CSV file is empty");
       }
 
-      logger.debug("Read {} rows from CSV", allRows.size());
+      LOG.debug("Read {} rows from CSV", allRows.size());
 
       String[] headers = null;
       int dataStartRow = 0;
@@ -132,15 +132,15 @@ public class CsvValidateCommand extends ConsumerCommand {
         handleValidationErrors(validationErrors);
       }
 
-      logger.info("CSV validation completed successfully");
+      LOG.info("CSV validation completed successfully");
 
     } catch (CsvException e) {
-      logger.error("CSV parsing error: {}", e.getMessage(), e);
+      LOG.error("CSV parsing error: {}", e.getMessage(), e);
       throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     } catch (StreamProcessingException e) {
       throw e;
     } catch (Exception e) {
-      logger.error("CSV validation failed: {}", e.getMessage(), e);
+      LOG.error("CSV validation failed: {}", e.getMessage(), e);
       throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     }
   }
@@ -189,7 +189,7 @@ public class CsvValidateCommand extends ConsumerCommand {
       }
     }
 
-    logger.debug("Header validation completed - {} columns found", headers.length);
+    LOG.debug("Header validation completed - {} columns found", headers.length);
   }
 
   /** データ行のバリデーション */
@@ -239,7 +239,7 @@ public class CsvValidateCommand extends ConsumerCommand {
       validRows++;
     }
 
-    logger.debug("Data validation completed - {} valid rows, {} error rows", validRows, errorRows);
+    LOG.debug("Data validation completed - {} valid rows, {} error rows", validRows, errorRows);
 
     if (validRows == 0 && startRow < allRows.size()) {
       errors.add("No valid data rows found");
@@ -262,18 +262,17 @@ public class CsvValidateCommand extends ConsumerCommand {
 
     for (int i = 0; i < errors.size(); i++) {
       errorBuilder.append("\n  ").append(i + 1).append(". ").append(errors.get(i));
-      logger.error("CSV validation error {}: {}", i + 1, errors.get(i));
+      LOG.error("CSV validation error {}: {}", i + 1, errors.get(i));
     }
 
     String errorMessage = errorBuilder.toString();
-    logger.error("CSV validation summary: {}", errorMessage);
+    LOG.error("CSV validation summary: {}", errorMessage);
 
     // エラーメッセージが長すぎる場合は切り詰める（可読性向上のため）
     String finalErrorMessage = errorMessage;
     if (errorMessage.length() > 1000) {
       finalErrorMessage = errorMessage.substring(0, 997) + "...";
-      logger.warn(
-          "Error message truncated due to length (original: {} chars)", errorMessage.length());
+      LOG.warn("Error message truncated due to length (original: {} chars)", errorMessage.length());
     }
 
     throw new StreamProcessingException("CSV validation failed: " + finalErrorMessage);

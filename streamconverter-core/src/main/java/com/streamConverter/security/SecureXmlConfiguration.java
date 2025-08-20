@@ -31,11 +31,11 @@ import org.slf4j.LoggerFactory;
  */
 public class SecureXmlConfiguration {
 
-  private static final Logger logger = LoggerFactory.getLogger(SecureXmlConfiguration.class);
-  private static final Logger securityLogger =
+  private static final Logger LOG = LoggerFactory.getLogger(SecureXmlConfiguration.class);
+  private static final Logger SECURITY_LOG =
       LoggerFactory.getLogger("com.streamConverter.security");
 
-  private static final SecurityConfigurationManager securityConfig =
+  private static final SecurityConfigurationManager SECURITY_CONFIG =
       SecurityConfigurationManager.getInstance();
 
   private SecureXmlConfiguration() {
@@ -53,35 +53,35 @@ public class SecureXmlConfiguration {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
     // XXE攻撃防止設定
-    if (securityConfig.isXmlDoctypeDeclarationsDisabled()) {
+    if (SECURITY_CONFIG.isXmlDoctypeDeclarationsDisabled()) {
       try {
         // DOCTYPE宣言を無効化
         factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        securityLogger.debug("DOCTYPE declarations disabled");
+        SECURITY_LOG.debug("DOCTYPE declarations disabled");
       } catch (ParserConfigurationException e) {
-        logger.warn("Failed to disable DOCTYPE declarations", e);
+        LOG.warn("Failed to disable DOCTYPE declarations", e);
       }
     }
 
-    if (securityConfig.isXmlExternalEntitiesDisabled()) {
+    if (SECURITY_CONFIG.isXmlExternalEntitiesDisabled()) {
       try {
         // 外部一般エンティティを無効化
         factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
         // 外部パラメータエンティティを無効化
         factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-        securityLogger.debug("External entities disabled");
+        SECURITY_LOG.debug("External entities disabled");
       } catch (ParserConfigurationException e) {
-        logger.warn("Failed to disable external entities", e);
+        LOG.warn("Failed to disable external entities", e);
       }
     }
 
-    if (securityConfig.isLoadExternalDtdDisabled()) {
+    if (SECURITY_CONFIG.isLoadExternalDtdDisabled()) {
       try {
         // 外部DTDの読み込みを無効化
         factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        securityLogger.debug("External DTD loading disabled");
+        SECURITY_LOG.debug("External DTD loading disabled");
       } catch (ParserConfigurationException e) {
-        logger.warn("Failed to disable external DTD loading", e);
+        LOG.warn("Failed to disable external DTD loading", e);
       }
     }
 
@@ -93,7 +93,7 @@ public class SecureXmlConfiguration {
     factory.setXIncludeAware(false);
     factory.setExpandEntityReferences(false);
 
-    securityLogger.info("Secure DocumentBuilderFactory created with XXE protection");
+    SECURITY_LOG.info("Secure DocumentBuilderFactory created with XXE protection");
     return factory;
   }
 
@@ -116,7 +116,7 @@ public class SecureXmlConfiguration {
   public static XMLInputFactory createSecureXMLInputFactory() {
     XMLInputFactory factory = XMLInputFactory.newInstance();
 
-    if (securityConfig.isXmlExternalEntitiesDisabled()) {
+    if (SECURITY_CONFIG.isXmlExternalEntitiesDisabled()) {
       // 外部エンティティの処理を無効化
       factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
       factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
@@ -126,7 +126,7 @@ public class SecureXmlConfiguration {
     factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
     factory.setProperty(XMLInputFactory.IS_VALIDATING, false);
 
-    securityLogger.info("Secure XMLInputFactory created with XXE protection");
+    SECURITY_LOG.info("Secure XMLInputFactory created with XXE protection");
     return factory;
   }
 
@@ -143,17 +143,17 @@ public class SecureXmlConfiguration {
       factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
       factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
     } catch (Exception e) {
-      logger.warn("Failed to set external access attributes for TransformerFactory", e);
+      LOG.warn("Failed to set external access attributes for TransformerFactory", e);
     }
 
     // 機能制限
     try {
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     } catch (Exception e) {
-      logger.warn("Failed to enable secure processing feature", e);
+      LOG.warn("Failed to enable secure processing feature", e);
     }
 
-    securityLogger.info("Secure TransformerFactory created");
+    SECURITY_LOG.info("Secure TransformerFactory created");
     return factory;
   }
 
@@ -170,17 +170,17 @@ public class SecureXmlConfiguration {
       factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
       factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
     } catch (Exception e) {
-      logger.warn("Failed to set external access properties for SchemaFactory", e);
+      LOG.warn("Failed to set external access properties for SchemaFactory", e);
     }
 
     // セキュアプロセシング機能を有効化
     try {
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     } catch (Exception e) {
-      logger.warn("Failed to enable secure processing feature for SchemaFactory", e);
+      LOG.warn("Failed to enable secure processing feature for SchemaFactory", e);
     }
 
-    securityLogger.info("Secure SchemaFactory created");
+    SECURITY_LOG.info("Secure SchemaFactory created");
     return factory;
   }
 
@@ -204,48 +204,48 @@ public class SecureXmlConfiguration {
     // エラーハンドラーの設定（セキュリティ上の理由により詳細エラー情報を制限）
     builder.setErrorHandler(new SecurityAwareErrorHandler());
 
-    securityLogger.debug("Secure DocumentBuilder created for InputStream processing");
+    SECURITY_LOG.debug("Secure DocumentBuilder created for InputStream processing");
     return builder;
   }
 
   /** セキュリティ設定の現在の状態をログに出力します */
   public static void logSecurityStatus() {
-    if (securityConfig.isSecurityLoggingEnabled()) {
-      securityLogger.info("=== XML Security Configuration Status ===");
-      securityLogger.info(
-          "XML External Entities Disabled: {}", securityConfig.isXmlExternalEntitiesDisabled());
-      securityLogger.info(
+    if (SECURITY_CONFIG.isSecurityLoggingEnabled()) {
+      SECURITY_LOG.info("=== XML Security Configuration Status ===");
+      SECURITY_LOG.info(
+          "XML External Entities Disabled: {}", SECURITY_CONFIG.isXmlExternalEntitiesDisabled());
+      SECURITY_LOG.info(
           "XML DOCTYPE Declarations Disabled: {}",
-          securityConfig.isXmlDoctypeDeclarationsDisabled());
-      securityLogger.info(
-          "External DTD Loading Disabled: {}", securityConfig.isLoadExternalDtdDisabled());
-      securityLogger.info("Production Environment: {}", securityConfig.isProductionEnvironment());
-      securityLogger.info("========================================");
+          SECURITY_CONFIG.isXmlDoctypeDeclarationsDisabled());
+      SECURITY_LOG.info(
+          "External DTD Loading Disabled: {}", SECURITY_CONFIG.isLoadExternalDtdDisabled());
+      SECURITY_LOG.info("Production Environment: {}", SECURITY_CONFIG.isProductionEnvironment());
+      SECURITY_LOG.info("========================================");
     }
   }
 }
 
 /** セキュリティを考慮したXMLエラーハンドラー 詳細なエラー情報の漏洩を防ぐため、一般的なエラーメッセージのみを提供 */
 class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {
-  private static final Logger logger = LoggerFactory.getLogger(SecurityAwareErrorHandler.class);
-  private static final Logger securityLogger =
+  private static final Logger LOG = LoggerFactory.getLogger(SecurityAwareErrorHandler.class);
+  private static final Logger SECURITY_LOG =
       LoggerFactory.getLogger("com.streamConverter.security");
 
   @Override
   public void warning(org.xml.sax.SAXParseException exception) {
-    logger.debug("XML parsing warning (details suppressed for security)");
-    securityLogger.warn("XML parsing warning detected during secure processing");
+    LOG.debug("XML parsing warning (details suppressed for security)");
+    SECURITY_LOG.warn("XML parsing warning detected during secure processing");
   }
 
   @Override
   public void error(org.xml.sax.SAXParseException exception) {
-    logger.debug("XML parsing error (details suppressed for security)");
-    securityLogger.warn("XML parsing error detected during secure processing");
+    LOG.debug("XML parsing error (details suppressed for security)");
+    SECURITY_LOG.warn("XML parsing error detected during secure processing");
   }
 
   @Override
   public void fatalError(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {
-    securityLogger.error("Fatal XML parsing error detected during secure processing");
+    SECURITY_LOG.error("Fatal XML parsing error detected during secure processing");
     throw new org.xml.sax.SAXException("XML processing failed due to security constraints");
   }
 }

@@ -34,7 +34,7 @@ import reactor.netty.http.client.HttpClient;
 /** 指定された通信先にOutputStreamを送信するコマンドクラス。 */
 public class SendHttpCommand extends AbstractStreamCommand {
 
-  private static final Logger logger = LoggerFactory.getLogger(SendHttpCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(SendHttpCommand.class);
 
   private String url;
   private final WebClient webClient;
@@ -150,7 +150,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
     Objects.requireNonNull(inputStream, "inputStream must not be null");
     Objects.requireNonNull(outputStream, "outputStream must not be null");
 
-    logger.info("Sending HTTP POST request to: {}", url);
+    LOG.info("Sending HTTP POST request to: {}", url);
 
     try {
       // Track total bytes written for better error reporting
@@ -207,7 +207,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
               () -> {
                 try {
                   outputStream.flush();
-                  logger.info("HTTP response streaming completed successfully");
+                  LOG.info("HTTP response streaming completed successfully");
                 } catch (IOException e) {
                   throw new RuntimeException("Failed to flush output stream", e);
                 }
@@ -220,11 +220,11 @@ public class SendHttpCommand extends AbstractStreamCommand {
     } catch (RuntimeException e) {
       // WebClient error responses are wrapped in RuntimeException
       String errorMessage = "HTTP request failed: " + url + " - " + e.getMessage();
-      logger.error(errorMessage, e);
+      LOG.error(errorMessage, e);
       throw new IOException(errorMessage, e);
     } catch (Exception e) {
       String errorMessage = "HTTP request failed: " + url;
-      logger.error(errorMessage, e);
+      LOG.error(errorMessage, e);
       throw new IOException(errorMessage, e);
     }
   }

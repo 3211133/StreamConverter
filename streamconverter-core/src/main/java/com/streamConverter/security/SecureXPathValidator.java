@@ -24,11 +24,11 @@ import org.slf4j.LoggerFactory;
  */
 public class SecureXPathValidator {
 
-  private static final Logger logger = LoggerFactory.getLogger(SecureXPathValidator.class);
-  private static final Logger securityLogger =
+  private static final Logger LOG = LoggerFactory.getLogger(SecureXPathValidator.class);
+  private static final Logger SECURITY_LOG =
       LoggerFactory.getLogger("com.streamConverter.security");
 
-  private static final SecurityConfigurationManager securityConfig =
+  private static final SecurityConfigurationManager SECURITY_CONFIG =
       SecurityConfigurationManager.getInstance();
 
   // XPathインジェクション攻撃パターン（エスケープクォートも含む）
@@ -70,8 +70,8 @@ public class SecureXPathValidator {
     }
 
     // XPath検証が無効な場合はスキップ
-    if (!securityConfig.isXPathValidationEnabled()) {
-      logger.debug("XPath validation is disabled");
+    if (!SECURITY_CONFIG.isXPathValidationEnabled()) {
+      LOG.debug("XPath validation is disabled");
       return;
     }
 
@@ -90,11 +90,11 @@ public class SecureXPathValidator {
     validateSqlLikeInjection(trimmedXpath);
 
     // 厳格モードでの追加検証
-    if (securityConfig.isXPathStrictModeEnabled()) {
+    if (SECURITY_CONFIG.isXPathStrictModeEnabled()) {
       validateStrictMode(trimmedXpath);
     }
 
-    securityLogger.debug("XPath validation passed: {}", sanitizeForLogging(trimmedXpath));
+    SECURITY_LOG.debug("XPath validation passed: {}", sanitizeForLogging(trimmedXpath));
   }
 
   /**
@@ -121,7 +121,7 @@ public class SecureXPathValidator {
     // 連続する空白の正規化
     sanitized = sanitized.replaceAll("\\s+", " ");
 
-    securityLogger.debug(
+    SECURITY_LOG.debug(
         "XPath sanitized: {} -> {}", sanitizeForLogging(xpath), sanitizeForLogging(sanitized));
 
     return sanitized;
@@ -138,7 +138,7 @@ public class SecureXPathValidator {
       validateXPath(xpath);
       return true;
     } catch (SecurityException | IllegalArgumentException e) {
-      securityLogger.warn("Unsafe XPath detected: {}", sanitizeForLogging(xpath));
+      SECURITY_LOG.warn("Unsafe XPath detected: {}", sanitizeForLogging(xpath));
       return false;
     }
   }
@@ -183,7 +183,7 @@ public class SecureXPathValidator {
 
   private static void validateBasicInjectionPatterns(String xpath) {
     if (XPATH_INJECTION_PATTERN.matcher(xpath).matches()) {
-      securityLogger.warn("Basic XPath injection pattern detected: {}", sanitizeForLogging(xpath));
+      SECURITY_LOG.warn("Basic XPath injection pattern detected: {}", sanitizeForLogging(xpath));
       throw new SecurityException(
           "Potentially malicious XPath expression detected: basic injection pattern");
     }
@@ -191,7 +191,7 @@ public class SecureXPathValidator {
 
   private static void validateDangerousFunctions(String xpath) {
     if (DANGEROUS_FUNCTIONS_PATTERN.matcher(xpath).matches()) {
-      securityLogger.warn("Dangerous XPath function detected: {}", sanitizeForLogging(xpath));
+      SECURITY_LOG.warn("Dangerous XPath function detected: {}", sanitizeForLogging(xpath));
       throw new SecurityException(
           "Potentially malicious XPath expression detected: dangerous function usage");
     }
@@ -199,7 +199,7 @@ public class SecureXPathValidator {
 
   private static void validateExternalReferences(String xpath) {
     if (EXTERNAL_REFERENCE_PATTERN.matcher(xpath).matches()) {
-      securityLogger.warn("External reference in XPath detected: {}", sanitizeForLogging(xpath));
+      SECURITY_LOG.warn("External reference in XPath detected: {}", sanitizeForLogging(xpath));
       throw new SecurityException(
           "Potentially malicious XPath expression detected: external reference");
     }
@@ -207,7 +207,7 @@ public class SecureXPathValidator {
 
   private static void validateSqlLikeInjection(String xpath) {
     if (SQL_LIKE_INJECTION_PATTERN.matcher(xpath).matches()) {
-      securityLogger.warn(
+      SECURITY_LOG.warn(
           "SQL-like injection pattern in XPath detected: {}", sanitizeForLogging(xpath));
       throw new SecurityException(
           "Potentially malicious XPath expression detected: SQL-like injection pattern");
@@ -219,22 +219,21 @@ public class SecureXPathValidator {
 
     // 長すぎるXPath式を拒否
     if (xpath.length() > 1000) {
-      securityLogger.warn(
-          "XPath expression too long in strict mode: {} characters", xpath.length());
+      SECURITY_LOG.warn("XPath expression too long in strict mode: {} characters", xpath.length());
       throw new SecurityException("XPath expression exceeds maximum length in strict mode");
     }
 
     // 深いネストを拒否
     long nestingLevel = xpath.chars().filter(ch -> ch == '[').count();
     if (nestingLevel > 10) {
-      securityLogger.warn(
+      SECURITY_LOG.warn(
           "XPath expression has too deep nesting in strict mode: {} levels", nestingLevel);
       throw new SecurityException("XPath expression has excessive nesting in strict mode");
     }
 
     // 複雑な演算子の組み合わせを制限
     if (xpath.contains("and") && xpath.contains("or") && xpath.contains("not")) {
-      securityLogger.warn(
+      SECURITY_LOG.warn(
           "Complex operator combination in XPath in strict mode: {}", sanitizeForLogging(xpath));
       throw new SecurityException("Complex operator combinations not allowed in strict mode");
     }
@@ -242,7 +241,7 @@ public class SecureXPathValidator {
     // ワイルドカードの過度な使用を制限
     long wildcardCount = xpath.chars().filter(ch -> ch == '*').count();
     if (wildcardCount > 5) {
-      securityLogger.warn(
+      SECURITY_LOG.warn(
           "Excessive wildcard usage in XPath in strict mode: {} wildcards", wildcardCount);
       throw new SecurityException("Excessive wildcard usage not allowed in strict mode");
     }
@@ -269,14 +268,13 @@ public class SecureXPathValidator {
 
   /** セキュリティ設定の現在の状態をログに出力します */
   public static void logSecurityStatus() {
-    if (securityConfig.isSecurityLoggingEnabled()) {
-      securityLogger.info("=== XPath Security Configuration Status ===");
-      securityLogger.info(
-          "XPath Validation Enabled: {}", securityConfig.isXPathValidationEnabled());
-      securityLogger.info(
-          "XPath Strict Mode Enabled: {}", securityConfig.isXPathStrictModeEnabled());
-      securityLogger.info("Production Environment: {}", securityConfig.isProductionEnvironment());
-      securityLogger.info("===========================================");
+    if (SECURITY_CONFIG.isSecurityLoggingEnabled()) {
+      SECURITY_LOG.info("=== XPath Security Configuration Status ===");
+      SECURITY_LOG.info("XPath Validation Enabled: {}", SECURITY_CONFIG.isXPathValidationEnabled());
+      SECURITY_LOG.info(
+          "XPath Strict Mode Enabled: {}", SECURITY_CONFIG.isXPathStrictModeEnabled());
+      SECURITY_LOG.info("Production Environment: {}", SECURITY_CONFIG.isProductionEnvironment());
+      SECURITY_LOG.info("===========================================");
     }
   }
 }

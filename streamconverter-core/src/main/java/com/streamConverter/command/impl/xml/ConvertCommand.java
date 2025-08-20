@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConvertCommand extends AbstractStreamCommand {
 
-  private static final Logger logger = LoggerFactory.getLogger(ConvertCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ConvertCommand.class);
   private IRule rule;
   private IStaXPathHandler pathHandler;
 
@@ -105,18 +105,18 @@ public class ConvertCommand extends AbstractStreamCommand {
             xmlEventWriter.close();
           }
         } catch (XMLStreamException e) {
-          logger.warn("XMLEventWriterのクローズ中にエラーが発生しました: {}", e.getMessage(), e);
+          LOG.warn("XMLEventWriterのクローズ中にエラーが発生しました: {}", e.getMessage(), e);
         }
         try {
           if (xmlEventReader != null) {
             xmlEventReader.close();
           }
         } catch (XMLStreamException e) {
-          logger.warn("XMLEventReaderのクローズ中にエラーが発生しました: {}", e.getMessage(), e);
+          LOG.warn("XMLEventReaderのクローズ中にエラーが発生しました: {}", e.getMessage(), e);
         }
       }
     } catch (XMLStreamException e) {
-      logger.error("XML処理中にエラーが発生しました: {}", e.getMessage(), e);
+      LOG.error("XML処理中にエラーが発生しました: {}", e.getMessage(), e);
       throw new StreamProcessingException("XML変換処理に失敗しました", e);
     }
   }

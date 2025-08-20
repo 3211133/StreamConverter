@@ -53,24 +53,24 @@ import org.slf4j.LoggerFactory;
  */
 public class ControllerFactory {
 
-  private static final Logger log = LoggerFactory.getLogger(ControllerFactory.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ControllerFactory.class);
 
   /** Registry of controllers by type combination */
-  private static final Map<String, IStreamController> controllerRegistry = new HashMap<>();
+  private static final Map<String, IStreamController> CONTROLLER_REGISTRY = new HashMap<>();
 
   /** Registry of controller builders by input type */
-  private static final Map<String, ControllerBuilder> builderRegistry = new HashMap<>();
+  private static final Map<String, ControllerBuilder> BUILDER_REGISTRY = new HashMap<>();
 
   /** Enhanced command factory for optimized command creation */
-  private static final EnhancedCommandFactory commandFactory =
+  private static final EnhancedCommandFactory COMMAND_FACTORY =
       EnhancedCommandFactory.createProductionInstance();
 
   static {
     // Initialize default builders with CommandFactory integration
-    builderRegistry.put("CSV", new CsvControllerBuilder());
-    builderRegistry.put("JSON", new JsonControllerBuilder());
+    BUILDER_REGISTRY.put("CSV", new CsvControllerBuilder());
+    BUILDER_REGISTRY.put("JSON", new JsonControllerBuilder());
 
-    log.info(
+    LOG.info(
         "Initialized ControllerFactory with enhanced CommandFactory integration for optimized performance");
   }
 
@@ -108,25 +108,25 @@ public class ControllerFactory {
     String key = createRegistryKey(inputType, outputType);
 
     // Check registry first
-    IStreamController cachedController = controllerRegistry.get(key);
+    IStreamController cachedController = CONTROLLER_REGISTRY.get(key);
     if (cachedController != null) {
-      log.debug("Found cached controller for {} → {}", inputType, outputType);
+      LOG.debug("Found cached controller for {} → {}", inputType, outputType);
       return cachedController;
     }
 
     // Try to create using builders
-    ControllerBuilder builder = builderRegistry.get(inputType);
+    ControllerBuilder builder = BUILDER_REGISTRY.get(inputType);
     if (builder != null) {
       IStreamController controller = builder.createForOutputType(outputType);
       if (controller != null) {
-        log.info("Created controller for {} → {} using builder", inputType, outputType);
+        LOG.info("Created controller for {} → {} using builder", inputType, outputType);
         // Cache for future use
-        controllerRegistry.put(key, controller);
+        CONTROLLER_REGISTRY.put(key, controller);
         return controller;
       }
     }
 
-    log.warn("No controller available for {} → {}", inputType, outputType);
+    LOG.warn("No controller available for {} → {}", inputType, outputType);
     return null;
   }
 
@@ -184,26 +184,26 @@ public class ControllerFactory {
     String key = createRegistryKey(inputType, outputType);
 
     // Check registry first
-    IStreamController cachedController = controllerRegistry.get(key);
+    IStreamController cachedController = CONTROLLER_REGISTRY.get(key);
     if (cachedController != null) {
-      log.debug(
+      LOG.debug(
           "Found cached CommandFactory-integrated controller for {} → {}", inputType, outputType);
       return cachedController;
     }
 
     // Create using enhanced builders with CommandFactory integration
-    ControllerBuilder builder = builderRegistry.get(inputType);
+    ControllerBuilder builder = BUILDER_REGISTRY.get(inputType);
     if (builder instanceof CommandFactoryAwareBuilder) {
       CommandFactoryAwareBuilder enhancedBuilder = (CommandFactoryAwareBuilder) builder;
       IStreamController controller =
           enhancedBuilder.createWithCommandFactory(outputType, enableDetailedLogging);
       if (controller != null) {
-        log.info(
+        LOG.info(
             "Created CommandFactory-integrated controller for {} → {} with detailed logging: {}",
             inputType,
             outputType,
             enableDetailedLogging);
-        controllerRegistry.put(key, controller);
+        CONTROLLER_REGISTRY.put(key, controller);
         return controller;
       }
     }
@@ -227,9 +227,9 @@ public class ControllerFactory {
     Objects.requireNonNull(controller, "Controller cannot be null");
 
     String key = createRegistryKey(inputType, outputType);
-    controllerRegistry.put(key, controller);
+    CONTROLLER_REGISTRY.put(key, controller);
 
-    log.info(
+    LOG.info(
         "Registered custom controller for {} → {}: {}",
         inputType,
         outputType,
@@ -247,9 +247,9 @@ public class ControllerFactory {
     Objects.requireNonNull(inputType, "Input type cannot be null");
     Objects.requireNonNull(builder, "Builder cannot be null");
 
-    builderRegistry.put(inputType, builder);
+    BUILDER_REGISTRY.put(inputType, builder);
 
-    log.info(
+    LOG.info(
         "Registered custom builder for input type {}: {}",
         inputType,
         builder.getClass().getSimpleName());
@@ -272,14 +272,14 @@ public class ControllerFactory {
     String key = createRegistryKey(inputType, outputType.getValue());
 
     // Check cache first
-    IStreamController cached = controllerRegistry.get(key);
+    IStreamController cached = CONTROLLER_REGISTRY.get(key);
     if (cached != null && config.isCachingEnabled()) {
-      log.debug("Retrieved cached optimized controller for {} → {}", inputType, outputType);
+      LOG.debug("Retrieved cached optimized controller for {} → {}", inputType, outputType);
       return cached;
     }
 
     // Create using optimized command factory
-    ControllerBuilder builder = builderRegistry.get(inputType);
+    ControllerBuilder builder = BUILDER_REGISTRY.get(inputType);
     if (builder instanceof CommandFactoryAwareBuilder) {
       CommandFactoryAwareBuilder enhancedBuilder = (CommandFactoryAwareBuilder) builder;
 
@@ -289,13 +289,13 @@ public class ControllerFactory {
               outputType.getValue(), config.isDetailedLoggingEnabled());
 
       if (controller != null) {
-        log.info(
+        LOG.info(
             "Created optimized controller for {} → {} with enhanced CommandFactory integration",
             inputType,
             outputType);
 
         if (config.isCachingEnabled()) {
-          controllerRegistry.put(key, controller);
+          CONTROLLER_REGISTRY.put(key, controller);
         }
         return controller;
       }
@@ -312,7 +312,7 @@ public class ControllerFactory {
    * @return enhanced command factory instance
    */
   public static EnhancedCommandFactory getCommandFactory() {
-    return commandFactory;
+    return COMMAND_FACTORY;
   }
 
   /**
@@ -321,7 +321,7 @@ public class ControllerFactory {
    * @return array of registered input → output type combinations
    */
   public static String[] getRegisteredTypes() {
-    return controllerRegistry.keySet().toArray(new String[0]);
+    return CONTROLLER_REGISTRY.keySet().toArray(new String[0]);
   }
 
   /**
@@ -330,9 +330,9 @@ public class ControllerFactory {
    * <p>This method is primarily for testing purposes.
    */
   public static void clearRegistry() {
-    controllerRegistry.clear();
-    builderRegistry.clear();
-    log.info("Controller registry cleared");
+    CONTROLLER_REGISTRY.clear();
+    BUILDER_REGISTRY.clear();
+    LOG.info("Controller registry cleared");
   }
 
   /** Creates a registry key from input and output types. */
@@ -374,7 +374,7 @@ public class ControllerFactory {
       }
 
       // Fallback for unknown string types
-      log.warn("Unknown output type for CSV controller: {}", outputType);
+      LOG.warn("Unknown output type for CSV controller: {}", outputType);
       return null;
     }
 
@@ -393,7 +393,7 @@ public class ControllerFactory {
         case CSV:
           return CsvProcessingController.forPassThrough();
         default:
-          log.warn("Unsupported output type for CSV controller: {}", outputType);
+          LOG.warn("Unsupported output type for CSV controller: {}", outputType);
           return null;
       }
     }
@@ -436,7 +436,7 @@ public class ControllerFactory {
       IStreamController controller = createForOutputType(outputType);
 
       if (controller != null) {
-        log.debug(
+        LOG.debug(
             "Created CSV controller with CommandFactory integration for output type: {}, detailed logging: {}",
             outputType,
             enableDetailedLogging);
@@ -457,7 +457,7 @@ public class ControllerFactory {
       }
 
       // Fallback for unknown string types
-      log.warn("Unknown output type for JSON controller: {}", outputType);
+      LOG.warn("Unknown output type for JSON controller: {}", outputType);
       return null;
     }
 
@@ -478,7 +478,7 @@ public class ControllerFactory {
         case TRANSFORMED_DATA:
           return JsonProcessingController.forTransformation("default", "default-processor");
         default:
-          log.warn("Unsupported output type for JSON controller: {}", outputType);
+          LOG.warn("Unsupported output type for JSON controller: {}", outputType);
           return null;
       }
     }
@@ -524,7 +524,7 @@ public class ControllerFactory {
       IStreamController controller = createForOutputType(outputType);
 
       if (controller != null) {
-        log.debug(
+        LOG.debug(
             "Created JSON controller with CommandFactory integration for output type: {}, detailed logging: {}",
             outputType,
             enableDetailedLogging);

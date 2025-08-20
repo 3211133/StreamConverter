@@ -56,7 +56,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  */
 public class JsonStreamingValidateCommand extends ConsumerCommand {
-  private static final Logger logger = LoggerFactory.getLogger(JsonStreamingValidateCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JsonStreamingValidateCommand.class);
 
   private final String schemaPath;
   private final ObjectMapper objectMapper;
@@ -104,7 +104,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
   public void consume(InputStream inputStream) throws IOException {
     Objects.requireNonNull(inputStream, "InputStream cannot be null");
 
-    logger.info("Starting streaming JSON validation with schema: {}", schemaPath);
+    LOG.info("Starting streaming JSON validation with schema: {}", schemaPath);
 
     try {
       // 入力ストリームをバッファリングして再利用可能にする
@@ -127,7 +127,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
                   "JSON streaming validation failed: %s", streamingResult.getErrorMessage()));
         }
 
-        logger.debug(
+        LOG.debug(
             "Streaming validation passed ({} elements), proceeding to schema validation",
             streamingResult.getElementCount());
       }
@@ -136,13 +136,13 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
       try (java.io.ByteArrayInputStream schemaInputStream =
           new java.io.ByteArrayInputStream(inputBuffer)) {
         performSchemaValidation(schemaInputStream);
-        logger.info("JSON validation completed successfully (streaming + schema validation)");
+        LOG.info("JSON validation completed successfully (streaming + schema validation)");
       }
 
     } catch (StreamProcessingException e) {
       throw e;
     } catch (Exception e) {
-      logger.error("JSON streaming validation failed: {}", e.getMessage(), e);
+      LOG.error("JSON streaming validation failed: {}", e.getMessage(), e);
       throw new StreamProcessingException(
           String.format(
               "JSON streaming validation failed - schema: %s, error: %s",
@@ -168,7 +168,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
               "$",
               (value, context) -> {
                 hasRootStructure.set(true);
-                logger.debug("Found root JSON structure");
+                LOG.debug("Found root JSON structure");
               })
           // 配列要素の計測
           .bind(
@@ -176,7 +176,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
               (value, context) -> {
                 int count = elementCount.incrementAndGet();
                 if (count % 1000 == 0) {
-                  logger.debug("Processed {} array elements", count);
+                  LOG.debug("Processed {} array elements", count);
                 }
               })
           // オブジェクトプロパティの基本検証例
@@ -186,7 +186,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
                 if (value == null) {
                   isValid.set(false);
                   errorMessages.append("Found null id field; ");
-                  logger.warn("Validation error: null id field");
+                  LOG.warn("Validation error: null id field");
                 }
               })
           .bind(
@@ -195,7 +195,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
                 if (value == null || value.toString().trim().isEmpty()) {
                   isValid.set(false);
                   errorMessages.append("Found empty name field; ");
-                  logger.warn("Validation error: empty name field");
+                  LOG.warn("Validation error: empty name field");
                 }
               })
           // JsonSurferのエラーハンドリングは別途try-catchで実装
@@ -206,12 +206,12 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
         errorMessages.append("No valid JSON root structure found; ");
       }
 
-      logger.debug("Streaming validation completed - elements processed: {}", elementCount.get());
+      LOG.debug("Streaming validation completed - elements processed: {}", elementCount.get());
 
     } catch (Exception e) {
       isValid.set(false);
       errorMessages.append("Streaming validation exception: ").append(e.getMessage());
-      logger.error("Exception during streaming validation", e);
+      LOG.error("Exception during streaming validation", e);
     }
 
     return new StreamingValidationResult(
@@ -293,7 +293,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
         throw new StreamProcessingException(errorBuilder.toString());
       }
 
-      logger.debug("JSON schema validation completed successfully");
+      LOG.debug("JSON schema validation completed successfully");
 
     } catch (StreamProcessingException e) {
       throw e;

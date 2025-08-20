@@ -29,11 +29,11 @@ import org.xml.sax.SAXException;
  * <p>バリデーションエラーが発生した場合は、エラーメッセージを出力します。
  */
 public class ValidateCommand extends ConsumerCommand {
-  private static final Logger logger = LoggerFactory.getLogger(ValidateCommand.class);
-  private static final Logger securityLogger =
+  private static final Logger LOG = LoggerFactory.getLogger(ValidateCommand.class);
+  private static final Logger SECURITY_LOG =
       LoggerFactory.getLogger("com.streamConverter.security");
 
-  private static final SecurityConfigurationManager securityConfig =
+  private static final SecurityConfigurationManager SECURITY_CONFIG =
       SecurityConfigurationManager.getInstance();
 
   /** スキーマファイルのベースディレクトリ（セキュリティのため固定） */
@@ -72,8 +72,8 @@ public class ValidateCommand extends ConsumerCommand {
     String trimmedPath = inputPath.trim();
 
     // セキュリティ設定でパストラバーサル防止が無効な場合は基本検証のみ
-    if (!securityConfig.isPathTraversalPreventionEnabled()) {
-      logger.debug("Path traversal prevention is disabled");
+    if (!SECURITY_CONFIG.isPathTraversalPreventionEnabled()) {
+      LOG.debug("Path traversal prevention is disabled");
       return trimmedPath;
     }
 
@@ -85,31 +85,31 @@ public class ValidateCommand extends ConsumerCommand {
       if (normalizedPath.contains("src/test/resources")
           || normalizedPath.contains("build/resources/test")
           || normalizedPath.contains("junit")) {
-        logger.debug("Test resource path allowed: {}", trimmedPath);
+        LOG.debug("Test resource path allowed: {}", trimmedPath);
         return trimmedPath;
       }
-      securityLogger.warn("Potentially dangerous absolute path detected: {}", trimmedPath);
+      SECURITY_LOG.warn("Potentially dangerous absolute path detected: {}", trimmedPath);
       throw new SecurityException(
           "Schema path contains potentially dangerous patterns: " + trimmedPath);
     }
 
     // 親ディレクトリ参照の検証
-    if (!securityConfig.isParentReferencesAllowed()) {
+    if (!SECURITY_CONFIG.isParentReferencesAllowed()) {
       if (trimmedPath.contains("..") || trimmedPath.contains("./") || trimmedPath.contains(".\\")) {
-        securityLogger.warn("Path traversal attempt detected: {}", trimmedPath);
+        SECURITY_LOG.warn("Path traversal attempt detected: {}", trimmedPath);
         throw new SecurityException(
             "Schema path contains potentially dangerous patterns: " + trimmedPath);
       }
     }
 
     // ワークスペース制限が有効な場合の追加検証
-    if (securityConfig.isFileAccessRestrictedToWorkspace()) {
+    if (SECURITY_CONFIG.isFileAccessRestrictedToWorkspace()) {
       // ベースパスからの相対パスとして解決
       Path resolvedPath = SCHEMA_BASE_PATH.resolve(trimmedPath).normalize();
 
       // ベースディレクトリ外へのアクセスを防止
       if (!resolvedPath.startsWith(SCHEMA_BASE_PATH)) {
-        securityLogger.warn("Workspace access violation detected: {}", trimmedPath);
+        SECURITY_LOG.warn("Workspace access violation detected: {}", trimmedPath);
         throw new SecurityException(
             "Schema path attempts to access outside base directory: " + trimmedPath);
       }
@@ -137,14 +137,14 @@ public class ValidateCommand extends ConsumerCommand {
       URL schemaUrl = schemaFile.toUri().toURL();
 
       Schema loadedSchema = factory.newSchema(schemaUrl);
-      logger.info("XML Schema loaded successfully from: {}", validatedPath);
-      securityLogger.info("Secure XML schema loading completed for: {}", validatedPath);
+      LOG.info("XML Schema loaded successfully from: {}", validatedPath);
+      SECURITY_LOG.info("Secure XML schema loading completed for: {}", validatedPath);
 
       return loadedSchema;
 
     } catch (SAXException | IOException e) {
-      logger.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);
-      securityLogger.error("Secure XML schema loading failed for: {}", validatedPath);
+      LOG.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);
+      SECURITY_LOG.error("Secure XML schema loading failed for: {}", validatedPath);
       throw new StreamProcessingException(
           String.format("XMLスキーマの読み込みに失敗しました - スキーマ: %s, エラー: %s", validatedPath, e.getMessage()),
           e);
@@ -174,11 +174,11 @@ public class ValidateCommand extends ConsumerCommand {
       // XMLバリデーションの実行
       validator.validate(new StreamSource(inputStream));
 
-      logger.info("XML validation completed successfully using schema: {}", schemaPath);
+      LOG.info("XML validation completed successfully using schema: {}", schemaPath);
 
     } catch (SAXException e) {
       // バリデーションエラーの詳細ログ出力
-      logger.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);
+      LOG.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);
 
       // バリデーションエラーをカスタム例外でラップして伝播
       throw new StreamProcessingException(
@@ -200,10 +200,10 @@ public class ValidateCommand extends ConsumerCommand {
       validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
       validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
-      logger.debug("Secure XML processing features configured for Validator");
+      LOG.debug("Secure XML processing features configured for Validator");
 
     } catch (Exception e) {
-      logger.warn("Could not configure all security features for Validator: {}", e.getMessage());
+      LOG.warn("Could not configure all security features for Validator: {}", e.getMessage());
       // 警告レベルで記録し、処理は継続
     }
   }

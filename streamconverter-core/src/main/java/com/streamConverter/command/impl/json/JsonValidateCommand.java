@@ -38,7 +38,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  */
 public class JsonValidateCommand extends ConsumerCommand {
-  private static final Logger logger = LoggerFactory.getLogger(JsonValidateCommand.class);
+  private static final Logger LOG = LoggerFactory.getLogger(JsonValidateCommand.class);
 
   private final String schemaPath;
   private final ObjectMapper objectMapper;
@@ -87,7 +87,7 @@ public class JsonValidateCommand extends ConsumerCommand {
   public void consume(InputStream inputStream) throws IOException {
     Objects.requireNonNull(inputStream, "InputStream cannot be null");
 
-    logger.info("Starting JSON validation with schema: {}", schemaPath);
+    LOG.info("Starting JSON validation with schema: {}", schemaPath);
 
     try {
       // スキーマファイルの読み込み
@@ -106,7 +106,7 @@ public class JsonValidateCommand extends ConsumerCommand {
                 "Failed to parse JSON input: Input stream is empty or contains no valid JSON data");
           }
 
-          logger.debug("JSON data loaded successfully, validating against schema");
+          LOG.debug("JSON data loaded successfully, validating against schema");
         }
       } catch (StreamProcessingException e) {
         throw e;
@@ -118,7 +118,7 @@ public class JsonValidateCommand extends ConsumerCommand {
       Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
 
       if (validationMessages.isEmpty()) {
-        logger.info("JSON validation completed successfully");
+        LOG.info("JSON validation completed successfully");
       } else {
         handleValidationErrors(validationMessages);
       }
@@ -127,7 +127,7 @@ public class JsonValidateCommand extends ConsumerCommand {
       // 既にラップされた例外はそのまま再スロー
       throw e;
     } catch (Exception e) {
-      logger.error("JSON validation failed: {}", e.getMessage(), e);
+      LOG.error("JSON validation failed: {}", e.getMessage(), e);
       throw new StreamProcessingException(
           String.format(
               "JSON validation failed - schema: %s, error: %s", schemaPath, e.getMessage()),
@@ -186,14 +186,14 @@ public class JsonValidateCommand extends ConsumerCommand {
       errorBuilder.append(" - ").append(message.getMessage());
 
       // ログに詳細を出力
-      logger.error(
+      LOG.error(
           "JSON validation error - Path: {}, Message: {}",
           message.getInstanceLocation(),
           message.getMessage());
     }
 
     String errorMessage = errorBuilder.toString();
-    logger.error("JSON validation summary: {}", errorMessage);
+    LOG.error("JSON validation summary: {}", errorMessage);
 
     throw new StreamProcessingException(
         String.format("JSON validation failed - schema: %s, errors: %s", schemaPath, errorMessage));

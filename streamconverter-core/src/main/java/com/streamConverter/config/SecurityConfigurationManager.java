@@ -25,8 +25,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SecurityConfigurationManager {
 
-  private static final Logger logger = LoggerFactory.getLogger(SecurityConfigurationManager.class);
-  private static final Logger securityLogger =
+  private static final Logger LOG = LoggerFactory.getLogger(SecurityConfigurationManager.class);
+  private static final Logger SECURITY_LOG =
       LoggerFactory.getLogger("com.streamConverter.security");
 
   private static SecurityConfigurationManager instance;
@@ -257,12 +257,12 @@ public class SecurityConfigurationManager {
     try (InputStream input = getClass().getClassLoader().getResourceAsStream(filename)) {
       if (input != null) {
         props.load(input);
-        logger.debug("Loaded security configuration from: {}", filename);
+        LOG.debug("Loaded security configuration from: {}", filename);
       } else {
-        logger.debug("Configuration file not found: {}", filename);
+        LOG.debug("Configuration file not found: {}", filename);
       }
     } catch (IOException e) {
-      logger.warn("Failed to load configuration file: {}", filename, e);
+      LOG.warn("Failed to load configuration file: {}", filename, e);
     }
   }
 
@@ -300,21 +300,21 @@ public class SecurityConfigurationManager {
     try {
       return Long.parseLong(sizeStr.trim()) * multiplier;
     } catch (NumberFormatException e) {
-      logger.warn("Invalid file size format: {}, using default 100MB", sizeStr);
+      LOG.warn("Invalid file size format: {}, using default 100MB", sizeStr);
       return 100 * 1024 * 1024; // Default 100MB
     }
   }
 
   private void logSecurityConfigurationStatus() {
     if (isSecurityLoggingEnabled()) {
-      securityLogger.info(
+      SECURITY_LOG.info(
           "Security Configuration Manager initialized for profile: {}", activeProfile);
-      securityLogger.info("Production environment: {}", isProductionEnvironment());
-      securityLogger.info("XML external entities disabled: {}", isXmlExternalEntitiesDisabled());
-      securityLogger.info("XPath validation enabled: {}", isXPathValidationEnabled());
-      securityLogger.info(
+      SECURITY_LOG.info("Production environment: {}", isProductionEnvironment());
+      SECURITY_LOG.info("XML external entities disabled: {}", isXmlExternalEntitiesDisabled());
+      SECURITY_LOG.info("XPath validation enabled: {}", isXPathValidationEnabled());
+      SECURITY_LOG.info(
           "Path traversal prevention enabled: {}", isPathTraversalPreventionEnabled());
-      securityLogger.info("Audit logging enabled: {}", isAuditEnabled());
+      SECURITY_LOG.info("Audit logging enabled: {}", isAuditEnabled());
     }
   }
 }

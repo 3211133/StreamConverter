@@ -104,7 +104,7 @@ tasks.test {
         excludeTags("benchmark", "large-data")
     }
 
-    // クラス名・パスパターンでもベンチマーク系テストを除外
+    // Exclude benchmark-related tests by class name and path patterns as well
     exclude("**/benchmark/**", "**/*Benchmark*", "**/MemoryEfficiencyTest*")
     
     // クロスプラットフォーム対応のJVM設定

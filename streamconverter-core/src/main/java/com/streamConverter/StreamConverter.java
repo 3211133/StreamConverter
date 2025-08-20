@@ -2,6 +2,7 @@ package com.streamConverter;
 
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.context.ExecutionContext;
+import com.streamconverter.CommandResult;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

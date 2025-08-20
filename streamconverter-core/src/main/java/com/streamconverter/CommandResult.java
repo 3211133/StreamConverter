@@ -1,4 +1,4 @@
-package com.streamConverter; // NOPMD - PackageCase
+package com.streamconverter;
 
 import java.time.Duration;
 import java.time.Instant;
@@ -18,16 +18,23 @@ public final class CommandResult {
   private final Instant startTime;
   private final Instant endTime;
 
-  @SuppressWarnings("PMD.LawOfDemeter")
-  private CommandResult(final Builder builder) {
-    this.commandName = builder.commandName;
-    this.success = builder.success;
-    this.timeMillis = builder.timeMillis;
-    this.inputBytes = builder.inputBytes;
-    this.outputBytes = builder.outputBytes;
-    this.errorMessage = builder.errorMessage;
-    this.startTime = builder.startTime;
-    this.endTime = builder.endTime;
+  private CommandResult(
+      final String commandName,
+      final boolean success,
+      final long timeMillis,
+      final long inputBytes,
+      final long outputBytes,
+      final String errorMessage,
+      final Instant startTime,
+      final Instant endTime) {
+    this.commandName = commandName;
+    this.success = success;
+    this.timeMillis = timeMillis;
+    this.inputBytes = inputBytes;
+    this.outputBytes = outputBytes;
+    this.errorMessage = errorMessage;
+    this.startTime = startTime;
+    this.endTime = endTime;
   }
 
   /**
@@ -140,7 +147,7 @@ public final class CommandResult {
      * @param commandName コマンド名
      * @return Builderインスタンス
      */
-    public Builder commandName(final String commandName) {
+    public Builder withCommandName(final String commandName) {
       this.commandName = commandName;
       return this;
     }
@@ -173,7 +180,7 @@ public final class CommandResult {
      * @param inputBytes 入力バイト数
      * @return Builderインスタンス
      */
-    public Builder inputBytes(final long inputBytes) {
+    public Builder withInputBytes(final long inputBytes) {
       this.inputBytes = inputBytes;
       return this;
     }
@@ -184,7 +191,7 @@ public final class CommandResult {
      * @param outputBytes 出力バイト数
      * @return Builderインスタンス
      */
-    public Builder outputBytes(final long outputBytes) {
+    public Builder withOutputBytes(final long outputBytes) {
       this.outputBytes = outputBytes;
       return this;
     }
@@ -195,7 +202,7 @@ public final class CommandResult {
      * @param errorMessage エラーメッセージ
      * @return Builderインスタンス
      */
-    public Builder errorMessage(final String errorMessage) {
+    public Builder withErrorMessage(final String errorMessage) {
       this.errorMessage = errorMessage;
       return this;
     }
@@ -206,7 +213,7 @@ public final class CommandResult {
      * @param startTime 開始時刻
      * @return Builderインスタンス
      */
-    public Builder startTime(final Instant startTime) {
+    public Builder withStartTime(final Instant startTime) {
       this.startTime = startTime;
       return this;
     }
@@ -217,7 +224,7 @@ public final class CommandResult {
      * @param endTime 終了時刻
      * @return Builderインスタンス
      */
-    public Builder endTime(final Instant endTime) {
+    public Builder withEndTime(final Instant endTime) {
       this.endTime = endTime;
       return this;
     }
@@ -228,7 +235,15 @@ public final class CommandResult {
      * @return CommandResultインスタンス
      */
     public CommandResult build() {
-      return new CommandResult(this);
+      return new CommandResult(
+          commandName,
+          success,
+          timeMillis,
+          inputBytes,
+          outputBytes,
+          errorMessage,
+          startTime,
+          endTime);
     }
   }
 
@@ -251,13 +266,13 @@ public final class CommandResult {
       final Instant startTime,
       final Instant endTime) {
     return new Builder()
-        .commandName(commandName)
+        .withCommandName(commandName)
         .withSuccess(true)
         .executionTime(executionTime)
-        .inputBytes(inputBytes)
-        .outputBytes(outputBytes)
-        .startTime(startTime)
-        .endTime(endTime)
+        .withInputBytes(inputBytes)
+        .withOutputBytes(outputBytes)
+        .withStartTime(startTime)
+        .withEndTime(endTime)
         .build();
   }
 
@@ -278,12 +293,12 @@ public final class CommandResult {
       final Instant startTime,
       final Instant endTime) {
     return new Builder()
-        .commandName(commandName)
+        .withCommandName(commandName)
         .withSuccess(false)
         .executionTime(executionTime)
-        .errorMessage(errorMessage)
-        .startTime(startTime)
-        .endTime(endTime)
+        .withErrorMessage(errorMessage)
+        .withStartTime(startTime)
+        .withEndTime(endTime)
         .build();
   }
 }

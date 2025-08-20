@@ -10,6 +10,7 @@ import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.XmlNavigateCommand;
 import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
 import com.streamConverter.test.PlatformAdaptiveTestUtils;
+import com.streamconverter.CommandResult;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;

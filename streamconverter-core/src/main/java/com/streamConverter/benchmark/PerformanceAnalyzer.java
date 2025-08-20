@@ -1,6 +1,6 @@
 package com.streamConverter.benchmark;
 
-import com.streamConverter.CommandResult;
+import com.streamconverter.CommandResult;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Instant;

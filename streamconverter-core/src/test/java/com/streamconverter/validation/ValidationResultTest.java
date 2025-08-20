@@ -1,4 +1,4 @@
-package com.streamConverter.validation;
+package com.streamconverter.validation;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -55,15 +55,15 @@ public class ValidationResultTest {
 
     ValidationResult result =
         ValidationResult.builder()
-            .validationType("CSV")
-            .schemaPath("schema/products.csv")
+            .withValidationType("CSV")
+            .withSchemaPath("schema/products.csv")
             .success(false)
             .addError("Missing required column: id")
             .addError("Invalid data in row 5")
             .addWarning("Column 'notes' has empty values")
-            .validationTime(now)
+            .withValidationTime(now)
             .executionTime(300L)
-            .dataSource("test-data.csv")
+            .withDataSource("test-data.csv")
             .build();
 
     assertFalse(result.isValid());
@@ -86,8 +86,8 @@ public class ValidationResultTest {
   void testBuilderWithDefaultValues() {
     ValidationResult result =
         ValidationResult.builder()
-            .validationType("XML")
-            .schemaPath("schema/config.xsd")
+            .withValidationType("XML")
+            .withSchemaPath("schema/config.xsd")
             .success(true)
             .build();
 
@@ -106,8 +106,8 @@ public class ValidationResultTest {
   void testValidationResultImmutability() {
     ValidationResult.Builder builder =
         ValidationResult.builder()
-            .validationType("JSON")
-            .schemaPath("schema/test.json")
+            .withValidationType("JSON")
+            .withSchemaPath("schema/test.json")
             .success(false)
             .addError("Test error");
 
@@ -132,8 +132,8 @@ public class ValidationResultTest {
   void testErrorAndWarningListImmutability() {
     ValidationResult result =
         ValidationResult.builder()
-            .validationType("CSV")
-            .schemaPath("test.csv")
+            .withValidationType("CSV")
+            .withSchemaPath("test.csv")
             .success(false)
             .addError("Original error")
             .addWarning("Original warning")
@@ -164,8 +164,8 @@ public class ValidationResultTest {
             IllegalArgumentException.class,
             () ->
                 ValidationResult.builder()
-                    .validationType(null)
-                    .schemaPath("test.json")
+                    .withValidationType(null)
+                    .withSchemaPath("test.json")
                     .success(true)
                     .build());
 
@@ -180,8 +180,8 @@ public class ValidationResultTest {
             IllegalArgumentException.class,
             () ->
                 ValidationResult.builder()
-                    .validationType("")
-                    .schemaPath("test.json")
+                    .withValidationType("")
+                    .withSchemaPath("test.json")
                     .success(true)
                     .build());
 
@@ -196,8 +196,8 @@ public class ValidationResultTest {
             IllegalArgumentException.class,
             () ->
                 ValidationResult.builder()
-                    .validationType("JSON")
-                    .schemaPath(null)
+                    .withValidationType("JSON")
+                    .withSchemaPath(null)
                     .success(true)
                     .build());
 
@@ -212,8 +212,8 @@ public class ValidationResultTest {
             IllegalStateException.class,
             () ->
                 ValidationResult.builder()
-                    .validationType("JSON")
-                    .schemaPath("test.json")
+                    .withValidationType("JSON")
+                    .withSchemaPath("test.json")
                     .success(true)
                     .addError("This should not be allowed")
                     .build());
@@ -228,8 +228,8 @@ public class ValidationResultTest {
   void testBuilderMultipleErrorsAccumulation() {
     ValidationResult result =
         ValidationResult.builder()
-            .validationType("XML")
-            .schemaPath("test.xsd")
+            .withValidationType("XML")
+            .withSchemaPath("test.xsd")
             .success(false)
             .addError("Error 1")
             .addError("Error 2")
@@ -247,8 +247,8 @@ public class ValidationResultTest {
   void testBuilderMultipleWarningsAccumulation() {
     ValidationResult result =
         ValidationResult.builder()
-            .validationType("CSV")
-            .schemaPath("test.csv")
+            .withValidationType("CSV")
+            .withSchemaPath("test.csv")
             .success(true)
             .addWarning("Warning 1")
             .addWarning("Warning 2")
@@ -264,8 +264,8 @@ public class ValidationResultTest {
   void testToStringMethod() {
     ValidationResult result =
         ValidationResult.builder()
-            .validationType("JSON")
-            .schemaPath("schema/user.json")
+            .withValidationType("JSON")
+            .withSchemaPath("schema/user.json")
             .success(false)
             .addError("Missing required field")
             .executionTime(123L)
@@ -288,11 +288,11 @@ public class ValidationResultTest {
 
     ValidationResult result =
         ValidationResult.builder()
-            .validationType("JSON")
-            .schemaPath("schema.json")
+            .withValidationType("JSON")
+            .withSchemaPath("schema.json")
             .success(true)
             .executionTime(executionTime)
-            .dataSource(dataSource)
+            .withDataSource(dataSource)
             .build();
 
     assertTrue(result.isValid());
@@ -313,11 +313,11 @@ public class ValidationResultTest {
 
     ValidationResult result =
         ValidationResult.builder()
-            .validationType("CSV")
-            .schemaPath("schema.csv")
+            .withValidationType("CSV")
+            .withSchemaPath("schema.csv")
             .success(false)
             .executionTime(executionTime)
-            .dataSource(dataSource)
+            .withDataSource(dataSource)
             .addError("Error 1")
             .addError("Error 2")
             .build();
@@ -337,8 +337,8 @@ public class ValidationResultTest {
     // 負の実行時間でも受け入れられる（実装の柔軟性のため）
     ValidationResult result1 =
         ValidationResult.builder()
-            .validationType("JSON")
-            .schemaPath("test.json")
+            .withValidationType("JSON")
+            .withSchemaPath("test.json")
             .success(true)
             .executionTime(-10L)
             .build();
@@ -348,8 +348,8 @@ public class ValidationResultTest {
     // 非常に大きな実行時間も受け入れられる
     ValidationResult result2 =
         ValidationResult.builder()
-            .validationType("JSON")
-            .schemaPath("test.json")
+            .withValidationType("JSON")
+            .withSchemaPath("test.json")
             .success(true)
             .executionTime(Long.MAX_VALUE)
             .build();
@@ -364,28 +364,28 @@ public class ValidationResultTest {
 
     ValidationResult result1 =
         ValidationResult.builder()
-            .validationType("JSON")
-            .schemaPath("test.json")
+            .withValidationType("JSON")
+            .withSchemaPath("test.json")
             .success(true)
-            .validationTime(now)
+            .withValidationTime(now)
             .executionTime(100L)
             .build();
 
     ValidationResult result2 =
         ValidationResult.builder()
-            .validationType("JSON")
-            .schemaPath("test.json")
+            .withValidationType("JSON")
+            .withSchemaPath("test.json")
             .success(true)
-            .validationTime(now)
+            .withValidationTime(now)
             .executionTime(100L)
             .build();
 
     ValidationResult result3 =
         ValidationResult.builder()
-            .validationType("CSV")
-            .schemaPath("test.csv")
+            .withValidationType("CSV")
+            .withSchemaPath("test.csv")
             .success(true)
-            .validationTime(now)
+            .withValidationTime(now)
             .executionTime(100L)
             .build();
 

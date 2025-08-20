@@ -3,6 +3,7 @@ package com.streamConverter.benchmark;
 import com.streamConverter.*;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
+import com.streamconverter.CommandResult;
 import java.io.*;
 import java.util.*;
 import org.junit.jupiter.api.*;

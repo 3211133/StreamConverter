@@ -1,6 +1,6 @@
 package com.streamConverter.controller;
 
-import com.streamConverter.CommandResult;
+import com.streamconverter.CommandResult;
 import com.streamConverter.StreamConverter;
 import com.streamConverter.command.CommandConfig;
 import com.streamConverter.command.CommandFactory;

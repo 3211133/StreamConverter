@@ -1,6 +1,6 @@
 package com.streamConverter.examples;
 
-import com.streamConverter.CommandResult;
+import com.streamconverter.CommandResult;
 import com.streamConverter.StreamConverter;
 import com.streamConverter.command.impl.CsvNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;

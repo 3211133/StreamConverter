@@ -3,7 +3,7 @@ package com.streamConverter.api;
 import static com.streamConverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.CommandResult;
+import com.streamconverter.CommandResult;
 import com.streamConverter.StreamConverter;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

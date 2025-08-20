@@ -1,6 +1,6 @@
 package com.streamConverter.examples;
 
-import com.streamConverter.CommandResult;
+import com.streamconverter.CommandResult;
 import com.streamConverter.api.StreamBuilder;
 import com.streamConverter.api.Streams;
 import java.io.ByteArrayOutputStream;

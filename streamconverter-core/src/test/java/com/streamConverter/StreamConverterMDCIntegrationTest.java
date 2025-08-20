@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.context.ExecutionContext;
+import com.streamconverter.CommandResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

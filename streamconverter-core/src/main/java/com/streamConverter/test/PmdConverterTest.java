@@ -1,6 +1,6 @@
 package com.streamConverter.test;
 
-import com.streamConverter.CommandResult;
+import com.streamconverter.CommandResult;
 import com.streamConverter.controller.PmdAnalysisController;
 import java.io.*;
 import java.nio.file.Files;

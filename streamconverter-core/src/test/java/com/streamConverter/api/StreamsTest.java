@@ -2,7 +2,7 @@ package com.streamConverter.api;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.CommandResult;
+import com.streamconverter.CommandResult;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

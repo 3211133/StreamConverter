@@ -23,27 +23,34 @@ import java.util.Objects;
  *     .build();
  * </pre>
  */
-public class ValidationResult {
+public final class ValidationResult {
 
   private final String validationType;
   private final String schemaPath;
-  private final boolean isValid;
+  private final boolean valid;
   private final List<String> errors;
   private final List<String> warnings;
   private final Instant validationTime;
-  private final long executionTimeMillis;
+  private final long execTimeMillis;
   private final String dataSource;
 
-  /** プライベートコンストラクタ（Builderパターン使用） */
-  private ValidationResult(Builder builder) {
-    this.validationType = builder.validationType;
-    this.schemaPath = builder.schemaPath;
-    this.isValid = builder.isValid;
-    this.errors = Collections.unmodifiableList(new ArrayList<>(builder.errors));
-    this.warnings = Collections.unmodifiableList(new ArrayList<>(builder.warnings));
-    this.validationTime = builder.validationTime;
-    this.executionTimeMillis = builder.executionTimeMillis;
-    this.dataSource = builder.dataSource;
+  private ValidationResult(
+      final String validationType,
+      final String schemaPath,
+      final boolean valid,
+      final List<String> errors,
+      final List<String> warnings,
+      final Instant validationTime,
+      final long execTimeMillis,
+      final String dataSource) {
+    this.validationType = validationType;
+    this.schemaPath = schemaPath;
+    this.valid = valid;
+    this.errors = Collections.unmodifiableList(new ArrayList<>(errors));
+    this.warnings = Collections.unmodifiableList(new ArrayList<>(warnings));
+    this.validationTime = validationTime;
+    this.execTimeMillis = execTimeMillis;
+    this.dataSource = dataSource;
   }
 
   /**
@@ -51,16 +58,16 @@ public class ValidationResult {
    *
    * @param validationType バリデーションタイプ（"JSON", "XML", "CSV"など）
    * @param schemaPath スキーマファイルのパス
-   * @param executionTimeMillis 実行時間（ミリ秒）
+   * @param execTimeMillis 実行時間（ミリ秒）
    * @return 成功を表すValidationResult
    */
   public static ValidationResult success(
-      String validationType, String schemaPath, long executionTimeMillis) {
+      final String validationType, final String schemaPath, final long execTimeMillis) {
     return builder()
         .validationType(validationType)
         .schemaPath(schemaPath)
         .success(true)
-        .executionTimeMillis(executionTimeMillis)
+        .executionTimeMillis(execTimeMillis)
         .build();
   }
 
@@ -70,20 +77,23 @@ public class ValidationResult {
    * @param validationType バリデーションタイプ（"JSON", "XML", "CSV"など）
    * @param schemaPath スキーマファイルのパス
    * @param errors エラーメッセージのリスト
-   * @param executionTimeMillis 実行時間（ミリ秒）
+   * @param execTimeMillis 実行時間（ミリ秒）
    * @return 失敗を表すValidationResult
    */
   public static ValidationResult failure(
-      String validationType, String schemaPath, List<String> errors, long executionTimeMillis) {
-    Builder builder =
+      final String validationType,
+      final String schemaPath,
+      final List<String> errors,
+      final long execTimeMillis) {
+    final Builder builder =
         builder()
             .validationType(validationType)
             .schemaPath(schemaPath)
             .success(false)
-            .executionTimeMillis(executionTimeMillis);
+            .executionTimeMillis(execTimeMillis);
 
     if (errors != null) {
-      for (String error : errors) {
+      for (final String error : errors) {
         builder.addError(error);
       }
     }
@@ -126,7 +136,7 @@ public class ValidationResult {
    * @return 有効な場合true、無効な場合false
    */
   public boolean isValid() {
-    return isValid;
+    return valid;
   }
 
   /**
@@ -162,7 +172,7 @@ public class ValidationResult {
    * @return 実行時間（ミリ秒）
    */
   public long getExecutionTimeMillis() {
-    return executionTimeMillis;
+    return execTimeMillis;
   }
 
   /**
@@ -174,51 +184,31 @@ public class ValidationResult {
     return dataSource;
   }
 
-  /**
-   * エラーの数を取得
-   *
-   * @return エラーの数
-   */
-  public int getErrorCount() {
-    return errors.size();
-  }
-
-  /**
-   * 警告の数を取得
-   *
-   * @return 警告の数
-   */
-  public int getWarningCount() {
-    return warnings.size();
-  }
-
   @Override
   public String toString() {
-    StringBuilder sb = new StringBuilder();
-    sb.append("ValidationResult{");
-    sb.append("type=").append(validationType);
-    sb.append(", schema=").append(schemaPath);
-    sb.append(", valid=").append(isValid);
-    sb.append(", errors=").append(errors.size());
-    sb.append(", warnings=").append(warnings.size());
-    sb.append(", executionTimeMs=").append(executionTimeMillis);
-    sb.append("}");
-    return sb.toString();
+    return String.format(
+        "ValidationResult{type=%s, schema=%s, valid=%s, errors=%d, warnings=%d, executionTimeMs=%d}",
+        validationType, schemaPath, valid, errors.size(), warnings.size(), execTimeMillis);
   }
 
   @Override
-  public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-    ValidationResult that = (ValidationResult) o;
-    return isValid == that.isValid
-        && executionTimeMillis == that.executionTimeMillis
-        && Objects.equals(validationType, that.validationType)
-        && Objects.equals(schemaPath, that.schemaPath)
-        && Objects.equals(errors, that.errors)
-        && Objects.equals(warnings, that.warnings)
-        && Objects.equals(validationTime, that.validationTime)
-        && Objects.equals(dataSource, that.dataSource);
+  public boolean equals(final Object other) {
+    boolean result = false;
+    if (this == other) {
+      result = true;
+    } else if (other instanceof ValidationResult) {
+      final ValidationResult that = (ValidationResult) other;
+      result =
+          valid == that.valid
+              && execTimeMillis == that.execTimeMillis
+              && Objects.equals(validationType, that.validationType)
+              && Objects.equals(schemaPath, that.schemaPath)
+              && Objects.equals(errors, that.errors)
+              && Objects.equals(warnings, that.warnings)
+              && Objects.equals(validationTime, that.validationTime)
+              && Objects.equals(dataSource, that.dataSource);
+    }
+    return result;
   }
 
   @Override
@@ -226,27 +216,25 @@ public class ValidationResult {
     return Objects.hash(
         validationType,
         schemaPath,
-        isValid,
+        valid,
         errors,
         warnings,
         validationTime,
-        executionTimeMillis,
+        execTimeMillis,
         dataSource);
   }
 
   /** ValidationResult作成用のBuilderクラス */
-  public static class Builder {
-    private String validationType;
-    private String schemaPath;
-    private boolean isValid;
-    private List<String> errors = new ArrayList<>();
-    private List<String> warnings = new ArrayList<>();
-    private Instant validationTime = Instant.now();
-    private long executionTimeMillis;
-    private String dataSource;
+    public static class Builder {
+      private String typeVal;
+      private String schemaPathVal;
+      private boolean valid;
+      private final List<String> errors = new ArrayList<>();
+      private final List<String> warnings = new ArrayList<>();
+      private Instant timeVal = Instant.now();
+      private long execTimeMillis;
+      private String dataSourceVal;
 
-    /** Creates a new builder instance. */
-    public Builder() {}
 
     /**
      * バリデーションタイプを設定
@@ -254,8 +242,8 @@ public class ValidationResult {
      * @param validationType バリデーションタイプ
      * @return Builder
      */
-    public Builder validationType(String validationType) {
-      this.validationType = validationType;
+    public Builder validationType(final String validationType) {
+      this.typeVal = validationType;
       return this;
     }
 
@@ -265,8 +253,8 @@ public class ValidationResult {
      * @param schemaPath スキーマファイルのパス
      * @return Builder
      */
-    public Builder schemaPath(String schemaPath) {
-      this.schemaPath = schemaPath;
+    public Builder schemaPath(final String schemaPath) {
+      this.schemaPathVal = schemaPath;
       return this;
     }
 
@@ -276,8 +264,8 @@ public class ValidationResult {
      * @param success 成功の場合true
      * @return Builder
      */
-    public Builder success(boolean success) {
-      this.isValid = success;
+    public Builder success(final boolean success) {
+      this.valid = success;
       return this;
     }
 
@@ -287,8 +275,8 @@ public class ValidationResult {
      * @param error エラーメッセージ
      * @return Builder
      */
-    public Builder addError(String error) {
-      if (error != null && !error.trim().isEmpty()) {
+    public Builder addError(final String error) {
+      if (error != null && !error.isBlank()) {
         this.errors.add(error.trim());
       }
       return this;
@@ -300,8 +288,8 @@ public class ValidationResult {
      * @param warning 警告メッセージ
      * @return Builder
      */
-    public Builder addWarning(String warning) {
-      if (warning != null && !warning.trim().isEmpty()) {
+    public Builder addWarning(final String warning) {
+      if (warning != null && !warning.isBlank()) {
         this.warnings.add(warning.trim());
       }
       return this;
@@ -313,19 +301,19 @@ public class ValidationResult {
      * @param validationTime 実行時刻
      * @return Builder
      */
-    public Builder validationTime(Instant validationTime) {
-      this.validationTime = validationTime;
+    public Builder validationTime(final Instant validationTime) {
+      this.timeVal = validationTime;
       return this;
     }
 
     /**
      * 実行時間を設定
      *
-     * @param executionTimeMillis 実行時間（ミリ秒）
+     * @param execTimeMillis 実行時間（ミリ秒）
      * @return Builder
      */
-    public Builder executionTimeMillis(long executionTimeMillis) {
-      this.executionTimeMillis = executionTimeMillis;
+    public Builder executionTimeMillis(final long execTimeMillis) {
+      this.execTimeMillis = execTimeMillis;
       return this;
     }
 
@@ -335,8 +323,8 @@ public class ValidationResult {
      * @param dataSource データソース情報
      * @return Builder
      */
-    public Builder dataSource(String dataSource) {
-      this.dataSource = dataSource;
+    public Builder dataSource(final String dataSource) {
+      this.dataSourceVal = dataSource;
       return this;
     }
 
@@ -347,26 +335,28 @@ public class ValidationResult {
      * @throws IllegalStateException 必須フィールドが設定されていない場合
      */
     public ValidationResult build() {
-      // バリデーションタイプの検証
-      if (validationType == null || validationType.trim().isEmpty()) {
-        throw new IllegalArgumentException("Validation type cannot be null or empty");
-      }
+      requireNonBlank(typeVal, "Validation type");
+      requireNonBlank(schemaPathVal, "Schema path");
+        ensureConsistency();
+        return new ValidationResult(
+            typeVal, schemaPathVal, valid, errors, warnings, timeVal, execTimeMillis,
+            dataSourceVal);
+    }
 
-      // スキーマパスの検証
-      if (schemaPath == null || schemaPath.trim().isEmpty()) {
-        throw new IllegalArgumentException("Schema path cannot be null or empty");
+    private static void requireNonBlank(final String value, final String field) {
+      if (value == null || value.isBlank()) {
+        throw new IllegalArgumentException(field + " cannot be null or empty");
       }
+    }
 
-      // 成功フラグとエラーの整合性チェック
-      if (isValid && !errors.isEmpty()) {
+    private void ensureConsistency() {
+      if (valid && !errors.isEmpty()) {
         throw new IllegalStateException(
             "ValidationResult cannot be marked as valid when errors are present");
       }
-      if (!isValid && errors.isEmpty()) {
+      if (!valid && errors.isEmpty()) {
         addError("Validation failed (no specific error message)");
       }
-
-      return new ValidationResult(this);
     }
   }
 }

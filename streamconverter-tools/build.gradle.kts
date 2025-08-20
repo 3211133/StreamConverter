@@ -119,7 +119,7 @@ tasks.test {
         excludeTags("benchmark", "large-data")
     }
 
-    // クラス名・パスパターンでもベンチマーク系テストを除外
+    // Exclude benchmark-related tests by class name/path pattern as well
     exclude("**/benchmark/**", "**/*Benchmark*", "**/MemoryEfficiencyTest*")
 
     testLogging {

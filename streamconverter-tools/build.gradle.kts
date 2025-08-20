@@ -114,8 +114,14 @@ spotless {
 }
 
 tasks.test {
-    useJUnitPlatform()
-    
+    useJUnitPlatform {
+        // ベンチマークテストを通常のテスト実行から除外
+        excludeTags("benchmark", "large-data")
+    }
+
+    // クラス名・パスパターンでもベンチマーク系テストを除外
+    exclude("**/benchmark/**", "**/*Benchmark*", "**/MemoryEfficiencyTest*")
+
     testLogging {
         events("passed", "skipped", "failed")
         showStandardStreams = true

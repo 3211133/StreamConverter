@@ -42,8 +42,7 @@ public final class StreamBuilder {
 
   private final List<IStreamCommand> commands;
   private InputStream inputStream;
-  private boolean built = false;
-  private DataFormat format = DataFormat.GENERIC;
+  private DataFormat dataFormat = DataFormat.GENERIC;
 
   /** プライベートコンストラクタ - ファクトリメソッドを使用してインスタンス化 */
   private StreamBuilder() {
@@ -67,7 +66,7 @@ public final class StreamBuilder {
    * @param input 入力文字列（UTF-8エンコーディング）
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder fromString(String input) {
+  public StreamBuilder fromString(final String input) {
     Objects.requireNonNull(input, "Input string cannot be null");
     this.inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
     return this;
@@ -79,7 +78,7 @@ public final class StreamBuilder {
    * @param inputStream 入力ストリーム
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder fromStream(InputStream inputStream) {
+  public StreamBuilder fromStream(final InputStream inputStream) {
     Objects.requireNonNull(inputStream, "InputStream cannot be null");
     this.inputStream = inputStream;
     return this;
@@ -92,7 +91,7 @@ public final class StreamBuilder {
    * @return このビルダーインスタンス（メソッドチェーン用）
    * @throws IOException ファイル読み込みエラー
    */
-  public StreamBuilder fromFile(String filePath) throws IOException {
+  public StreamBuilder fromFile(final String filePath) throws IOException {
     Objects.requireNonNull(filePath, "File path cannot be null");
     this.inputStream = Files.newInputStream(Paths.get(filePath));
     return this;
@@ -106,7 +105,7 @@ public final class StreamBuilder {
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
   public StreamBuilder asJson() {
-    this.format = DataFormat.JSON;
+    this.dataFormat = DataFormat.JSON;
     return this;
   }
 
@@ -116,7 +115,7 @@ public final class StreamBuilder {
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
   public StreamBuilder asCsv() {
-    this.format = DataFormat.CSV;
+    this.dataFormat = DataFormat.CSV;
     return this;
   }
 
@@ -126,7 +125,7 @@ public final class StreamBuilder {
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
   public StreamBuilder asXml() {
-    this.format = DataFormat.XML;
+    this.dataFormat = DataFormat.XML;
     return this;
   }
 
@@ -136,7 +135,7 @@ public final class StreamBuilder {
    * @return 現在のデータ形式
    */
   public DataFormat getFormat() {
-    return format;
+    return dataFormat;
   }
 
   // === Validation Commands ===
@@ -171,7 +170,7 @@ public final class StreamBuilder {
    * @param requiredColumns 必須列名の配列
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder validateCsv(String[] requiredColumns) {
+  public StreamBuilder validateCsv(final String... requiredColumns) {
     Objects.requireNonNull(requiredColumns, "Required columns cannot be null");
     this.commands.add(new CsvValidateCommand(requiredColumns));
     return this;
@@ -185,10 +184,10 @@ public final class StreamBuilder {
    * @param schemaPath スキーマファイルのパス
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder validate(String schemaPath) {
+  public StreamBuilder validate(final String schemaPath) {
     Objects.requireNonNull(schemaPath, "Schema path cannot be null");
 
-    switch (format) {
+    switch (dataFormat) {
       case JSON:
         this.commands.add(new JsonValidateCommand(schemaPath));
         break;
@@ -215,10 +214,10 @@ public final class StreamBuilder {
    * @param path 抽出パス（JSONPath、XPath、CSV列名など）
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder extract(String path) {
+  public StreamBuilder extract(final String path) {
     Objects.requireNonNull(path, "Extraction path cannot be null");
 
-    switch (format) {
+    switch (dataFormat) {
       case JSON:
         this.commands.add(JsonNavigateCommand.extractOnly(path));
         break;
@@ -243,7 +242,7 @@ public final class StreamBuilder {
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
   public StreamBuilder format() {
-    if (format != DataFormat.JSON) {
+    if (dataFormat != DataFormat.JSON) {
       throw new IllegalStateException("Format operation is only supported for JSON data format");
     }
     this.commands.add(JsonNavigateCommand.extractAll());
@@ -258,7 +257,7 @@ public final class StreamBuilder {
    * @param jsonPath JSONPath式（例: "$.user.name"）
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder extractJson(String jsonPath) {
+  public StreamBuilder extractJson(final String jsonPath) {
     Objects.requireNonNull(jsonPath, "JSONPath cannot be null");
     this.commands.add(JsonNavigateCommand.extractOnly(jsonPath));
     return this;
@@ -280,7 +279,7 @@ public final class StreamBuilder {
    * @param xpath XPath式（例: "//user/name"）
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder extractXml(String xpath) {
+  public StreamBuilder extractXml(final String xpath) {
     Objects.requireNonNull(xpath, "XPath cannot be null");
     this.commands.add(XmlNavigateCommand.extractOnly(xpath));
     return this;
@@ -292,7 +291,7 @@ public final class StreamBuilder {
    * @param columnName 列名
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder extractCsv(String columnName) {
+  public StreamBuilder extractCsv(final String columnName) {
     Objects.requireNonNull(columnName, "Column name cannot be null");
     this.commands.add(CsvNavigateCommand.extractOnly(columnName));
     return this;
@@ -307,7 +306,7 @@ public final class StreamBuilder {
    * @param toEncoding 変換先エンコーディング（例: "UTF-16"）
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder convertEncoding(String fromEncoding, String toEncoding) {
+  public StreamBuilder convertEncoding(final String fromEncoding, final String toEncoding) {
     Objects.requireNonNull(fromEncoding, "From encoding cannot be null");
     Objects.requireNonNull(toEncoding, "To encoding cannot be null");
     this.commands.add(new CharacterConvertCommand(fromEncoding, toEncoding));
@@ -320,7 +319,7 @@ public final class StreamBuilder {
    * @param commandName コマンド名（ログ用）
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder process(String commandName) {
+  public StreamBuilder process(final String commandName) {
     Objects.requireNonNull(commandName, "Command name cannot be null");
     this.commands.add(new SampleStreamCommand(commandName));
     return this;
@@ -332,7 +331,7 @@ public final class StreamBuilder {
    * @param command カスタムIStreamCommandの実装
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder addCommand(IStreamCommand command) {
+  public StreamBuilder addCommand(final IStreamCommand command) {
     Objects.requireNonNull(command, "Command cannot be null");
     this.commands.add(command);
     return this;
@@ -346,7 +345,7 @@ public final class StreamBuilder {
    * @param url 送信先URL
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder sendHttp(String url) {
+  public StreamBuilder sendHttp(final String url) {
     Objects.requireNonNull(url, "URL cannot be null");
     this.commands.add(new SendHttpCommand(url));
     return this;
@@ -358,7 +357,7 @@ public final class StreamBuilder {
    * @param url 送信先URL
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder sendHttpPost(String url) {
+  public StreamBuilder sendHttpPost(final String url) {
     Objects.requireNonNull(url, "URL cannot be null");
     this.commands.add(new SendHttpCommand(url));
     return this;
@@ -373,7 +372,7 @@ public final class StreamBuilder {
    * @param configurer 条件がtrueの場合に実行する設定ラムダ
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
-  public StreamBuilder when(boolean condition, Consumer<StreamBuilder> configurer) {
+  public StreamBuilder when(final boolean condition, final Consumer<StreamBuilder> configurer) {
     Objects.requireNonNull(configurer, "Configurer cannot be null");
     if (condition) {
       configurer.accept(this);
@@ -403,7 +402,7 @@ public final class StreamBuilder {
    * @return コマンド実行結果のリスト
    * @throws IOException 処理中にI/Oエラーが発生した場合
    */
-  public List<CommandResult> toStream(OutputStream outputStream) throws IOException {
+  public List<CommandResult> toStream(final OutputStream outputStream) throws IOException {
     Objects.requireNonNull(outputStream, "OutputStream cannot be null");
     return execute(outputStream);
   }
@@ -415,7 +414,7 @@ public final class StreamBuilder {
    * @return コマンド実行結果のリスト
    * @throws IOException 処理中にI/Oエラーが発生した場合
    */
-  public List<CommandResult> toFile(String filePath) throws IOException {
+  public List<CommandResult> toFile(final String filePath) throws IOException {
     Objects.requireNonNull(filePath, "File path cannot be null");
     try (OutputStream outputStream = Files.newOutputStream(Paths.get(filePath))) {
       return execute(outputStream);
@@ -432,7 +431,6 @@ public final class StreamBuilder {
     if (commands.isEmpty()) {
       throw new IllegalStateException("No commands have been added to the pipeline");
     }
-    this.built = true;
     return new StreamConverter(new ArrayList<>(commands));
   }
 
@@ -444,12 +442,12 @@ public final class StreamBuilder {
    * @return パイプライン情報の文字列
    */
   public String getPipelineInfo() {
-    StringBuilder info = new StringBuilder();
+    final StringBuilder info = new StringBuilder(64);
     info.append("StreamBuilder Pipeline (").append(commands.size()).append(" commands):\n");
     for (int i = 0; i < commands.size(); i++) {
-      IStreamCommand command = commands.get(i);
-      String commandInfo = formatCommandInfo(command);
-      info.append("  ").append(i + 1).append(". ").append(commandInfo).append("\n");
+      final IStreamCommand command = commands.get(i);
+      final String commandInfo = formatCommandInfo(command);
+      info.append("  ").append(i + 1).append(". ").append(commandInfo).append('\n');
     }
     return info.toString();
   }
@@ -460,7 +458,7 @@ public final class StreamBuilder {
    * @param command フォーマット対象のコマンド
    * @return フォーマットされたコマンド情報
    */
-  private String formatCommandInfo(IStreamCommand command) {
+  private String formatCommandInfo(final IStreamCommand command) {
     String className = command.getClass().getSimpleName();
 
     // SampleStreamCommandの場合、IDも含める

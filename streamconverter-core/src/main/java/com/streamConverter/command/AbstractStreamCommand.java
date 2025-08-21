@@ -46,14 +46,18 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
     log.info("Starting command execution: {}", commandName);
     log.debug("Command details: {}", getCommandDetails());
 
-    // データサイズ測定用のストリームでラップ
-    MeasuredInputStream measuredInput = null;
-    MeasuredOutputStream measuredOutput = null;
-    try {
-      measuredInput = new MeasuredInputStream(inputStream);
-      measuredOutput = new MeasuredOutputStream(outputStream);
+    // データサイズ測定用のストリームでラップ（try-with-resourcesでリソース管理）
+    long inputBytes = 0;
+    long outputBytes = 0;
+    try (MeasuredInputStream measuredInput = new MeasuredInputStream(inputStream);
+        MeasuredOutputStream measuredOutput = new MeasuredOutputStream(outputStream)) {
+
       // 実際の処理実行
-      _execute(measuredInput, measuredOutput);
+      executeInternal(measuredInput, measuredOutput);
+
+      // データサイズ測定値を取得
+      inputBytes = measuredInput.getBytesRead();
+      outputBytes = measuredOutput.getBytesWritten();
 
       // 成功時のログ出力
       long duration = System.currentTimeMillis() - startTime;
@@ -63,8 +67,8 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
           "Command execution completed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB)",
           commandName,
           duration,
-          measuredInput.getBytesRead(),
-          measuredOutput.getBytesWritten(),
+          inputBytes,
+          outputBytes,
           memoryUsed / 1024 / 1024);
 
       // パフォーマンス警告
@@ -76,10 +80,6 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
       // 例外発生時のログ出力
       long duration = System.currentTimeMillis() - startTime;
       long memoryUsed = getUsedMemory() - startMemory;
-
-      // measuredInput/measuredOutputがnullの場合は0を使用
-      long inputBytes = (measuredInput != null) ? measuredInput.getBytesRead() : 0;
-      long outputBytes = (measuredOutput != null) ? measuredOutput.getBytesWritten() : 0;
 
       log.error(
           "Command execution failed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB) - {}",
@@ -107,7 +107,7 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
    * @param outputStream The output stream to write data to.
    * @throws IOException If an I/O error occurs during the execution of the command.
    */
-  protected abstract void _execute(InputStream inputStream, OutputStream outputStream)
+  protected abstract void executeInternal(InputStream inputStream, OutputStream outputStream)
       throws IOException;
 
   /**

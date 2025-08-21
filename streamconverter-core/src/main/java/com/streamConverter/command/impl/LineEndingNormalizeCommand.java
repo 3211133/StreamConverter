@@ -72,7 +72,8 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
   }
 
   @Override
-  protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
+      throws IOException {
     logger.debug("Starting line ending normalization to: {}", targetType);
 
     // Stream processing for memory efficiency

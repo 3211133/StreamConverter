@@ -47,7 +47,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   }
 
   @Override
-  protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
+      throws IOException {
     try (BufferedReader reader =
             new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {

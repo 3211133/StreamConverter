@@ -136,13 +136,13 @@ public class ComplexPipelineExample {
 
     return new SampleStreamCommand("db-transform") {
       @Override
-      public void _execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)
-          throws IOException {
+      public void executeInternal(
+          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
         MDC.put("pipelineStage", "db-transform");
         logger.info("Executing database transformation");
 
         // 実際のDB変換処理をシミュレート
-        super._execute(inputStream, outputStream);
+        super.executeInternal(inputStream, outputStream);
 
         logger.info("Database transformation completed");
       }
@@ -155,14 +155,14 @@ public class ComplexPipelineExample {
 
     return new SampleStreamCommand("http-communication") {
       @Override
-      public void _execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)
-          throws IOException {
+      public void executeInternal(
+          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
         MDC.put("pipelineStage", "communication");
         logger.info("Executing external API communication");
 
         // 実際のHTTP通信をシミュレート
         // 本来であればSendHttpCommandを使用
-        super._execute(inputStream, outputStream);
+        super.executeInternal(inputStream, outputStream);
 
         logger.info("External API communication completed");
       }
@@ -175,13 +175,13 @@ public class ComplexPipelineExample {
 
     return new SampleStreamCommand("response-validator") {
       @Override
-      public void _execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)
-          throws IOException {
+      public void executeInternal(
+          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
         MDC.put("pipelineStage", "response-validation");
         logger.info("Validating API response");
 
         // レスポンスバリデーション処理をシミュレート
-        super._execute(inputStream, outputStream);
+        super.executeInternal(inputStream, outputStream);
 
         logger.info("Response validation completed");
       }
@@ -194,13 +194,13 @@ public class ComplexPipelineExample {
 
     return new SampleStreamCommand("db-reverse-transform") {
       @Override
-      public void _execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)
-          throws IOException {
+      public void executeInternal(
+          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
         MDC.put("pipelineStage", "db-reverse-transform");
         logger.info("Executing database reverse transformation");
 
         // DB逆変換処理をシミュレート
-        super._execute(inputStream, outputStream);
+        super.executeInternal(inputStream, outputStream);
 
         logger.info("Database reverse transformation completed");
 

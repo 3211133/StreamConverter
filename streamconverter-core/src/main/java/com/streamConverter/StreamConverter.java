@@ -27,6 +27,38 @@ import org.slf4j.LoggerFactory;
  * <p>ストリームを変換するコマンドは、IStreamCommandインターフェースを実装したクラスである必要がある。
  */
 public class StreamConverter {
+
+  /** AutoCloseableラッパーでExecutorServiceのリソース管理を改善 */
+  private static class AutoCloseableExecutorService implements AutoCloseable {
+    private final ExecutorService executor;
+
+    public AutoCloseableExecutorService(ExecutorService executor) {
+      this.executor = executor;
+    }
+
+    public CompletableFuture<CommandResult> supplyAsync(
+        java.util.function.Supplier<CommandResult> supplier) {
+      return CompletableFuture.supplyAsync(supplier, executor);
+    }
+
+    @Override
+    public void close() {
+      executor.shutdown();
+      try {
+        if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+          LOG.warn("Executor did not terminate gracefully, forcing shutdown");
+          executor.shutdownNow();
+          if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+            LOG.error("Executor did not terminate after forced shutdown");
+          }
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        executor.shutdownNow();
+      }
+    }
+  }
+
   private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
@@ -181,11 +213,11 @@ public class StreamConverter {
   private List<CommandResult> executeMultipleCommandsWithMDC(
       InputStream inputStream, OutputStream outputStream, ExecutionContext context)
       throws IOException {
-    ExecutorService executor = createOptimalExecutor();
     List<CompletableFuture<CommandResult>> futures = new ArrayList<>();
     List<AutoCloseable> resources = new ArrayList<>();
 
-    try {
+    try (AutoCloseableExecutorService executor =
+        new AutoCloseableExecutorService(createOptimalExecutor())) {
       InputStream currentInput = inputStream;
 
       // パイプライン構築（MDC対応）
@@ -211,7 +243,7 @@ public class StreamConverter {
 
         // 各コマンドを非同期実行（MDC同期付き）
         CompletableFuture<CommandResult> future =
-            CompletableFuture.supplyAsync(
+            executor.supplyAsync(
                 () -> {
                   // スレッド固有のMDC設定
                   int sequence = context.getNextCommandSequence();
@@ -271,8 +303,7 @@ public class StreamConverter {
                         startInstant,
                         endInstant);
                   }
-                },
-                executor);
+                });
 
         futures.add(future);
       }
@@ -311,29 +342,7 @@ public class StreamConverter {
 
     } finally {
       // リソースクリーンアップ
-      shutdownExecutor(executor);
       closeResources(resources);
-    }
-  }
-
-  /**
-   * ExecutorServiceを安全にシャットダウンする
-   *
-   * @param executor シャットダウン対象のExecutorService
-   */
-  private void shutdownExecutor(ExecutorService executor) {
-    executor.shutdown();
-    try {
-      if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-        LOG.warn("Executor did not terminate gracefully, forcing shutdown");
-        executor.shutdownNow();
-        if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-          LOG.error("Executor did not terminate after forced shutdown");
-        }
-      }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      executor.shutdownNow();
     }
   }
 

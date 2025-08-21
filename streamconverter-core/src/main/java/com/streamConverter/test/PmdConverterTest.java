@@ -6,6 +6,8 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * StreamConverter アーキテクチャ準拠の PMD 変換実装テスト
@@ -14,30 +16,39 @@ import java.util.List;
  */
 public class PmdConverterTest {
 
+  private static final Logger LOG = LoggerFactory.getLogger(PmdConverterTest.class);
+
   public static void main(String[] args) throws IOException {
     String xmlPath = "build/reports/pmd/main.xml";
 
     // XMLファイルの存在確認
     if (!Files.exists(Paths.get(xmlPath))) {
-      System.err.println("❌ PMD XML report not found: " + xmlPath);
-      System.err.println("Run './gradlew pmdMain' first to generate PMD report");
+      if (LOG.isErrorEnabled()) {
+        LOG.error("❌ PMD XML report not found: {}", xmlPath);
+        LOG.error("Run './gradlew pmdMain' first to generate PMD report");
+      }
       return;
     }
 
-    System.out.println("🚀 Testing StreamConverter PMD Analysis Implementation");
-    System.out.println("Input: " + xmlPath);
-    System.out.println();
+    if (LOG.isInfoEnabled()) {
+      LOG.info("🚀 Testing StreamConverter PMD Analysis Implementation");
+      LOG.info("Input: {}", xmlPath);
+    }
 
     // 3つの形式での変換テスト
     testMarkdownConversion(xmlPath);
     testCsvConversion(xmlPath);
     testJsonConversion(xmlPath);
 
-    System.out.println("🎉 All StreamConverter PMD conversion tests completed!");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("🎉 All StreamConverter PMD conversion tests completed!");
+    }
   }
 
   private static void testMarkdownConversion(String xmlPath) throws IOException {
-    System.out.println("📝 Testing Markdown conversion (AI-readable format)...");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("📝 Testing Markdown conversion (AI-readable format)...");
+    }
     PmdAnalysisController controller = PmdAnalysisController.forMarkdownConversion();
 
     try (FileInputStream input = new FileInputStream(xmlPath);
@@ -46,19 +57,22 @@ public class PmdConverterTest {
       List<CommandResult> results = controller.process(input, output);
       CommandResult result = results.get(0);
 
-      System.out.println("✅ Markdown conversion successful!");
-      System.out.println("   " + result);
-      System.out.println("   Output: pmd-analysis.md");
-      System.out.println();
+      if (LOG.isInfoEnabled()) {
+        LOG.info("✅ Markdown conversion successful!");
+        LOG.info("   {}", result);
+        LOG.info("   Output: pmd-analysis.md");
+      }
 
     } catch (Exception e) {
-      System.err.println("❌ Markdown conversion failed: " + e.getMessage());
+      LOG.error("❌ Markdown conversion failed: " + e.getMessage());
       e.printStackTrace();
     }
   }
 
   private static void testCsvConversion(String xmlPath) throws IOException {
-    System.out.println("📊 Testing CSV conversion (spreadsheet analysis)...");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("📊 Testing CSV conversion (spreadsheet analysis)...");
+    }
     PmdAnalysisController controller = PmdAnalysisController.forCsvConversion();
 
     try (FileInputStream input = new FileInputStream(xmlPath);
@@ -67,19 +81,18 @@ public class PmdConverterTest {
       List<CommandResult> results = controller.process(input, output);
       CommandResult result = results.get(0);
 
-      System.out.println("✅ CSV conversion successful!");
-      System.out.println("   " + result);
-      System.out.println("   Output: pmd-analysis.csv");
-      System.out.println();
+      LOG.info("✅ CSV conversion successful!");
+      LOG.info("   " + result);
+      LOG.info("   Output: pmd-analysis.csv");
 
     } catch (Exception e) {
-      System.err.println("❌ CSV conversion failed: " + e.getMessage());
+      LOG.error("❌ CSV conversion failed: " + e.getMessage());
       e.printStackTrace();
     }
   }
 
   private static void testJsonConversion(String xmlPath) throws IOException {
-    System.out.println("📄 Testing JSON conversion (structured data)...");
+    LOG.info("📄 Testing JSON conversion (structured data)...");
     PmdAnalysisController controller = PmdAnalysisController.forJsonConversion();
 
     try (FileInputStream input = new FileInputStream(xmlPath);
@@ -88,13 +101,12 @@ public class PmdConverterTest {
       List<CommandResult> results = controller.process(input, output);
       CommandResult result = results.get(0);
 
-      System.out.println("✅ JSON conversion successful!");
-      System.out.println("   " + result);
-      System.out.println("   Output: pmd-analysis.json");
-      System.out.println();
+      LOG.info("✅ JSON conversion successful!");
+      LOG.info("   " + result);
+      LOG.info("   Output: pmd-analysis.json");
 
     } catch (Exception e) {
-      System.err.println("❌ JSON conversion failed: " + e.getMessage());
+      LOG.error("❌ JSON conversion failed: " + e.getMessage());
       e.printStackTrace();
     }
   }

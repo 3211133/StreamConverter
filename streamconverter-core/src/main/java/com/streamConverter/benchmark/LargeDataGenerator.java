@@ -7,6 +7,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
 import java.util.Random;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * 大容量テストデータを生成するユーティリティクラス
@@ -14,6 +16,8 @@ import java.util.Random;
  * <p>XML、JSON、CSVフォーマットで大容量データファイルを生成し、 5GBデータ/50MBメモリ目標のベンチマークテストをサポートします。
  */
 public class LargeDataGenerator {
+
+  private static final Logger LOG = LoggerFactory.getLogger(LargeDataGenerator.class);
 
   private static final String[] SAMPLE_NAMES = {
     "田中太郎", "佐藤花子", "鈴木一郎", "高橋美咲", "渡辺健太",
@@ -57,8 +61,10 @@ public class LargeDataGenerator {
 
         // 進捗表示（大きなファイルの場合）
         if (recordCount % 100000 == 0 && targetSizeBytes > 100 * 1024 * 1024) {
-          System.out.printf(
-              "Generated %d records, %.2f MB\n", recordCount, currentSize / 1024.0 / 1024.0);
+          LOG.info(
+              "Generated {} records, {} MB",
+              recordCount,
+              currentSize / 1024.0 / 1024.0);
         }
       }
 
@@ -96,8 +102,10 @@ public class LargeDataGenerator {
         currentSize += record.getBytes("UTF-8").length;
 
         if (recordCount % 100000 == 0 && targetSizeBytes > 100 * 1024 * 1024) {
-          System.out.printf(
-              "Generated %d records, %.2f MB\n", recordCount, currentSize / 1024.0 / 1024.0);
+          LOG.info(
+              "Generated {} records, {} MB",
+              recordCount,
+              currentSize / 1024.0 / 1024.0);
         }
       }
 
@@ -132,8 +140,10 @@ public class LargeDataGenerator {
         currentSize += record.getBytes("UTF-8").length;
 
         if (recordCount % 100000 == 0 && targetSizeBytes > 100 * 1024 * 1024) {
-          System.out.printf(
-              "Generated %d records, %.2f MB\n", recordCount, currentSize / 1024.0 / 1024.0);
+          LOG.info(
+              "Generated {} records, {} MB",
+              recordCount,
+              currentSize / 1024.0 / 1024.0);
         }
       }
     }

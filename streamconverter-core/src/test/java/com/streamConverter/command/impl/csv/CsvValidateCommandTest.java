@@ -53,13 +53,13 @@ public class CsvValidateCommandTest {
 
     assertDoesNotThrow(
         () -> {
-          CsvValidateCommand command = new CsvValidateCommand(requiredColumns, true, 10);
+          CsvValidateCommand command = new CsvValidateCommand(true, 10, requiredColumns);
           assertNotNull(command);
         });
 
     assertDoesNotThrow(
         () -> {
-          CsvValidateCommand command = new CsvValidateCommand(requiredColumns, false, 10);
+          CsvValidateCommand command = new CsvValidateCommand(false, 10, requiredColumns);
           assertNotNull(command);
         });
   }
@@ -193,7 +193,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV without header validation with hasHeader=false")
   void testCsvWithoutHeaderValidation() throws IOException {
     String[] requiredColumns = {}; // ヘッダーなしの場合は必須カラムなし
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns, false, 10);
+    CsvValidateCommand command = new CsvValidateCommand(false, 10, requiredColumns);
 
     String csvWithoutHeader =
         """

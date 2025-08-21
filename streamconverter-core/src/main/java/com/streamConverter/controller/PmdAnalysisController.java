@@ -44,8 +44,11 @@ public class PmdAnalysisController extends AbstractStreamController {
 
   /** 変換対象フォーマット */
   public enum ConversionFormat {
+    /** Markdown AI-readable analysis report. */
     MARKDOWN("Markdown AI-readable analysis report"),
+    /** CSV spreadsheet-compatible data. */
     CSV("CSV spreadsheet-compatible data"),
+    /** JSON structured analysis data. */
     JSON("JSON structured analysis data");
 
     private final String description;
@@ -54,6 +57,11 @@ public class PmdAnalysisController extends AbstractStreamController {
       this.description = description;
     }
 
+    /**
+     * Gets the human-readable description.
+     *
+     * @return description text
+     */
     public String getDescription() {
       return description;
     }

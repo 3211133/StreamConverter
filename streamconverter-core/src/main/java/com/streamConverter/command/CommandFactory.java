@@ -28,6 +28,9 @@ import org.slf4j.LoggerFactory;
 public class CommandFactory {
   private static final Logger log = LoggerFactory.getLogger(CommandFactory.class);
 
+  /** Prevent instantiation. */
+  private CommandFactory() {}
+
   /**
    * ログ機能付きコマンドを生成
    *

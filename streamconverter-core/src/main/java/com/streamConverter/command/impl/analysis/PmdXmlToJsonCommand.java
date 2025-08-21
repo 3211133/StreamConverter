@@ -68,6 +68,20 @@ public class PmdXmlToJsonCommand extends AbstractStreamCommand {
 
   private final ObjectMapper objectMapper;
 
+  /**
+   * Creates a new command instance.
+   *
+   * <p>Initializes the {@link ObjectMapper} with the following configuration:
+   *
+   * <ul>
+   *   <li>Enables pretty-printing of JSON output ({@link SerializationFeature#INDENT_OUTPUT}).
+   *   <li>Disables writing dates as timestamps, using ISO-8601 format instead ({@link
+   *       SerializationFeature#WRITE_DATES_AS_TIMESTAMPS}).
+   * </ul>
+   *
+   * This configuration affects the formatting and date representation in the generated JSON
+   * reports.
+   */
   public PmdXmlToJsonCommand() {
     this.objectMapper =
         new ObjectMapper()
@@ -152,9 +166,19 @@ public class PmdXmlToJsonCommand extends AbstractStreamCommand {
     return new PmdJsonReport(summary, violations);
   }
 
-  /** JSON レポートのルートオブジェクト */
+  /**
+   * JSON レポートのルートオブジェクト
+   *
+   * @param summary サマリー情報
+   * @param violations バイオレーション一覧
+   */
   public static record PmdJsonReport(PmdJsonSummary summary, List<PmdViolation> violations) {}
 
-  /** JSON レポートのサマリー情報 */
+  /**
+   * JSON レポートのサマリー情報
+   *
+   * @param totalViolations 総違反数
+   * @param generatedAt 生成日時
+   */
   public static record PmdJsonSummary(int totalViolations, String generatedAt) {}
 }

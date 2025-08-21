@@ -49,6 +49,7 @@ public class PmdXmlToCsvCommand extends AbstractStreamCommand {
 
   private final CsvMapper csvMapper;
 
+  /** Creates a new command instance. */
   public PmdXmlToCsvCommand() {
     this.csvMapper = new CsvMapper();
   }

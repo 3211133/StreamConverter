@@ -10,9 +10,13 @@ import java.util.List;
 import java.util.stream.Stream;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
+import javax.xml.parsers.ParserConfigurationException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
+import org.xml.sax.SAXException;
 
 /**
  * Utility class to analyze test failures from XML test reports
@@ -21,6 +25,7 @@ import org.w3c.dom.NodeList;
  * debugging and analysis.
  */
 public class TestFailureAnalyzer {
+  private static final Logger LOG = LoggerFactory.getLogger(TestFailureAnalyzer.class);
 
   /** Private constructor to prevent instantiation of utility class */
   private TestFailureAnalyzer() {
@@ -28,7 +33,7 @@ public class TestFailureAnalyzer {
   }
 
   /** Represents a single test failure with detailed information */
-  public static class TestFailure {
+    public static class TestFailure {
     private final String testClass;
     private final String testMethod;
     private final String failureType;
@@ -46,20 +51,20 @@ public class TestFailureAnalyzer {
      * @param stackTrace the complete stack trace of the failure
      * @param executionTime the time in seconds the test took to execute
      */
-    public TestFailure(
-        String testClass,
-        String testMethod,
-        String failureType,
-        String failureMessage,
-        String stackTrace,
-        double executionTime) {
-      this.testClass = testClass;
-      this.testMethod = testMethod;
-      this.failureType = failureType;
-      this.failureMessage = failureMessage;
-      this.stackTrace = stackTrace;
-      this.executionTime = executionTime;
-    }
+      public TestFailure(
+          final String testClass,
+          final String testMethod,
+          final String failureType,
+          final String failureMessage,
+          final String stackTrace,
+          final double executionTime) {
+        this.testClass = testClass;
+        this.testMethod = testMethod;
+        this.failureType = failureType;
+        this.failureMessage = failureMessage;
+        this.stackTrace = stackTrace;
+        this.executionTime = executionTime;
+      }
 
     /**
      * Gets the fully qualified name of the test class
@@ -115,19 +120,17 @@ public class TestFailureAnalyzer {
       return executionTime;
     }
 
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("=== TEST FAILURE ===\n");
-      sb.append("Class: ").append(testClass).append("\n");
-      sb.append("Method: ").append(testMethod).append("\n");
-      sb.append("Execution Time: ").append(executionTime).append("s\n");
-      sb.append("Failure Type: ").append(failureType).append("\n");
-      sb.append("Message: ").append(failureMessage).append("\n");
-      sb.append("Stack Trace:\n").append(stackTrace).append("\n");
-      sb.append("====================\n");
-      return sb.toString();
-    }
+      @Override
+      public String toString() {
+        return String.format(
+            "=== TEST FAILURE ===%nClass: %s%nMethod: %s%nExecution Time: %ss%nFailure Type: %s%nMessage: %s%nStack Trace:%n%s%n====================%n",
+            testClass,
+            testMethod,
+            executionTime,
+            failureType,
+            failureMessage,
+            stackTrace);
+      }
   }
 
   /** Represents a summary of test execution results including failure details */
@@ -147,14 +150,18 @@ public class TestFailureAnalyzer {
      * @param skipped the number of skipped tests
      * @param failureDetails list of detailed failure information
      */
-    public TestSummary(
-        int totalTests, int failures, int errors, int skipped, List<TestFailure> failureDetails) {
-      this.totalTests = totalTests;
-      this.failures = failures;
-      this.errors = errors;
-      this.skipped = skipped;
-      this.failureDetails = failureDetails;
-    }
+      public TestSummary(
+          final int totalTests,
+          final int failures,
+          final int errors,
+          final int skipped,
+          final List<TestFailure> failureDetails) {
+        this.totalTests = totalTests;
+        this.failures = failures;
+        this.errors = errors;
+        this.skipped = skipped;
+        this.failureDetails = failureDetails;
+      }
 
     /**
      * Gets the total number of tests executed
@@ -210,28 +217,27 @@ public class TestFailureAnalyzer {
       return failures > 0 || errors > 0;
     }
 
-    @Override
-    public String toString() {
-      StringBuilder sb = new StringBuilder();
-      sb.append("=== TEST SUMMARY ===\n");
-      sb.append("Total Tests: ").append(totalTests).append("\n");
-      sb.append("Failures: ").append(failures).append("\n");
-      sb.append("Errors: ").append(errors).append("\n");
-      sb.append("Skipped: ").append(skipped).append("\n");
-      sb.append("Success Rate: ")
-          .append(String.format("%.1f%%", (totalTests - failures - errors) * 100.0 / totalTests))
-          .append("\n");
-      sb.append("====================\n");
-
-      if (hasFailures()) {
-        sb.append("\n");
-        for (TestFailure failure : failureDetails) {
-          sb.append(failure.toString()).append("\n");
+      @Override
+      public String toString() {
+        final String summary =
+            String.format(
+                "=== TEST SUMMARY ===%nTotal Tests: %d%nFailures: %d%nErrors: %d%nSkipped: %d%nSuccess Rate: %.1f%%%n====================%n",
+                totalTests,
+                failures,
+                errors,
+                skipped,
+                (totalTests - failures - errors) * 100.0 / totalTests);
+        String result = summary;
+        if (hasFailures()) {
+          final StringBuilder builder = new StringBuilder(summary);
+          builder.append(System.lineSeparator());
+          for (final TestFailure failure : failureDetails) {
+            builder.append(failure).append(System.lineSeparator());
+          }
+          result = builder.toString();
         }
+        return result;
       }
-
-      return sb.toString();
-    }
   }
 
   /**
@@ -241,22 +247,22 @@ public class TestFailureAnalyzer {
    * @return TestSummary containing failure details
    * @throws IOException if unable to read test result files
    */
-  public static TestSummary analyzeTestResults(String testResultsPath) throws IOException {
-    Path resultsDir = Paths.get(testResultsPath);
+    public static TestSummary analyzeTestResults(final String testResultsPath) throws IOException {
+      final Path resultsDir = Paths.get(testResultsPath);
 
     if (!Files.exists(resultsDir) || !Files.isDirectory(resultsDir)) {
       throw new IOException("Test results directory not found: " + testResultsPath);
     }
 
-    List<TestFailure> allFailures = new ArrayList<>();
+      final List<TestFailure> allFailures = new ArrayList<>();
     int totalTests = 0;
     int totalFailures = 0;
     int totalErrors = 0;
     int totalSkipped = 0;
 
     try (Stream<Path> xmlFiles = Files.list(resultsDir)) {
-      for (Path xmlFile : xmlFiles.filter(p -> p.toString().endsWith(".xml")).toList()) {
-        TestSummary fileSummary = parseXmlTestReport(xmlFile.toFile());
+        for (final Path xmlFile : xmlFiles.filter(p -> p.toString().endsWith(".xml")).toList()) {
+          final TestSummary fileSummary = parseXmlTestReport(xmlFile.toFile());
 
         totalTests += fileSummary.getTotalTests();
         totalFailures += fileSummary.getFailures();
@@ -275,62 +281,64 @@ public class TestFailureAnalyzer {
    * @param xmlFile XML test report file
    * @return TestSummary for this file
    */
-  public static TestSummary parseXmlTestReport(File xmlFile) {
-    List<TestFailure> failures = new ArrayList<>();
+    public static TestSummary parseXmlTestReport(final File xmlFile) {
+      final List<TestFailure> failures = new ArrayList<>();
+      TestSummary summary;
+      try {
+        final DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+        final DocumentBuilder builder = factory.newDocumentBuilder();
+        final Document doc = builder.parse(xmlFile);
 
-    try {
-      DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-      DocumentBuilder builder = factory.newDocumentBuilder();
-      Document doc = builder.parse(xmlFile);
+        final Element testsuite = doc.getDocumentElement();
+        final int tests = Integer.parseInt(testsuite.getAttribute("tests"));
+        final int failureCount = Integer.parseInt(testsuite.getAttribute("failures"));
+        final int errorCount = Integer.parseInt(testsuite.getAttribute("errors"));
+        final int skippedCount = Integer.parseInt(testsuite.getAttribute("skipped"));
 
-      Element testsuite = doc.getDocumentElement();
-      int tests = Integer.parseInt(testsuite.getAttribute("tests"));
-      int failureCount = Integer.parseInt(testsuite.getAttribute("failures"));
-      int errorCount = Integer.parseInt(testsuite.getAttribute("errors"));
-      int skippedCount = Integer.parseInt(testsuite.getAttribute("skipped"));
+        final NodeList testcases = testsuite.getElementsByTagName("testcase");
 
-      NodeList testcases = testsuite.getElementsByTagName("testcase");
+        for (int i = 0; i < testcases.getLength(); i++) {
+          final Element testcase = (Element) testcases.item(i);
+          final String testClass = testcase.getAttribute("classname");
+          final String testMethod = testcase.getAttribute("name");
+          final double time = Double.parseDouble(testcase.getAttribute("time"));
 
-      for (int i = 0; i < testcases.getLength(); i++) {
-        Element testcase = (Element) testcases.item(i);
-        String testClass = testcase.getAttribute("classname");
-        String testMethod = testcase.getAttribute("name");
-        double time = Double.parseDouble(testcase.getAttribute("time"));
+          // Check for failure
+          final NodeList failureNodes = testcase.getElementsByTagName("failure");
+          if (failureNodes.getLength() > 0) {
+            final Element failure = (Element) failureNodes.item(0);
+            final String failureType = failure.getAttribute("type");
+            final String failureMessage = failure.getAttribute("message");
+            final String failureStackTrace = failure.getTextContent();
 
-        // Check for failure
-        NodeList failureNodes = testcase.getElementsByTagName("failure");
-        if (failureNodes.getLength() > 0) {
-          Element failure = (Element) failureNodes.item(0);
-          String failureType = failure.getAttribute("type");
-          String failureMessage = failure.getAttribute("message");
-          String stackTrace = failure.getTextContent();
+            failures.add(
+                new TestFailure(
+                    testClass, testMethod, failureType, failureMessage, failureStackTrace, time));
+          }
 
-          failures.add(
-              new TestFailure(
-                  testClass, testMethod, failureType, failureMessage, stackTrace, time));
+          // Check for error
+          final NodeList errorNodes = testcase.getElementsByTagName("error");
+          if (errorNodes.getLength() > 0) {
+            final Element error = (Element) errorNodes.item(0);
+            final String errorType = error.getAttribute("type");
+            final String errorMessage = error.getAttribute("message");
+            final String errorStackTrace = error.getTextContent();
+
+            failures.add(
+                new TestFailure(testClass, testMethod, errorType, errorMessage, errorStackTrace, time));
+          }
         }
 
-        // Check for error
-        NodeList errorNodes = testcase.getElementsByTagName("error");
-        if (errorNodes.getLength() > 0) {
-          Element error = (Element) errorNodes.item(0);
-          String errorType = error.getAttribute("type");
-          String errorMessage = error.getAttribute("message");
-          String stackTrace = error.getTextContent();
+        summary = new TestSummary(tests, failureCount, errorCount, skippedCount, failures);
 
-          failures.add(
-              new TestFailure(testClass, testMethod, errorType, errorMessage, stackTrace, time));
+      } catch (ParserConfigurationException | SAXException | IOException e) {
+        if (LOG.isErrorEnabled()) {
+          LOG.error("Failed to parse XML file: {}", xmlFile.getName(), e);
         }
+        summary = new TestSummary(0, 0, 0, 0, new ArrayList<>());
       }
-
-      return new TestSummary(tests, failureCount, errorCount, skippedCount, failures);
-
-    } catch (Exception e) {
-      System.err.println("Failed to parse XML file: " + xmlFile.getName());
-      e.printStackTrace();
-      return new TestSummary(0, 0, 0, 0, new ArrayList<>());
+      return summary;
     }
-  }
 
   /**
    * Main method for command-line usage
@@ -340,19 +348,21 @@ public class TestFailureAnalyzer {
    *
    * @param args command line arguments, optional test results path
    */
-  public static void main(String[] args) {
-    String testResultsPath = args.length > 0 ? args[0] : "build/test-results/test";
+  public static void main(final String[] args) {
+    final String testResultsPath = args.length > 0 ? args[0] : "build/test-results/test";
 
     try {
-      TestSummary summary = analyzeTestResults(testResultsPath);
-      System.out.println(summary);
+      final TestSummary summary = analyzeTestResults(testResultsPath);
+      if (LOG.isInfoEnabled()) {
+        LOG.info("{}", summary);
+      }
 
       if (summary.hasFailures()) {
         System.exit(1); // Exit with error code if there are failures
       }
 
     } catch (IOException e) {
-      System.err.println("Error analyzing test results: " + e.getMessage());
+      LOG.error("Error analyzing test results", e);
       System.exit(1);
     }
   }

@@ -43,8 +43,12 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
     long startMemory = getUsedMemory();
 
     // 実行開始ログ
-    LOG.info("Starting command execution: {}", commandName);
-    LOG.debug("Command details: {}", getCommandDetails());
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Starting command execution: {}", commandName);
+    }
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Command details: {}", getCommandDetails());
+    }
 
     // データサイズ測定用のストリームでラップ
     MeasuredInputStream measuredInput = null;

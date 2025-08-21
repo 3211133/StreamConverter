@@ -48,7 +48,9 @@ public class PerformanceAnalyzer {
     PerformanceRecord record = new PerformanceRecord(testName, results, totalDataSize);
     records.add(record);
 
-    LOG.debug("Added performance record: {} with {} commands", testName, results.size());
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Added performance record: {} with {} commands", testName, results.size());
+    }
   }
 
   /** 全記録をクリア */

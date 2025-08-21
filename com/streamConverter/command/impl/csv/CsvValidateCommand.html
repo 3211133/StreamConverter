@@ -116,15 +116,15 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String%5B%5D)" class="member-name-link">CsvValidateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;requiredColumns)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(boolean,int,java.lang.String...)" class="member-name-link">CsvValidateCommand</a><wbr>(boolean&nbsp;hasHeader,
+ int&nbsp;maxErrorsToReport,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;requiredColumns)</code></div>
 <div class="col-last even-row-color">
-<div class="block">必須カラムを指定するコンストラクタ（ヘッダー行ありと仮定）</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String%5B%5D,boolean,int)" class="member-name-link">CsvValidateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;requiredColumns,
- boolean&nbsp;hasHeader,
- int&nbsp;maxErrorsToReport)</code></div>
-<div class="col-last odd-row-color">
 <div class="block">詳細設定を指定するコンストラクタ</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String...)" class="member-name-link">CsvValidateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;requiredColumns)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">必須カラムを指定するコンストラクタ（ヘッダー行ありと仮定）</div>
 </div>
 </div>
 </section>
@@ -156,7 +156,7 @@ loadScripts(document, 'script');</script>
 <div class="block">必須カラムを取得</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasHeader()" class="member-name-link">hasHeader</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hasHeaderRow()" class="member-name-link">hasHeaderRow</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">ヘッダー行の存在フラグを取得</div>
 </div>
@@ -187,9 +187,9 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(java.lang.String[])">
+<section class="detail" id="&lt;init&gt;(java.lang.String...)">
 <h3>CsvValidateCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-52">CsvValidateCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;requiredColumns)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-52">CsvValidateCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;requiredColumns)</span></div>
 <div class="block">必須カラムを指定するコンストラクタ（ヘッダー行ありと仮定）</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -200,17 +200,17 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(java.lang.String[],boolean,int)">
+<section class="detail" id="&lt;init&gt;(boolean,int,java.lang.String...)">
 <h3>CsvValidateCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-64">CsvValidateCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;requiredColumns,
- boolean&nbsp;hasHeader,
- int&nbsp;maxErrorsToReport)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-64">CsvValidateCommand</a></span><wbr><span class="parameters">(boolean&nbsp;hasHeader,
+ int&nbsp;maxErrorsToReport,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>...&nbsp;requiredColumns)</span></div>
 <div class="block">詳細設定を指定するコンストラクタ</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>requiredColumns</code> - 必須カラム名の配列</dd>
 <dd><code>hasHeader</code> - ヘッダー行の存在フラグ</dd>
 <dd><code>maxErrorsToReport</code> - 報告する最大エラー数</dd>
+<dd><code>requiredColumns</code> - 必須カラム名の配列</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - requiredColumnsがnullの場合</dd>
 </dl>
@@ -227,7 +227,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="consume(java.io.InputStream)">
 <h3>consume</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-93">consume</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</span>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-95">consume</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</span>
              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">CSVバリデーションを実行します</div>
 <dl class="notes">
@@ -244,7 +244,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getRequiredColumns()">
 <h3>getRequiredColumns</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-287">getRequiredColumns</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Set.html" title="class or interface in java.util" class="external-link">Set</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-289">getRequiredColumns</a></span>()</div>
 <div class="block">必須カラムを取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -253,9 +253,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="hasHeader()">
-<h3>hasHeader</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-296">hasHeader</a></span>()</div>
+<section class="detail" id="hasHeaderRow()">
+<h3>hasHeaderRow</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-298">hasHeaderRow</a></span>()</div>
 <div class="block">ヘッダー行の存在フラグを取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -266,7 +266,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getMaxErrorsToReport()">
 <h3>getMaxErrorsToReport</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-305">getMaxErrorsToReport</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvValidateCommand.html#line-307">getMaxErrorsToReport</a></span>()</div>
 <div class="block">最大エラー報告数を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>

@@ -43,8 +43,12 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
     long startMemory = getUsedMemory();
 
     // 実行開始ログ
-    log.info("Starting command execution: {}", commandName);
-    log.debug("Command details: {}", getCommandDetails());
+    if (log.isInfoEnabled()) {
+      log.info("Starting command execution: {}", commandName);
+    }
+    if (log.isDebugEnabled()) {
+      log.debug("Command details: {}", getCommandDetails());
+    }
 
     // データサイズ測定用のストリームでラップ（try-with-resourcesでリソース管理）
     long inputBytes = 0;
@@ -63,13 +67,15 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
       long duration = System.currentTimeMillis() - startTime;
       long memoryUsed = getUsedMemory() - startMemory;
 
-      log.info(
-          "Command execution completed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB)",
-          commandName,
-          duration,
-          inputBytes,
-          outputBytes,
-          memoryUsed / 1024 / 1024);
+      if (log.isInfoEnabled()) {
+        log.info(
+            "Command execution completed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB)",
+            commandName,
+            duration,
+            inputBytes,
+            outputBytes,
+            memoryUsed / 1024 / 1024);
+      }
 
       // パフォーマンス警告
       if (duration > 5000) { // 5秒以上
@@ -81,15 +87,17 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
       long duration = System.currentTimeMillis() - startTime;
       long memoryUsed = getUsedMemory() - startMemory;
 
-      log.error(
-          "Command execution failed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB) - {}",
-          commandName,
-          duration,
-          inputBytes,
-          outputBytes,
-          memoryUsed / 1024 / 1024,
-          e.getMessage(),
-          e);
+      if (log.isErrorEnabled()) {
+        log.error(
+            "Command execution failed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB) - {}",
+            commandName,
+            duration,
+            inputBytes,
+            outputBytes,
+            memoryUsed / 1024 / 1024,
+            e.getMessage(),
+            e);
+      }
 
       // NullPointerExceptionをIOExceptionでラップ
       if (e instanceof NullPointerException) {

@@ -50,7 +50,7 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
    * @throws IOException XML解析エラーまたはI/O例外の場合
    */
   @Override
-  protected void _execute(InputStream input, OutputStream output) throws IOException {
+  protected void executeInternal(InputStream input, OutputStream output) throws IOException {
     try {
       // StreamConverter原則: InputStreamから読み取り、OutputStreamに書き込み
       List<PmdViolation> violations = parseXmlStream(input);

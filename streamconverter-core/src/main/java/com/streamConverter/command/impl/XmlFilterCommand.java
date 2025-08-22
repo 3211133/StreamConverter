@@ -56,7 +56,8 @@ public class XmlFilterCommand extends AbstractStreamCommand {
   }
 
   @Override
-  protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
+      throws IOException {
     try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
 
       XMLInputFactory inputFactory = XMLInputFactory.newInstance();

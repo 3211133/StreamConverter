@@ -1,2 +1,0 @@
-INDEX VERSION 1.134+/home/ten/dev/StreamConverter/.lsmcp/workspace/.metadata/.plugins/org.eclipse.jdt.core
-900586112.index

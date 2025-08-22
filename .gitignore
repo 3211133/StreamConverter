@@ -18,6 +18,10 @@ package.json
 .classpath
 .project
 
+# Eclipse/LSP workspace files
+.lsmcp/
+.jdtls/
+
 # Java
 *.class
 *.jar

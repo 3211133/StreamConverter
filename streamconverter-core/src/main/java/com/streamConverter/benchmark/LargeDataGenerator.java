@@ -61,10 +61,9 @@ public class LargeDataGenerator {
 
         // 進捗表示（大きなファイルの場合）
         if (recordCount % 100000 == 0 && targetSizeBytes > 100 * 1024 * 1024) {
-          LOG.info(
-              "Generated {} records, {} MB",
-              recordCount,
-              currentSize / 1024.0 / 1024.0);
+          if (LOG.isInfoEnabled()) {
+            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);
+          }
         }
       }
 
@@ -102,10 +101,9 @@ public class LargeDataGenerator {
         currentSize += record.getBytes("UTF-8").length;
 
         if (recordCount % 100000 == 0 && targetSizeBytes > 100 * 1024 * 1024) {
-          LOG.info(
-              "Generated {} records, {} MB",
-              recordCount,
-              currentSize / 1024.0 / 1024.0);
+          if (LOG.isInfoEnabled()) {
+            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);
+          }
         }
       }
 
@@ -140,10 +138,9 @@ public class LargeDataGenerator {
         currentSize += record.getBytes("UTF-8").length;
 
         if (recordCount % 100000 == 0 && targetSizeBytes > 100 * 1024 * 1024) {
-          LOG.info(
-              "Generated {} records, {} MB",
-              recordCount,
-              currentSize / 1024.0 / 1024.0);
+          if (LOG.isInfoEnabled()) {
+            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);
+          }
         }
       }
     }

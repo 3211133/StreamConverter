@@ -27,6 +27,38 @@ import org.slf4j.LoggerFactory;
  * <p>ストリームを変換するコマンドは、IStreamCommandインターフェースを実装したクラスである必要がある。
  */
 public class StreamConverter {
+
+  /** AutoCloseableラッパーでExecutorServiceのリソース管理を改善 */
+  private static class AutoCloseableExecutorService implements AutoCloseable {
+    private final ExecutorService executor;
+
+    public AutoCloseableExecutorService(ExecutorService executor) {
+      this.executor = executor;
+    }
+
+    public CompletableFuture<CommandResult> supplyAsync(
+        java.util.function.Supplier<CommandResult> supplier) {
+      return CompletableFuture.supplyAsync(supplier, executor);
+    }
+
+    @Override
+    public void close() {
+      executor.shutdown();
+      try {
+        if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
+          LOG.warn("Executor did not terminate gracefully, forcing shutdown");
+          executor.shutdownNow();
+          if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
+            LOG.error("Executor did not terminate after forced shutdown");
+          }
+        }
+      } catch (InterruptedException e) {
+        Thread.currentThread().interrupt();
+        executor.shutdownNow();
+      }
+    }
+  }
+
   private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
@@ -168,10 +200,12 @@ public class StreamConverter {
     // パイプライン開始時にMDCコンテキストを設定
     context.applyToMDCWithStage("pipeline-start");
 
-    LOG.info(
-        "Starting StreamConverter with {} commands (executionId: {})",
-        commands.size(),
-        context.getExecutionId());
+    if (LOG.isInfoEnabled()) {
+      LOG.info(
+          "Starting StreamConverter with {} commands (executionId: {})",
+          commands.size(),
+          context.getExecutionId());
+    }
 
     // PipedStreamで並行処理（MDC対応）
     return executeMultipleCommandsWithMDC(inputStream, outputStream, context);
@@ -181,11 +215,11 @@ public class StreamConverter {
   private List<CommandResult> executeMultipleCommandsWithMDC(
       InputStream inputStream, OutputStream outputStream, ExecutionContext context)
       throws IOException {
-    ExecutorService executor = createOptimalExecutor();
     List<CompletableFuture<CommandResult>> futures = new ArrayList<>();
     List<AutoCloseable> resources = new ArrayList<>();
 
-    try {
+    try (AutoCloseableExecutorService executor =
+        new AutoCloseableExecutorService(createOptimalExecutor())) {
       InputStream currentInput = inputStream;
 
       // パイプライン構築（MDC対応）
@@ -211,19 +245,21 @@ public class StreamConverter {
 
         // 各コマンドを非同期実行（MDC同期付き）
         CompletableFuture<CommandResult> future =
-            CompletableFuture.supplyAsync(
+            executor.supplyAsync(
                 () -> {
                   // スレッド固有のMDC設定
                   int sequence = context.getNextCommandSequence();
                   String stageName = command.getClass().getSimpleName() + "-" + sequence;
                   context.applyToMDCWithStage(stageName);
 
-                  LOG.info(
-                      "Setting up command {} of {}: {} (sequence: {})",
-                      commandIndex + 1,
-                      commands.size(),
-                      command.getClass().getSimpleName(),
-                      sequence);
+                  if (LOG.isInfoEnabled()) {
+                    LOG.info(
+                        "Setting up command {} of {}: {} (sequence: {})",
+                        commandIndex + 1,
+                        commands.size(),
+                        command.getClass().getSimpleName(),
+                        sequence);
+                  }
 
                   long startTime = System.currentTimeMillis();
                   java.time.Instant startInstant = java.time.Instant.now();
@@ -240,10 +276,12 @@ public class StreamConverter {
                     long endTime = System.currentTimeMillis();
                     java.time.Instant endInstant = java.time.Instant.now();
 
-                    LOG.info(
-                        "Completed command: {} (sequence: {})",
-                        command.getClass().getSimpleName(),
-                        sequence);
+                    if (LOG.isInfoEnabled()) {
+                      LOG.info(
+                          "Completed command: {} (sequence: {})",
+                          command.getClass().getSimpleName(),
+                          sequence);
+                    }
 
                     return CommandResult.success(
                         command.getClass().getSimpleName(),
@@ -257,12 +295,14 @@ public class StreamConverter {
                     long endTime = System.currentTimeMillis();
                     java.time.Instant endInstant = java.time.Instant.now();
 
-                    LOG.error(
-                        "Command execution failed: {} (sequence: {}) - {}",
-                        command.getClass().getSimpleName(),
-                        sequence,
-                        e.getMessage(),
-                        e);
+                    if (LOG.isErrorEnabled()) {
+                      LOG.error(
+                          "Command execution failed: {} (sequence: {}) - {}",
+                          command.getClass().getSimpleName(),
+                          sequence,
+                          e.getMessage(),
+                          e);
+                    }
 
                     return CommandResult.failure(
                         command.getClass().getSimpleName(),
@@ -271,8 +311,7 @@ public class StreamConverter {
                         startInstant,
                         endInstant);
                   }
-                },
-                executor);
+                });
 
         futures.add(future);
       }
@@ -306,34 +345,14 @@ public class StreamConverter {
         }
       }
 
-      LOG.info("All commands completed successfully (executionId: {})", context.getExecutionId());
+      if (LOG.isInfoEnabled()) {
+        LOG.info("All commands completed successfully (executionId: {})", context.getExecutionId());
+      }
       return results;
 
     } finally {
       // リソースクリーンアップ
-      shutdownExecutor(executor);
       closeResources(resources);
-    }
-  }
-
-  /**
-   * ExecutorServiceを安全にシャットダウンする
-   *
-   * @param executor シャットダウン対象のExecutorService
-   */
-  private void shutdownExecutor(ExecutorService executor) {
-    executor.shutdown();
-    try {
-      if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-        LOG.warn("Executor did not terminate gracefully, forcing shutdown");
-        executor.shutdownNow();
-        if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-          LOG.error("Executor did not terminate after forced shutdown");
-        }
-      }
-    } catch (InterruptedException e) {
-      Thread.currentThread().interrupt();
-      executor.shutdownNow();
     }
   }
 
@@ -347,7 +366,9 @@ public class StreamConverter {
       try {
         resource.close();
       } catch (Exception e) {
-        LOG.warn("Failed to close resource: {}", e.getMessage());
+        if (LOG.isWarnEnabled()) {
+          LOG.warn("Failed to close resource: {}", e.getMessage());
+        }
       }
     }
   }

@@ -56,94 +56,102 @@
 <span class="source-line-no">043</span><span id="line-43">    long startMemory = getUsedMemory();</span>
 <span class="source-line-no">044</span><span id="line-44"></span>
 <span class="source-line-no">045</span><span id="line-45">    // 実行開始ログ</span>
-<span class="source-line-no">046</span><span id="line-46">    log.info("Starting command execution: {}", commandName);</span>
-<span class="source-line-no">047</span><span id="line-47">    log.debug("Command details: {}", getCommandDetails());</span>
-<span class="source-line-no">048</span><span id="line-48"></span>
-<span class="source-line-no">049</span><span id="line-49">    // データサイズ測定用のストリームでラップ</span>
-<span class="source-line-no">050</span><span id="line-50">    MeasuredInputStream measuredInput = null;</span>
-<span class="source-line-no">051</span><span id="line-51">    MeasuredOutputStream measuredOutput = null;</span>
-<span class="source-line-no">052</span><span id="line-52">    try {</span>
-<span class="source-line-no">053</span><span id="line-53">      measuredInput = new MeasuredInputStream(inputStream);</span>
-<span class="source-line-no">054</span><span id="line-54">      measuredOutput = new MeasuredOutputStream(outputStream);</span>
-<span class="source-line-no">055</span><span id="line-55">      // 実際の処理実行</span>
-<span class="source-line-no">056</span><span id="line-56">      _execute(measuredInput, measuredOutput);</span>
-<span class="source-line-no">057</span><span id="line-57"></span>
-<span class="source-line-no">058</span><span id="line-58">      // 成功時のログ出力</span>
-<span class="source-line-no">059</span><span id="line-59">      long duration = System.currentTimeMillis() - startTime;</span>
-<span class="source-line-no">060</span><span id="line-60">      long memoryUsed = getUsedMemory() - startMemory;</span>
+<span class="source-line-no">046</span><span id="line-46">    if (log.isInfoEnabled()) {</span>
+<span class="source-line-no">047</span><span id="line-47">      log.info("Starting command execution: {}", commandName);</span>
+<span class="source-line-no">048</span><span id="line-48">    }</span>
+<span class="source-line-no">049</span><span id="line-49">    if (log.isDebugEnabled()) {</span>
+<span class="source-line-no">050</span><span id="line-50">      log.debug("Command details: {}", getCommandDetails());</span>
+<span class="source-line-no">051</span><span id="line-51">    }</span>
+<span class="source-line-no">052</span><span id="line-52"></span>
+<span class="source-line-no">053</span><span id="line-53">    // データサイズ測定用のストリームでラップ（try-with-resourcesでリソース管理）</span>
+<span class="source-line-no">054</span><span id="line-54">    long inputBytes = 0;</span>
+<span class="source-line-no">055</span><span id="line-55">    long outputBytes = 0;</span>
+<span class="source-line-no">056</span><span id="line-56">    try (MeasuredInputStream measuredInput = new MeasuredInputStream(inputStream);</span>
+<span class="source-line-no">057</span><span id="line-57">        MeasuredOutputStream measuredOutput = new MeasuredOutputStream(outputStream)) {</span>
+<span class="source-line-no">058</span><span id="line-58"></span>
+<span class="source-line-no">059</span><span id="line-59">      // 実際の処理実行</span>
+<span class="source-line-no">060</span><span id="line-60">      executeInternal(measuredInput, measuredOutput);</span>
 <span class="source-line-no">061</span><span id="line-61"></span>
-<span class="source-line-no">062</span><span id="line-62">      log.info(</span>
-<span class="source-line-no">063</span><span id="line-63">          "Command execution completed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB)",</span>
-<span class="source-line-no">064</span><span id="line-64">          commandName,</span>
-<span class="source-line-no">065</span><span id="line-65">          duration,</span>
-<span class="source-line-no">066</span><span id="line-66">          measuredInput.getBytesRead(),</span>
-<span class="source-line-no">067</span><span id="line-67">          measuredOutput.getBytesWritten(),</span>
-<span class="source-line-no">068</span><span id="line-68">          memoryUsed / 1024 / 1024);</span>
+<span class="source-line-no">062</span><span id="line-62">      // データサイズ測定値を取得</span>
+<span class="source-line-no">063</span><span id="line-63">      inputBytes = measuredInput.getBytesRead();</span>
+<span class="source-line-no">064</span><span id="line-64">      outputBytes = measuredOutput.getBytesWritten();</span>
+<span class="source-line-no">065</span><span id="line-65"></span>
+<span class="source-line-no">066</span><span id="line-66">      // 成功時のログ出力</span>
+<span class="source-line-no">067</span><span id="line-67">      long duration = System.currentTimeMillis() - startTime;</span>
+<span class="source-line-no">068</span><span id="line-68">      long memoryUsed = getUsedMemory() - startMemory;</span>
 <span class="source-line-no">069</span><span id="line-69"></span>
-<span class="source-line-no">070</span><span id="line-70">      // パフォーマンス警告</span>
-<span class="source-line-no">071</span><span id="line-71">      if (duration &gt; 5000) { // 5秒以上</span>
-<span class="source-line-no">072</span><span id="line-72">        log.warn("Command {} took longer than expected: {}ms", commandName, duration);</span>
-<span class="source-line-no">073</span><span id="line-73">      }</span>
-<span class="source-line-no">074</span><span id="line-74"></span>
-<span class="source-line-no">075</span><span id="line-75">    } catch (Exception e) {</span>
-<span class="source-line-no">076</span><span id="line-76">      // 例外発生時のログ出力</span>
-<span class="source-line-no">077</span><span id="line-77">      long duration = System.currentTimeMillis() - startTime;</span>
-<span class="source-line-no">078</span><span id="line-78">      long memoryUsed = getUsedMemory() - startMemory;</span>
+<span class="source-line-no">070</span><span id="line-70">      if (log.isInfoEnabled()) {</span>
+<span class="source-line-no">071</span><span id="line-71">        log.info(</span>
+<span class="source-line-no">072</span><span id="line-72">            "Command execution completed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB)",</span>
+<span class="source-line-no">073</span><span id="line-73">            commandName,</span>
+<span class="source-line-no">074</span><span id="line-74">            duration,</span>
+<span class="source-line-no">075</span><span id="line-75">            inputBytes,</span>
+<span class="source-line-no">076</span><span id="line-76">            outputBytes,</span>
+<span class="source-line-no">077</span><span id="line-77">            memoryUsed / 1024 / 1024);</span>
+<span class="source-line-no">078</span><span id="line-78">      }</span>
 <span class="source-line-no">079</span><span id="line-79"></span>
-<span class="source-line-no">080</span><span id="line-80">      // measuredInput/measuredOutputがnullの場合は0を使用</span>
-<span class="source-line-no">081</span><span id="line-81">      long inputBytes = (measuredInput != null) ? measuredInput.getBytesRead() : 0;</span>
-<span class="source-line-no">082</span><span id="line-82">      long outputBytes = (measuredOutput != null) ? measuredOutput.getBytesWritten() : 0;</span>
-<span class="source-line-no">083</span><span id="line-83"></span>
-<span class="source-line-no">084</span><span id="line-84">      log.error(</span>
-<span class="source-line-no">085</span><span id="line-85">          "Command execution failed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB) - {}",</span>
-<span class="source-line-no">086</span><span id="line-86">          commandName,</span>
-<span class="source-line-no">087</span><span id="line-87">          duration,</span>
-<span class="source-line-no">088</span><span id="line-88">          inputBytes,</span>
-<span class="source-line-no">089</span><span id="line-89">          outputBytes,</span>
-<span class="source-line-no">090</span><span id="line-90">          memoryUsed / 1024 / 1024,</span>
-<span class="source-line-no">091</span><span id="line-91">          e.getMessage(),</span>
-<span class="source-line-no">092</span><span id="line-92">          e);</span>
-<span class="source-line-no">093</span><span id="line-93"></span>
-<span class="source-line-no">094</span><span id="line-94">      // NullPointerExceptionをIOExceptionでラップ</span>
-<span class="source-line-no">095</span><span id="line-95">      if (e instanceof NullPointerException) {</span>
-<span class="source-line-no">096</span><span id="line-96">        throw new IOException("Invalid null stream parameter", e);</span>
-<span class="source-line-no">097</span><span id="line-97">      }</span>
-<span class="source-line-no">098</span><span id="line-98"></span>
-<span class="source-line-no">099</span><span id="line-99">      throw e;</span>
-<span class="source-line-no">100</span><span id="line-100">    }</span>
-<span class="source-line-no">101</span><span id="line-101">  }</span>
-<span class="source-line-no">102</span><span id="line-102"></span>
-<span class="source-line-no">103</span><span id="line-103">  /**</span>
-<span class="source-line-no">104</span><span id="line-104">   * Abstract method to be implemented by subclasses for executing the command.</span>
-<span class="source-line-no">105</span><span id="line-105">   *</span>
-<span class="source-line-no">106</span><span id="line-106">   * @param inputStream The input stream to read data from.</span>
-<span class="source-line-no">107</span><span id="line-107">   * @param outputStream The output stream to write data to.</span>
-<span class="source-line-no">108</span><span id="line-108">   * @throws IOException If an I/O error occurs during the execution of the command.</span>
-<span class="source-line-no">109</span><span id="line-109">   */</span>
-<span class="source-line-no">110</span><span id="line-110">  protected abstract void _execute(InputStream inputStream, OutputStream outputStream)</span>
-<span class="source-line-no">111</span><span id="line-111">      throws IOException;</span>
-<span class="source-line-no">112</span><span id="line-112"></span>
-<span class="source-line-no">113</span><span id="line-113">  /**</span>
-<span class="source-line-no">114</span><span id="line-114">   * コマンドの詳細情報を取得します。</span>
-<span class="source-line-no">115</span><span id="line-115">   *</span>
-<span class="source-line-no">116</span><span id="line-116">   * &lt;p&gt;サブクラスでオーバーライドして、コマンド固有の設定や状態を返すことができます。 この情報はデバッグログに出力され、問題の診断に役立ちます。</span>
-<span class="source-line-no">117</span><span id="line-117">   *</span>
-<span class="source-line-no">118</span><span id="line-118">   * @return コマンドの詳細情報</span>
-<span class="source-line-no">119</span><span id="line-119">   */</span>
-<span class="source-line-no">120</span><span id="line-120">  protected String getCommandDetails() {</span>
-<span class="source-line-no">121</span><span id="line-121">    return this.getClass().getSimpleName() + " (default implementation)";</span>
-<span class="source-line-no">122</span><span id="line-122">  }</span>
-<span class="source-line-no">123</span><span id="line-123"></span>
-<span class="source-line-no">124</span><span id="line-124">  /**</span>
-<span class="source-line-no">125</span><span id="line-125">   * 現在の使用メモリ量を取得します。</span>
-<span class="source-line-no">126</span><span id="line-126">   *</span>
-<span class="source-line-no">127</span><span id="line-127">   * @return 使用メモリ量（バイト）</span>
-<span class="source-line-no">128</span><span id="line-128">   */</span>
-<span class="source-line-no">129</span><span id="line-129">  private long getUsedMemory() {</span>
-<span class="source-line-no">130</span><span id="line-130">    Runtime runtime = Runtime.getRuntime();</span>
-<span class="source-line-no">131</span><span id="line-131">    return runtime.totalMemory() - runtime.freeMemory();</span>
-<span class="source-line-no">132</span><span id="line-132">  }</span>
-<span class="source-line-no">133</span><span id="line-133">}</span>
+<span class="source-line-no">080</span><span id="line-80">      // パフォーマンス警告</span>
+<span class="source-line-no">081</span><span id="line-81">      if (duration &gt; 5000) { // 5秒以上</span>
+<span class="source-line-no">082</span><span id="line-82">        log.warn("Command {} took longer than expected: {}ms", commandName, duration);</span>
+<span class="source-line-no">083</span><span id="line-83">      }</span>
+<span class="source-line-no">084</span><span id="line-84"></span>
+<span class="source-line-no">085</span><span id="line-85">    } catch (Exception e) {</span>
+<span class="source-line-no">086</span><span id="line-86">      // 例外発生時のログ出力</span>
+<span class="source-line-no">087</span><span id="line-87">      long duration = System.currentTimeMillis() - startTime;</span>
+<span class="source-line-no">088</span><span id="line-88">      long memoryUsed = getUsedMemory() - startMemory;</span>
+<span class="source-line-no">089</span><span id="line-89"></span>
+<span class="source-line-no">090</span><span id="line-90">      if (log.isErrorEnabled()) {</span>
+<span class="source-line-no">091</span><span id="line-91">        log.error(</span>
+<span class="source-line-no">092</span><span id="line-92">            "Command execution failed: {} ({}ms, input: {}bytes, output: {}bytes, memory: {}MB) - {}",</span>
+<span class="source-line-no">093</span><span id="line-93">            commandName,</span>
+<span class="source-line-no">094</span><span id="line-94">            duration,</span>
+<span class="source-line-no">095</span><span id="line-95">            inputBytes,</span>
+<span class="source-line-no">096</span><span id="line-96">            outputBytes,</span>
+<span class="source-line-no">097</span><span id="line-97">            memoryUsed / 1024 / 1024,</span>
+<span class="source-line-no">098</span><span id="line-98">            e.getMessage(),</span>
+<span class="source-line-no">099</span><span id="line-99">            e);</span>
+<span class="source-line-no">100</span><span id="line-100">      }</span>
+<span class="source-line-no">101</span><span id="line-101"></span>
+<span class="source-line-no">102</span><span id="line-102">      // NullPointerExceptionをIOExceptionでラップ</span>
+<span class="source-line-no">103</span><span id="line-103">      if (e instanceof NullPointerException) {</span>
+<span class="source-line-no">104</span><span id="line-104">        throw new IOException("Invalid null stream parameter", e);</span>
+<span class="source-line-no">105</span><span id="line-105">      }</span>
+<span class="source-line-no">106</span><span id="line-106"></span>
+<span class="source-line-no">107</span><span id="line-107">      throw e;</span>
+<span class="source-line-no">108</span><span id="line-108">    }</span>
+<span class="source-line-no">109</span><span id="line-109">  }</span>
+<span class="source-line-no">110</span><span id="line-110"></span>
+<span class="source-line-no">111</span><span id="line-111">  /**</span>
+<span class="source-line-no">112</span><span id="line-112">   * Abstract method to be implemented by subclasses for executing the command.</span>
+<span class="source-line-no">113</span><span id="line-113">   *</span>
+<span class="source-line-no">114</span><span id="line-114">   * @param inputStream The input stream to read data from.</span>
+<span class="source-line-no">115</span><span id="line-115">   * @param outputStream The output stream to write data to.</span>
+<span class="source-line-no">116</span><span id="line-116">   * @throws IOException If an I/O error occurs during the execution of the command.</span>
+<span class="source-line-no">117</span><span id="line-117">   */</span>
+<span class="source-line-no">118</span><span id="line-118">  protected abstract void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
+<span class="source-line-no">119</span><span id="line-119">      throws IOException;</span>
+<span class="source-line-no">120</span><span id="line-120"></span>
+<span class="source-line-no">121</span><span id="line-121">  /**</span>
+<span class="source-line-no">122</span><span id="line-122">   * コマンドの詳細情報を取得します。</span>
+<span class="source-line-no">123</span><span id="line-123">   *</span>
+<span class="source-line-no">124</span><span id="line-124">   * &lt;p&gt;サブクラスでオーバーライドして、コマンド固有の設定や状態を返すことができます。 この情報はデバッグログに出力され、問題の診断に役立ちます。</span>
+<span class="source-line-no">125</span><span id="line-125">   *</span>
+<span class="source-line-no">126</span><span id="line-126">   * @return コマンドの詳細情報</span>
+<span class="source-line-no">127</span><span id="line-127">   */</span>
+<span class="source-line-no">128</span><span id="line-128">  protected String getCommandDetails() {</span>
+<span class="source-line-no">129</span><span id="line-129">    return this.getClass().getSimpleName() + " (default implementation)";</span>
+<span class="source-line-no">130</span><span id="line-130">  }</span>
+<span class="source-line-no">131</span><span id="line-131"></span>
+<span class="source-line-no">132</span><span id="line-132">  /**</span>
+<span class="source-line-no">133</span><span id="line-133">   * 現在の使用メモリ量を取得します。</span>
+<span class="source-line-no">134</span><span id="line-134">   *</span>
+<span class="source-line-no">135</span><span id="line-135">   * @return 使用メモリ量（バイト）</span>
+<span class="source-line-no">136</span><span id="line-136">   */</span>
+<span class="source-line-no">137</span><span id="line-137">  private long getUsedMemory() {</span>
+<span class="source-line-no">138</span><span id="line-138">    Runtime runtime = Runtime.getRuntime();</span>
+<span class="source-line-no">139</span><span id="line-139">    return runtime.totalMemory() - runtime.freeMemory();</span>
+<span class="source-line-no">140</span><span id="line-140">  }</span>
+<span class="source-line-no">141</span><span id="line-141">}</span>
 
 
 

@@ -70,69 +70,70 @@
 <span class="source-line-no">057</span><span id="line-57">   * @throws StreamProcessingException XML処理エラーが発生した場合</span>
 <span class="source-line-no">058</span><span id="line-58">   */</span>
 <span class="source-line-no">059</span><span id="line-59">  @Override</span>
-<span class="source-line-no">060</span><span id="line-60">  protected void _execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">061</span><span id="line-61">    // StaXを使用したXML変換処理を実装する</span>
-<span class="source-line-no">062</span><span id="line-62">    // ここでは、IRuleを使用して変換処理を行うことを想定しています。</span>
-<span class="source-line-no">063</span><span id="line-63">    // 例: XMLを読み込み、IRuleを適用して変換し、出力ストリームに書き込む処理を実装する</span>
-<span class="source-line-no">064</span><span id="line-64">    XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();</span>
-<span class="source-line-no">065</span><span id="line-65">    XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();</span>
-<span class="source-line-no">066</span><span id="line-66"></span>
-<span class="source-line-no">067</span><span id="line-67">    try {</span>
-<span class="source-line-no">068</span><span id="line-68">      XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(inputStream);</span>
-<span class="source-line-no">069</span><span id="line-69">      XMLEventWriter xmlEventWriter = xmlOutputFactory.createXMLEventWriter(outputStream);</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">      try {</span>
-<span class="source-line-no">072</span><span id="line-72">        List&lt;String&gt; currentDirectory = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">073</span><span id="line-73">        while (xmlEventReader.hasNext()) {</span>
-<span class="source-line-no">074</span><span id="line-74">          XMLEvent event = xmlEventReader.nextEvent();</span>
-<span class="source-line-no">075</span><span id="line-75">          int eventType = event.getEventType();</span>
-<span class="source-line-no">076</span><span id="line-76">          switch (eventType) {</span>
-<span class="source-line-no">077</span><span id="line-77">            // 現在地点を保持するための処理</span>
-<span class="source-line-no">078</span><span id="line-78">            case XMLEvent.START_ELEMENT:</span>
-<span class="source-line-no">079</span><span id="line-79">              // 現在のXpathを保持する</span>
-<span class="source-line-no">080</span><span id="line-80">              currentDirectory.add(event.asStartElement().getName().getLocalPart());</span>
-<span class="source-line-no">081</span><span id="line-81">              break;</span>
-<span class="source-line-no">082</span><span id="line-82">            case XMLEvent.END_ELEMENT:</span>
-<span class="source-line-no">083</span><span id="line-83">              // 現在のXpathを保持する</span>
-<span class="source-line-no">084</span><span id="line-84">              currentDirectory.remove(currentDirectory.size() - 1);</span>
-<span class="source-line-no">085</span><span id="line-85">              break;</span>
-<span class="source-line-no">086</span><span id="line-86">            // 変換対象の箇所なら変換処理を実行する</span>
-<span class="source-line-no">087</span><span id="line-87">            case XMLEvent.CHARACTERS:</span>
-<span class="source-line-no">088</span><span id="line-88">              if (this.pathHandler.isTarget(currentDirectory)) {</span>
-<span class="source-line-no">089</span><span id="line-89">                String transformedData = rule.apply(event.asCharacters().getData());</span>
-<span class="source-line-no">090</span><span id="line-90">                event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);</span>
-<span class="source-line-no">091</span><span id="line-91">              }</span>
-<span class="source-line-no">092</span><span id="line-92">              break;</span>
-<span class="source-line-no">093</span><span id="line-93">            default:</span>
-<span class="source-line-no">094</span><span id="line-94">              // Handle other events if necessary</span>
-<span class="source-line-no">095</span><span id="line-95">              break;</span>
-<span class="source-line-no">096</span><span id="line-96">          }</span>
-<span class="source-line-no">097</span><span id="line-97">          // Write the event to the output stream</span>
-<span class="source-line-no">098</span><span id="line-98">          xmlEventWriter.add(event);</span>
-<span class="source-line-no">099</span><span id="line-99">        }</span>
-<span class="source-line-no">100</span><span id="line-100">      } finally {</span>
-<span class="source-line-no">101</span><span id="line-101">        // リソースのクリーンアップ</span>
-<span class="source-line-no">102</span><span id="line-102">        try {</span>
-<span class="source-line-no">103</span><span id="line-103">          if (xmlEventWriter != null) {</span>
-<span class="source-line-no">104</span><span id="line-104">            xmlEventWriter.close();</span>
-<span class="source-line-no">105</span><span id="line-105">          }</span>
-<span class="source-line-no">106</span><span id="line-106">        } catch (XMLStreamException e) {</span>
-<span class="source-line-no">107</span><span id="line-107">          logger.warn("XMLEventWriterのクローズ中にエラーが発生しました: {}", e.getMessage(), e);</span>
-<span class="source-line-no">108</span><span id="line-108">        }</span>
-<span class="source-line-no">109</span><span id="line-109">        try {</span>
-<span class="source-line-no">110</span><span id="line-110">          if (xmlEventReader != null) {</span>
-<span class="source-line-no">111</span><span id="line-111">            xmlEventReader.close();</span>
-<span class="source-line-no">112</span><span id="line-112">          }</span>
-<span class="source-line-no">113</span><span id="line-113">        } catch (XMLStreamException e) {</span>
-<span class="source-line-no">114</span><span id="line-114">          logger.warn("XMLEventReaderのクローズ中にエラーが発生しました: {}", e.getMessage(), e);</span>
-<span class="source-line-no">115</span><span id="line-115">        }</span>
-<span class="source-line-no">116</span><span id="line-116">      }</span>
-<span class="source-line-no">117</span><span id="line-117">    } catch (XMLStreamException e) {</span>
-<span class="source-line-no">118</span><span id="line-118">      logger.error("XML処理中にエラーが発生しました: {}", e.getMessage(), e);</span>
-<span class="source-line-no">119</span><span id="line-119">      throw new StreamProcessingException("XML変換処理に失敗しました", e);</span>
-<span class="source-line-no">120</span><span id="line-120">    }</span>
-<span class="source-line-no">121</span><span id="line-121">  }</span>
-<span class="source-line-no">122</span><span id="line-122">}</span>
+<span class="source-line-no">060</span><span id="line-60">  protected void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
+<span class="source-line-no">061</span><span id="line-61">      throws IOException {</span>
+<span class="source-line-no">062</span><span id="line-62">    // StaXを使用したXML変換処理を実装する</span>
+<span class="source-line-no">063</span><span id="line-63">    // ここでは、IRuleを使用して変換処理を行うことを想定しています。</span>
+<span class="source-line-no">064</span><span id="line-64">    // 例: XMLを読み込み、IRuleを適用して変換し、出力ストリームに書き込む処理を実装する</span>
+<span class="source-line-no">065</span><span id="line-65">    XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();</span>
+<span class="source-line-no">066</span><span id="line-66">    XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();</span>
+<span class="source-line-no">067</span><span id="line-67"></span>
+<span class="source-line-no">068</span><span id="line-68">    try {</span>
+<span class="source-line-no">069</span><span id="line-69">      XMLEventReader xmlEventReader = xmlInputFactory.createXMLEventReader(inputStream);</span>
+<span class="source-line-no">070</span><span id="line-70">      XMLEventWriter xmlEventWriter = xmlOutputFactory.createXMLEventWriter(outputStream);</span>
+<span class="source-line-no">071</span><span id="line-71"></span>
+<span class="source-line-no">072</span><span id="line-72">      try {</span>
+<span class="source-line-no">073</span><span id="line-73">        List&lt;String&gt; currentDirectory = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">074</span><span id="line-74">        while (xmlEventReader.hasNext()) {</span>
+<span class="source-line-no">075</span><span id="line-75">          XMLEvent event = xmlEventReader.nextEvent();</span>
+<span class="source-line-no">076</span><span id="line-76">          int eventType = event.getEventType();</span>
+<span class="source-line-no">077</span><span id="line-77">          switch (eventType) {</span>
+<span class="source-line-no">078</span><span id="line-78">            // 現在地点を保持するための処理</span>
+<span class="source-line-no">079</span><span id="line-79">            case XMLEvent.START_ELEMENT:</span>
+<span class="source-line-no">080</span><span id="line-80">              // 現在のXpathを保持する</span>
+<span class="source-line-no">081</span><span id="line-81">              currentDirectory.add(event.asStartElement().getName().getLocalPart());</span>
+<span class="source-line-no">082</span><span id="line-82">              break;</span>
+<span class="source-line-no">083</span><span id="line-83">            case XMLEvent.END_ELEMENT:</span>
+<span class="source-line-no">084</span><span id="line-84">              // 現在のXpathを保持する</span>
+<span class="source-line-no">085</span><span id="line-85">              currentDirectory.remove(currentDirectory.size() - 1);</span>
+<span class="source-line-no">086</span><span id="line-86">              break;</span>
+<span class="source-line-no">087</span><span id="line-87">            // 変換対象の箇所なら変換処理を実行する</span>
+<span class="source-line-no">088</span><span id="line-88">            case XMLEvent.CHARACTERS:</span>
+<span class="source-line-no">089</span><span id="line-89">              if (this.pathHandler.isTarget(currentDirectory)) {</span>
+<span class="source-line-no">090</span><span id="line-90">                String transformedData = rule.apply(event.asCharacters().getData());</span>
+<span class="source-line-no">091</span><span id="line-91">                event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);</span>
+<span class="source-line-no">092</span><span id="line-92">              }</span>
+<span class="source-line-no">093</span><span id="line-93">              break;</span>
+<span class="source-line-no">094</span><span id="line-94">            default:</span>
+<span class="source-line-no">095</span><span id="line-95">              // Handle other events if necessary</span>
+<span class="source-line-no">096</span><span id="line-96">              break;</span>
+<span class="source-line-no">097</span><span id="line-97">          }</span>
+<span class="source-line-no">098</span><span id="line-98">          // Write the event to the output stream</span>
+<span class="source-line-no">099</span><span id="line-99">          xmlEventWriter.add(event);</span>
+<span class="source-line-no">100</span><span id="line-100">        }</span>
+<span class="source-line-no">101</span><span id="line-101">      } finally {</span>
+<span class="source-line-no">102</span><span id="line-102">        // リソースのクリーンアップ</span>
+<span class="source-line-no">103</span><span id="line-103">        try {</span>
+<span class="source-line-no">104</span><span id="line-104">          if (xmlEventWriter != null) {</span>
+<span class="source-line-no">105</span><span id="line-105">            xmlEventWriter.close();</span>
+<span class="source-line-no">106</span><span id="line-106">          }</span>
+<span class="source-line-no">107</span><span id="line-107">        } catch (XMLStreamException e) {</span>
+<span class="source-line-no">108</span><span id="line-108">          logger.warn("XMLEventWriterのクローズ中にエラーが発生しました: {}", e.getMessage(), e);</span>
+<span class="source-line-no">109</span><span id="line-109">        }</span>
+<span class="source-line-no">110</span><span id="line-110">        try {</span>
+<span class="source-line-no">111</span><span id="line-111">          if (xmlEventReader != null) {</span>
+<span class="source-line-no">112</span><span id="line-112">            xmlEventReader.close();</span>
+<span class="source-line-no">113</span><span id="line-113">          }</span>
+<span class="source-line-no">114</span><span id="line-114">        } catch (XMLStreamException e) {</span>
+<span class="source-line-no">115</span><span id="line-115">          logger.warn("XMLEventReaderのクローズ中にエラーが発生しました: {}", e.getMessage(), e);</span>
+<span class="source-line-no">116</span><span id="line-116">        }</span>
+<span class="source-line-no">117</span><span id="line-117">      }</span>
+<span class="source-line-no">118</span><span id="line-118">    } catch (XMLStreamException e) {</span>
+<span class="source-line-no">119</span><span id="line-119">      logger.error("XML処理中にエラーが発生しました: {}", e.getMessage(), e);</span>
+<span class="source-line-no">120</span><span id="line-120">      throw new StreamProcessingException("XML変換処理に失敗しました", e);</span>
+<span class="source-line-no">121</span><span id="line-121">    }</span>
+<span class="source-line-no">122</span><span id="line-122">  }</span>
+<span class="source-line-no">123</span><span id="line-123">}</span>
 
 
 

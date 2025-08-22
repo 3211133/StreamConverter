@@ -63,7 +63,7 @@
 <span class="source-line-no">050</span><span id="line-50">   * @throws IOException XML解析エラーまたはI/O例外の場合</span>
 <span class="source-line-no">051</span><span id="line-51">   */</span>
 <span class="source-line-no">052</span><span id="line-52">  @Override</span>
-<span class="source-line-no">053</span><span id="line-53">  protected void _execute(InputStream input, OutputStream output) throws IOException {</span>
+<span class="source-line-no">053</span><span id="line-53">  protected void executeInternal(InputStream input, OutputStream output) throws IOException {</span>
 <span class="source-line-no">054</span><span id="line-54">    try {</span>
 <span class="source-line-no">055</span><span id="line-55">      // StreamConverter原則: InputStreamから読み取り、OutputStreamに書き込み</span>
 <span class="source-line-no">056</span><span id="line-56">      List&lt;PmdViolation&gt; violations = parseXmlStream(input);</span>

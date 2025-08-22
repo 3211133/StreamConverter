@@ -149,13 +149,13 @@
 <span class="source-line-no">136</span><span id="line-136"></span>
 <span class="source-line-no">137</span><span id="line-137">    return new SampleStreamCommand("db-transform") {</span>
 <span class="source-line-no">138</span><span id="line-138">      @Override</span>
-<span class="source-line-no">139</span><span id="line-139">      public void _execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)</span>
-<span class="source-line-no">140</span><span id="line-140">          throws IOException {</span>
+<span class="source-line-no">139</span><span id="line-139">      public void executeInternal(</span>
+<span class="source-line-no">140</span><span id="line-140">          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {</span>
 <span class="source-line-no">141</span><span id="line-141">        MDC.put("pipelineStage", "db-transform");</span>
 <span class="source-line-no">142</span><span id="line-142">        logger.info("Executing database transformation");</span>
 <span class="source-line-no">143</span><span id="line-143"></span>
 <span class="source-line-no">144</span><span id="line-144">        // 実際のDB変換処理をシミュレート</span>
-<span class="source-line-no">145</span><span id="line-145">        super._execute(inputStream, outputStream);</span>
+<span class="source-line-no">145</span><span id="line-145">        super.executeInternal(inputStream, outputStream);</span>
 <span class="source-line-no">146</span><span id="line-146"></span>
 <span class="source-line-no">147</span><span id="line-147">        logger.info("Database transformation completed");</span>
 <span class="source-line-no">148</span><span id="line-148">      }</span>
@@ -168,14 +168,14 @@
 <span class="source-line-no">155</span><span id="line-155"></span>
 <span class="source-line-no">156</span><span id="line-156">    return new SampleStreamCommand("http-communication") {</span>
 <span class="source-line-no">157</span><span id="line-157">      @Override</span>
-<span class="source-line-no">158</span><span id="line-158">      public void _execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)</span>
-<span class="source-line-no">159</span><span id="line-159">          throws IOException {</span>
+<span class="source-line-no">158</span><span id="line-158">      public void executeInternal(</span>
+<span class="source-line-no">159</span><span id="line-159">          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {</span>
 <span class="source-line-no">160</span><span id="line-160">        MDC.put("pipelineStage", "communication");</span>
 <span class="source-line-no">161</span><span id="line-161">        logger.info("Executing external API communication");</span>
 <span class="source-line-no">162</span><span id="line-162"></span>
 <span class="source-line-no">163</span><span id="line-163">        // 実際のHTTP通信をシミュレート</span>
 <span class="source-line-no">164</span><span id="line-164">        // 本来であればSendHttpCommandを使用</span>
-<span class="source-line-no">165</span><span id="line-165">        super._execute(inputStream, outputStream);</span>
+<span class="source-line-no">165</span><span id="line-165">        super.executeInternal(inputStream, outputStream);</span>
 <span class="source-line-no">166</span><span id="line-166"></span>
 <span class="source-line-no">167</span><span id="line-167">        logger.info("External API communication completed");</span>
 <span class="source-line-no">168</span><span id="line-168">      }</span>
@@ -188,13 +188,13 @@
 <span class="source-line-no">175</span><span id="line-175"></span>
 <span class="source-line-no">176</span><span id="line-176">    return new SampleStreamCommand("response-validator") {</span>
 <span class="source-line-no">177</span><span id="line-177">      @Override</span>
-<span class="source-line-no">178</span><span id="line-178">      public void _execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)</span>
-<span class="source-line-no">179</span><span id="line-179">          throws IOException {</span>
+<span class="source-line-no">178</span><span id="line-178">      public void executeInternal(</span>
+<span class="source-line-no">179</span><span id="line-179">          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {</span>
 <span class="source-line-no">180</span><span id="line-180">        MDC.put("pipelineStage", "response-validation");</span>
 <span class="source-line-no">181</span><span id="line-181">        logger.info("Validating API response");</span>
 <span class="source-line-no">182</span><span id="line-182"></span>
 <span class="source-line-no">183</span><span id="line-183">        // レスポンスバリデーション処理をシミュレート</span>
-<span class="source-line-no">184</span><span id="line-184">        super._execute(inputStream, outputStream);</span>
+<span class="source-line-no">184</span><span id="line-184">        super.executeInternal(inputStream, outputStream);</span>
 <span class="source-line-no">185</span><span id="line-185"></span>
 <span class="source-line-no">186</span><span id="line-186">        logger.info("Response validation completed");</span>
 <span class="source-line-no">187</span><span id="line-187">      }</span>
@@ -207,13 +207,13 @@
 <span class="source-line-no">194</span><span id="line-194"></span>
 <span class="source-line-no">195</span><span id="line-195">    return new SampleStreamCommand("db-reverse-transform") {</span>
 <span class="source-line-no">196</span><span id="line-196">      @Override</span>
-<span class="source-line-no">197</span><span id="line-197">      public void _execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)</span>
-<span class="source-line-no">198</span><span id="line-198">          throws IOException {</span>
+<span class="source-line-no">197</span><span id="line-197">      public void executeInternal(</span>
+<span class="source-line-no">198</span><span id="line-198">          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {</span>
 <span class="source-line-no">199</span><span id="line-199">        MDC.put("pipelineStage", "db-reverse-transform");</span>
 <span class="source-line-no">200</span><span id="line-200">        logger.info("Executing database reverse transformation");</span>
 <span class="source-line-no">201</span><span id="line-201"></span>
 <span class="source-line-no">202</span><span id="line-202">        // DB逆変換処理をシミュレート</span>
-<span class="source-line-no">203</span><span id="line-203">        super._execute(inputStream, outputStream);</span>
+<span class="source-line-no">203</span><span id="line-203">        super.executeInternal(inputStream, outputStream);</span>
 <span class="source-line-no">204</span><span id="line-204"></span>
 <span class="source-line-no">205</span><span id="line-205">        logger.info("Database reverse transformation completed");</span>
 <span class="source-line-no">206</span><span id="line-206"></span>

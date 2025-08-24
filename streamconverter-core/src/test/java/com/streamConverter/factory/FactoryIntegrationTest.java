@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamConverter.command.CommandFactory;
 import com.streamConverter.command.EnhancedCommandFactory;
 import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.JsonNavigateCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.controller.ControllerFactory;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -65,8 +65,6 @@ class FactoryIntegrationTest {
 
   @Test
   void testControllerFactory_OptimizedIntegration() {
-    FactoryConfiguration config = FactoryConfiguration.productionConfig();
-
     // Test enhanced command factory integration (controller creation may not be available for all
     // types)
     EnhancedCommandFactory commandFactory = ControllerFactory.getCommandFactory();

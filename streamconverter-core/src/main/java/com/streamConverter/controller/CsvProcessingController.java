@@ -1,8 +1,8 @@
 package com.streamConverter.controller;
 
 import com.streamConverter.command.CommandConfig;
-import com.streamConverter.command.impl.CsvNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
+import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 
 /**
  * Controller for CSV data processing operations.

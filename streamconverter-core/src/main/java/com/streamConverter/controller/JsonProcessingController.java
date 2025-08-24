@@ -1,8 +1,8 @@
 package com.streamConverter.controller;
 
 import com.streamConverter.command.CommandConfig;
-import com.streamConverter.command.impl.JsonNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.json.JsonValidateCommand;
 
 /**

@@ -4,7 +4,7 @@ import com.streamConverter.StreamConverter;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.SendHttpCommand;
-import com.streamConverter.command.impl.XmlNavigateCommand;
+import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

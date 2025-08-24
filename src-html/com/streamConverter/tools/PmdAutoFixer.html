@@ -265,7 +265,7 @@
 <span class="source-line-no">252</span><span id="line-252">            "\\.length\\(\\)\\s*==\\s*0",</span>
 <span class="source-line-no">253</span><span id="line-253">            ".isEmpty()",</span>
 <span class="source-line-no">254</span><span id="line-254">            "\\.length\\(\\)\\s*!=\\s*0",</span>
-<span class="source-line-no">255</span><span id="line-255">            "!&amp;.isEmpty()");</span>
+<span class="source-line-no">255</span><span id="line-255">            "!$1.isEmpty()");</span>
 <span class="source-line-no">256</span><span id="line-256"></span>
 <span class="source-line-no">257</span><span id="line-257">    fixCounts.put("InefficientEmptyStringCheck", totalFixed);</span>
 <span class="source-line-no">258</span><span id="line-258">  }</span>
@@ -325,66 +325,74 @@
 <span class="source-line-no">312</span><span id="line-312">      try {</span>
 <span class="source-line-no">313</span><span id="line-313">        String content = Files.readString(Paths.get(fileName));</span>
 <span class="source-line-no">314</span><span id="line-314">        String originalContent = content;</span>
-<span class="source-line-no">315</span><span id="line-315"></span>
-<span class="source-line-no">316</span><span id="line-316">        for (int i = 0; i &lt; replacements.length; i += 2) {</span>
-<span class="source-line-no">317</span><span id="line-317">          String pattern = replacements[i];</span>
-<span class="source-line-no">318</span><span id="line-318">          String replacement = replacements[i + 1];</span>
-<span class="source-line-no">319</span><span id="line-319">          content = content.replaceAll(pattern, replacement);</span>
-<span class="source-line-no">320</span><span id="line-320">        }</span>
-<span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">        if (!content.equals(originalContent)) {</span>
-<span class="source-line-no">323</span><span id="line-323">          Files.writeString(Paths.get(fileName), content);</span>
-<span class="source-line-no">324</span><span id="line-324">          totalFixed++;</span>
-<span class="source-line-no">325</span><span id="line-325">          processedFiles.add(fileName);</span>
-<span class="source-line-no">326</span><span id="line-326">        }</span>
-<span class="source-line-no">327</span><span id="line-327"></span>
-<span class="source-line-no">328</span><span id="line-328">      } catch (IOException e) {</span>
-<span class="source-line-no">329</span><span id="line-329">        System.err.println("⚠️ Error processing file: " + fileName + " - " + e.getMessage());</span>
-<span class="source-line-no">330</span><span id="line-330">      }</span>
-<span class="source-line-no">331</span><span id="line-331">    }</span>
-<span class="source-line-no">332</span><span id="line-332"></span>
-<span class="source-line-no">333</span><span id="line-333">    return totalFixed;</span>
-<span class="source-line-no">334</span><span id="line-334">  }</span>
+<span class="source-line-no">315</span><span id="line-315">        int fileFixCount = 0;</span>
+<span class="source-line-no">316</span><span id="line-316"></span>
+<span class="source-line-no">317</span><span id="line-317">        for (int i = 0; i &lt; replacements.length; i += 2) {</span>
+<span class="source-line-no">318</span><span id="line-318">          String pattern = replacements[i];</span>
+<span class="source-line-no">319</span><span id="line-319">          String replacement = replacements[i + 1];</span>
+<span class="source-line-no">320</span><span id="line-320">          String beforeReplacement = content;</span>
+<span class="source-line-no">321</span><span id="line-321">          content = content.replaceAll(pattern, replacement);</span>
+<span class="source-line-no">322</span><span id="line-322"></span>
+<span class="source-line-no">323</span><span id="line-323">          // Count actual replacements by checking how many times the pattern matched</span>
+<span class="source-line-no">324</span><span id="line-324">          if (!content.equals(beforeReplacement)) {</span>
+<span class="source-line-no">325</span><span id="line-325">            int matches = beforeReplacement.split(pattern, -1).length - 1;</span>
+<span class="source-line-no">326</span><span id="line-326">            fileFixCount += matches;</span>
+<span class="source-line-no">327</span><span id="line-327">          }</span>
+<span class="source-line-no">328</span><span id="line-328">        }</span>
+<span class="source-line-no">329</span><span id="line-329"></span>
+<span class="source-line-no">330</span><span id="line-330">        if (!content.equals(originalContent)) {</span>
+<span class="source-line-no">331</span><span id="line-331">          Files.writeString(Paths.get(fileName), content);</span>
+<span class="source-line-no">332</span><span id="line-332">          totalFixed += fileFixCount;</span>
+<span class="source-line-no">333</span><span id="line-333">          processedFiles.add(fileName);</span>
+<span class="source-line-no">334</span><span id="line-334">        }</span>
 <span class="source-line-no">335</span><span id="line-335"></span>
-<span class="source-line-no">336</span><span id="line-336">  private void printSummary() {</span>
-<span class="source-line-no">337</span><span id="line-337">    System.out.println("\n📊 Auto-Fix Summary:");</span>
-<span class="source-line-no">338</span><span id="line-338">    System.out.println("━".repeat(50));</span>
-<span class="source-line-no">339</span><span id="line-339"></span>
-<span class="source-line-no">340</span><span id="line-340">    int totalFixes = 0;</span>
-<span class="source-line-no">341</span><span id="line-341">    for (Map.Entry&lt;String, Integer&gt; entry : fixCounts.entrySet()) {</span>
-<span class="source-line-no">342</span><span id="line-342">      System.out.printf("%-35s: %3d fixes%n", entry.getKey(), entry.getValue());</span>
-<span class="source-line-no">343</span><span id="line-343">      totalFixes += entry.getValue();</span>
-<span class="source-line-no">344</span><span id="line-344">    }</span>
-<span class="source-line-no">345</span><span id="line-345"></span>
+<span class="source-line-no">336</span><span id="line-336">      } catch (IOException e) {</span>
+<span class="source-line-no">337</span><span id="line-337">        System.err.println("⚠️ Error processing file: " + fileName + " - " + e.getMessage());</span>
+<span class="source-line-no">338</span><span id="line-338">      }</span>
+<span class="source-line-no">339</span><span id="line-339">    }</span>
+<span class="source-line-no">340</span><span id="line-340"></span>
+<span class="source-line-no">341</span><span id="line-341">    return totalFixed;</span>
+<span class="source-line-no">342</span><span id="line-342">  }</span>
+<span class="source-line-no">343</span><span id="line-343"></span>
+<span class="source-line-no">344</span><span id="line-344">  private void printSummary() {</span>
+<span class="source-line-no">345</span><span id="line-345">    System.out.println("\n📊 Auto-Fix Summary:");</span>
 <span class="source-line-no">346</span><span id="line-346">    System.out.println("━".repeat(50));</span>
-<span class="source-line-no">347</span><span id="line-347">    System.out.printf("%-35s: %3d fixes%n", "TOTAL", totalFixes);</span>
-<span class="source-line-no">348</span><span id="line-348">    System.out.printf("Files processed: %d%n", processedFiles.size());</span>
-<span class="source-line-no">349</span><span id="line-349"></span>
-<span class="source-line-no">350</span><span id="line-350">    System.out.println("\n🧪 Next steps:");</span>
-<span class="source-line-no">351</span><span id="line-351">    System.out.println("   1. Review changes: git diff");</span>
-<span class="source-line-no">352</span><span id="line-352">    System.out.println("   2. Run tests: ./gradlew test");</span>
-<span class="source-line-no">353</span><span id="line-353">    System.out.println("   3. Run PMD again: ./gradlew pmdMain");</span>
-<span class="source-line-no">354</span><span id="line-354">    System.out.println("   4. If satisfied, commit changes");</span>
-<span class="source-line-no">355</span><span id="line-355"></span>
-<span class="source-line-no">356</span><span id="line-356">    System.out.println("\n🏁 PMD Auto-Fix Complete!");</span>
-<span class="source-line-no">357</span><span id="line-357">  }</span>
-<span class="source-line-no">358</span><span id="line-358"></span>
-<span class="source-line-no">359</span><span id="line-359">  private static class PmdViolation {</span>
-<span class="source-line-no">360</span><span id="line-360">    final String fileName;</span>
-<span class="source-line-no">361</span><span id="line-361">    final String rule;</span>
-<span class="source-line-no">362</span><span id="line-362">    final int beginLine;</span>
-<span class="source-line-no">363</span><span id="line-363">    final int endLine;</span>
-<span class="source-line-no">364</span><span id="line-364">    final String message;</span>
-<span class="source-line-no">365</span><span id="line-365"></span>
-<span class="source-line-no">366</span><span id="line-366">    PmdViolation(String fileName, String rule, int beginLine, int endLine, String message) {</span>
-<span class="source-line-no">367</span><span id="line-367">      this.fileName = fileName;</span>
-<span class="source-line-no">368</span><span id="line-368">      this.rule = rule;</span>
-<span class="source-line-no">369</span><span id="line-369">      this.beginLine = beginLine;</span>
-<span class="source-line-no">370</span><span id="line-370">      this.endLine = endLine;</span>
-<span class="source-line-no">371</span><span id="line-371">      this.message = message;</span>
-<span class="source-line-no">372</span><span id="line-372">    }</span>
-<span class="source-line-no">373</span><span id="line-373">  }</span>
-<span class="source-line-no">374</span><span id="line-374">}</span>
+<span class="source-line-no">347</span><span id="line-347"></span>
+<span class="source-line-no">348</span><span id="line-348">    int totalFixes = 0;</span>
+<span class="source-line-no">349</span><span id="line-349">    for (Map.Entry&lt;String, Integer&gt; entry : fixCounts.entrySet()) {</span>
+<span class="source-line-no">350</span><span id="line-350">      System.out.printf("%-35s: %3d fixes%n", entry.getKey(), entry.getValue());</span>
+<span class="source-line-no">351</span><span id="line-351">      totalFixes += entry.getValue();</span>
+<span class="source-line-no">352</span><span id="line-352">    }</span>
+<span class="source-line-no">353</span><span id="line-353"></span>
+<span class="source-line-no">354</span><span id="line-354">    System.out.println("━".repeat(50));</span>
+<span class="source-line-no">355</span><span id="line-355">    System.out.printf("%-35s: %3d fixes%n", "TOTAL", totalFixes);</span>
+<span class="source-line-no">356</span><span id="line-356">    System.out.printf("Files processed: %d%n", processedFiles.size());</span>
+<span class="source-line-no">357</span><span id="line-357"></span>
+<span class="source-line-no">358</span><span id="line-358">    System.out.println("\n🧪 Next steps:");</span>
+<span class="source-line-no">359</span><span id="line-359">    System.out.println("   1. Review changes: git diff");</span>
+<span class="source-line-no">360</span><span id="line-360">    System.out.println("   2. Run tests: ./gradlew test");</span>
+<span class="source-line-no">361</span><span id="line-361">    System.out.println("   3. Run PMD again: ./gradlew pmdMain");</span>
+<span class="source-line-no">362</span><span id="line-362">    System.out.println("   4. If satisfied, commit changes");</span>
+<span class="source-line-no">363</span><span id="line-363"></span>
+<span class="source-line-no">364</span><span id="line-364">    System.out.println("\n🏁 PMD Auto-Fix Complete!");</span>
+<span class="source-line-no">365</span><span id="line-365">  }</span>
+<span class="source-line-no">366</span><span id="line-366"></span>
+<span class="source-line-no">367</span><span id="line-367">  private static class PmdViolation {</span>
+<span class="source-line-no">368</span><span id="line-368">    final String fileName;</span>
+<span class="source-line-no">369</span><span id="line-369">    final String rule;</span>
+<span class="source-line-no">370</span><span id="line-370">    final int beginLine;</span>
+<span class="source-line-no">371</span><span id="line-371">    final int endLine;</span>
+<span class="source-line-no">372</span><span id="line-372">    final String message;</span>
+<span class="source-line-no">373</span><span id="line-373"></span>
+<span class="source-line-no">374</span><span id="line-374">    PmdViolation(String fileName, String rule, int beginLine, int endLine, String message) {</span>
+<span class="source-line-no">375</span><span id="line-375">      this.fileName = fileName;</span>
+<span class="source-line-no">376</span><span id="line-376">      this.rule = rule;</span>
+<span class="source-line-no">377</span><span id="line-377">      this.beginLine = beginLine;</span>
+<span class="source-line-no">378</span><span id="line-378">      this.endLine = endLine;</span>
+<span class="source-line-no">379</span><span id="line-379">      this.message = message;</span>
+<span class="source-line-no">380</span><span id="line-380">    }</span>
+<span class="source-line-no">381</span><span id="line-381">  }</span>
+<span class="source-line-no">382</span><span id="line-382">}</span>
 
 
 

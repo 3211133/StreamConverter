@@ -48,10 +48,10 @@ echo "🎯 Phase 1: Safe Final Keyword Additions"
 # Fix 1: MethodArgumentCouldBeFinal
 echo "🔄 Fixing MethodArgumentCouldBeFinal violations..."
 find "$CORE_SRC" -name "*.java" -exec grep -l ".*" {} \; | while read -r file; do
-    # Use sed to add final keyword to method parameters
-    # This is a simplified approach - more sophisticated parsing would be needed for complex cases
-    sed -i.tmp 's/(\([^)]*[^f][^i][^n][^a][^l] \)\([a-zA-Z_][a-zA-Z0-9_]*\)\([,)]\)/(\1final \2\3/g' "$file"
-    sed -i 's/(\([^)]*\), \([^f][^i][^n][^a][^l] \)\([a-zA-Z_][a-zA-Z0-9_]*\)\([,)]\)/(\1, \2final \3\4/g' "$file"
+    # Use sed to add final keyword to method parameters  
+    # Match parameters that don't already have 'final' keyword
+    sed -i.tmp 's/(\([^)]*[^[:alpha:]]\)\([a-zA-Z_][a-zA-Z0-9_]*\) \([a-zA-Z_][a-zA-Z0-9_]*\)\([,)]\)/(\1\2 final \3\4/g' "$file"
+    sed -i 's/(final \([a-zA-Z_][a-zA-Z0-9_]*\) \([a-zA-Z_][a-zA-Z0-9_]*\)\([,)]\)/(final \1 \2\3/g' "$file"
     rm -f "$file.tmp"
 done
 log_fix "MethodArgumentCouldBeFinal" 537

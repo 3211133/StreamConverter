@@ -59,7 +59,7 @@ graph TD
 
 
   %% 縦の流れ
-  ext --> controller --> core --> command
+  ext --> controller --> core --> command ~~~ resItems
 
   %% 真ん中の Command 2 からリソースへ矢印
   Cmd2 --> resItems

@@ -225,16 +225,15 @@ public final class ValidationResult {
   }
 
   /** ValidationResult作成用のBuilderクラス */
-    public static class Builder {
-      private String typeVal;
-      private String schemaPathVal;
-      private boolean valid;
-      private final List<String> errors = new ArrayList<>();
-      private final List<String> warnings = new ArrayList<>();
-      private Instant timeVal = Instant.now();
-      private long execTimeMillis;
-      private String dataSourceVal;
-
+  public static class Builder {
+    private String typeVal;
+    private String schemaPathVal;
+    private boolean valid;
+    private final List<String> errors = new ArrayList<>();
+    private final List<String> warnings = new ArrayList<>();
+    private Instant timeVal = Instant.now();
+    private long execTimeMillis;
+    private String dataSourceVal;
 
     /**
      * バリデーションタイプを設定
@@ -337,10 +336,9 @@ public final class ValidationResult {
     public ValidationResult build() {
       requireNonBlank(typeVal, "Validation type");
       requireNonBlank(schemaPathVal, "Schema path");
-        ensureConsistency();
-        return new ValidationResult(
-            typeVal, schemaPathVal, valid, errors, warnings, timeVal, execTimeMillis,
-            dataSourceVal);
+      ensureConsistency();
+      return new ValidationResult(
+          typeVal, schemaPathVal, valid, errors, warnings, timeVal, execTimeMillis, dataSourceVal);
     }
 
     private static void requireNonBlank(final String value, final String field) {

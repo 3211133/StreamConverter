@@ -21,8 +21,7 @@ public class MeasuredOutputStream extends OutputStream {
   public MeasuredOutputStream(final OutputStream delegateStream) {
     super();
     this.delegate =
-        java.util.Objects.requireNonNull(
-            delegateStream, "delegate OutputStream cannot be null");
+        java.util.Objects.requireNonNull(delegateStream, "delegate OutputStream cannot be null");
   }
 
   @Override
@@ -46,8 +45,7 @@ public class MeasuredOutputStream extends OutputStream {
   }
 
   @Override
-  public void write(final byte[] buffer, final int offset, final int length)
-      throws IOException {
+  public void write(final byte[] buffer, final int offset, final int length) throws IOException {
     if (closed) {
       throw new IOException("Stream is closed");
     }

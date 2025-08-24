@@ -252,7 +252,7 @@ public class PmdAutoFixer {
             "\\.length\\(\\)\\s*==\\s*0",
             ".isEmpty()",
             "\\.length\\(\\)\\s*!=\\s*0",
-            "!&.isEmpty()");
+            "!$1.isEmpty()");
 
     fixCounts.put("InefficientEmptyStringCheck", totalFixed);
   }
@@ -312,16 +312,24 @@ public class PmdAutoFixer {
       try {
         String content = Files.readString(Paths.get(fileName));
         String originalContent = content;
+        int fileFixCount = 0;
 
         for (int i = 0; i < replacements.length; i += 2) {
           String pattern = replacements[i];
           String replacement = replacements[i + 1];
+          String beforeReplacement = content;
           content = content.replaceAll(pattern, replacement);
+
+          // Count actual replacements by checking how many times the pattern matched
+          if (!content.equals(beforeReplacement)) {
+            int matches = beforeReplacement.split(pattern, -1).length - 1;
+            fileFixCount += matches;
+          }
         }
 
         if (!content.equals(originalContent)) {
           Files.writeString(Paths.get(fileName), content);
-          totalFixed++;
+          totalFixed += fileFixCount;
           processedFiles.add(fileName);
         }
 

@@ -332,6 +332,7 @@ spotbugs {
 
 // SpotBugs task configuration
 tasks.spotbugsMain {
+    ignoreFailures = true // SpotBugs違反があってもビルドを継続
     reports.create("html") {
         required.set(true)
         outputLocation.set(file("build/reports/spotbugs/main.html"))

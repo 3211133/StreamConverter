@@ -4,11 +4,11 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamConverter.*;
 import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.CsvNavigateCommand;
-import com.streamConverter.command.impl.JsonNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.XmlNavigateCommand;
 import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
+import com.streamConverter.command.impl.csv.CsvNavigateCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
+import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.test.PlatformAdaptiveTestUtils;
 import java.io.*;
 import java.nio.file.Files;

@@ -1,4 +1,4 @@
-package com.streamConverter.command.impl;
+package com.streamConverter.command.impl.json;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
@@ -27,10 +27,6 @@ import java.nio.charset.StandardCharsets;
  * JSON parsing when possible
  */
 public class JsonNavigateCommand extends AbstractStreamCommand {
-
-  private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming
-  private static final int MAX_CHUNK_SIZE = 1024 * 1024; // 1MB max chunk for complex processing
-  private static final int MEMORY_THRESHOLD = 50 * 1024 * 1024; // 50MB memory threshold
 
   private final String jsonPath;
   private final IRule rule;
@@ -232,9 +228,9 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
     JsonToken token;
     while ((token = parser.nextToken()) != null) {
-      if (token == JsonToken.FIELD_NAME && propertyName.equals(parser.getCurrentName())) {
+      if (token == JsonToken.FIELD_NAME && propertyName.equals(parser.currentName())) {
         inTargetProperty = true;
-        generator.writeFieldName(parser.getCurrentName());
+        generator.writeFieldName(parser.currentName());
       } else if (inTargetProperty && token == JsonToken.VALUE_STRING) {
         // Apply rule to string value
         String transformedValue = rule.apply(parser.getValueAsString());
@@ -302,7 +298,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
         generator.writeEndArray();
         break;
       case FIELD_NAME:
-        generator.writeFieldName(parser.getCurrentName());
+        generator.writeFieldName(parser.currentName());
         break;
       case VALUE_STRING:
         generator.writeString(parser.getValueAsString());

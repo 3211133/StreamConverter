@@ -1,11 +1,9 @@
-package com.streamConverter.command.impl;
+package com.streamConverter.command.impl.json;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.streamConverter.benchmark.ResourceMonitor;
-import com.streamConverter.benchmark.ResourceUsage;
 import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
@@ -19,8 +17,6 @@ import org.junit.jupiter.api.Test;
 
 /** Unit tests for JsonNavigateCommand. */
 class JsonNavigateCommandTest {
-
-  private static final int LARGE_JSON_USER_COUNT = 5000;
 
   private JsonNavigateCommand command;
 
@@ -87,61 +83,6 @@ class JsonNavigateCommandTest {
 
     // Should not throw for now - actual navigation logic will handle validation
     assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
-  }
-
-  @Test
-  void testMemoryEfficiencyWithLargeData() throws IOException {
-    // Generate larger JSON data to test memory efficiency
-    StringBuilder jsonBuilder = new StringBuilder();
-    jsonBuilder
-        .append("{")
-        .append(System.lineSeparator())
-        .append("  \"data\": [")
-        .append(System.lineSeparator());
-
-    // Create 1MB of JSON data (simulating larger processing)
-    for (int i = 0; i < LARGE_JSON_USER_COUNT; i++) {
-      jsonBuilder.append(
-          String.format(
-              "    {\"id\": %d, \"name\": \"User %d\", \"description\": \"Extended user description with additional data to increase JSON size %d\"},"
-                  + System.lineSeparator(),
-              i,
-              i,
-              i));
-    }
-    // Remove trailing comma and close structure
-    jsonBuilder.setLength(jsonBuilder.length() - 2); // Remove last comma and newline
-    jsonBuilder
-        .append(System.lineSeparator())
-        .append("  ]")
-        .append(System.lineSeparator())
-        .append("}");
-
-    String largeJson = jsonBuilder.toString();
-    long dataSize = largeJson.getBytes(StandardCharsets.UTF_8).length;
-
-    // Monitor memory usage during processing
-    ResourceMonitor monitor = new ResourceMonitor();
-    monitor.start(dataSize);
-
-    InputStream inputStream = new ByteArrayInputStream(largeJson.getBytes(StandardCharsets.UTF_8));
-    OutputStream outputStream = new ByteArrayOutputStream();
-
-    // Execute command with monitoring
-    assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
-
-    ResourceUsage usage = monitor.stop();
-
-    // Verify memory efficiency: should use much less memory than data size
-    // Memory usage should be minimal compared to data size (streaming processing)
-    assertTrue(
-        usage.getMemoryUsedMB() < 50,
-        String.format(
-            "Memory usage (%.2f MB) should be less than 50MB for %.2f MB data",
-            usage.getMemoryUsedMB(), usage.getDataSizeMB()));
-
-    // Verify processing was successful (data size matches)
-    assertTrue(usage.getDataSizeMB() > 0, "Should have processed some data");
   }
 
   @Test

@@ -1,4 +1,4 @@
-package com.streamConverter.command.impl;
+package com.streamConverter.command.impl.csv;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;

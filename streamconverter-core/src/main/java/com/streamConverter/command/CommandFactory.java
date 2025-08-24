@@ -172,7 +172,6 @@ public class CommandFactory {
    * @return コマンドインスタンス
    * @throws Exception インスタンス生成失敗時
    */
-  @SuppressWarnings("unchecked")
   private static <T extends IStreamCommand> T createInstance(Class<T> commandClass, Object... args)
       throws Exception {
     // デフォルトコンストラクタを試す

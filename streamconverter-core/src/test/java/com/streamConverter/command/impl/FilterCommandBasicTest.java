@@ -3,6 +3,9 @@ package com.streamConverter.command.impl;
 import static com.streamConverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.streamConverter.command.impl.csv.CsvFilterCommand;
+import com.streamConverter.command.impl.json.JsonFilterCommand;
+import com.streamConverter.command.impl.xml.XmlFilterCommand;
 import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;

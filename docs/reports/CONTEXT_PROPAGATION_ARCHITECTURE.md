@@ -23,23 +23,29 @@ ExecutionContext context = ExecutionContext.builder()
     .build();
 ```
 
-### 2. IContextAwareStreamCommand（コンテキスト対応インターフェース）
-**役割**: ExecutionContextを受け取れる新しいコマンドインターフェース
+### 2. IStreamCommand（統合されたコンテキスト対応インターフェース）
+**役割**: ExecutionContextを受け取れる統一インターフェース
 
 **特徴**:
-- 既存の`IStreamCommand`との完全な後方互換性
-- コンテキストなし呼び出し時は自動的に新しいコンテキストを生成
+- 既存コードとの完全な後方互換性
+- デフォルトメソッドによるExecutionContext対応の拡張
+- コンテキストなし呼び出し時は既存の2パラメータメソッドに委譲
 
 ```java
-public interface IContextAwareStreamCommand extends IStreamCommand {
-    void execute(InputStream inputStream, OutputStream outputStream, ExecutionContext context) 
-        throws IOException;
-        
-    @Override
-    default void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-        ExecutionContext context = ExecutionContext.create();
-        execute(inputStream, outputStream, context);
+public interface IStreamCommand {
+    /**
+     * ExecutionContext対応の拡張実行メソッド（推奨）
+     */
+    default void execute(InputStream inputStream, OutputStream outputStream, ExecutionContext context)
+        throws IOException {
+        // デフォルト実装：後方互換性のため基本executeメソッドに委譲
+        execute(inputStream, outputStream);
     }
+
+    /**
+     * 基本実行メソッド（後方互換性のため維持）
+     */
+    void execute(InputStream inputStream, OutputStream outputStream) throws IOException;
 }
 ```
 
@@ -53,8 +59,12 @@ public interface IContextAwareStreamCommand extends IStreamCommand {
 - エラーハンドリングとログ出力
 
 ```java
+// 既存コマンドを自動的にコンテキスト対応にラップ
 IStreamCommand legacyCommand = new SampleStreamCommand("processor");
-IContextAwareStreamCommand contextCommand = new ContextPropagatingDecorator(legacyCommand);
+IStreamCommand contextCommand = new ContextPropagatingDecorator(legacyCommand);
+
+// 実際の使用では、StreamConverterが自動的に適用
+StreamConverter converter = StreamConverter.createWithContext(context, legacyCommand);
 ```
 
 ### 4. StreamConverter.createWithContext()（コンテキスト対応StreamConverter）

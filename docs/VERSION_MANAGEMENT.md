@@ -1,8 +1,8 @@
 # Version Management
 
 ## Current Version
-- **Version**: 1.0.0-SNAPSHOT
-- **Status**: Development
+- **Version**: 1.2.0
+- **Status**: Active Development
 - **Java**: 17+
 - **Gradle**: 8.13
 
@@ -10,16 +10,29 @@
 
 | Version | Support Status | Security Updates | End of Life |
 |---------|----------------|------------------|-------------|
-| 1.0.x   | ✅ Active      | ✅ Yes           | TBD         |
+| 1.2.x   | ✅ Active      | ✅ Yes           | TBD         |
+| 1.1.x   | 🔄 Maintenance | ✅ Yes           | 2025-12-31  |
+| 1.0.x   | ❌ EOL         | ❌ No            | 2025-06-30  |
 
 ## Version History
 
-### 1.0.0-SNAPSHOT (Current)
-- Initial development version
+### 1.2.0 (Current)
+- ExecutionContext and MDC integration for multi-threaded traceability
+- Enhanced CommandFactory with logging duplication avoidance
+- Reorganized command packages (csv/, json/, xml/ separation)
+- Comprehensive auto-logging infrastructure
+- Performance benchmarking tools (streamconverter-tools module)
+- Web API foundation (streamconverter-web module)
+
+### 1.1.0
 - Core streaming pipeline functionality
 - Command pattern implementation
-- Auto-logging infrastructure
+- Basic auto-logging infrastructure
 - Memory-efficient processing for large files
+
+### 1.0.0
+- Initial release version
+- Basic stream processing capabilities
 
 ## Release Policy
 

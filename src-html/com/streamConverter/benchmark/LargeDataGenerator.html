@@ -16,430 +16,433 @@
 <span class="source-line-no">003</span><span id="line-3">import java.io.IOException;</span>
 <span class="source-line-no">004</span><span id="line-4">import java.io.InputStream;</span>
 <span class="source-line-no">005</span><span id="line-5">import java.io.Writer;</span>
-<span class="source-line-no">006</span><span id="line-6">import java.nio.file.Files;</span>
-<span class="source-line-no">007</span><span id="line-7">import java.nio.file.Path;</span>
-<span class="source-line-no">008</span><span id="line-8">import java.time.Instant;</span>
-<span class="source-line-no">009</span><span id="line-9">import java.util.Random;</span>
-<span class="source-line-no">010</span><span id="line-10">import org.slf4j.Logger;</span>
-<span class="source-line-no">011</span><span id="line-11">import org.slf4j.LoggerFactory;</span>
-<span class="source-line-no">012</span><span id="line-12"></span>
-<span class="source-line-no">013</span><span id="line-13">/**</span>
-<span class="source-line-no">014</span><span id="line-14"> * 大容量テストデータを生成するユーティリティクラス</span>
-<span class="source-line-no">015</span><span id="line-15"> *</span>
-<span class="source-line-no">016</span><span id="line-16"> * &lt;p&gt;XML、JSON、CSVフォーマットで大容量データファイルを生成し、 5GBデータ/50MBメモリ目標のベンチマークテストをサポートします。</span>
-<span class="source-line-no">017</span><span id="line-17"> */</span>
-<span class="source-line-no">018</span><span id="line-18">public class LargeDataGenerator {</span>
-<span class="source-line-no">019</span><span id="line-19"></span>
-<span class="source-line-no">020</span><span id="line-20">  private static final Logger LOG = LoggerFactory.getLogger(LargeDataGenerator.class);</span>
-<span class="source-line-no">021</span><span id="line-21"></span>
-<span class="source-line-no">022</span><span id="line-22">  private static final String[] SAMPLE_NAMES = {</span>
-<span class="source-line-no">023</span><span id="line-23">    "田中太郎", "佐藤花子", "鈴木一郎", "高橋美咲", "渡辺健太",</span>
-<span class="source-line-no">024</span><span id="line-24">    "伊藤由美", "山田隆", "中村恵子", "小林誠", "加藤真理子"</span>
-<span class="source-line-no">025</span><span id="line-25">  };</span>
-<span class="source-line-no">026</span><span id="line-26"></span>
-<span class="source-line-no">027</span><span id="line-27">  private static final String[] SAMPLE_CITIES = {</span>
-<span class="source-line-no">028</span><span id="line-28">    "東京", "大阪", "名古屋", "札幌", "福岡", "仙台", "広島", "京都", "神戸", "横浜"</span>
-<span class="source-line-no">029</span><span id="line-29">  };</span>
-<span class="source-line-no">030</span><span id="line-30"></span>
-<span class="source-line-no">031</span><span id="line-31">  private static final String[] SAMPLE_PRODUCTS = {</span>
-<span class="source-line-no">032</span><span id="line-32">    "スマートフォン", "ノートパソコン", "タブレット", "イヤホン", "キーボード",</span>
-<span class="source-line-no">033</span><span id="line-33">    "マウス", "モニター", "プリンター", "カメラ", "充電器"</span>
-<span class="source-line-no">034</span><span id="line-34">  };</span>
-<span class="source-line-no">035</span><span id="line-35"></span>
-<span class="source-line-no">036</span><span id="line-36">  /** Prevent instantiation. */</span>
-<span class="source-line-no">037</span><span id="line-37">  private LargeDataGenerator() {}</span>
-<span class="source-line-no">038</span><span id="line-38"></span>
-<span class="source-line-no">039</span><span id="line-39">  /**</span>
-<span class="source-line-no">040</span><span id="line-40">   * 大容量XMLファイルを生成します</span>
-<span class="source-line-no">041</span><span id="line-41">   *</span>
-<span class="source-line-no">042</span><span id="line-42">   * @param targetSizeBytes 目標ファイルサイズ（バイト）</span>
-<span class="source-line-no">043</span><span id="line-43">   * @return 生成されたファイルのPath</span>
-<span class="source-line-no">044</span><span id="line-44">   * @throws IOException ファイル作成に失敗した場合</span>
-<span class="source-line-no">045</span><span id="line-45">   */</span>
-<span class="source-line-no">046</span><span id="line-46">  public static Path generateLargeXmlFile(long targetSizeBytes) throws IOException {</span>
-<span class="source-line-no">047</span><span id="line-47">    Path tempFile = Files.createTempFile("large-test", ".xml");</span>
-<span class="source-line-no">048</span><span id="line-48">    Random random = new Random(42); // 再現可能な結果のため固定シード</span>
-<span class="source-line-no">049</span><span id="line-49"></span>
-<span class="source-line-no">050</span><span id="line-50">    try (Writer writer = Files.newBufferedWriter(tempFile)) {</span>
-<span class="source-line-no">051</span><span id="line-51">      writer.write("&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n");</span>
-<span class="source-line-no">052</span><span id="line-52">      writer.write("&lt;orders&gt;\n");</span>
-<span class="source-line-no">053</span><span id="line-53"></span>
-<span class="source-line-no">054</span><span id="line-54">      long currentSize = 100; // ヘッダー分</span>
-<span class="source-line-no">055</span><span id="line-55">      int recordCount = 0;</span>
-<span class="source-line-no">056</span><span id="line-56"></span>
-<span class="source-line-no">057</span><span id="line-57">      while (currentSize &lt; targetSizeBytes) {</span>
-<span class="source-line-no">058</span><span id="line-58">        String record = generateXmlRecord(recordCount++, random);</span>
-<span class="source-line-no">059</span><span id="line-59">        writer.write(record);</span>
-<span class="source-line-no">060</span><span id="line-60">        currentSize += record.getBytes("UTF-8").length;</span>
-<span class="source-line-no">061</span><span id="line-61"></span>
-<span class="source-line-no">062</span><span id="line-62">        // 進捗表示（大きなファイルの場合）</span>
-<span class="source-line-no">063</span><span id="line-63">        if (recordCount % 100000 == 0 &amp;&amp; targetSizeBytes &gt; 100 * 1024 * 1024) {</span>
-<span class="source-line-no">064</span><span id="line-64">          if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">065</span><span id="line-65">            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);</span>
-<span class="source-line-no">066</span><span id="line-66">          }</span>
-<span class="source-line-no">067</span><span id="line-67">        }</span>
-<span class="source-line-no">068</span><span id="line-68">      }</span>
-<span class="source-line-no">069</span><span id="line-69"></span>
-<span class="source-line-no">070</span><span id="line-70">      writer.write("&lt;/orders&gt;\n");</span>
-<span class="source-line-no">071</span><span id="line-71">    }</span>
-<span class="source-line-no">072</span><span id="line-72"></span>
-<span class="source-line-no">073</span><span id="line-73">    return tempFile;</span>
-<span class="source-line-no">074</span><span id="line-74">  }</span>
-<span class="source-line-no">075</span><span id="line-75"></span>
-<span class="source-line-no">076</span><span id="line-76">  /**</span>
-<span class="source-line-no">077</span><span id="line-77">   * 大容量JSONファイルを生成します</span>
-<span class="source-line-no">078</span><span id="line-78">   *</span>
-<span class="source-line-no">079</span><span id="line-79">   * @param targetSizeBytes 目標ファイルサイズ（バイト）</span>
-<span class="source-line-no">080</span><span id="line-80">   * @return 生成されたファイルのPath</span>
-<span class="source-line-no">081</span><span id="line-81">   * @throws IOException ファイル作成に失敗した場合</span>
-<span class="source-line-no">082</span><span id="line-82">   */</span>
-<span class="source-line-no">083</span><span id="line-83">  public static Path generateLargeJsonFile(long targetSizeBytes) throws IOException {</span>
-<span class="source-line-no">084</span><span id="line-84">    Path tempFile = Files.createTempFile("large-test", ".json");</span>
-<span class="source-line-no">085</span><span id="line-85">    Random random = new Random(42);</span>
-<span class="source-line-no">086</span><span id="line-86"></span>
-<span class="source-line-no">087</span><span id="line-87">    try (Writer writer = Files.newBufferedWriter(tempFile)) {</span>
-<span class="source-line-no">088</span><span id="line-88">      writer.write("{\n  \"orders\": [\n");</span>
-<span class="source-line-no">089</span><span id="line-89"></span>
-<span class="source-line-no">090</span><span id="line-90">      long currentSize = 20; // ヘッダー分</span>
-<span class="source-line-no">091</span><span id="line-91">      int recordCount = 0;</span>
-<span class="source-line-no">092</span><span id="line-92"></span>
-<span class="source-line-no">093</span><span id="line-93">      while (currentSize &lt; targetSizeBytes - 100) { // 終了分を考慮</span>
-<span class="source-line-no">094</span><span id="line-94">        if (recordCount &gt; 0) {</span>
-<span class="source-line-no">095</span><span id="line-95">          writer.write(",\n");</span>
-<span class="source-line-no">096</span><span id="line-96">          currentSize += 2;</span>
-<span class="source-line-no">097</span><span id="line-97">        }</span>
-<span class="source-line-no">098</span><span id="line-98"></span>
-<span class="source-line-no">099</span><span id="line-99">        String record = generateJsonRecord(recordCount++, random);</span>
-<span class="source-line-no">100</span><span id="line-100">        writer.write(record);</span>
-<span class="source-line-no">101</span><span id="line-101">        currentSize += record.getBytes("UTF-8").length;</span>
-<span class="source-line-no">102</span><span id="line-102"></span>
-<span class="source-line-no">103</span><span id="line-103">        if (recordCount % 100000 == 0 &amp;&amp; targetSizeBytes &gt; 100 * 1024 * 1024) {</span>
-<span class="source-line-no">104</span><span id="line-104">          if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">105</span><span id="line-105">            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);</span>
-<span class="source-line-no">106</span><span id="line-106">          }</span>
-<span class="source-line-no">107</span><span id="line-107">        }</span>
-<span class="source-line-no">108</span><span id="line-108">      }</span>
-<span class="source-line-no">109</span><span id="line-109"></span>
-<span class="source-line-no">110</span><span id="line-110">      writer.write("\n  ]\n}\n");</span>
-<span class="source-line-no">111</span><span id="line-111">    }</span>
-<span class="source-line-no">112</span><span id="line-112"></span>
-<span class="source-line-no">113</span><span id="line-113">    return tempFile;</span>
-<span class="source-line-no">114</span><span id="line-114">  }</span>
-<span class="source-line-no">115</span><span id="line-115"></span>
-<span class="source-line-no">116</span><span id="line-116">  /**</span>
-<span class="source-line-no">117</span><span id="line-117">   * 大容量CSVファイルを生成します</span>
-<span class="source-line-no">118</span><span id="line-118">   *</span>
-<span class="source-line-no">119</span><span id="line-119">   * @param targetSizeBytes 目標ファイルサイズ（バイト）</span>
-<span class="source-line-no">120</span><span id="line-120">   * @return 生成されたファイルのPath</span>
-<span class="source-line-no">121</span><span id="line-121">   * @throws IOException ファイル作成に失敗した場合</span>
-<span class="source-line-no">122</span><span id="line-122">   */</span>
-<span class="source-line-no">123</span><span id="line-123">  public static Path generateLargeCsvFile(long targetSizeBytes) throws IOException {</span>
-<span class="source-line-no">124</span><span id="line-124">    Path tempFile = Files.createTempFile("large-test", ".csv");</span>
-<span class="source-line-no">125</span><span id="line-125">    Random random = new Random(42);</span>
-<span class="source-line-no">126</span><span id="line-126"></span>
-<span class="source-line-no">127</span><span id="line-127">    try (Writer writer = Files.newBufferedWriter(tempFile)) {</span>
-<span class="source-line-no">128</span><span id="line-128">      // CSVヘッダー</span>
-<span class="source-line-no">129</span><span id="line-129">      String header = "id,name,city,product,quantity,price,timestamp\n";</span>
-<span class="source-line-no">130</span><span id="line-130">      writer.write(header);</span>
-<span class="source-line-no">131</span><span id="line-131">      long currentSize = header.getBytes("UTF-8").length;</span>
-<span class="source-line-no">132</span><span id="line-132"></span>
-<span class="source-line-no">133</span><span id="line-133">      int recordCount = 0;</span>
-<span class="source-line-no">134</span><span id="line-134"></span>
-<span class="source-line-no">135</span><span id="line-135">      while (currentSize &lt; targetSizeBytes) {</span>
-<span class="source-line-no">136</span><span id="line-136">        String record = generateCsvRecord(recordCount++, random);</span>
-<span class="source-line-no">137</span><span id="line-137">        writer.write(record);</span>
-<span class="source-line-no">138</span><span id="line-138">        currentSize += record.getBytes("UTF-8").length;</span>
-<span class="source-line-no">139</span><span id="line-139"></span>
-<span class="source-line-no">140</span><span id="line-140">        if (recordCount % 100000 == 0 &amp;&amp; targetSizeBytes &gt; 100 * 1024 * 1024) {</span>
-<span class="source-line-no">141</span><span id="line-141">          if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">142</span><span id="line-142">            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);</span>
-<span class="source-line-no">143</span><span id="line-143">          }</span>
-<span class="source-line-no">144</span><span id="line-144">        }</span>
-<span class="source-line-no">145</span><span id="line-145">      }</span>
-<span class="source-line-no">146</span><span id="line-146">    }</span>
-<span class="source-line-no">147</span><span id="line-147"></span>
-<span class="source-line-no">148</span><span id="line-148">    return tempFile;</span>
-<span class="source-line-no">149</span><span id="line-149">  }</span>
-<span class="source-line-no">150</span><span id="line-150"></span>
-<span class="source-line-no">151</span><span id="line-151">  /** XMLレコードを生成 */</span>
-<span class="source-line-no">152</span><span id="line-152">  private static String generateXmlRecord(int id, Random random) {</span>
-<span class="source-line-no">153</span><span id="line-153">    String name = SAMPLE_NAMES[random.nextInt(SAMPLE_NAMES.length)];</span>
-<span class="source-line-no">154</span><span id="line-154">    String city = SAMPLE_CITIES[random.nextInt(SAMPLE_CITIES.length)];</span>
-<span class="source-line-no">155</span><span id="line-155">    String product = SAMPLE_PRODUCTS[random.nextInt(SAMPLE_PRODUCTS.length)];</span>
-<span class="source-line-no">156</span><span id="line-156">    int quantity = random.nextInt(10) + 1;</span>
-<span class="source-line-no">157</span><span id="line-157">    double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;</span>
-<span class="source-line-no">158</span><span id="line-158"></span>
-<span class="source-line-no">159</span><span id="line-159">    return String.format(</span>
-<span class="source-line-no">160</span><span id="line-160">        "  &lt;order id=\"%d\"&gt;\n"</span>
-<span class="source-line-no">161</span><span id="line-161">            + "    &lt;customer&gt;\n"</span>
-<span class="source-line-no">162</span><span id="line-162">            + "      &lt;name&gt;%s&lt;/name&gt;\n"</span>
-<span class="source-line-no">163</span><span id="line-163">            + "      &lt;city&gt;%s&lt;/city&gt;\n"</span>
-<span class="source-line-no">164</span><span id="line-164">            + "    &lt;/customer&gt;\n"</span>
-<span class="source-line-no">165</span><span id="line-165">            + "    &lt;product&gt;%s&lt;/product&gt;\n"</span>
-<span class="source-line-no">166</span><span id="line-166">            + "    &lt;quantity&gt;%d&lt;/quantity&gt;\n"</span>
-<span class="source-line-no">167</span><span id="line-167">            + "    &lt;price&gt;%.2f&lt;/price&gt;\n"</span>
-<span class="source-line-no">168</span><span id="line-168">            + "    &lt;timestamp&gt;%s&lt;/timestamp&gt;\n"</span>
-<span class="source-line-no">169</span><span id="line-169">            + "    &lt;description&gt;%s&lt;/description&gt;\n"</span>
-<span class="source-line-no">170</span><span id="line-170">            + "  &lt;/order&gt;\n",</span>
-<span class="source-line-no">171</span><span id="line-171">        id,</span>
-<span class="source-line-no">172</span><span id="line-172">        escapeXml(name),</span>
-<span class="source-line-no">173</span><span id="line-173">        escapeXml(city),</span>
-<span class="source-line-no">174</span><span id="line-174">        escapeXml(product),</span>
-<span class="source-line-no">175</span><span id="line-175">        quantity,</span>
-<span class="source-line-no">176</span><span id="line-176">        price,</span>
-<span class="source-line-no">177</span><span id="line-177">        Instant.now(),</span>
-<span class="source-line-no">178</span><span id="line-178">        generateDescription(product, random));</span>
-<span class="source-line-no">179</span><span id="line-179">  }</span>
-<span class="source-line-no">180</span><span id="line-180"></span>
-<span class="source-line-no">181</span><span id="line-181">  /** JSONレコードを生成 */</span>
-<span class="source-line-no">182</span><span id="line-182">  private static String generateJsonRecord(int id, Random random) {</span>
-<span class="source-line-no">183</span><span id="line-183">    String name = SAMPLE_NAMES[random.nextInt(SAMPLE_NAMES.length)];</span>
-<span class="source-line-no">184</span><span id="line-184">    String city = SAMPLE_CITIES[random.nextInt(SAMPLE_CITIES.length)];</span>
-<span class="source-line-no">185</span><span id="line-185">    String product = SAMPLE_PRODUCTS[random.nextInt(SAMPLE_PRODUCTS.length)];</span>
-<span class="source-line-no">186</span><span id="line-186">    int quantity = random.nextInt(10) + 1;</span>
-<span class="source-line-no">187</span><span id="line-187">    double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;</span>
-<span class="source-line-no">188</span><span id="line-188"></span>
-<span class="source-line-no">189</span><span id="line-189">    return String.format(</span>
-<span class="source-line-no">190</span><span id="line-190">        "    {\n"</span>
-<span class="source-line-no">191</span><span id="line-191">            + "      \"id\": %d,\n"</span>
-<span class="source-line-no">192</span><span id="line-192">            + "      \"customer\": {\n"</span>
-<span class="source-line-no">193</span><span id="line-193">            + "        \"name\": \"%s\",\n"</span>
-<span class="source-line-no">194</span><span id="line-194">            + "        \"city\": \"%s\"\n"</span>
-<span class="source-line-no">195</span><span id="line-195">            + "      },\n"</span>
-<span class="source-line-no">196</span><span id="line-196">            + "      \"product\": \"%s\",\n"</span>
-<span class="source-line-no">197</span><span id="line-197">            + "      \"quantity\": %d,\n"</span>
-<span class="source-line-no">198</span><span id="line-198">            + "      \"price\": %.2f,\n"</span>
-<span class="source-line-no">199</span><span id="line-199">            + "      \"timestamp\": \"%s\",\n"</span>
-<span class="source-line-no">200</span><span id="line-200">            + "      \"description\": \"%s\"\n"</span>
-<span class="source-line-no">201</span><span id="line-201">            + "    }",</span>
-<span class="source-line-no">202</span><span id="line-202">        id,</span>
-<span class="source-line-no">203</span><span id="line-203">        name,</span>
-<span class="source-line-no">204</span><span id="line-204">        city,</span>
-<span class="source-line-no">205</span><span id="line-205">        product,</span>
-<span class="source-line-no">206</span><span id="line-206">        quantity,</span>
-<span class="source-line-no">207</span><span id="line-207">        price,</span>
-<span class="source-line-no">208</span><span id="line-208">        Instant.now(),</span>
-<span class="source-line-no">209</span><span id="line-209">        generateDescription(product, random));</span>
-<span class="source-line-no">210</span><span id="line-210">  }</span>
-<span class="source-line-no">211</span><span id="line-211"></span>
-<span class="source-line-no">212</span><span id="line-212">  /** CSVレコードを生成 */</span>
-<span class="source-line-no">213</span><span id="line-213">  private static String generateCsvRecord(int id, Random random) {</span>
-<span class="source-line-no">214</span><span id="line-214">    String name = SAMPLE_NAMES[random.nextInt(SAMPLE_NAMES.length)];</span>
-<span class="source-line-no">215</span><span id="line-215">    String city = SAMPLE_CITIES[random.nextInt(SAMPLE_CITIES.length)];</span>
-<span class="source-line-no">216</span><span id="line-216">    String product = SAMPLE_PRODUCTS[random.nextInt(SAMPLE_PRODUCTS.length)];</span>
-<span class="source-line-no">217</span><span id="line-217">    int quantity = random.nextInt(10) + 1;</span>
-<span class="source-line-no">218</span><span id="line-218">    double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;</span>
-<span class="source-line-no">219</span><span id="line-219"></span>
-<span class="source-line-no">220</span><span id="line-220">    return String.format(</span>
-<span class="source-line-no">221</span><span id="line-221">        "%d,\"%s\",\"%s\",\"%s\",%d,%.2f,\"%s\"\n",</span>
-<span class="source-line-no">222</span><span id="line-222">        id, name, city, product, quantity, price, Instant.now());</span>
-<span class="source-line-no">223</span><span id="line-223">  }</span>
-<span class="source-line-no">224</span><span id="line-224"></span>
-<span class="source-line-no">225</span><span id="line-225">  /** 商品の説明文を生成（データボリューム増加のため） */</span>
-<span class="source-line-no">226</span><span id="line-226">  private static String generateDescription(String product, Random random) {</span>
-<span class="source-line-no">227</span><span id="line-227">    String[] adjectives = {"高品質な", "人気の", "最新の", "おすすめの", "限定の"};</span>
-<span class="source-line-no">228</span><span id="line-228">    String[] features = {"機能性", "デザイン", "性能", "品質", "価格"};</span>
-<span class="source-line-no">229</span><span id="line-229"></span>
-<span class="source-line-no">230</span><span id="line-230">    String adj = adjectives[random.nextInt(adjectives.length)];</span>
-<span class="source-line-no">231</span><span id="line-231">    String feature = features[random.nextInt(features.length)];</span>
-<span class="source-line-no">232</span><span id="line-232"></span>
-<span class="source-line-no">233</span><span id="line-233">    return escapeXml(adj + product + "で、" + feature + "に優れた商品です。多くのお客様にご愛用いただいております。");</span>
-<span class="source-line-no">234</span><span id="line-234">  }</span>
-<span class="source-line-no">235</span><span id="line-235"></span>
-<span class="source-line-no">236</span><span id="line-236">  /** XML用のエスケープ処理 */</span>
-<span class="source-line-no">237</span><span id="line-237">  private static String escapeXml(String text) {</span>
-<span class="source-line-no">238</span><span id="line-238">    return text.replace("&amp;", "&amp;amp;")</span>
-<span class="source-line-no">239</span><span id="line-239">        .replace("&lt;", "&amp;lt;")</span>
-<span class="source-line-no">240</span><span id="line-240">        .replace("&gt;", "&amp;gt;")</span>
-<span class="source-line-no">241</span><span id="line-241">        .replace("\"", "&amp;quot;")</span>
-<span class="source-line-no">242</span><span id="line-242">        .replace("'", "&amp;apos;");</span>
-<span class="source-line-no">243</span><span id="line-243">  }</span>
-<span class="source-line-no">244</span><span id="line-244"></span>
-<span class="source-line-no">245</span><span id="line-245">  /**</span>
-<span class="source-line-no">246</span><span id="line-246">   * メモリ効率的な大容量データInputStreamを作成</span>
-<span class="source-line-no">247</span><span id="line-247">   *</span>
-<span class="source-line-no">248</span><span id="line-248">   * @param format データフォーマット（"XML", "JSON", "CSV"）</span>
-<span class="source-line-no">249</span><span id="line-249">   * @param targetSizeBytes 目標サイズ</span>
-<span class="source-line-no">250</span><span id="line-250">   * @return 大容量データのInputStream</span>
-<span class="source-line-no">251</span><span id="line-251">   */</span>
-<span class="source-line-no">252</span><span id="line-252">  public static InputStream createLargeDataStream(String format, long targetSizeBytes) {</span>
-<span class="source-line-no">253</span><span id="line-253">    return new LargeDataInputStream(format, targetSizeBytes);</span>
-<span class="source-line-no">254</span><span id="line-254">  }</span>
-<span class="source-line-no">255</span><span id="line-255"></span>
-<span class="source-line-no">256</span><span id="line-256">  /** メモリ効率的な大容量データInputStream実装 */</span>
-<span class="source-line-no">257</span><span id="line-257">  private static class LargeDataInputStream extends InputStream {</span>
-<span class="source-line-no">258</span><span id="line-258">    private final String format;</span>
-<span class="source-line-no">259</span><span id="line-259">    private final long totalSize;</span>
-<span class="source-line-no">260</span><span id="line-260">    private long bytesGenerated = 0;</span>
-<span class="source-line-no">261</span><span id="line-261">    private byte[] buffer = new byte[0];</span>
-<span class="source-line-no">262</span><span id="line-262">    private int bufferPosition = 0;</span>
-<span class="source-line-no">263</span><span id="line-263">    private int recordCount = 0;</span>
-<span class="source-line-no">264</span><span id="line-264">    private boolean headerWritten = false;</span>
-<span class="source-line-no">265</span><span id="line-265">    private boolean footerWritten = false;</span>
-<span class="source-line-no">266</span><span id="line-266">    private boolean isDocumentComplete = false;</span>
-<span class="source-line-no">267</span><span id="line-267">    private final Random random = new Random(42);</span>
-<span class="source-line-no">268</span><span id="line-268"></span>
-<span class="source-line-no">269</span><span id="line-269">    public LargeDataInputStream(String format, long totalSize) {</span>
-<span class="source-line-no">270</span><span id="line-270">      this.format = format.toUpperCase();</span>
-<span class="source-line-no">271</span><span id="line-271">      this.totalSize = totalSize;</span>
-<span class="source-line-no">272</span><span id="line-272">    }</span>
-<span class="source-line-no">273</span><span id="line-273"></span>
-<span class="source-line-no">274</span><span id="line-274">    @Override</span>
-<span class="source-line-no">275</span><span id="line-275">    public int read() throws IOException {</span>
-<span class="source-line-no">276</span><span id="line-276">      if (bufferPosition &gt;= buffer.length) {</span>
-<span class="source-line-no">277</span><span id="line-277">        generateNextChunk();</span>
-<span class="source-line-no">278</span><span id="line-278">        if (buffer.length == 0) {</span>
-<span class="source-line-no">279</span><span id="line-279">          return -1; // EOF</span>
-<span class="source-line-no">280</span><span id="line-280">        }</span>
-<span class="source-line-no">281</span><span id="line-281">        bufferPosition = 0;</span>
-<span class="source-line-no">282</span><span id="line-282">      }</span>
-<span class="source-line-no">283</span><span id="line-283"></span>
-<span class="source-line-no">284</span><span id="line-284">      return buffer[bufferPosition++] &amp; 0xFF;</span>
-<span class="source-line-no">285</span><span id="line-285">    }</span>
-<span class="source-line-no">286</span><span id="line-286"></span>
-<span class="source-line-no">287</span><span id="line-287">    @Override</span>
-<span class="source-line-no">288</span><span id="line-288">    public int read(byte[] b, int off, int len) throws IOException {</span>
-<span class="source-line-no">289</span><span id="line-289">      if (isDocumentComplete &amp;&amp; bufferPosition &gt;= buffer.length) {</span>
-<span class="source-line-no">290</span><span id="line-290">        return -1; // EOF</span>
-<span class="source-line-no">291</span><span id="line-291">      }</span>
-<span class="source-line-no">292</span><span id="line-292"></span>
-<span class="source-line-no">293</span><span id="line-293">      int totalRead = 0;</span>
-<span class="source-line-no">294</span><span id="line-294">      while (totalRead &lt; len &amp;&amp; (!isDocumentComplete || bufferPosition &lt; buffer.length)) {</span>
-<span class="source-line-no">295</span><span id="line-295">        if (bufferPosition &gt;= buffer.length) {</span>
-<span class="source-line-no">296</span><span id="line-296">          generateNextChunk();</span>
-<span class="source-line-no">297</span><span id="line-297">          if (buffer.length == 0) break;</span>
-<span class="source-line-no">298</span><span id="line-298">          bufferPosition = 0;</span>
-<span class="source-line-no">299</span><span id="line-299">        }</span>
-<span class="source-line-no">300</span><span id="line-300"></span>
-<span class="source-line-no">301</span><span id="line-301">        int available = buffer.length - bufferPosition;</span>
-<span class="source-line-no">302</span><span id="line-302">        int toRead = Math.min(len - totalRead, available);</span>
-<span class="source-line-no">303</span><span id="line-303"></span>
-<span class="source-line-no">304</span><span id="line-304">        System.arraycopy(buffer, bufferPosition, b, off + totalRead, toRead);</span>
-<span class="source-line-no">305</span><span id="line-305">        bufferPosition += toRead;</span>
-<span class="source-line-no">306</span><span id="line-306">        totalRead += toRead;</span>
-<span class="source-line-no">307</span><span id="line-307">      }</span>
-<span class="source-line-no">308</span><span id="line-308"></span>
-<span class="source-line-no">309</span><span id="line-309">      return totalRead &gt; 0 ? totalRead : -1;</span>
-<span class="source-line-no">310</span><span id="line-310">    }</span>
-<span class="source-line-no">311</span><span id="line-311"></span>
-<span class="source-line-no">312</span><span id="line-312">    private void generateNextChunk() {</span>
-<span class="source-line-no">313</span><span id="line-313">      if (isDocumentComplete) {</span>
-<span class="source-line-no">314</span><span id="line-314">        buffer = new byte[0];</span>
-<span class="source-line-no">315</span><span id="line-315">        return;</span>
-<span class="source-line-no">316</span><span id="line-316">      }</span>
-<span class="source-line-no">317</span><span id="line-317"></span>
-<span class="source-line-no">318</span><span id="line-318">      StringBuilder chunk = new StringBuilder();</span>
-<span class="source-line-no">319</span><span id="line-319"></span>
-<span class="source-line-no">320</span><span id="line-320">      // フッターの必要なサイズを計算（マージンを含む）</span>
-<span class="source-line-no">321</span><span id="line-321">      int footerSize = calculateFooterSize();</span>
-<span class="source-line-no">322</span><span id="line-322">      long remainingBytes = totalSize - bytesGenerated;</span>
-<span class="source-line-no">323</span><span id="line-323"></span>
-<span class="source-line-no">324</span><span id="line-324">      // ヘッダー生成</span>
-<span class="source-line-no">325</span><span id="line-325">      if (!headerWritten) {</span>
-<span class="source-line-no">326</span><span id="line-326">        switch (format) {</span>
-<span class="source-line-no">327</span><span id="line-327">          case "XML":</span>
-<span class="source-line-no">328</span><span id="line-328">            chunk.append("&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;orders&gt;\n");</span>
-<span class="source-line-no">329</span><span id="line-329">            break;</span>
-<span class="source-line-no">330</span><span id="line-330">          case "JSON":</span>
-<span class="source-line-no">331</span><span id="line-331">            chunk.append("{\n  \"orders\": [\n");</span>
-<span class="source-line-no">332</span><span id="line-332">            break;</span>
-<span class="source-line-no">333</span><span id="line-333">          case "CSV":</span>
-<span class="source-line-no">334</span><span id="line-334">            chunk.append("id,name,city,product,quantity,price,timestamp\n");</span>
-<span class="source-line-no">335</span><span id="line-335">            break;</span>
-<span class="source-line-no">336</span><span id="line-336">        }</span>
-<span class="source-line-no">337</span><span id="line-337">        headerWritten = true;</span>
-<span class="source-line-no">338</span><span id="line-338">      }</span>
-<span class="source-line-no">339</span><span id="line-339"></span>
-<span class="source-line-no">340</span><span id="line-340">      // フッター生成のタイミングチェック（厳密な制御）</span>
-<span class="source-line-no">341</span><span id="line-341">      boolean shouldGenerateFooter =</span>
-<span class="source-line-no">342</span><span id="line-342">          !footerWritten</span>
-<span class="source-line-no">343</span><span id="line-343">              &amp;&amp; (remainingBytes &lt;= footerSize + 100</span>
-<span class="source-line-no">344</span><span id="line-344">                  || // 最小限のマージン</span>
-<span class="source-line-no">345</span><span id="line-345">                  (chunk.length() == 0 &amp;&amp; remainingBytes &lt; 500)); // ヘッダーのみで小さすぎる場合</span>
-<span class="source-line-no">346</span><span id="line-346"></span>
-<span class="source-line-no">347</span><span id="line-347">      if (shouldGenerateFooter) {</span>
-<span class="source-line-no">348</span><span id="line-348">        switch (format) {</span>
-<span class="source-line-no">349</span><span id="line-349">          case "XML":</span>
-<span class="source-line-no">350</span><span id="line-350">            chunk.append("&lt;/orders&gt;\n");</span>
-<span class="source-line-no">351</span><span id="line-351">            break;</span>
-<span class="source-line-no">352</span><span id="line-352">          case "JSON":</span>
-<span class="source-line-no">353</span><span id="line-353">            chunk.append("\n  ]\n}\n");</span>
+<span class="source-line-no">006</span><span id="line-6">import java.nio.charset.StandardCharsets;</span>
+<span class="source-line-no">007</span><span id="line-7">import java.nio.file.Files;</span>
+<span class="source-line-no">008</span><span id="line-8">import java.nio.file.Path;</span>
+<span class="source-line-no">009</span><span id="line-9">import java.time.Instant;</span>
+<span class="source-line-no">010</span><span id="line-10">import java.util.Random;</span>
+<span class="source-line-no">011</span><span id="line-11">import org.slf4j.Logger;</span>
+<span class="source-line-no">012</span><span id="line-12">import org.slf4j.LoggerFactory;</span>
+<span class="source-line-no">013</span><span id="line-13"></span>
+<span class="source-line-no">014</span><span id="line-14">/**</span>
+<span class="source-line-no">015</span><span id="line-15"> * 大容量テストデータを生成するユーティリティクラス</span>
+<span class="source-line-no">016</span><span id="line-16"> *</span>
+<span class="source-line-no">017</span><span id="line-17"> * &lt;p&gt;XML、JSON、CSVフォーマットで大容量データファイルを生成し、 5GBデータ/50MBメモリ目標のベンチマークテストをサポートします。</span>
+<span class="source-line-no">018</span><span id="line-18"> */</span>
+<span class="source-line-no">019</span><span id="line-19">public class LargeDataGenerator {</span>
+<span class="source-line-no">020</span><span id="line-20"></span>
+<span class="source-line-no">021</span><span id="line-21">  private static final Logger LOG = LoggerFactory.getLogger(LargeDataGenerator.class);</span>
+<span class="source-line-no">022</span><span id="line-22"></span>
+<span class="source-line-no">023</span><span id="line-23">  private static final String[] SAMPLE_NAMES = {</span>
+<span class="source-line-no">024</span><span id="line-24">    "田中太郎", "佐藤花子", "鈴木一郎", "高橋美咲", "渡辺健太",</span>
+<span class="source-line-no">025</span><span id="line-25">    "伊藤由美", "山田隆", "中村恵子", "小林誠", "加藤真理子"</span>
+<span class="source-line-no">026</span><span id="line-26">  };</span>
+<span class="source-line-no">027</span><span id="line-27"></span>
+<span class="source-line-no">028</span><span id="line-28">  private static final String[] SAMPLE_CITIES = {</span>
+<span class="source-line-no">029</span><span id="line-29">    "東京", "大阪", "名古屋", "札幌", "福岡", "仙台", "広島", "京都", "神戸", "横浜"</span>
+<span class="source-line-no">030</span><span id="line-30">  };</span>
+<span class="source-line-no">031</span><span id="line-31"></span>
+<span class="source-line-no">032</span><span id="line-32">  private static final String[] SAMPLE_PRODUCTS = {</span>
+<span class="source-line-no">033</span><span id="line-33">    "スマートフォン", "ノートパソコン", "タブレット", "イヤホン", "キーボード",</span>
+<span class="source-line-no">034</span><span id="line-34">    "マウス", "モニター", "プリンター", "カメラ", "充電器"</span>
+<span class="source-line-no">035</span><span id="line-35">  };</span>
+<span class="source-line-no">036</span><span id="line-36"></span>
+<span class="source-line-no">037</span><span id="line-37">  /** Prevent instantiation. */</span>
+<span class="source-line-no">038</span><span id="line-38">  private LargeDataGenerator() {}</span>
+<span class="source-line-no">039</span><span id="line-39"></span>
+<span class="source-line-no">040</span><span id="line-40">  /**</span>
+<span class="source-line-no">041</span><span id="line-41">   * 大容量XMLファイルを生成します</span>
+<span class="source-line-no">042</span><span id="line-42">   *</span>
+<span class="source-line-no">043</span><span id="line-43">   * @param targetSizeBytes 目標ファイルサイズ（バイト）</span>
+<span class="source-line-no">044</span><span id="line-44">   * @return 生成されたファイルのPath</span>
+<span class="source-line-no">045</span><span id="line-45">   * @throws IOException ファイル作成に失敗した場合</span>
+<span class="source-line-no">046</span><span id="line-46">   */</span>
+<span class="source-line-no">047</span><span id="line-47">  public static Path generateLargeXmlFile(long targetSizeBytes) throws IOException {</span>
+<span class="source-line-no">048</span><span id="line-48">    Path tempFile = Files.createTempFile("large-test", ".xml");</span>
+<span class="source-line-no">049</span><span id="line-49">    Random random = new Random(42); // 再現可能な結果のため固定シード</span>
+<span class="source-line-no">050</span><span id="line-50"></span>
+<span class="source-line-no">051</span><span id="line-51">    try (Writer writer = Files.newBufferedWriter(tempFile)) {</span>
+<span class="source-line-no">052</span><span id="line-52">      writer.write("&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n");</span>
+<span class="source-line-no">053</span><span id="line-53">      writer.write("&lt;orders&gt;\n");</span>
+<span class="source-line-no">054</span><span id="line-54"></span>
+<span class="source-line-no">055</span><span id="line-55">      long currentSize = 100; // ヘッダー分</span>
+<span class="source-line-no">056</span><span id="line-56">      int recordCount = 0;</span>
+<span class="source-line-no">057</span><span id="line-57"></span>
+<span class="source-line-no">058</span><span id="line-58">      while (currentSize &lt; targetSizeBytes) {</span>
+<span class="source-line-no">059</span><span id="line-59">        String record = generateXmlRecord(recordCount++, random);</span>
+<span class="source-line-no">060</span><span id="line-60">        writer.write(record);</span>
+<span class="source-line-no">061</span><span id="line-61">        currentSize += record.getBytes("UTF-8").length;</span>
+<span class="source-line-no">062</span><span id="line-62"></span>
+<span class="source-line-no">063</span><span id="line-63">        // 進捗表示（大きなファイルの場合）</span>
+<span class="source-line-no">064</span><span id="line-64">        if (recordCount % 100000 == 0 &amp;&amp; targetSizeBytes &gt; 100 * 1024 * 1024) {</span>
+<span class="source-line-no">065</span><span id="line-65">          if (LOG.isInfoEnabled()) {</span>
+<span class="source-line-no">066</span><span id="line-66">            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);</span>
+<span class="source-line-no">067</span><span id="line-67">          }</span>
+<span class="source-line-no">068</span><span id="line-68">        }</span>
+<span class="source-line-no">069</span><span id="line-69">      }</span>
+<span class="source-line-no">070</span><span id="line-70"></span>
+<span class="source-line-no">071</span><span id="line-71">      writer.write("&lt;/orders&gt;\n");</span>
+<span class="source-line-no">072</span><span id="line-72">    }</span>
+<span class="source-line-no">073</span><span id="line-73"></span>
+<span class="source-line-no">074</span><span id="line-74">    return tempFile;</span>
+<span class="source-line-no">075</span><span id="line-75">  }</span>
+<span class="source-line-no">076</span><span id="line-76"></span>
+<span class="source-line-no">077</span><span id="line-77">  /**</span>
+<span class="source-line-no">078</span><span id="line-78">   * 大容量JSONファイルを生成します</span>
+<span class="source-line-no">079</span><span id="line-79">   *</span>
+<span class="source-line-no">080</span><span id="line-80">   * @param targetSizeBytes 目標ファイルサイズ（バイト）</span>
+<span class="source-line-no">081</span><span id="line-81">   * @return 生成されたファイルのPath</span>
+<span class="source-line-no">082</span><span id="line-82">   * @throws IOException ファイル作成に失敗した場合</span>
+<span class="source-line-no">083</span><span id="line-83">   */</span>
+<span class="source-line-no">084</span><span id="line-84">  public static Path generateLargeJsonFile(long targetSizeBytes) throws IOException {</span>
+<span class="source-line-no">085</span><span id="line-85">    Path tempFile = Files.createTempFile("large-test", ".json");</span>
+<span class="source-line-no">086</span><span id="line-86">    Random random = new Random(42);</span>
+<span class="source-line-no">087</span><span id="line-87"></span>
+<span class="source-line-no">088</span><span id="line-88">    try (Writer writer = Files.newBufferedWriter(tempFile)) {</span>
+<span class="source-line-no">089</span><span id="line-89">      writer.write("{\n  \"orders\": [\n");</span>
+<span class="source-line-no">090</span><span id="line-90"></span>
+<span class="source-line-no">091</span><span id="line-91">      long currentSize = 20; // ヘッダー分</span>
+<span class="source-line-no">092</span><span id="line-92">      int recordCount = 0;</span>
+<span class="source-line-no">093</span><span id="line-93"></span>
+<span class="source-line-no">094</span><span id="line-94">      while (currentSize &lt; targetSizeBytes - 100) { // 終了分を考慮</span>
+<span class="source-line-no">095</span><span id="line-95">        if (recordCount &gt; 0) {</span>
+<span class="source-line-no">096</span><span id="line-96">          writer.write(",\n");</span>
+<span class="source-line-no">097</span><span id="line-97">          currentSize += 2;</span>
+<span class="source-line-no">098</span><span id="line-98">        }</span>
+<span class="source-line-no">099</span><span id="line-99"></span>
+<span class="source-line-no">100</span><span id="line-100">        String record = generateJsonRecord(recordCount++, random);</span>
+<span class="source-line-no">101</span><span id="line-101">        writer.write(record);</span>
+<span class="source-line-no">102</span><span id="line-102">        currentSize += record.getBytes("UTF-8").length;</span>
+<span class="source-line-no">103</span><span id="line-103"></span>
+<span class="source-line-no">104</span><span id="line-104">        if (recordCount % 100000 == 0 &amp;&amp; targetSizeBytes &gt; 100 * 1024 * 1024) {</span>
+<span class="source-line-no">105</span><span id="line-105">          if (LOG.isInfoEnabled()) {</span>
+<span class="source-line-no">106</span><span id="line-106">            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);</span>
+<span class="source-line-no">107</span><span id="line-107">          }</span>
+<span class="source-line-no">108</span><span id="line-108">        }</span>
+<span class="source-line-no">109</span><span id="line-109">      }</span>
+<span class="source-line-no">110</span><span id="line-110"></span>
+<span class="source-line-no">111</span><span id="line-111">      writer.write("\n  ]\n}\n");</span>
+<span class="source-line-no">112</span><span id="line-112">    }</span>
+<span class="source-line-no">113</span><span id="line-113"></span>
+<span class="source-line-no">114</span><span id="line-114">    return tempFile;</span>
+<span class="source-line-no">115</span><span id="line-115">  }</span>
+<span class="source-line-no">116</span><span id="line-116"></span>
+<span class="source-line-no">117</span><span id="line-117">  /**</span>
+<span class="source-line-no">118</span><span id="line-118">   * 大容量CSVファイルを生成します</span>
+<span class="source-line-no">119</span><span id="line-119">   *</span>
+<span class="source-line-no">120</span><span id="line-120">   * @param targetSizeBytes 目標ファイルサイズ（バイト）</span>
+<span class="source-line-no">121</span><span id="line-121">   * @return 生成されたファイルのPath</span>
+<span class="source-line-no">122</span><span id="line-122">   * @throws IOException ファイル作成に失敗した場合</span>
+<span class="source-line-no">123</span><span id="line-123">   */</span>
+<span class="source-line-no">124</span><span id="line-124">  public static Path generateLargeCsvFile(long targetSizeBytes) throws IOException {</span>
+<span class="source-line-no">125</span><span id="line-125">    Path tempFile = Files.createTempFile("large-test", ".csv");</span>
+<span class="source-line-no">126</span><span id="line-126">    Random random = new Random(42);</span>
+<span class="source-line-no">127</span><span id="line-127"></span>
+<span class="source-line-no">128</span><span id="line-128">    try (Writer writer = Files.newBufferedWriter(tempFile)) {</span>
+<span class="source-line-no">129</span><span id="line-129">      // CSVヘッダー</span>
+<span class="source-line-no">130</span><span id="line-130">      String header = "id,name,city,product,quantity,price,timestamp\n";</span>
+<span class="source-line-no">131</span><span id="line-131">      writer.write(header);</span>
+<span class="source-line-no">132</span><span id="line-132">      long currentSize = header.getBytes("UTF-8").length;</span>
+<span class="source-line-no">133</span><span id="line-133"></span>
+<span class="source-line-no">134</span><span id="line-134">      int recordCount = 0;</span>
+<span class="source-line-no">135</span><span id="line-135"></span>
+<span class="source-line-no">136</span><span id="line-136">      while (currentSize &lt; targetSizeBytes) {</span>
+<span class="source-line-no">137</span><span id="line-137">        String record = generateCsvRecord(recordCount++, random);</span>
+<span class="source-line-no">138</span><span id="line-138">        writer.write(record);</span>
+<span class="source-line-no">139</span><span id="line-139">        currentSize += record.getBytes("UTF-8").length;</span>
+<span class="source-line-no">140</span><span id="line-140"></span>
+<span class="source-line-no">141</span><span id="line-141">        if (recordCount % 100000 == 0 &amp;&amp; targetSizeBytes &gt; 100 * 1024 * 1024) {</span>
+<span class="source-line-no">142</span><span id="line-142">          if (LOG.isInfoEnabled()) {</span>
+<span class="source-line-no">143</span><span id="line-143">            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);</span>
+<span class="source-line-no">144</span><span id="line-144">          }</span>
+<span class="source-line-no">145</span><span id="line-145">        }</span>
+<span class="source-line-no">146</span><span id="line-146">      }</span>
+<span class="source-line-no">147</span><span id="line-147">    }</span>
+<span class="source-line-no">148</span><span id="line-148"></span>
+<span class="source-line-no">149</span><span id="line-149">    return tempFile;</span>
+<span class="source-line-no">150</span><span id="line-150">  }</span>
+<span class="source-line-no">151</span><span id="line-151"></span>
+<span class="source-line-no">152</span><span id="line-152">  /** XMLレコードを生成 */</span>
+<span class="source-line-no">153</span><span id="line-153">  private static String generateXmlRecord(int id, Random random) {</span>
+<span class="source-line-no">154</span><span id="line-154">    String name = SAMPLE_NAMES[random.nextInt(SAMPLE_NAMES.length)];</span>
+<span class="source-line-no">155</span><span id="line-155">    String city = SAMPLE_CITIES[random.nextInt(SAMPLE_CITIES.length)];</span>
+<span class="source-line-no">156</span><span id="line-156">    String product = SAMPLE_PRODUCTS[random.nextInt(SAMPLE_PRODUCTS.length)];</span>
+<span class="source-line-no">157</span><span id="line-157">    int quantity = random.nextInt(10) + 1;</span>
+<span class="source-line-no">158</span><span id="line-158">    double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;</span>
+<span class="source-line-no">159</span><span id="line-159"></span>
+<span class="source-line-no">160</span><span id="line-160">    return String.format(</span>
+<span class="source-line-no">161</span><span id="line-161">        "  &lt;order id=\"%d\"&gt;%n"</span>
+<span class="source-line-no">162</span><span id="line-162">            + "    &lt;customer&gt;%n"</span>
+<span class="source-line-no">163</span><span id="line-163">            + "      &lt;name&gt;%s&lt;/name&gt;%n"</span>
+<span class="source-line-no">164</span><span id="line-164">            + "      &lt;city&gt;%s&lt;/city&gt;%n"</span>
+<span class="source-line-no">165</span><span id="line-165">            + "    &lt;/customer&gt;%n"</span>
+<span class="source-line-no">166</span><span id="line-166">            + "    &lt;product&gt;%s&lt;/product&gt;%n"</span>
+<span class="source-line-no">167</span><span id="line-167">            + "    &lt;quantity&gt;%d&lt;/quantity&gt;%n"</span>
+<span class="source-line-no">168</span><span id="line-168">            + "    &lt;price&gt;%.2f&lt;/price&gt;%n"</span>
+<span class="source-line-no">169</span><span id="line-169">            + "    &lt;timestamp&gt;%s&lt;/timestamp&gt;%n"</span>
+<span class="source-line-no">170</span><span id="line-170">            + "    &lt;description&gt;%s&lt;/description&gt;%n"</span>
+<span class="source-line-no">171</span><span id="line-171">            + "  &lt;/order&gt;%n",</span>
+<span class="source-line-no">172</span><span id="line-172">        id,</span>
+<span class="source-line-no">173</span><span id="line-173">        escapeXml(name),</span>
+<span class="source-line-no">174</span><span id="line-174">        escapeXml(city),</span>
+<span class="source-line-no">175</span><span id="line-175">        escapeXml(product),</span>
+<span class="source-line-no">176</span><span id="line-176">        quantity,</span>
+<span class="source-line-no">177</span><span id="line-177">        price,</span>
+<span class="source-line-no">178</span><span id="line-178">        Instant.now(),</span>
+<span class="source-line-no">179</span><span id="line-179">        generateDescription(product, random));</span>
+<span class="source-line-no">180</span><span id="line-180">  }</span>
+<span class="source-line-no">181</span><span id="line-181"></span>
+<span class="source-line-no">182</span><span id="line-182">  /** JSONレコードを生成 */</span>
+<span class="source-line-no">183</span><span id="line-183">  private static String generateJsonRecord(int id, Random random) {</span>
+<span class="source-line-no">184</span><span id="line-184">    String name = SAMPLE_NAMES[random.nextInt(SAMPLE_NAMES.length)];</span>
+<span class="source-line-no">185</span><span id="line-185">    String city = SAMPLE_CITIES[random.nextInt(SAMPLE_CITIES.length)];</span>
+<span class="source-line-no">186</span><span id="line-186">    String product = SAMPLE_PRODUCTS[random.nextInt(SAMPLE_PRODUCTS.length)];</span>
+<span class="source-line-no">187</span><span id="line-187">    int quantity = random.nextInt(10) + 1;</span>
+<span class="source-line-no">188</span><span id="line-188">    double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;</span>
+<span class="source-line-no">189</span><span id="line-189"></span>
+<span class="source-line-no">190</span><span id="line-190">    return String.format(</span>
+<span class="source-line-no">191</span><span id="line-191">        "    {%n"</span>
+<span class="source-line-no">192</span><span id="line-192">            + "      \"id\": %d,%n"</span>
+<span class="source-line-no">193</span><span id="line-193">            + "      \"customer\": {%n"</span>
+<span class="source-line-no">194</span><span id="line-194">            + "        \"name\": \"%s\",%n"</span>
+<span class="source-line-no">195</span><span id="line-195">            + "        \"city\": \"%s\"%n"</span>
+<span class="source-line-no">196</span><span id="line-196">            + "      },%n"</span>
+<span class="source-line-no">197</span><span id="line-197">            + "      \"product\": \"%s\",%n"</span>
+<span class="source-line-no">198</span><span id="line-198">            + "      \"quantity\": %d,%n"</span>
+<span class="source-line-no">199</span><span id="line-199">            + "      \"price\": %.2f,%n"</span>
+<span class="source-line-no">200</span><span id="line-200">            + "      \"timestamp\": \"%s\",%n"</span>
+<span class="source-line-no">201</span><span id="line-201">            + "      \"description\": \"%s\"%n"</span>
+<span class="source-line-no">202</span><span id="line-202">            + "    }",</span>
+<span class="source-line-no">203</span><span id="line-203">        id,</span>
+<span class="source-line-no">204</span><span id="line-204">        name,</span>
+<span class="source-line-no">205</span><span id="line-205">        city,</span>
+<span class="source-line-no">206</span><span id="line-206">        product,</span>
+<span class="source-line-no">207</span><span id="line-207">        quantity,</span>
+<span class="source-line-no">208</span><span id="line-208">        price,</span>
+<span class="source-line-no">209</span><span id="line-209">        Instant.now(),</span>
+<span class="source-line-no">210</span><span id="line-210">        generateDescription(product, random));</span>
+<span class="source-line-no">211</span><span id="line-211">  }</span>
+<span class="source-line-no">212</span><span id="line-212"></span>
+<span class="source-line-no">213</span><span id="line-213">  /** CSVレコードを生成 */</span>
+<span class="source-line-no">214</span><span id="line-214">  private static String generateCsvRecord(int id, Random random) {</span>
+<span class="source-line-no">215</span><span id="line-215">    String name = SAMPLE_NAMES[random.nextInt(SAMPLE_NAMES.length)];</span>
+<span class="source-line-no">216</span><span id="line-216">    String city = SAMPLE_CITIES[random.nextInt(SAMPLE_CITIES.length)];</span>
+<span class="source-line-no">217</span><span id="line-217">    String product = SAMPLE_PRODUCTS[random.nextInt(SAMPLE_PRODUCTS.length)];</span>
+<span class="source-line-no">218</span><span id="line-218">    int quantity = random.nextInt(10) + 1;</span>
+<span class="source-line-no">219</span><span id="line-219">    double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;</span>
+<span class="source-line-no">220</span><span id="line-220"></span>
+<span class="source-line-no">221</span><span id="line-221">    return String.format(</span>
+<span class="source-line-no">222</span><span id="line-222">        "%d,\"%s\",\"%s\",\"%s\",%d,%.2f,\"%s\"%n",</span>
+<span class="source-line-no">223</span><span id="line-223">        id, name, city, product, quantity, price, Instant.now());</span>
+<span class="source-line-no">224</span><span id="line-224">  }</span>
+<span class="source-line-no">225</span><span id="line-225"></span>
+<span class="source-line-no">226</span><span id="line-226">  /** 商品の説明文を生成（データボリューム増加のため） */</span>
+<span class="source-line-no">227</span><span id="line-227">  private static String generateDescription(String product, Random random) {</span>
+<span class="source-line-no">228</span><span id="line-228">    String[] adjectives = {"高品質な", "人気の", "最新の", "おすすめの", "限定の"};</span>
+<span class="source-line-no">229</span><span id="line-229">    String[] features = {"機能性", "デザイン", "性能", "品質", "価格"};</span>
+<span class="source-line-no">230</span><span id="line-230"></span>
+<span class="source-line-no">231</span><span id="line-231">    String adj = adjectives[random.nextInt(adjectives.length)];</span>
+<span class="source-line-no">232</span><span id="line-232">    String feature = features[random.nextInt(features.length)];</span>
+<span class="source-line-no">233</span><span id="line-233"></span>
+<span class="source-line-no">234</span><span id="line-234">    return escapeXml(adj + product + "で、" + feature + "に優れた商品です。多くのお客様にご愛用いただいております。");</span>
+<span class="source-line-no">235</span><span id="line-235">  }</span>
+<span class="source-line-no">236</span><span id="line-236"></span>
+<span class="source-line-no">237</span><span id="line-237">  /** XML用のエスケープ処理 */</span>
+<span class="source-line-no">238</span><span id="line-238">  private static String escapeXml(String text) {</span>
+<span class="source-line-no">239</span><span id="line-239">    return text.replace("&amp;", "&amp;amp;")</span>
+<span class="source-line-no">240</span><span id="line-240">        .replace("&lt;", "&amp;lt;")</span>
+<span class="source-line-no">241</span><span id="line-241">        .replace("&gt;", "&amp;gt;")</span>
+<span class="source-line-no">242</span><span id="line-242">        .replace("\"", "&amp;quot;")</span>
+<span class="source-line-no">243</span><span id="line-243">        .replace("'", "&amp;apos;");</span>
+<span class="source-line-no">244</span><span id="line-244">  }</span>
+<span class="source-line-no">245</span><span id="line-245"></span>
+<span class="source-line-no">246</span><span id="line-246">  /**</span>
+<span class="source-line-no">247</span><span id="line-247">   * メモリ効率的な大容量データInputStreamを作成</span>
+<span class="source-line-no">248</span><span id="line-248">   *</span>
+<span class="source-line-no">249</span><span id="line-249">   * @param format データフォーマット（"XML", "JSON", "CSV"）</span>
+<span class="source-line-no">250</span><span id="line-250">   * @param targetSizeBytes 目標サイズ</span>
+<span class="source-line-no">251</span><span id="line-251">   * @return 大容量データのInputStream</span>
+<span class="source-line-no">252</span><span id="line-252">   */</span>
+<span class="source-line-no">253</span><span id="line-253">  public static InputStream createLargeDataStream(String format, long targetSizeBytes) {</span>
+<span class="source-line-no">254</span><span id="line-254">    return new LargeDataInputStream(format, targetSizeBytes);</span>
+<span class="source-line-no">255</span><span id="line-255">  }</span>
+<span class="source-line-no">256</span><span id="line-256"></span>
+<span class="source-line-no">257</span><span id="line-257">  /** メモリ効率的な大容量データInputStream実装 */</span>
+<span class="source-line-no">258</span><span id="line-258">  private static class LargeDataInputStream extends InputStream {</span>
+<span class="source-line-no">259</span><span id="line-259">    private final String format;</span>
+<span class="source-line-no">260</span><span id="line-260">    private final long totalSize;</span>
+<span class="source-line-no">261</span><span id="line-261">    private long bytesGenerated = 0;</span>
+<span class="source-line-no">262</span><span id="line-262">    private byte[] buffer = new byte[0];</span>
+<span class="source-line-no">263</span><span id="line-263">    private int bufferPosition = 0;</span>
+<span class="source-line-no">264</span><span id="line-264">    private int recordCount = 0;</span>
+<span class="source-line-no">265</span><span id="line-265">    private boolean headerWritten = false;</span>
+<span class="source-line-no">266</span><span id="line-266">    private boolean footerWritten = false;</span>
+<span class="source-line-no">267</span><span id="line-267">    private boolean isDocumentComplete = false;</span>
+<span class="source-line-no">268</span><span id="line-268">    private final Random random = new Random(42);</span>
+<span class="source-line-no">269</span><span id="line-269"></span>
+<span class="source-line-no">270</span><span id="line-270">    public LargeDataInputStream(String format, long totalSize) {</span>
+<span class="source-line-no">271</span><span id="line-271">      this.format = format.toUpperCase();</span>
+<span class="source-line-no">272</span><span id="line-272">      this.totalSize = totalSize;</span>
+<span class="source-line-no">273</span><span id="line-273">    }</span>
+<span class="source-line-no">274</span><span id="line-274"></span>
+<span class="source-line-no">275</span><span id="line-275">    @Override</span>
+<span class="source-line-no">276</span><span id="line-276">    public int read() throws IOException {</span>
+<span class="source-line-no">277</span><span id="line-277">      if (bufferPosition &gt;= buffer.length) {</span>
+<span class="source-line-no">278</span><span id="line-278">        generateNextChunk();</span>
+<span class="source-line-no">279</span><span id="line-279">        if (buffer.length == 0) {</span>
+<span class="source-line-no">280</span><span id="line-280">          return -1; // EOF</span>
+<span class="source-line-no">281</span><span id="line-281">        }</span>
+<span class="source-line-no">282</span><span id="line-282">        bufferPosition = 0;</span>
+<span class="source-line-no">283</span><span id="line-283">      }</span>
+<span class="source-line-no">284</span><span id="line-284"></span>
+<span class="source-line-no">285</span><span id="line-285">      return buffer[bufferPosition++] &amp; 0xFF;</span>
+<span class="source-line-no">286</span><span id="line-286">    }</span>
+<span class="source-line-no">287</span><span id="line-287"></span>
+<span class="source-line-no">288</span><span id="line-288">    @Override</span>
+<span class="source-line-no">289</span><span id="line-289">    public int read(byte[] b, int off, int len) throws IOException {</span>
+<span class="source-line-no">290</span><span id="line-290">      if (isDocumentComplete &amp;&amp; bufferPosition &gt;= buffer.length) {</span>
+<span class="source-line-no">291</span><span id="line-291">        return -1; // EOF</span>
+<span class="source-line-no">292</span><span id="line-292">      }</span>
+<span class="source-line-no">293</span><span id="line-293"></span>
+<span class="source-line-no">294</span><span id="line-294">      int totalRead = 0;</span>
+<span class="source-line-no">295</span><span id="line-295">      while (totalRead &lt; len &amp;&amp; (!isDocumentComplete || bufferPosition &lt; buffer.length)) {</span>
+<span class="source-line-no">296</span><span id="line-296">        if (bufferPosition &gt;= buffer.length) {</span>
+<span class="source-line-no">297</span><span id="line-297">          generateNextChunk();</span>
+<span class="source-line-no">298</span><span id="line-298">          if (buffer.length == 0) break;</span>
+<span class="source-line-no">299</span><span id="line-299">          bufferPosition = 0;</span>
+<span class="source-line-no">300</span><span id="line-300">        }</span>
+<span class="source-line-no">301</span><span id="line-301"></span>
+<span class="source-line-no">302</span><span id="line-302">        int available = buffer.length - bufferPosition;</span>
+<span class="source-line-no">303</span><span id="line-303">        int toRead = Math.min(len - totalRead, available);</span>
+<span class="source-line-no">304</span><span id="line-304"></span>
+<span class="source-line-no">305</span><span id="line-305">        System.arraycopy(buffer, bufferPosition, b, off + totalRead, toRead);</span>
+<span class="source-line-no">306</span><span id="line-306">        bufferPosition += toRead;</span>
+<span class="source-line-no">307</span><span id="line-307">        totalRead += toRead;</span>
+<span class="source-line-no">308</span><span id="line-308">      }</span>
+<span class="source-line-no">309</span><span id="line-309"></span>
+<span class="source-line-no">310</span><span id="line-310">      return totalRead &gt; 0 ? totalRead : -1;</span>
+<span class="source-line-no">311</span><span id="line-311">    }</span>
+<span class="source-line-no">312</span><span id="line-312"></span>
+<span class="source-line-no">313</span><span id="line-313">    private void generateNextChunk() {</span>
+<span class="source-line-no">314</span><span id="line-314">      if (isDocumentComplete) {</span>
+<span class="source-line-no">315</span><span id="line-315">        buffer = new byte[0];</span>
+<span class="source-line-no">316</span><span id="line-316">        return;</span>
+<span class="source-line-no">317</span><span id="line-317">      }</span>
+<span class="source-line-no">318</span><span id="line-318"></span>
+<span class="source-line-no">319</span><span id="line-319">      StringBuilder chunk = new StringBuilder();</span>
+<span class="source-line-no">320</span><span id="line-320"></span>
+<span class="source-line-no">321</span><span id="line-321">      // フッターの必要なサイズを計算（マージンを含む）</span>
+<span class="source-line-no">322</span><span id="line-322">      int footerSize = calculateFooterSize();</span>
+<span class="source-line-no">323</span><span id="line-323">      long remainingBytes = totalSize - bytesGenerated;</span>
+<span class="source-line-no">324</span><span id="line-324"></span>
+<span class="source-line-no">325</span><span id="line-325">      // ヘッダー生成</span>
+<span class="source-line-no">326</span><span id="line-326">      if (!headerWritten) {</span>
+<span class="source-line-no">327</span><span id="line-327">        switch (format) {</span>
+<span class="source-line-no">328</span><span id="line-328">          case "XML":</span>
+<span class="source-line-no">329</span><span id="line-329">            chunk.append("&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;\n&lt;orders&gt;\n");</span>
+<span class="source-line-no">330</span><span id="line-330">            break;</span>
+<span class="source-line-no">331</span><span id="line-331">          case "JSON":</span>
+<span class="source-line-no">332</span><span id="line-332">            chunk.append("{\n  \"orders\": [\n");</span>
+<span class="source-line-no">333</span><span id="line-333">            break;</span>
+<span class="source-line-no">334</span><span id="line-334">          case "CSV":</span>
+<span class="source-line-no">335</span><span id="line-335">            chunk.append("id,name,city,product,quantity,price,timestamp\n");</span>
+<span class="source-line-no">336</span><span id="line-336">            break;</span>
+<span class="source-line-no">337</span><span id="line-337">          default:</span>
+<span class="source-line-no">338</span><span id="line-338">            throw new IllegalArgumentException("Unsupported format: " + format);</span>
+<span class="source-line-no">339</span><span id="line-339">        }</span>
+<span class="source-line-no">340</span><span id="line-340">        headerWritten = true;</span>
+<span class="source-line-no">341</span><span id="line-341">      }</span>
+<span class="source-line-no">342</span><span id="line-342"></span>
+<span class="source-line-no">343</span><span id="line-343">      // フッター生成のタイミングチェック（厳密な制御）</span>
+<span class="source-line-no">344</span><span id="line-344">      boolean shouldGenerateFooter =</span>
+<span class="source-line-no">345</span><span id="line-345">          !footerWritten</span>
+<span class="source-line-no">346</span><span id="line-346">              &amp;&amp; (remainingBytes &lt;= footerSize + 100</span>
+<span class="source-line-no">347</span><span id="line-347">                  || // 最小限のマージン</span>
+<span class="source-line-no">348</span><span id="line-348">                  (chunk.length() == 0 &amp;&amp; remainingBytes &lt; 500)); // ヘッダーのみで小さすぎる場合</span>
+<span class="source-line-no">349</span><span id="line-349"></span>
+<span class="source-line-no">350</span><span id="line-350">      if (shouldGenerateFooter) {</span>
+<span class="source-line-no">351</span><span id="line-351">        switch (format) {</span>
+<span class="source-line-no">352</span><span id="line-352">          case "XML":</span>
+<span class="source-line-no">353</span><span id="line-353">            chunk.append("&lt;/orders&gt;\n");</span>
 <span class="source-line-no">354</span><span id="line-354">            break;</span>
-<span class="source-line-no">355</span><span id="line-355">          case "CSV":</span>
-<span class="source-line-no">356</span><span id="line-356">            // CSVにはフッターなし</span>
+<span class="source-line-no">355</span><span id="line-355">          case "JSON":</span>
+<span class="source-line-no">356</span><span id="line-356">            chunk.append("\n  ]\n}\n");</span>
 <span class="source-line-no">357</span><span id="line-357">            break;</span>
-<span class="source-line-no">358</span><span id="line-358">        }</span>
-<span class="source-line-no">359</span><span id="line-359">        footerWritten = true;</span>
-<span class="source-line-no">360</span><span id="line-360">        isDocumentComplete = true;</span>
-<span class="source-line-no">361</span><span id="line-361">      } else {</span>
-<span class="source-line-no">362</span><span id="line-362">        // レコード生成（メモリ効率重視、チャンクサイズ制限）</span>
-<span class="source-line-no">363</span><span id="line-363">        long availableSpace = remainingBytes - footerSize - 50; // 安全マージン</span>
-<span class="source-line-no">364</span><span id="line-364">        final int MAX_CHUNK_SIZE = 64 * 1024; // 64KB制限でメモリ効率向上</span>
-<span class="source-line-no">365</span><span id="line-365"></span>
-<span class="source-line-no">366</span><span id="line-366">        while (availableSpace &gt; 0 &amp;&amp; !shouldGenerateFooter &amp;&amp; chunk.length() &lt; MAX_CHUNK_SIZE) {</span>
-<span class="source-line-no">367</span><span id="line-367">          // JSON カンマ追加</span>
-<span class="source-line-no">368</span><span id="line-368">          String separator = "";</span>
-<span class="source-line-no">369</span><span id="line-369">          if (format.equals("JSON") &amp;&amp; recordCount &gt; 0 &amp;&amp; chunk.length() &gt; 50) {</span>
-<span class="source-line-no">370</span><span id="line-370">            separator = ",\n";</span>
-<span class="source-line-no">371</span><span id="line-371">          }</span>
-<span class="source-line-no">372</span><span id="line-372"></span>
-<span class="source-line-no">373</span><span id="line-373">          String record;</span>
-<span class="source-line-no">374</span><span id="line-374">          switch (format) {</span>
-<span class="source-line-no">375</span><span id="line-375">            case "XML":</span>
-<span class="source-line-no">376</span><span id="line-376">              record = generateXmlRecord(recordCount, random);</span>
-<span class="source-line-no">377</span><span id="line-377">              break;</span>
-<span class="source-line-no">378</span><span id="line-378">            case "JSON":</span>
-<span class="source-line-no">379</span><span id="line-379">              record = generateJsonRecord(recordCount, random);</span>
+<span class="source-line-no">358</span><span id="line-358">          case "CSV":</span>
+<span class="source-line-no">359</span><span id="line-359">            // CSVにはフッターなし</span>
+<span class="source-line-no">360</span><span id="line-360">            break;</span>
+<span class="source-line-no">361</span><span id="line-361">        }</span>
+<span class="source-line-no">362</span><span id="line-362">        footerWritten = true;</span>
+<span class="source-line-no">363</span><span id="line-363">        isDocumentComplete = true;</span>
+<span class="source-line-no">364</span><span id="line-364">      } else {</span>
+<span class="source-line-no">365</span><span id="line-365">        // レコード生成（メモリ効率重視、チャンクサイズ制限）</span>
+<span class="source-line-no">366</span><span id="line-366">        long availableSpace = remainingBytes - footerSize - 50; // 安全マージン</span>
+<span class="source-line-no">367</span><span id="line-367">        final int MAX_CHUNK_SIZE = 64 * 1024; // 64KB制限でメモリ効率向上</span>
+<span class="source-line-no">368</span><span id="line-368"></span>
+<span class="source-line-no">369</span><span id="line-369">        while (availableSpace &gt; 0 &amp;&amp; !shouldGenerateFooter &amp;&amp; chunk.length() &lt; MAX_CHUNK_SIZE) {</span>
+<span class="source-line-no">370</span><span id="line-370">          // JSON カンマ追加</span>
+<span class="source-line-no">371</span><span id="line-371">          String separator = "";</span>
+<span class="source-line-no">372</span><span id="line-372">          if (format.equals("JSON") &amp;&amp; recordCount &gt; 0 &amp;&amp; chunk.length() &gt; 50) {</span>
+<span class="source-line-no">373</span><span id="line-373">            separator = ",\n";</span>
+<span class="source-line-no">374</span><span id="line-374">          }</span>
+<span class="source-line-no">375</span><span id="line-375"></span>
+<span class="source-line-no">376</span><span id="line-376">          String record;</span>
+<span class="source-line-no">377</span><span id="line-377">          switch (format) {</span>
+<span class="source-line-no">378</span><span id="line-378">            case "XML":</span>
+<span class="source-line-no">379</span><span id="line-379">              record = generateXmlRecord(recordCount, random);</span>
 <span class="source-line-no">380</span><span id="line-380">              break;</span>
-<span class="source-line-no">381</span><span id="line-381">            case "CSV":</span>
-<span class="source-line-no">382</span><span id="line-382">              record = generateCsvRecord(recordCount, random);</span>
+<span class="source-line-no">381</span><span id="line-381">            case "JSON":</span>
+<span class="source-line-no">382</span><span id="line-382">              record = generateJsonRecord(recordCount, random);</span>
 <span class="source-line-no">383</span><span id="line-383">              break;</span>
-<span class="source-line-no">384</span><span id="line-384">            default:</span>
-<span class="source-line-no">385</span><span id="line-385">              record = "Unknown format\n";</span>
-<span class="source-line-no">386</span><span id="line-386">          }</span>
-<span class="source-line-no">387</span><span id="line-387"></span>
-<span class="source-line-no">388</span><span id="line-388">          // サイズチェック（より厳密）</span>
-<span class="source-line-no">389</span><span id="line-389">          int nextAdditionSize = separator.length() + record.length();</span>
-<span class="source-line-no">390</span><span id="line-390">          if (nextAdditionSize &gt; availableSpace</span>
-<span class="source-line-no">391</span><span id="line-391">              || chunk.length() + nextAdditionSize &gt; MAX_CHUNK_SIZE) {</span>
-<span class="source-line-no">392</span><span id="line-392">            break; // これ以上追加できない</span>
-<span class="source-line-no">393</span><span id="line-393">          }</span>
-<span class="source-line-no">394</span><span id="line-394"></span>
-<span class="source-line-no">395</span><span id="line-395">          // レコード追加</span>
-<span class="source-line-no">396</span><span id="line-396">          chunk.append(separator).append(record);</span>
-<span class="source-line-no">397</span><span id="line-397">          recordCount++;</span>
-<span class="source-line-no">398</span><span id="line-398">          availableSpace -= nextAdditionSize;</span>
-<span class="source-line-no">399</span><span id="line-399"></span>
-<span class="source-line-no">400</span><span id="line-400">          // 次回のフッター生成判定を更新</span>
-<span class="source-line-no">401</span><span id="line-401">          shouldGenerateFooter = !footerWritten &amp;&amp; availableSpace &lt;= footerSize + 50;</span>
-<span class="source-line-no">402</span><span id="line-402">          if (shouldGenerateFooter) break;</span>
-<span class="source-line-no">403</span><span id="line-403">        }</span>
-<span class="source-line-no">404</span><span id="line-404">      }</span>
-<span class="source-line-no">405</span><span id="line-405"></span>
-<span class="source-line-no">406</span><span id="line-406">      try {</span>
-<span class="source-line-no">407</span><span id="line-407">        byte[] chunkBytes = chunk.toString().getBytes("UTF-8");</span>
-<span class="source-line-no">408</span><span id="line-408">        buffer = chunkBytes;</span>
-<span class="source-line-no">409</span><span id="line-409">        bytesGenerated += chunkBytes.length;</span>
-<span class="source-line-no">410</span><span id="line-410">      } catch (Exception e) {</span>
-<span class="source-line-no">411</span><span id="line-411">        buffer = new byte[0];</span>
-<span class="source-line-no">412</span><span id="line-412">        isDocumentComplete = true;</span>
-<span class="source-line-no">413</span><span id="line-413">      }</span>
-<span class="source-line-no">414</span><span id="line-414">      bufferPosition = 0;</span>
-<span class="source-line-no">415</span><span id="line-415">    }</span>
-<span class="source-line-no">416</span><span id="line-416"></span>
-<span class="source-line-no">417</span><span id="line-417">    private int calculateFooterSize() {</span>
-<span class="source-line-no">418</span><span id="line-418">      switch (format) {</span>
-<span class="source-line-no">419</span><span id="line-419">        case "XML":</span>
-<span class="source-line-no">420</span><span id="line-420">          return "&lt;/orders&gt;\n".getBytes().length;</span>
-<span class="source-line-no">421</span><span id="line-421">        case "JSON":</span>
-<span class="source-line-no">422</span><span id="line-422">          return "\n  ]\n}\n".getBytes().length;</span>
-<span class="source-line-no">423</span><span id="line-423">        case "CSV":</span>
-<span class="source-line-no">424</span><span id="line-424">        default:</span>
-<span class="source-line-no">425</span><span id="line-425">          return 0;</span>
-<span class="source-line-no">426</span><span id="line-426">      }</span>
-<span class="source-line-no">427</span><span id="line-427">    }</span>
-<span class="source-line-no">428</span><span id="line-428">  }</span>
-<span class="source-line-no">429</span><span id="line-429">}</span>
+<span class="source-line-no">384</span><span id="line-384">            case "CSV":</span>
+<span class="source-line-no">385</span><span id="line-385">              record = generateCsvRecord(recordCount, random);</span>
+<span class="source-line-no">386</span><span id="line-386">              break;</span>
+<span class="source-line-no">387</span><span id="line-387">            default:</span>
+<span class="source-line-no">388</span><span id="line-388">              record = "Unknown format\n";</span>
+<span class="source-line-no">389</span><span id="line-389">          }</span>
+<span class="source-line-no">390</span><span id="line-390"></span>
+<span class="source-line-no">391</span><span id="line-391">          // サイズチェック（より厳密）</span>
+<span class="source-line-no">392</span><span id="line-392">          int nextAdditionSize = separator.length() + record.length();</span>
+<span class="source-line-no">393</span><span id="line-393">          if (nextAdditionSize &gt; availableSpace</span>
+<span class="source-line-no">394</span><span id="line-394">              || chunk.length() + nextAdditionSize &gt; MAX_CHUNK_SIZE) {</span>
+<span class="source-line-no">395</span><span id="line-395">            break; // これ以上追加できない</span>
+<span class="source-line-no">396</span><span id="line-396">          }</span>
+<span class="source-line-no">397</span><span id="line-397"></span>
+<span class="source-line-no">398</span><span id="line-398">          // レコード追加</span>
+<span class="source-line-no">399</span><span id="line-399">          chunk.append(separator).append(record);</span>
+<span class="source-line-no">400</span><span id="line-400">          recordCount++;</span>
+<span class="source-line-no">401</span><span id="line-401">          availableSpace -= nextAdditionSize;</span>
+<span class="source-line-no">402</span><span id="line-402"></span>
+<span class="source-line-no">403</span><span id="line-403">          // 次回のフッター生成判定を更新</span>
+<span class="source-line-no">404</span><span id="line-404">          shouldGenerateFooter = !footerWritten &amp;&amp; availableSpace &lt;= footerSize + 50;</span>
+<span class="source-line-no">405</span><span id="line-405">          if (shouldGenerateFooter) break;</span>
+<span class="source-line-no">406</span><span id="line-406">        }</span>
+<span class="source-line-no">407</span><span id="line-407">      }</span>
+<span class="source-line-no">408</span><span id="line-408"></span>
+<span class="source-line-no">409</span><span id="line-409">      try {</span>
+<span class="source-line-no">410</span><span id="line-410">        byte[] chunkBytes = chunk.toString().getBytes("UTF-8");</span>
+<span class="source-line-no">411</span><span id="line-411">        buffer = chunkBytes;</span>
+<span class="source-line-no">412</span><span id="line-412">        bytesGenerated += chunkBytes.length;</span>
+<span class="source-line-no">413</span><span id="line-413">      } catch (Exception e) {</span>
+<span class="source-line-no">414</span><span id="line-414">        buffer = new byte[0];</span>
+<span class="source-line-no">415</span><span id="line-415">        isDocumentComplete = true;</span>
+<span class="source-line-no">416</span><span id="line-416">      }</span>
+<span class="source-line-no">417</span><span id="line-417">      bufferPosition = 0;</span>
+<span class="source-line-no">418</span><span id="line-418">    }</span>
+<span class="source-line-no">419</span><span id="line-419"></span>
+<span class="source-line-no">420</span><span id="line-420">    private int calculateFooterSize() {</span>
+<span class="source-line-no">421</span><span id="line-421">      switch (format) {</span>
+<span class="source-line-no">422</span><span id="line-422">        case "XML":</span>
+<span class="source-line-no">423</span><span id="line-423">          return "&lt;/orders&gt;\n".getBytes(StandardCharsets.UTF_8).length;</span>
+<span class="source-line-no">424</span><span id="line-424">        case "JSON":</span>
+<span class="source-line-no">425</span><span id="line-425">          return "\n  ]\n}\n".getBytes(StandardCharsets.UTF_8).length;</span>
+<span class="source-line-no">426</span><span id="line-426">        case "CSV":</span>
+<span class="source-line-no">427</span><span id="line-427">        default:</span>
+<span class="source-line-no">428</span><span id="line-428">          return 0;</span>
+<span class="source-line-no">429</span><span id="line-429">      }</span>
+<span class="source-line-no">430</span><span id="line-430">    }</span>
+<span class="source-line-no">431</span><span id="line-431">  }</span>
+<span class="source-line-no">432</span><span id="line-432">}</span>
 
 
 

@@ -100,10 +100,10 @@
 <span class="source-line-no">087</span><span id="line-87">  /**</span>
 <span class="source-line-no">088</span><span id="line-88">   * Xpathを取得します。</span>
 <span class="source-line-no">089</span><span id="line-89">   *</span>
-<span class="source-line-no">090</span><span id="line-90">   * @return Xpathの文字列</span>
+<span class="source-line-no">090</span><span id="line-90">   * @return Xpathの文字列のコピー</span>
 <span class="source-line-no">091</span><span id="line-91">   */</span>
 <span class="source-line-no">092</span><span id="line-92">  public List&lt;String&gt; getTargetXpath() {</span>
-<span class="source-line-no">093</span><span id="line-93">    return this.targetXpath;</span>
+<span class="source-line-no">093</span><span id="line-93">    return List.copyOf(this.targetXpath);</span>
 <span class="source-line-no">094</span><span id="line-94">  }</span>
 <span class="source-line-no">095</span><span id="line-95">}</span>
 

@@ -21,8 +21,7 @@ public class MeasuredInputStream extends InputStream {
   public MeasuredInputStream(final InputStream delegateStream) {
     super();
     this.delegate =
-        java.util.Objects.requireNonNull(
-            delegateStream, "delegate InputStream cannot be null");
+        java.util.Objects.requireNonNull(delegateStream, "delegate InputStream cannot be null");
   }
 
   @Override

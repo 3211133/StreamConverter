@@ -38,6 +38,12 @@ dependencies {
     // Mockito の依存関係（テスト用）
     testImplementation("org.mockito:mockito-core:5.18.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
+    
+    // JSON processing with Jackson
+    implementation("com.fasterxml.jackson.core:jackson-core:2.18.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.18.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.18.2")
 }
 
 // Benchmark tasks

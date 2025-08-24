@@ -2,8 +2,8 @@ package com.streamConverter.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.command.impl.CsvNavigateCommand;
-import com.streamConverter.command.impl.JsonNavigateCommand;
+import com.streamConverter.command.impl.csv.CsvNavigateCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.rule.DatabaseFetchRule;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

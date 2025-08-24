@@ -2,10 +2,10 @@ package com.streamConverter.examples;
 
 import com.streamConverter.StreamConverter;
 import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.CsvNavigateCommand;
-import com.streamConverter.command.impl.JsonNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.XmlNavigateCommand;
+import com.streamConverter.command.impl.csv.CsvNavigateCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
+import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

@@ -307,7 +307,6 @@ public class ValidationResultTest {
   @Test
   @DisplayName("Failure factory method with all parameters")
   void testFailureFactoryMethodWithAllParameters() {
-    List<String> errors = Arrays.asList("Error 1", "Error 2");
     String dataSource = "bad-input.csv";
     long executionTime = 300L;
 

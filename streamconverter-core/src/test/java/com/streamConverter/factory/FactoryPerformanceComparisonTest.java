@@ -4,7 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamConverter.command.EnhancedCommandFactory;
 import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.JsonNavigateCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -154,10 +154,6 @@ class FactoryPerformanceComparisonTest {
   @Test
   @DisplayName("Compare functional execution performance")
   void testFunctionalExecutionPerformance() throws IOException, FactoryException {
-    // Prepare test data
-    ByteArrayInputStream testInput = new ByteArrayInputStream(TEST_JSON_DATA.getBytes());
-    ByteArrayOutputStream testOutput = new ByteArrayOutputStream();
-
     // Test simple new execution
     long simpleExecutionTime = measureSimpleNewExecution();
 

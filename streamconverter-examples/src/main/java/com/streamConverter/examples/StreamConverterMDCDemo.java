@@ -2,8 +2,8 @@ package com.streamConverter.examples;
 
 import com.streamConverter.CommandResult;
 import com.streamConverter.StreamConverter;
-import com.streamConverter.command.impl.CsvNavigateCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
+import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.context.ExecutionContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

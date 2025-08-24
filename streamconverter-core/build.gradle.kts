@@ -4,6 +4,7 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
+    id("com.github.spotbugs") version "6.0.28"
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
 }
@@ -192,6 +193,26 @@ tasks.pmdMain {
         html.required.set(true)
     }
     exclude("**/examples/**", "**/demo/**")
+}
+
+// SpotBugs configuration for bug pattern detection
+spotbugs {
+    toolVersion.set("4.8.6")
+    effort.set(com.github.spotbugs.snom.Effort.MAX)
+    reportLevel.set(com.github.spotbugs.snom.Confidence.MEDIUM)
+    excludeFilter.set(file("../spotbugs-exclude.xml"))
+}
+
+// SpotBugs task configuration
+tasks.spotbugsMain {
+    reports.create("html") {
+        required.set(true)
+        outputLocation.set(file("build/reports/spotbugs/main.html"))
+    }
+    reports.create("xml") {
+        required.set(true)
+        outputLocation.set(file("build/reports/spotbugs/main.xml"))
+    }
 }
 
 // check タスクの実行時に spotlessApply を依存タスクとして実行する

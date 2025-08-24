@@ -79,7 +79,7 @@ loadScripts(document, 'script');</script>
 <hr>
 <div class="type-signature"><span class="annotations">@RestController
 @RequestMapping("/api/v1/stream")
-</span><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-28">StreamProcessingController</a></span>
+</span><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-29">StreamProcessingController</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Web API controller for StreamConverter processing.
 
@@ -154,7 +154,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>StreamProcessingController</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-30">StreamProcessingController</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-31">StreamProcessingController</a></span>()</div>
 </section>
 </li>
 </ul>
@@ -171,7 +171,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations">@PostMapping(value="/csv/extract",
              consumes="application/octet-stream",
              produces="application/octet-stream")
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">reactor.core.publisher.Mono&lt;org.springframework.http.ResponseEntity&lt;reactor.core.publisher.Flux&lt;org.springframework.core.io.buffer.DataBuffer&gt;&gt;&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-41">processCsvExtraction</a></span><wbr><span class="parameters">(@RequestBody
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">reactor.core.publisher.Mono&lt;org.springframework.http.ResponseEntity&lt;reactor.core.publisher.Flux&lt;org.springframework.core.io.buffer.DataBuffer&gt;&gt;&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-42">processCsvExtraction</a></span><wbr><span class="parameters">(@RequestBody
  reactor.core.publisher.Flux&lt;org.springframework.core.io.buffer.DataBuffer&gt;&nbsp;inputData,
  @RequestParam
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnName)</span></div>
@@ -191,7 +191,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations">@PostMapping(value="/json/extract",
              consumes="application/octet-stream",
              produces="application/octet-stream")
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">reactor.core.publisher.Mono&lt;org.springframework.http.ResponseEntity&lt;reactor.core.publisher.Flux&lt;org.springframework.core.io.buffer.DataBuffer&gt;&gt;&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-65">processJsonExtraction</a></span><wbr><span class="parameters">(@RequestBody
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">reactor.core.publisher.Mono&lt;org.springframework.http.ResponseEntity&lt;reactor.core.publisher.Flux&lt;org.springframework.core.io.buffer.DataBuffer&gt;&gt;&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-66">processJsonExtraction</a></span><wbr><span class="parameters">(@RequestBody
  reactor.core.publisher.Flux&lt;org.springframework.core.io.buffer.DataBuffer&gt;&nbsp;inputData,
  @RequestParam
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
@@ -211,7 +211,7 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="annotations">@PostMapping(value="/process",
              consumes="application/octet-stream",
              produces="application/octet-stream")
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">reactor.core.publisher.Mono&lt;org.springframework.http.ResponseEntity&lt;reactor.core.publisher.Flux&lt;org.springframework.core.io.buffer.DataBuffer&gt;&gt;&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-89">processWithPipeline</a></span><wbr><span class="parameters">(@RequestBody
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">reactor.core.publisher.Mono&lt;org.springframework.http.ResponseEntity&lt;reactor.core.publisher.Flux&lt;org.springframework.core.io.buffer.DataBuffer&gt;&gt;&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-90">processWithPipeline</a></span><wbr><span class="parameters">(@RequestBody
  reactor.core.publisher.Flux&lt;org.springframework.core.io.buffer.DataBuffer&gt;&nbsp;inputData,
  @RequestHeader("X-Pipeline-Config")
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;pipelineConfig)</span></div>
@@ -229,7 +229,7 @@ loadScripts(document, 'script');</script>
 <section class="detail" id="health()">
 <h3>health</h3>
 <div class="member-signature"><span class="annotations">@GetMapping("/health")
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">reactor.core.publisher.Mono&lt;org.springframework.http.ResponseEntity&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-112">health</a></span>()</div>
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">reactor.core.publisher.Mono&lt;org.springframework.http.ResponseEntity&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/web/StreamProcessingController.html#line-113">health</a></span>()</div>
 <div class="block">Health check endpoint.</div>
 <dl class="notes">
 <dt>Returns:</dt>

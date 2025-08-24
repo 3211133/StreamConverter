@@ -185,97 +185,96 @@
 <span class="source-line-no">172</span><span id="line-172">   * @return コマンドインスタンス</span>
 <span class="source-line-no">173</span><span id="line-173">   * @throws Exception インスタンス生成失敗時</span>
 <span class="source-line-no">174</span><span id="line-174">   */</span>
-<span class="source-line-no">175</span><span id="line-175">  @SuppressWarnings("unchecked")</span>
-<span class="source-line-no">176</span><span id="line-176">  private static &lt;T extends IStreamCommand&gt; T createInstance(Class&lt;T&gt; commandClass, Object... args)</span>
-<span class="source-line-no">177</span><span id="line-177">      throws Exception {</span>
-<span class="source-line-no">178</span><span id="line-178">    // デフォルトコンストラクタを試す</span>
-<span class="source-line-no">179</span><span id="line-179">    if (args.length == 0) {</span>
-<span class="source-line-no">180</span><span id="line-180">      Constructor&lt;T&gt; constructor = commandClass.getDeclaredConstructor();</span>
-<span class="source-line-no">181</span><span id="line-181">      return constructor.newInstance();</span>
-<span class="source-line-no">182</span><span id="line-182">    }</span>
-<span class="source-line-no">183</span><span id="line-183"></span>
-<span class="source-line-no">184</span><span id="line-184">    // 引数の型を取得</span>
-<span class="source-line-no">185</span><span id="line-185">    Class&lt;?&gt;[] argTypes = new Class&lt;?&gt;[args.length];</span>
-<span class="source-line-no">186</span><span id="line-186">    for (int i = 0; i &lt; args.length; i++) {</span>
-<span class="source-line-no">187</span><span id="line-187">      argTypes[i] = args[i].getClass();</span>
-<span class="source-line-no">188</span><span id="line-188">    }</span>
-<span class="source-line-no">189</span><span id="line-189"></span>
-<span class="source-line-no">190</span><span id="line-190">    // まず完全一致するコンストラクタを探す</span>
-<span class="source-line-no">191</span><span id="line-191">    try {</span>
-<span class="source-line-no">192</span><span id="line-192">      Constructor&lt;T&gt; constructor = commandClass.getDeclaredConstructor(argTypes);</span>
-<span class="source-line-no">193</span><span id="line-193">      return constructor.newInstance(args);</span>
-<span class="source-line-no">194</span><span id="line-194">    } catch (NoSuchMethodException e) {</span>
-<span class="source-line-no">195</span><span id="line-195">      // 完全一致しない場合は、利用可能なコンストラクタを探す</span>
-<span class="source-line-no">196</span><span id="line-196">      return createInstanceWithBestMatch(commandClass, args, argTypes);</span>
-<span class="source-line-no">197</span><span id="line-197">    }</span>
-<span class="source-line-no">198</span><span id="line-198">  }</span>
-<span class="source-line-no">199</span><span id="line-199"></span>
-<span class="source-line-no">200</span><span id="line-200">  /**</span>
-<span class="source-line-no">201</span><span id="line-201">   * 最適なコンストラクタを探してインスタンスを生成</span>
-<span class="source-line-no">202</span><span id="line-202">   *</span>
-<span class="source-line-no">203</span><span id="line-203">   * @param &lt;T&gt; コマンドタイプ</span>
-<span class="source-line-no">204</span><span id="line-204">   * @param commandClass コマンドクラス</span>
-<span class="source-line-no">205</span><span id="line-205">   * @param args コンストラクタ引数</span>
-<span class="source-line-no">206</span><span id="line-206">   * @param argTypes 引数の型</span>
-<span class="source-line-no">207</span><span id="line-207">   * @return コマンドインスタンス</span>
-<span class="source-line-no">208</span><span id="line-208">   * @throws Exception インスタンス生成失敗時</span>
-<span class="source-line-no">209</span><span id="line-209">   */</span>
-<span class="source-line-no">210</span><span id="line-210">  @SuppressWarnings("unchecked")</span>
-<span class="source-line-no">211</span><span id="line-211">  private static &lt;T extends IStreamCommand&gt; T createInstanceWithBestMatch(</span>
-<span class="source-line-no">212</span><span id="line-212">      Class&lt;T&gt; commandClass, Object[] args, Class&lt;?&gt;[] argTypes) throws Exception {</span>
-<span class="source-line-no">213</span><span id="line-213">    Constructor&lt;?&gt;[] constructors = commandClass.getDeclaredConstructors();</span>
-<span class="source-line-no">214</span><span id="line-214"></span>
-<span class="source-line-no">215</span><span id="line-215">    for (Constructor&lt;?&gt; constructor : constructors) {</span>
-<span class="source-line-no">216</span><span id="line-216">      Class&lt;?&gt;[] paramTypes = constructor.getParameterTypes();</span>
-<span class="source-line-no">217</span><span id="line-217"></span>
-<span class="source-line-no">218</span><span id="line-218">      if (paramTypes.length == args.length) {</span>
-<span class="source-line-no">219</span><span id="line-219">        boolean compatible = true;</span>
-<span class="source-line-no">220</span><span id="line-220"></span>
-<span class="source-line-no">221</span><span id="line-221">        for (int i = 0; i &lt; paramTypes.length; i++) {</span>
-<span class="source-line-no">222</span><span id="line-222">          if (!isCompatible(paramTypes[i], argTypes[i])) {</span>
-<span class="source-line-no">223</span><span id="line-223">            compatible = false;</span>
-<span class="source-line-no">224</span><span id="line-224">            break;</span>
-<span class="source-line-no">225</span><span id="line-225">          }</span>
-<span class="source-line-no">226</span><span id="line-226">        }</span>
-<span class="source-line-no">227</span><span id="line-227"></span>
-<span class="source-line-no">228</span><span id="line-228">        if (compatible) {</span>
-<span class="source-line-no">229</span><span id="line-229">          return (T) constructor.newInstance(args);</span>
-<span class="source-line-no">230</span><span id="line-230">        }</span>
-<span class="source-line-no">231</span><span id="line-231">      }</span>
-<span class="source-line-no">232</span><span id="line-232">    }</span>
-<span class="source-line-no">233</span><span id="line-233"></span>
-<span class="source-line-no">234</span><span id="line-234">    throw new NoSuchMethodException(</span>
-<span class="source-line-no">235</span><span id="line-235">        "No compatible constructor found for " + commandClass.getSimpleName());</span>
-<span class="source-line-no">236</span><span id="line-236">  }</span>
-<span class="source-line-no">237</span><span id="line-237"></span>
-<span class="source-line-no">238</span><span id="line-238">  /**</span>
-<span class="source-line-no">239</span><span id="line-239">   * 型の互換性をチェック</span>
-<span class="source-line-no">240</span><span id="line-240">   *</span>
-<span class="source-line-no">241</span><span id="line-241">   * @param paramType パラメータ型</span>
-<span class="source-line-no">242</span><span id="line-242">   * @param argType 引数型</span>
-<span class="source-line-no">243</span><span id="line-243">   * @return 互換性があるかどうか</span>
-<span class="source-line-no">244</span><span id="line-244">   */</span>
-<span class="source-line-no">245</span><span id="line-245">  private static boolean isCompatible(Class&lt;?&gt; paramType, Class&lt;?&gt; argType) {</span>
-<span class="source-line-no">246</span><span id="line-246">    if (paramType.equals(argType)) {</span>
-<span class="source-line-no">247</span><span id="line-247">      return true;</span>
-<span class="source-line-no">248</span><span id="line-248">    }</span>
-<span class="source-line-no">249</span><span id="line-249"></span>
-<span class="source-line-no">250</span><span id="line-250">    // プリミティブ型とラッパー型の対応</span>
-<span class="source-line-no">251</span><span id="line-251">    if (paramType.isPrimitive()) {</span>
-<span class="source-line-no">252</span><span id="line-252">      if (paramType == int.class &amp;&amp; argType == Integer.class) return true;</span>
-<span class="source-line-no">253</span><span id="line-253">      if (paramType == long.class &amp;&amp; argType == Long.class) return true;</span>
-<span class="source-line-no">254</span><span id="line-254">      if (paramType == boolean.class &amp;&amp; argType == Boolean.class) return true;</span>
-<span class="source-line-no">255</span><span id="line-255">      if (paramType == double.class &amp;&amp; argType == Double.class) return true;</span>
-<span class="source-line-no">256</span><span id="line-256">      if (paramType == float.class &amp;&amp; argType == Float.class) return true;</span>
-<span class="source-line-no">257</span><span id="line-257">      if (paramType == char.class &amp;&amp; argType == Character.class) return true;</span>
-<span class="source-line-no">258</span><span id="line-258">      if (paramType == byte.class &amp;&amp; argType == Byte.class) return true;</span>
-<span class="source-line-no">259</span><span id="line-259">      if (paramType == short.class &amp;&amp; argType == Short.class) return true;</span>
-<span class="source-line-no">260</span><span id="line-260">    }</span>
-<span class="source-line-no">261</span><span id="line-261"></span>
-<span class="source-line-no">262</span><span id="line-262">    // 継承関係をチェック</span>
-<span class="source-line-no">263</span><span id="line-263">    return paramType.isAssignableFrom(argType);</span>
-<span class="source-line-no">264</span><span id="line-264">  }</span>
-<span class="source-line-no">265</span><span id="line-265">}</span>
+<span class="source-line-no">175</span><span id="line-175">  private static &lt;T extends IStreamCommand&gt; T createInstance(Class&lt;T&gt; commandClass, Object... args)</span>
+<span class="source-line-no">176</span><span id="line-176">      throws Exception {</span>
+<span class="source-line-no">177</span><span id="line-177">    // デフォルトコンストラクタを試す</span>
+<span class="source-line-no">178</span><span id="line-178">    if (args.length == 0) {</span>
+<span class="source-line-no">179</span><span id="line-179">      Constructor&lt;T&gt; constructor = commandClass.getDeclaredConstructor();</span>
+<span class="source-line-no">180</span><span id="line-180">      return constructor.newInstance();</span>
+<span class="source-line-no">181</span><span id="line-181">    }</span>
+<span class="source-line-no">182</span><span id="line-182"></span>
+<span class="source-line-no">183</span><span id="line-183">    // 引数の型を取得</span>
+<span class="source-line-no">184</span><span id="line-184">    Class&lt;?&gt;[] argTypes = new Class&lt;?&gt;[args.length];</span>
+<span class="source-line-no">185</span><span id="line-185">    for (int i = 0; i &lt; args.length; i++) {</span>
+<span class="source-line-no">186</span><span id="line-186">      argTypes[i] = args[i].getClass();</span>
+<span class="source-line-no">187</span><span id="line-187">    }</span>
+<span class="source-line-no">188</span><span id="line-188"></span>
+<span class="source-line-no">189</span><span id="line-189">    // まず完全一致するコンストラクタを探す</span>
+<span class="source-line-no">190</span><span id="line-190">    try {</span>
+<span class="source-line-no">191</span><span id="line-191">      Constructor&lt;T&gt; constructor = commandClass.getDeclaredConstructor(argTypes);</span>
+<span class="source-line-no">192</span><span id="line-192">      return constructor.newInstance(args);</span>
+<span class="source-line-no">193</span><span id="line-193">    } catch (NoSuchMethodException e) {</span>
+<span class="source-line-no">194</span><span id="line-194">      // 完全一致しない場合は、利用可能なコンストラクタを探す</span>
+<span class="source-line-no">195</span><span id="line-195">      return createInstanceWithBestMatch(commandClass, args, argTypes);</span>
+<span class="source-line-no">196</span><span id="line-196">    }</span>
+<span class="source-line-no">197</span><span id="line-197">  }</span>
+<span class="source-line-no">198</span><span id="line-198"></span>
+<span class="source-line-no">199</span><span id="line-199">  /**</span>
+<span class="source-line-no">200</span><span id="line-200">   * 最適なコンストラクタを探してインスタンスを生成</span>
+<span class="source-line-no">201</span><span id="line-201">   *</span>
+<span class="source-line-no">202</span><span id="line-202">   * @param &lt;T&gt; コマンドタイプ</span>
+<span class="source-line-no">203</span><span id="line-203">   * @param commandClass コマンドクラス</span>
+<span class="source-line-no">204</span><span id="line-204">   * @param args コンストラクタ引数</span>
+<span class="source-line-no">205</span><span id="line-205">   * @param argTypes 引数の型</span>
+<span class="source-line-no">206</span><span id="line-206">   * @return コマンドインスタンス</span>
+<span class="source-line-no">207</span><span id="line-207">   * @throws Exception インスタンス生成失敗時</span>
+<span class="source-line-no">208</span><span id="line-208">   */</span>
+<span class="source-line-no">209</span><span id="line-209">  @SuppressWarnings("unchecked")</span>
+<span class="source-line-no">210</span><span id="line-210">  private static &lt;T extends IStreamCommand&gt; T createInstanceWithBestMatch(</span>
+<span class="source-line-no">211</span><span id="line-211">      Class&lt;T&gt; commandClass, Object[] args, Class&lt;?&gt;[] argTypes) throws Exception {</span>
+<span class="source-line-no">212</span><span id="line-212">    Constructor&lt;?&gt;[] constructors = commandClass.getDeclaredConstructors();</span>
+<span class="source-line-no">213</span><span id="line-213"></span>
+<span class="source-line-no">214</span><span id="line-214">    for (Constructor&lt;?&gt; constructor : constructors) {</span>
+<span class="source-line-no">215</span><span id="line-215">      Class&lt;?&gt;[] paramTypes = constructor.getParameterTypes();</span>
+<span class="source-line-no">216</span><span id="line-216"></span>
+<span class="source-line-no">217</span><span id="line-217">      if (paramTypes.length == args.length) {</span>
+<span class="source-line-no">218</span><span id="line-218">        boolean compatible = true;</span>
+<span class="source-line-no">219</span><span id="line-219"></span>
+<span class="source-line-no">220</span><span id="line-220">        for (int i = 0; i &lt; paramTypes.length; i++) {</span>
+<span class="source-line-no">221</span><span id="line-221">          if (!isCompatible(paramTypes[i], argTypes[i])) {</span>
+<span class="source-line-no">222</span><span id="line-222">            compatible = false;</span>
+<span class="source-line-no">223</span><span id="line-223">            break;</span>
+<span class="source-line-no">224</span><span id="line-224">          }</span>
+<span class="source-line-no">225</span><span id="line-225">        }</span>
+<span class="source-line-no">226</span><span id="line-226"></span>
+<span class="source-line-no">227</span><span id="line-227">        if (compatible) {</span>
+<span class="source-line-no">228</span><span id="line-228">          return (T) constructor.newInstance(args);</span>
+<span class="source-line-no">229</span><span id="line-229">        }</span>
+<span class="source-line-no">230</span><span id="line-230">      }</span>
+<span class="source-line-no">231</span><span id="line-231">    }</span>
+<span class="source-line-no">232</span><span id="line-232"></span>
+<span class="source-line-no">233</span><span id="line-233">    throw new NoSuchMethodException(</span>
+<span class="source-line-no">234</span><span id="line-234">        "No compatible constructor found for " + commandClass.getSimpleName());</span>
+<span class="source-line-no">235</span><span id="line-235">  }</span>
+<span class="source-line-no">236</span><span id="line-236"></span>
+<span class="source-line-no">237</span><span id="line-237">  /**</span>
+<span class="source-line-no">238</span><span id="line-238">   * 型の互換性をチェック</span>
+<span class="source-line-no">239</span><span id="line-239">   *</span>
+<span class="source-line-no">240</span><span id="line-240">   * @param paramType パラメータ型</span>
+<span class="source-line-no">241</span><span id="line-241">   * @param argType 引数型</span>
+<span class="source-line-no">242</span><span id="line-242">   * @return 互換性があるかどうか</span>
+<span class="source-line-no">243</span><span id="line-243">   */</span>
+<span class="source-line-no">244</span><span id="line-244">  private static boolean isCompatible(Class&lt;?&gt; paramType, Class&lt;?&gt; argType) {</span>
+<span class="source-line-no">245</span><span id="line-245">    if (paramType.equals(argType)) {</span>
+<span class="source-line-no">246</span><span id="line-246">      return true;</span>
+<span class="source-line-no">247</span><span id="line-247">    }</span>
+<span class="source-line-no">248</span><span id="line-248"></span>
+<span class="source-line-no">249</span><span id="line-249">    // プリミティブ型とラッパー型の対応</span>
+<span class="source-line-no">250</span><span id="line-250">    if (paramType.isPrimitive()) {</span>
+<span class="source-line-no">251</span><span id="line-251">      if (paramType == int.class &amp;&amp; argType == Integer.class) return true;</span>
+<span class="source-line-no">252</span><span id="line-252">      if (paramType == long.class &amp;&amp; argType == Long.class) return true;</span>
+<span class="source-line-no">253</span><span id="line-253">      if (paramType == boolean.class &amp;&amp; argType == Boolean.class) return true;</span>
+<span class="source-line-no">254</span><span id="line-254">      if (paramType == double.class &amp;&amp; argType == Double.class) return true;</span>
+<span class="source-line-no">255</span><span id="line-255">      if (paramType == float.class &amp;&amp; argType == Float.class) return true;</span>
+<span class="source-line-no">256</span><span id="line-256">      if (paramType == char.class &amp;&amp; argType == Character.class) return true;</span>
+<span class="source-line-no">257</span><span id="line-257">      if (paramType == byte.class &amp;&amp; argType == Byte.class) return true;</span>
+<span class="source-line-no">258</span><span id="line-258">      if (paramType == short.class &amp;&amp; argType == Short.class) return true;</span>
+<span class="source-line-no">259</span><span id="line-259">    }</span>
+<span class="source-line-no">260</span><span id="line-260"></span>
+<span class="source-line-no">261</span><span id="line-261">    // 継承関係をチェック</span>
+<span class="source-line-no">262</span><span id="line-262">    return paramType.isAssignableFrom(argType);</span>
+<span class="source-line-no">263</span><span id="line-263">  }</span>
+<span class="source-line-no">264</span><span id="line-264">}</span>
 
 
 

@@ -29,7 +29,9 @@
 
 ```java
 import com.streamConverter.StreamConverter;
-import com.streamConverter.command.impl.*;
+import com.streamConverter.command.impl.csv.CsvNavigateCommand;
+import com.streamConverter.command.impl.SendHttpCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
 
 // CSV → HTTP API → JSON 処理パイプライン
 IStreamCommand[] pipeline = {
@@ -42,11 +44,12 @@ StreamConverter converter = StreamConverter.create(pipeline);
 converter.run(inputStream, outputStream);
 ```
 
-### コンテキスト対応処理
+### コンテキスト対応処理（MDC連携）
 
 ```java
 import com.streamConverter.StreamConverter;
 import com.streamConverter.context.ExecutionContext;
+import com.streamConverter.CommandResult;
 
 // カスタムコンテキストで実行追跡
 ExecutionContext context = ExecutionContext.builder()
@@ -54,28 +57,48 @@ ExecutionContext context = ExecutionContext.builder()
     .globalContext("userId", "user789")
     .build();
 
-StreamConverter converter = StreamConverter.createWithContext(
-    context, csvCommand, httpCommand, jsonCommand
-);
-converter.run(inputStream, outputStream);
+// パイプライン定義
+IStreamCommand[] pipeline = {
+    new CsvNavigateCommand("productName"),
+    new SendHttpCommand("http://api.example.com"),
+    new JsonNavigateCommand("$.result")
+};
+
+// コンテキスト付きで実行（推奨方法）
+StreamConverter converter = StreamConverter.createWithContext(context, pipeline);
+List<CommandResult> results = converter.run(inputStream, outputStream);
+
+// 実行結果の確認
+for (CommandResult result : results) {
+    System.out.println("Command: " + result.getCommandName() + 
+                      ", Duration: " + result.getDurationMs() + "ms" +
+                      ", Success: " + result.isSuccess());
+}
 ```
+
+**MDC機能の利点:**
+- **トレーサビリティ**: マルチスレッド環境での実行追跡
+- **ログ相関**: requestIdによるログの関連付け
+- **パフォーマンス測定**: 各コマンドの実行時間とリソース使用量
+- **エラー追跡**: 実行コンテキスト付きエラー情報
 
 ## 📋 利用可能なコマンド
 
 | カテゴリ | コマンド | 用途 | 使用例 |
 |----------|----------|------|--------|
-| **データ変換** | `CsvNavigateCommand` | CSV 特定列の変換 | `new CsvNavigateCommand("name")` |
-| | `JsonNavigateCommand` | JSON 特定パスの変換 | `new JsonNavigateCommand("$.user.id")` |
-| | `XmlNavigateCommand` | XML 特定要素の変換 | `new XmlNavigateCommand("//item/@id")` |
+| **データ変換** | `csv.CsvNavigateCommand` | CSV 特定列の変換 | `new CsvNavigateCommand("name")` |
+| | `json.JsonNavigateCommand` | JSON 特定パスの変換 | `new JsonNavigateCommand("$.user.id")` |
+| | `xml.XmlNavigateCommand` | XML 特定要素の変換 | `new XmlNavigateCommand("//item/@id")` |
 | | `CharacterConvertCommand` | 文字エンコーディング変換 | `new CharacterConvertCommand("UTF-8", "Shift_JIS")` |
 | | `LineEndingNormalizeCommand` | 改行コード正規化 | `new LineEndingNormalizeCommand(LineEndingType.UNIX)` |
 | | `xml.ConvertCommand` | XSLT 変換 | `new ConvertCommand("style.xsl")` |
-| **フィルタリング** | `CsvFilterCommand` | CSV 行フィルタリング | `new CsvFilterCommand(predicate)` |
-| | `JsonFilterCommand` | JSON 要素フィルタリング | `new JsonFilterCommand(jsonPath, predicate)` |
-| | `XmlFilterCommand` | XML 要素フィルタリング | `new XmlFilterCommand(xpath, predicate)` |
+| **フィルタリング** | `csv.CsvFilterCommand` | CSV 行フィルタリング | `new CsvFilterCommand(predicate)` |
+| | `json.JsonFilterCommand` | JSON 要素フィルタリング | `new JsonFilterCommand(jsonPath, predicate)` |
+| | `xml.XmlFilterCommand` | XML 要素フィルタリング | `new XmlFilterCommand(xpath, predicate)` |
 | **通信** | `SendHttpCommand` | HTTP リクエスト | `new SendHttpCommand("http://api.example.com")` |
-| **検証** | `CsvValidateCommand` | CSV 構造検証 | `new CsvValidateCommand(requiredColumns)` |
-| | `JsonValidateCommand` | JSON スキーマ検証 | `new JsonValidateCommand("schema.json")` |
+| **検証** | `csv.CsvValidateCommand` | CSV 構造検証 | `new CsvValidateCommand(requiredColumns)` |
+| | `json.JsonValidateCommand` | JSON スキーマ検証 | `new JsonValidateCommand("schema.json")` |
+| | `json.JsonStreamingValidateCommand` | JSON ストリーミング検証 | `new JsonStreamingValidateCommand("schema.json")` |
 | | `xml.ValidateCommand` | XML スキーマ検証 | `new ValidateCommand("schema.xsd")` |
 
 ## 📖 詳細ドキュメント

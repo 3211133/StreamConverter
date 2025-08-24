@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FindBugsFilter>
+    <!-- Exclude example and demo classes from analysis -->
+    <Match>
+        <Package name="com.streamConverter.examples" />
+    </Match>
+    <Match>
+        <Package name="com.streamConverter.demo" />
+    </Match>
+    
+    <!-- Exclude test utility classes that may have intentional patterns -->
+    <Match>
+        <Class name="~.*\.test\..*Test.*" />
+        <Bug pattern="DM_EXIT" />
+    </Match>
+    
+    <!-- Exclude serialization warnings for classes that don't need to be serialized -->
+    <Match>
+        <Bug pattern="SE_NO_SERIALVERSIONID" />
+    </Match>
+    
+    <!-- Allow System.out.println in specific demo/example classes -->
+    <Match>
+        <Class name="~.*\.(examples|demo)\..*" />
+        <Bug pattern="DM_PRINT_DUMP" />
+    </Match>
+</FindBugsFilter>

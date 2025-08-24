@@ -68,7 +68,6 @@ public class XmlFilterCommand extends AbstractStreamCommand {
 
       XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);
       List<String> currentPath = new ArrayList<>();
-      StringBuilder currentElement = new StringBuilder();
       boolean isCapturing = false;
       int captureDepth = 0;
       int currentDepth = 0;
@@ -88,7 +87,6 @@ public class XmlFilterCommand extends AbstractStreamCommand {
           if (pathHandler.isTarget(currentPath) && !isCapturing) {
             isCapturing = true;
             captureDepth = currentDepth;
-            currentElement.setLength(0);
             elementWriter = new StringWriter();
 
             try {

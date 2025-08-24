@@ -3,6 +3,7 @@ package com.streamConverter.benchmark;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.Writer;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
@@ -157,17 +158,17 @@ public class LargeDataGenerator {
     double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;
 
     return String.format(
-        "  <order id=\"%d\">\n"
-            + "    <customer>\n"
-            + "      <name>%s</name>\n"
-            + "      <city>%s</city>\n"
-            + "    </customer>\n"
-            + "    <product>%s</product>\n"
-            + "    <quantity>%d</quantity>\n"
-            + "    <price>%.2f</price>\n"
-            + "    <timestamp>%s</timestamp>\n"
-            + "    <description>%s</description>\n"
-            + "  </order>\n",
+        "  <order id=\"%d\">%n"
+            + "    <customer>%n"
+            + "      <name>%s</name>%n"
+            + "      <city>%s</city>%n"
+            + "    </customer>%n"
+            + "    <product>%s</product>%n"
+            + "    <quantity>%d</quantity>%n"
+            + "    <price>%.2f</price>%n"
+            + "    <timestamp>%s</timestamp>%n"
+            + "    <description>%s</description>%n"
+            + "  </order>%n",
         id,
         escapeXml(name),
         escapeXml(city),
@@ -187,17 +188,17 @@ public class LargeDataGenerator {
     double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;
 
     return String.format(
-        "    {\n"
-            + "      \"id\": %d,\n"
-            + "      \"customer\": {\n"
-            + "        \"name\": \"%s\",\n"
-            + "        \"city\": \"%s\"\n"
-            + "      },\n"
-            + "      \"product\": \"%s\",\n"
-            + "      \"quantity\": %d,\n"
-            + "      \"price\": %.2f,\n"
-            + "      \"timestamp\": \"%s\",\n"
-            + "      \"description\": \"%s\"\n"
+        "    {%n"
+            + "      \"id\": %d,%n"
+            + "      \"customer\": {%n"
+            + "        \"name\": \"%s\",%n"
+            + "        \"city\": \"%s\"%n"
+            + "      },%n"
+            + "      \"product\": \"%s\",%n"
+            + "      \"quantity\": %d,%n"
+            + "      \"price\": %.2f,%n"
+            + "      \"timestamp\": \"%s\",%n"
+            + "      \"description\": \"%s\"%n"
             + "    }",
         id,
         name,
@@ -218,7 +219,7 @@ public class LargeDataGenerator {
     double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;
 
     return String.format(
-        "%d,\"%s\",\"%s\",\"%s\",%d,%.2f,\"%s\"\n",
+        "%d,\"%s\",\"%s\",\"%s\",%d,%.2f,\"%s\"%n",
         id, name, city, product, quantity, price, Instant.now());
   }
 
@@ -333,6 +334,8 @@ public class LargeDataGenerator {
           case "CSV":
             chunk.append("id,name,city,product,quantity,price,timestamp\n");
             break;
+          default:
+            throw new IllegalArgumentException("Unsupported format: " + format);
         }
         headerWritten = true;
       }
@@ -417,9 +420,9 @@ public class LargeDataGenerator {
     private int calculateFooterSize() {
       switch (format) {
         case "XML":
-          return "</orders>\n".getBytes().length;
+          return "</orders>\n".getBytes(StandardCharsets.UTF_8).length;
         case "JSON":
-          return "\n  ]\n}\n".getBytes().length;
+          return "\n  ]\n}\n".getBytes(StandardCharsets.UTF_8).length;
         case "CSV":
         default:
           return 0;

@@ -48,10 +48,10 @@ public class CommandConfig {
   /**
    * コンストラクタ引数を取得
    *
-   * @return コンストラクタ引数
+   * @return コンストラクタ引数のコピー
    */
   public Object[] getArgs() {
-    return args;
+    return args.clone();
   }
 
   /**

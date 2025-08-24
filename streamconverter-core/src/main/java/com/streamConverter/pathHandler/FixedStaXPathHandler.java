@@ -87,9 +87,9 @@ public class FixedStaXPathHandler implements IStaXPathHandler {
   /**
    * Xpathを取得します。
    *
-   * @return Xpathの文字列
+   * @return Xpathの文字列のコピー
    */
   public List<String> getTargetXpath() {
-    return this.targetXpath;
+    return List.copyOf(this.targetXpath);
   }
 }

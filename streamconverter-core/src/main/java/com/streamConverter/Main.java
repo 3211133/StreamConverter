@@ -33,7 +33,8 @@ public class Main {
       new SampleStreamCommand("0"), new SampleStreamCommand("1"), new SampleStreamCommand("2")
     };
     StreamConverter converter = new StreamConverter(commands);
-    try (InputStream inputStream = new ByteArrayInputStream("any message".getBytes());
+    try (InputStream inputStream =
+            new ByteArrayInputStream("any message".getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
       converter.run(inputStream, outputStream);
       if (LOG.isInfoEnabled()) {

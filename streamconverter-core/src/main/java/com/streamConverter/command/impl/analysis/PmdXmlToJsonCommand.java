@@ -172,7 +172,11 @@ public class PmdXmlToJsonCommand extends AbstractStreamCommand {
    * @param summary サマリー情報
    * @param violations バイオレーション一覧
    */
-  public static record PmdJsonReport(PmdJsonSummary summary, List<PmdViolation> violations) {}
+  public static record PmdJsonReport(PmdJsonSummary summary, List<PmdViolation> violations) {
+    public PmdJsonReport {
+      violations = List.copyOf(violations);
+    }
+  }
 
   /**
    * JSON レポートのサマリー情報

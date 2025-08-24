@@ -30,46 +30,40 @@ StreamConverterは**外側にバッファを持つ**条件において、**上�
 
 ## 🏗️ 全体アーキテクチャ
 
-```
-┌─────────────────────────────────────────────────────────────┐
-│                    外部システム                              │
-│  (ファイルシステム, API, データベース, ネットワーク)           │
-└─────────────────┬───────────────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  Controller Layer                           │
-│  • CsvProcessingController                                  │
-│  • JsonProcessingController                                 │
-│  • ControllerFactory                                        │
-│  • IStreamController Interface                             │
-└─────────────────┬───────────────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────────────┐
-│                StreamConverter Core                         │
-│  • パイプライン管理                                          │
-│  • 並行処理制御                                             │
-│  • ストリーム接続                                           │
-│  • エラーハンドリング                                        │
-│  • ExecutionContext管理                                     │
-└─────────────────┬───────────────────────────────────────────┘
-                  │
-                  ▼
-┌─────────────────────────────────────────────────────────────┐
-│                  Command Layer                              │
-│  ┌─────────────┐ ┌─────────────┐ ┌─────────────┐           │
-│  │   Command   │ │   Command   │ │   Command   │           │
-│  │      1      │ │      2      │ │      N      │           │
-│  └─────────────┘ └─────────────┘ └─────────────┘           │
-│                        │                                   │
-│  ┌─────────────────────┼─────────────────────────────────┐ │
-│  │        特定のCommandが呼び出す外部リソース              │ │
-│  │  • データベース (DatabaseFetchRule)                    │ │
-│  │  • HTTP API (SendHttpCommand)                          │ │
-│  │  • ファイルシステム (ValidateCommand)                   │ │
-│  └─────────────────────────────────────────────────────────┘ │
-└─────────────────────────────────────────────────────────────┘
+```mermaid
+graph TD
+  %% 上段：外部システム
+  ext["外部システム<br>（ファイルシステム、API、データベース、ネットワーク）"]
+
+  %% Controller Layer
+  subgraph controller["Controller Layer"]
+    ctrlItems["• CsvProcessingController<br>• JsonProcessingController<br>• ControllerFactory<br>• IStreamController Interface"]
+  end
+
+  %% Core
+  subgraph core["StreamConverter Core"]
+    coreItems["• パイプライン管理<br>• 並行処理制御<br>• ストリーム接続<br>• エラーハンドリング<br>• ExecutionContext管理"]
+  end
+
+  %% Command Layer
+  subgraph command["Command Layer"]
+    direction LR
+    Cmd1["Command<br>1"]
+    Cmd2["Command<br>2"]
+    CmdN["Command<br>N"]
+  end
+
+
+    %% 外部リソース（下段）
+    resItems[("特定のCommandが呼び出す外部リソース <br/>• データベース（DatabaseFetchRule）<br>• HTTP API（SendHttpCommand）<br>• ファイルシステム（ValidateCommand）")]
+
+
+  %% 縦の流れ
+  ext --> controller --> core --> command
+
+  %% 真ん中の Command 2 からリソースへ矢印
+  Cmd2 --> resItems
+
 ```
 
 ## 📐 階層構造

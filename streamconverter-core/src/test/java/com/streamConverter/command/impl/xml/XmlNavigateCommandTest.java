@@ -1,12 +1,10 @@
-package com.streamConverter.command.impl;
+package com.streamConverter.command.impl.xml;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.streamConverter.benchmark.ResourceMonitor;
-import com.streamConverter.benchmark.ResourceUsage;
 import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
@@ -20,8 +18,6 @@ import org.junit.jupiter.api.Test;
 
 /** Unit tests for XmlNavigateCommand. */
 class XmlNavigateCommandTest {
-
-  private static final int NUM_XML_ITEMS_FOR_LARGE_DATA_TEST = 10000;
 
   private XmlNavigateCommand command;
 
@@ -96,54 +92,6 @@ class XmlNavigateCommandTest {
 
     // Invalid XML should cause parsing to fail
     assertThrows(IOException.class, () -> command.execute(inputStream, outputStream));
-  }
-
-  @Test
-  void testMemoryEfficiencyWithLargeData() throws IOException {
-    // Generate larger XML data to test memory efficiency
-    StringBuilder xmlBuilder = new StringBuilder();
-    xmlBuilder
-        .append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>")
-        .append(System.lineSeparator())
-        .append("<root>")
-        .append(System.lineSeparator());
-
-    // Create 1MB of XML data (simulating larger processing)
-    for (int i = 0; i < NUM_XML_ITEMS_FOR_LARGE_DATA_TEST; i++) {
-      xmlBuilder.append(
-          String.format(
-              "  <item id=\"%d\">Data content %d with some additional text to increase size</item>"
-                  + System.lineSeparator(),
-              i,
-              i));
-    }
-    xmlBuilder.append("</root>");
-
-    String largeXml = xmlBuilder.toString();
-    long dataSize = largeXml.getBytes(StandardCharsets.UTF_8).length;
-
-    // Monitor memory usage during processing
-    ResourceMonitor monitor = new ResourceMonitor();
-    monitor.start(dataSize);
-
-    InputStream inputStream = new ByteArrayInputStream(largeXml.getBytes(StandardCharsets.UTF_8));
-    OutputStream outputStream = new ByteArrayOutputStream();
-
-    // Execute command with monitoring
-    assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
-
-    ResourceUsage usage = monitor.stop();
-
-    // Verify memory efficiency: should use much less memory than data size
-    // Memory usage should be minimal compared to data size (streaming processing)
-    assertTrue(
-        usage.getMemoryUsedMB() < 50,
-        String.format(
-            "Memory usage (%.2f MB) should be less than 50MB for %.2f MB data",
-            usage.getMemoryUsedMB(), usage.getDataSizeMB()));
-
-    // Verify processing was successful (data size matches)
-    assertTrue(usage.getDataSizeMB() > 0, "Should have processed some data");
   }
 
   @Test

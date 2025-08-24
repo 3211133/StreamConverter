@@ -6,9 +6,11 @@ StreamConverterは包括的な自動ログ出力機能を提供し、大容量�
 
 自動ログ機能は以下の3層アプローチで実装されています：
 
-1. **Level 1**: `AbstractStreamCommand` - 基本的な実行ログ
-2. **Level 2**: `LoggingDecorator` - 詳細なログ追加（デコレーターパターン）
-3. **Level 3**: `CommandFactory` - 統一的な生成管理（ファクトリーパターン）
+1. **Level 1**: `AbstractStreamCommand` - 基本的な実行ログ（実行時間、メモリ、データサイズ測定）
+2. **Level 2**: `LoggingDecorator` - カスタムコマンド向けログ追加（デコレーターパターン）
+3. **Level 3**: `CommandFactory` - 統一的な生成管理とログ重複回避（ファクトリーパターン）
+
+**重要**: AbstractStreamCommandを継承するコマンドは自動的にログ機能を持つため、LoggingDecoratorによる重複ラップは行われません。
 
 ## 基本的な使用方法
 
@@ -32,15 +34,26 @@ StreamConverter converter = StreamConverter.create(loggedCommand);
 
 ```java
 import com.streamConverter.command.CommandFactory;
-import com.streamConverter.command.CommandConfig;
-
-// 設定でログを有効化
-CommandConfig config = new CommandConfig()
-    .enableLogging(true)
-    .setLogLevel("DEBUG");
+import com.streamConverter.command.impl.CsvNavigateCommand;
 
 // ファクトリーでコマンド作成（自動的にログ機能が追加される）
-IStreamCommand command = CommandFactory.createCsvNavigateCommand("productName", config);
+IStreamCommand command = CommandFactory.createWithLogging(
+    CsvNavigateCommand.class, "productName"
+);
+
+// 複数コマンドのパイプライン作成例
+IStreamCommand csvCommand = CommandFactory.createWithLogging(
+    CsvNavigateCommand.class, "productName"
+);
+IStreamCommand httpCommand = CommandFactory.createWithLogging(
+    SendHttpCommand.class, "http://api.example.com"
+);
+IStreamCommand jsonCommand = CommandFactory.createWithLogging(
+    JsonNavigateCommand.class, "$.result"
+);
+
+IStreamCommand[] pipeline = {csvCommand, httpCommand, jsonCommand};
+StreamConverter converter = StreamConverter.create(pipeline);
 ```
 
 ## 出力されるログ情報
@@ -61,43 +74,76 @@ IStreamCommand command = CommandFactory.createCsvNavigateCommand("productName", 
 
 ## 実際のログ出力例
 
+### AbstractStreamCommandベースのコマンド（自動ログ）
+
 ```
-INFO  [LoggingDecorator] Starting execution: CsvNavigateCommand(field=productName)
-DEBUG [LoggingDecorator] Input data size: 1.2MB, encoding: UTF-8
-DEBUG [LoggingDecorator] Memory usage before: 45.2MB
-INFO  [CsvNavigateCommand] Processing CSV navigation for field: productName
-DEBUG [LoggingDecorator] Processing throughput: 156 records/sec
-DEBUG [LoggingDecorator] Memory usage after: 47.8MB
-INFO  [LoggingDecorator] Completed execution: CsvNavigateCommand, duration: 7.6ms
+INFO  [AbstractStreamCommand] Starting command execution: CsvNavigateCommand
+DEBUG [AbstractStreamCommand] Command details: CsvNavigateCommand{field=productName}
+INFO  [AbstractStreamCommand] Command execution completed: CsvNavigateCommand (7ms, input: 1234567bytes, output: 89012bytes, memory: 2MB)
+```
+
+### ExecutionContext付きマルチスレッド実行
+
+```
+INFO  [StreamConverter] Starting StreamConverter with 3 commands (executionId: exec-20250824-123456)
+INFO  [StreamConverter] Setting up command 1 of 3: CsvNavigateCommand (sequence: 1)
+INFO  [StreamConverter] Setting up command 2 of 3: SendHttpCommand (sequence: 2)  
+INFO  [StreamConverter] Setting up command 3 of 3: JsonNavigateCommand (sequence: 3)
+INFO  [StreamConverter] Completed command: CsvNavigateCommand (sequence: 1)
+INFO  [StreamConverter] Completed command: SendHttpCommand (sequence: 2)
+INFO  [StreamConverter] Completed command: JsonNavigateCommand (sequence: 3)
+INFO  [StreamConverter] All commands completed successfully (executionId: exec-20250824-123456)
+```
+
+### エラー発生時のログ
+
+```
+ERROR [AbstractStreamCommand] Command execution failed: SendHttpCommand (1523ms, input: 89012bytes, output: 0bytes, memory: 3MB) - Connection timeout
+java.net.SocketTimeoutException: Connect timed out
 ```
 
 ## CommandFactoryの高度な使用方法
 
-### 設定オプション
+### ログ重複回避の仕組み
 
 ```java
-CommandConfig config = new CommandConfig()
-    .enableLogging(true)                    // ログ有効化
-    .setLogLevel("INFO")                    // ログレベル設定
-    .enablePerformanceMetrics(true)         // パフォーマンス測定
-    .enableMemoryTracking(true)             // メモリ使用量追跡
-    .setCustomLoggerName("MyProcessor");    // カスタムロガー名
+// AbstractStreamCommand継承クラス → ログ機能あり（重複回避）
+IStreamCommand csvCmd = CommandFactory.createWithLogging(CsvNavigateCommand.class, "fieldName");
+// → 直接インスタンス生成、LoggingDecoratorでラップしない
+
+// カスタムIStreamCommand実装 → LoggingDecoratorで自動ラップ
+IStreamCommand customCmd = CommandFactory.createWithLogging(MyCustomCommand.class);
+// → LoggingDecorator でラップして返す
 ```
 
-### 利用可能なファクトリーメソッド
+### ExecutionContext対応のログ機能
 
 ```java
-// CSV処理コマンド
-IStreamCommand csvCmd = CommandFactory.createCsvNavigateCommand("fieldName", config);
+// ExecutionContext作成
+ExecutionContext context = ExecutionContext.builder()
+    .globalContext("requestId", "REQ-12345")
+    .globalContext("userId", "user789")
+    .build();
 
-// JSON処理コマンド  
-IStreamCommand jsonCmd = CommandFactory.createJsonNavigateCommand("$.path", config);
+// コンテキスト付きStreamConverter作成
+IStreamCommand[] commands = {
+    CommandFactory.createWithLogging(CsvNavigateCommand.class, "productName"),
+    CommandFactory.createWithLogging(SendHttpCommand.class, "http://api.example.com")
+};
 
-// XML処理コマンド
-IStreamCommand xmlCmd = CommandFactory.createXmlNavigateCommand("//element", config);
+StreamConverter converter = StreamConverter.createWithContext(context, commands);
+List<CommandResult> results = converter.run(inputStream, outputStream);
+```
 
-// HTTP送信コマンド
-IStreamCommand httpCmd = CommandFactory.createSendHttpCommand("http://api.example.com", config);
+### MDCコンテキスト伝播の確認
+
+```java
+// logback-spring.xml での MDC 設定確認
+// pattern: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{executionId}] [%X{stage}] %logger{36} - %msg%n"
+
+// 実行すると以下のような MDC 情報付きログが出力される：
+// 2025-08-24 12:34:56 [pool-1-thread-1] INFO  [exec-20250824-123456] [CsvNavigateCommand-1] StreamConverter - Processing CSV field: productName
+
 ```
 
 ## パフォーマンス考慮事項

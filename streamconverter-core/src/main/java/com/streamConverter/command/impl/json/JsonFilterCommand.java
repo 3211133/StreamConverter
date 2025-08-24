@@ -1,4 +1,4 @@
-package com.streamConverter.command.impl;
+package com.streamConverter.command.impl.json;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import java.io.BufferedReader;

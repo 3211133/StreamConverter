@@ -2,8 +2,8 @@ package com.streamConverter.examples;
 
 import com.streamConverter.StreamConverter;
 import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.CsvNavigateCommand;
-import com.streamConverter.command.impl.JsonNavigateCommand;
+import com.streamConverter.command.impl.csv.CsvNavigateCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.rule.DatabaseFetchRule;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;

@@ -2,7 +2,6 @@ package com.streamConverter.command.impl.csv;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.command.rule.PassThroughRule;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -38,33 +37,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     }
     this.columnSelector = columnSelector;
     this.rule = rule;
-  }
-
-  /**
-   * Constructor for CSV navigation with column selector using PassThroughRule.
-   *
-   * @param columnSelector the column name or index to select (e.g., "name", "2")
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #CsvNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link #create(String,
-   *     IRule)}.
-   */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public CsvNavigateCommand(String columnSelector) {
-    this(columnSelector, new PassThroughRule());
-  }
-
-  /**
-   * Default constructor - processes all columns with PassThroughRule.
-   *
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #CsvNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link #create(String,
-   *     IRule)}.
-   */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public CsvNavigateCommand() {
-    this(null, new PassThroughRule());
   }
 
   /**

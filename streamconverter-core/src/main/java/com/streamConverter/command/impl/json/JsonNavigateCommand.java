@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.command.rule.PassThroughRule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -46,33 +45,6 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     this.jsonPath = jsonPath;
     this.rule = rule;
     this.objectMapper = new ObjectMapper();
-  }
-
-  /**
-   * Constructor for JSON navigation with JSONPath selector using PassThroughRule.
-   *
-   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #JsonNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link #create(String,
-   *     IRule)}.
-   */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public JsonNavigateCommand(String jsonPath) {
-    this(jsonPath, new PassThroughRule());
-  }
-
-  /**
-   * Default constructor - processes entire JSON with PassThroughRule.
-   *
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #JsonNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #createForAll(IRule)}.
-   */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public JsonNavigateCommand() {
-    this(null, new PassThroughRule());
   }
 
   /**
@@ -124,8 +96,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   /** Determine if this is a simple transformation that can be processed line-by-line */
   private boolean isSimpleTransformation() {
     // Simple transformations that don't require complete JSON structure
-    return jsonPath == null
-        || (rule instanceof PassThroughRule && jsonPath.matches("^\\$\\.[a-zA-Z_][a-zA-Z0-9_]*$"));
+    return jsonPath == null || jsonPath.matches("^\\$\\.[a-zA-Z_][a-zA-Z0-9_]*$");
   }
 
   /**

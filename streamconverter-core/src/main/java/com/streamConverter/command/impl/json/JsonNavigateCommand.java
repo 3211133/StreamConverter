@@ -123,6 +123,10 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Determine if this is a simple transformation that can be processed line-by-line */
   private boolean isSimpleTransformation() {
+    // extractValue mode always requires tree processing for proper value extraction
+    if (extractValue) {
+      return false;
+    }
     // Simple transformations that don't require complete JSON structure
     return jsonPath == null || jsonPath.matches("^\\$\\.[a-zA-Z_][a-zA-Z0-9_]*$");
   }
@@ -143,12 +147,8 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
           // Process entire JSON stream
           processEntireJsonStream(parser, generator);
         } else if (extractValue) {
-          // For extract value mode, skip streaming and use JSONPath processing
-          // Close streaming resources first
-          generator.close();
-          parser.close();
-          // Process with JSONPath (will be handled in processJsonWithJsonPath)
-          return;
+          // This should not happen since extractValue mode uses tree processing
+          throw new IllegalStateException("extractValue mode should not use streaming processing");
         } else {
           // Process with simple JSONPath filtering
           processJsonStreamWithPath(parser, generator, outputStream);

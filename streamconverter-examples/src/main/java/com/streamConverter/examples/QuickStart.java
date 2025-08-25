@@ -6,6 +6,7 @@ import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
+import com.streamConverter.command.rule.PassThroughRule;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -59,7 +60,7 @@ public class QuickStart {
     String csvData = "name,age,city\nJohn,30,NYC\nJane,25,LA\n";
 
     // Extract name column
-    IStreamCommand csvCommand = new CsvNavigateCommand("name");
+    IStreamCommand csvCommand = CsvNavigateCommand.create("name", new PassThroughRule());
     String result = processData(csvData, csvCommand);
 
     log.info("Input CSV:");
@@ -77,7 +78,7 @@ public class QuickStart {
     String jsonData = "{\"name\":\"John\",\"age\":30,\"city\":\"NYC\"}";
 
     // Extract name property
-    IStreamCommand jsonCommand = new JsonNavigateCommand("name");
+    IStreamCommand jsonCommand = JsonNavigateCommand.create("name", new PassThroughRule());
     String result = processData(jsonData, jsonCommand);
 
     log.info("Input JSON:");
@@ -103,7 +104,7 @@ public class QuickStart {
         """;
 
     // Extract name element
-    IStreamCommand xmlCommand = new XmlNavigateCommand("person/name");
+    IStreamCommand xmlCommand = XmlNavigateCommand.create("person/name", new PassThroughRule());
     String result = processData(xmlData, xmlCommand);
 
     log.info("Input XML:");
@@ -122,7 +123,7 @@ public class QuickStart {
 
     // Create processing pipeline
     IStreamCommand[] pipeline = {
-      new CsvNavigateCommand("name"), // Extract names
+      CsvNavigateCommand.create("name", new PassThroughRule()), // Extract names
       new SampleStreamCommand("processor") // Process names
     };
 

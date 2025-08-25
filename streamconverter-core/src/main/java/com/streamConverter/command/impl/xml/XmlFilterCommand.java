@@ -1,6 +1,7 @@
 package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
+import com.streamConverter.path.XPath;
 import com.streamConverter.pathHandler.FixedStaXPathHandler;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,26 +34,47 @@ import javax.xml.stream.events.XMLEvent;
 public class XmlFilterCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlFilterCommand.class.getName());
 
-  private final String xpath;
+  private final XPath xpath;
   private final FixedStaXPathHandler pathHandler;
+
+  // Deprecated fields for backward compatibility
+  @Deprecated private final String legacyXpath;
 
   /**
    * Constructor for XML filtering with XPath selector.
    *
    * @param xpath the XPath expression to extract elements (e.g., "users/user/name")
    * @throws IllegalArgumentException if xpath is null or empty
+   * @deprecated Use {@link #XmlFilterCommand(XPath)} instead
    */
+  @Deprecated
   public XmlFilterCommand(String xpath) {
     if (xpath == null || xpath.trim().isEmpty()) {
       throw new IllegalArgumentException("XPath cannot be null or empty");
     }
-    this.xpath = xpath.trim();
+    this.legacyXpath = xpath.trim();
+    this.xpath = new XPath(xpath.trim());
     this.pathHandler = new FixedStaXPathHandler(xpath);
+  }
+
+  /**
+   * Constructor for XML filtering with typed XPath selector.
+   *
+   * @param xpath the typed XPath to extract elements
+   * @throws IllegalArgumentException if xpath is null
+   */
+  public XmlFilterCommand(XPath xpath) {
+    if (xpath == null) {
+      throw new IllegalArgumentException("XPath cannot be null");
+    }
+    this.xpath = xpath;
+    this.legacyXpath = xpath.getPath();
+    this.pathHandler = new FixedStaXPathHandler(xpath.getPath());
   }
 
   @Override
   protected String getCommandDetails() {
-    return String.format("XmlFilterCommand(xpath='%s')", xpath);
+    return String.format("XmlFilterCommand(xpath='%s')", xpath.getPath());
   }
 
   @Override

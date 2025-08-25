@@ -2,6 +2,7 @@ package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
+import com.streamConverter.path.XPath;
 import com.streamConverter.pathHandler.FixedStaXPathHandler;
 import java.io.IOException;
 import java.io.InputStream;
@@ -31,9 +32,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlNavigateCommand.class.getName());
   private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
-  private String xpath;
+  private XPath xpath;
   private IRule rule;
   private FixedStaXPathHandler pathHandler;
+
+  // Deprecated fields for backward compatibility
+  @Deprecated private final String legacyXpath;
 
   /**
    * Constructor for XML navigation with XPath selector and transformation rule.
@@ -41,15 +45,37 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @param xpath the XPath expression to select elements (e.g., "users/user/name")
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if rule is null
+   * @deprecated Use {@link #XmlNavigateCommand(XPath, IRule)} instead
    */
+  @Deprecated
   public XmlNavigateCommand(String xpath, IRule rule) {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    this.xpath = xpath;
+    this.legacyXpath = xpath;
+    this.xpath = xpath != null ? new XPath(xpath) : null;
     this.rule = rule;
     if (xpath != null) {
       this.pathHandler = new FixedStaXPathHandler(xpath);
+    }
+  }
+
+  /**
+   * Constructor for XML navigation with typed XPath selector and transformation rule.
+   *
+   * @param xpath the typed XPath to select elements
+   * @param rule the transformation rule to apply to selected elements
+   * @throws IllegalArgumentException if rule is null
+   */
+  public XmlNavigateCommand(XPath xpath, IRule rule) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
+    this.xpath = xpath;
+    this.legacyXpath = xpath != null ? xpath.getPath() : null;
+    this.rule = rule;
+    if (xpath != null) {
+      this.pathHandler = new FixedStaXPathHandler(xpath.getPath());
     }
   }
 
@@ -62,8 +88,22 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected elements
    * @return an XmlNavigateCommand that extracts the specified XPath with the given rule
    * @throws IllegalArgumentException if rule is null
+   * @deprecated Use {@link #create(XPath, IRule)} instead
    */
+  @Deprecated
   public static XmlNavigateCommand create(String xpath, IRule rule) {
+    return new XmlNavigateCommand(xpath, rule);
+  }
+
+  /**
+   * Factory method for creating an XML navigation command with typed XPath and rule.
+   *
+   * @param xpath the typed XPath to select elements
+   * @param rule the transformation rule to apply to selected elements
+   * @return an XmlNavigateCommand that extracts the specified XPath with the given rule
+   * @throws IllegalArgumentException if rule is null
+   */
+  public static XmlNavigateCommand create(XPath xpath, IRule rule) {
     return new XmlNavigateCommand(xpath, rule);
   }
 
@@ -77,13 +117,13 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if rule is null
    */
   public static XmlNavigateCommand createForAll(IRule rule) {
-    return new XmlNavigateCommand(null, rule);
+    return new XmlNavigateCommand((XPath) null, rule);
   }
 
   @Override
   protected String getCommandDetails() {
     if (xpath != null) {
-      return String.format("XmlNavigateCommand(xpath='%s')", xpath);
+      return String.format("XmlNavigateCommand(xpath='%s')", xpath.getPath());
     } else {
       return "XmlNavigateCommand(entire XML)";
     }

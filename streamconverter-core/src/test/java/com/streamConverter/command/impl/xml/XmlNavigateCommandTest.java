@@ -23,7 +23,7 @@ class XmlNavigateCommandTest {
 
   @BeforeEach
   void setUp() {
-    command = new XmlNavigateCommand();
+    command = XmlNavigateCommand.extractAll();
   }
 
   @Test

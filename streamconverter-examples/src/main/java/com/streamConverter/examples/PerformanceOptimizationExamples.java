@@ -71,7 +71,7 @@ public class PerformanceOptimizationExamples {
 
     // Process large dataset with memory-efficient navigation
     logger.info("🔄 Processing 10,000 records...");
-    processDataWithTiming(largeDataset.toString(), new CsvNavigateCommand("name"));
+    processDataWithTiming(largeDataset.toString(), CsvNavigateCommand.extractOnly("name"));
 
     long endTime = System.currentTimeMillis();
     logger.info(String.format("⏱️ Processing completed in %d ms", endTime - startTime));
@@ -94,14 +94,14 @@ public class PerformanceOptimizationExamples {
     // Single command processing
     long startTime = System.currentTimeMillis();
     logger.info("🔄 Single command processing...");
-    processDataWithTiming(jsonData, new JsonNavigateCommand());
+    processDataWithTiming(jsonData, JsonNavigateCommand.extractAll());
     long singleTime = System.currentTimeMillis() - startTime;
 
     // Pipeline processing (demonstrates concurrent execution)
     startTime = System.currentTimeMillis();
     logger.info("\n🔄 Pipeline processing (concurrent)...");
     IStreamCommand[] pipeline = {
-      new JsonNavigateCommand(),
+      JsonNavigateCommand.extractAll(),
       new SampleStreamCommand("stage1"),
       new SampleStreamCommand("stage2")
     };
@@ -133,7 +133,7 @@ public class PerformanceOptimizationExamples {
     long beforeMemory = getUsedMemory();
 
     logger.info("🔄 Processing 50,000 records with 100-char data each...");
-    processDataWithTiming(hugeDataset.toString(), new CsvNavigateCommand("id"));
+    processDataWithTiming(hugeDataset.toString(), CsvNavigateCommand.extractOnly("id"));
 
     long afterMemory = getUsedMemory();
     long memoryIncrease = afterMemory - beforeMemory;
@@ -156,13 +156,13 @@ public class PerformanceOptimizationExamples {
 
     // Strategy 1: Direct processing
     long start = System.nanoTime();
-    processDataWithTiming(testData, new CsvNavigateCommand("name"));
+    processDataWithTiming(testData, CsvNavigateCommand.extractOnly("name"));
     long directTime = System.nanoTime() - start;
 
     // Strategy 2: Pipeline processing
     start = System.nanoTime();
     IStreamCommand[] pipeline = {
-      new CsvNavigateCommand("name"), new SampleStreamCommand("processor")
+      CsvNavigateCommand.extractOnly("name"), new SampleStreamCommand("processor")
     };
     processDataWithTiming(testData, pipeline);
     long pipelineTime = System.nanoTime() - start;
@@ -170,7 +170,7 @@ public class PerformanceOptimizationExamples {
     // Strategy 3: Multi-stage processing
     start = System.nanoTime();
     IStreamCommand[] multiStage = {
-      new CsvNavigateCommand("name"),
+      CsvNavigateCommand.extractOnly("name"),
       new SampleStreamCommand("stage1"),
       new SampleStreamCommand("stage2"),
       new SampleStreamCommand("stage3")

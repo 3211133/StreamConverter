@@ -22,7 +22,7 @@ class JsonNavigateCommandTest {
 
   @BeforeEach
   void setUp() {
-    command = new JsonNavigateCommand();
+    command = JsonNavigateCommand.extractAll();
   }
 
   @Test

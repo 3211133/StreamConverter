@@ -23,7 +23,7 @@ class CsvNavigateCommandTest {
 
   @BeforeEach
   void setUp() {
-    command = new CsvNavigateCommand();
+    command = CsvNavigateCommand.extractAll();
   }
 
   @Test

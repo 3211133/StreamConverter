@@ -70,15 +70,15 @@ public class StreamConverterDemo {
 
     // Demo 1a: Extract specific column by name
     logger.info("1. Extract 'name' column:");
-    runDemo(csvData, new CsvNavigateCommand("name"));
+    runDemo(csvData, CsvNavigateCommand.extractOnly("name"));
 
     // Demo 1b: Extract column by index
     logger.info("\n2. Extract column at index 2 (city):");
-    runDemo(csvData, new CsvNavigateCommand("2"));
+    runDemo(csvData, CsvNavigateCommand.extractOnly("2"));
 
     // Demo 1c: Process all columns
     logger.info("\n3. Process all columns (formatted):");
-    runDemo(csvData, new CsvNavigateCommand());
+    runDemo(csvData, CsvNavigateCommand.extractAll());
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -94,15 +94,15 @@ public class StreamConverterDemo {
 
     // Demo 2a: Extract specific property
     logger.info("1. Extract 'total' property:");
-    runDemo(jsonData, new JsonNavigateCommand("total"));
+    runDemo(jsonData, JsonNavigateCommand.extractOnly("total"));
 
     // Demo 2b: Navigate nested properties
     logger.info("\n2. Navigate to users array:");
-    runDemo(jsonData, new JsonNavigateCommand("users"));
+    runDemo(jsonData, JsonNavigateCommand.extractOnly("users"));
 
     // Demo 2c: Format entire JSON
     logger.info("\n3. Format entire JSON:");
-    runDemo(jsonData, new JsonNavigateCommand());
+    runDemo(jsonData, JsonNavigateCommand.extractAll());
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -130,15 +130,15 @@ public class StreamConverterDemo {
 
     // Demo 3a: Extract specific elements
     logger.info("1. Extract all 'name' elements:");
-    runDemo(xmlData, new XmlNavigateCommand("users/user/name"));
+    runDemo(xmlData, XmlNavigateCommand.extractOnly("users/user/name"));
 
     // Demo 3b: Extract user elements
     logger.info("\n2. Extract all 'user' elements:");
-    runDemo(xmlData, new XmlNavigateCommand("users/user"));
+    runDemo(xmlData, XmlNavigateCommand.extractOnly("users/user"));
 
     // Demo 3c: Process entire XML
     logger.info("\n3. Process entire XML:");
-    runDemo(xmlData, new XmlNavigateCommand());
+    runDemo(xmlData, XmlNavigateCommand.extractAll());
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -155,7 +155,7 @@ public class StreamConverterDemo {
     // Demo 4: Chain JSON formatting with sample processing
     logger.info("1. JSON formatting → Sample processing:");
     IStreamCommand[] pipeline = {
-      new JsonNavigateCommand(), // Format JSON
+      JsonNavigateCommand.extractAll(), // Format JSON
       new SampleStreamCommand("formatter") // Add processing info
     };
 
@@ -179,7 +179,7 @@ public class StreamConverterDemo {
     // Demo 5: Multi-stage processing
     logger.info("1. Multi-stage CSV processing:");
     IStreamCommand[] complexPipeline = {
-      new CsvNavigateCommand("name"), // Extract names
+      CsvNavigateCommand.extractOnly("name"), // Extract names
       new SampleStreamCommand("name-processor"), // Process names
       new SampleStreamCommand("final-formatter") // Final formatting
     };

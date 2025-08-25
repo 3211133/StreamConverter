@@ -51,7 +51,7 @@ dependencies {
     implementation("com.networknt:json-schema-validator:1.5.8")
     
     // JsonSurfer for streaming JSON processing
-    implementation("com.github.jsurfer:jsurfer-jackson:1.6.3")
+    implementation("com.github.jsurfer:jsurfer-jackson:1.6.5")
     
     // CSV validation support
     implementation("com.opencsv:opencsv:5.12.0")

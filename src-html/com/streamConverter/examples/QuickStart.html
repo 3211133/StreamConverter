@@ -19,154 +19,155 @@
 <span class="source-line-no">006</span><span id="line-6">import com.streamConverter.command.impl.csv.CsvNavigateCommand;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamConverter.command.impl.json.JsonNavigateCommand;</span>
 <span class="source-line-no">008</span><span id="line-8">import com.streamConverter.command.impl.xml.XmlNavigateCommand;</span>
-<span class="source-line-no">009</span><span id="line-9">import java.io.ByteArrayInputStream;</span>
-<span class="source-line-no">010</span><span id="line-10">import java.io.ByteArrayOutputStream;</span>
-<span class="source-line-no">011</span><span id="line-11">import java.io.IOException;</span>
-<span class="source-line-no">012</span><span id="line-12">import java.io.InputStream;</span>
-<span class="source-line-no">013</span><span id="line-13">import java.nio.charset.StandardCharsets;</span>
-<span class="source-line-no">014</span><span id="line-14">import org.slf4j.Logger;</span>
-<span class="source-line-no">015</span><span id="line-15">import org.slf4j.LoggerFactory;</span>
-<span class="source-line-no">016</span><span id="line-16"></span>
-<span class="source-line-no">017</span><span id="line-17">/**</span>
-<span class="source-line-no">018</span><span id="line-18"> * Quick start examples for StreamConverter.</span>
-<span class="source-line-no">019</span><span id="line-19"> *</span>
-<span class="source-line-no">020</span><span id="line-20"> * &lt;p&gt;This provides simple, runnable examples of core functionality.</span>
-<span class="source-line-no">021</span><span id="line-21"> */</span>
-<span class="source-line-no">022</span><span id="line-22">public class QuickStart {</span>
-<span class="source-line-no">023</span><span id="line-23">  private static final Logger log = LoggerFactory.getLogger(QuickStart.class);</span>
-<span class="source-line-no">024</span><span id="line-24"></span>
-<span class="source-line-no">025</span><span id="line-25">  /**</span>
-<span class="source-line-no">026</span><span id="line-26">   * アプリケーションのエントリーポイント。StreamConverterの基本的な使用例を実行します。</span>
-<span class="source-line-no">027</span><span id="line-27">   *</span>
-<span class="source-line-no">028</span><span id="line-28">   * @param args コマンドライン引数（使用されません）</span>
-<span class="source-line-no">029</span><span id="line-29">   */</span>
-<span class="source-line-no">030</span><span id="line-30">  public static void main(String[] args) {</span>
-<span class="source-line-no">031</span><span id="line-31">    log.info("🚀 StreamConverter Quick Start Examples");</span>
-<span class="source-line-no">032</span><span id="line-32">    log.info("========================================\n");</span>
-<span class="source-line-no">033</span><span id="line-33"></span>
-<span class="source-line-no">034</span><span id="line-34">    try {</span>
-<span class="source-line-no">035</span><span id="line-35">      // Example 1: CSV column extraction</span>
-<span class="source-line-no">036</span><span id="line-36">      csvExample();</span>
-<span class="source-line-no">037</span><span id="line-37"></span>
-<span class="source-line-no">038</span><span id="line-38">      // Example 2: JSON property extraction</span>
-<span class="source-line-no">039</span><span id="line-39">      jsonExample();</span>
-<span class="source-line-no">040</span><span id="line-40"></span>
-<span class="source-line-no">041</span><span id="line-41">      // Example 3: XML element extraction</span>
-<span class="source-line-no">042</span><span id="line-42">      xmlExample();</span>
-<span class="source-line-no">043</span><span id="line-43"></span>
-<span class="source-line-no">044</span><span id="line-44">      // Example 4: Command pipeline</span>
-<span class="source-line-no">045</span><span id="line-45">      pipelineExample();</span>
-<span class="source-line-no">046</span><span id="line-46"></span>
-<span class="source-line-no">047</span><span id="line-47">      log.info("✅ All examples completed successfully!");</span>
-<span class="source-line-no">048</span><span id="line-48"></span>
-<span class="source-line-no">049</span><span id="line-49">    } catch (Exception e) {</span>
-<span class="source-line-no">050</span><span id="line-50">      log.error("❌ Example failed: {}", e.getMessage(), e);</span>
-<span class="source-line-no">051</span><span id="line-51">    }</span>
-<span class="source-line-no">052</span><span id="line-52">  }</span>
-<span class="source-line-no">053</span><span id="line-53"></span>
-<span class="source-line-no">054</span><span id="line-54">  /** Example 1: CSV column extraction */</span>
-<span class="source-line-no">055</span><span id="line-55">  private static void csvExample() throws IOException {</span>
-<span class="source-line-no">056</span><span id="line-56">    log.info("📊 CSV Example");</span>
-<span class="source-line-no">057</span><span id="line-57">    log.info("===============");</span>
-<span class="source-line-no">058</span><span id="line-58"></span>
-<span class="source-line-no">059</span><span id="line-59">    String csvData = "name,age,city\nJohn,30,NYC\nJane,25,LA\n";</span>
-<span class="source-line-no">060</span><span id="line-60"></span>
-<span class="source-line-no">061</span><span id="line-61">    // Extract name column</span>
-<span class="source-line-no">062</span><span id="line-62">    IStreamCommand csvCommand = new CsvNavigateCommand("name");</span>
-<span class="source-line-no">063</span><span id="line-63">    String result = processData(csvData, csvCommand);</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">    log.info("Input CSV:");</span>
-<span class="source-line-no">066</span><span id="line-66">    log.info(csvData);</span>
-<span class="source-line-no">067</span><span id="line-67">    log.info("Extracted 'name' column:");</span>
-<span class="source-line-no">068</span><span id="line-68">    log.info(result);</span>
-<span class="source-line-no">069</span><span id="line-69">    log.info("");</span>
-<span class="source-line-no">070</span><span id="line-70">  }</span>
-<span class="source-line-no">071</span><span id="line-71"></span>
-<span class="source-line-no">072</span><span id="line-72">  /** Example 2: JSON property extraction */</span>
-<span class="source-line-no">073</span><span id="line-73">  private static void jsonExample() throws IOException {</span>
-<span class="source-line-no">074</span><span id="line-74">    log.info("🔍 JSON Example");</span>
-<span class="source-line-no">075</span><span id="line-75">    log.info("================");</span>
-<span class="source-line-no">076</span><span id="line-76"></span>
-<span class="source-line-no">077</span><span id="line-77">    String jsonData = "{\"name\":\"John\",\"age\":30,\"city\":\"NYC\"}";</span>
-<span class="source-line-no">078</span><span id="line-78"></span>
-<span class="source-line-no">079</span><span id="line-79">    // Extract name property</span>
-<span class="source-line-no">080</span><span id="line-80">    IStreamCommand jsonCommand = new JsonNavigateCommand("name");</span>
-<span class="source-line-no">081</span><span id="line-81">    String result = processData(jsonData, jsonCommand);</span>
-<span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">    log.info("Input JSON:");</span>
-<span class="source-line-no">084</span><span id="line-84">    log.info(jsonData);</span>
-<span class="source-line-no">085</span><span id="line-85">    log.info("Extracted 'name' property:");</span>
-<span class="source-line-no">086</span><span id="line-86">    log.info(result);</span>
-<span class="source-line-no">087</span><span id="line-87">    log.info("");</span>
-<span class="source-line-no">088</span><span id="line-88">  }</span>
-<span class="source-line-no">089</span><span id="line-89"></span>
-<span class="source-line-no">090</span><span id="line-90">  /** Example 3: XML element extraction */</span>
-<span class="source-line-no">091</span><span id="line-91">  private static void xmlExample() throws IOException {</span>
-<span class="source-line-no">092</span><span id="line-92">    log.info("🌲 XML Example");</span>
-<span class="source-line-no">093</span><span id="line-93">    log.info("===============");</span>
-<span class="source-line-no">094</span><span id="line-94"></span>
-<span class="source-line-no">095</span><span id="line-95">    String xmlData =</span>
-<span class="source-line-no">096</span><span id="line-96">        """</span>
-<span class="source-line-no">097</span><span id="line-97">        &lt;?xml version="1.0"?&gt;</span>
-<span class="source-line-no">098</span><span id="line-98">        &lt;person&gt;</span>
-<span class="source-line-no">099</span><span id="line-99">          &lt;name&gt;John&lt;/name&gt;</span>
-<span class="source-line-no">100</span><span id="line-100">          &lt;age&gt;30&lt;/age&gt;</span>
-<span class="source-line-no">101</span><span id="line-101">          &lt;city&gt;NYC&lt;/city&gt;</span>
-<span class="source-line-no">102</span><span id="line-102">        &lt;/person&gt;</span>
-<span class="source-line-no">103</span><span id="line-103">        """;</span>
-<span class="source-line-no">104</span><span id="line-104"></span>
-<span class="source-line-no">105</span><span id="line-105">    // Extract name element</span>
-<span class="source-line-no">106</span><span id="line-106">    IStreamCommand xmlCommand = new XmlNavigateCommand("person/name");</span>
-<span class="source-line-no">107</span><span id="line-107">    String result = processData(xmlData, xmlCommand);</span>
-<span class="source-line-no">108</span><span id="line-108"></span>
-<span class="source-line-no">109</span><span id="line-109">    log.info("Input XML:");</span>
-<span class="source-line-no">110</span><span id="line-110">    log.info(xmlData);</span>
-<span class="source-line-no">111</span><span id="line-111">    log.info("Extracted 'name' element:");</span>
-<span class="source-line-no">112</span><span id="line-112">    log.info(result);</span>
-<span class="source-line-no">113</span><span id="line-113">    log.info("");</span>
-<span class="source-line-no">114</span><span id="line-114">  }</span>
-<span class="source-line-no">115</span><span id="line-115"></span>
-<span class="source-line-no">116</span><span id="line-116">  /** Example 4: Command pipeline */</span>
-<span class="source-line-no">117</span><span id="line-117">  private static void pipelineExample() throws IOException {</span>
-<span class="source-line-no">118</span><span id="line-118">    log.info("🔗 Pipeline Example");</span>
-<span class="source-line-no">119</span><span id="line-119">    log.info("====================");</span>
-<span class="source-line-no">120</span><span id="line-120"></span>
-<span class="source-line-no">121</span><span id="line-121">    String csvData = "id,name,status\n1,John,active\n2,Jane,inactive\n";</span>
-<span class="source-line-no">122</span><span id="line-122"></span>
-<span class="source-line-no">123</span><span id="line-123">    // Create processing pipeline</span>
-<span class="source-line-no">124</span><span id="line-124">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">125</span><span id="line-125">      new CsvNavigateCommand("name"), // Extract names</span>
-<span class="source-line-no">126</span><span id="line-126">      new SampleStreamCommand("processor") // Process names</span>
-<span class="source-line-no">127</span><span id="line-127">    };</span>
-<span class="source-line-no">128</span><span id="line-128"></span>
-<span class="source-line-no">129</span><span id="line-129">    String result = processData(csvData, pipeline);</span>
-<span class="source-line-no">130</span><span id="line-130"></span>
-<span class="source-line-no">131</span><span id="line-131">    log.info("Input CSV:");</span>
-<span class="source-line-no">132</span><span id="line-132">    log.info(csvData);</span>
-<span class="source-line-no">133</span><span id="line-133">    log.info("Pipeline result (name extraction + processing):");</span>
-<span class="source-line-no">134</span><span id="line-134">    log.info(result);</span>
-<span class="source-line-no">135</span><span id="line-135">    log.info("");</span>
-<span class="source-line-no">136</span><span id="line-136">  }</span>
-<span class="source-line-no">137</span><span id="line-137"></span>
-<span class="source-line-no">138</span><span id="line-138">  /** Helper method to process data with a single command */</span>
-<span class="source-line-no">139</span><span id="line-139">  private static String processData(String inputData, IStreamCommand command) throws IOException {</span>
-<span class="source-line-no">140</span><span id="line-140">    return processData(inputData, new IStreamCommand[] {command});</span>
-<span class="source-line-no">141</span><span id="line-141">  }</span>
-<span class="source-line-no">142</span><span id="line-142"></span>
-<span class="source-line-no">143</span><span id="line-143">  /** Helper method to process data with command pipeline */</span>
-<span class="source-line-no">144</span><span id="line-144">  private static String processData(String inputData, IStreamCommand[] commands)</span>
-<span class="source-line-no">145</span><span id="line-145">      throws IOException {</span>
-<span class="source-line-no">146</span><span id="line-146">    try (InputStream inputStream =</span>
-<span class="source-line-no">147</span><span id="line-147">            new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">148</span><span id="line-148">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="source-line-no">149</span><span id="line-149"></span>
-<span class="source-line-no">150</span><span id="line-150">      StreamConverter converter = new StreamConverter(commands);</span>
-<span class="source-line-no">151</span><span id="line-151">      converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">152</span><span id="line-152"></span>
-<span class="source-line-no">153</span><span id="line-153">      return outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">154</span><span id="line-154">    }</span>
-<span class="source-line-no">155</span><span id="line-155">  }</span>
-<span class="source-line-no">156</span><span id="line-156">}</span>
+<span class="source-line-no">009</span><span id="line-9">import com.streamConverter.command.rule.PassThroughRule;</span>
+<span class="source-line-no">010</span><span id="line-10">import java.io.ByteArrayInputStream;</span>
+<span class="source-line-no">011</span><span id="line-11">import java.io.ByteArrayOutputStream;</span>
+<span class="source-line-no">012</span><span id="line-12">import java.io.IOException;</span>
+<span class="source-line-no">013</span><span id="line-13">import java.io.InputStream;</span>
+<span class="source-line-no">014</span><span id="line-14">import java.nio.charset.StandardCharsets;</span>
+<span class="source-line-no">015</span><span id="line-15">import org.slf4j.Logger;</span>
+<span class="source-line-no">016</span><span id="line-16">import org.slf4j.LoggerFactory;</span>
+<span class="source-line-no">017</span><span id="line-17"></span>
+<span class="source-line-no">018</span><span id="line-18">/**</span>
+<span class="source-line-no">019</span><span id="line-19"> * Quick start examples for StreamConverter.</span>
+<span class="source-line-no">020</span><span id="line-20"> *</span>
+<span class="source-line-no">021</span><span id="line-21"> * &lt;p&gt;This provides simple, runnable examples of core functionality.</span>
+<span class="source-line-no">022</span><span id="line-22"> */</span>
+<span class="source-line-no">023</span><span id="line-23">public class QuickStart {</span>
+<span class="source-line-no">024</span><span id="line-24">  private static final Logger log = LoggerFactory.getLogger(QuickStart.class);</span>
+<span class="source-line-no">025</span><span id="line-25"></span>
+<span class="source-line-no">026</span><span id="line-26">  /**</span>
+<span class="source-line-no">027</span><span id="line-27">   * アプリケーションのエントリーポイント。StreamConverterの基本的な使用例を実行します。</span>
+<span class="source-line-no">028</span><span id="line-28">   *</span>
+<span class="source-line-no">029</span><span id="line-29">   * @param args コマンドライン引数（使用されません）</span>
+<span class="source-line-no">030</span><span id="line-30">   */</span>
+<span class="source-line-no">031</span><span id="line-31">  public static void main(String[] args) {</span>
+<span class="source-line-no">032</span><span id="line-32">    log.info("🚀 StreamConverter Quick Start Examples");</span>
+<span class="source-line-no">033</span><span id="line-33">    log.info("========================================\n");</span>
+<span class="source-line-no">034</span><span id="line-34"></span>
+<span class="source-line-no">035</span><span id="line-35">    try {</span>
+<span class="source-line-no">036</span><span id="line-36">      // Example 1: CSV column extraction</span>
+<span class="source-line-no">037</span><span id="line-37">      csvExample();</span>
+<span class="source-line-no">038</span><span id="line-38"></span>
+<span class="source-line-no">039</span><span id="line-39">      // Example 2: JSON property extraction</span>
+<span class="source-line-no">040</span><span id="line-40">      jsonExample();</span>
+<span class="source-line-no">041</span><span id="line-41"></span>
+<span class="source-line-no">042</span><span id="line-42">      // Example 3: XML element extraction</span>
+<span class="source-line-no">043</span><span id="line-43">      xmlExample();</span>
+<span class="source-line-no">044</span><span id="line-44"></span>
+<span class="source-line-no">045</span><span id="line-45">      // Example 4: Command pipeline</span>
+<span class="source-line-no">046</span><span id="line-46">      pipelineExample();</span>
+<span class="source-line-no">047</span><span id="line-47"></span>
+<span class="source-line-no">048</span><span id="line-48">      log.info("✅ All examples completed successfully!");</span>
+<span class="source-line-no">049</span><span id="line-49"></span>
+<span class="source-line-no">050</span><span id="line-50">    } catch (Exception e) {</span>
+<span class="source-line-no">051</span><span id="line-51">      log.error("❌ Example failed: {}", e.getMessage(), e);</span>
+<span class="source-line-no">052</span><span id="line-52">    }</span>
+<span class="source-line-no">053</span><span id="line-53">  }</span>
+<span class="source-line-no">054</span><span id="line-54"></span>
+<span class="source-line-no">055</span><span id="line-55">  /** Example 1: CSV column extraction */</span>
+<span class="source-line-no">056</span><span id="line-56">  private static void csvExample() throws IOException {</span>
+<span class="source-line-no">057</span><span id="line-57">    log.info("📊 CSV Example");</span>
+<span class="source-line-no">058</span><span id="line-58">    log.info("===============");</span>
+<span class="source-line-no">059</span><span id="line-59"></span>
+<span class="source-line-no">060</span><span id="line-60">    String csvData = "name,age,city\nJohn,30,NYC\nJane,25,LA\n";</span>
+<span class="source-line-no">061</span><span id="line-61"></span>
+<span class="source-line-no">062</span><span id="line-62">    // Extract name column</span>
+<span class="source-line-no">063</span><span id="line-63">    IStreamCommand csvCommand = CsvNavigateCommand.create("name", new PassThroughRule());</span>
+<span class="source-line-no">064</span><span id="line-64">    String result = processData(csvData, csvCommand);</span>
+<span class="source-line-no">065</span><span id="line-65"></span>
+<span class="source-line-no">066</span><span id="line-66">    log.info("Input CSV:");</span>
+<span class="source-line-no">067</span><span id="line-67">    log.info(csvData);</span>
+<span class="source-line-no">068</span><span id="line-68">    log.info("Extracted 'name' column:");</span>
+<span class="source-line-no">069</span><span id="line-69">    log.info(result);</span>
+<span class="source-line-no">070</span><span id="line-70">    log.info("");</span>
+<span class="source-line-no">071</span><span id="line-71">  }</span>
+<span class="source-line-no">072</span><span id="line-72"></span>
+<span class="source-line-no">073</span><span id="line-73">  /** Example 2: JSON property extraction */</span>
+<span class="source-line-no">074</span><span id="line-74">  private static void jsonExample() throws IOException {</span>
+<span class="source-line-no">075</span><span id="line-75">    log.info("🔍 JSON Example");</span>
+<span class="source-line-no">076</span><span id="line-76">    log.info("================");</span>
+<span class="source-line-no">077</span><span id="line-77"></span>
+<span class="source-line-no">078</span><span id="line-78">    String jsonData = "{\"name\":\"John\",\"age\":30,\"city\":\"NYC\"}";</span>
+<span class="source-line-no">079</span><span id="line-79"></span>
+<span class="source-line-no">080</span><span id="line-80">    // Extract name property</span>
+<span class="source-line-no">081</span><span id="line-81">    IStreamCommand jsonCommand = JsonNavigateCommand.create("name", new PassThroughRule());</span>
+<span class="source-line-no">082</span><span id="line-82">    String result = processData(jsonData, jsonCommand);</span>
+<span class="source-line-no">083</span><span id="line-83"></span>
+<span class="source-line-no">084</span><span id="line-84">    log.info("Input JSON:");</span>
+<span class="source-line-no">085</span><span id="line-85">    log.info(jsonData);</span>
+<span class="source-line-no">086</span><span id="line-86">    log.info("Extracted 'name' property:");</span>
+<span class="source-line-no">087</span><span id="line-87">    log.info(result);</span>
+<span class="source-line-no">088</span><span id="line-88">    log.info("");</span>
+<span class="source-line-no">089</span><span id="line-89">  }</span>
+<span class="source-line-no">090</span><span id="line-90"></span>
+<span class="source-line-no">091</span><span id="line-91">  /** Example 3: XML element extraction */</span>
+<span class="source-line-no">092</span><span id="line-92">  private static void xmlExample() throws IOException {</span>
+<span class="source-line-no">093</span><span id="line-93">    log.info("🌲 XML Example");</span>
+<span class="source-line-no">094</span><span id="line-94">    log.info("===============");</span>
+<span class="source-line-no">095</span><span id="line-95"></span>
+<span class="source-line-no">096</span><span id="line-96">    String xmlData =</span>
+<span class="source-line-no">097</span><span id="line-97">        """</span>
+<span class="source-line-no">098</span><span id="line-98">        &lt;?xml version="1.0"?&gt;</span>
+<span class="source-line-no">099</span><span id="line-99">        &lt;person&gt;</span>
+<span class="source-line-no">100</span><span id="line-100">          &lt;name&gt;John&lt;/name&gt;</span>
+<span class="source-line-no">101</span><span id="line-101">          &lt;age&gt;30&lt;/age&gt;</span>
+<span class="source-line-no">102</span><span id="line-102">          &lt;city&gt;NYC&lt;/city&gt;</span>
+<span class="source-line-no">103</span><span id="line-103">        &lt;/person&gt;</span>
+<span class="source-line-no">104</span><span id="line-104">        """;</span>
+<span class="source-line-no">105</span><span id="line-105"></span>
+<span class="source-line-no">106</span><span id="line-106">    // Extract name element</span>
+<span class="source-line-no">107</span><span id="line-107">    IStreamCommand xmlCommand = XmlNavigateCommand.create("person/name", new PassThroughRule());</span>
+<span class="source-line-no">108</span><span id="line-108">    String result = processData(xmlData, xmlCommand);</span>
+<span class="source-line-no">109</span><span id="line-109"></span>
+<span class="source-line-no">110</span><span id="line-110">    log.info("Input XML:");</span>
+<span class="source-line-no">111</span><span id="line-111">    log.info(xmlData);</span>
+<span class="source-line-no">112</span><span id="line-112">    log.info("Extracted 'name' element:");</span>
+<span class="source-line-no">113</span><span id="line-113">    log.info(result);</span>
+<span class="source-line-no">114</span><span id="line-114">    log.info("");</span>
+<span class="source-line-no">115</span><span id="line-115">  }</span>
+<span class="source-line-no">116</span><span id="line-116"></span>
+<span class="source-line-no">117</span><span id="line-117">  /** Example 4: Command pipeline */</span>
+<span class="source-line-no">118</span><span id="line-118">  private static void pipelineExample() throws IOException {</span>
+<span class="source-line-no">119</span><span id="line-119">    log.info("🔗 Pipeline Example");</span>
+<span class="source-line-no">120</span><span id="line-120">    log.info("====================");</span>
+<span class="source-line-no">121</span><span id="line-121"></span>
+<span class="source-line-no">122</span><span id="line-122">    String csvData = "id,name,status\n1,John,active\n2,Jane,inactive\n";</span>
+<span class="source-line-no">123</span><span id="line-123"></span>
+<span class="source-line-no">124</span><span id="line-124">    // Create processing pipeline</span>
+<span class="source-line-no">125</span><span id="line-125">    IStreamCommand[] pipeline = {</span>
+<span class="source-line-no">126</span><span id="line-126">      CsvNavigateCommand.create("name", new PassThroughRule()), // Extract names</span>
+<span class="source-line-no">127</span><span id="line-127">      new SampleStreamCommand("processor") // Process names</span>
+<span class="source-line-no">128</span><span id="line-128">    };</span>
+<span class="source-line-no">129</span><span id="line-129"></span>
+<span class="source-line-no">130</span><span id="line-130">    String result = processData(csvData, pipeline);</span>
+<span class="source-line-no">131</span><span id="line-131"></span>
+<span class="source-line-no">132</span><span id="line-132">    log.info("Input CSV:");</span>
+<span class="source-line-no">133</span><span id="line-133">    log.info(csvData);</span>
+<span class="source-line-no">134</span><span id="line-134">    log.info("Pipeline result (name extraction + processing):");</span>
+<span class="source-line-no">135</span><span id="line-135">    log.info(result);</span>
+<span class="source-line-no">136</span><span id="line-136">    log.info("");</span>
+<span class="source-line-no">137</span><span id="line-137">  }</span>
+<span class="source-line-no">138</span><span id="line-138"></span>
+<span class="source-line-no">139</span><span id="line-139">  /** Helper method to process data with a single command */</span>
+<span class="source-line-no">140</span><span id="line-140">  private static String processData(String inputData, IStreamCommand command) throws IOException {</span>
+<span class="source-line-no">141</span><span id="line-141">    return processData(inputData, new IStreamCommand[] {command});</span>
+<span class="source-line-no">142</span><span id="line-142">  }</span>
+<span class="source-line-no">143</span><span id="line-143"></span>
+<span class="source-line-no">144</span><span id="line-144">  /** Helper method to process data with command pipeline */</span>
+<span class="source-line-no">145</span><span id="line-145">  private static String processData(String inputData, IStreamCommand[] commands)</span>
+<span class="source-line-no">146</span><span id="line-146">      throws IOException {</span>
+<span class="source-line-no">147</span><span id="line-147">    try (InputStream inputStream =</span>
+<span class="source-line-no">148</span><span id="line-148">            new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">149</span><span id="line-149">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="source-line-no">150</span><span id="line-150"></span>
+<span class="source-line-no">151</span><span id="line-151">      StreamConverter converter = new StreamConverter(commands);</span>
+<span class="source-line-no">152</span><span id="line-152">      converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">153</span><span id="line-153"></span>
+<span class="source-line-no">154</span><span id="line-154">      return outputStream.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">155</span><span id="line-155">    }</span>
+<span class="source-line-no">156</span><span id="line-156">  }</span>
+<span class="source-line-no">157</span><span id="line-157">}</span>
 
 
 

@@ -311,6 +311,18 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a StreamConverter with the specified array of commands.</div>
 </dd>
+<dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create(String, IRule)</a> - Static method in class com.streamConverter.command.impl.csv.<a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></dt>
+<dd>
+<div class="block">Factory method for creating a CSV navigation command with explicit rule specification.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create(String, IRule)</a> - Static method in class com.streamConverter.command.impl.json.<a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></dt>
+<dd>
+<div class="block">Factory method for creating a JSON navigation command with explicit rule specification.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/impl/xml/XmlNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create(String, IRule)</a> - Static method in class com.streamConverter.command.impl.xml.<a href="../com/streamConverter/command/impl/xml/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl.xml">XmlNavigateCommand</a></dt>
+<dd>
+<div class="block">Factory method for creating an XML navigation command with explicit rule specification.</div>
+</dd>
 <dt><a href="../com/streamConverter/StreamConverter.html#create(java.util.List)" class="member-name-link">create(List&lt;IStreamCommand&gt;)</a> - Static method in class com.streamConverter.<a href="../com/streamConverter/StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></dt>
 <dd>
 <div class="block">Creates a StreamConverter with the specified list of commands.</div>
@@ -326,6 +338,21 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/streamConverter/command/EnhancedCommandFactory.html#createDevelopmentInstance()" class="member-name-link">createDevelopmentInstance()</a> - Static method in class com.streamConverter.command.<a href="../com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
 <dd>
 <div class="block">Creates a development-friendly factory instance.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll(IRule)</a> - Static method in class com.streamConverter.command.impl.csv.<a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></dt>
+<dd>
+<div class="block">Factory method for creating a CSV navigation command that processes all columns with explicit
+ rule specification.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll(IRule)</a> - Static method in class com.streamConverter.command.impl.json.<a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></dt>
+<dd>
+<div class="block">Factory method for creating a JSON navigation command that processes entire JSON with explicit
+ rule specification.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/impl/xml/XmlNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll(IRule)</a> - Static method in class com.streamConverter.command.impl.xml.<a href="../com/streamConverter/command/impl/xml/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl.xml">XmlNavigateCommand</a></dt>
+<dd>
+<div class="block">Factory method for creating an XML navigation command that processes entire XML with explicit
+ rule specification.</div>
 </dd>
 <dt><a href="../com/streamConverter/command/EnhancedCommandFactory.html#createForControllerIntegration(java.lang.Class,boolean,java.lang.Object...)" class="member-name-link">createForControllerIntegration(Class&lt;T&gt;, boolean, Object...)</a> - Method in class com.streamConverter.command.<a href="../com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
 <dd>
@@ -518,7 +545,7 @@ loadScripts(document, 'script');</script>
 <div class="deprecation-block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
 <div class="deprecation-comment">This constructor uses PassThroughRule by default, which may not be the intended
      behavior. Use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand(String, IRule)</code></a> to explicitly specify the
-     transformation rule. For data extraction without transformation, use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#extractOnly(java.lang.String)"><code>CsvNavigateCommand.extractOnly(String)</code></a>.</div>
+     transformation rule. For data extraction without transformation, use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand.create(String, IRule)</code></a>.</div>
 </div>
 </dd>
 <dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">CsvNavigateCommand(String)</a> - Constructor for class com.streamConverter.command.impl.csv.<a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></dt>
@@ -526,7 +553,7 @@ loadScripts(document, 'script');</script>
 <div class="deprecation-block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
 <div class="deprecation-comment">This constructor uses PassThroughRule by default, which may not be the intended
      behavior. Use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand(String, IRule)</code></a> to explicitly specify the
-     transformation rule. For data extraction without transformation, use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#extractOnly(java.lang.String)"><code>CsvNavigateCommand.extractOnly(String)</code></a>.</div>
+     transformation rule. For data extraction without transformation, use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand.create(String, IRule)</code></a>.</div>
 </div>
 </dd>
 <dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand(String, IRule)</a> - Constructor for class com.streamConverter.command.impl.csv.<a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></dt>

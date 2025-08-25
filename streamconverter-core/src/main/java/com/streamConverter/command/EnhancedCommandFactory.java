@@ -247,13 +247,113 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
 
   // ========== Private Implementation Methods ==========
 
+  /**
+   * Creates Navigate command using factory methods if applicable. This method handles the new API
+   * for Navigate commands that no longer have deprecated constructors.
+   *
+   * @param <T> command type
+   * @param commandClass the command class
+   * @param args constructor arguments
+   * @return created command or null if not applicable
+   * @throws FactoryException if creation fails
+   */
+  @SuppressWarnings("unchecked")
+  private <T extends IStreamCommand> T createNavigateCommandIfApplicable(
+      Class<T> commandClass, Object... args) throws FactoryException {
+
+    try {
+      // Import statements would be needed at the top, but for compatibility we'll use reflection
+      String className = commandClass.getSimpleName();
+
+      if ("JsonNavigateCommand".equals(className)) {
+        return createJsonNavigateCommand(commandClass, args);
+      } else if ("CsvNavigateCommand".equals(className)) {
+        return createCsvNavigateCommand(commandClass, args);
+      } else if ("XmlNavigateCommand".equals(className)) {
+        return createXmlNavigateCommand(commandClass, args);
+      }
+
+      return null; // Not a Navigate command
+
+    } catch (Exception e) {
+      throw new FactoryException(
+          "Failed to create Navigate command: " + commandClass.getSimpleName(), e);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends IStreamCommand> T createJsonNavigateCommand(
+      Class<T> commandClass, Object... args) throws Exception {
+    // We need to add PassThroughRule as second argument for factory method
+    com.streamConverter.command.rule.PassThroughRule defaultRule =
+        new com.streamConverter.command.rule.PassThroughRule();
+
+    if (args.length == 1) {
+      // Single argument - use create(path, rule)
+      Object path = args[0];
+      return (T)
+          com.streamConverter.command.impl.json.JsonNavigateCommand.create(
+              (String) path, defaultRule);
+    } else if (args.length == 0) {
+      // No arguments - use createForAll(rule)
+      return (T)
+          com.streamConverter.command.impl.json.JsonNavigateCommand.createForAll(defaultRule);
+    } else {
+      // Multiple arguments - delegate to regular constructor (if exists)
+      return null;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends IStreamCommand> T createCsvNavigateCommand(
+      Class<T> commandClass, Object... args) throws Exception {
+    com.streamConverter.command.rule.PassThroughRule defaultRule =
+        new com.streamConverter.command.rule.PassThroughRule();
+
+    if (args.length == 1) {
+      // Single argument - use create(path, rule)
+      Object path = args[0];
+      return (T)
+          com.streamConverter.command.impl.csv.CsvNavigateCommand.create(
+              (String) path, defaultRule);
+    } else if (args.length == 0) {
+      // No arguments - use createForAll(rule)
+      return (T) com.streamConverter.command.impl.csv.CsvNavigateCommand.createForAll(defaultRule);
+    } else {
+      return null;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends IStreamCommand> T createXmlNavigateCommand(
+      Class<T> commandClass, Object... args) throws Exception {
+    com.streamConverter.command.rule.PassThroughRule defaultRule =
+        new com.streamConverter.command.rule.PassThroughRule();
+
+    if (args.length == 1) {
+      // Single argument - use create(path, rule)
+      Object path = args[0];
+      return (T)
+          com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
+              (String) path, defaultRule);
+    } else if (args.length == 0) {
+      // No arguments - use createForAll(rule)
+      return (T) com.streamConverter.command.impl.xml.XmlNavigateCommand.createForAll(defaultRule);
+    } else {
+      return null;
+    }
+  }
+
   /** Core command creation method with logging integration. */
   @SuppressWarnings("unchecked")
   private <T extends IStreamCommand> T createCommandWithLogging(
       Class<T> commandClass, boolean enableDetailedLogging, Object... args)
       throws FactoryException {
 
-    T command = createInstance(commandClass, args);
+    T command = createNavigateCommandIfApplicable(commandClass, args);
+    if (command == null) {
+      command = createInstance(commandClass, args);
+    }
 
     if (config.isDetailedLoggingEnabled() || enableDetailedLogging) {
       log.info(

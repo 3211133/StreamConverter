@@ -75,7 +75,7 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
     
     // In-memory filesystem for cross-platform file system tests
-    testImplementation("com.google.jimfs:jimfs:1.3.0")
+    testImplementation("com.google.jimfs:jimfs:1.3.1")
 }
 
 // Spotless configuration for code formatting

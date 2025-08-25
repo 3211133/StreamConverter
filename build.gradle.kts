@@ -194,7 +194,7 @@ dependencies {
     implementation("ch.qos.logback:logback-core:1.5.13") // CVE-2024-12798, CVE-2024-12801修正
     implementation("io.projectreactor.netty:reactor-netty-http:1.2.8") // Latest version compatible with Netty 4.1.123.Final
     implementation("org.springframework:spring-web:6.2.8") // CVE-2025-41234修正
-    implementation("org.springframework:spring-context:6.2.7") // CVE-2025-22233修正
+    implementation("org.springframework:spring-context:6.2.10") // CVE-2025-22233修正
     
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.18.0")

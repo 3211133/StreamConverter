@@ -60,8 +60,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @param xpath the XPath expression to select elements (e.g., "users/user/name")
    * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
    *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #extractOnly(String)}.
+   *     transformation rule. For data extraction without transformation, use {@link #create(String,
+   *     IRule)}.
    */
   @Deprecated(since = "1.2.0", forRemoval = true)
   public XmlNavigateCommand(String xpath) {
@@ -73,7 +73,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    *
    * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
    *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link #extractAll()}.
+   *     transformation rule. For data extraction without transformation, use {@link
+   *     #createForAll(IRule)}.
    */
   @Deprecated(since = "1.2.0", forRemoval = true)
   public XmlNavigateCommand() {
@@ -81,25 +82,30 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Factory method for creating an XML navigation command that extracts data without
-   * transformation. This method makes the intention explicit: extract data from the specified XPath
-   * as-is.
+   * Factory method for creating an XML navigation command with explicit rule specification. This
+   * method makes the intention explicit: extract data from the specified XPath and apply the given
+   * transformation rule.
    *
    * @param xpath the XPath expression to select elements (e.g., "users/user/name")
-   * @return an XmlNavigateCommand that extracts the specified XPath without transformation
+   * @param rule the transformation rule to apply to selected elements
+   * @return an XmlNavigateCommand that extracts the specified XPath with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  public static XmlNavigateCommand extractOnly(String xpath) {
-    return new XmlNavigateCommand(xpath, new PassThroughRule());
+  public static XmlNavigateCommand create(String xpath, IRule rule) {
+    return new XmlNavigateCommand(xpath, rule);
   }
 
   /**
-   * Factory method for creating an XML navigation command that processes entire XML without
-   * transformation. This method makes the intention explicit: process all XML data as-is.
+   * Factory method for creating an XML navigation command that processes entire XML with explicit
+   * rule specification. This method makes the intention explicit: process all XML data with the
+   * given transformation rule.
    *
-   * @return an XmlNavigateCommand that processes entire XML without transformation
+   * @param rule the transformation rule to apply to entire XML
+   * @return an XmlNavigateCommand that processes entire XML with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  public static XmlNavigateCommand extractAll() {
-    return new XmlNavigateCommand(null, new PassThroughRule());
+  public static XmlNavigateCommand createForAll(IRule rule) {
+    return new XmlNavigateCommand(null, rule);
   }
 
   @Override

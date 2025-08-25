@@ -4,6 +4,7 @@ import com.streamConverter.StreamConverter;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.SendHttpCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
+import com.streamConverter.command.rule.PassThroughRule;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -105,7 +106,8 @@ public class SendHttpCommandDemo {
     System.out.println("--- シナリオ3: パイプライン処理でのHTTP送信 ---");
 
     // JSON変換 → HTTP送信のパイプライン
-    JsonNavigateCommand jsonCommand = new JsonNavigateCommand("$.message");
+    JsonNavigateCommand jsonCommand =
+        JsonNavigateCommand.create("$.message", new PassThroughRule());
     SendHttpCommand httpCommand = new SendHttpCommand("https://httpbin.org/post");
 
     String originalJson =

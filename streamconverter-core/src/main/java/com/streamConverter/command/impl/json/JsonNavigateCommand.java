@@ -54,8 +54,8 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
    * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
    *     behavior. Use {@link #JsonNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #extractOnly(String)}.
+   *     transformation rule. For data extraction without transformation, use {@link #create(String,
+   *     IRule)}.
    */
   @Deprecated(since = "1.2.0", forRemoval = true)
   public JsonNavigateCommand(String jsonPath) {
@@ -67,7 +67,8 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    *
    * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
    *     behavior. Use {@link #JsonNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link #extractAll()}.
+   *     transformation rule. For data extraction without transformation, use {@link
+   *     #createForAll(IRule)}.
    */
   @Deprecated(since = "1.2.0", forRemoval = true)
   public JsonNavigateCommand() {
@@ -75,25 +76,30 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Factory method for creating a JSON navigation command that extracts data without
-   * transformation. This method makes the intention explicit: extract data from the specified
-   * JSONPath as-is.
+   * Factory method for creating a JSON navigation command with explicit rule specification. This
+   * method makes the intention explicit: extract data from the specified JSONPath and apply the
+   * given transformation rule.
    *
    * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
-   * @return a JsonNavigateCommand that extracts the specified path without transformation
+   * @param rule the transformation rule to apply to selected elements
+   * @return a JsonNavigateCommand that extracts the specified path with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  public static JsonNavigateCommand extractOnly(String jsonPath) {
-    return new JsonNavigateCommand(jsonPath, new PassThroughRule());
+  public static JsonNavigateCommand create(String jsonPath, IRule rule) {
+    return new JsonNavigateCommand(jsonPath, rule);
   }
 
   /**
-   * Factory method for creating a JSON navigation command that processes entire JSON without
-   * transformation. This method makes the intention explicit: process all JSON data as-is.
+   * Factory method for creating a JSON navigation command that processes entire JSON with explicit
+   * rule specification. This method makes the intention explicit: process all JSON data with the
+   * given transformation rule.
    *
-   * @return a JsonNavigateCommand that processes entire JSON without transformation
+   * @param rule the transformation rule to apply to entire JSON
+   * @return a JsonNavigateCommand that processes entire JSON with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  public static JsonNavigateCommand extractAll() {
-    return new JsonNavigateCommand(null, new PassThroughRule());
+  public static JsonNavigateCommand createForAll(IRule rule) {
+    return new JsonNavigateCommand(null, rule);
   }
 
   @Override

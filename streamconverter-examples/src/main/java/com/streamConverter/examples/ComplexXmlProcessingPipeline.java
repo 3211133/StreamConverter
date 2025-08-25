@@ -5,6 +5,7 @@ import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.SendHttpCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
+import com.streamConverter.command.rule.PassThroughRule;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -93,12 +94,14 @@ public class ComplexXmlProcessingPipeline {
 
     // Step 1: Extract user ID for DB lookup
     System.out.println("\n🔍 Step 1: Extract user ID for DB lookup");
-    IStreamCommand extractUserId = new XmlNavigateCommand("request/body/user/userId");
+    IStreamCommand extractUserId =
+        XmlNavigateCommand.create("request/body/user/userId", new PassThroughRule());
     processStep(incomingXml, extractUserId, "User ID extraction");
 
     // Step 2: Extract session ID for validation
     System.out.println("\n🔍 Step 2: Extract session ID for validation");
-    IStreamCommand extractSessionId = new XmlNavigateCommand("request/body/user/sessionId");
+    IStreamCommand extractSessionId =
+        XmlNavigateCommand.create("request/body/user/sessionId", new PassThroughRule());
     processStep(incomingXml, extractSessionId, "Session ID extraction");
 
     System.out.println("\n" + "=".repeat(60) + "\n");
@@ -168,7 +171,8 @@ public class ComplexXmlProcessingPipeline {
     System.out.println("🔍 Testing error handling with invalid XML...");
 
     try {
-      IStreamCommand xmlProcessor = new XmlNavigateCommand("request/header/requestId");
+      IStreamCommand xmlProcessor =
+          XmlNavigateCommand.create("request/header/requestId", new PassThroughRule());
       processStep(invalidXml, xmlProcessor, "Error handling test");
     } catch (Exception e) {
       System.out.println("❌ Expected error caught: " + e.getMessage());
@@ -185,7 +189,10 @@ public class ComplexXmlProcessingPipeline {
           </error>
           """;
 
-      processStep(recoveredXml, new XmlNavigateCommand("error"), "Recovery processing");
+      processStep(
+          recoveredXml,
+          XmlNavigateCommand.create("error", new PassThroughRule()),
+          "Recovery processing");
     }
 
     System.out.println("\n" + "=".repeat(60) + "\n");
@@ -251,7 +258,7 @@ public class ComplexXmlProcessingPipeline {
   private static IStreamCommand[] createFullProcessingPipeline() {
     return new IStreamCommand[] {
       // Step 1: Extract user ID from incoming XML
-      new XmlNavigateCommand("request/body/user/userId"),
+      XmlNavigateCommand.create("request/body/user/userId", new PassThroughRule()),
 
       // Step 2: Database lookup (simulated with sample processing)
       new SampleStreamCommand("database-lookup-simulator"),
@@ -260,7 +267,7 @@ public class ComplexXmlProcessingPipeline {
       new SendHttpCommand("https://api.backend.example.com/user/profile"),
 
       // Step 4: Process returned XML
-      new XmlNavigateCommand("response/data")
+      XmlNavigateCommand.create("response/data", new PassThroughRule())
     };
   }
 
@@ -340,7 +347,9 @@ public class ComplexXmlProcessingPipeline {
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
       // Simulate processing pipeline
-      IStreamCommand[] pipeline = {new XmlNavigateCommand("request/body/user/userId")};
+      IStreamCommand[] pipeline = {
+        XmlNavigateCommand.create("request/body/user/userId", new PassThroughRule())
+      };
 
       StreamConverter converter = new StreamConverter(pipeline);
       converter.run(inputStream, outputStream);

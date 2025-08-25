@@ -46,8 +46,8 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @param columnSelector the column name or index to select (e.g., "name", "2")
    * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
    *     behavior. Use {@link #CsvNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #extractOnly(String)}.
+   *     transformation rule. For data extraction without transformation, use {@link #create(String,
+   *     IRule)}.
    */
   @Deprecated(since = "1.2.0", forRemoval = true)
   public CsvNavigateCommand(String columnSelector) {
@@ -59,8 +59,8 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    *
    * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
    *     behavior. Use {@link #CsvNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #extractOnly(String)}.
+   *     transformation rule. For data extraction without transformation, use {@link #create(String,
+   *     IRule)}.
    */
   @Deprecated(since = "1.2.0", forRemoval = true)
   public CsvNavigateCommand() {
@@ -68,24 +68,30 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Factory method for creating a CSV navigation command that extracts data without transformation.
-   * This method makes the intention explicit: extract data from the specified column as-is.
+   * Factory method for creating a CSV navigation command with explicit rule specification. This
+   * method makes the intention explicit: extract data from the specified column and apply the given
+   * transformation rule.
    *
    * @param columnSelector the column name or index to select (e.g., "name", "2")
-   * @return a CsvNavigateCommand that extracts the specified column without transformation
+   * @param rule the transformation rule to apply to selected column data
+   * @return a CsvNavigateCommand that extracts the specified column with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  public static CsvNavigateCommand extractOnly(String columnSelector) {
-    return new CsvNavigateCommand(columnSelector, new PassThroughRule());
+  public static CsvNavigateCommand create(String columnSelector, IRule rule) {
+    return new CsvNavigateCommand(columnSelector, rule);
   }
 
   /**
-   * Factory method for creating a CSV navigation command that processes all columns without
-   * transformation. This method makes the intention explicit: process all CSV data as-is.
+   * Factory method for creating a CSV navigation command that processes all columns with explicit
+   * rule specification. This method makes the intention explicit: process all CSV data with the
+   * given transformation rule.
    *
-   * @return a CsvNavigateCommand that processes all columns without transformation
+   * @param rule the transformation rule to apply to all CSV data
+   * @return a CsvNavigateCommand that processes all columns with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  public static CsvNavigateCommand extractAll() {
-    return new CsvNavigateCommand(null, new PassThroughRule());
+  public static CsvNavigateCommand createForAll(IRule rule) {
+    return new CsvNavigateCommand(null, rule);
   }
 
   @Override

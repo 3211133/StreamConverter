@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
@@ -23,7 +24,7 @@ class XmlNavigateCommandTest {
 
   @BeforeEach
   void setUp() {
-    command = XmlNavigateCommand.extractAll();
+    command = XmlNavigateCommand.createForAll(new PassThroughRule());
   }
 
   @Test

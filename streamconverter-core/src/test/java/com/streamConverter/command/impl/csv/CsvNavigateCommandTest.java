@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import com.streamConverter.test.TestUtils;
@@ -23,7 +24,7 @@ class CsvNavigateCommandTest {
 
   @BeforeEach
   void setUp() {
-    command = CsvNavigateCommand.extractAll();
+    command = CsvNavigateCommand.createForAll(new PassThroughRule());
   }
 
   @Test

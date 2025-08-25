@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
@@ -22,7 +23,7 @@ class JsonNavigateCommandTest {
 
   @BeforeEach
   void setUp() {
-    command = JsonNavigateCommand.extractAll();
+    command = JsonNavigateCommand.createForAll(new PassThroughRule());
   }
 
   @Test

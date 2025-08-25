@@ -5,6 +5,7 @@ import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
+import com.streamConverter.command.rule.PassThroughRule;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -71,7 +72,8 @@ public class PerformanceOptimizationExamples {
 
     // Process large dataset with memory-efficient navigation
     logger.info("🔄 Processing 10,000 records...");
-    processDataWithTiming(largeDataset.toString(), CsvNavigateCommand.extractOnly("name"));
+    processDataWithTiming(
+        largeDataset.toString(), CsvNavigateCommand.create("name", new PassThroughRule()));
 
     long endTime = System.currentTimeMillis();
     logger.info(String.format("⏱️ Processing completed in %d ms", endTime - startTime));
@@ -94,14 +96,14 @@ public class PerformanceOptimizationExamples {
     // Single command processing
     long startTime = System.currentTimeMillis();
     logger.info("🔄 Single command processing...");
-    processDataWithTiming(jsonData, JsonNavigateCommand.extractAll());
+    processDataWithTiming(jsonData, JsonNavigateCommand.createForAll(new PassThroughRule()));
     long singleTime = System.currentTimeMillis() - startTime;
 
     // Pipeline processing (demonstrates concurrent execution)
     startTime = System.currentTimeMillis();
     logger.info("\n🔄 Pipeline processing (concurrent)...");
     IStreamCommand[] pipeline = {
-      JsonNavigateCommand.extractAll(),
+      JsonNavigateCommand.createForAll(new PassThroughRule()),
       new SampleStreamCommand("stage1"),
       new SampleStreamCommand("stage2")
     };
@@ -133,7 +135,8 @@ public class PerformanceOptimizationExamples {
     long beforeMemory = getUsedMemory();
 
     logger.info("🔄 Processing 50,000 records with 100-char data each...");
-    processDataWithTiming(hugeDataset.toString(), CsvNavigateCommand.extractOnly("id"));
+    processDataWithTiming(
+        hugeDataset.toString(), CsvNavigateCommand.create("id", new PassThroughRule()));
 
     long afterMemory = getUsedMemory();
     long memoryIncrease = afterMemory - beforeMemory;
@@ -156,13 +159,13 @@ public class PerformanceOptimizationExamples {
 
     // Strategy 1: Direct processing
     long start = System.nanoTime();
-    processDataWithTiming(testData, CsvNavigateCommand.extractOnly("name"));
+    processDataWithTiming(testData, CsvNavigateCommand.create("name", new PassThroughRule()));
     long directTime = System.nanoTime() - start;
 
     // Strategy 2: Pipeline processing
     start = System.nanoTime();
     IStreamCommand[] pipeline = {
-      CsvNavigateCommand.extractOnly("name"), new SampleStreamCommand("processor")
+      CsvNavigateCommand.create("name", new PassThroughRule()), new SampleStreamCommand("processor")
     };
     processDataWithTiming(testData, pipeline);
     long pipelineTime = System.nanoTime() - start;
@@ -170,7 +173,7 @@ public class PerformanceOptimizationExamples {
     // Strategy 3: Multi-stage processing
     start = System.nanoTime();
     IStreamCommand[] multiStage = {
-      CsvNavigateCommand.extractOnly("name"),
+      CsvNavigateCommand.create("name", new PassThroughRule()),
       new SampleStreamCommand("stage1"),
       new SampleStreamCommand("stage2"),
       new SampleStreamCommand("stage3")

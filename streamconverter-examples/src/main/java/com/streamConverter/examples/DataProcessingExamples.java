@@ -6,6 +6,7 @@ import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
+import com.streamConverter.command.rule.PassThroughRule;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -73,15 +74,15 @@ public class DataProcessingExamples {
 
     // Extract employee names for a directory
     logger.info("📋 Extract employee names:");
-    processData(employeeData, CsvNavigateCommand.extractOnly("name"));
+    processData(employeeData, CsvNavigateCommand.create("name", new PassThroughRule()));
 
     // Extract salary information for budget analysis
     logger.info("\n💰 Extract salary information:");
-    processData(employeeData, CsvNavigateCommand.extractOnly("salary"));
+    processData(employeeData, CsvNavigateCommand.create("salary", new PassThroughRule()));
 
     // Extract department information for organization chart
     logger.info("\n🏢 Extract department information:");
-    processData(employeeData, CsvNavigateCommand.extractOnly("department"));
+    processData(employeeData, CsvNavigateCommand.create("department", new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }
@@ -111,15 +112,15 @@ public class DataProcessingExamples {
 
     // Extract status for monitoring
     logger.info("📊 Extract API status:");
-    processData(apiResponse, JsonNavigateCommand.extractOnly("status"));
+    processData(apiResponse, JsonNavigateCommand.create("status", new PassThroughRule()));
 
     // Extract user data for processing
     logger.info("\n👤 Extract user data:");
-    processData(apiResponse, JsonNavigateCommand.extractOnly("data"));
+    processData(apiResponse, JsonNavigateCommand.create("data", new PassThroughRule()));
 
     // Format entire response for logging
     logger.info("\n📝 Format entire response:");
-    processData(apiResponse, JsonNavigateCommand.extractAll());
+    processData(apiResponse, JsonNavigateCommand.createForAll(new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }
@@ -151,15 +152,18 @@ public class DataProcessingExamples {
 
     // Extract database configuration
     logger.info("🗄️ Extract database configuration:");
-    processData(configXml, XmlNavigateCommand.extractOnly("configuration/database"));
+    processData(
+        configXml, XmlNavigateCommand.create("configuration/database", new PassThroughRule()));
 
     // Extract server configuration
     logger.info("\n🖥️ Extract server configuration:");
-    processData(configXml, XmlNavigateCommand.extractOnly("configuration/server"));
+    processData(
+        configXml, XmlNavigateCommand.create("configuration/server", new PassThroughRule()));
 
     // Extract logging configuration
     logger.info("\n📊 Extract logging configuration:");
-    processData(configXml, XmlNavigateCommand.extractOnly("configuration/logging"));
+    processData(
+        configXml, XmlNavigateCommand.create("configuration/logging", new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }
@@ -180,7 +184,7 @@ public class DataProcessingExamples {
 
     // Create analysis pipeline
     IStreamCommand[] analysisPipeline = {
-      CsvNavigateCommand.extractOnly("level"), // Extract log levels
+      CsvNavigateCommand.create("level", new PassThroughRule()), // Extract log levels
       new SampleStreamCommand("level-analyzer") // Analyze log levels
     };
 
@@ -189,7 +193,7 @@ public class DataProcessingExamples {
 
     // Service-specific analysis
     logger.info("\n🔧 Service analysis:");
-    processData(logData, CsvNavigateCommand.extractOnly("service"));
+    processData(logData, CsvNavigateCommand.create("service", new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }
@@ -209,7 +213,7 @@ public class DataProcessingExamples {
 
     // Multi-stage conversion pipeline
     IStreamCommand[] conversionPipeline = {
-      CsvNavigateCommand.extractOnly("name"), // Extract product names
+      CsvNavigateCommand.create("name", new PassThroughRule()), // Extract product names
       new SampleStreamCommand("name-processor"), // Process names
       new SampleStreamCommand("format-converter") // Convert format
     };
@@ -219,7 +223,7 @@ public class DataProcessingExamples {
 
     // Price extraction for financial analysis
     logger.info("\n💲 Price extraction:");
-    processData(productData, CsvNavigateCommand.extractOnly("price"));
+    processData(productData, CsvNavigateCommand.create("price", new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }

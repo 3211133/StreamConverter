@@ -8,7 +8,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.command.rule.PassThroughRule;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,6 +29,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   private final String jsonPath;
   private final IRule rule;
+  private final boolean extractValue;
   private final ObjectMapper objectMapper;
 
   /**
@@ -40,39 +40,26 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if rule is null
    */
   public JsonNavigateCommand(String jsonPath, IRule rule) {
+    this(jsonPath, rule, false);
+  }
+
+  /**
+   * Constructor for JSON navigation with JSONPath selector, transformation rule, and extraction
+   * mode.
+   *
+   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
+   * @param rule the transformation rule to apply to selected elements
+   * @param extractValue if true, extract only the transformed value; if false, return modified JSON
+   * @throws IllegalArgumentException if rule is null
+   */
+  public JsonNavigateCommand(String jsonPath, IRule rule, boolean extractValue) {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
     this.jsonPath = jsonPath;
     this.rule = rule;
+    this.extractValue = extractValue;
     this.objectMapper = new ObjectMapper();
-  }
-
-  /**
-   * Constructor for JSON navigation with JSONPath selector using PassThroughRule.
-   *
-   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #JsonNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link #create(String,
-   *     IRule)}.
-   */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public JsonNavigateCommand(String jsonPath) {
-    this(jsonPath, new PassThroughRule());
-  }
-
-  /**
-   * Default constructor - processes entire JSON with PassThroughRule.
-   *
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #JsonNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #createForAll(IRule)}.
-   */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public JsonNavigateCommand() {
-    this(null, new PassThroughRule());
   }
 
   /**
@@ -102,6 +89,19 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     return new JsonNavigateCommand(null, rule);
   }
 
+  /**
+   * Factory method for creating a JSON navigation command that extracts and transforms a specific
+   * value. This command returns only the transformed value, not the entire JSON object.
+   *
+   * @param jsonPath the JSONPath expression to select data (e.g., "$.userName")
+   * @param rule the transformation rule to apply to selected value
+   * @return a JsonNavigateCommand that extracts and transforms the specified value
+   * @throws IllegalArgumentException if rule is null
+   */
+  public static JsonNavigateCommand createExtractValue(String jsonPath, IRule rule) {
+    return new JsonNavigateCommand(jsonPath, rule, true);
+  }
+
   @Override
   protected String getCommandDetails() {
     String pathInfo = jsonPath != null ? String.format("jsonPath='%s'", jsonPath) : "entire JSON";
@@ -123,9 +123,12 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Determine if this is a simple transformation that can be processed line-by-line */
   private boolean isSimpleTransformation() {
+    // extractValue mode always requires tree processing for proper value extraction
+    if (extractValue) {
+      return false;
+    }
     // Simple transformations that don't require complete JSON structure
-    return jsonPath == null
-        || (rule instanceof PassThroughRule && jsonPath.matches("^\\$\\.[a-zA-Z_][a-zA-Z0-9_]*$"));
+    return jsonPath == null || jsonPath.matches("^\\$\\.[a-zA-Z_][a-zA-Z0-9_]*$");
   }
 
   /**
@@ -143,9 +146,12 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
         if (jsonPath == null) {
           // Process entire JSON stream
           processEntireJsonStream(parser, generator);
+        } else if (extractValue) {
+          // This should not happen since extractValue mode uses tree processing
+          throw new IllegalStateException("extractValue mode should not use streaming processing");
         } else {
           // Process with simple JSONPath filtering
-          processJsonStreamWithPath(parser, generator);
+          processJsonStreamWithPath(parser, generator, outputStream);
         }
 
         generator.flush();
@@ -180,6 +186,22 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
           writer.write(transformedResult);
           writer.flush();
         }
+      } else if (extractValue) {
+        // Extract and return only the transformed value as plain text
+        JsonNode targetNode = navigateJsonPath(rootNode, jsonPath);
+        String result;
+
+        if (targetNode != null && !targetNode.isMissingNode()) {
+          String propertyValue = targetNode.asText();
+          result = rule.apply(propertyValue);
+        } else {
+          result = ""; // Return empty string if path not found
+        }
+
+        // Write as plain text directly to output stream
+        byte[] bytes = result.getBytes(StandardCharsets.UTF_8);
+        outputStream.write(bytes);
+        outputStream.flush();
       } else {
         // Handle both JSON arrays and objects
         JsonNode modifiedRoot;
@@ -225,30 +247,40 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   }
 
   /** Process JSON stream with simple path filtering */
-  private void processJsonStreamWithPath(JsonParser parser, JsonGenerator generator)
-      throws IOException {
+  private void processJsonStreamWithPath(
+      JsonParser parser, JsonGenerator generator, OutputStream outputStream) throws IOException {
     // For streaming with simple paths, we'll use a simplified approach
     // that maintains the streaming nature while applying basic filtering
     String propertyName = extractPropertyFromPath(jsonPath);
     boolean inTargetProperty = false;
 
-    JsonToken token;
-    while ((token = parser.nextToken()) != null) {
-      if (token == JsonToken.FIELD_NAME && propertyName.equals(parser.currentName())) {
-        inTargetProperty = true;
-        generator.writeFieldName(parser.currentName());
-      } else if (inTargetProperty && token == JsonToken.VALUE_STRING) {
-        // Apply rule to string value
-        String transformedValue = rule.apply(parser.getValueAsString());
-        generator.writeString(transformedValue);
-        inTargetProperty = false;
-      } else if (inTargetProperty) {
-        copyTokenWithRule(parser, generator, token);
-        if (token == JsonToken.END_OBJECT || token == JsonToken.END_ARRAY) {
+    // This method should not be called for extractValue mode
+    // extractValue mode uses processJsonWithJsonPath instead
+    if (extractValue) {
+      throw new UnsupportedOperationException(
+          "extractValue mode should use processJsonWithJsonPath");
+    }
+
+    {
+      // Normal mode - write complete JSON structure
+      JsonToken token;
+      while ((token = parser.nextToken()) != null) {
+        if (token == JsonToken.FIELD_NAME && propertyName.equals(parser.currentName())) {
+          inTargetProperty = true;
+          generator.writeFieldName(parser.currentName());
+        } else if (inTargetProperty && token == JsonToken.VALUE_STRING) {
+          // Apply rule to string value
+          String transformedValue = rule.apply(parser.getValueAsString());
+          generator.writeString(transformedValue);
           inTargetProperty = false;
+        } else if (inTargetProperty) {
+          copyTokenWithRule(parser, generator, token);
+          if (token == JsonToken.END_OBJECT || token == JsonToken.END_ARRAY) {
+            inTargetProperty = false;
+          }
+        } else {
+          copyToken(parser, generator, token);
         }
-      } else {
-        copyToken(parser, generator, token);
       }
     }
   }

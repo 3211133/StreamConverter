@@ -2,7 +2,6 @@ package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.pathHandler.FixedStaXPathHandler;
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,33 +51,6 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     if (xpath != null) {
       this.pathHandler = new FixedStaXPathHandler(xpath);
     }
-  }
-
-  /**
-   * Constructor for XML navigation with XPath selector using PassThroughRule.
-   *
-   * @param xpath the XPath expression to select elements (e.g., "users/user/name")
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link #create(String,
-   *     IRule)}.
-   */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public XmlNavigateCommand(String xpath) {
-    this(xpath, new PassThroughRule());
-  }
-
-  /**
-   * Default constructor - processes entire XML with PassThroughRule.
-   *
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #createForAll(IRule)}.
-   */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public XmlNavigateCommand() {
-    this(null, new PassThroughRule());
   }
 
   /**

@@ -10,6 +10,9 @@ com.streamConverter.command.impl.csv
 com.streamConverter.command.impl.json
 com.streamConverter.command.impl.xml
 com.streamConverter.command.rule
+com.streamConverter.command.rule.impl.casing
+com.streamConverter.command.rule.impl.composite
+com.streamConverter.command.rule.impl.string
 com.streamConverter.config
 com.streamConverter.context
 com.streamConverter.controller

@@ -66,6 +66,26 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Sets caching enabled flag.</div>
 </dd>
+<dt><a href="../com/streamConverter/command/rule/impl/casing/CamelToSnakeCaseRule.html" class="type-name-link" title="class in com.streamConverter.command.rule.impl.casing">CamelToSnakeCaseRule</a> - Class in <a href="../com/streamConverter/command/rule/impl/casing/package-summary.html">com.streamConverter.command.rule.impl.casing</a></dt>
+<dd>
+<div class="block">Transforms camelCase strings to snake_case format.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/casing/CamelToSnakeCaseRule.Builder.html" class="type-name-link" title="class in com.streamConverter.command.rule.impl.casing">CamelToSnakeCaseRule.Builder</a> - Class in <a href="../com/streamConverter/command/rule/impl/casing/package-summary.html">com.streamConverter.command.rule.impl.casing</a></dt>
+<dd>
+<div class="block">Builder class for CamelToSnakeCaseRule configuration.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/casing/SnakeToCamelCaseRule.Builder.html#capitalizeFirst(boolean)" class="member-name-link">capitalizeFirst(boolean)</a> - Method in class com.streamConverter.command.rule.impl.casing.<a href="../com/streamConverter/command/rule/impl/casing/SnakeToCamelCaseRule.Builder.html" title="class in com.streamConverter.command.rule.impl.casing">SnakeToCamelCaseRule.Builder</a></dt>
+<dd>
+<div class="block">Sets whether to capitalize the first letter (PascalCase instead of camelCase).</div>
+</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/composite/ChainRule.html" class="type-name-link" title="class in com.streamConverter.command.rule.impl.composite">ChainRule</a> - Class in <a href="../com/streamConverter/command/rule/impl/composite/package-summary.html">com.streamConverter.command.rule.impl.composite</a></dt>
+<dd>
+<div class="block">Chains multiple transformation rules to be applied in sequence.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/composite/ChainRule.Builder.html" class="type-name-link" title="class in com.streamConverter.command.rule.impl.composite">ChainRule.Builder</a> - Class in <a href="../com/streamConverter/command/rule/impl/composite/package-summary.html">com.streamConverter.command.rule.impl.composite</a></dt>
+<dd>
+<div class="block">Builder class for ChainRule configuration.</div>
+</dd>
 <dt><a href="../com/streamConverter/command/impl/charaCode/CharacterConvertCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.charaCode">CharacterConvertCommand</a> - Class in <a href="../com/streamConverter/command/impl/charaCode/package-summary.html">com.streamConverter.command.impl.charaCode</a></dt>
 <dd>
 <div class="block">Converts the character encoding of a stream from one encoding to another.</div>
@@ -81,6 +101,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/streamConverter/command/impl/analysis/PmdXmlToMarkdownCommand.PmdViolation.html#className()" class="member-name-link">className()</a> - Method in record class com.streamConverter.command.impl.analysis.<a href="../com/streamConverter/command/impl/analysis/PmdXmlToMarkdownCommand.PmdViolation.html" title="class in com.streamConverter.command.impl.analysis">PmdXmlToMarkdownCommand.PmdViolation</a></dt>
 <dd>
 <div class="block">Returns the value of the <a href="../com/streamConverter/command/impl/analysis/PmdXmlToMarkdownCommand.PmdViolation.html#param-className"><code>className</code></a> record component.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/composite/ChainRule.Builder.html#clear()" class="member-name-link">clear()</a> - Method in class com.streamConverter.command.rule.impl.composite.<a href="../com/streamConverter/command/rule/impl/composite/ChainRule.Builder.html" title="class in com.streamConverter.command.rule.impl.composite">ChainRule.Builder</a></dt>
+<dd>
+<div class="block">Removes all rules from the chain.</div>
 </dd>
 <dt><a href="../com/streamConverter/factory/AbstractFactory.html#clearCache()" class="member-name-link">clearCache()</a> - Method in class com.streamConverter.factory.<a href="../com/streamConverter/factory/AbstractFactory.html" title="class in com.streamConverter.factory">AbstractFactory</a></dt>
 <dd>
@@ -129,6 +153,12 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/streamConverter/command/impl/xml/package-summary.html">com.streamConverter.command.impl.xml</a> - package com.streamConverter.command.impl.xml</dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/streamConverter/command/rule/package-summary.html">com.streamConverter.command.rule</a> - package com.streamConverter.command.rule</dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/casing/package-summary.html">com.streamConverter.command.rule.impl.casing</a> - package com.streamConverter.command.rule.impl.casing</dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/composite/package-summary.html">com.streamConverter.command.rule.impl.composite</a> - package com.streamConverter.command.rule.impl.composite</dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/string/package-summary.html">com.streamConverter.command.rule.impl.string</a> - package com.streamConverter.command.rule.impl.string</dt>
 <dd>&nbsp;</dd>
 <dt><a href="../com/streamConverter/config/package-summary.html">com.streamConverter.config</a> - package com.streamConverter.config</dt>
 <dd>&nbsp;</dd>
@@ -303,6 +333,14 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">新しいStreamBuilderインスタンスを作成します</div>
 </dd>
+<dt><a href="../com/streamConverter/command/rule/impl/casing/CamelToSnakeCaseRule.html#create()" class="member-name-link">create()</a> - Static method in class com.streamConverter.command.rule.impl.casing.<a href="../com/streamConverter/command/rule/impl/casing/CamelToSnakeCaseRule.html" title="class in com.streamConverter.command.rule.impl.casing">CamelToSnakeCaseRule</a></dt>
+<dd>
+<div class="block">Creates a CamelToSnakeCaseRule with default settings.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/casing/SnakeToCamelCaseRule.html#create()" class="member-name-link">create()</a> - Static method in class com.streamConverter.command.rule.impl.casing.<a href="../com/streamConverter/command/rule/impl/casing/SnakeToCamelCaseRule.html" title="class in com.streamConverter.command.rule.impl.casing">SnakeToCamelCaseRule</a></dt>
+<dd>
+<div class="block">Creates a SnakeToCamelCaseRule with default settings (camelCase, not PascalCase).</div>
+</dd>
 <dt><a href="../com/streamConverter/context/ExecutionContext.html#create()" class="member-name-link">create()</a> - Static method in class com.streamConverter.context.<a href="../com/streamConverter/context/ExecutionContext.html" title="class in com.streamConverter.context">ExecutionContext</a></dt>
 <dd>
 <div class="block">新しい実行コンテキストを生成</div>
@@ -338,6 +376,11 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/streamConverter/command/EnhancedCommandFactory.html#createDevelopmentInstance()" class="member-name-link">createDevelopmentInstance()</a> - Static method in class com.streamConverter.command.<a href="../com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
 <dd>
 <div class="block">Creates a development-friendly factory instance.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html#createExtractValue(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">createExtractValue(String, IRule)</a> - Static method in class com.streamConverter.command.impl.json.<a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></dt>
+<dd>
+<div class="block">Factory method for creating a JSON navigation command that extracts and transforms a specific
+ value.</div>
 </dd>
 <dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll(IRule)</a> - Static method in class com.streamConverter.command.impl.csv.<a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></dt>
 <dd>
@@ -385,6 +428,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/streamConverter/controller/ControllerFactory.html#createOptimized(java.lang.String,com.streamConverter.controller.OutputType,com.streamConverter.factory.FactoryConfiguration)" class="member-name-link">createOptimized(String, OutputType, FactoryConfiguration)</a> - Static method in class com.streamConverter.controller.<a href="../com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
 <dd>
 <div class="block">Creates a controller with optimized CommandFactory integration.</div>
+</dd>
+<dt><a href="../com/streamConverter/command/rule/impl/casing/SnakeToCamelCaseRule.html#createPascalCase()" class="member-name-link">createPascalCase()</a> - Static method in class com.streamConverter.command.rule.impl.casing.<a href="../com/streamConverter/command/rule/impl/casing/SnakeToCamelCaseRule.html" title="class in com.streamConverter.command.rule.impl.casing">SnakeToCamelCaseRule</a></dt>
+<dd>
+<div class="block">Creates a SnakeToCamelCaseRule that produces PascalCase output.</div>
 </dd>
 <dt><a href="../com/streamConverter/command/EnhancedCommandFactory.html#createPipelineOptimized(com.streamConverter.command.CommandConfig...)" class="member-name-link">createPipelineOptimized(CommandConfig...)</a> - Method in class com.streamConverter.command.<a href="../com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
 <dd>
@@ -539,22 +586,6 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" class="type-name-link" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a> - Class in <a href="../com/streamConverter/command/impl/csv/package-summary.html">com.streamConverter.command.impl.csv</a></dt>
 <dd>
 <div class="block">CSV Navigate Command Class</div>
-</dd>
-<dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E()" class="member-name-link">CsvNavigateCommand()</a> - Constructor for class com.streamConverter.command.impl.csv.<a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
-<div class="deprecation-comment">This constructor uses PassThroughRule by default, which may not be the intended
-     behavior. Use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand(String, IRule)</code></a> to explicitly specify the
-     transformation rule. For data extraction without transformation, use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand.create(String, IRule)</code></a>.</div>
-</div>
-</dd>
-<dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String)" class="member-name-link">CsvNavigateCommand(String)</a> - Constructor for class com.streamConverter.command.impl.csv.<a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></dt>
-<dd>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
-<div class="deprecation-comment">This constructor uses PassThroughRule by default, which may not be the intended
-     behavior. Use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand(String, IRule)</code></a> to explicitly specify the
-     transformation rule. For data extraction without transformation, use <a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand.create(String, IRule)</code></a>.</div>
-</div>
 </dd>
 <dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand(String, IRule)</a> - Constructor for class com.streamConverter.command.impl.csv.<a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></dt>
 <dd>

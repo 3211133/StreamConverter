@@ -260,104 +260,204 @@
 <span class="source-line-no">247</span><span id="line-247"></span>
 <span class="source-line-no">248</span><span id="line-248">  // ========== Private Implementation Methods ==========</span>
 <span class="source-line-no">249</span><span id="line-249"></span>
-<span class="source-line-no">250</span><span id="line-250">  /** Core command creation method with logging integration. */</span>
-<span class="source-line-no">251</span><span id="line-251">  @SuppressWarnings("unchecked")</span>
-<span class="source-line-no">252</span><span id="line-252">  private &lt;T extends IStreamCommand&gt; T createCommandWithLogging(</span>
-<span class="source-line-no">253</span><span id="line-253">      Class&lt;T&gt; commandClass, boolean enableDetailedLogging, Object... args)</span>
-<span class="source-line-no">254</span><span id="line-254">      throws FactoryException {</span>
-<span class="source-line-no">255</span><span id="line-255"></span>
-<span class="source-line-no">256</span><span id="line-256">    T command = createInstance(commandClass, args);</span>
-<span class="source-line-no">257</span><span id="line-257"></span>
-<span class="source-line-no">258</span><span id="line-258">    if (config.isDetailedLoggingEnabled() || enableDetailedLogging) {</span>
-<span class="source-line-no">259</span><span id="line-259">      log.info(</span>
-<span class="source-line-no">260</span><span id="line-260">          "Created command instance: {} with {} args (detailed logging: {})",</span>
-<span class="source-line-no">261</span><span id="line-261">          commandClass.getSimpleName(),</span>
-<span class="source-line-no">262</span><span id="line-262">          args.length,</span>
-<span class="source-line-no">263</span><span id="line-263">          enableDetailedLogging);</span>
-<span class="source-line-no">264</span><span id="line-264">    }</span>
-<span class="source-line-no">265</span><span id="line-265"></span>
-<span class="source-line-no">266</span><span id="line-266">    // Handle logging decoration</span>
-<span class="source-line-no">267</span><span id="line-267">    if (command instanceof AbstractStreamCommand) {</span>
-<span class="source-line-no">268</span><span id="line-268">      // AbstractStreamCommand already has integrated logging</span>
-<span class="source-line-no">269</span><span id="line-269">      return command;</span>
-<span class="source-line-no">270</span><span id="line-270">    } else if (enableDetailedLogging) {</span>
-<span class="source-line-no">271</span><span id="line-271">      // Wrap with LoggingDecorator for non-AbstractStreamCommand instances</span>
-<span class="source-line-no">272</span><span id="line-272">      return (T) new LoggingDecorator(command);</span>
-<span class="source-line-no">273</span><span id="line-273">    } else {</span>
-<span class="source-line-no">274</span><span id="line-274">      return command;</span>
-<span class="source-line-no">275</span><span id="line-275">    }</span>
-<span class="source-line-no">276</span><span id="line-276">  }</span>
+<span class="source-line-no">250</span><span id="line-250">  /**</span>
+<span class="source-line-no">251</span><span id="line-251">   * Creates Navigate command using factory methods if applicable. This method handles the new API</span>
+<span class="source-line-no">252</span><span id="line-252">   * for Navigate commands that no longer have deprecated constructors.</span>
+<span class="source-line-no">253</span><span id="line-253">   *</span>
+<span class="source-line-no">254</span><span id="line-254">   * @param &lt;T&gt; command type</span>
+<span class="source-line-no">255</span><span id="line-255">   * @param commandClass the command class</span>
+<span class="source-line-no">256</span><span id="line-256">   * @param args constructor arguments</span>
+<span class="source-line-no">257</span><span id="line-257">   * @return created command or null if not applicable</span>
+<span class="source-line-no">258</span><span id="line-258">   * @throws FactoryException if creation fails</span>
+<span class="source-line-no">259</span><span id="line-259">   */</span>
+<span class="source-line-no">260</span><span id="line-260">  @SuppressWarnings("unchecked")</span>
+<span class="source-line-no">261</span><span id="line-261">  private &lt;T extends IStreamCommand&gt; T createNavigateCommandIfApplicable(</span>
+<span class="source-line-no">262</span><span id="line-262">      Class&lt;T&gt; commandClass, Object... args) throws FactoryException {</span>
+<span class="source-line-no">263</span><span id="line-263"></span>
+<span class="source-line-no">264</span><span id="line-264">    try {</span>
+<span class="source-line-no">265</span><span id="line-265">      // Import statements would be needed at the top, but for compatibility we'll use reflection</span>
+<span class="source-line-no">266</span><span id="line-266">      String className = commandClass.getSimpleName();</span>
+<span class="source-line-no">267</span><span id="line-267"></span>
+<span class="source-line-no">268</span><span id="line-268">      if ("JsonNavigateCommand".equals(className)) {</span>
+<span class="source-line-no">269</span><span id="line-269">        return createJsonNavigateCommand(commandClass, args);</span>
+<span class="source-line-no">270</span><span id="line-270">      } else if ("CsvNavigateCommand".equals(className)) {</span>
+<span class="source-line-no">271</span><span id="line-271">        return createCsvNavigateCommand(commandClass, args);</span>
+<span class="source-line-no">272</span><span id="line-272">      } else if ("XmlNavigateCommand".equals(className)) {</span>
+<span class="source-line-no">273</span><span id="line-273">        return createXmlNavigateCommand(commandClass, args);</span>
+<span class="source-line-no">274</span><span id="line-274">      }</span>
+<span class="source-line-no">275</span><span id="line-275"></span>
+<span class="source-line-no">276</span><span id="line-276">      return null; // Not a Navigate command</span>
 <span class="source-line-no">277</span><span id="line-277"></span>
-<span class="source-line-no">278</span><span id="line-278">  /** Creates pipeline with specified logging configuration. */</span>
-<span class="source-line-no">279</span><span id="line-279">  private IStreamCommand[] createPipeline(CommandConfig[] configs, boolean enableDetailedLogging)</span>
-<span class="source-line-no">280</span><span id="line-280">      throws FactoryException {</span>
-<span class="source-line-no">281</span><span id="line-281">    List&lt;IStreamCommand&gt; commands = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">282</span><span id="line-282"></span>
-<span class="source-line-no">283</span><span id="line-283">    log.info(</span>
-<span class="source-line-no">284</span><span id="line-284">        "Creating pipeline with {} commands (detailed logging: {})",</span>
-<span class="source-line-no">285</span><span id="line-285">        configs.length,</span>
-<span class="source-line-no">286</span><span id="line-286">        enableDetailedLogging);</span>
-<span class="source-line-no">287</span><span id="line-287"></span>
-<span class="source-line-no">288</span><span id="line-288">    for (int i = 0; i &lt; configs.length; i++) {</span>
-<span class="source-line-no">289</span><span id="line-289">      CommandConfig config = configs[i];</span>
-<span class="source-line-no">290</span><span id="line-290">      try {</span>
-<span class="source-line-no">291</span><span id="line-291">        IStreamCommand command =</span>
-<span class="source-line-no">292</span><span id="line-292">            createCommandWithLogging(</span>
-<span class="source-line-no">293</span><span id="line-293">                config.getCommandClass(), enableDetailedLogging, config.getArgs());</span>
-<span class="source-line-no">294</span><span id="line-294">        commands.add(command);</span>
-<span class="source-line-no">295</span><span id="line-295"></span>
-<span class="source-line-no">296</span><span id="line-296">        if (log.isDebugEnabled()) {</span>
-<span class="source-line-no">297</span><span id="line-297">          log.debug("Added command {}/{}: {}", i + 1, configs.length, config.getDescription());</span>
-<span class="source-line-no">298</span><span id="line-298">        }</span>
-<span class="source-line-no">299</span><span id="line-299">      } catch (Exception e) {</span>
-<span class="source-line-no">300</span><span id="line-300">        String message =</span>
-<span class="source-line-no">301</span><span id="line-301">            String.format(</span>
-<span class="source-line-no">302</span><span id="line-302">                "Failed to create command %d/%d: %s",</span>
-<span class="source-line-no">303</span><span id="line-303">                i + 1, configs.length, config.getDescription());</span>
-<span class="source-line-no">304</span><span id="line-304">        log.error(message, e);</span>
-<span class="source-line-no">305</span><span id="line-305"></span>
-<span class="source-line-no">306</span><span id="line-306">        if (this.config.isFailFastOnError()) {</span>
-<span class="source-line-no">307</span><span id="line-307">          throw new FactoryException(message, e);</span>
-<span class="source-line-no">308</span><span id="line-308">        }</span>
-<span class="source-line-no">309</span><span id="line-309">        // Continue with next command if fail-fast is disabled</span>
-<span class="source-line-no">310</span><span id="line-310">      }</span>
-<span class="source-line-no">311</span><span id="line-311">    }</span>
+<span class="source-line-no">278</span><span id="line-278">    } catch (Exception e) {</span>
+<span class="source-line-no">279</span><span id="line-279">      throw new FactoryException(</span>
+<span class="source-line-no">280</span><span id="line-280">          "Failed to create Navigate command: " + commandClass.getSimpleName(), e);</span>
+<span class="source-line-no">281</span><span id="line-281">    }</span>
+<span class="source-line-no">282</span><span id="line-282">  }</span>
+<span class="source-line-no">283</span><span id="line-283"></span>
+<span class="source-line-no">284</span><span id="line-284">  @SuppressWarnings("unchecked")</span>
+<span class="source-line-no">285</span><span id="line-285">  private &lt;T extends IStreamCommand&gt; T createJsonNavigateCommand(</span>
+<span class="source-line-no">286</span><span id="line-286">      Class&lt;T&gt; commandClass, Object... args) throws Exception {</span>
+<span class="source-line-no">287</span><span id="line-287">    // We need to add PassThroughRule as second argument for factory method</span>
+<span class="source-line-no">288</span><span id="line-288">    com.streamConverter.command.rule.PassThroughRule defaultRule =</span>
+<span class="source-line-no">289</span><span id="line-289">        new com.streamConverter.command.rule.PassThroughRule();</span>
+<span class="source-line-no">290</span><span id="line-290"></span>
+<span class="source-line-no">291</span><span id="line-291">    if (args.length == 1) {</span>
+<span class="source-line-no">292</span><span id="line-292">      // Single argument - use create(path, rule)</span>
+<span class="source-line-no">293</span><span id="line-293">      Object path = args[0];</span>
+<span class="source-line-no">294</span><span id="line-294">      return (T)</span>
+<span class="source-line-no">295</span><span id="line-295">          com.streamConverter.command.impl.json.JsonNavigateCommand.create(</span>
+<span class="source-line-no">296</span><span id="line-296">              (String) path, defaultRule);</span>
+<span class="source-line-no">297</span><span id="line-297">    } else if (args.length == 0) {</span>
+<span class="source-line-no">298</span><span id="line-298">      // No arguments - use createForAll(rule)</span>
+<span class="source-line-no">299</span><span id="line-299">      return (T)</span>
+<span class="source-line-no">300</span><span id="line-300">          com.streamConverter.command.impl.json.JsonNavigateCommand.createForAll(defaultRule);</span>
+<span class="source-line-no">301</span><span id="line-301">    } else {</span>
+<span class="source-line-no">302</span><span id="line-302">      // Multiple arguments - delegate to regular constructor (if exists)</span>
+<span class="source-line-no">303</span><span id="line-303">      return null;</span>
+<span class="source-line-no">304</span><span id="line-304">    }</span>
+<span class="source-line-no">305</span><span id="line-305">  }</span>
+<span class="source-line-no">306</span><span id="line-306"></span>
+<span class="source-line-no">307</span><span id="line-307">  @SuppressWarnings("unchecked")</span>
+<span class="source-line-no">308</span><span id="line-308">  private &lt;T extends IStreamCommand&gt; T createCsvNavigateCommand(</span>
+<span class="source-line-no">309</span><span id="line-309">      Class&lt;T&gt; commandClass, Object... args) throws Exception {</span>
+<span class="source-line-no">310</span><span id="line-310">    com.streamConverter.command.rule.PassThroughRule defaultRule =</span>
+<span class="source-line-no">311</span><span id="line-311">        new com.streamConverter.command.rule.PassThroughRule();</span>
 <span class="source-line-no">312</span><span id="line-312"></span>
-<span class="source-line-no">313</span><span id="line-313">    log.info("Created pipeline with {}/{} commands successfully", commands.size(), configs.length);</span>
-<span class="source-line-no">314</span><span id="line-314">    return commands.toArray(new IStreamCommand[0]);</span>
-<span class="source-line-no">315</span><span id="line-315">  }</span>
-<span class="source-line-no">316</span><span id="line-316"></span>
-<span class="source-line-no">317</span><span id="line-317">  // ========== Integration Support Methods ==========</span>
-<span class="source-line-no">318</span><span id="line-318"></span>
-<span class="source-line-no">319</span><span id="line-319">  /**</span>
-<span class="source-line-no">320</span><span id="line-320">   * Gets the default factory instance. Useful for ControllerFactory integration.</span>
-<span class="source-line-no">321</span><span id="line-321">   *</span>
-<span class="source-line-no">322</span><span id="line-322">   * @return default factory instance</span>
-<span class="source-line-no">323</span><span id="line-323">   */</span>
-<span class="source-line-no">324</span><span id="line-324">  public static EnhancedCommandFactory getDefaultInstance() {</span>
-<span class="source-line-no">325</span><span id="line-325">    return DEFAULT_INSTANCE;</span>
-<span class="source-line-no">326</span><span id="line-326">  }</span>
-<span class="source-line-no">327</span><span id="line-327"></span>
-<span class="source-line-no">328</span><span id="line-328">  /**</span>
-<span class="source-line-no">329</span><span id="line-329">   * Creates a production-optimized factory instance. Recommended for ControllerFactory integration</span>
-<span class="source-line-no">330</span><span id="line-330">   * in production environments.</span>
-<span class="source-line-no">331</span><span id="line-331">   *</span>
-<span class="source-line-no">332</span><span id="line-332">   * @return production-optimized factory</span>
-<span class="source-line-no">333</span><span id="line-333">   */</span>
-<span class="source-line-no">334</span><span id="line-334">  public static EnhancedCommandFactory createProductionInstance() {</span>
-<span class="source-line-no">335</span><span id="line-335">    return new EnhancedCommandFactory(FactoryConfiguration.productionConfig());</span>
-<span class="source-line-no">336</span><span id="line-336">  }</span>
-<span class="source-line-no">337</span><span id="line-337"></span>
-<span class="source-line-no">338</span><span id="line-338">  /**</span>
-<span class="source-line-no">339</span><span id="line-339">   * Creates a development-friendly factory instance. Useful for debugging and development</span>
-<span class="source-line-no">340</span><span id="line-340">   * scenarios.</span>
-<span class="source-line-no">341</span><span id="line-341">   *</span>
-<span class="source-line-no">342</span><span id="line-342">   * @return development-optimized factory</span>
-<span class="source-line-no">343</span><span id="line-343">   */</span>
-<span class="source-line-no">344</span><span id="line-344">  public static EnhancedCommandFactory createDevelopmentInstance() {</span>
-<span class="source-line-no">345</span><span id="line-345">    return new EnhancedCommandFactory(FactoryConfiguration.developmentConfig());</span>
-<span class="source-line-no">346</span><span id="line-346">  }</span>
-<span class="source-line-no">347</span><span id="line-347">}</span>
+<span class="source-line-no">313</span><span id="line-313">    if (args.length == 1) {</span>
+<span class="source-line-no">314</span><span id="line-314">      // Single argument - use create(path, rule)</span>
+<span class="source-line-no">315</span><span id="line-315">      Object path = args[0];</span>
+<span class="source-line-no">316</span><span id="line-316">      return (T)</span>
+<span class="source-line-no">317</span><span id="line-317">          com.streamConverter.command.impl.csv.CsvNavigateCommand.create(</span>
+<span class="source-line-no">318</span><span id="line-318">              (String) path, defaultRule);</span>
+<span class="source-line-no">319</span><span id="line-319">    } else if (args.length == 0) {</span>
+<span class="source-line-no">320</span><span id="line-320">      // No arguments - use createForAll(rule)</span>
+<span class="source-line-no">321</span><span id="line-321">      return (T) com.streamConverter.command.impl.csv.CsvNavigateCommand.createForAll(defaultRule);</span>
+<span class="source-line-no">322</span><span id="line-322">    } else {</span>
+<span class="source-line-no">323</span><span id="line-323">      return null;</span>
+<span class="source-line-no">324</span><span id="line-324">    }</span>
+<span class="source-line-no">325</span><span id="line-325">  }</span>
+<span class="source-line-no">326</span><span id="line-326"></span>
+<span class="source-line-no">327</span><span id="line-327">  @SuppressWarnings("unchecked")</span>
+<span class="source-line-no">328</span><span id="line-328">  private &lt;T extends IStreamCommand&gt; T createXmlNavigateCommand(</span>
+<span class="source-line-no">329</span><span id="line-329">      Class&lt;T&gt; commandClass, Object... args) throws Exception {</span>
+<span class="source-line-no">330</span><span id="line-330">    com.streamConverter.command.rule.PassThroughRule defaultRule =</span>
+<span class="source-line-no">331</span><span id="line-331">        new com.streamConverter.command.rule.PassThroughRule();</span>
+<span class="source-line-no">332</span><span id="line-332"></span>
+<span class="source-line-no">333</span><span id="line-333">    if (args.length == 1) {</span>
+<span class="source-line-no">334</span><span id="line-334">      // Single argument - use create(path, rule)</span>
+<span class="source-line-no">335</span><span id="line-335">      Object path = args[0];</span>
+<span class="source-line-no">336</span><span id="line-336">      return (T)</span>
+<span class="source-line-no">337</span><span id="line-337">          com.streamConverter.command.impl.xml.XmlNavigateCommand.create(</span>
+<span class="source-line-no">338</span><span id="line-338">              (String) path, defaultRule);</span>
+<span class="source-line-no">339</span><span id="line-339">    } else if (args.length == 0) {</span>
+<span class="source-line-no">340</span><span id="line-340">      // No arguments - use createForAll(rule)</span>
+<span class="source-line-no">341</span><span id="line-341">      return (T) com.streamConverter.command.impl.xml.XmlNavigateCommand.createForAll(defaultRule);</span>
+<span class="source-line-no">342</span><span id="line-342">    } else {</span>
+<span class="source-line-no">343</span><span id="line-343">      return null;</span>
+<span class="source-line-no">344</span><span id="line-344">    }</span>
+<span class="source-line-no">345</span><span id="line-345">  }</span>
+<span class="source-line-no">346</span><span id="line-346"></span>
+<span class="source-line-no">347</span><span id="line-347">  /** Core command creation method with logging integration. */</span>
+<span class="source-line-no">348</span><span id="line-348">  @SuppressWarnings("unchecked")</span>
+<span class="source-line-no">349</span><span id="line-349">  private &lt;T extends IStreamCommand&gt; T createCommandWithLogging(</span>
+<span class="source-line-no">350</span><span id="line-350">      Class&lt;T&gt; commandClass, boolean enableDetailedLogging, Object... args)</span>
+<span class="source-line-no">351</span><span id="line-351">      throws FactoryException {</span>
+<span class="source-line-no">352</span><span id="line-352"></span>
+<span class="source-line-no">353</span><span id="line-353">    T command = createNavigateCommandIfApplicable(commandClass, args);</span>
+<span class="source-line-no">354</span><span id="line-354">    if (command == null) {</span>
+<span class="source-line-no">355</span><span id="line-355">      command = createInstance(commandClass, args);</span>
+<span class="source-line-no">356</span><span id="line-356">    }</span>
+<span class="source-line-no">357</span><span id="line-357"></span>
+<span class="source-line-no">358</span><span id="line-358">    if (config.isDetailedLoggingEnabled() || enableDetailedLogging) {</span>
+<span class="source-line-no">359</span><span id="line-359">      log.info(</span>
+<span class="source-line-no">360</span><span id="line-360">          "Created command instance: {} with {} args (detailed logging: {})",</span>
+<span class="source-line-no">361</span><span id="line-361">          commandClass.getSimpleName(),</span>
+<span class="source-line-no">362</span><span id="line-362">          args.length,</span>
+<span class="source-line-no">363</span><span id="line-363">          enableDetailedLogging);</span>
+<span class="source-line-no">364</span><span id="line-364">    }</span>
+<span class="source-line-no">365</span><span id="line-365"></span>
+<span class="source-line-no">366</span><span id="line-366">    // Handle logging decoration</span>
+<span class="source-line-no">367</span><span id="line-367">    if (command instanceof AbstractStreamCommand) {</span>
+<span class="source-line-no">368</span><span id="line-368">      // AbstractStreamCommand already has integrated logging</span>
+<span class="source-line-no">369</span><span id="line-369">      return command;</span>
+<span class="source-line-no">370</span><span id="line-370">    } else if (enableDetailedLogging) {</span>
+<span class="source-line-no">371</span><span id="line-371">      // Wrap with LoggingDecorator for non-AbstractStreamCommand instances</span>
+<span class="source-line-no">372</span><span id="line-372">      return (T) new LoggingDecorator(command);</span>
+<span class="source-line-no">373</span><span id="line-373">    } else {</span>
+<span class="source-line-no">374</span><span id="line-374">      return command;</span>
+<span class="source-line-no">375</span><span id="line-375">    }</span>
+<span class="source-line-no">376</span><span id="line-376">  }</span>
+<span class="source-line-no">377</span><span id="line-377"></span>
+<span class="source-line-no">378</span><span id="line-378">  /** Creates pipeline with specified logging configuration. */</span>
+<span class="source-line-no">379</span><span id="line-379">  private IStreamCommand[] createPipeline(CommandConfig[] configs, boolean enableDetailedLogging)</span>
+<span class="source-line-no">380</span><span id="line-380">      throws FactoryException {</span>
+<span class="source-line-no">381</span><span id="line-381">    List&lt;IStreamCommand&gt; commands = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">382</span><span id="line-382"></span>
+<span class="source-line-no">383</span><span id="line-383">    log.info(</span>
+<span class="source-line-no">384</span><span id="line-384">        "Creating pipeline with {} commands (detailed logging: {})",</span>
+<span class="source-line-no">385</span><span id="line-385">        configs.length,</span>
+<span class="source-line-no">386</span><span id="line-386">        enableDetailedLogging);</span>
+<span class="source-line-no">387</span><span id="line-387"></span>
+<span class="source-line-no">388</span><span id="line-388">    for (int i = 0; i &lt; configs.length; i++) {</span>
+<span class="source-line-no">389</span><span id="line-389">      CommandConfig config = configs[i];</span>
+<span class="source-line-no">390</span><span id="line-390">      try {</span>
+<span class="source-line-no">391</span><span id="line-391">        IStreamCommand command =</span>
+<span class="source-line-no">392</span><span id="line-392">            createCommandWithLogging(</span>
+<span class="source-line-no">393</span><span id="line-393">                config.getCommandClass(), enableDetailedLogging, config.getArgs());</span>
+<span class="source-line-no">394</span><span id="line-394">        commands.add(command);</span>
+<span class="source-line-no">395</span><span id="line-395"></span>
+<span class="source-line-no">396</span><span id="line-396">        if (log.isDebugEnabled()) {</span>
+<span class="source-line-no">397</span><span id="line-397">          log.debug("Added command {}/{}: {}", i + 1, configs.length, config.getDescription());</span>
+<span class="source-line-no">398</span><span id="line-398">        }</span>
+<span class="source-line-no">399</span><span id="line-399">      } catch (Exception e) {</span>
+<span class="source-line-no">400</span><span id="line-400">        String message =</span>
+<span class="source-line-no">401</span><span id="line-401">            String.format(</span>
+<span class="source-line-no">402</span><span id="line-402">                "Failed to create command %d/%d: %s",</span>
+<span class="source-line-no">403</span><span id="line-403">                i + 1, configs.length, config.getDescription());</span>
+<span class="source-line-no">404</span><span id="line-404">        log.error(message, e);</span>
+<span class="source-line-no">405</span><span id="line-405"></span>
+<span class="source-line-no">406</span><span id="line-406">        if (this.config.isFailFastOnError()) {</span>
+<span class="source-line-no">407</span><span id="line-407">          throw new FactoryException(message, e);</span>
+<span class="source-line-no">408</span><span id="line-408">        }</span>
+<span class="source-line-no">409</span><span id="line-409">        // Continue with next command if fail-fast is disabled</span>
+<span class="source-line-no">410</span><span id="line-410">      }</span>
+<span class="source-line-no">411</span><span id="line-411">    }</span>
+<span class="source-line-no">412</span><span id="line-412"></span>
+<span class="source-line-no">413</span><span id="line-413">    log.info("Created pipeline with {}/{} commands successfully", commands.size(), configs.length);</span>
+<span class="source-line-no">414</span><span id="line-414">    return commands.toArray(new IStreamCommand[0]);</span>
+<span class="source-line-no">415</span><span id="line-415">  }</span>
+<span class="source-line-no">416</span><span id="line-416"></span>
+<span class="source-line-no">417</span><span id="line-417">  // ========== Integration Support Methods ==========</span>
+<span class="source-line-no">418</span><span id="line-418"></span>
+<span class="source-line-no">419</span><span id="line-419">  /**</span>
+<span class="source-line-no">420</span><span id="line-420">   * Gets the default factory instance. Useful for ControllerFactory integration.</span>
+<span class="source-line-no">421</span><span id="line-421">   *</span>
+<span class="source-line-no">422</span><span id="line-422">   * @return default factory instance</span>
+<span class="source-line-no">423</span><span id="line-423">   */</span>
+<span class="source-line-no">424</span><span id="line-424">  public static EnhancedCommandFactory getDefaultInstance() {</span>
+<span class="source-line-no">425</span><span id="line-425">    return DEFAULT_INSTANCE;</span>
+<span class="source-line-no">426</span><span id="line-426">  }</span>
+<span class="source-line-no">427</span><span id="line-427"></span>
+<span class="source-line-no">428</span><span id="line-428">  /**</span>
+<span class="source-line-no">429</span><span id="line-429">   * Creates a production-optimized factory instance. Recommended for ControllerFactory integration</span>
+<span class="source-line-no">430</span><span id="line-430">   * in production environments.</span>
+<span class="source-line-no">431</span><span id="line-431">   *</span>
+<span class="source-line-no">432</span><span id="line-432">   * @return production-optimized factory</span>
+<span class="source-line-no">433</span><span id="line-433">   */</span>
+<span class="source-line-no">434</span><span id="line-434">  public static EnhancedCommandFactory createProductionInstance() {</span>
+<span class="source-line-no">435</span><span id="line-435">    return new EnhancedCommandFactory(FactoryConfiguration.productionConfig());</span>
+<span class="source-line-no">436</span><span id="line-436">  }</span>
+<span class="source-line-no">437</span><span id="line-437"></span>
+<span class="source-line-no">438</span><span id="line-438">  /**</span>
+<span class="source-line-no">439</span><span id="line-439">   * Creates a development-friendly factory instance. Useful for debugging and development</span>
+<span class="source-line-no">440</span><span id="line-440">   * scenarios.</span>
+<span class="source-line-no">441</span><span id="line-441">   *</span>
+<span class="source-line-no">442</span><span id="line-442">   * @return development-optimized factory</span>
+<span class="source-line-no">443</span><span id="line-443">   */</span>
+<span class="source-line-no">444</span><span id="line-444">  public static EnhancedCommandFactory createDevelopmentInstance() {</span>
+<span class="source-line-no">445</span><span id="line-445">    return new EnhancedCommandFactory(FactoryConfiguration.developmentConfig());</span>
+<span class="source-line-no">446</span><span id="line-446">  }</span>
+<span class="source-line-no">447</span><span id="line-447">}</span>
 
 
 

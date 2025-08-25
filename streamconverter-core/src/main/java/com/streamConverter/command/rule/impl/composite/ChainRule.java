@@ -53,9 +53,7 @@ public class ChainRule implements IRule {
 
     // Apply each rule in sequence
     for (IRule rule : rules) {
-      if (rule != null) {
-        result = rule.apply(result);
-      }
+      result = rule.apply(result);
     }
 
     return result;

@@ -139,20 +139,25 @@ public class CamelToSnakeCaseRule implements IRule {
     return result.toString();
   }
 
+  /** Common acronyms that should be split when found consecutively */
+  private static final String[] COMMON_ACRONYMS = {
+    "JSON", "XML", "API", "URL", "HTTP", "HTTPS", "FTP", "SQL", "HTML", "CSS", "JS", "REST", "SOAP"
+  };
+
   /**
-   * Splits consecutive acronyms based on common patterns. This is a heuristic approach for cases
-   * like JSONAPI -> JSON_API
+   * Splits consecutive acronyms based on configurable patterns. This method uses a dictionary
+   * approach to identify and split consecutive acronyms like JSONAPI -> JSON_API
    */
   private String splitConsecutiveAcronyms(String input) {
-    // For now, handle the specific known cases from tests
-    // In a real implementation, this could use a dictionary or more sophisticated rules
     String result = input;
 
-    // Only handle actual consecutive acronyms, not single acronyms like HTTPS
-    result = result.replaceAll("JSON([A-Z]{3,})", "JSON_$1"); // JSONAPI -> JSON_API
-    result = result.replaceAll("XML([A-Z]{3,})", "XML_$1"); // XMLHTTPS -> XML_HTTPS
-    result = result.replaceAll("API([A-Z]{3,})", "API_$1"); // APIResponse -> API_Response
-    result = result.replaceAll("URL([A-Z]{3,})", "URL_$1"); // URLParser -> URL_Parser
+    // For each acronym, split if it is immediately followed by another uppercase sequence (length
+    // >= 3)
+    for (String acronym : COMMON_ACRONYMS) {
+      // Use regex to match the acronym followed by another uppercase sequence of length >= 3
+      // e.g., JSONAPI -> JSON_API, XMLHTTPS -> XML_HTTPS
+      result = result.replaceAll(acronym + "([A-Z]{3,})", acronym + "_$1");
+    }
 
     return result;
   }

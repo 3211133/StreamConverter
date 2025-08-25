@@ -142,9 +142,16 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
         if (jsonPath == null) {
           // Process entire JSON stream
           processEntireJsonStream(parser, generator);
+        } else if (extractValue) {
+          // For extract value mode, skip streaming and use JSONPath processing
+          // Close streaming resources first
+          generator.close();
+          parser.close();
+          // Process with JSONPath (will be handled in processJsonWithJsonPath)
+          return;
         } else {
           // Process with simple JSONPath filtering
-          processJsonStreamWithPath(parser, generator);
+          processJsonStreamWithPath(parser, generator, outputStream);
         }
 
         generator.flush();
@@ -180,7 +187,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
           writer.flush();
         }
       } else if (extractValue) {
-        // Extract and return only the transformed value
+        // Extract and return only the transformed value as plain text
         JsonNode targetNode = navigateJsonPath(rootNode, jsonPath);
         String result;
 
@@ -191,11 +198,10 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
           result = ""; // Return empty string if path not found
         }
 
-        try (OutputStreamWriter writer =
-            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-          writer.write(result);
-          writer.flush();
-        }
+        // Write as plain text directly to output stream
+        byte[] bytes = result.getBytes(StandardCharsets.UTF_8);
+        outputStream.write(bytes);
+        outputStream.flush();
       } else {
         // Handle both JSON arrays and objects
         JsonNode modifiedRoot;
@@ -241,38 +247,21 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   }
 
   /** Process JSON stream with simple path filtering */
-  private void processJsonStreamWithPath(JsonParser parser, JsonGenerator generator)
-      throws IOException {
+  private void processJsonStreamWithPath(
+      JsonParser parser, JsonGenerator generator, OutputStream outputStream) throws IOException {
     // For streaming with simple paths, we'll use a simplified approach
     // that maintains the streaming nature while applying basic filtering
     String propertyName = extractPropertyFromPath(jsonPath);
     boolean inTargetProperty = false;
 
+    // This method should not be called for extractValue mode
+    // extractValue mode uses processJsonWithJsonPath instead
     if (extractValue) {
-      // Extract value mode - only write the transformed value
-      JsonToken token;
-      while ((token = parser.nextToken()) != null) {
-        if (token == JsonToken.FIELD_NAME && propertyName.equals(parser.currentName())) {
-          inTargetProperty = true;
-        } else if (inTargetProperty && token == JsonToken.VALUE_STRING) {
-          // Apply rule to string value and write only the value (as raw text, not JSON)
-          String transformedValue = rule.apply(parser.getValueAsString());
-          generator.writeRaw(transformedValue);
-          return; // Exit after finding and processing the target value
-        } else if (inTargetProperty && token == JsonToken.VALUE_NULL) {
-          // Handle null values
-          String transformedValue = rule.apply(null);
-          if (transformedValue == null) {
-            generator.writeRaw("null");
-          } else {
-            generator.writeRaw(transformedValue);
-          }
-          return;
-        }
-      }
-      // If we reach here, the property was not found - write empty string as raw text
-      generator.writeRaw("");
-    } else {
+      throw new UnsupportedOperationException(
+          "extractValue mode should use processJsonWithJsonPath");
+    }
+
+    {
       // Normal mode - write complete JSON structure
       JsonToken token;
       while ((token = parser.nextToken()) != null) {

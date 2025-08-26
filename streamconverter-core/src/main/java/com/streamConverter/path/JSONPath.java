@@ -198,6 +198,32 @@ public class JSONPath implements IPath {
     return true;
   }
 
+  /**
+   * Checks if the path has array notation like property[index] or property[*] without using regex
+   * to avoid ReDoS vulnerabilities.
+   */
+  private static boolean hasArrayNotation(String path) {
+    if (path == null || path.isEmpty()) {
+      return false;
+    }
+
+    // Look for pattern: starts with valid identifier, then has [...]
+    int bracketPos = path.indexOf('[');
+    if (bracketPos == -1) {
+      return false;
+    }
+
+    // Check if there's a valid identifier before the bracket
+    String beforeBracket = path.substring(0, bracketPos);
+    if (!isValidIdentifier(beforeBracket)) {
+      return false;
+    }
+
+    // Check if there's a closing bracket
+    int closeBracketPos = path.indexOf(']', bracketPos);
+    return closeBracketPos != -1;
+  }
+
   @Override
   public String getPath() {
     return path;
@@ -275,7 +301,7 @@ public class JSONPath implements IPath {
     }
 
     // If it contains array notation but no $, assume it needs $
-    if (path.matches("^[a-zA-Z_][a-zA-Z0-9_]*\\[.*\\].*")) {
+    if (hasArrayNotation(path)) {
       return "$." + path;
     }
 

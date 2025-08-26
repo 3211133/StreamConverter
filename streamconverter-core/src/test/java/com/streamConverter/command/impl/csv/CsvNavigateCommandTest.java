@@ -86,7 +86,7 @@ class CsvNavigateCommandTest {
     for (int i = 0; i < 100; i++) {
       csvBuilder.append(
           String.format(
-              "%d,\"Product %d\",\"Category %d\",%.2f,\"This is a detailed description of product %d with various features and specifications\"\n",
+              "%d,\"Product %d\",\"Category %d\",%.2f,\"This is a detailed description of product %d with various features and specifications\"%n",
               i, i, i % 10, 19.99 + (i * 0.5), i));
     }
     String csvData = csvBuilder.toString();
@@ -125,7 +125,7 @@ class CsvNavigateCommandTest {
     for (int i = 1; i <= 200; i++) {
       csvBuilder.append(
           String.format(
-              "%d,\"Employee%d\",\"LastName%d\",\"Department %d\",\"Position %d\",%.2f,\"2024-01-%02d\",\"emp%d@company.com\",\"Address %d Street, City %d\",\"555-000-%04d\",\"Detailed employee notes and performance review data for employee %d with extensive background information\"\n",
+              "%d,\"Employee%d\",\"LastName%d\",\"Department %d\",\"Position %d\",%.2f,\"2024-01-%02d\",\"emp%d@company.com\",\"Address %d Street, City %d\",\"555-000-%04d\",\"Detailed employee notes and performance review data for employee %d with extensive background information\"%n",
               i, i, i, i % 10, i % 5, 50000.0 + (i * 100), (i % 28) + 1, i, i, i % 20, i, i));
     }
     String csvData = csvBuilder.toString();

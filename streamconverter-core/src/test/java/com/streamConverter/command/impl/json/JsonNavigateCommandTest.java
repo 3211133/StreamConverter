@@ -98,14 +98,7 @@ class JsonNavigateCommandTest {
       jsonBuilder.append(
           String.format(
               """
-        {
-          "id": %d,
-          "name": "Product %d",
-          "description": "This is a detailed description of product %d with various features",
-          "price": %.2f,
-          "category": "Category %d",
-          "tags": ["tag%d", "feature%d", "type%d"]
-        }""",
+        {%n          "id": %d,%n          "name": "Product %d",%n          "description": "This is a detailed description of product %d with various features",%n          "price": %.2f,%n          "category": "Category %d",%n          "tags": ["tag%d", "feature%d", "type%d"]%n        }""",
               i, i, i, 19.99 + (i * 0.5), i % 10, i, i, i % 5));
     }
 
@@ -149,27 +142,7 @@ class JsonNavigateCommandTest {
       jsonBuilder.append(
           String.format(
               """
-        {
-          "id": %d,
-          "name": "Department %d",
-          "employees": [
-            {
-              "id": %d,
-              "name": "Employee %d-1",
-              "role": "Manager",
-              "projects": [
-                {"name": "Project Alpha %d", "status": "active"},
-                {"name": "Project Beta %d", "status": "completed"}
-              ]
-            },
-            {
-              "id": %d,
-              "name": "Employee %d-2",
-              "role": "Developer",
-              "skills": ["Java", "JSON", "Streaming", "Performance"]
-            }
-          ]
-        }""",
+        {%n          "id": %d,%n          "name": "Department %d",%n          "employees": [%n            {%n              "id": %d,%n              "name": "Employee %d-1",%n              "role": "Manager",%n              "projects": [%n                {"name": "Project Alpha %d", "status": "active"},%n                {"name": "Project Beta %d", "status": "completed"}%n              ]%n            },%n            {%n              "id": %d,%n              "name": "Employee %d-2",%n              "role": "Developer",%n              "skills": ["Java", "JSON", "Streaming", "Performance"]%n            }%n          ]%n        }""",
               i, i, i * 100, i, i, i, i * 100 + 1, i));
     }
 

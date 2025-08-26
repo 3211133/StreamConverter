@@ -113,7 +113,8 @@ class FactoryPerformanceComparisonTest {
     long memoryAfterSimple = runtime.totalMemory() - runtime.freeMemory();
     long simpleMemoryUsage = memoryAfterSimple - memoryBefore;
 
-    // Clear references
+    // Clear references to allow garbage collection (intentionally "useless" store for memory
+    // testing)
     simpleCommands = null;
     System.gc();
 
@@ -122,7 +123,7 @@ class FactoryPerformanceComparisonTest {
 
     EnhancedCommandFactory factory =
         new EnhancedCommandFactory(FactoryConfiguration.productionConfig());
-    IStreamCommand[] factoryCommands = new IStreamCommand[100];
+    IStreamCommand[] factoryCommands = new IStreamCommand[100]; // Note: Used for memory measurement
     for (int i = 0; i < 100; i++) {
       // Same path should hit cache after first creation
       factoryCommands[i] = factory.createCached(JsonNavigateCommand.class, TEST_JSON_PATH);

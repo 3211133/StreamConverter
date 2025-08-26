@@ -106,13 +106,7 @@ class XmlNavigateCommandTest {
       xmlBuilder.append(
           String.format(
               """
-        <item id="%d">
-          <title>Book Title %d</title>
-          <author>Author %d</author>
-          <description>This is a detailed description of book %d with various content</description>
-          <price currency="USD">%.2f</price>
-        </item>
-        """,
+        <item id="%d">%n          <title>Book Title %d</title>%n          <author>Author %d</author>%n          <description>This is a detailed description of book %d with various content</description>%n          <price currency="USD">%.2f</price>%n        </item>%n        """,
               i, i, i, i, 19.99 + (i * 0.5)));
     }
 
@@ -154,26 +148,7 @@ class XmlNavigateCommandTest {
       xmlBuilder.append(
           String.format(
               """
-        <section name="Section %d">
-          <books>
-            <book id="book%d-1">
-              <title>Advanced Topics in Computer Science %d</title>
-              <chapters>
-                <chapter num="1">Introduction to Concepts %d</chapter>
-                <chapter num="2">Advanced Algorithms %d</chapter>
-                <chapter num="3">Data Structures and Analysis %d</chapter>
-              </chapters>
-            </book>
-            <book id="book%d-2">
-              <title>Practical Software Engineering %d</title>
-              <metadata>
-                <tags>engineering,software,practical</tags>
-                <keywords>design,testing,deployment</keywords>
-              </metadata>
-            </book>
-          </books>
-        </section>
-        """,
+        <section name="Section %d">%n          <books>%n            <book id="book%d-1">%n              <title>Advanced Topics in Computer Science %d</title>%n              <chapters>%n                <chapter num="1">Introduction to Concepts %d</chapter>%n                <chapter num="2">Advanced Algorithms %d</chapter>%n                <chapter num="3">Data Structures and Analysis %d</chapter>%n              </chapters>%n            </book>%n            <book id="book%d-2">%n              <title>Practical Software Engineering %d</title>%n              <metadata>%n                <tags>engineering,software,practical</tags>%n                <keywords>design,testing,deployment</keywords>%n              </metadata>%n            </book>%n          </books>%n        </section>%n        """,
               i, i, i, i, i, i, i, i));
     }
 

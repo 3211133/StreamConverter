@@ -169,11 +169,11 @@ public class ConvertCommandTest {
     for (int i = 0; i < 100; i++) {
       xmlBuilder.append(
           String.format(
-              "  <product id=\"%d\">\n"
-                  + "    <name>Product %d</name>\n"
-                  + "    <description>original description for product %d with detailed information</description>\n"
-                  + "    <price>%.2f</price>\n"
-                  + "  </product>\n",
+              "  <product id=\"%d\">%n"
+                  + "    <name>Product %d</name>%n"
+                  + "    <description>original description for product %d with detailed information</description>%n"
+                  + "    <price>%.2f</price>%n"
+                  + "  </product>%n",
               i, i, i, 19.99 + (i * 0.5)));
     }
     xmlBuilder.append("</catalog>");
@@ -219,22 +219,22 @@ public class ConvertCommandTest {
     for (int i = 1; i <= 150; i++) {
       xmlBuilder.append(
           String.format(
-              "  <book id=\"%d\">\n"
-                  + "    <title>Book Title %d</title>\n"
-                  + "    <author>Author %d</author>\n"
-                  + "    <content>\n"
-                  + "      <chapter number=\"1\">\n"
-                  + "        <text>original content for chapter 1 of book %d with extensive text</text>\n"
-                  + "      </chapter>\n"
-                  + "      <chapter number=\"2\">\n"
-                  + "        <text>original content for chapter 2 of book %d with more extensive text</text>\n"
-                  + "      </chapter>\n"
-                  + "    </content>\n"
-                  + "    <metadata>\n"
-                  + "      <category>Category %d</category>\n"
-                  + "      <tags>streaming,xml,conversion,testing</tags>\n"
-                  + "    </metadata>\n"
-                  + "  </book>\n",
+              "  <book id=\"%d\">%n"
+                  + "    <title>Book Title %d</title>%n"
+                  + "    <author>Author %d</author>%n"
+                  + "    <content>%n"
+                  + "      <chapter number=\"1\">%n"
+                  + "        <text>original content for chapter 1 of book %d with extensive text</text>%n"
+                  + "      </chapter>%n"
+                  + "      <chapter number=\"2\">%n"
+                  + "        <text>original content for chapter 2 of book %d with more extensive text</text>%n"
+                  + "      </chapter>%n"
+                  + "    </content>%n"
+                  + "    <metadata>%n"
+                  + "      <category>Category %d</category>%n"
+                  + "      <tags>streaming,xml,conversion,testing</tags>%n"
+                  + "    </metadata>%n"
+                  + "  </book>%n",
               i, i, i, i, i, i % 10));
     }
     xmlBuilder.append("</library>");

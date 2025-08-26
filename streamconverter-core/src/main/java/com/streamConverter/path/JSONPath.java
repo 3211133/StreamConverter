@@ -20,10 +20,8 @@ public class JSONPath implements IPath {
 
   private static final String TYPE = "JSONPath";
 
-  // Simplified and secure regex pattern to avoid polynomial regex issues
-  // This pattern avoids nested quantifiers and complex alternations that can cause ReDoS
-  private static final Pattern VALID_JSONPATH_PATTERN =
-      Pattern.compile("^\\$(?:\\[(?:\\d+|\\*)\\])?(?:\\.\\w+(?:\\[(?:\\d+|\\*)\\])?)*$");
+  // No regex validation to completely avoid ReDoS vulnerabilities
+  // Use manual parsing for secure validation instead
 
   // Identifier pattern for validation
   private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
@@ -78,14 +76,126 @@ public class JSONPath implements IPath {
 
   @Override
   public void validate() {
-    if (!VALID_JSONPATH_PATTERN.matcher(path).matches()) {
-      throw new IllegalArgumentException("Invalid JSONPath syntax: " + path);
+    validateJsonPathSafely(path);
+  }
+
+  /**
+   * Manually validates JSONPath without regex to avoid ReDoS vulnerabilities. Validates patterns
+   * like: $, $.prop, $.prop[0], $.prop[*], $.prop.nested[0]
+   */
+  private static void validateJsonPathSafely(String path) {
+    if (path == null || path.isEmpty()) {
+      throw new IllegalArgumentException("JSONPath cannot be null or empty");
     }
 
-    // Additional validation for specific patterns
-    if (path.contains("..")) {
-      throw new IllegalArgumentException("Empty property segments not allowed: " + path);
+    // Must start with $
+    if (!path.startsWith("$")) {
+      throw new IllegalArgumentException("JSONPath must start with '$': " + path);
     }
+
+    // Just $ is valid (root)
+    if (path.equals("$")) {
+      return;
+    }
+
+    // Parse character by character to avoid regex vulnerabilities
+    int i = 1; // Start after '$'
+
+    while (i < path.length()) {
+      char c = path.charAt(i);
+
+      if (c == '.') {
+        // Dot must be followed by property name
+        i++; // Move past '.'
+        if (i >= path.length()) {
+          throw new IllegalArgumentException("JSONPath cannot end with '.': " + path);
+        }
+
+        // Read property name
+        int propStart = i;
+        while (i < path.length()) {
+          char propChar = path.charAt(i);
+          if (Character.isLetterOrDigit(propChar) || propChar == '_') {
+            i++;
+          } else {
+            break; // Stop at non-property character like '[' or '.'
+          }
+        }
+
+        if (i == propStart) {
+          throw new IllegalArgumentException(
+              "Empty property name after '.' at position " + propStart + ": " + path);
+        }
+
+        String propName = path.substring(propStart, i);
+        if (!isValidPropertyName(propName)) {
+          throw new IllegalArgumentException(
+              "Invalid property name '" + propName + "' at position " + propStart + ": " + path);
+        }
+
+        continue;
+      }
+
+      if (c == '[') {
+        // Parse array accessor [123] or [*]
+        int endBracket = path.indexOf(']', i);
+        if (endBracket == -1) {
+          throw new IllegalArgumentException(
+              "Missing closing bracket ']' after position " + i + ": " + path);
+        }
+
+        String arrayContent = path.substring(i + 1, endBracket);
+        if (arrayContent.equals("*")) {
+          // Wildcard is valid
+        } else if (isNumericIndex(arrayContent)) {
+          // Numeric index is valid
+        } else {
+          throw new IllegalArgumentException(
+              "Invalid array index '" + arrayContent + "' at position " + i + ": " + path);
+        }
+
+        i = endBracket + 1;
+        continue;
+      }
+
+      // If we get here, we have an unexpected character
+      throw new IllegalArgumentException(
+          "Unexpected character '" + c + "' at position " + i + ": " + path);
+    }
+  }
+
+  private static boolean isValidPropertyName(String propName) {
+    if (propName == null || propName.isEmpty()) {
+      return false;
+    }
+
+    char first = propName.charAt(0);
+    if (!Character.isLetter(first) && first != '_') {
+      return false;
+    }
+
+    for (int i = 1; i < propName.length(); i++) {
+      char c = propName.charAt(i);
+      if (!Character.isLetterOrDigit(c) && c != '_') {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  private static boolean isNumericIndex(String index) {
+    if (index == null || index.isEmpty()) {
+      return false;
+    }
+
+    for (int i = 0; i < index.length(); i++) {
+      if (!Character.isDigit(index.charAt(i))) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   @Override

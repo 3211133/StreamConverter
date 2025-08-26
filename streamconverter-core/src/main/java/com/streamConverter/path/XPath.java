@@ -2,6 +2,7 @@ package com.streamConverter.path;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.regex.Pattern;
 
 /**
  * Type-safe representation of XPath expressions.
@@ -19,6 +20,11 @@ import java.util.Objects;
 public class XPath implements IPath {
 
   private static final String TYPE = "XPath";
+
+  // XML element name pattern for validation
+  private static final Pattern XML_ELEMENT_NAME_PATTERN =
+      Pattern.compile("^[a-zA-Z_][a-zA-Z0-9._-]*$");
+
   private final String path;
   private final List<String> pathSegments;
 
@@ -191,7 +197,7 @@ public class XPath implements IPath {
     // Basic XML element name validation
     // Must start with letter or underscore, followed by letters, digits, hyphens, periods, or
     // underscores
-    return elementName.matches("^[a-zA-Z_][a-zA-Z0-9._-]*$");
+    return XML_ELEMENT_NAME_PATTERN.matcher(elementName).matches();
   }
 
   @Override

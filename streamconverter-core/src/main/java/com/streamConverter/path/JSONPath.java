@@ -19,9 +19,34 @@ import java.util.regex.Pattern;
 public class JSONPath implements IPath {
 
   private static final String TYPE = "JSONPath";
-  private static final Pattern VALID_JSONPATH_PATTERN =
-      Pattern.compile(
-          "^\\$((\\[\\d+\\]|\\[\\*\\])(\\.([a-zA-Z_][a-zA-Z0-9_]*)(\\[\\d+\\]|\\[\\*\\])?)*|\\.([a-zA-Z_][a-zA-Z0-9_]*)(\\[\\d+\\]|\\[\\*\\])?)*$");
+
+  // JSONPath regex components for readability and maintainability
+  // Root: $
+  private static final String ROOT = "\\$";
+  // Property: .propertyName (must start with letter or underscore, then letters, digits, or
+  // underscores)
+  private static final String PROPERTY = "\\.[a-zA-Z_][a-zA-Z0-9_]*";
+  // Array index: [0], [123]
+  private static final String ARRAY_INDEX = "\\[\\d+\\]";
+  // Array wildcard: [*]
+  private static final String ARRAY_WILDCARD = "\\[\\*\\]";
+  // Array accessor: [0] or [*]
+  private static final String ARRAY_ACCESSOR = "(" + ARRAY_INDEX + "|" + ARRAY_WILDCARD + ")";
+  // Property segment: .propertyName, optionally followed by array accessor
+  private static final String PROPERTY_SEGMENT = PROPERTY + "(" + ARRAY_ACCESSOR + ")?";
+  // Initial array accessor (e.g., $[0] or $[*])
+  private static final String INITIAL_ARRAY = ARRAY_ACCESSOR;
+  // Path after root: either initial array accessor, or property segment(s)
+  private static final String PATH_AFTER_ROOT =
+      "(" + INITIAL_ARRAY + ")?" + "(" + PROPERTY_SEGMENT + ")*";
+  // Full pattern: root, optional array, then zero or more property segments
+  private static final String FULL_JSONPATH_PATTERN = "^" + ROOT + PATH_AFTER_ROOT + "$";
+
+  // Compile the final pattern
+  private static final Pattern VALID_JSONPATH_PATTERN = Pattern.compile(FULL_JSONPATH_PATTERN);
+
+  // Identifier pattern for validation
+  private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
   private final String path;
 
@@ -141,7 +166,7 @@ public class JSONPath implements IPath {
   }
 
   private static boolean isValidIdentifier(String identifier) {
-    return identifier.matches("[a-zA-Z_][a-zA-Z0-9_]*");
+    return IDENTIFIER_PATTERN.matcher(identifier).matches();
   }
 
   /**

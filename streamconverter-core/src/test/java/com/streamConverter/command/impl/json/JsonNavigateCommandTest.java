@@ -39,7 +39,7 @@ class JsonNavigateCommandTest {
 
     assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
 
-    String result = outputStream.toString();
+    String result = ((ByteArrayOutputStream) outputStream).toString(StandardCharsets.UTF_8);
     assertNotNull(result);
     // For now, just verify that the command doesn't throw an exception
     // Verify basic JSON navigation functionality - exact assertions depend on implementation

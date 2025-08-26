@@ -40,7 +40,7 @@ class CsvNavigateCommandTest {
 
     assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
 
-    String result = outputStream.toString();
+    String result = ((ByteArrayOutputStream) outputStream).toString(StandardCharsets.UTF_8);
     assertNotNull(result);
     // Verify basic CSV navigation functionality
     // The command should handle the input without throwing exceptions

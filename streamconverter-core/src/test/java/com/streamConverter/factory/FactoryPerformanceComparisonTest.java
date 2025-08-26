@@ -9,6 +9,7 @@ import com.streamConverter.command.rule.PassThroughRule;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.EnabledOnOs;
@@ -270,7 +271,8 @@ class FactoryPerformanceComparisonTest {
 
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < 10; i++) {
-      ByteArrayInputStream input = new ByteArrayInputStream(TEST_JSON_DATA.getBytes());
+      ByteArrayInputStream input =
+          new ByteArrayInputStream(TEST_JSON_DATA.getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream output = new ByteArrayOutputStream();
       command.execute(input, output);
       assertTrue(output.size() > 0, "Command should produce output");
@@ -285,7 +287,8 @@ class FactoryPerformanceComparisonTest {
 
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < 10; i++) {
-      ByteArrayInputStream input = new ByteArrayInputStream(TEST_JSON_DATA.getBytes());
+      ByteArrayInputStream input =
+          new ByteArrayInputStream(TEST_JSON_DATA.getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream output = new ByteArrayOutputStream();
       command.execute(input, output);
       assertTrue(output.size() > 0, "Command should produce output");

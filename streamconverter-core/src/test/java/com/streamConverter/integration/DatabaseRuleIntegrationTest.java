@@ -31,10 +31,16 @@ class DatabaseRuleIntegrationTest {
     // テスト用データベースの初期化
     try (Connection conn = DriverManager.getConnection(DB_URL)) {
       // テストテーブルの作成
-      conn.prepareStatement("DROP TABLE IF EXISTS users").execute();
-      conn.prepareStatement("DROP TABLE IF EXISTS products").execute();
+      try (PreparedStatement dropUsers = conn.prepareStatement("DROP TABLE IF EXISTS users")) {
+        dropUsers.execute();
+      }
+      try (PreparedStatement dropProducts =
+          conn.prepareStatement("DROP TABLE IF EXISTS products")) {
+        dropProducts.execute();
+      }
 
-      conn.prepareStatement(
+      try (PreparedStatement createUsers =
+          conn.prepareStatement(
               """
                 CREATE TABLE users (
                     id INTEGER PRIMARY KEY,
@@ -42,10 +48,12 @@ class DatabaseRuleIntegrationTest {
                     email VARCHAR(100),
                     department VARCHAR(50)
                 )
-                """)
-          .execute();
+                """)) {
+        createUsers.execute();
+      }
 
-      conn.prepareStatement(
+      try (PreparedStatement createProducts =
+          conn.prepareStatement(
               """
                 CREATE TABLE products (
                     code VARCHAR(20) PRIMARY KEY,
@@ -53,8 +61,9 @@ class DatabaseRuleIntegrationTest {
                     price DECIMAL(10,2),
                     category VARCHAR(50)
                 )
-                """)
-          .execute();
+                """)) {
+        createProducts.execute();
+      }
 
       // テストデータの挿入
       try (PreparedStatement userStmt =

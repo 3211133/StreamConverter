@@ -18,6 +18,7 @@ com.streamConverter.context
 com.streamConverter.controller
 com.streamConverter.examples
 com.streamConverter.factory
+com.streamConverter.path
 com.streamConverter.pathHandler
 com.streamConverter.security
 com.streamConverter.tools

@@ -21,414 +21,498 @@
 <span class="source-line-no">008</span><span id="line-8">import com.fasterxml.jackson.databind.ObjectMapper;</span>
 <span class="source-line-no">009</span><span id="line-9">import com.streamConverter.command.AbstractStreamCommand;</span>
 <span class="source-line-no">010</span><span id="line-10">import com.streamConverter.command.rule.IRule;</span>
-<span class="source-line-no">011</span><span id="line-11">import java.io.IOException;</span>
-<span class="source-line-no">012</span><span id="line-12">import java.io.InputStream;</span>
-<span class="source-line-no">013</span><span id="line-13">import java.io.OutputStream;</span>
-<span class="source-line-no">014</span><span id="line-14">import java.io.OutputStreamWriter;</span>
-<span class="source-line-no">015</span><span id="line-15">import java.nio.charset.StandardCharsets;</span>
-<span class="source-line-no">016</span><span id="line-16"></span>
-<span class="source-line-no">017</span><span id="line-17">/**</span>
-<span class="source-line-no">018</span><span id="line-18"> * Memory-Optimized JSON Navigate Command Class</span>
-<span class="source-line-no">019</span><span id="line-19"> *</span>
-<span class="source-line-no">020</span><span id="line-20"> * &lt;p&gt;This class implements memory-efficient JSON processing for targeted transformation using</span>
-<span class="source-line-no">021</span><span id="line-21"> * JSONPath. It processes large JSON files (5GB+) within a 50MB memory budget by using streaming</span>
-<span class="source-line-no">022</span><span id="line-22"> * approaches and avoiding loading entire content into memory.</span>
-<span class="source-line-no">023</span><span id="line-23"> *</span>
-<span class="source-line-no">024</span><span id="line-24"> * &lt;p&gt;Key optimizations: - Line-by-line streaming for simple transformations - Chunked processing</span>
-<span class="source-line-no">025</span><span id="line-25"> * for complex JSONPath operations - Fixed memory buffers instead of StringBuilder - Incremental</span>
-<span class="source-line-no">026</span><span id="line-26"> * JSON parsing when possible</span>
-<span class="source-line-no">027</span><span id="line-27"> */</span>
-<span class="source-line-no">028</span><span id="line-28">public class JsonNavigateCommand extends AbstractStreamCommand {</span>
-<span class="source-line-no">029</span><span id="line-29"></span>
-<span class="source-line-no">030</span><span id="line-30">  private final String jsonPath;</span>
-<span class="source-line-no">031</span><span id="line-31">  private final IRule rule;</span>
-<span class="source-line-no">032</span><span id="line-32">  private final boolean extractValue;</span>
-<span class="source-line-no">033</span><span id="line-33">  private final ObjectMapper objectMapper;</span>
-<span class="source-line-no">034</span><span id="line-34"></span>
-<span class="source-line-no">035</span><span id="line-35">  /**</span>
-<span class="source-line-no">036</span><span id="line-36">   * Constructor for JSON navigation with JSONPath selector and transformation rule.</span>
-<span class="source-line-no">037</span><span id="line-37">   *</span>
-<span class="source-line-no">038</span><span id="line-38">   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")</span>
-<span class="source-line-no">039</span><span id="line-39">   * @param rule the transformation rule to apply to selected elements</span>
-<span class="source-line-no">040</span><span id="line-40">   * @throws IllegalArgumentException if rule is null</span>
-<span class="source-line-no">041</span><span id="line-41">   */</span>
-<span class="source-line-no">042</span><span id="line-42">  public JsonNavigateCommand(String jsonPath, IRule rule) {</span>
-<span class="source-line-no">043</span><span id="line-43">    this(jsonPath, rule, false);</span>
-<span class="source-line-no">044</span><span id="line-44">  }</span>
-<span class="source-line-no">045</span><span id="line-45"></span>
-<span class="source-line-no">046</span><span id="line-46">  /**</span>
-<span class="source-line-no">047</span><span id="line-47">   * Constructor for JSON navigation with JSONPath selector, transformation rule, and extraction</span>
-<span class="source-line-no">048</span><span id="line-48">   * mode.</span>
-<span class="source-line-no">049</span><span id="line-49">   *</span>
-<span class="source-line-no">050</span><span id="line-50">   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")</span>
-<span class="source-line-no">051</span><span id="line-51">   * @param rule the transformation rule to apply to selected elements</span>
-<span class="source-line-no">052</span><span id="line-52">   * @param extractValue if true, extract only the transformed value; if false, return modified JSON</span>
-<span class="source-line-no">053</span><span id="line-53">   * @throws IllegalArgumentException if rule is null</span>
-<span class="source-line-no">054</span><span id="line-54">   */</span>
-<span class="source-line-no">055</span><span id="line-55">  public JsonNavigateCommand(String jsonPath, IRule rule, boolean extractValue) {</span>
-<span class="source-line-no">056</span><span id="line-56">    if (rule == null) {</span>
-<span class="source-line-no">057</span><span id="line-57">      throw new IllegalArgumentException("Rule cannot be null");</span>
-<span class="source-line-no">058</span><span id="line-58">    }</span>
-<span class="source-line-no">059</span><span id="line-59">    this.jsonPath = jsonPath;</span>
-<span class="source-line-no">060</span><span id="line-60">    this.rule = rule;</span>
-<span class="source-line-no">061</span><span id="line-61">    this.extractValue = extractValue;</span>
-<span class="source-line-no">062</span><span id="line-62">    this.objectMapper = new ObjectMapper();</span>
-<span class="source-line-no">063</span><span id="line-63">  }</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">  /**</span>
-<span class="source-line-no">066</span><span id="line-66">   * Factory method for creating a JSON navigation command with explicit rule specification. This</span>
-<span class="source-line-no">067</span><span id="line-67">   * method makes the intention explicit: extract data from the specified JSONPath and apply the</span>
-<span class="source-line-no">068</span><span id="line-68">   * given transformation rule.</span>
-<span class="source-line-no">069</span><span id="line-69">   *</span>
-<span class="source-line-no">070</span><span id="line-70">   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")</span>
-<span class="source-line-no">071</span><span id="line-71">   * @param rule the transformation rule to apply to selected elements</span>
-<span class="source-line-no">072</span><span id="line-72">   * @return a JsonNavigateCommand that extracts the specified path with the given rule</span>
-<span class="source-line-no">073</span><span id="line-73">   * @throws IllegalArgumentException if rule is null</span>
-<span class="source-line-no">074</span><span id="line-74">   */</span>
-<span class="source-line-no">075</span><span id="line-75">  public static JsonNavigateCommand create(String jsonPath, IRule rule) {</span>
-<span class="source-line-no">076</span><span id="line-76">    return new JsonNavigateCommand(jsonPath, rule);</span>
-<span class="source-line-no">077</span><span id="line-77">  }</span>
-<span class="source-line-no">078</span><span id="line-78"></span>
-<span class="source-line-no">079</span><span id="line-79">  /**</span>
-<span class="source-line-no">080</span><span id="line-80">   * Factory method for creating a JSON navigation command that processes entire JSON with explicit</span>
-<span class="source-line-no">081</span><span id="line-81">   * rule specification. This method makes the intention explicit: process all JSON data with the</span>
-<span class="source-line-no">082</span><span id="line-82">   * given transformation rule.</span>
-<span class="source-line-no">083</span><span id="line-83">   *</span>
-<span class="source-line-no">084</span><span id="line-84">   * @param rule the transformation rule to apply to entire JSON</span>
-<span class="source-line-no">085</span><span id="line-85">   * @return a JsonNavigateCommand that processes entire JSON with the given rule</span>
-<span class="source-line-no">086</span><span id="line-86">   * @throws IllegalArgumentException if rule is null</span>
-<span class="source-line-no">087</span><span id="line-87">   */</span>
-<span class="source-line-no">088</span><span id="line-88">  public static JsonNavigateCommand createForAll(IRule rule) {</span>
-<span class="source-line-no">089</span><span id="line-89">    return new JsonNavigateCommand(null, rule);</span>
-<span class="source-line-no">090</span><span id="line-90">  }</span>
-<span class="source-line-no">091</span><span id="line-91"></span>
-<span class="source-line-no">092</span><span id="line-92">  /**</span>
-<span class="source-line-no">093</span><span id="line-93">   * Factory method for creating a JSON navigation command that extracts and transforms a specific</span>
-<span class="source-line-no">094</span><span id="line-94">   * value. This command returns only the transformed value, not the entire JSON object.</span>
-<span class="source-line-no">095</span><span id="line-95">   *</span>
-<span class="source-line-no">096</span><span id="line-96">   * @param jsonPath the JSONPath expression to select data (e.g., "$.userName")</span>
-<span class="source-line-no">097</span><span id="line-97">   * @param rule the transformation rule to apply to selected value</span>
-<span class="source-line-no">098</span><span id="line-98">   * @return a JsonNavigateCommand that extracts and transforms the specified value</span>
-<span class="source-line-no">099</span><span id="line-99">   * @throws IllegalArgumentException if rule is null</span>
-<span class="source-line-no">100</span><span id="line-100">   */</span>
-<span class="source-line-no">101</span><span id="line-101">  public static JsonNavigateCommand createExtractValue(String jsonPath, IRule rule) {</span>
-<span class="source-line-no">102</span><span id="line-102">    return new JsonNavigateCommand(jsonPath, rule, true);</span>
+<span class="source-line-no">011</span><span id="line-11">import com.streamConverter.path.JSONPath;</span>
+<span class="source-line-no">012</span><span id="line-12">import java.io.IOException;</span>
+<span class="source-line-no">013</span><span id="line-13">import java.io.InputStream;</span>
+<span class="source-line-no">014</span><span id="line-14">import java.io.OutputStream;</span>
+<span class="source-line-no">015</span><span id="line-15">import java.io.OutputStreamWriter;</span>
+<span class="source-line-no">016</span><span id="line-16">import java.nio.charset.StandardCharsets;</span>
+<span class="source-line-no">017</span><span id="line-17"></span>
+<span class="source-line-no">018</span><span id="line-18">/**</span>
+<span class="source-line-no">019</span><span id="line-19"> * Memory-Optimized JSON Navigate Command Class</span>
+<span class="source-line-no">020</span><span id="line-20"> *</span>
+<span class="source-line-no">021</span><span id="line-21"> * &lt;p&gt;This class implements memory-efficient JSON processing for targeted transformation using</span>
+<span class="source-line-no">022</span><span id="line-22"> * JSONPath. It processes large JSON files (5GB+) within a 50MB memory budget by using streaming</span>
+<span class="source-line-no">023</span><span id="line-23"> * approaches and avoiding loading entire content into memory.</span>
+<span class="source-line-no">024</span><span id="line-24"> *</span>
+<span class="source-line-no">025</span><span id="line-25"> * &lt;p&gt;Key optimizations: - Line-by-line streaming for simple transformations - Chunked processing</span>
+<span class="source-line-no">026</span><span id="line-26"> * for complex JSONPath operations - Fixed memory buffers instead of StringBuilder - Incremental</span>
+<span class="source-line-no">027</span><span id="line-27"> * JSON parsing when possible</span>
+<span class="source-line-no">028</span><span id="line-28"> */</span>
+<span class="source-line-no">029</span><span id="line-29">public class JsonNavigateCommand extends AbstractStreamCommand {</span>
+<span class="source-line-no">030</span><span id="line-30"></span>
+<span class="source-line-no">031</span><span id="line-31">  private final JSONPath jsonPath;</span>
+<span class="source-line-no">032</span><span id="line-32">  private final IRule rule;</span>
+<span class="source-line-no">033</span><span id="line-33">  private final boolean extractValue;</span>
+<span class="source-line-no">034</span><span id="line-34">  private final ObjectMapper objectMapper;</span>
+<span class="source-line-no">035</span><span id="line-35"></span>
+<span class="source-line-no">036</span><span id="line-36">  // Deprecated fields for backward compatibility</span>
+<span class="source-line-no">037</span><span id="line-37">  @Deprecated private final String legacyJsonPath;</span>
+<span class="source-line-no">038</span><span id="line-38"></span>
+<span class="source-line-no">039</span><span id="line-39">  /**</span>
+<span class="source-line-no">040</span><span id="line-40">   * Constructor for JSON navigation with JSONPath selector and transformation rule.</span>
+<span class="source-line-no">041</span><span id="line-41">   *</span>
+<span class="source-line-no">042</span><span id="line-42">   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")</span>
+<span class="source-line-no">043</span><span id="line-43">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">044</span><span id="line-44">   * @throws IllegalArgumentException if rule is null</span>
+<span class="source-line-no">045</span><span id="line-45">   * @deprecated Use {@link #JsonNavigateCommand(JSONPath, IRule)} instead</span>
+<span class="source-line-no">046</span><span id="line-46">   */</span>
+<span class="source-line-no">047</span><span id="line-47">  @Deprecated</span>
+<span class="source-line-no">048</span><span id="line-48">  public JsonNavigateCommand(String jsonPath, IRule rule) {</span>
+<span class="source-line-no">049</span><span id="line-49">    this(jsonPath, rule, false);</span>
+<span class="source-line-no">050</span><span id="line-50">  }</span>
+<span class="source-line-no">051</span><span id="line-51"></span>
+<span class="source-line-no">052</span><span id="line-52">  /**</span>
+<span class="source-line-no">053</span><span id="line-53">   * Constructor for JSON navigation with typed JSONPath selector and transformation rule.</span>
+<span class="source-line-no">054</span><span id="line-54">   *</span>
+<span class="source-line-no">055</span><span id="line-55">   * @param jsonPath the typed JSONPath to select data</span>
+<span class="source-line-no">056</span><span id="line-56">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">057</span><span id="line-57">   * @throws IllegalArgumentException if rule is null</span>
+<span class="source-line-no">058</span><span id="line-58">   */</span>
+<span class="source-line-no">059</span><span id="line-59">  public JsonNavigateCommand(JSONPath jsonPath, IRule rule) {</span>
+<span class="source-line-no">060</span><span id="line-60">    this(jsonPath, rule, false);</span>
+<span class="source-line-no">061</span><span id="line-61">  }</span>
+<span class="source-line-no">062</span><span id="line-62"></span>
+<span class="source-line-no">063</span><span id="line-63">  /**</span>
+<span class="source-line-no">064</span><span id="line-64">   * Constructor for JSON navigation with JSONPath selector, transformation rule, and extraction</span>
+<span class="source-line-no">065</span><span id="line-65">   * mode.</span>
+<span class="source-line-no">066</span><span id="line-66">   *</span>
+<span class="source-line-no">067</span><span id="line-67">   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")</span>
+<span class="source-line-no">068</span><span id="line-68">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">069</span><span id="line-69">   * @param extractValue if true, extract only the transformed value; if false, return modified JSON</span>
+<span class="source-line-no">070</span><span id="line-70">   * @throws IllegalArgumentException if rule is null</span>
+<span class="source-line-no">071</span><span id="line-71">   * @deprecated Use {@link #JsonNavigateCommand(JSONPath, IRule, boolean)} instead</span>
+<span class="source-line-no">072</span><span id="line-72">   */</span>
+<span class="source-line-no">073</span><span id="line-73">  @Deprecated</span>
+<span class="source-line-no">074</span><span id="line-74">  public JsonNavigateCommand(String jsonPath, IRule rule, boolean extractValue) {</span>
+<span class="source-line-no">075</span><span id="line-75">    if (rule == null) {</span>
+<span class="source-line-no">076</span><span id="line-76">      throw new IllegalArgumentException("Rule cannot be null");</span>
+<span class="source-line-no">077</span><span id="line-77">    }</span>
+<span class="source-line-no">078</span><span id="line-78">    this.legacyJsonPath = jsonPath;</span>
+<span class="source-line-no">079</span><span id="line-79">    this.jsonPath = jsonPath != null ? new JSONPath(jsonPath) : null;</span>
+<span class="source-line-no">080</span><span id="line-80">    this.rule = rule;</span>
+<span class="source-line-no">081</span><span id="line-81">    this.extractValue = extractValue;</span>
+<span class="source-line-no">082</span><span id="line-82">    this.objectMapper = new ObjectMapper();</span>
+<span class="source-line-no">083</span><span id="line-83">  }</span>
+<span class="source-line-no">084</span><span id="line-84"></span>
+<span class="source-line-no">085</span><span id="line-85">  /**</span>
+<span class="source-line-no">086</span><span id="line-86">   * Constructor for JSON navigation with typed JSONPath selector, transformation rule, and</span>
+<span class="source-line-no">087</span><span id="line-87">   * extraction mode.</span>
+<span class="source-line-no">088</span><span id="line-88">   *</span>
+<span class="source-line-no">089</span><span id="line-89">   * @param jsonPath the typed JSONPath to select data</span>
+<span class="source-line-no">090</span><span id="line-90">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">091</span><span id="line-91">   * @param extractValue if true, extract only the transformed value; if false, return modified JSON</span>
+<span class="source-line-no">092</span><span id="line-92">   * @throws IllegalArgumentException if rule is null</span>
+<span class="source-line-no">093</span><span id="line-93">   */</span>
+<span class="source-line-no">094</span><span id="line-94">  public JsonNavigateCommand(JSONPath jsonPath, IRule rule, boolean extractValue) {</span>
+<span class="source-line-no">095</span><span id="line-95">    if (rule == null) {</span>
+<span class="source-line-no">096</span><span id="line-96">      throw new IllegalArgumentException("Rule cannot be null");</span>
+<span class="source-line-no">097</span><span id="line-97">    }</span>
+<span class="source-line-no">098</span><span id="line-98">    this.jsonPath = jsonPath;</span>
+<span class="source-line-no">099</span><span id="line-99">    this.legacyJsonPath = jsonPath != null ? jsonPath.getPath() : null;</span>
+<span class="source-line-no">100</span><span id="line-100">    this.rule = rule;</span>
+<span class="source-line-no">101</span><span id="line-101">    this.extractValue = extractValue;</span>
+<span class="source-line-no">102</span><span id="line-102">    this.objectMapper = new ObjectMapper();</span>
 <span class="source-line-no">103</span><span id="line-103">  }</span>
 <span class="source-line-no">104</span><span id="line-104"></span>
-<span class="source-line-no">105</span><span id="line-105">  @Override</span>
-<span class="source-line-no">106</span><span id="line-106">  protected String getCommandDetails() {</span>
-<span class="source-line-no">107</span><span id="line-107">    String pathInfo = jsonPath != null ? String.format("jsonPath='%s'", jsonPath) : "entire JSON";</span>
-<span class="source-line-no">108</span><span id="line-108">    return String.format(</span>
-<span class="source-line-no">109</span><span id="line-109">        "JsonNavigateCommand(%s, rule='%s')", pathInfo, rule.getClass().getSimpleName());</span>
-<span class="source-line-no">110</span><span id="line-110">  }</span>
-<span class="source-line-no">111</span><span id="line-111"></span>
-<span class="source-line-no">112</span><span id="line-112">  @Override</span>
-<span class="source-line-no">113</span><span id="line-113">  protected void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
-<span class="source-line-no">114</span><span id="line-114">      throws IOException {</span>
-<span class="source-line-no">115</span><span id="line-115">    if (jsonPath == null || isSimpleTransformation()) {</span>
-<span class="source-line-no">116</span><span id="line-116">      // Use Jackson streaming for simple transformations</span>
-<span class="source-line-no">117</span><span id="line-117">      processJsonWithJacksonStreaming(inputStream, outputStream);</span>
-<span class="source-line-no">118</span><span id="line-118">    } else {</span>
-<span class="source-line-no">119</span><span id="line-119">      // Use Jackson tree model for complex JSONPath operations</span>
-<span class="source-line-no">120</span><span id="line-120">      processJsonWithJacksonTree(inputStream, outputStream);</span>
-<span class="source-line-no">121</span><span id="line-121">    }</span>
-<span class="source-line-no">122</span><span id="line-122">  }</span>
-<span class="source-line-no">123</span><span id="line-123"></span>
-<span class="source-line-no">124</span><span id="line-124">  /** Determine if this is a simple transformation that can be processed line-by-line */</span>
-<span class="source-line-no">125</span><span id="line-125">  private boolean isSimpleTransformation() {</span>
-<span class="source-line-no">126</span><span id="line-126">    // extractValue mode always requires tree processing for proper value extraction</span>
-<span class="source-line-no">127</span><span id="line-127">    if (extractValue) {</span>
-<span class="source-line-no">128</span><span id="line-128">      return false;</span>
-<span class="source-line-no">129</span><span id="line-129">    }</span>
-<span class="source-line-no">130</span><span id="line-130">    // Simple transformations that don't require complete JSON structure</span>
-<span class="source-line-no">131</span><span id="line-131">    return jsonPath == null || jsonPath.matches("^\\$\\.[a-zA-Z_][a-zA-Z0-9_]*$");</span>
-<span class="source-line-no">132</span><span id="line-132">  }</span>
-<span class="source-line-no">133</span><span id="line-133"></span>
-<span class="source-line-no">134</span><span id="line-134">  /**</span>
-<span class="source-line-no">135</span><span id="line-135">   * Jackson streaming approach for memory-efficient JSON processing Uses JsonParser for parsing and</span>
-<span class="source-line-no">136</span><span id="line-136">   * JsonGenerator for output</span>
-<span class="source-line-no">137</span><span id="line-137">   */</span>
-<span class="source-line-no">138</span><span id="line-138">  private void processJsonWithJacksonStreaming(InputStream inputStream, OutputStream outputStream)</span>
-<span class="source-line-no">139</span><span id="line-139">      throws IOException {</span>
-<span class="source-line-no">140</span><span id="line-140">    JsonFactory jsonFactory = objectMapper.getFactory();</span>
-<span class="source-line-no">141</span><span id="line-141"></span>
-<span class="source-line-no">142</span><span id="line-142">    try {</span>
-<span class="source-line-no">143</span><span id="line-143">      try (JsonParser parser = jsonFactory.createParser(inputStream);</span>
-<span class="source-line-no">144</span><span id="line-144">          JsonGenerator generator = jsonFactory.createGenerator(outputStream)) {</span>
+<span class="source-line-no">105</span><span id="line-105">  /**</span>
+<span class="source-line-no">106</span><span id="line-106">   * Factory method for creating a JSON navigation command with explicit rule specification. This</span>
+<span class="source-line-no">107</span><span id="line-107">   * method makes the intention explicit: extract data from the specified JSONPath and apply the</span>
+<span class="source-line-no">108</span><span id="line-108">   * given transformation rule.</span>
+<span class="source-line-no">109</span><span id="line-109">   *</span>
+<span class="source-line-no">110</span><span id="line-110">   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")</span>
+<span class="source-line-no">111</span><span id="line-111">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">112</span><span id="line-112">   * @return a JsonNavigateCommand that extracts the specified path with the given rule</span>
+<span class="source-line-no">113</span><span id="line-113">   * @throws IllegalArgumentException if rule is null</span>
+<span class="source-line-no">114</span><span id="line-114">   * @deprecated Use {@link #create(JSONPath, IRule)} instead</span>
+<span class="source-line-no">115</span><span id="line-115">   */</span>
+<span class="source-line-no">116</span><span id="line-116">  @Deprecated</span>
+<span class="source-line-no">117</span><span id="line-117">  public static JsonNavigateCommand create(String jsonPath, IRule rule) {</span>
+<span class="source-line-no">118</span><span id="line-118">    return new JsonNavigateCommand(jsonPath, rule);</span>
+<span class="source-line-no">119</span><span id="line-119">  }</span>
+<span class="source-line-no">120</span><span id="line-120"></span>
+<span class="source-line-no">121</span><span id="line-121">  /**</span>
+<span class="source-line-no">122</span><span id="line-122">   * Factory method for creating a JSON navigation command with typed JSONPath and rule.</span>
+<span class="source-line-no">123</span><span id="line-123">   *</span>
+<span class="source-line-no">124</span><span id="line-124">   * @param jsonPath the typed JSONPath to select data</span>
+<span class="source-line-no">125</span><span id="line-125">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">126</span><span id="line-126">   * @return a JsonNavigateCommand that extracts the specified path with the given rule</span>
+<span class="source-line-no">127</span><span id="line-127">   * @throws IllegalArgumentException if rule is null</span>
+<span class="source-line-no">128</span><span id="line-128">   */</span>
+<span class="source-line-no">129</span><span id="line-129">  public static JsonNavigateCommand create(JSONPath jsonPath, IRule rule) {</span>
+<span class="source-line-no">130</span><span id="line-130">    return new JsonNavigateCommand(jsonPath, rule);</span>
+<span class="source-line-no">131</span><span id="line-131">  }</span>
+<span class="source-line-no">132</span><span id="line-132"></span>
+<span class="source-line-no">133</span><span id="line-133">  /**</span>
+<span class="source-line-no">134</span><span id="line-134">   * Factory method for creating a JSON navigation command that processes entire JSON with explicit</span>
+<span class="source-line-no">135</span><span id="line-135">   * rule specification. This method makes the intention explicit: process all JSON data with the</span>
+<span class="source-line-no">136</span><span id="line-136">   * given transformation rule.</span>
+<span class="source-line-no">137</span><span id="line-137">   *</span>
+<span class="source-line-no">138</span><span id="line-138">   * @param rule the transformation rule to apply to entire JSON</span>
+<span class="source-line-no">139</span><span id="line-139">   * @return a JsonNavigateCommand that processes entire JSON with the given rule</span>
+<span class="source-line-no">140</span><span id="line-140">   * @throws IllegalArgumentException if rule is null</span>
+<span class="source-line-no">141</span><span id="line-141">   */</span>
+<span class="source-line-no">142</span><span id="line-142">  public static JsonNavigateCommand createForAll(IRule rule) {</span>
+<span class="source-line-no">143</span><span id="line-143">    return new JsonNavigateCommand((JSONPath) null, rule);</span>
+<span class="source-line-no">144</span><span id="line-144">  }</span>
 <span class="source-line-no">145</span><span id="line-145"></span>
-<span class="source-line-no">146</span><span id="line-146">        if (jsonPath == null) {</span>
-<span class="source-line-no">147</span><span id="line-147">          // Process entire JSON stream</span>
-<span class="source-line-no">148</span><span id="line-148">          processEntireJsonStream(parser, generator);</span>
-<span class="source-line-no">149</span><span id="line-149">        } else if (extractValue) {</span>
-<span class="source-line-no">150</span><span id="line-150">          // This should not happen since extractValue mode uses tree processing</span>
-<span class="source-line-no">151</span><span id="line-151">          throw new IllegalStateException("extractValue mode should not use streaming processing");</span>
-<span class="source-line-no">152</span><span id="line-152">        } else {</span>
-<span class="source-line-no">153</span><span id="line-153">          // Process with simple JSONPath filtering</span>
-<span class="source-line-no">154</span><span id="line-154">          processJsonStreamWithPath(parser, generator, outputStream);</span>
-<span class="source-line-no">155</span><span id="line-155">        }</span>
-<span class="source-line-no">156</span><span id="line-156"></span>
-<span class="source-line-no">157</span><span id="line-157">        generator.flush();</span>
-<span class="source-line-no">158</span><span id="line-158">      }</span>
-<span class="source-line-no">159</span><span id="line-159">    } catch (com.fasterxml.jackson.core.JsonParseException e) {</span>
-<span class="source-line-no">160</span><span id="line-160">      // Handle invalid JSON gracefully - write simple error message</span>
-<span class="source-line-no">161</span><span id="line-161">      try {</span>
-<span class="source-line-no">162</span><span id="line-162">        try (OutputStreamWriter writer =</span>
-<span class="source-line-no">163</span><span id="line-163">            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
-<span class="source-line-no">164</span><span id="line-164">          writer.write("Invalid JSON format");</span>
-<span class="source-line-no">165</span><span id="line-165">          writer.flush();</span>
-<span class="source-line-no">166</span><span id="line-166">        }</span>
-<span class="source-line-no">167</span><span id="line-167">      } catch (IOException writeException) {</span>
-<span class="source-line-no">168</span><span id="line-168">        // If we can't write to output, just ignore for invalid JSON case</span>
-<span class="source-line-no">169</span><span id="line-169">      }</span>
-<span class="source-line-no">170</span><span id="line-170">    }</span>
-<span class="source-line-no">171</span><span id="line-171">  }</span>
-<span class="source-line-no">172</span><span id="line-172"></span>
-<span class="source-line-no">173</span><span id="line-173">  /**</span>
-<span class="source-line-no">174</span><span id="line-174">   * Jackson tree model for complex JSONPath operations Uses JsonNode for navigating complex paths</span>
-<span class="source-line-no">175</span><span id="line-175">   */</span>
-<span class="source-line-no">176</span><span id="line-176">  private void processJsonWithJacksonTree(InputStream inputStream, OutputStream outputStream)</span>
-<span class="source-line-no">177</span><span id="line-177">      throws IOException {</span>
-<span class="source-line-no">178</span><span id="line-178">    try {</span>
-<span class="source-line-no">179</span><span id="line-179">      JsonNode rootNode = objectMapper.readTree(inputStream);</span>
-<span class="source-line-no">180</span><span id="line-180"></span>
-<span class="source-line-no">181</span><span id="line-181">      if (jsonPath == null) {</span>
-<span class="source-line-no">182</span><span id="line-182">        // Process entire JSON with rule</span>
-<span class="source-line-no">183</span><span id="line-183">        String transformedResult = rule.apply(rootNode.toString());</span>
-<span class="source-line-no">184</span><span id="line-184">        try (OutputStreamWriter writer =</span>
-<span class="source-line-no">185</span><span id="line-185">            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
-<span class="source-line-no">186</span><span id="line-186">          writer.write(transformedResult);</span>
-<span class="source-line-no">187</span><span id="line-187">          writer.flush();</span>
-<span class="source-line-no">188</span><span id="line-188">        }</span>
-<span class="source-line-no">189</span><span id="line-189">      } else if (extractValue) {</span>
-<span class="source-line-no">190</span><span id="line-190">        // Extract and return only the transformed value as plain text</span>
-<span class="source-line-no">191</span><span id="line-191">        JsonNode targetNode = navigateJsonPath(rootNode, jsonPath);</span>
-<span class="source-line-no">192</span><span id="line-192">        String result;</span>
-<span class="source-line-no">193</span><span id="line-193"></span>
-<span class="source-line-no">194</span><span id="line-194">        if (targetNode != null &amp;&amp; !targetNode.isMissingNode()) {</span>
-<span class="source-line-no">195</span><span id="line-195">          String propertyValue = targetNode.asText();</span>
-<span class="source-line-no">196</span><span id="line-196">          result = rule.apply(propertyValue);</span>
-<span class="source-line-no">197</span><span id="line-197">        } else {</span>
-<span class="source-line-no">198</span><span id="line-198">          result = ""; // Return empty string if path not found</span>
-<span class="source-line-no">199</span><span id="line-199">        }</span>
-<span class="source-line-no">200</span><span id="line-200"></span>
-<span class="source-line-no">201</span><span id="line-201">        // Write as plain text directly to output stream</span>
-<span class="source-line-no">202</span><span id="line-202">        byte[] bytes = result.getBytes(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">203</span><span id="line-203">        outputStream.write(bytes);</span>
-<span class="source-line-no">204</span><span id="line-204">        outputStream.flush();</span>
-<span class="source-line-no">205</span><span id="line-205">      } else {</span>
-<span class="source-line-no">206</span><span id="line-206">        // Handle both JSON arrays and objects</span>
-<span class="source-line-no">207</span><span id="line-207">        JsonNode modifiedRoot;</span>
+<span class="source-line-no">146</span><span id="line-146">  /**</span>
+<span class="source-line-no">147</span><span id="line-147">   * Factory method for creating a JSON navigation command that extracts and transforms a specific</span>
+<span class="source-line-no">148</span><span id="line-148">   * value. This command returns only the transformed value, not the entire JSON object.</span>
+<span class="source-line-no">149</span><span id="line-149">   *</span>
+<span class="source-line-no">150</span><span id="line-150">   * @param jsonPath the JSONPath expression to select data (e.g., "$.userName")</span>
+<span class="source-line-no">151</span><span id="line-151">   * @param rule the transformation rule to apply to selected value</span>
+<span class="source-line-no">152</span><span id="line-152">   * @return a JsonNavigateCommand that extracts and transforms the specified value</span>
+<span class="source-line-no">153</span><span id="line-153">   * @throws IllegalArgumentException if rule is null</span>
+<span class="source-line-no">154</span><span id="line-154">   * @deprecated Use {@link #createExtractValue(JSONPath, IRule)} instead</span>
+<span class="source-line-no">155</span><span id="line-155">   */</span>
+<span class="source-line-no">156</span><span id="line-156">  @Deprecated</span>
+<span class="source-line-no">157</span><span id="line-157">  public static JsonNavigateCommand createExtractValue(String jsonPath, IRule rule) {</span>
+<span class="source-line-no">158</span><span id="line-158">    return new JsonNavigateCommand(jsonPath, rule, true);</span>
+<span class="source-line-no">159</span><span id="line-159">  }</span>
+<span class="source-line-no">160</span><span id="line-160"></span>
+<span class="source-line-no">161</span><span id="line-161">  /**</span>
+<span class="source-line-no">162</span><span id="line-162">   * Factory method for creating a JSON navigation command that extracts and transforms a specific</span>
+<span class="source-line-no">163</span><span id="line-163">   * value using typed JSONPath. This command returns only the transformed value, not the entire</span>
+<span class="source-line-no">164</span><span id="line-164">   * JSON object.</span>
+<span class="source-line-no">165</span><span id="line-165">   *</span>
+<span class="source-line-no">166</span><span id="line-166">   * @param jsonPath the typed JSONPath to select data</span>
+<span class="source-line-no">167</span><span id="line-167">   * @param rule the transformation rule to apply to selected value</span>
+<span class="source-line-no">168</span><span id="line-168">   * @return a JsonNavigateCommand that extracts and transforms the specified value</span>
+<span class="source-line-no">169</span><span id="line-169">   * @throws IllegalArgumentException if rule is null</span>
+<span class="source-line-no">170</span><span id="line-170">   */</span>
+<span class="source-line-no">171</span><span id="line-171">  public static JsonNavigateCommand createExtractValue(JSONPath jsonPath, IRule rule) {</span>
+<span class="source-line-no">172</span><span id="line-172">    return new JsonNavigateCommand(jsonPath, rule, true);</span>
+<span class="source-line-no">173</span><span id="line-173">  }</span>
+<span class="source-line-no">174</span><span id="line-174"></span>
+<span class="source-line-no">175</span><span id="line-175">  @Override</span>
+<span class="source-line-no">176</span><span id="line-176">  protected String getCommandDetails() {</span>
+<span class="source-line-no">177</span><span id="line-177">    String pathInfo =</span>
+<span class="source-line-no">178</span><span id="line-178">        jsonPath != null ? String.format("jsonPath='%s'", jsonPath.getPath()) : "entire JSON";</span>
+<span class="source-line-no">179</span><span id="line-179">    return String.format(</span>
+<span class="source-line-no">180</span><span id="line-180">        "JsonNavigateCommand(%s, rule='%s')", pathInfo, rule.getClass().getSimpleName());</span>
+<span class="source-line-no">181</span><span id="line-181">  }</span>
+<span class="source-line-no">182</span><span id="line-182"></span>
+<span class="source-line-no">183</span><span id="line-183">  @Override</span>
+<span class="source-line-no">184</span><span id="line-184">  protected void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
+<span class="source-line-no">185</span><span id="line-185">      throws IOException {</span>
+<span class="source-line-no">186</span><span id="line-186">    if (jsonPath == null || isSimpleTransformation()) {</span>
+<span class="source-line-no">187</span><span id="line-187">      // Use Jackson streaming for simple transformations</span>
+<span class="source-line-no">188</span><span id="line-188">      processJsonWithJacksonStreaming(inputStream, outputStream);</span>
+<span class="source-line-no">189</span><span id="line-189">    } else {</span>
+<span class="source-line-no">190</span><span id="line-190">      // Use Jackson tree model for complex JSONPath operations</span>
+<span class="source-line-no">191</span><span id="line-191">      processJsonWithJacksonTree(inputStream, outputStream);</span>
+<span class="source-line-no">192</span><span id="line-192">    }</span>
+<span class="source-line-no">193</span><span id="line-193">  }</span>
+<span class="source-line-no">194</span><span id="line-194"></span>
+<span class="source-line-no">195</span><span id="line-195">  /** Determine if this is a simple transformation that can be processed line-by-line */</span>
+<span class="source-line-no">196</span><span id="line-196">  private boolean isSimpleTransformation() {</span>
+<span class="source-line-no">197</span><span id="line-197">    // extractValue mode always requires tree processing for proper value extraction</span>
+<span class="source-line-no">198</span><span id="line-198">    if (extractValue) {</span>
+<span class="source-line-no">199</span><span id="line-199">      return false;</span>
+<span class="source-line-no">200</span><span id="line-200">    }</span>
+<span class="source-line-no">201</span><span id="line-201">    // Simple transformations that don't require complete JSON structure</span>
+<span class="source-line-no">202</span><span id="line-202">    if (jsonPath == null) {</span>
+<span class="source-line-no">203</span><span id="line-203">      return true;</span>
+<span class="source-line-no">204</span><span id="line-204">    }</span>
+<span class="source-line-no">205</span><span id="line-205">    // Use JSONPath utility methods to determine if it's a simple property access</span>
+<span class="source-line-no">206</span><span id="line-206">    return jsonPath.getSimpleProperty() != null;</span>
+<span class="source-line-no">207</span><span id="line-207">  }</span>
 <span class="source-line-no">208</span><span id="line-208"></span>
-<span class="source-line-no">209</span><span id="line-209">        if (rootNode.isArray()) {</span>
-<span class="source-line-no">210</span><span id="line-210">          // Process each element in the array</span>
-<span class="source-line-no">211</span><span id="line-211">          modifiedRoot = processJsonArray(rootNode, jsonPath);</span>
-<span class="source-line-no">212</span><span id="line-212">        } else {</span>
-<span class="source-line-no">213</span><span id="line-213">          // Process single JSON object</span>
-<span class="source-line-no">214</span><span id="line-214">          modifiedRoot = processSingleJsonObject(rootNode, jsonPath);</span>
-<span class="source-line-no">215</span><span id="line-215">        }</span>
+<span class="source-line-no">209</span><span id="line-209">  /**</span>
+<span class="source-line-no">210</span><span id="line-210">   * Jackson streaming approach for memory-efficient JSON processing Uses JsonParser for parsing and</span>
+<span class="source-line-no">211</span><span id="line-211">   * JsonGenerator for output</span>
+<span class="source-line-no">212</span><span id="line-212">   */</span>
+<span class="source-line-no">213</span><span id="line-213">  private void processJsonWithJacksonStreaming(InputStream inputStream, OutputStream outputStream)</span>
+<span class="source-line-no">214</span><span id="line-214">      throws IOException {</span>
+<span class="source-line-no">215</span><span id="line-215">    JsonFactory jsonFactory = objectMapper.getFactory();</span>
 <span class="source-line-no">216</span><span id="line-216"></span>
-<span class="source-line-no">217</span><span id="line-217">        try (OutputStreamWriter writer =</span>
-<span class="source-line-no">218</span><span id="line-218">            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
-<span class="source-line-no">219</span><span id="line-219">          writer.write(modifiedRoot.toString());</span>
-<span class="source-line-no">220</span><span id="line-220">          writer.flush();</span>
-<span class="source-line-no">221</span><span id="line-221">        }</span>
-<span class="source-line-no">222</span><span id="line-222">      }</span>
-<span class="source-line-no">223</span><span id="line-223"></span>
-<span class="source-line-no">224</span><span id="line-224">    } catch (com.fasterxml.jackson.core.JsonParseException e) {</span>
-<span class="source-line-no">225</span><span id="line-225">      // Handle invalid JSON gracefully - write simple error message</span>
-<span class="source-line-no">226</span><span id="line-226">      try {</span>
-<span class="source-line-no">227</span><span id="line-227">        try (OutputStreamWriter writer =</span>
-<span class="source-line-no">228</span><span id="line-228">            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
-<span class="source-line-no">229</span><span id="line-229">          writer.write("Invalid JSON format");</span>
-<span class="source-line-no">230</span><span id="line-230">          writer.flush();</span>
-<span class="source-line-no">231</span><span id="line-231">        }</span>
-<span class="source-line-no">232</span><span id="line-232">      } catch (IOException writeException) {</span>
-<span class="source-line-no">233</span><span id="line-233">        // If we can't write to output, just ignore for invalid JSON case</span>
-<span class="source-line-no">234</span><span id="line-234">      }</span>
-<span class="source-line-no">235</span><span id="line-235">    } catch (Exception e) {</span>
-<span class="source-line-no">236</span><span id="line-236">      throw new IOException("Failed to process JSON with Jackson: " + e.getMessage(), e);</span>
-<span class="source-line-no">237</span><span id="line-237">    }</span>
-<span class="source-line-no">238</span><span id="line-238">  }</span>
-<span class="source-line-no">239</span><span id="line-239"></span>
-<span class="source-line-no">240</span><span id="line-240">  /** Process entire JSON stream without path filtering */</span>
-<span class="source-line-no">241</span><span id="line-241">  private void processEntireJsonStream(JsonParser parser, JsonGenerator generator)</span>
-<span class="source-line-no">242</span><span id="line-242">      throws IOException {</span>
-<span class="source-line-no">243</span><span id="line-243">    JsonToken token;</span>
-<span class="source-line-no">244</span><span id="line-244">    while ((token = parser.nextToken()) != null) {</span>
-<span class="source-line-no">245</span><span id="line-245">      copyTokenWithRule(parser, generator, token);</span>
-<span class="source-line-no">246</span><span id="line-246">    }</span>
-<span class="source-line-no">247</span><span id="line-247">  }</span>
-<span class="source-line-no">248</span><span id="line-248"></span>
-<span class="source-line-no">249</span><span id="line-249">  /** Process JSON stream with simple path filtering */</span>
-<span class="source-line-no">250</span><span id="line-250">  private void processJsonStreamWithPath(</span>
-<span class="source-line-no">251</span><span id="line-251">      JsonParser parser, JsonGenerator generator, OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">252</span><span id="line-252">    // For streaming with simple paths, we'll use a simplified approach</span>
-<span class="source-line-no">253</span><span id="line-253">    // that maintains the streaming nature while applying basic filtering</span>
-<span class="source-line-no">254</span><span id="line-254">    String propertyName = extractPropertyFromPath(jsonPath);</span>
-<span class="source-line-no">255</span><span id="line-255">    boolean inTargetProperty = false;</span>
-<span class="source-line-no">256</span><span id="line-256"></span>
-<span class="source-line-no">257</span><span id="line-257">    // This method should not be called for extractValue mode</span>
-<span class="source-line-no">258</span><span id="line-258">    // extractValue mode uses processJsonWithJsonPath instead</span>
-<span class="source-line-no">259</span><span id="line-259">    if (extractValue) {</span>
-<span class="source-line-no">260</span><span id="line-260">      throw new UnsupportedOperationException(</span>
-<span class="source-line-no">261</span><span id="line-261">          "extractValue mode should use processJsonWithJsonPath");</span>
-<span class="source-line-no">262</span><span id="line-262">    }</span>
-<span class="source-line-no">263</span><span id="line-263"></span>
-<span class="source-line-no">264</span><span id="line-264">    {</span>
-<span class="source-line-no">265</span><span id="line-265">      // Normal mode - write complete JSON structure</span>
-<span class="source-line-no">266</span><span id="line-266">      JsonToken token;</span>
-<span class="source-line-no">267</span><span id="line-267">      while ((token = parser.nextToken()) != null) {</span>
-<span class="source-line-no">268</span><span id="line-268">        if (token == JsonToken.FIELD_NAME &amp;&amp; propertyName.equals(parser.currentName())) {</span>
-<span class="source-line-no">269</span><span id="line-269">          inTargetProperty = true;</span>
-<span class="source-line-no">270</span><span id="line-270">          generator.writeFieldName(parser.currentName());</span>
-<span class="source-line-no">271</span><span id="line-271">        } else if (inTargetProperty &amp;&amp; token == JsonToken.VALUE_STRING) {</span>
-<span class="source-line-no">272</span><span id="line-272">          // Apply rule to string value</span>
-<span class="source-line-no">273</span><span id="line-273">          String transformedValue = rule.apply(parser.getValueAsString());</span>
-<span class="source-line-no">274</span><span id="line-274">          generator.writeString(transformedValue);</span>
-<span class="source-line-no">275</span><span id="line-275">          inTargetProperty = false;</span>
-<span class="source-line-no">276</span><span id="line-276">        } else if (inTargetProperty) {</span>
-<span class="source-line-no">277</span><span id="line-277">          copyTokenWithRule(parser, generator, token);</span>
-<span class="source-line-no">278</span><span id="line-278">          if (token == JsonToken.END_OBJECT || token == JsonToken.END_ARRAY) {</span>
-<span class="source-line-no">279</span><span id="line-279">            inTargetProperty = false;</span>
-<span class="source-line-no">280</span><span id="line-280">          }</span>
-<span class="source-line-no">281</span><span id="line-281">        } else {</span>
-<span class="source-line-no">282</span><span id="line-282">          copyToken(parser, generator, token);</span>
-<span class="source-line-no">283</span><span id="line-283">        }</span>
-<span class="source-line-no">284</span><span id="line-284">      }</span>
-<span class="source-line-no">285</span><span id="line-285">    }</span>
-<span class="source-line-no">286</span><span id="line-286">  }</span>
-<span class="source-line-no">287</span><span id="line-287"></span>
-<span class="source-line-no">288</span><span id="line-288">  /** Navigate JSONPath using JsonNode (for complex paths) */</span>
-<span class="source-line-no">289</span><span id="line-289">  private JsonNode navigateJsonPath(JsonNode rootNode, String path) {</span>
-<span class="source-line-no">290</span><span id="line-290">    if (path.startsWith("$.")) {</span>
-<span class="source-line-no">291</span><span id="line-291">      String propertyPath = path.substring(2);</span>
-<span class="source-line-no">292</span><span id="line-292">      // Handle simple property access</span>
-<span class="source-line-no">293</span><span id="line-293">      if (!propertyPath.contains("[") &amp;&amp; !propertyPath.contains("*")) {</span>
-<span class="source-line-no">294</span><span id="line-294">        return rootNode.get(propertyPath);</span>
-<span class="source-line-no">295</span><span id="line-295">      } else {</span>
-<span class="source-line-no">296</span><span id="line-296">        // For complex paths, use JsonPointer</span>
-<span class="source-line-no">297</span><span id="line-297">        return rootNode.at("/" + propertyPath.replace(".", "/"));</span>
-<span class="source-line-no">298</span><span id="line-298">      }</span>
-<span class="source-line-no">299</span><span id="line-299">    }</span>
-<span class="source-line-no">300</span><span id="line-300">    return rootNode;</span>
-<span class="source-line-no">301</span><span id="line-301">  }</span>
-<span class="source-line-no">302</span><span id="line-302"></span>
-<span class="source-line-no">303</span><span id="line-303">  /** Extract property name from simple JSONPath */</span>
-<span class="source-line-no">304</span><span id="line-304">  private String extractPropertyFromPath(String path) {</span>
-<span class="source-line-no">305</span><span id="line-305">    if (path.startsWith("$.")) {</span>
-<span class="source-line-no">306</span><span id="line-306">      return path.substring(2);</span>
-<span class="source-line-no">307</span><span id="line-307">    }</span>
-<span class="source-line-no">308</span><span id="line-308">    return path;</span>
-<span class="source-line-no">309</span><span id="line-309">  }</span>
-<span class="source-line-no">310</span><span id="line-310"></span>
-<span class="source-line-no">311</span><span id="line-311">  /** Copy token with rule application (for string values) */</span>
-<span class="source-line-no">312</span><span id="line-312">  private void copyTokenWithRule(JsonParser parser, JsonGenerator generator, JsonToken token)</span>
-<span class="source-line-no">313</span><span id="line-313">      throws IOException {</span>
-<span class="source-line-no">314</span><span id="line-314">    if (token == JsonToken.VALUE_STRING) {</span>
-<span class="source-line-no">315</span><span id="line-315">      String transformedValue = rule.apply(parser.getValueAsString());</span>
-<span class="source-line-no">316</span><span id="line-316">      generator.writeString(transformedValue);</span>
-<span class="source-line-no">317</span><span id="line-317">    } else {</span>
-<span class="source-line-no">318</span><span id="line-318">      copyToken(parser, generator, token);</span>
-<span class="source-line-no">319</span><span id="line-319">    }</span>
-<span class="source-line-no">320</span><span id="line-320">  }</span>
-<span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">  /** Copy token as-is without transformation */</span>
-<span class="source-line-no">323</span><span id="line-323">  private void copyToken(JsonParser parser, JsonGenerator generator, JsonToken token)</span>
-<span class="source-line-no">324</span><span id="line-324">      throws IOException {</span>
-<span class="source-line-no">325</span><span id="line-325">    switch (token) {</span>
-<span class="source-line-no">326</span><span id="line-326">      case START_OBJECT:</span>
-<span class="source-line-no">327</span><span id="line-327">        generator.writeStartObject();</span>
-<span class="source-line-no">328</span><span id="line-328">        break;</span>
-<span class="source-line-no">329</span><span id="line-329">      case END_OBJECT:</span>
-<span class="source-line-no">330</span><span id="line-330">        generator.writeEndObject();</span>
-<span class="source-line-no">331</span><span id="line-331">        break;</span>
-<span class="source-line-no">332</span><span id="line-332">      case START_ARRAY:</span>
-<span class="source-line-no">333</span><span id="line-333">        generator.writeStartArray();</span>
-<span class="source-line-no">334</span><span id="line-334">        break;</span>
-<span class="source-line-no">335</span><span id="line-335">      case END_ARRAY:</span>
-<span class="source-line-no">336</span><span id="line-336">        generator.writeEndArray();</span>
-<span class="source-line-no">337</span><span id="line-337">        break;</span>
-<span class="source-line-no">338</span><span id="line-338">      case FIELD_NAME:</span>
-<span class="source-line-no">339</span><span id="line-339">        generator.writeFieldName(parser.currentName());</span>
-<span class="source-line-no">340</span><span id="line-340">        break;</span>
-<span class="source-line-no">341</span><span id="line-341">      case VALUE_STRING:</span>
-<span class="source-line-no">342</span><span id="line-342">        generator.writeString(parser.getValueAsString());</span>
-<span class="source-line-no">343</span><span id="line-343">        break;</span>
-<span class="source-line-no">344</span><span id="line-344">      case VALUE_NUMBER_INT:</span>
-<span class="source-line-no">345</span><span id="line-345">        generator.writeNumber(parser.getIntValue());</span>
-<span class="source-line-no">346</span><span id="line-346">        break;</span>
-<span class="source-line-no">347</span><span id="line-347">      case VALUE_NUMBER_FLOAT:</span>
-<span class="source-line-no">348</span><span id="line-348">        generator.writeNumber(parser.getDoubleValue());</span>
-<span class="source-line-no">349</span><span id="line-349">        break;</span>
-<span class="source-line-no">350</span><span id="line-350">      case VALUE_TRUE:</span>
-<span class="source-line-no">351</span><span id="line-351">        generator.writeBoolean(true);</span>
-<span class="source-line-no">352</span><span id="line-352">        break;</span>
-<span class="source-line-no">353</span><span id="line-353">      case VALUE_FALSE:</span>
-<span class="source-line-no">354</span><span id="line-354">        generator.writeBoolean(false);</span>
-<span class="source-line-no">355</span><span id="line-355">        break;</span>
-<span class="source-line-no">356</span><span id="line-356">      case VALUE_NULL:</span>
-<span class="source-line-no">357</span><span id="line-357">        generator.writeNull();</span>
-<span class="source-line-no">358</span><span id="line-358">        break;</span>
-<span class="source-line-no">359</span><span id="line-359">      default:</span>
-<span class="source-line-no">360</span><span id="line-360">        // Handle other token types if needed</span>
-<span class="source-line-no">361</span><span id="line-361">        break;</span>
-<span class="source-line-no">362</span><span id="line-362">    }</span>
-<span class="source-line-no">363</span><span id="line-363">  }</span>
-<span class="source-line-no">364</span><span id="line-364"></span>
-<span class="source-line-no">365</span><span id="line-365">  /** Replace property value in JsonNode (creates a new modified tree) */</span>
-<span class="source-line-no">366</span><span id="line-366">  private JsonNode replacePropertyValue(JsonNode rootNode, String path, String newValue) {</span>
-<span class="source-line-no">367</span><span id="line-367">    if (path.startsWith("$.")) {</span>
-<span class="source-line-no">368</span><span id="line-368">      String propertyPath = path.substring(2);</span>
-<span class="source-line-no">369</span><span id="line-369">      // Handle simple property access</span>
-<span class="source-line-no">370</span><span id="line-370">      if (!propertyPath.contains("[") &amp;&amp; !propertyPath.contains("*")) {</span>
-<span class="source-line-no">371</span><span id="line-371">        return replaceSimpleProperty(rootNode, propertyPath, newValue);</span>
-<span class="source-line-no">372</span><span id="line-372">      }</span>
-<span class="source-line-no">373</span><span id="line-373">    }</span>
-<span class="source-line-no">374</span><span id="line-374">    return rootNode; // Return original if cannot replace</span>
-<span class="source-line-no">375</span><span id="line-375">  }</span>
-<span class="source-line-no">376</span><span id="line-376"></span>
-<span class="source-line-no">377</span><span id="line-377">  /** Replace simple property in JsonNode */</span>
-<span class="source-line-no">378</span><span id="line-378">  private JsonNode replaceSimpleProperty(JsonNode rootNode, String propertyName, String newValue) {</span>
-<span class="source-line-no">379</span><span id="line-379">    if (rootNode.isObject() &amp;&amp; rootNode.has(propertyName)) {</span>
-<span class="source-line-no">380</span><span id="line-380">      // Create a mutable copy</span>
-<span class="source-line-no">381</span><span id="line-381">      com.fasterxml.jackson.databind.node.ObjectNode objectNode =</span>
-<span class="source-line-no">382</span><span id="line-382">          (com.fasterxml.jackson.databind.node.ObjectNode) rootNode.deepCopy();</span>
-<span class="source-line-no">383</span><span id="line-383">      objectNode.put(propertyName, newValue);</span>
-<span class="source-line-no">384</span><span id="line-384">      return objectNode;</span>
-<span class="source-line-no">385</span><span id="line-385">    }</span>
-<span class="source-line-no">386</span><span id="line-386">    return rootNode;</span>
-<span class="source-line-no">387</span><span id="line-387">  }</span>
-<span class="source-line-no">388</span><span id="line-388"></span>
-<span class="source-line-no">389</span><span id="line-389">  /** Process JSON array by applying transformations to each element */</span>
-<span class="source-line-no">390</span><span id="line-390">  private JsonNode processJsonArray(JsonNode arrayNode, String jsonPath) {</span>
-<span class="source-line-no">391</span><span id="line-391">    com.fasterxml.jackson.databind.node.ArrayNode resultArray = objectMapper.createArrayNode();</span>
-<span class="source-line-no">392</span><span id="line-392"></span>
-<span class="source-line-no">393</span><span id="line-393">    for (JsonNode element : arrayNode) {</span>
-<span class="source-line-no">394</span><span id="line-394">      JsonNode modifiedElement = processSingleJsonObject(element, jsonPath);</span>
-<span class="source-line-no">395</span><span id="line-395">      resultArray.add(modifiedElement);</span>
-<span class="source-line-no">396</span><span id="line-396">    }</span>
+<span class="source-line-no">217</span><span id="line-217">    try {</span>
+<span class="source-line-no">218</span><span id="line-218">      try (JsonParser parser = jsonFactory.createParser(inputStream);</span>
+<span class="source-line-no">219</span><span id="line-219">          JsonGenerator generator = jsonFactory.createGenerator(outputStream)) {</span>
+<span class="source-line-no">220</span><span id="line-220"></span>
+<span class="source-line-no">221</span><span id="line-221">        if (jsonPath == null) {</span>
+<span class="source-line-no">222</span><span id="line-222">          // Process entire JSON stream</span>
+<span class="source-line-no">223</span><span id="line-223">          processEntireJsonStream(parser, generator);</span>
+<span class="source-line-no">224</span><span id="line-224">        } else if (extractValue) {</span>
+<span class="source-line-no">225</span><span id="line-225">          // This should not happen since extractValue mode uses tree processing</span>
+<span class="source-line-no">226</span><span id="line-226">          throw new IllegalStateException("extractValue mode should not use streaming processing");</span>
+<span class="source-line-no">227</span><span id="line-227">        } else {</span>
+<span class="source-line-no">228</span><span id="line-228">          // Process with simple JSONPath filtering</span>
+<span class="source-line-no">229</span><span id="line-229">          processJsonStreamWithPath(parser, generator, outputStream);</span>
+<span class="source-line-no">230</span><span id="line-230">        }</span>
+<span class="source-line-no">231</span><span id="line-231"></span>
+<span class="source-line-no">232</span><span id="line-232">        generator.flush();</span>
+<span class="source-line-no">233</span><span id="line-233">      }</span>
+<span class="source-line-no">234</span><span id="line-234">    } catch (com.fasterxml.jackson.core.JsonParseException e) {</span>
+<span class="source-line-no">235</span><span id="line-235">      // Handle invalid JSON gracefully - write simple error message</span>
+<span class="source-line-no">236</span><span id="line-236">      try {</span>
+<span class="source-line-no">237</span><span id="line-237">        try (OutputStreamWriter writer =</span>
+<span class="source-line-no">238</span><span id="line-238">            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
+<span class="source-line-no">239</span><span id="line-239">          writer.write("Invalid JSON format");</span>
+<span class="source-line-no">240</span><span id="line-240">          writer.flush();</span>
+<span class="source-line-no">241</span><span id="line-241">        }</span>
+<span class="source-line-no">242</span><span id="line-242">      } catch (IOException writeException) {</span>
+<span class="source-line-no">243</span><span id="line-243">        // If we can't write to output, just ignore for invalid JSON case</span>
+<span class="source-line-no">244</span><span id="line-244">      }</span>
+<span class="source-line-no">245</span><span id="line-245">    }</span>
+<span class="source-line-no">246</span><span id="line-246">  }</span>
+<span class="source-line-no">247</span><span id="line-247"></span>
+<span class="source-line-no">248</span><span id="line-248">  /**</span>
+<span class="source-line-no">249</span><span id="line-249">   * Jackson tree model for complex JSONPath operations Uses JsonNode for navigating complex paths</span>
+<span class="source-line-no">250</span><span id="line-250">   */</span>
+<span class="source-line-no">251</span><span id="line-251">  private void processJsonWithJacksonTree(InputStream inputStream, OutputStream outputStream)</span>
+<span class="source-line-no">252</span><span id="line-252">      throws IOException {</span>
+<span class="source-line-no">253</span><span id="line-253">    try {</span>
+<span class="source-line-no">254</span><span id="line-254">      JsonNode rootNode = objectMapper.readTree(inputStream);</span>
+<span class="source-line-no">255</span><span id="line-255"></span>
+<span class="source-line-no">256</span><span id="line-256">      if (jsonPath == null) {</span>
+<span class="source-line-no">257</span><span id="line-257">        // Process entire JSON with rule</span>
+<span class="source-line-no">258</span><span id="line-258">        String transformedResult = rule.apply(rootNode.toString());</span>
+<span class="source-line-no">259</span><span id="line-259">        try (OutputStreamWriter writer =</span>
+<span class="source-line-no">260</span><span id="line-260">            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
+<span class="source-line-no">261</span><span id="line-261">          writer.write(transformedResult);</span>
+<span class="source-line-no">262</span><span id="line-262">          writer.flush();</span>
+<span class="source-line-no">263</span><span id="line-263">        }</span>
+<span class="source-line-no">264</span><span id="line-264">      } else if (extractValue) {</span>
+<span class="source-line-no">265</span><span id="line-265">        // Extract and return only the transformed value as plain text</span>
+<span class="source-line-no">266</span><span id="line-266">        JsonNode targetNode = navigateJsonPath(rootNode, jsonPath);</span>
+<span class="source-line-no">267</span><span id="line-267">        String result;</span>
+<span class="source-line-no">268</span><span id="line-268"></span>
+<span class="source-line-no">269</span><span id="line-269">        if (targetNode != null &amp;&amp; !targetNode.isMissingNode()) {</span>
+<span class="source-line-no">270</span><span id="line-270">          String propertyValue = targetNode.asText();</span>
+<span class="source-line-no">271</span><span id="line-271">          result = rule.apply(propertyValue);</span>
+<span class="source-line-no">272</span><span id="line-272">        } else {</span>
+<span class="source-line-no">273</span><span id="line-273">          result = ""; // Return empty string if path not found</span>
+<span class="source-line-no">274</span><span id="line-274">        }</span>
+<span class="source-line-no">275</span><span id="line-275"></span>
+<span class="source-line-no">276</span><span id="line-276">        // Write as plain text directly to output stream</span>
+<span class="source-line-no">277</span><span id="line-277">        byte[] bytes = result.getBytes(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">278</span><span id="line-278">        outputStream.write(bytes);</span>
+<span class="source-line-no">279</span><span id="line-279">        outputStream.flush();</span>
+<span class="source-line-no">280</span><span id="line-280">      } else {</span>
+<span class="source-line-no">281</span><span id="line-281">        // Handle both JSON arrays and objects</span>
+<span class="source-line-no">282</span><span id="line-282">        JsonNode modifiedRoot;</span>
+<span class="source-line-no">283</span><span id="line-283"></span>
+<span class="source-line-no">284</span><span id="line-284">        if (rootNode.isArray()) {</span>
+<span class="source-line-no">285</span><span id="line-285">          // Process each element in the array</span>
+<span class="source-line-no">286</span><span id="line-286">          modifiedRoot = processJsonArray(rootNode, jsonPath);</span>
+<span class="source-line-no">287</span><span id="line-287">        } else {</span>
+<span class="source-line-no">288</span><span id="line-288">          // Process single JSON object</span>
+<span class="source-line-no">289</span><span id="line-289">          modifiedRoot = processSingleJsonObject(rootNode, jsonPath);</span>
+<span class="source-line-no">290</span><span id="line-290">        }</span>
+<span class="source-line-no">291</span><span id="line-291"></span>
+<span class="source-line-no">292</span><span id="line-292">        try (OutputStreamWriter writer =</span>
+<span class="source-line-no">293</span><span id="line-293">            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
+<span class="source-line-no">294</span><span id="line-294">          writer.write(modifiedRoot.toString());</span>
+<span class="source-line-no">295</span><span id="line-295">          writer.flush();</span>
+<span class="source-line-no">296</span><span id="line-296">        }</span>
+<span class="source-line-no">297</span><span id="line-297">      }</span>
+<span class="source-line-no">298</span><span id="line-298"></span>
+<span class="source-line-no">299</span><span id="line-299">    } catch (com.fasterxml.jackson.core.JsonParseException e) {</span>
+<span class="source-line-no">300</span><span id="line-300">      // Handle invalid JSON gracefully - write simple error message</span>
+<span class="source-line-no">301</span><span id="line-301">      try {</span>
+<span class="source-line-no">302</span><span id="line-302">        try (OutputStreamWriter writer =</span>
+<span class="source-line-no">303</span><span id="line-303">            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
+<span class="source-line-no">304</span><span id="line-304">          writer.write("Invalid JSON format");</span>
+<span class="source-line-no">305</span><span id="line-305">          writer.flush();</span>
+<span class="source-line-no">306</span><span id="line-306">        }</span>
+<span class="source-line-no">307</span><span id="line-307">      } catch (IOException writeException) {</span>
+<span class="source-line-no">308</span><span id="line-308">        // If we can't write to output, just ignore for invalid JSON case</span>
+<span class="source-line-no">309</span><span id="line-309">      }</span>
+<span class="source-line-no">310</span><span id="line-310">    } catch (Exception e) {</span>
+<span class="source-line-no">311</span><span id="line-311">      throw new IOException("Failed to process JSON with Jackson: " + e.getMessage(), e);</span>
+<span class="source-line-no">312</span><span id="line-312">    }</span>
+<span class="source-line-no">313</span><span id="line-313">  }</span>
+<span class="source-line-no">314</span><span id="line-314"></span>
+<span class="source-line-no">315</span><span id="line-315">  /** Process entire JSON stream without path filtering */</span>
+<span class="source-line-no">316</span><span id="line-316">  private void processEntireJsonStream(JsonParser parser, JsonGenerator generator)</span>
+<span class="source-line-no">317</span><span id="line-317">      throws IOException {</span>
+<span class="source-line-no">318</span><span id="line-318">    JsonToken token;</span>
+<span class="source-line-no">319</span><span id="line-319">    while ((token = parser.nextToken()) != null) {</span>
+<span class="source-line-no">320</span><span id="line-320">      copyTokenWithRule(parser, generator, token);</span>
+<span class="source-line-no">321</span><span id="line-321">    }</span>
+<span class="source-line-no">322</span><span id="line-322">  }</span>
+<span class="source-line-no">323</span><span id="line-323"></span>
+<span class="source-line-no">324</span><span id="line-324">  /** Process JSON stream with simple path filtering */</span>
+<span class="source-line-no">325</span><span id="line-325">  private void processJsonStreamWithPath(</span>
+<span class="source-line-no">326</span><span id="line-326">      JsonParser parser, JsonGenerator generator, OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">327</span><span id="line-327">    // For streaming with simple paths, we'll use a simplified approach</span>
+<span class="source-line-no">328</span><span id="line-328">    // that maintains the streaming nature while applying basic filtering</span>
+<span class="source-line-no">329</span><span id="line-329">    String propertyName = extractPropertyFromPath(jsonPath);</span>
+<span class="source-line-no">330</span><span id="line-330">    boolean inTargetProperty = false;</span>
+<span class="source-line-no">331</span><span id="line-331"></span>
+<span class="source-line-no">332</span><span id="line-332">    // This method should not be called for extractValue mode</span>
+<span class="source-line-no">333</span><span id="line-333">    // extractValue mode uses processJsonWithJsonPath instead</span>
+<span class="source-line-no">334</span><span id="line-334">    if (extractValue) {</span>
+<span class="source-line-no">335</span><span id="line-335">      throw new UnsupportedOperationException(</span>
+<span class="source-line-no">336</span><span id="line-336">          "extractValue mode should use processJsonWithJsonPath");</span>
+<span class="source-line-no">337</span><span id="line-337">    }</span>
+<span class="source-line-no">338</span><span id="line-338"></span>
+<span class="source-line-no">339</span><span id="line-339">    {</span>
+<span class="source-line-no">340</span><span id="line-340">      // Normal mode - write complete JSON structure</span>
+<span class="source-line-no">341</span><span id="line-341">      JsonToken token;</span>
+<span class="source-line-no">342</span><span id="line-342">      while ((token = parser.nextToken()) != null) {</span>
+<span class="source-line-no">343</span><span id="line-343">        if (token == JsonToken.FIELD_NAME &amp;&amp; propertyName.equals(parser.currentName())) {</span>
+<span class="source-line-no">344</span><span id="line-344">          inTargetProperty = true;</span>
+<span class="source-line-no">345</span><span id="line-345">          generator.writeFieldName(parser.currentName());</span>
+<span class="source-line-no">346</span><span id="line-346">        } else if (inTargetProperty &amp;&amp; token == JsonToken.VALUE_STRING) {</span>
+<span class="source-line-no">347</span><span id="line-347">          // Apply rule to string value</span>
+<span class="source-line-no">348</span><span id="line-348">          String transformedValue = rule.apply(parser.getValueAsString());</span>
+<span class="source-line-no">349</span><span id="line-349">          generator.writeString(transformedValue);</span>
+<span class="source-line-no">350</span><span id="line-350">          inTargetProperty = false;</span>
+<span class="source-line-no">351</span><span id="line-351">        } else if (inTargetProperty) {</span>
+<span class="source-line-no">352</span><span id="line-352">          copyTokenWithRule(parser, generator, token);</span>
+<span class="source-line-no">353</span><span id="line-353">          if (token == JsonToken.END_OBJECT || token == JsonToken.END_ARRAY) {</span>
+<span class="source-line-no">354</span><span id="line-354">            inTargetProperty = false;</span>
+<span class="source-line-no">355</span><span id="line-355">          }</span>
+<span class="source-line-no">356</span><span id="line-356">        } else {</span>
+<span class="source-line-no">357</span><span id="line-357">          copyToken(parser, generator, token);</span>
+<span class="source-line-no">358</span><span id="line-358">        }</span>
+<span class="source-line-no">359</span><span id="line-359">      }</span>
+<span class="source-line-no">360</span><span id="line-360">    }</span>
+<span class="source-line-no">361</span><span id="line-361">  }</span>
+<span class="source-line-no">362</span><span id="line-362"></span>
+<span class="source-line-no">363</span><span id="line-363">  /** Navigate JSONPath using JsonNode (for complex paths) */</span>
+<span class="source-line-no">364</span><span id="line-364">  private JsonNode navigateJsonPath(JsonNode rootNode, JSONPath path) {</span>
+<span class="source-line-no">365</span><span id="line-365">    if (path.isRoot()) {</span>
+<span class="source-line-no">366</span><span id="line-366">      return rootNode;</span>
+<span class="source-line-no">367</span><span id="line-367">    }</span>
+<span class="source-line-no">368</span><span id="line-368"></span>
+<span class="source-line-no">369</span><span id="line-369">    String simpleProperty = path.getSimpleProperty();</span>
+<span class="source-line-no">370</span><span id="line-370">    if (simpleProperty != null) {</span>
+<span class="source-line-no">371</span><span id="line-371">      // Handle simple property access</span>
+<span class="source-line-no">372</span><span id="line-372">      return rootNode.get(simpleProperty);</span>
+<span class="source-line-no">373</span><span id="line-373">    } else {</span>
+<span class="source-line-no">374</span><span id="line-374">      // For complex paths, use JsonPointer</span>
+<span class="source-line-no">375</span><span id="line-375">      String pathStr = path.getPath();</span>
+<span class="source-line-no">376</span><span id="line-376">      if (pathStr.startsWith("$.")) {</span>
+<span class="source-line-no">377</span><span id="line-377">        String propertyPath = pathStr.substring(2);</span>
+<span class="source-line-no">378</span><span id="line-378">        return rootNode.at("/" + propertyPath.replace(".", "/"));</span>
+<span class="source-line-no">379</span><span id="line-379">      }</span>
+<span class="source-line-no">380</span><span id="line-380">    }</span>
+<span class="source-line-no">381</span><span id="line-381">    return rootNode;</span>
+<span class="source-line-no">382</span><span id="line-382">  }</span>
+<span class="source-line-no">383</span><span id="line-383"></span>
+<span class="source-line-no">384</span><span id="line-384">  /** Extract property name from simple JSONPath */</span>
+<span class="source-line-no">385</span><span id="line-385">  private String extractPropertyFromPath(JSONPath path) {</span>
+<span class="source-line-no">386</span><span id="line-386">    String simpleProperty = path.getSimpleProperty();</span>
+<span class="source-line-no">387</span><span id="line-387">    if (simpleProperty != null) {</span>
+<span class="source-line-no">388</span><span id="line-388">      return simpleProperty;</span>
+<span class="source-line-no">389</span><span id="line-389">    }</span>
+<span class="source-line-no">390</span><span id="line-390">    // Fallback for complex paths</span>
+<span class="source-line-no">391</span><span id="line-391">    String pathStr = path.getPath();</span>
+<span class="source-line-no">392</span><span id="line-392">    if (pathStr.startsWith("$.")) {</span>
+<span class="source-line-no">393</span><span id="line-393">      return pathStr.substring(2);</span>
+<span class="source-line-no">394</span><span id="line-394">    }</span>
+<span class="source-line-no">395</span><span id="line-395">    return pathStr;</span>
+<span class="source-line-no">396</span><span id="line-396">  }</span>
 <span class="source-line-no">397</span><span id="line-397"></span>
-<span class="source-line-no">398</span><span id="line-398">    return resultArray;</span>
-<span class="source-line-no">399</span><span id="line-399">  }</span>
-<span class="source-line-no">400</span><span id="line-400"></span>
-<span class="source-line-no">401</span><span id="line-401">  /** Process single JSON object */</span>
-<span class="source-line-no">402</span><span id="line-402">  private JsonNode processSingleJsonObject(JsonNode objectNode, String jsonPath) {</span>
-<span class="source-line-no">403</span><span id="line-403">    // Navigate to specific property and replace it with transformed value</span>
-<span class="source-line-no">404</span><span id="line-404">    JsonNode targetNode = navigateJsonPath(objectNode, jsonPath);</span>
-<span class="source-line-no">405</span><span id="line-405"></span>
-<span class="source-line-no">406</span><span id="line-406">    if (targetNode != null &amp;&amp; !targetNode.isMissingNode()) {</span>
-<span class="source-line-no">407</span><span id="line-407">      String propertyValue = targetNode.asText();</span>
-<span class="source-line-no">408</span><span id="line-408">      String transformedValue = rule.apply(propertyValue);</span>
-<span class="source-line-no">409</span><span id="line-409"></span>
-<span class="source-line-no">410</span><span id="line-410">      // Replace the property value in the original JSON structure</span>
-<span class="source-line-no">411</span><span id="line-411">      // Note: Even if transformedValue is empty string, we should still replace it</span>
-<span class="source-line-no">412</span><span id="line-412">      return replacePropertyValue(objectNode, jsonPath, transformedValue);</span>
-<span class="source-line-no">413</span><span id="line-413">    } else {</span>
-<span class="source-line-no">414</span><span id="line-414">      // Property not found, return original object</span>
-<span class="source-line-no">415</span><span id="line-415">      return objectNode;</span>
-<span class="source-line-no">416</span><span id="line-416">    }</span>
-<span class="source-line-no">417</span><span id="line-417">  }</span>
-<span class="source-line-no">418</span><span id="line-418">}</span>
+<span class="source-line-no">398</span><span id="line-398">  /** Copy token with rule application (for string values) */</span>
+<span class="source-line-no">399</span><span id="line-399">  private void copyTokenWithRule(JsonParser parser, JsonGenerator generator, JsonToken token)</span>
+<span class="source-line-no">400</span><span id="line-400">      throws IOException {</span>
+<span class="source-line-no">401</span><span id="line-401">    if (token == JsonToken.VALUE_STRING) {</span>
+<span class="source-line-no">402</span><span id="line-402">      String transformedValue = rule.apply(parser.getValueAsString());</span>
+<span class="source-line-no">403</span><span id="line-403">      generator.writeString(transformedValue);</span>
+<span class="source-line-no">404</span><span id="line-404">    } else {</span>
+<span class="source-line-no">405</span><span id="line-405">      copyToken(parser, generator, token);</span>
+<span class="source-line-no">406</span><span id="line-406">    }</span>
+<span class="source-line-no">407</span><span id="line-407">  }</span>
+<span class="source-line-no">408</span><span id="line-408"></span>
+<span class="source-line-no">409</span><span id="line-409">  /** Copy token as-is without transformation */</span>
+<span class="source-line-no">410</span><span id="line-410">  private void copyToken(JsonParser parser, JsonGenerator generator, JsonToken token)</span>
+<span class="source-line-no">411</span><span id="line-411">      throws IOException {</span>
+<span class="source-line-no">412</span><span id="line-412">    switch (token) {</span>
+<span class="source-line-no">413</span><span id="line-413">      case START_OBJECT:</span>
+<span class="source-line-no">414</span><span id="line-414">        generator.writeStartObject();</span>
+<span class="source-line-no">415</span><span id="line-415">        break;</span>
+<span class="source-line-no">416</span><span id="line-416">      case END_OBJECT:</span>
+<span class="source-line-no">417</span><span id="line-417">        generator.writeEndObject();</span>
+<span class="source-line-no">418</span><span id="line-418">        break;</span>
+<span class="source-line-no">419</span><span id="line-419">      case START_ARRAY:</span>
+<span class="source-line-no">420</span><span id="line-420">        generator.writeStartArray();</span>
+<span class="source-line-no">421</span><span id="line-421">        break;</span>
+<span class="source-line-no">422</span><span id="line-422">      case END_ARRAY:</span>
+<span class="source-line-no">423</span><span id="line-423">        generator.writeEndArray();</span>
+<span class="source-line-no">424</span><span id="line-424">        break;</span>
+<span class="source-line-no">425</span><span id="line-425">      case FIELD_NAME:</span>
+<span class="source-line-no">426</span><span id="line-426">        generator.writeFieldName(parser.currentName());</span>
+<span class="source-line-no">427</span><span id="line-427">        break;</span>
+<span class="source-line-no">428</span><span id="line-428">      case VALUE_STRING:</span>
+<span class="source-line-no">429</span><span id="line-429">        generator.writeString(parser.getValueAsString());</span>
+<span class="source-line-no">430</span><span id="line-430">        break;</span>
+<span class="source-line-no">431</span><span id="line-431">      case VALUE_NUMBER_INT:</span>
+<span class="source-line-no">432</span><span id="line-432">        generator.writeNumber(parser.getIntValue());</span>
+<span class="source-line-no">433</span><span id="line-433">        break;</span>
+<span class="source-line-no">434</span><span id="line-434">      case VALUE_NUMBER_FLOAT:</span>
+<span class="source-line-no">435</span><span id="line-435">        generator.writeNumber(parser.getDoubleValue());</span>
+<span class="source-line-no">436</span><span id="line-436">        break;</span>
+<span class="source-line-no">437</span><span id="line-437">      case VALUE_TRUE:</span>
+<span class="source-line-no">438</span><span id="line-438">        generator.writeBoolean(true);</span>
+<span class="source-line-no">439</span><span id="line-439">        break;</span>
+<span class="source-line-no">440</span><span id="line-440">      case VALUE_FALSE:</span>
+<span class="source-line-no">441</span><span id="line-441">        generator.writeBoolean(false);</span>
+<span class="source-line-no">442</span><span id="line-442">        break;</span>
+<span class="source-line-no">443</span><span id="line-443">      case VALUE_NULL:</span>
+<span class="source-line-no">444</span><span id="line-444">        generator.writeNull();</span>
+<span class="source-line-no">445</span><span id="line-445">        break;</span>
+<span class="source-line-no">446</span><span id="line-446">      default:</span>
+<span class="source-line-no">447</span><span id="line-447">        // Handle other token types if needed</span>
+<span class="source-line-no">448</span><span id="line-448">        break;</span>
+<span class="source-line-no">449</span><span id="line-449">    }</span>
+<span class="source-line-no">450</span><span id="line-450">  }</span>
+<span class="source-line-no">451</span><span id="line-451"></span>
+<span class="source-line-no">452</span><span id="line-452">  /** Replace property value in JsonNode (creates a new modified tree) */</span>
+<span class="source-line-no">453</span><span id="line-453">  private JsonNode replacePropertyValue(JsonNode rootNode, JSONPath path, String newValue) {</span>
+<span class="source-line-no">454</span><span id="line-454">    String simpleProperty = path.getSimpleProperty();</span>
+<span class="source-line-no">455</span><span id="line-455">    if (simpleProperty != null) {</span>
+<span class="source-line-no">456</span><span id="line-456">      return replaceSimpleProperty(rootNode, simpleProperty, newValue);</span>
+<span class="source-line-no">457</span><span id="line-457">    }</span>
+<span class="source-line-no">458</span><span id="line-458">    return rootNode; // Return original if cannot replace complex paths</span>
+<span class="source-line-no">459</span><span id="line-459">  }</span>
+<span class="source-line-no">460</span><span id="line-460"></span>
+<span class="source-line-no">461</span><span id="line-461">  /** Replace simple property in JsonNode */</span>
+<span class="source-line-no">462</span><span id="line-462">  private JsonNode replaceSimpleProperty(JsonNode rootNode, String propertyName, String newValue) {</span>
+<span class="source-line-no">463</span><span id="line-463">    if (rootNode.isObject() &amp;&amp; rootNode.has(propertyName)) {</span>
+<span class="source-line-no">464</span><span id="line-464">      // Create a mutable copy</span>
+<span class="source-line-no">465</span><span id="line-465">      com.fasterxml.jackson.databind.node.ObjectNode objectNode =</span>
+<span class="source-line-no">466</span><span id="line-466">          (com.fasterxml.jackson.databind.node.ObjectNode) rootNode.deepCopy();</span>
+<span class="source-line-no">467</span><span id="line-467">      objectNode.put(propertyName, newValue);</span>
+<span class="source-line-no">468</span><span id="line-468">      return objectNode;</span>
+<span class="source-line-no">469</span><span id="line-469">    }</span>
+<span class="source-line-no">470</span><span id="line-470">    return rootNode;</span>
+<span class="source-line-no">471</span><span id="line-471">  }</span>
+<span class="source-line-no">472</span><span id="line-472"></span>
+<span class="source-line-no">473</span><span id="line-473">  /** Process JSON array by applying transformations to each element */</span>
+<span class="source-line-no">474</span><span id="line-474">  private JsonNode processJsonArray(JsonNode arrayNode, JSONPath jsonPath) {</span>
+<span class="source-line-no">475</span><span id="line-475">    com.fasterxml.jackson.databind.node.ArrayNode resultArray = objectMapper.createArrayNode();</span>
+<span class="source-line-no">476</span><span id="line-476"></span>
+<span class="source-line-no">477</span><span id="line-477">    for (JsonNode element : arrayNode) {</span>
+<span class="source-line-no">478</span><span id="line-478">      JsonNode modifiedElement = processSingleJsonObject(element, jsonPath);</span>
+<span class="source-line-no">479</span><span id="line-479">      resultArray.add(modifiedElement);</span>
+<span class="source-line-no">480</span><span id="line-480">    }</span>
+<span class="source-line-no">481</span><span id="line-481"></span>
+<span class="source-line-no">482</span><span id="line-482">    return resultArray;</span>
+<span class="source-line-no">483</span><span id="line-483">  }</span>
+<span class="source-line-no">484</span><span id="line-484"></span>
+<span class="source-line-no">485</span><span id="line-485">  /** Process single JSON object */</span>
+<span class="source-line-no">486</span><span id="line-486">  private JsonNode processSingleJsonObject(JsonNode objectNode, JSONPath jsonPath) {</span>
+<span class="source-line-no">487</span><span id="line-487">    // Navigate to specific property and replace it with transformed value</span>
+<span class="source-line-no">488</span><span id="line-488">    JsonNode targetNode = navigateJsonPath(objectNode, jsonPath);</span>
+<span class="source-line-no">489</span><span id="line-489"></span>
+<span class="source-line-no">490</span><span id="line-490">    if (targetNode != null &amp;&amp; !targetNode.isMissingNode()) {</span>
+<span class="source-line-no">491</span><span id="line-491">      String propertyValue = targetNode.asText();</span>
+<span class="source-line-no">492</span><span id="line-492">      String transformedValue = rule.apply(propertyValue);</span>
+<span class="source-line-no">493</span><span id="line-493"></span>
+<span class="source-line-no">494</span><span id="line-494">      // Replace the property value in the original JSON structure</span>
+<span class="source-line-no">495</span><span id="line-495">      // Note: Even if transformedValue is empty string, we should still replace it</span>
+<span class="source-line-no">496</span><span id="line-496">      return replacePropertyValue(objectNode, jsonPath, transformedValue);</span>
+<span class="source-line-no">497</span><span id="line-497">    } else {</span>
+<span class="source-line-no">498</span><span id="line-498">      // Property not found, return original object</span>
+<span class="source-line-no">499</span><span id="line-499">      return objectNode;</span>
+<span class="source-line-no">500</span><span id="line-500">    }</span>
+<span class="source-line-no">501</span><span id="line-501">  }</span>
+<span class="source-line-no">502</span><span id="line-502">}</span>
 
 
 

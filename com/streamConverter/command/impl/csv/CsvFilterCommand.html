@@ -83,7 +83,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="../../IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-27">CsvFilterCommand</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-29">CsvFilterCommand</a></span>
 <span class="extends-implements">extends <a href="../../AbstractStreamCommand.html" title="class in com.streamConverter.command">AbstractStreamCommand</a></span></div>
 <div class="block">CSV Filter Command Class
 
@@ -105,23 +105,36 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructor for CSV filtering with single column selector (assumes header exists).</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,boolean)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.streamConverter.path.CSVPath,boolean)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
  boolean&nbsp;hasHeader)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructor for CSV filtering with single column selector.</div>
-</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;columnSelectors)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Constructor for CSV filtering with multiple column selectors (assumes header exists).</div>
+<div class="block">Constructor for CSV filtering with single typed column selector.</div>
 </div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.util.List,boolean)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;columnSelectors,
- boolean&nbsp;hasHeader)</code></div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Constructor for CSV filtering with multiple column selectors.</div>
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#create(com.streamConverter.path.CSVPath)"><code>create(CSVPath)</code></a> instead</div>
+</div>
+</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String,boolean)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+ boolean&nbsp;hasHeader)</code></div>
+<div class="col-last even-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.CSVPath,boolean)"><code>CsvFilterCommand(CSVPath, boolean)</code></a> instead</div>
+</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.util.List)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;columnSelectors)</code></div>
+<div class="col-last odd-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use constructor with List&lt;CSVPath&gt; instead</div>
+</div>
+</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List,boolean)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;columnSelectors,
+ boolean&nbsp;hasHeader)</code></div>
+<div class="col-last even-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#%3Cinit%3E(java.util.List,boolean)"><code>CsvFilterCommand(List, boolean)</code></a> with CSVPath list instead</div>
+</div>
 </div>
 </div>
 </section>
@@ -131,21 +144,38 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#executeInternal(java.io.InputStream,java.io.OutputStream)" class="member-name-link">executeInternal</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CsvFilterCommand.html" title="class in com.streamConverter.command.impl.csv">CsvFilterCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#create(com.streamConverter.path.CSVPath)" class="member-name-link">create</a><wbr>(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Factory method for CSV filtering with single typed column selector (assumes header exists).</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CsvFilterCommand.html" title="class in com.streamConverter.command.impl.csv">CsvFilterCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#create(com.streamConverter.path.CSVPath,boolean)" class="member-name-link">create</a><wbr>(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
+ boolean&nbsp;hasHeader)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Factory method for CSV filtering with single typed column selector.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CsvFilterCommand.html" title="class in com.streamConverter.command.impl.csv">CsvFilterCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#create(java.util.List,boolean)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&gt;&nbsp;columnSelectors,
+ boolean&nbsp;hasHeader)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Factory method for CSV filtering with multiple typed column selectors.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#executeInternal(java.io.InputStream,java.io.OutputStream)" class="member-name-link">executeInternal</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Abstract method to be implemented by subclasses for executing the command.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCommandDetails()" class="member-name-link">getCommandDetails</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCommandDetails()" class="member-name-link">getCommandDetails</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">コマンドの詳細情報を取得します。</div>
 </div>
 </div>
@@ -174,8 +204,12 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String,boolean)">
 <h3>CsvFilterCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-39">CsvFilterCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
+</span><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-45">CsvFilterCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
  boolean&nbsp;hasHeader)</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.CSVPath,boolean)"><code>CsvFilterCommand(CSVPath, boolean)</code></a> instead</div>
+</div>
 <div class="block">Constructor for CSV filtering with single column selector.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -187,10 +221,29 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="&lt;init&gt;(com.streamConverter.path.CSVPath,boolean)">
+<h3>CsvFilterCommand</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-62">CsvFilterCommand</a></span><wbr><span class="parameters">(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
+ boolean&nbsp;hasHeader)</span></div>
+<div class="block">Constructor for CSV filtering with single typed column selector.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>columnSelector</code> - the typed CSVPath to extract</dd>
+<dd><code>hasHeader</code> - whether the CSV has a header row</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if columnSelector is null</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="&lt;init&gt;(java.util.List,boolean)">
 <h3>CsvFilterCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-54">CsvFilterCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;columnSelectors,
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
+</span><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-79">CsvFilterCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;columnSelectors,
  boolean&nbsp;hasHeader)</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#%3Cinit%3E(java.util.List,boolean)"><code>CsvFilterCommand(List, boolean)</code></a> with CSVPath list instead</div>
+</div>
 <div class="block">Constructor for CSV filtering with multiple column selectors.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -204,7 +257,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String)">
 <h3>CsvFilterCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-67">CsvFilterCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</span></div>
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
+</span><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-124">CsvFilterCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#create(com.streamConverter.path.CSVPath)"><code>create(CSVPath)</code></a> instead</div>
+</div>
 <div class="block">Constructor for CSV filtering with single column selector (assumes header exists).</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -215,7 +272,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(java.util.List)">
 <h3>CsvFilterCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-76">CsvFilterCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;columnSelectors)</span></div>
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
+</span><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-156">CsvFilterCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;columnSelectors)</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use constructor with List&lt;CSVPath&gt; instead</div>
+</div>
 <div class="block">Constructor for CSV filtering with multiple column selectors (assumes header exists).</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -232,9 +293,54 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="create(java.util.List,boolean)">
+<h3>create</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvFilterCommand.html" title="class in com.streamConverter.command.impl.csv">CsvFilterCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-114">create</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&gt;&nbsp;columnSelectors,
+ boolean&nbsp;hasHeader)</span></div>
+<div class="block">Factory method for CSV filtering with multiple typed column selectors.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>columnSelectors</code> - list of typed CSVPaths to extract</dd>
+<dd><code>hasHeader</code> - whether the CSV has a header row</dd>
+<dt>Returns:</dt>
+<dd>a CsvFilterCommand instance</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if columnSelectors is null or empty</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="create(com.streamConverter.path.CSVPath)">
+<h3>create</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvFilterCommand.html" title="class in com.streamConverter.command.impl.csv">CsvFilterCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-135">create</a></span><wbr><span class="parameters">(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector)</span></div>
+<div class="block">Factory method for CSV filtering with single typed column selector (assumes header exists).</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>columnSelector</code> - the typed CSVPath to extract</dd>
+<dt>Returns:</dt>
+<dd>a CsvFilterCommand instance</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="create(com.streamConverter.path.CSVPath,boolean)">
+<h3>create</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvFilterCommand.html" title="class in com.streamConverter.command.impl.csv">CsvFilterCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-146">create</a></span><wbr><span class="parameters">(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
+ boolean&nbsp;hasHeader)</span></div>
+<div class="block">Factory method for CSV filtering with single typed column selector.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>columnSelector</code> - the typed CSVPath to extract</dd>
+<dd><code>hasHeader</code> - whether the CSV has a header row</dd>
+<dt>Returns:</dt>
+<dd>a CsvFilterCommand instance</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="getCommandDetails()">
 <h3>getCommandDetails</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-80">getCommandDetails</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-161">getCommandDetails</a></span>()</div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#getCommandDetails()">AbstractStreamCommand</a></code></span></div>
 <div class="block">コマンドの詳細情報を取得します。
 
@@ -250,7 +356,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="executeInternal(java.io.InputStream,java.io.OutputStream)">
 <h3>executeInternal</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-85">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvFilterCommand.html#line-168">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#executeInternal(java.io.InputStream,java.io.OutputStream)">AbstractStreamCommand</a></code></span></div>

@@ -81,14 +81,22 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static <a href="../../impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">CsvNavigateCommand.</span><code><a href="../../impl/csv/CsvNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+<div class="col-second even-row-color"><span class="type-name-label">CsvNavigateCommand.</span><code><a href="../../impl/csv/CsvNavigateCommand.html#create(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
  <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Factory method for creating a CSV navigation command with explicit rule specification.</div>
+<div class="block">Factory method for creating a CSV navigation command with typed column selector and rule.</div>
 </div>
 <div class="col-first odd-row-color"><code>static <a href="../../impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">CsvNavigateCommand.</span><code><a href="../../impl/csv/CsvNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">CsvNavigateCommand.</span><code><a href="../../impl/csv/CsvNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+ <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last odd-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../../impl/csv/CsvNavigateCommand.html#create(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand.create(CSVPath, IRule)</code></a> instead</div>
+</div>
+</div>
+<div class="col-first even-row-color"><code>static <a href="../../impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">CsvNavigateCommand.</span><code><a href="../../impl/csv/CsvNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last even-row-color">
 <div class="block">Factory method for creating a CSV navigation command that processes all columns with explicit
  rule specification.</div>
 </div>
@@ -99,10 +107,18 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../../impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+<div class="col-second even-row-color"><code><a href="../../impl/csv/CsvNavigateCommand.html#%3Cinit%3E(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand</a><wbr>(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
  <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Constructor for CSV navigation with column selector and transformation rule.</div>
+<div class="block">Constructor for CSV navigation with typed column selector and transformation rule.</div>
+</div>
+<div class="col-first odd-row-color"><code>&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../../impl/csv/CsvNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+ <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last odd-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../../impl/csv/CsvNavigateCommand.html#%3Cinit%3E(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand(CSVPath, IRule)</code></a> instead</div>
+</div>
 </div>
 </div>
 </section>
@@ -116,17 +132,33 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static <a href="../../impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">JsonNavigateCommand.</span><code><a href="../../impl/json/JsonNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
+<div class="col-second even-row-color"><span class="type-name-label">JsonNavigateCommand.</span><code><a href="../../impl/json/JsonNavigateCommand.html#create(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
  <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Factory method for creating a JSON navigation command with explicit rule specification.</div>
+<div class="block">Factory method for creating a JSON navigation command with typed JSONPath and rule.</div>
+</div>
+<div class="col-first odd-row-color"><code>static <a href="../../impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">JsonNavigateCommand.</span><code><a href="../../impl/json/JsonNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
+ <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last odd-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../../impl/json/JsonNavigateCommand.html#create(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)"><code>JsonNavigateCommand.create(JSONPath, IRule)</code></a> instead</div>
+</div>
+</div>
+<div class="col-first even-row-color"><code>static <a href="../../impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">JsonNavigateCommand.</span><code><a href="../../impl/json/JsonNavigateCommand.html#createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)" class="member-name-link">createExtractValue</a><wbr>(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
+ <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Factory method for creating a JSON navigation command that extracts and transforms a specific
+ value using typed JSONPath.</div>
 </div>
 <div class="col-first odd-row-color"><code>static <a href="../../impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">JsonNavigateCommand.</span><code><a href="../../impl/json/JsonNavigateCommand.html#createExtractValue(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">createExtractValue</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
  <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Factory method for creating a JSON navigation command that extracts and transforms a specific
- value.</div>
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../../impl/json/JsonNavigateCommand.html#createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)"><code>JsonNavigateCommand.createExtractValue(JSONPath, IRule)</code></a> instead</div>
+</div>
 </div>
 <div class="col-first even-row-color"><code>static <a href="../../impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">JsonNavigateCommand.</span><code><a href="../../impl/json/JsonNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
@@ -141,18 +173,35 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../../impl/json/JsonNavigateCommand.html#%3Cinit%3E(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)" class="member-name-link">JsonNavigateCommand</a><wbr>(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
+ <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Constructor for JSON navigation with typed JSONPath selector and transformation rule.</div>
+</div>
+<div class="col-first odd-row-color"><code>&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../../impl/json/JsonNavigateCommand.html#%3Cinit%3E(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule,boolean)" class="member-name-link">JsonNavigateCommand</a><wbr>(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
+ <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule,
+ boolean&nbsp;extractValue)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">Constructor for JSON navigation with typed JSONPath selector, transformation rule, and
+ extraction mode.</div>
+</div>
+<div class="col-first even-row-color"><code>&nbsp;</code></div>
 <div class="col-second even-row-color"><code><a href="../../impl/json/JsonNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">JsonNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
  <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Constructor for JSON navigation with JSONPath selector and transformation rule.</div>
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../../impl/json/JsonNavigateCommand.html#%3Cinit%3E(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)"><code>JsonNavigateCommand(JSONPath, IRule)</code></a> instead</div>
+</div>
 </div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
 <div class="col-second odd-row-color"><code><a href="../../impl/json/JsonNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule,boolean)" class="member-name-link">JsonNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
  <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule,
  boolean&nbsp;extractValue)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Constructor for JSON navigation with JSONPath selector, transformation rule, and extraction
- mode.</div>
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../../impl/json/JsonNavigateCommand.html#%3Cinit%3E(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule,boolean)"><code>JsonNavigateCommand(JSONPath, IRule, boolean)</code></a> instead</div>
+</div>
 </div>
 </div>
 </section>
@@ -166,14 +215,22 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static <a href="../../impl/xml/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl.xml">XmlNavigateCommand</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../../impl/xml/XmlNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath,
+<div class="col-second even-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../../impl/xml/XmlNavigateCommand.html#create(com.streamConverter.path.XPath,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="../../../path/XPath.html" title="class in com.streamConverter.path">XPath</a>&nbsp;xpath,
  <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Factory method for creating an XML navigation command with explicit rule specification.</div>
+<div class="block">Factory method for creating an XML navigation command with typed XPath and rule.</div>
 </div>
 <div class="col-first odd-row-color"><code>static <a href="../../impl/xml/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl.xml">XmlNavigateCommand</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../../impl/xml/XmlNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../../impl/xml/XmlNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath,
+ <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last odd-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../../impl/xml/XmlNavigateCommand.html#create(com.streamConverter.path.XPath,com.streamConverter.command.rule.IRule)"><code>XmlNavigateCommand.create(XPath, IRule)</code></a> instead</div>
+</div>
+</div>
+<div class="col-first even-row-color"><code>static <a href="../../impl/xml/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl.xml">XmlNavigateCommand</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../../impl/xml/XmlNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last even-row-color">
 <div class="block">Factory method for creating an XML navigation command that processes entire XML with explicit
  rule specification.</div>
 </div>
@@ -190,10 +247,18 @@ loadScripts(document, 'script');</script>
 <div class="block">デフォルトコンストラクタ</div>
 </div>
 <div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../../impl/xml/XmlNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">XmlNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath,
+<div class="col-second odd-row-color"><code><a href="../../impl/xml/XmlNavigateCommand.html#%3Cinit%3E(com.streamConverter.path.XPath,com.streamConverter.command.rule.IRule)" class="member-name-link">XmlNavigateCommand</a><wbr>(<a href="../../../path/XPath.html" title="class in com.streamConverter.path">XPath</a>&nbsp;xpath,
  <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Constructor for XML navigation with XPath selector and transformation rule.</div>
+<div class="block">Constructor for XML navigation with typed XPath selector and transformation rule.</div>
+</div>
+<div class="col-first even-row-color"><code>&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../../impl/xml/XmlNavigateCommand.html#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">XmlNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath,
+ <a href="../IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last even-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../../impl/xml/XmlNavigateCommand.html#%3Cinit%3E(com.streamConverter.path.XPath,com.streamConverter.command.rule.IRule)"><code>XmlNavigateCommand(XPath, IRule)</code></a> instead</div>
+</div>
 </div>
 </div>
 </section>

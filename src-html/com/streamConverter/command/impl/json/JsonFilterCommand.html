@@ -14,244 +14,265 @@
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamConverter.command.impl.json;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
 <span class="source-line-no">003</span><span id="line-3">import com.streamConverter.command.AbstractStreamCommand;</span>
-<span class="source-line-no">004</span><span id="line-4">import java.io.BufferedReader;</span>
-<span class="source-line-no">005</span><span id="line-5">import java.io.IOException;</span>
-<span class="source-line-no">006</span><span id="line-6">import java.io.InputStream;</span>
-<span class="source-line-no">007</span><span id="line-7">import java.io.InputStreamReader;</span>
-<span class="source-line-no">008</span><span id="line-8">import java.io.OutputStream;</span>
-<span class="source-line-no">009</span><span id="line-9">import java.io.OutputStreamWriter;</span>
-<span class="source-line-no">010</span><span id="line-10">import java.io.Writer;</span>
-<span class="source-line-no">011</span><span id="line-11">import java.nio.charset.StandardCharsets;</span>
-<span class="source-line-no">012</span><span id="line-12"></span>
-<span class="source-line-no">013</span><span id="line-13">/**</span>
-<span class="source-line-no">014</span><span id="line-14"> * JSON Filter Command Class</span>
-<span class="source-line-no">015</span><span id="line-15"> *</span>
-<span class="source-line-no">016</span><span id="line-16"> * &lt;p&gt;This class implements pure data extraction from JSON using JSONPath expressions. Unlike</span>
-<span class="source-line-no">017</span><span id="line-17"> * JsonNavigateCommand which applies transformations, JsonFilterCommand only extracts/filters data</span>
-<span class="source-line-no">018</span><span id="line-18"> * based on specified paths without any modifications.</span>
-<span class="source-line-no">019</span><span id="line-19"> *</span>
-<span class="source-line-no">020</span><span id="line-20"> * &lt;p&gt;Features: - Extract specific elements using JSONPath expressions - Preserve exact data types</span>
-<span class="source-line-no">021</span><span id="line-21"> * and structure of extracted elements - Memory-efficient processing for large JSON files - Support</span>
-<span class="source-line-no">022</span><span id="line-22"> * for simple path expressions</span>
-<span class="source-line-no">023</span><span id="line-23"> */</span>
-<span class="source-line-no">024</span><span id="line-24">public class JsonFilterCommand extends AbstractStreamCommand {</span>
-<span class="source-line-no">025</span><span id="line-25"></span>
-<span class="source-line-no">026</span><span id="line-26">  private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming</span>
-<span class="source-line-no">027</span><span id="line-27">  private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer</span>
-<span class="source-line-no">028</span><span id="line-28"></span>
-<span class="source-line-no">029</span><span id="line-29">  private final String jsonPath;</span>
-<span class="source-line-no">030</span><span id="line-30"></span>
-<span class="source-line-no">031</span><span id="line-31">  /**</span>
-<span class="source-line-no">032</span><span id="line-32">   * Constructor for JSON filtering with JSONPath selector.</span>
-<span class="source-line-no">033</span><span id="line-33">   *</span>
-<span class="source-line-no">034</span><span id="line-34">   * @param jsonPath the JSONPath expression to extract data (e.g., "$.users", "$.name")</span>
-<span class="source-line-no">035</span><span id="line-35">   * @throws IllegalArgumentException if jsonPath is null or empty</span>
-<span class="source-line-no">036</span><span id="line-36">   */</span>
-<span class="source-line-no">037</span><span id="line-37">  public JsonFilterCommand(String jsonPath) {</span>
-<span class="source-line-no">038</span><span id="line-38">    if (jsonPath == null || jsonPath.trim().isEmpty()) {</span>
-<span class="source-line-no">039</span><span id="line-39">      throw new IllegalArgumentException("JSONPath cannot be null or empty");</span>
-<span class="source-line-no">040</span><span id="line-40">    }</span>
-<span class="source-line-no">041</span><span id="line-41">    this.jsonPath = jsonPath.trim();</span>
-<span class="source-line-no">042</span><span id="line-42">  }</span>
-<span class="source-line-no">043</span><span id="line-43"></span>
-<span class="source-line-no">044</span><span id="line-44">  @Override</span>
-<span class="source-line-no">045</span><span id="line-45">  protected String getCommandDetails() {</span>
-<span class="source-line-no">046</span><span id="line-46">    return String.format("JsonFilterCommand(jsonPath='%s')", jsonPath);</span>
-<span class="source-line-no">047</span><span id="line-47">  }</span>
-<span class="source-line-no">048</span><span id="line-48"></span>
-<span class="source-line-no">049</span><span id="line-49">  @Override</span>
-<span class="source-line-no">050</span><span id="line-50">  protected void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
-<span class="source-line-no">051</span><span id="line-51">      throws IOException {</span>
-<span class="source-line-no">052</span><span id="line-52">    try (BufferedReader reader =</span>
-<span class="source-line-no">053</span><span id="line-53">            new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));</span>
-<span class="source-line-no">054</span><span id="line-54">        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
-<span class="source-line-no">055</span><span id="line-55"></span>
-<span class="source-line-no">056</span><span id="line-56">      // Read JSON content efficiently</span>
-<span class="source-line-no">057</span><span id="line-57">      String jsonContent = readJsonContent(reader);</span>
-<span class="source-line-no">058</span><span id="line-58"></span>
-<span class="source-line-no">059</span><span id="line-59">      if (jsonContent == null || jsonContent.trim().isEmpty()) {</span>
-<span class="source-line-no">060</span><span id="line-60">        writer.write("null");</span>
-<span class="source-line-no">061</span><span id="line-61">        writer.flush();</span>
-<span class="source-line-no">062</span><span id="line-62">        return;</span>
-<span class="source-line-no">063</span><span id="line-63">      }</span>
+<span class="source-line-no">004</span><span id="line-4">import com.streamConverter.path.JSONPath;</span>
+<span class="source-line-no">005</span><span id="line-5">import java.io.BufferedReader;</span>
+<span class="source-line-no">006</span><span id="line-6">import java.io.IOException;</span>
+<span class="source-line-no">007</span><span id="line-7">import java.io.InputStream;</span>
+<span class="source-line-no">008</span><span id="line-8">import java.io.InputStreamReader;</span>
+<span class="source-line-no">009</span><span id="line-9">import java.io.OutputStream;</span>
+<span class="source-line-no">010</span><span id="line-10">import java.io.OutputStreamWriter;</span>
+<span class="source-line-no">011</span><span id="line-11">import java.io.Writer;</span>
+<span class="source-line-no">012</span><span id="line-12">import java.nio.charset.StandardCharsets;</span>
+<span class="source-line-no">013</span><span id="line-13"></span>
+<span class="source-line-no">014</span><span id="line-14">/**</span>
+<span class="source-line-no">015</span><span id="line-15"> * JSON Filter Command Class</span>
+<span class="source-line-no">016</span><span id="line-16"> *</span>
+<span class="source-line-no">017</span><span id="line-17"> * &lt;p&gt;This class implements pure data extraction from JSON using JSONPath expressions. Unlike</span>
+<span class="source-line-no">018</span><span id="line-18"> * JsonNavigateCommand which applies transformations, JsonFilterCommand only extracts/filters data</span>
+<span class="source-line-no">019</span><span id="line-19"> * based on specified paths without any modifications.</span>
+<span class="source-line-no">020</span><span id="line-20"> *</span>
+<span class="source-line-no">021</span><span id="line-21"> * &lt;p&gt;Features: - Extract specific elements using JSONPath expressions - Preserve exact data types</span>
+<span class="source-line-no">022</span><span id="line-22"> * and structure of extracted elements - Memory-efficient processing for large JSON files - Support</span>
+<span class="source-line-no">023</span><span id="line-23"> * for simple path expressions</span>
+<span class="source-line-no">024</span><span id="line-24"> */</span>
+<span class="source-line-no">025</span><span id="line-25">public class JsonFilterCommand extends AbstractStreamCommand {</span>
+<span class="source-line-no">026</span><span id="line-26"></span>
+<span class="source-line-no">027</span><span id="line-27">  private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming</span>
+<span class="source-line-no">028</span><span id="line-28">  private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer</span>
+<span class="source-line-no">029</span><span id="line-29"></span>
+<span class="source-line-no">030</span><span id="line-30">  private final JSONPath jsonPath;</span>
+<span class="source-line-no">031</span><span id="line-31"></span>
+<span class="source-line-no">032</span><span id="line-32">  // Deprecated fields for backward compatibility</span>
+<span class="source-line-no">033</span><span id="line-33">  @Deprecated private final String legacyJsonPath;</span>
+<span class="source-line-no">034</span><span id="line-34"></span>
+<span class="source-line-no">035</span><span id="line-35">  /**</span>
+<span class="source-line-no">036</span><span id="line-36">   * Constructor for JSON filtering with JSONPath selector.</span>
+<span class="source-line-no">037</span><span id="line-37">   *</span>
+<span class="source-line-no">038</span><span id="line-38">   * @param jsonPath the JSONPath expression to extract data (e.g., "$.users", "$.name")</span>
+<span class="source-line-no">039</span><span id="line-39">   * @throws IllegalArgumentException if jsonPath is null or empty</span>
+<span class="source-line-no">040</span><span id="line-40">   * @deprecated Use {@link #JsonFilterCommand(JSONPath)} instead</span>
+<span class="source-line-no">041</span><span id="line-41">   */</span>
+<span class="source-line-no">042</span><span id="line-42">  @Deprecated</span>
+<span class="source-line-no">043</span><span id="line-43">  public JsonFilterCommand(String jsonPath) {</span>
+<span class="source-line-no">044</span><span id="line-44">    if (jsonPath == null || jsonPath.trim().isEmpty()) {</span>
+<span class="source-line-no">045</span><span id="line-45">      throw new IllegalArgumentException("JSONPath cannot be null or empty");</span>
+<span class="source-line-no">046</span><span id="line-46">    }</span>
+<span class="source-line-no">047</span><span id="line-47">    this.legacyJsonPath = jsonPath.trim();</span>
+<span class="source-line-no">048</span><span id="line-48">    this.jsonPath = new JSONPath(jsonPath.trim());</span>
+<span class="source-line-no">049</span><span id="line-49">  }</span>
+<span class="source-line-no">050</span><span id="line-50"></span>
+<span class="source-line-no">051</span><span id="line-51">  /**</span>
+<span class="source-line-no">052</span><span id="line-52">   * Constructor for JSON filtering with typed JSONPath selector.</span>
+<span class="source-line-no">053</span><span id="line-53">   *</span>
+<span class="source-line-no">054</span><span id="line-54">   * @param jsonPath the typed JSONPath to extract data</span>
+<span class="source-line-no">055</span><span id="line-55">   * @throws IllegalArgumentException if jsonPath is null</span>
+<span class="source-line-no">056</span><span id="line-56">   */</span>
+<span class="source-line-no">057</span><span id="line-57">  public JsonFilterCommand(JSONPath jsonPath) {</span>
+<span class="source-line-no">058</span><span id="line-58">    if (jsonPath == null) {</span>
+<span class="source-line-no">059</span><span id="line-59">      throw new IllegalArgumentException("JSONPath cannot be null");</span>
+<span class="source-line-no">060</span><span id="line-60">    }</span>
+<span class="source-line-no">061</span><span id="line-61">    this.jsonPath = jsonPath;</span>
+<span class="source-line-no">062</span><span id="line-62">    this.legacyJsonPath = jsonPath.getPath();</span>
+<span class="source-line-no">063</span><span id="line-63">  }</span>
 <span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">      try {</span>
-<span class="source-line-no">066</span><span id="line-66">        // Apply simple JSONPath-like extraction using lightweight parsing</span>
-<span class="source-line-no">067</span><span id="line-67">        String result = extractJsonValue(jsonContent, jsonPath);</span>
-<span class="source-line-no">068</span><span id="line-68">        writer.write(result);</span>
-<span class="source-line-no">069</span><span id="line-69">        writer.flush();</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">      } catch (Exception e) {</span>
-<span class="source-line-no">072</span><span id="line-72">        // If extraction fails, return null</span>
-<span class="source-line-no">073</span><span id="line-73">        writer.write("null");</span>
-<span class="source-line-no">074</span><span id="line-74">        writer.flush();</span>
-<span class="source-line-no">075</span><span id="line-75">      }</span>
-<span class="source-line-no">076</span><span id="line-76">    }</span>
-<span class="source-line-no">077</span><span id="line-77">  }</span>
-<span class="source-line-no">078</span><span id="line-78"></span>
-<span class="source-line-no">079</span><span id="line-79">  /**</span>
-<span class="source-line-no">080</span><span id="line-80">   * Read JSON content from reader with memory management</span>
-<span class="source-line-no">081</span><span id="line-81">   *</span>
-<span class="source-line-no">082</span><span id="line-82">   * @param reader the BufferedReader to read from</span>
-<span class="source-line-no">083</span><span id="line-83">   * @return JSON content as string, or null if empty</span>
-<span class="source-line-no">084</span><span id="line-84">   * @throws IOException if reading fails</span>
-<span class="source-line-no">085</span><span id="line-85">   */</span>
-<span class="source-line-no">086</span><span id="line-86">  private String readJsonContent(BufferedReader reader) throws IOException {</span>
-<span class="source-line-no">087</span><span id="line-87">    StringBuilder jsonBuilder = new StringBuilder();</span>
-<span class="source-line-no">088</span><span id="line-88">    char[] buffer = new char[BUFFER_SIZE];</span>
-<span class="source-line-no">089</span><span id="line-89">    int totalCharsRead = 0;</span>
-<span class="source-line-no">090</span><span id="line-90">    int charsRead;</span>
+<span class="source-line-no">065</span><span id="line-65">  @Override</span>
+<span class="source-line-no">066</span><span id="line-66">  protected String getCommandDetails() {</span>
+<span class="source-line-no">067</span><span id="line-67">    return String.format("JsonFilterCommand(jsonPath='%s')", jsonPath.getPath());</span>
+<span class="source-line-no">068</span><span id="line-68">  }</span>
+<span class="source-line-no">069</span><span id="line-69"></span>
+<span class="source-line-no">070</span><span id="line-70">  @Override</span>
+<span class="source-line-no">071</span><span id="line-71">  protected void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
+<span class="source-line-no">072</span><span id="line-72">      throws IOException {</span>
+<span class="source-line-no">073</span><span id="line-73">    try (BufferedReader reader =</span>
+<span class="source-line-no">074</span><span id="line-74">            new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));</span>
+<span class="source-line-no">075</span><span id="line-75">        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
+<span class="source-line-no">076</span><span id="line-76"></span>
+<span class="source-line-no">077</span><span id="line-77">      // Read JSON content efficiently</span>
+<span class="source-line-no">078</span><span id="line-78">      String jsonContent = readJsonContent(reader);</span>
+<span class="source-line-no">079</span><span id="line-79"></span>
+<span class="source-line-no">080</span><span id="line-80">      if (jsonContent == null || jsonContent.trim().isEmpty()) {</span>
+<span class="source-line-no">081</span><span id="line-81">        writer.write("null");</span>
+<span class="source-line-no">082</span><span id="line-82">        writer.flush();</span>
+<span class="source-line-no">083</span><span id="line-83">        return;</span>
+<span class="source-line-no">084</span><span id="line-84">      }</span>
+<span class="source-line-no">085</span><span id="line-85"></span>
+<span class="source-line-no">086</span><span id="line-86">      try {</span>
+<span class="source-line-no">087</span><span id="line-87">        // Apply simple JSONPath-like extraction using lightweight parsing</span>
+<span class="source-line-no">088</span><span id="line-88">        String result = extractJsonValue(jsonContent, jsonPath.getPath());</span>
+<span class="source-line-no">089</span><span id="line-89">        writer.write(result);</span>
+<span class="source-line-no">090</span><span id="line-90">        writer.flush();</span>
 <span class="source-line-no">091</span><span id="line-91"></span>
-<span class="source-line-no">092</span><span id="line-92">    while ((charsRead = reader.read(buffer)) != -1) {</span>
-<span class="source-line-no">093</span><span id="line-93">      totalCharsRead += charsRead;</span>
-<span class="source-line-no">094</span><span id="line-94"></span>
-<span class="source-line-no">095</span><span id="line-95">      // Memory protection: prevent reading excessively large JSON into memory</span>
-<span class="source-line-no">096</span><span id="line-96">      if (totalCharsRead &gt; MAX_MEMORY_BUFFER) {</span>
-<span class="source-line-no">097</span><span id="line-97">        throw new IOException(</span>
-<span class="source-line-no">098</span><span id="line-98">            "JSON content too large for filtering. Use streaming NavigateCommand instead.");</span>
-<span class="source-line-no">099</span><span id="line-99">      }</span>
-<span class="source-line-no">100</span><span id="line-100"></span>
-<span class="source-line-no">101</span><span id="line-101">      jsonBuilder.append(buffer, 0, charsRead);</span>
-<span class="source-line-no">102</span><span id="line-102">    }</span>
-<span class="source-line-no">103</span><span id="line-103"></span>
-<span class="source-line-no">104</span><span id="line-104">    return jsonBuilder.length() &gt; 0 ? jsonBuilder.toString() : null;</span>
-<span class="source-line-no">105</span><span id="line-105">  }</span>
-<span class="source-line-no">106</span><span id="line-106"></span>
-<span class="source-line-no">107</span><span id="line-107">  /**</span>
-<span class="source-line-no">108</span><span id="line-108">   * Extract JSON value using simple JSONPath-like expressions</span>
-<span class="source-line-no">109</span><span id="line-109">   *</span>
-<span class="source-line-no">110</span><span id="line-110">   * @param jsonContent the JSON content string</span>
-<span class="source-line-no">111</span><span id="line-111">   * @param path the JSONPath expression (simplified)</span>
-<span class="source-line-no">112</span><span id="line-112">   * @return extracted value as JSON string</span>
-<span class="source-line-no">113</span><span id="line-113">   */</span>
-<span class="source-line-no">114</span><span id="line-114">  private String extractJsonValue(String jsonContent, String path) {</span>
-<span class="source-line-no">115</span><span id="line-115">    // Handle root path</span>
-<span class="source-line-no">116</span><span id="line-116">    if ("$".equals(path)) {</span>
-<span class="source-line-no">117</span><span id="line-117">      return jsonContent.trim();</span>
-<span class="source-line-no">118</span><span id="line-118">    }</span>
-<span class="source-line-no">119</span><span id="line-119"></span>
-<span class="source-line-no">120</span><span id="line-120">    // Simple property extraction: $.property</span>
-<span class="source-line-no">121</span><span id="line-121">    if (path.startsWith("$.") &amp;&amp; !path.contains("[") &amp;&amp; path.indexOf(".", 2) == -1) {</span>
-<span class="source-line-no">122</span><span id="line-122">      String property = path.substring(2);</span>
-<span class="source-line-no">123</span><span id="line-123">      return extractSimpleProperty(jsonContent, property);</span>
-<span class="source-line-no">124</span><span id="line-124">    }</span>
-<span class="source-line-no">125</span><span id="line-125"></span>
-<span class="source-line-no">126</span><span id="line-126">    // For complex paths, return the original content for now</span>
-<span class="source-line-no">127</span><span id="line-127">    // In a full implementation, you would add array indexing, nested properties, etc.</span>
-<span class="source-line-no">128</span><span id="line-128">    return jsonContent.trim();</span>
-<span class="source-line-no">129</span><span id="line-129">  }</span>
-<span class="source-line-no">130</span><span id="line-130"></span>
-<span class="source-line-no">131</span><span id="line-131">  /**</span>
-<span class="source-line-no">132</span><span id="line-132">   * Extract a simple property from JSON content</span>
-<span class="source-line-no">133</span><span id="line-133">   *</span>
-<span class="source-line-no">134</span><span id="line-134">   * @param jsonContent JSON string</span>
-<span class="source-line-no">135</span><span id="line-135">   * @param property property name to extract</span>
-<span class="source-line-no">136</span><span id="line-136">   * @return property value as JSON string or "null" if not found</span>
-<span class="source-line-no">137</span><span id="line-137">   */</span>
-<span class="source-line-no">138</span><span id="line-138">  private String extractSimpleProperty(String jsonContent, String property) {</span>
-<span class="source-line-no">139</span><span id="line-139">    String searchPattern = "\"" + property + "\":";</span>
-<span class="source-line-no">140</span><span id="line-140">    int propertyStart = jsonContent.indexOf(searchPattern);</span>
-<span class="source-line-no">141</span><span id="line-141"></span>
-<span class="source-line-no">142</span><span id="line-142">    if (propertyStart == -1) {</span>
-<span class="source-line-no">143</span><span id="line-143">      return "null"; // Property not found</span>
-<span class="source-line-no">144</span><span id="line-144">    }</span>
-<span class="source-line-no">145</span><span id="line-145"></span>
-<span class="source-line-no">146</span><span id="line-146">    // Find the start of the value</span>
-<span class="source-line-no">147</span><span id="line-147">    int colonIndex = propertyStart + searchPattern.length();</span>
-<span class="source-line-no">148</span><span id="line-148">    int valueStart = colonIndex;</span>
-<span class="source-line-no">149</span><span id="line-149">    while (valueStart &lt; jsonContent.length()</span>
-<span class="source-line-no">150</span><span id="line-150">        &amp;&amp; Character.isWhitespace(jsonContent.charAt(valueStart))) {</span>
-<span class="source-line-no">151</span><span id="line-151">      valueStart++;</span>
-<span class="source-line-no">152</span><span id="line-152">    }</span>
-<span class="source-line-no">153</span><span id="line-153"></span>
-<span class="source-line-no">154</span><span id="line-154">    if (valueStart &gt;= jsonContent.length()) {</span>
-<span class="source-line-no">155</span><span id="line-155">      return "null";</span>
-<span class="source-line-no">156</span><span id="line-156">    }</span>
-<span class="source-line-no">157</span><span id="line-157"></span>
-<span class="source-line-no">158</span><span id="line-158">    // Extract the value based on its type</span>
-<span class="source-line-no">159</span><span id="line-159">    char firstChar = jsonContent.charAt(valueStart);</span>
-<span class="source-line-no">160</span><span id="line-160"></span>
-<span class="source-line-no">161</span><span id="line-161">    if (firstChar == '"') {</span>
-<span class="source-line-no">162</span><span id="line-162">      // String value</span>
-<span class="source-line-no">163</span><span id="line-163">      return extractQuotedString(jsonContent, valueStart);</span>
-<span class="source-line-no">164</span><span id="line-164">    } else if (firstChar == '{') {</span>
-<span class="source-line-no">165</span><span id="line-165">      // Object value</span>
-<span class="source-line-no">166</span><span id="line-166">      return extractJsonObject(jsonContent, valueStart);</span>
-<span class="source-line-no">167</span><span id="line-167">    } else if (firstChar == '[') {</span>
-<span class="source-line-no">168</span><span id="line-168">      // Array value</span>
-<span class="source-line-no">169</span><span id="line-169">      return extractJsonArray(jsonContent, valueStart);</span>
-<span class="source-line-no">170</span><span id="line-170">    } else {</span>
-<span class="source-line-no">171</span><span id="line-171">      // Number, boolean, or null</span>
-<span class="source-line-no">172</span><span id="line-172">      return extractSimpleValue(jsonContent, valueStart);</span>
+<span class="source-line-no">092</span><span id="line-92">      } catch (Exception e) {</span>
+<span class="source-line-no">093</span><span id="line-93">        // If extraction fails, return null</span>
+<span class="source-line-no">094</span><span id="line-94">        writer.write("null");</span>
+<span class="source-line-no">095</span><span id="line-95">        writer.flush();</span>
+<span class="source-line-no">096</span><span id="line-96">      }</span>
+<span class="source-line-no">097</span><span id="line-97">    }</span>
+<span class="source-line-no">098</span><span id="line-98">  }</span>
+<span class="source-line-no">099</span><span id="line-99"></span>
+<span class="source-line-no">100</span><span id="line-100">  /**</span>
+<span class="source-line-no">101</span><span id="line-101">   * Read JSON content from reader with memory management</span>
+<span class="source-line-no">102</span><span id="line-102">   *</span>
+<span class="source-line-no">103</span><span id="line-103">   * @param reader the BufferedReader to read from</span>
+<span class="source-line-no">104</span><span id="line-104">   * @return JSON content as string, or null if empty</span>
+<span class="source-line-no">105</span><span id="line-105">   * @throws IOException if reading fails</span>
+<span class="source-line-no">106</span><span id="line-106">   */</span>
+<span class="source-line-no">107</span><span id="line-107">  private String readJsonContent(BufferedReader reader) throws IOException {</span>
+<span class="source-line-no">108</span><span id="line-108">    StringBuilder jsonBuilder = new StringBuilder();</span>
+<span class="source-line-no">109</span><span id="line-109">    char[] buffer = new char[BUFFER_SIZE];</span>
+<span class="source-line-no">110</span><span id="line-110">    int totalCharsRead = 0;</span>
+<span class="source-line-no">111</span><span id="line-111">    int charsRead;</span>
+<span class="source-line-no">112</span><span id="line-112"></span>
+<span class="source-line-no">113</span><span id="line-113">    while ((charsRead = reader.read(buffer)) != -1) {</span>
+<span class="source-line-no">114</span><span id="line-114">      totalCharsRead += charsRead;</span>
+<span class="source-line-no">115</span><span id="line-115"></span>
+<span class="source-line-no">116</span><span id="line-116">      // Memory protection: prevent reading excessively large JSON into memory</span>
+<span class="source-line-no">117</span><span id="line-117">      if (totalCharsRead &gt; MAX_MEMORY_BUFFER) {</span>
+<span class="source-line-no">118</span><span id="line-118">        throw new IOException(</span>
+<span class="source-line-no">119</span><span id="line-119">            "JSON content too large for filtering. Use streaming NavigateCommand instead.");</span>
+<span class="source-line-no">120</span><span id="line-120">      }</span>
+<span class="source-line-no">121</span><span id="line-121"></span>
+<span class="source-line-no">122</span><span id="line-122">      jsonBuilder.append(buffer, 0, charsRead);</span>
+<span class="source-line-no">123</span><span id="line-123">    }</span>
+<span class="source-line-no">124</span><span id="line-124"></span>
+<span class="source-line-no">125</span><span id="line-125">    return jsonBuilder.length() &gt; 0 ? jsonBuilder.toString() : null;</span>
+<span class="source-line-no">126</span><span id="line-126">  }</span>
+<span class="source-line-no">127</span><span id="line-127"></span>
+<span class="source-line-no">128</span><span id="line-128">  /**</span>
+<span class="source-line-no">129</span><span id="line-129">   * Extract JSON value using simple JSONPath-like expressions</span>
+<span class="source-line-no">130</span><span id="line-130">   *</span>
+<span class="source-line-no">131</span><span id="line-131">   * @param jsonContent the JSON content string</span>
+<span class="source-line-no">132</span><span id="line-132">   * @param path the JSONPath expression (simplified)</span>
+<span class="source-line-no">133</span><span id="line-133">   * @return extracted value as JSON string</span>
+<span class="source-line-no">134</span><span id="line-134">   */</span>
+<span class="source-line-no">135</span><span id="line-135">  private String extractJsonValue(String jsonContent, String path) {</span>
+<span class="source-line-no">136</span><span id="line-136">    // Handle root path</span>
+<span class="source-line-no">137</span><span id="line-137">    if ("$".equals(path)) {</span>
+<span class="source-line-no">138</span><span id="line-138">      return jsonContent.trim();</span>
+<span class="source-line-no">139</span><span id="line-139">    }</span>
+<span class="source-line-no">140</span><span id="line-140"></span>
+<span class="source-line-no">141</span><span id="line-141">    // Simple property extraction: $.property</span>
+<span class="source-line-no">142</span><span id="line-142">    if (path.startsWith("$.") &amp;&amp; !path.contains("[") &amp;&amp; path.indexOf(".", 2) == -1) {</span>
+<span class="source-line-no">143</span><span id="line-143">      String property = path.substring(2);</span>
+<span class="source-line-no">144</span><span id="line-144">      return extractSimpleProperty(jsonContent, property);</span>
+<span class="source-line-no">145</span><span id="line-145">    }</span>
+<span class="source-line-no">146</span><span id="line-146"></span>
+<span class="source-line-no">147</span><span id="line-147">    // For complex paths, return the original content for now</span>
+<span class="source-line-no">148</span><span id="line-148">    // In a full implementation, you would add array indexing, nested properties, etc.</span>
+<span class="source-line-no">149</span><span id="line-149">    return jsonContent.trim();</span>
+<span class="source-line-no">150</span><span id="line-150">  }</span>
+<span class="source-line-no">151</span><span id="line-151"></span>
+<span class="source-line-no">152</span><span id="line-152">  /**</span>
+<span class="source-line-no">153</span><span id="line-153">   * Extract a simple property from JSON content</span>
+<span class="source-line-no">154</span><span id="line-154">   *</span>
+<span class="source-line-no">155</span><span id="line-155">   * @param jsonContent JSON string</span>
+<span class="source-line-no">156</span><span id="line-156">   * @param property property name to extract</span>
+<span class="source-line-no">157</span><span id="line-157">   * @return property value as JSON string or "null" if not found</span>
+<span class="source-line-no">158</span><span id="line-158">   */</span>
+<span class="source-line-no">159</span><span id="line-159">  private String extractSimpleProperty(String jsonContent, String property) {</span>
+<span class="source-line-no">160</span><span id="line-160">    String searchPattern = "\"" + property + "\":";</span>
+<span class="source-line-no">161</span><span id="line-161">    int propertyStart = jsonContent.indexOf(searchPattern);</span>
+<span class="source-line-no">162</span><span id="line-162"></span>
+<span class="source-line-no">163</span><span id="line-163">    if (propertyStart == -1) {</span>
+<span class="source-line-no">164</span><span id="line-164">      return "null"; // Property not found</span>
+<span class="source-line-no">165</span><span id="line-165">    }</span>
+<span class="source-line-no">166</span><span id="line-166"></span>
+<span class="source-line-no">167</span><span id="line-167">    // Find the start of the value</span>
+<span class="source-line-no">168</span><span id="line-168">    int colonIndex = propertyStart + searchPattern.length();</span>
+<span class="source-line-no">169</span><span id="line-169">    int valueStart = colonIndex;</span>
+<span class="source-line-no">170</span><span id="line-170">    while (valueStart &lt; jsonContent.length()</span>
+<span class="source-line-no">171</span><span id="line-171">        &amp;&amp; Character.isWhitespace(jsonContent.charAt(valueStart))) {</span>
+<span class="source-line-no">172</span><span id="line-172">      valueStart++;</span>
 <span class="source-line-no">173</span><span id="line-173">    }</span>
-<span class="source-line-no">174</span><span id="line-174">  }</span>
-<span class="source-line-no">175</span><span id="line-175"></span>
-<span class="source-line-no">176</span><span id="line-176">  private String extractQuotedString(String json, int start) {</span>
-<span class="source-line-no">177</span><span id="line-177">    StringBuilder result = new StringBuilder();</span>
-<span class="source-line-no">178</span><span id="line-178">    result.append('"');</span>
-<span class="source-line-no">179</span><span id="line-179">    int i = start + 1; // Skip opening quote</span>
-<span class="source-line-no">180</span><span id="line-180"></span>
-<span class="source-line-no">181</span><span id="line-181">    while (i &lt; json.length()) {</span>
-<span class="source-line-no">182</span><span id="line-182">      char c = json.charAt(i);</span>
-<span class="source-line-no">183</span><span id="line-183">      if (c == '"' &amp;&amp; (i == start + 1 || json.charAt(i - 1) != '\\')) {</span>
-<span class="source-line-no">184</span><span id="line-184">        result.append('"');</span>
-<span class="source-line-no">185</span><span id="line-185">        break;</span>
-<span class="source-line-no">186</span><span id="line-186">      }</span>
-<span class="source-line-no">187</span><span id="line-187">      result.append(c);</span>
-<span class="source-line-no">188</span><span id="line-188">      i++;</span>
-<span class="source-line-no">189</span><span id="line-189">    }</span>
-<span class="source-line-no">190</span><span id="line-190"></span>
-<span class="source-line-no">191</span><span id="line-191">    return result.toString();</span>
-<span class="source-line-no">192</span><span id="line-192">  }</span>
-<span class="source-line-no">193</span><span id="line-193"></span>
-<span class="source-line-no">194</span><span id="line-194">  private String extractJsonObject(String json, int start) {</span>
-<span class="source-line-no">195</span><span id="line-195">    StringBuilder result = new StringBuilder();</span>
-<span class="source-line-no">196</span><span id="line-196">    int braceCount = 0;</span>
-<span class="source-line-no">197</span><span id="line-197"></span>
-<span class="source-line-no">198</span><span id="line-198">    for (int i = start; i &lt; json.length(); i++) {</span>
-<span class="source-line-no">199</span><span id="line-199">      char c = json.charAt(i);</span>
-<span class="source-line-no">200</span><span id="line-200">      result.append(c);</span>
+<span class="source-line-no">174</span><span id="line-174"></span>
+<span class="source-line-no">175</span><span id="line-175">    if (valueStart &gt;= jsonContent.length()) {</span>
+<span class="source-line-no">176</span><span id="line-176">      return "null";</span>
+<span class="source-line-no">177</span><span id="line-177">    }</span>
+<span class="source-line-no">178</span><span id="line-178"></span>
+<span class="source-line-no">179</span><span id="line-179">    // Extract the value based on its type</span>
+<span class="source-line-no">180</span><span id="line-180">    char firstChar = jsonContent.charAt(valueStart);</span>
+<span class="source-line-no">181</span><span id="line-181"></span>
+<span class="source-line-no">182</span><span id="line-182">    if (firstChar == '"') {</span>
+<span class="source-line-no">183</span><span id="line-183">      // String value</span>
+<span class="source-line-no">184</span><span id="line-184">      return extractQuotedString(jsonContent, valueStart);</span>
+<span class="source-line-no">185</span><span id="line-185">    } else if (firstChar == '{') {</span>
+<span class="source-line-no">186</span><span id="line-186">      // Object value</span>
+<span class="source-line-no">187</span><span id="line-187">      return extractJsonObject(jsonContent, valueStart);</span>
+<span class="source-line-no">188</span><span id="line-188">    } else if (firstChar == '[') {</span>
+<span class="source-line-no">189</span><span id="line-189">      // Array value</span>
+<span class="source-line-no">190</span><span id="line-190">      return extractJsonArray(jsonContent, valueStart);</span>
+<span class="source-line-no">191</span><span id="line-191">    } else {</span>
+<span class="source-line-no">192</span><span id="line-192">      // Number, boolean, or null</span>
+<span class="source-line-no">193</span><span id="line-193">      return extractSimpleValue(jsonContent, valueStart);</span>
+<span class="source-line-no">194</span><span id="line-194">    }</span>
+<span class="source-line-no">195</span><span id="line-195">  }</span>
+<span class="source-line-no">196</span><span id="line-196"></span>
+<span class="source-line-no">197</span><span id="line-197">  private String extractQuotedString(String json, int start) {</span>
+<span class="source-line-no">198</span><span id="line-198">    StringBuilder result = new StringBuilder();</span>
+<span class="source-line-no">199</span><span id="line-199">    result.append('"');</span>
+<span class="source-line-no">200</span><span id="line-200">    int i = start + 1; // Skip opening quote</span>
 <span class="source-line-no">201</span><span id="line-201"></span>
-<span class="source-line-no">202</span><span id="line-202">      if (c == '{') braceCount++;</span>
-<span class="source-line-no">203</span><span id="line-203">      else if (c == '}') braceCount--;</span>
-<span class="source-line-no">204</span><span id="line-204"></span>
-<span class="source-line-no">205</span><span id="line-205">      if (braceCount == 0) break;</span>
-<span class="source-line-no">206</span><span id="line-206">    }</span>
-<span class="source-line-no">207</span><span id="line-207"></span>
-<span class="source-line-no">208</span><span id="line-208">    return result.toString();</span>
-<span class="source-line-no">209</span><span id="line-209">  }</span>
-<span class="source-line-no">210</span><span id="line-210"></span>
-<span class="source-line-no">211</span><span id="line-211">  private String extractJsonArray(String json, int start) {</span>
-<span class="source-line-no">212</span><span id="line-212">    StringBuilder result = new StringBuilder();</span>
-<span class="source-line-no">213</span><span id="line-213">    int bracketCount = 0;</span>
+<span class="source-line-no">202</span><span id="line-202">    while (i &lt; json.length()) {</span>
+<span class="source-line-no">203</span><span id="line-203">      char c = json.charAt(i);</span>
+<span class="source-line-no">204</span><span id="line-204">      if (c == '"' &amp;&amp; (i == start + 1 || json.charAt(i - 1) != '\\')) {</span>
+<span class="source-line-no">205</span><span id="line-205">        result.append('"');</span>
+<span class="source-line-no">206</span><span id="line-206">        break;</span>
+<span class="source-line-no">207</span><span id="line-207">      }</span>
+<span class="source-line-no">208</span><span id="line-208">      result.append(c);</span>
+<span class="source-line-no">209</span><span id="line-209">      i++;</span>
+<span class="source-line-no">210</span><span id="line-210">    }</span>
+<span class="source-line-no">211</span><span id="line-211"></span>
+<span class="source-line-no">212</span><span id="line-212">    return result.toString();</span>
+<span class="source-line-no">213</span><span id="line-213">  }</span>
 <span class="source-line-no">214</span><span id="line-214"></span>
-<span class="source-line-no">215</span><span id="line-215">    for (int i = start; i &lt; json.length(); i++) {</span>
-<span class="source-line-no">216</span><span id="line-216">      char c = json.charAt(i);</span>
-<span class="source-line-no">217</span><span id="line-217">      result.append(c);</span>
+<span class="source-line-no">215</span><span id="line-215">  private String extractJsonObject(String json, int start) {</span>
+<span class="source-line-no">216</span><span id="line-216">    StringBuilder result = new StringBuilder();</span>
+<span class="source-line-no">217</span><span id="line-217">    int braceCount = 0;</span>
 <span class="source-line-no">218</span><span id="line-218"></span>
-<span class="source-line-no">219</span><span id="line-219">      if (c == '[') bracketCount++;</span>
-<span class="source-line-no">220</span><span id="line-220">      else if (c == ']') bracketCount--;</span>
-<span class="source-line-no">221</span><span id="line-221"></span>
-<span class="source-line-no">222</span><span id="line-222">      if (bracketCount == 0) break;</span>
-<span class="source-line-no">223</span><span id="line-223">    }</span>
-<span class="source-line-no">224</span><span id="line-224"></span>
-<span class="source-line-no">225</span><span id="line-225">    return result.toString();</span>
-<span class="source-line-no">226</span><span id="line-226">  }</span>
-<span class="source-line-no">227</span><span id="line-227"></span>
-<span class="source-line-no">228</span><span id="line-228">  private String extractSimpleValue(String json, int start) {</span>
-<span class="source-line-no">229</span><span id="line-229">    StringBuilder result = new StringBuilder();</span>
-<span class="source-line-no">230</span><span id="line-230"></span>
-<span class="source-line-no">231</span><span id="line-231">    for (int i = start; i &lt; json.length(); i++) {</span>
-<span class="source-line-no">232</span><span id="line-232">      char c = json.charAt(i);</span>
-<span class="source-line-no">233</span><span id="line-233">      if (c == ',' || c == '}' || c == ']' || Character.isWhitespace(c)) {</span>
-<span class="source-line-no">234</span><span id="line-234">        break;</span>
-<span class="source-line-no">235</span><span id="line-235">      }</span>
-<span class="source-line-no">236</span><span id="line-236">      result.append(c);</span>
-<span class="source-line-no">237</span><span id="line-237">    }</span>
-<span class="source-line-no">238</span><span id="line-238"></span>
-<span class="source-line-no">239</span><span id="line-239">    return result.toString();</span>
-<span class="source-line-no">240</span><span id="line-240">  }</span>
-<span class="source-line-no">241</span><span id="line-241">}</span>
+<span class="source-line-no">219</span><span id="line-219">    for (int i = start; i &lt; json.length(); i++) {</span>
+<span class="source-line-no">220</span><span id="line-220">      char c = json.charAt(i);</span>
+<span class="source-line-no">221</span><span id="line-221">      result.append(c);</span>
+<span class="source-line-no">222</span><span id="line-222"></span>
+<span class="source-line-no">223</span><span id="line-223">      if (c == '{') braceCount++;</span>
+<span class="source-line-no">224</span><span id="line-224">      else if (c == '}') braceCount--;</span>
+<span class="source-line-no">225</span><span id="line-225"></span>
+<span class="source-line-no">226</span><span id="line-226">      if (braceCount == 0) break;</span>
+<span class="source-line-no">227</span><span id="line-227">    }</span>
+<span class="source-line-no">228</span><span id="line-228"></span>
+<span class="source-line-no">229</span><span id="line-229">    return result.toString();</span>
+<span class="source-line-no">230</span><span id="line-230">  }</span>
+<span class="source-line-no">231</span><span id="line-231"></span>
+<span class="source-line-no">232</span><span id="line-232">  private String extractJsonArray(String json, int start) {</span>
+<span class="source-line-no">233</span><span id="line-233">    StringBuilder result = new StringBuilder();</span>
+<span class="source-line-no">234</span><span id="line-234">    int bracketCount = 0;</span>
+<span class="source-line-no">235</span><span id="line-235"></span>
+<span class="source-line-no">236</span><span id="line-236">    for (int i = start; i &lt; json.length(); i++) {</span>
+<span class="source-line-no">237</span><span id="line-237">      char c = json.charAt(i);</span>
+<span class="source-line-no">238</span><span id="line-238">      result.append(c);</span>
+<span class="source-line-no">239</span><span id="line-239"></span>
+<span class="source-line-no">240</span><span id="line-240">      if (c == '[') bracketCount++;</span>
+<span class="source-line-no">241</span><span id="line-241">      else if (c == ']') bracketCount--;</span>
+<span class="source-line-no">242</span><span id="line-242"></span>
+<span class="source-line-no">243</span><span id="line-243">      if (bracketCount == 0) break;</span>
+<span class="source-line-no">244</span><span id="line-244">    }</span>
+<span class="source-line-no">245</span><span id="line-245"></span>
+<span class="source-line-no">246</span><span id="line-246">    return result.toString();</span>
+<span class="source-line-no">247</span><span id="line-247">  }</span>
+<span class="source-line-no">248</span><span id="line-248"></span>
+<span class="source-line-no">249</span><span id="line-249">  private String extractSimpleValue(String json, int start) {</span>
+<span class="source-line-no">250</span><span id="line-250">    StringBuilder result = new StringBuilder();</span>
+<span class="source-line-no">251</span><span id="line-251"></span>
+<span class="source-line-no">252</span><span id="line-252">    for (int i = start; i &lt; json.length(); i++) {</span>
+<span class="source-line-no">253</span><span id="line-253">      char c = json.charAt(i);</span>
+<span class="source-line-no">254</span><span id="line-254">      if (c == ',' || c == '}' || c == ']' || Character.isWhitespace(c)) {</span>
+<span class="source-line-no">255</span><span id="line-255">        break;</span>
+<span class="source-line-no">256</span><span id="line-256">      }</span>
+<span class="source-line-no">257</span><span id="line-257">      result.append(c);</span>
+<span class="source-line-no">258</span><span id="line-258">    }</span>
+<span class="source-line-no">259</span><span id="line-259"></span>
+<span class="source-line-no">260</span><span id="line-260">    return result.toString();</span>
+<span class="source-line-no">261</span><span id="line-261">  }</span>
+<span class="source-line-no">262</span><span id="line-262">}</span>
 
 
 

@@ -83,7 +83,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="../../IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-21">CsvNavigateCommand</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-22">CsvNavigateCommand</a></span>
 <span class="extends-implements">extends <a href="../../AbstractStreamCommand.html" title="class in com.streamConverter.command">AbstractStreamCommand</a></span></div>
 <div class="block">CSV Navigate Command Class
 
@@ -101,10 +101,17 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand</a><wbr>(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Constructor for CSV navigation with column selector and transformation rule.</div>
+<div class="block">Constructor for CSV navigation with typed column selector and transformation rule.</div>
+</div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+ <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last odd-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand(CSVPath, IRule)</code></a> instead</div>
+</div>
 </div>
 </div>
 </section>
@@ -114,33 +121,41 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button><button id="method-summary-table-tab6" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab6', 3)" class="table-tab">Deprecated Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#create(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Factory method for creating a CSV navigation command with explicit rule specification.</div>
+<div class="block">Factory method for creating a CSV navigation command with typed column selector and rule.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code>static <a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+ <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#create(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)"><code>create(CSVPath, IRule)</code></a> instead</div>
+</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Factory method for creating a CSV navigation command that processes all columns with explicit
  rule specification.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#executeInternal(java.io.InputStream,java.io.OutputStream)" class="member-name-link">executeInternal</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#executeInternal(java.io.InputStream,java.io.OutputStream)" class="member-name-link">executeInternal</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Abstract method to be implemented by subclasses for executing the command.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCommandDetails()" class="member-name-link">getCommandDetails</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCommandDetails()" class="member-name-link">getCommandDetails</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">コマンドの詳細情報を取得します。</div>
 </div>
 </div>
@@ -169,12 +184,31 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String,com.streamConverter.command.rule.IRule)">
 <h3>CsvNavigateCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-34">CsvNavigateCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
+</span><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-39">CsvNavigateCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)"><code>CsvNavigateCommand(CSVPath, IRule)</code></a> instead</div>
+</div>
 <div class="block">Constructor for CSV navigation with column selector and transformation rule.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>columnSelector</code> - the column name or index to select (e.g., "name", "2")</dd>
+<dd><code>rule</code> - the transformation rule to apply to selected column</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="&lt;init&gt;(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)">
+<h3>CsvNavigateCommand</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-56">CsvNavigateCommand</a></span><wbr><span class="parameters">(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
+ <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
+<div class="block">Constructor for CSV navigation with typed column selector and transformation rule.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>columnSelector</code> - the typed CSVPath to select column</dd>
 <dd><code>rule</code> - the transformation rule to apply to selected column</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
@@ -192,8 +226,12 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="create(java.lang.String,com.streamConverter.command.rule.IRule)">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-52">create</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
+</span><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-76">create</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#create(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)"><code>create(CSVPath, IRule)</code></a> instead</div>
+</div>
 <div class="block">Factory method for creating a CSV navigation command with explicit rule specification. This
  method makes the intention explicit: extract data from the specified column and apply the given
  transformation rule.</div>
@@ -209,9 +247,26 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="create(com.streamConverter.path.CSVPath,com.streamConverter.command.rule.IRule)">
+<h3>create</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-89">create</a></span><wbr><span class="parameters">(<a href="../../../path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a>&nbsp;columnSelector,
+ <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
+<div class="block">Factory method for creating a CSV navigation command with typed column selector and rule.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>columnSelector</code> - the typed CSVPath to select column</dd>
+<dd><code>rule</code> - the transformation rule to apply to selected column data</dd>
+<dt>Returns:</dt>
+<dd>a CsvNavigateCommand that extracts the specified column with the given rule</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="createForAll(com.streamConverter.command.rule.IRule)">
 <h3>createForAll</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-65">createForAll</a></span><wbr><span class="parameters">(<a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-102">createForAll</a></span><wbr><span class="parameters">(<a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Factory method for creating a CSV navigation command that processes all columns with explicit
  rule specification. This method makes the intention explicit: process all CSV data with the
  given transformation rule.</div>
@@ -228,7 +283,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getCommandDetails()">
 <h3>getCommandDetails</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-69">getCommandDetails</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-106">getCommandDetails</a></span>()</div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#getCommandDetails()">AbstractStreamCommand</a></code></span></div>
 <div class="block">コマンドの詳細情報を取得します。
 
@@ -244,7 +299,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="executeInternal(java.io.InputStream,java.io.OutputStream)">
 <h3>executeInternal</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-79">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/csv/CsvNavigateCommand.html#line-116">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#executeInternal(java.io.InputStream,java.io.OutputStream)">AbstractStreamCommand</a></code></span></div>

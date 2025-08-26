@@ -69,14 +69,22 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><code>static <a href="../XmlNavigateCommand.html" title="class in com.streamConverter.command.impl.xml">XmlNavigateCommand</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../XmlNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath,
+<div class="col-second even-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../XmlNavigateCommand.html#create(com.streamConverter.path.XPath,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="../../../../path/XPath.html" title="class in com.streamConverter.path">XPath</a>&nbsp;xpath,
  <a href="../../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Factory method for creating an XML navigation command with explicit rule specification.</div>
+<div class="block">Factory method for creating an XML navigation command with typed XPath and rule.</div>
 </div>
 <div class="col-first odd-row-color"><code>static <a href="../XmlNavigateCommand.html" title="class in com.streamConverter.command.impl.xml">XmlNavigateCommand</a></code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../XmlNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../XmlNavigateCommand.html#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xpath,
+ <a href="../../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last odd-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../XmlNavigateCommand.html#create(com.streamConverter.path.XPath,com.streamConverter.command.rule.IRule)"><code>create(XPath, IRule)</code></a> instead</div>
+</div>
+</div>
+<div class="col-first even-row-color"><code>static <a href="../XmlNavigateCommand.html" title="class in com.streamConverter.command.impl.xml">XmlNavigateCommand</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">XmlNavigateCommand.</span><code><a href="../XmlNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-last even-row-color">
 <div class="block">Factory method for creating an XML navigation command that processes entire XML with explicit
  rule specification.</div>
 </div>

@@ -343,6 +343,18 @@ tasks.spotbugsMain {
     }
 }
 
+tasks.spotbugsTest {
+    ignoreFailures = true // テストコードのSpotBugs違反があってもビルドを継続
+    reports.create("html") {
+        required.set(true)
+        outputLocation.set(file("build/reports/spotbugs/test.html"))
+    }
+    reports.create("xml") {
+        required.set(true) 
+        outputLocation.set(file("build/reports/spotbugs/test.xml"))
+    }
+}
+
 // check タスクの実行時に spotlessApply を依存タスクとして実行する
 tasks.named("check") {
     dependsOn("spotlessApply")

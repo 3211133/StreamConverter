@@ -195,119 +195,75 @@
 <span class="source-line-no">182</span><span id="line-182">   */</span>
 <span class="source-line-no">183</span><span id="line-183">  @Override</span>
 <span class="source-line-no">184</span><span id="line-184">  public String apply(String input) {</span>
-<span class="source-line-no">185</span><span id="line-185">    Connection connection = null;</span>
-<span class="source-line-no">186</span><span id="line-186">    PreparedStatement statement = null;</span>
-<span class="source-line-no">187</span><span id="line-187">    ResultSet resultSet = null;</span>
-<span class="source-line-no">188</span><span id="line-188"></span>
-<span class="source-line-no">189</span><span id="line-189">    try {</span>
-<span class="source-line-no">190</span><span id="line-190">      // データベース接続</span>
-<span class="source-line-no">191</span><span id="line-191">      logger.debug("データベースに接続: {}", databaseUrl);</span>
-<span class="source-line-no">192</span><span id="line-192">      connection = DriverManager.getConnection(databaseUrl);</span>
-<span class="source-line-no">193</span><span id="line-193"></span>
-<span class="source-line-no">194</span><span id="line-194">      // クエリの準備</span>
-<span class="source-line-no">195</span><span id="line-195">      statement = connection.prepareStatement(query);</span>
-<span class="source-line-no">196</span><span id="line-196"></span>
-<span class="source-line-no">197</span><span id="line-197">      // 入力文字列をパラメータとして設定（クエリに「?」プレースホルダーがある場合）</span>
-<span class="source-line-no">198</span><span id="line-198">      if (query.contains("?") &amp;&amp; input != null &amp;&amp; !input.isEmpty()) {</span>
-<span class="source-line-no">199</span><span id="line-199">        // 入力値のサニタイズとセキュリティチェック</span>
-<span class="source-line-no">200</span><span id="line-200">        String sanitizedInput = sanitizeInput(input);</span>
-<span class="source-line-no">201</span><span id="line-201">        if (sanitizedInput == null || sanitizedInput.isEmpty()) {</span>
-<span class="source-line-no">202</span><span id="line-202">          logger.warn(</span>
-<span class="source-line-no">203</span><span id="line-203">              "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",</span>
-<span class="source-line-no">204</span><span id="line-204">              input);</span>
-<span class="source-line-no">205</span><span id="line-205">          return "";</span>
-<span class="source-line-no">206</span><span id="line-206">        }</span>
-<span class="source-line-no">207</span><span id="line-207"></span>
-<span class="source-line-no">208</span><span id="line-208">        statement.setString(1, sanitizedInput);</span>
-<span class="source-line-no">209</span><span id="line-209">        logger.debug("Parameter set for prepared statement: length={}", sanitizedInput.length());</span>
-<span class="source-line-no">210</span><span id="line-210">      }</span>
-<span class="source-line-no">211</span><span id="line-211"></span>
-<span class="source-line-no">212</span><span id="line-212">      // クエリ実行</span>
-<span class="source-line-no">213</span><span id="line-213">      logger.debug("クエリを実行: {}", query);</span>
-<span class="source-line-no">214</span><span id="line-214">      resultSet = statement.executeQuery();</span>
-<span class="source-line-no">215</span><span id="line-215"></span>
-<span class="source-line-no">216</span><span id="line-216">      // 結果の検証と処理</span>
-<span class="source-line-no">217</span><span id="line-217">      ResultSetMetaData metaData = resultSet.getMetaData();</span>
-<span class="source-line-no">218</span><span id="line-218">      int columnCount = metaData.getColumnCount();</span>
-<span class="source-line-no">219</span><span id="line-219"></span>
-<span class="source-line-no">220</span><span id="line-220">      // 結果がない場合</span>
-<span class="source-line-no">221</span><span id="line-221">      if (!resultSet.next()) {</span>
-<span class="source-line-no">222</span><span id="line-222">        logger.warn("クエリ結果が空です。");</span>
-<span class="source-line-no">223</span><span id="line-223">        return "";</span>
-<span class="source-line-no">224</span><span id="line-224">      }</span>
-<span class="source-line-no">225</span><span id="line-225"></span>
-<span class="source-line-no">226</span><span id="line-226">      // 列数の検証</span>
-<span class="source-line-no">227</span><span id="line-227">      if (columnCount != 1) {</span>
-<span class="source-line-no">228</span><span id="line-228">        logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);</span>
-<span class="source-line-no">229</span><span id="line-229">      }</span>
-<span class="source-line-no">230</span><span id="line-230"></span>
-<span class="source-line-no">231</span><span id="line-231">      // 先頭行の先頭列の値を取得</span>
-<span class="source-line-no">232</span><span id="line-232">      String value = resultSet.getString(1);</span>
-<span class="source-line-no">233</span><span id="line-233"></span>
-<span class="source-line-no">234</span><span id="line-234">      // 追加の行があるかチェック</span>
-<span class="source-line-no">235</span><span id="line-235">      boolean hasMoreRows = resultSet.next();</span>
-<span class="source-line-no">236</span><span id="line-236">      if (hasMoreRows) {</span>
-<span class="source-line-no">237</span><span id="line-237">        logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");</span>
-<span class="source-line-no">238</span><span id="line-238">      }</span>
-<span class="source-line-no">239</span><span id="line-239"></span>
-<span class="source-line-no">240</span><span id="line-240">      // nullチェック</span>
-<span class="source-line-no">241</span><span id="line-241">      if (value == null) {</span>
-<span class="source-line-no">242</span><span id="line-242">        logger.info("クエリ結果の先頭値がNULLです。");</span>
-<span class="source-line-no">243</span><span id="line-243">        return ""; // NULLの場合は空文字列を返す</span>
-<span class="source-line-no">244</span><span id="line-244">      }</span>
+<span class="source-line-no">185</span><span id="line-185">    try (Connection connection = DriverManager.getConnection(databaseUrl);</span>
+<span class="source-line-no">186</span><span id="line-186">        PreparedStatement statement = connection.prepareStatement(query)) {</span>
+<span class="source-line-no">187</span><span id="line-187"></span>
+<span class="source-line-no">188</span><span id="line-188">      // データベース接続</span>
+<span class="source-line-no">189</span><span id="line-189">      logger.debug("データベースに接続: {}", databaseUrl);</span>
+<span class="source-line-no">190</span><span id="line-190"></span>
+<span class="source-line-no">191</span><span id="line-191">      // 入力文字列をパラメータとして設定（クエリに「?」プレースホルダーがある場合）</span>
+<span class="source-line-no">192</span><span id="line-192">      if (query.contains("?") &amp;&amp; input != null &amp;&amp; !input.isEmpty()) {</span>
+<span class="source-line-no">193</span><span id="line-193">        // 入力値のサニタイズとセキュリティチェック</span>
+<span class="source-line-no">194</span><span id="line-194">        String sanitizedInput = sanitizeInput(input);</span>
+<span class="source-line-no">195</span><span id="line-195">        if (sanitizedInput == null || sanitizedInput.isEmpty()) {</span>
+<span class="source-line-no">196</span><span id="line-196">          logger.warn(</span>
+<span class="source-line-no">197</span><span id="line-197">              "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",</span>
+<span class="source-line-no">198</span><span id="line-198">              input);</span>
+<span class="source-line-no">199</span><span id="line-199">          return "";</span>
+<span class="source-line-no">200</span><span id="line-200">        }</span>
+<span class="source-line-no">201</span><span id="line-201"></span>
+<span class="source-line-no">202</span><span id="line-202">        statement.setString(1, sanitizedInput);</span>
+<span class="source-line-no">203</span><span id="line-203">        logger.debug("Parameter set for prepared statement: length={}", sanitizedInput.length());</span>
+<span class="source-line-no">204</span><span id="line-204">      }</span>
+<span class="source-line-no">205</span><span id="line-205"></span>
+<span class="source-line-no">206</span><span id="line-206">      // クエリ実行</span>
+<span class="source-line-no">207</span><span id="line-207">      logger.debug("クエリを実行: {}", query);</span>
+<span class="source-line-no">208</span><span id="line-208">      try (ResultSet resultSet = statement.executeQuery()) {</span>
+<span class="source-line-no">209</span><span id="line-209">        // 結果の検証と処理</span>
+<span class="source-line-no">210</span><span id="line-210">        ResultSetMetaData metaData = resultSet.getMetaData();</span>
+<span class="source-line-no">211</span><span id="line-211">        int columnCount = metaData.getColumnCount();</span>
+<span class="source-line-no">212</span><span id="line-212"></span>
+<span class="source-line-no">213</span><span id="line-213">        // 結果がない場合</span>
+<span class="source-line-no">214</span><span id="line-214">        if (!resultSet.next()) {</span>
+<span class="source-line-no">215</span><span id="line-215">          logger.warn("クエリ結果が空です。");</span>
+<span class="source-line-no">216</span><span id="line-216">          return "";</span>
+<span class="source-line-no">217</span><span id="line-217">        }</span>
+<span class="source-line-no">218</span><span id="line-218"></span>
+<span class="source-line-no">219</span><span id="line-219">        // 列数の検証</span>
+<span class="source-line-no">220</span><span id="line-220">        if (columnCount != 1) {</span>
+<span class="source-line-no">221</span><span id="line-221">          logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);</span>
+<span class="source-line-no">222</span><span id="line-222">        }</span>
+<span class="source-line-no">223</span><span id="line-223"></span>
+<span class="source-line-no">224</span><span id="line-224">        // 先頭行の先頭列の値を取得</span>
+<span class="source-line-no">225</span><span id="line-225">        String value = resultSet.getString(1);</span>
+<span class="source-line-no">226</span><span id="line-226"></span>
+<span class="source-line-no">227</span><span id="line-227">        // 追加の行があるかチェック</span>
+<span class="source-line-no">228</span><span id="line-228">        boolean hasMoreRows = resultSet.next();</span>
+<span class="source-line-no">229</span><span id="line-229">        if (hasMoreRows) {</span>
+<span class="source-line-no">230</span><span id="line-230">          logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");</span>
+<span class="source-line-no">231</span><span id="line-231">        }</span>
+<span class="source-line-no">232</span><span id="line-232"></span>
+<span class="source-line-no">233</span><span id="line-233">        // nullチェック</span>
+<span class="source-line-no">234</span><span id="line-234">        if (value == null) {</span>
+<span class="source-line-no">235</span><span id="line-235">          logger.info("クエリ結果の先頭値がNULLです。");</span>
+<span class="source-line-no">236</span><span id="line-236">          return ""; // NULLの場合は空文字列を返す</span>
+<span class="source-line-no">237</span><span id="line-237">        }</span>
+<span class="source-line-no">238</span><span id="line-238"></span>
+<span class="source-line-no">239</span><span id="line-239">        // 結果が理想的（1行1列）かどうかをログに記録</span>
+<span class="source-line-no">240</span><span id="line-240">        if (columnCount == 1 &amp;&amp; !hasMoreRows) {</span>
+<span class="source-line-no">241</span><span id="line-241">          logger.info("データベースから単一値を取得しました: {}", value);</span>
+<span class="source-line-no">242</span><span id="line-242">        } else {</span>
+<span class="source-line-no">243</span><span id="line-243">          logger.info("データベースから先頭値を取得しました: {}", value);</span>
+<span class="source-line-no">244</span><span id="line-244">        }</span>
 <span class="source-line-no">245</span><span id="line-245"></span>
-<span class="source-line-no">246</span><span id="line-246">      // 結果が理想的（1行1列）かどうかをログに記録</span>
-<span class="source-line-no">247</span><span id="line-247">      if (columnCount == 1 &amp;&amp; !hasMoreRows) {</span>
-<span class="source-line-no">248</span><span id="line-248">        logger.info("データベースから単一値を取得しました: {}", value);</span>
-<span class="source-line-no">249</span><span id="line-249">      } else {</span>
-<span class="source-line-no">250</span><span id="line-250">        logger.info("データベースから先頭値を取得しました: {}", value);</span>
-<span class="source-line-no">251</span><span id="line-251">      }</span>
-<span class="source-line-no">252</span><span id="line-252"></span>
-<span class="source-line-no">253</span><span id="line-253">      return value;</span>
-<span class="source-line-no">254</span><span id="line-254"></span>
-<span class="source-line-no">255</span><span id="line-255">    } catch (SQLException e) {</span>
-<span class="source-line-no">256</span><span id="line-256">      logger.error("データベース操作中にエラーが発生しました: {}", e.getMessage(), e);</span>
-<span class="source-line-no">257</span><span id="line-257">      return "ERROR: " + e.getMessage();</span>
-<span class="source-line-no">258</span><span id="line-258">    } finally {</span>
-<span class="source-line-no">259</span><span id="line-259">      // リソースのクローズ</span>
-<span class="source-line-no">260</span><span id="line-260">      closeResources(resultSet, statement, connection);</span>
-<span class="source-line-no">261</span><span id="line-261">    }</span>
-<span class="source-line-no">262</span><span id="line-262">  }</span>
-<span class="source-line-no">263</span><span id="line-263"></span>
-<span class="source-line-no">264</span><span id="line-264">  /**</span>
-<span class="source-line-no">265</span><span id="line-265">   * データベースリソースを安全にクローズします。</span>
-<span class="source-line-no">266</span><span id="line-266">   *</span>
-<span class="source-line-no">267</span><span id="line-267">   * @param resultSet 結果セット</span>
-<span class="source-line-no">268</span><span id="line-268">   * @param statement プリペアドステートメント</span>
-<span class="source-line-no">269</span><span id="line-269">   * @param connection データベース接続</span>
-<span class="source-line-no">270</span><span id="line-270">   */</span>
-<span class="source-line-no">271</span><span id="line-271">  private void closeResources(</span>
-<span class="source-line-no">272</span><span id="line-272">      ResultSet resultSet, PreparedStatement statement, Connection connection) {</span>
-<span class="source-line-no">273</span><span id="line-273">    if (resultSet != null) {</span>
-<span class="source-line-no">274</span><span id="line-274">      try {</span>
-<span class="source-line-no">275</span><span id="line-275">        resultSet.close();</span>
-<span class="source-line-no">276</span><span id="line-276">      } catch (SQLException e) {</span>
-<span class="source-line-no">277</span><span id="line-277">        logger.warn("ResultSetのクローズ中にエラーが発生しました: {}", e.getMessage());</span>
-<span class="source-line-no">278</span><span id="line-278">      }</span>
-<span class="source-line-no">279</span><span id="line-279">    }</span>
-<span class="source-line-no">280</span><span id="line-280"></span>
-<span class="source-line-no">281</span><span id="line-281">    if (statement != null) {</span>
-<span class="source-line-no">282</span><span id="line-282">      try {</span>
-<span class="source-line-no">283</span><span id="line-283">        statement.close();</span>
-<span class="source-line-no">284</span><span id="line-284">      } catch (SQLException e) {</span>
-<span class="source-line-no">285</span><span id="line-285">        logger.warn("PreparedStatementのクローズ中にエラーが発生しました: {}", e.getMessage());</span>
-<span class="source-line-no">286</span><span id="line-286">      }</span>
-<span class="source-line-no">287</span><span id="line-287">    }</span>
-<span class="source-line-no">288</span><span id="line-288"></span>
-<span class="source-line-no">289</span><span id="line-289">    if (connection != null) {</span>
-<span class="source-line-no">290</span><span id="line-290">      try {</span>
-<span class="source-line-no">291</span><span id="line-291">        connection.close();</span>
-<span class="source-line-no">292</span><span id="line-292">      } catch (SQLException e) {</span>
-<span class="source-line-no">293</span><span id="line-293">        logger.warn("Connectionのクローズ中にエラーが発生しました: {}", e.getMessage());</span>
-<span class="source-line-no">294</span><span id="line-294">      }</span>
-<span class="source-line-no">295</span><span id="line-295">    }</span>
-<span class="source-line-no">296</span><span id="line-296">  }</span>
-<span class="source-line-no">297</span><span id="line-297">}</span>
+<span class="source-line-no">246</span><span id="line-246">        return value;</span>
+<span class="source-line-no">247</span><span id="line-247">      }</span>
+<span class="source-line-no">248</span><span id="line-248">    } catch (SQLException e) {</span>
+<span class="source-line-no">249</span><span id="line-249">      logger.error("データベース操作中にエラーが発生しました: {}", e.getMessage(), e);</span>
+<span class="source-line-no">250</span><span id="line-250">      return "ERROR: " + e.getMessage();</span>
+<span class="source-line-no">251</span><span id="line-251">    }</span>
+<span class="source-line-no">252</span><span id="line-252">  }</span>
+<span class="source-line-no">253</span><span id="line-253">}</span>
 
 
 

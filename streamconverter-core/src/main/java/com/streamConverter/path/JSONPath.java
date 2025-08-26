@@ -1,7 +1,6 @@
 package com.streamConverter.path;
 
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * Type-safe representation of JSONPath expressions.
@@ -22,9 +21,6 @@ public class JSONPath implements IPath {
 
   // No regex validation to completely avoid ReDoS vulnerabilities
   // Use manual parsing for secure validation instead
-
-  // Identifier pattern for validation
-  private static final Pattern IDENTIFIER_PATTERN = Pattern.compile("[a-zA-Z_][a-zA-Z0-9_]*");
 
   private final String path;
 
@@ -282,7 +278,23 @@ public class JSONPath implements IPath {
   }
 
   private static boolean isValidIdentifier(String identifier) {
-    return IDENTIFIER_PATTERN.matcher(identifier).matches();
+    if (identifier == null || identifier.isEmpty()) {
+      return false;
+    }
+
+    char first = identifier.charAt(0);
+    if (!(Character.isLetter(first) || first == '_')) {
+      return false;
+    }
+
+    for (int i = 1; i < identifier.length(); i++) {
+      char c = identifier.charAt(i);
+      if (!(Character.isLetterOrDigit(c) || c == '_')) {
+        return false;
+      }
+    }
+
+    return true;
   }
 
   /**

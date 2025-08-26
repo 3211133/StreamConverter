@@ -170,7 +170,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     
     // セキュリティ脆弱性修正のための強制バージョン指定
-    implementation("net.minidev:json-smart:2.5.2") // CVE-2024-57699修正
+    implementation("net.minidev:json-smart:2.6.0") // CVE-2024-57699修正
     
     // Complete Netty version alignment to fix isExplicitNoPreferDirect() compatibility issue
     implementation("io.netty:netty-handler:4.2.4.Final") // CVE-2025-24970修正

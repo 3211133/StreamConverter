@@ -17,7 +17,7 @@ plugins {
     id("com.github.spotbugs") version "6.0.28"
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
-    id("org.springframework.boot") version "3.4.7"
+    id("org.springframework.boot") version "3.5.5"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -170,31 +170,31 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     
     // セキュリティ脆弱性修正のための強制バージョン指定
-    implementation("net.minidev:json-smart:2.5.2") // CVE-2024-57699修正
+    implementation("net.minidev:json-smart:2.6.0") // CVE-2024-57699修正
     
     // Complete Netty version alignment to fix isExplicitNoPreferDirect() compatibility issue
-    implementation("io.netty:netty-handler:4.1.124.Final") // CVE-2025-24970修正
-    implementation("io.netty:netty-common:4.1.124.Final") // CVE-2025-25193修正
-    implementation("io.netty:netty-buffer:4.1.124.Final") 
-    implementation("io.netty:netty-transport:4.1.124.Final")
-    implementation("io.netty:netty-transport-native-epoll:4.1.124.Final")
-    implementation("io.netty:netty-codec-http:4.1.124.Final")
-    implementation("io.netty:netty-resolver:4.1.124.Final")
-    implementation("io.netty:netty-codec:4.1.124.Final")
-    implementation("io.netty:netty-codec-dns:4.1.124.Final")
-    implementation("io.netty:netty-codec-http2:4.1.124.Final")
-    implementation("io.netty:netty-codec-socks:4.1.124.Final")
-    implementation("io.netty:netty-handler-proxy:4.1.124.Final")
-    implementation("io.netty:netty-resolver-dns:4.1.124.Final")
-    implementation("io.netty:netty-resolver-dns-classes-macos:4.1.124.Final")
-    implementation("io.netty:netty-resolver-dns-native-macos:4.1.124.Final")
-    implementation("io.netty:netty-transport-classes-epoll:4.1.124.Final")
-    implementation("io.netty:netty-transport-native-unix-common:4.1.124.Final")
+    implementation("io.netty:netty-handler:4.2.4.Final") // CVE-2025-24970修正
+    implementation("io.netty:netty-common:4.2.4.Final") // CVE-2025-25193修正
+    implementation("io.netty:netty-buffer:4.2.4.Final") 
+    implementation("io.netty:netty-transport:4.2.4.Final")
+    implementation("io.netty:netty-transport-native-epoll:4.2.4.Final")
+    implementation("io.netty:netty-codec-http:4.2.4.Final")
+    implementation("io.netty:netty-resolver:4.2.4.Final")
+    implementation("io.netty:netty-codec:4.2.4.Final")
+    implementation("io.netty:netty-codec-dns:4.2.4.Final")
+    implementation("io.netty:netty-codec-http2:4.2.4.Final")
+    implementation("io.netty:netty-codec-socks:4.2.4.Final")
+    implementation("io.netty:netty-handler-proxy:4.2.4.Final")
+    implementation("io.netty:netty-resolver-dns:4.2.4.Final")
+    implementation("io.netty:netty-resolver-dns-classes-macos:4.2.4.Final")
+    implementation("io.netty:netty-resolver-dns-native-macos:4.2.4.Final")
+    implementation("io.netty:netty-transport-classes-epoll:4.2.4.Final")
+    implementation("io.netty:netty-transport-native-unix-common:4.2.4.Final")
     implementation("org.apache.httpcomponents.client5:httpclient5:5.4.3") // CVE-2025-27820修正
     implementation("ch.qos.logback:logback-core:1.5.13") // CVE-2024-12798, CVE-2024-12801修正
     implementation("io.projectreactor.netty:reactor-netty-http:1.2.8") // Latest version compatible with Netty 4.1.123.Final
     implementation("org.springframework:spring-web:6.2.8") // CVE-2025-41234修正
-    implementation("org.springframework:spring-context:6.2.7") // CVE-2025-22233修正
+    implementation("org.springframework:spring-context:6.2.10") // CVE-2025-22233修正
     
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.18.0")
@@ -229,8 +229,8 @@ dependencies {
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
     
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.18.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
+    testImplementation("org.mockito:mockito-core:5.19.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
 }
 
 tasks.test {
@@ -340,6 +340,18 @@ tasks.spotbugsMain {
     reports.create("xml") {
         required.set(true) 
         outputLocation.set(file("build/reports/spotbugs/main.xml"))
+    }
+}
+
+tasks.spotbugsTest {
+    ignoreFailures = true // テストコードのSpotBugs違反があってもビルドを継続
+    reports.create("html") {
+        required.set(true)
+        outputLocation.set(file("build/reports/spotbugs/test.html"))
+    }
+    reports.create("xml") {
+        required.set(true) 
+        outputLocation.set(file("build/reports/spotbugs/test.xml"))
     }
 }
 

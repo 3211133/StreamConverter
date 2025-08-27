@@ -6,6 +6,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -141,7 +142,8 @@ class SendHttpCommandTest {
             + System.currentTimeMillis()
             + "\"}";
 
-    ByteArrayInputStream inputStream = new ByteArrayInputStream(testData.getBytes());
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     // 実際のHTTP通信をテスト
@@ -155,7 +157,7 @@ class SendHttpCommandTest {
     assertTrue(outputStream.size() > 0, "HTTPレスポンスは空でないべき");
 
     // レスポンスにJSONが含まれていることを確認（httpbinはJSONを返す）
-    String response = outputStream.toString();
+    String response = outputStream.toString(StandardCharsets.UTF_8);
     assertTrue(response.contains("{"), "レスポンスはJSON形式であるべき");
     assertTrue(response.contains("data"), "httpbinレスポンスには'data'フィールドが含まれるべき");
 
@@ -188,7 +190,8 @@ class SendHttpCommandTest {
   @DisplayName("null出力ストリームで例外がスローされる")
   void testNullOutputStream() {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
-    ByteArrayInputStream inputStream = new ByteArrayInputStream("test".getBytes());
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
 
     Exception exception =
         assertThrows(
@@ -208,7 +211,8 @@ class SendHttpCommandTest {
       "Network-dependent test causing Netty compatibility issues after security updates")
   void testNonExistentHost() {
     SendHttpCommand command = new SendHttpCommand("https://this-domain-does-not-exist-12345.com");
-    ByteArrayInputStream inputStream = new ByteArrayInputStream("test".getBytes());
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     assertThrows(
@@ -226,68 +230,70 @@ class SendHttpCommandTest {
 
     // メモリ効率的な大容量データ生成（20MBテストデータ - httpbinレスポンス込みで50MB以下を目指す）
     int dataSizeInMB = 20;
-    MemoryEfficientInputStream inputStream = new MemoryEfficientInputStream(dataSizeInMB);
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try (MemoryEfficientInputStream inputStream = new MemoryEfficientInputStream(dataSizeInMB);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-    // ガベージコレクションでクリーンな状態にする
-    System.gc();
-    Thread.yield(); // Give GC a chance to run
+      // ガベージコレクションでクリーンな状態にする
+      System.gc();
+      Thread.yield(); // Give GC a chance to run
 
-    // メモリ使用量をモニタリング
-    Runtime runtime = Runtime.getRuntime();
-    long memoryBefore = runtime.totalMemory() - runtime.freeMemory();
+      // メモリ使用量をモニタリング
+      Runtime runtime = Runtime.getRuntime();
+      long memoryBefore = runtime.totalMemory() - runtime.freeMemory();
 
-    // 実行時間の計測開始
-    long startTime = System.currentTimeMillis();
+      // 実行時間の計測開始
+      long startTime = System.currentTimeMillis();
 
-    // 大容量データの HTTP通信を実行
-    assertDoesNotThrow(() -> command.execute(inputStream, outputStream), "大容量データのHTTP通信は正常に完了するべき");
+      // 大容量データの HTTP通信を実行
+      assertDoesNotThrow(
+          () -> command.execute(inputStream, outputStream), "大容量データのHTTP通信は正常に完了するべき");
 
-    long endTime = System.currentTimeMillis();
-    long executionTime = endTime - startTime;
+      long endTime = System.currentTimeMillis();
+      long executionTime = endTime - startTime;
 
-    long memoryAfter = runtime.totalMemory() - runtime.freeMemory();
-    long memoryUsed = memoryAfter - memoryBefore;
+      long memoryAfter = runtime.totalMemory() - runtime.freeMemory();
+      long memoryUsed = memoryAfter - memoryBefore;
 
-    // レスポンスが返ってきていることを確認
-    String response = outputStream.toString();
-    assertFalse(response.isEmpty(), "レスポンスは空でないべき");
+      // レスポンスが返ってきていることを確認
+      String response = outputStream.toString(StandardCharsets.UTF_8);
+      assertFalse(response.isEmpty(), "レスポンスは空でないべき");
 
-    // ストリーミング処理の確認（レスポンスにデータの痕跡があること）
-    assertTrue(response.contains("json") || response.contains("data"), "レスポンスにはデータの痕跡が含まれるべき");
+      // ストリーミング処理の確認（レスポンスにデータの痕跡があること）
+      assertTrue(response.contains("json") || response.contains("data"), "レスポンスにはデータの痕跡が含まれるべき");
 
-    // 性能指標の出力
-    long inputBytes = inputStream.getTotalBytesGenerated();
-    long outputBytes = outputStream.size();
+      // 性能指標の出力
+      long inputBytes = inputStream.getTotalBytesGenerated();
+      long outputBytes = outputStream.size();
 
-    System.out.println("=== 大容量ストリーミングテスト結果 ===");
-    System.out.println(
-        "✅ 入力データ: "
-            + String.format("%.2f MB (%d bytes)", inputBytes / (1024.0 * 1024.0), inputBytes));
-    System.out.println(
-        "✅ 出力データ: "
-            + String.format("%.2f MB (%d bytes)", outputBytes / (1024.0 * 1024.0), outputBytes));
-    System.out.println("✅ 実行時間: " + String.format("%.2f秒", executionTime / 1000.0));
-    System.out.println("✅ メモリ使用量: " + String.format("%.2f MB", memoryUsed / (1024.0 * 1024.0)));
-    System.out.println(
-        "✅ スループット: "
-            + String.format(
-                "%.2f MB/秒", (inputBytes / (1024.0 * 1024.0)) / (executionTime / 1000.0)));
+      System.out.println("=== 大容量ストリーミングテスト結果 ===");
+      System.out.println(
+          "✅ 入力データ: "
+              + String.format("%.2f MB (%d bytes)", inputBytes / (1024.0 * 1024.0), inputBytes));
+      System.out.println(
+          "✅ 出力データ: "
+              + String.format("%.2f MB (%d bytes)", outputBytes / (1024.0 * 1024.0), outputBytes));
+      System.out.println("✅ 実行時間: " + String.format("%.2f秒", executionTime / 1000.0));
+      System.out.println("✅ メモリ使用量: " + String.format("%.2f MB", memoryUsed / (1024.0 * 1024.0)));
+      System.out.println(
+          "✅ スループット: "
+              + String.format(
+                  "%.2f MB/秒", (inputBytes / (1024.0 * 1024.0)) / (executionTime / 1000.0)));
 
-    // HTTPレスポンス処理自体のメモリ効率を確認（レスポンスサイズとの比較）
-    double memoryEfficiency = (double) memoryUsed / outputBytes;
-    System.out.println("✅ メモリ効率: " + String.format("%.4f倍 (メモリ使用量/出力サイズ)", memoryEfficiency));
+      // HTTPレスポンス処理自体のメモリ効率を確認（レスポンスサイズとの比較）
+      double memoryEfficiency = (double) memoryUsed / outputBytes;
+      System.out.println("✅ メモリ効率: " + String.format("%.4f倍 (メモリ使用量/出力サイズ)", memoryEfficiency));
 
-    // HTTPストリーミング処理のメモリ効率を記録（JVMとhttpbinサーバー処理込み）
-    // 実際のプロダクション環境では、専用エコーサーバーを使用することで効率を改善可能
-    System.out.println("📊 JVMメモリ測定結果（テスト環境特性を考慮）:");
-    System.out.println("  - httpbin.orgはレスポンスを約2倍にして返すため、出力が膨らみます");
-    System.out.println("  - JVMメモリ測定は他のオブジェクトも含むため、参考値として扱います");
+      // HTTPストリーミング処理のメモリ効率を記録（JVMとhttpbinサーバー処理込み）
+      // 実際のプロダクション環境では、専用エコーサーバーを使用することで効率を改善可能
+      System.out.println("📊 JVMメモリ測定結果（テスト環境特性を考慮）:");
+      System.out.println("  - httpbin.orgはレスポンスを約2倍にして返すため、出力が膨らみます");
+      System.out.println("  - JVMメモリ測定は他のオブジェクトも含むため、参考値として扱います");
 
-    // 実用的な閾値での検証：httpbinやJVM特性を考慮し50倍以下とする
-    assertTrue(
-        memoryEfficiency < 50.0,
-        String.format("メモリ効率が著しく悪い状態です。メモリ使用量/出力サイズ: %.2f倍", memoryEfficiency));
+      // 実用的な閾値での検証：httpbinやJVM特性を考慮し50倍以下とする
+      assertTrue(
+          memoryEfficiency < 50.0,
+          String.format("メモリ効率が著しく悪い状態です。メモリ使用量/出力サイズ: %.2f倍", memoryEfficiency));
+    }
   }
 
   @Test
@@ -299,64 +305,66 @@ class SendHttpCommandTest {
 
     // 小容量データ（1MB）でメモリ効率を精密測定
     int dataSizeInMB = 1;
-    MemoryEfficientInputStream inputStream = new MemoryEfficientInputStream(dataSizeInMB);
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try (MemoryEfficientInputStream inputStream = new MemoryEfficientInputStream(dataSizeInMB);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-    // ガベージコレクションでクリーンな状態にする
-    System.gc();
-    Thread.yield();
+      // ガベージコレクションでクリーンな状態にする
+      System.gc();
+      Thread.yield();
 
-    // メモリ使用量をモニタリング
-    Runtime runtime = Runtime.getRuntime();
-    long memoryBefore = runtime.totalMemory() - runtime.freeMemory();
+      // メモリ使用量をモニタリング
+      Runtime runtime = Runtime.getRuntime();
+      long memoryBefore = runtime.totalMemory() - runtime.freeMemory();
 
-    // 実行時間の計測開始
-    long startTime = System.currentTimeMillis();
+      // 実行時間の計測開始
+      long startTime = System.currentTimeMillis();
 
-    // 小容量データでのHTTP通信を実行
-    assertDoesNotThrow(() -> command.execute(inputStream, outputStream), "小容量データのHTTP通信は正常に完了するべき");
+      // 小容量データでのHTTP通信を実行
+      assertDoesNotThrow(
+          () -> command.execute(inputStream, outputStream), "小容量データのHTTP通信は正常に完了するべき");
 
-    long endTime = System.currentTimeMillis();
-    long executionTime = endTime - startTime;
+      long endTime = System.currentTimeMillis();
+      long executionTime = endTime - startTime;
 
-    long memoryAfter = runtime.totalMemory() - runtime.freeMemory();
-    long memoryUsed = memoryAfter - memoryBefore;
+      long memoryAfter = runtime.totalMemory() - runtime.freeMemory();
+      long memoryUsed = memoryAfter - memoryBefore;
 
-    // レスポンスが返ってきていることを確認
-    String response = outputStream.toString();
-    assertFalse(response.isEmpty(), "レスポンスは空でないべき");
+      // レスポンスが返ってきていることを確認
+      String response = outputStream.toString(StandardCharsets.UTF_8);
+      assertFalse(response.isEmpty(), "レスポンスは空でないべき");
 
-    // 性能指標の出力
-    long inputBytes = inputStream.getTotalBytesGenerated();
-    long outputBytes = outputStream.size();
+      // 性能指標の出力
+      long inputBytes = inputStream.getTotalBytesGenerated();
+      long outputBytes = outputStream.size();
 
-    System.out.println("=== 小容量ストリーミング精密測定結果 ===");
-    System.out.println(
-        "✅ 入力データ: "
-            + String.format("%.2f MB (%d bytes)", inputBytes / (1024.0 * 1024.0), inputBytes));
-    System.out.println(
-        "✅ 出力データ: "
-            + String.format("%.2f MB (%d bytes)", outputBytes / (1024.0 * 1024.0), outputBytes));
-    System.out.println("✅ 実行時間: " + String.format("%.2f秒", executionTime / 1000.0));
-    System.out.println("✅ メモリ使用量: " + String.format("%.2f MB", memoryUsed / (1024.0 * 1024.0)));
-    System.out.println(
-        "✅ スループット: "
-            + String.format(
-                "%.2f MB/秒", (inputBytes / (1024.0 * 1024.0)) / (executionTime / 1000.0)));
+      System.out.println("=== 小容量ストリーミング精密測定結果 ===");
+      System.out.println(
+          "✅ 入力データ: "
+              + String.format("%.2f MB (%d bytes)", inputBytes / (1024.0 * 1024.0), inputBytes));
+      System.out.println(
+          "✅ 出力データ: "
+              + String.format("%.2f MB (%d bytes)", outputBytes / (1024.0 * 1024.0), outputBytes));
+      System.out.println("✅ 実行時間: " + String.format("%.2f秒", executionTime / 1000.0));
+      System.out.println("✅ メモリ使用量: " + String.format("%.2f MB", memoryUsed / (1024.0 * 1024.0)));
+      System.out.println(
+          "✅ スループット: "
+              + String.format(
+                  "%.2f MB/秒", (inputBytes / (1024.0 * 1024.0)) / (executionTime / 1000.0)));
 
-    // メモリ効率を検証
-    double memoryEfficiency = (double) memoryUsed / inputBytes;
-    System.out.println("✅ メモリ効率: " + String.format("%.2f倍 (メモリ使用量/入力サイズ)", memoryEfficiency));
+      // メモリ効率を検証
+      double memoryEfficiency = (double) memoryUsed / inputBytes;
+      System.out.println("✅ メモリ効率: " + String.format("%.2f倍 (メモリ使用量/入力サイズ)", memoryEfficiency));
 
-    // ストリーミング処理の実用的検証（JVM環境とhttpbin特性を考慮）
-    System.out.println("📊 小容量テストでのメモリ分析:");
-    System.out.println("  - ストリーミング処理により、データサイズに関係なく一定のメモリ使用パターン");
-    System.out.println("  - 大容量処理時には相対的にメモリ効率が改善されることが期待される");
+      // ストリーミング処理の実用的検証（JVM環境とhttpbin特性を考慮）
+      System.out.println("📊 小容量テストでのメモリ分析:");
+      System.out.println("  - ストリーミング処理により、データサイズに関係なく一定のメモリ使用パターン");
+      System.out.println("  - 大容量処理時には相対的にメモリ効率が改善されることが期待される");
 
-    // JVMとテスト環境を考慮した実用的な閾値（1000倍以下）
-    assertTrue(
-        memoryEfficiency < 1000.0,
-        String.format("ストリーミング処理が機能していない可能性があります。メモリ使用量/入力サイズ: %.2f倍", memoryEfficiency));
+      // JVMとテスト環境を考慮した実用的な閾値（1000倍以下）
+      assertTrue(
+          memoryEfficiency < 1000.0,
+          String.format("ストリーミング処理が機能していない可能性があります。メモリ使用量/入力サイズ: %.2f倍", memoryEfficiency));
+    }
   }
 
   @Test
@@ -368,52 +376,54 @@ class SendHttpCommandTest {
 
     // 中容量データ（5MB）でブロッキング動作を確認
     int dataSizeInMB = 5;
-    MemoryEfficientInputStream inputStream = new MemoryEfficientInputStream(dataSizeInMB);
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try (MemoryEfficientInputStream inputStream = new MemoryEfficientInputStream(dataSizeInMB);
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-    System.out.println("=== ストリーミング処理のブロッキング動作検証 ===");
+      System.out.println("=== ストリーミング処理のブロッキング動作検証 ===");
 
-    // 現在の実装動作を記録
-    long startTime = System.currentTimeMillis();
-    System.out.println("📤 HTTP送信開始: " + new java.util.Date(startTime));
+      // 現在の実装動作を記録
+      long startTime = System.currentTimeMillis();
+      System.out.println("📤 HTTP送信開始: " + new java.util.Date(startTime));
 
-    assertDoesNotThrow(() -> command.execute(inputStream, outputStream), "HTTP通信は正常に完了するべき");
+      assertDoesNotThrow(() -> command.execute(inputStream, outputStream), "HTTP通信は正常に完了するべき");
 
-    long endTime = System.currentTimeMillis();
-    System.out.println("📥 HTTP処理完了: " + new java.util.Date(endTime));
-    System.out.println("⏱️ 総処理時間: " + (endTime - startTime) + "ms");
+      long endTime = System.currentTimeMillis();
+      System.out.println("📥 HTTP処理完了: " + new java.util.Date(endTime));
+      System.out.println("⏱️ 総処理時間: " + (endTime - startTime) + "ms");
 
-    // 現在の実装の特性を検証
-    String response = outputStream.toString();
-    assertFalse(response.isEmpty(), "レスポンスは空でないべき");
+      // 現在の実装の特性を検証
+      String response = outputStream.toString(StandardCharsets.UTF_8);
+      assertFalse(response.isEmpty(), "レスポンスは空でないべき");
 
-    long inputBytes = inputStream.getTotalBytesGenerated();
-    long outputBytes = outputStream.size();
+      long inputBytes = inputStream.getTotalBytesGenerated();
+      long outputBytes = outputStream.size();
 
-    System.out.println("📊 処理結果:");
-    System.out.println("  - 入力データ: " + String.format("%.2f MB", inputBytes / (1024.0 * 1024.0)));
-    System.out.println("  - 出力データ: " + String.format("%.2f MB", outputBytes / (1024.0 * 1024.0)));
-    System.out.println(
-        "  - スループット: "
-            + String.format(
-                "%.2f MB/秒", (inputBytes / (1024.0 * 1024.0)) / ((endTime - startTime) / 1000.0)));
+      System.out.println("📊 処理結果:");
+      System.out.println("  - 入力データ: " + String.format("%.2f MB", inputBytes / (1024.0 * 1024.0)));
+      System.out.println("  - 出力データ: " + String.format("%.2f MB", outputBytes / (1024.0 * 1024.0)));
+      System.out.println(
+          "  - スループット: "
+              + String.format(
+                  "%.2f MB/秒",
+                  (inputBytes / (1024.0 * 1024.0)) / ((endTime - startTime) / 1000.0)));
 
-    System.out.println("📝 現在の実装特性:");
-    System.out.println("  - WebClient.bodyToFlux().blockLast()により、レスポンス完了まで処理がブロック");
-    System.out.println("  - ストリーミング送信は実装済み（DataBufferUtils.readInputStream）");
-    System.out.println("  - レスポンス受信もストリーミング処理（8KBずつ処理）");
-    System.out.println("  - 改善点: 完全な非同期処理にはFlux.subscribe()を使用可能");
+      System.out.println("📝 現在の実装特性:");
+      System.out.println("  - WebClient.bodyToFlux().blockLast()により、レスポンス完了まで処理がブロック");
+      System.out.println("  - ストリーミング送信は実装済み（DataBufferUtils.readInputStream）");
+      System.out.println("  - レスポンス受信もストリーミング処理（8KBずつ処理）");
+      System.out.println("  - 改善点: 完全な非同期処理にはFlux.subscribe()を使用可能");
 
-    assertTrue(outputBytes > inputBytes, "httpbin.orgは入力データを含むJSONレスポンスを返すため出力の方が大きい");
+      assertTrue(outputBytes > inputBytes, "httpbin.orgは入力データを含むJSONレスポンスを返すため出力の方が大きい");
+    }
   }
 
   /** メモリ効率的な大容量データ生成InputStreamクラス on-the-flyでデータを生成してメモリを節約 */
   private static class MemoryEfficientInputStream extends InputStream {
     private final int totalSizeInBytes;
     private int bytesGenerated = 0;
-    private final byte[] buffer = "{\"largeData\": \"".getBytes();
+    private final byte[] buffer = "{\"largeData\": \"".getBytes(StandardCharsets.UTF_8);
     private final byte[] endBuffer =
-        "\", \"metadata\": \"memory-efficient streaming test\"}".getBytes();
+        "\", \"metadata\": \"memory-efficient streaming test\"}".getBytes(StandardCharsets.UTF_8);
     private int bufferIndex = 0;
     private boolean inHeader = true;
     private boolean inData = false;

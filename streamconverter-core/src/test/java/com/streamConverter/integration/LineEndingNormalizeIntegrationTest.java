@@ -157,6 +157,11 @@ class LineEndingNormalizeIntegrationTest {
             inputBuilder.append("\r");
             expectedBuilder.append("\r\n");
           }
+          default -> {
+            // This should never happen with i % 3, but added for SpotBugs SF compliance
+            inputBuilder.append("\n");
+            expectedBuilder.append("\r\n");
+          }
         }
       }
       String line = "Line " + i + " content";

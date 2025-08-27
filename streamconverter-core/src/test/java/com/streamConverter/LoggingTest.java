@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
+import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -17,7 +18,7 @@ public class LoggingTest {
   public void testLogging() {
     // Set up a stream to capture the output
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    PrintStream printStream = new PrintStream(outputStream);
+    PrintStream printStream = new PrintStream(outputStream, true, StandardCharsets.UTF_8);
     System.setOut(printStream);
     System.setErr(printStream);
 
@@ -25,7 +26,7 @@ public class LoggingTest {
 
     // Flush the stream to ensure all output is captured
     printStream.flush();
-    String output = outputStream.toString();
+    String output = outputStream.toString(StandardCharsets.UTF_8);
     System.setOut(System.out);
     System.setErr(System.err);
     // Check if the output contains the expected log messages

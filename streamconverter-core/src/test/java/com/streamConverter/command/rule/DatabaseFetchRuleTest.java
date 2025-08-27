@@ -40,6 +40,11 @@ public class DatabaseFetchRuleTest {
     when(mockConnection.prepareStatement(anyString())).thenReturn(mockStatement);
     when(mockStatement.executeQuery()).thenReturn(mockResultSet);
     when(mockResultSet.getMetaData()).thenReturn(mockMetaData);
+
+    // モックリソースのclose()メソッドを設定（SpotBugs警告対応）
+    Mockito.doNothing().when(mockStatement).close();
+    Mockito.doNothing().when(mockResultSet).close();
+    Mockito.doNothing().when(mockConnection).close();
   }
 
   @Test

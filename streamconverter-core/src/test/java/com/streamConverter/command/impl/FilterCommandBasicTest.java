@@ -213,7 +213,7 @@ class FilterCommandBasicTest {
     for (int i = 0; i < 200; i++) {
       csvBuilder.append(
           String.format(
-              "%d,Employee %d,emp%d@company.com,Department %d,%.2f\n",
+              "%d,Employee %d,emp%d@company.com,Department %d,%.2f%n",
               i, i, i, i % 10, 50000.0 + (i * 100)));
     }
     String csvData = csvBuilder.toString();
@@ -256,12 +256,12 @@ class FilterCommandBasicTest {
     for (int i = 0; i < 150; i++) {
       xmlBuilder.append(
           String.format(
-              "  <record id=\"%d\">\n"
-                  + "    <name>Record %d</name>\n"
-                  + "    <category>Category %d</category>\n"
-                  + "    <data>Streaming test data for record %d with detailed information</data>\n"
-                  + "    <status>active</status>\n"
-                  + "  </record>\n",
+              "  <record id=\"%d\">%n"
+                  + "    <name>Record %d</name>%n"
+                  + "    <category>Category %d</category>%n"
+                  + "    <data>Streaming test data for record %d with detailed information</data>%n"
+                  + "    <status>active</status>%n"
+                  + "  </record>%n",
               i, i, i % 10, i));
     }
     xmlBuilder.append("</records>");

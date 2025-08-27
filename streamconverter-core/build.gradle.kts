@@ -34,7 +34,7 @@ dependencies {
     
     // Reactive HTTP Client (needed for SendHttpCommand)
     implementation("org.springframework:spring-webflux:6.2.10")
-    implementation("org.springframework:spring-context:6.2.7")
+    implementation("org.springframework:spring-context:6.2.10")
     implementation("io.projectreactor.netty:reactor-netty-http:1.2.8")
     implementation("io.netty:netty-handler:4.1.118.Final")
     implementation("io.netty:netty-common:4.1.118.Final")
@@ -51,7 +51,7 @@ dependencies {
     implementation("com.networknt:json-schema-validator:1.5.8")
     
     // JsonSurfer for streaming JSON processing
-    implementation("com.github.jsurfer:jsurfer-jackson:1.6.3")
+    implementation("com.github.jsurfer:jsurfer-jackson:1.6.5")
     
     // CSV validation support
     implementation("com.opencsv:opencsv:5.12.0")
@@ -71,11 +71,11 @@ dependencies {
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
     
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.18.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
+    testImplementation("org.mockito:mockito-core:5.19.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
     
     // In-memory filesystem for cross-platform file system tests
-    testImplementation("com.google.jimfs:jimfs:1.3.0")
+    testImplementation("com.google.jimfs:jimfs:1.3.1")
 }
 
 // Spotless configuration for code formatting

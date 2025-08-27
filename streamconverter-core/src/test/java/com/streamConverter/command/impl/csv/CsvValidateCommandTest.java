@@ -221,7 +221,7 @@ public class CsvValidateCommandTest {
 
     for (int i = 1; i <= 1000; i++) {
       largeCsv.append(
-          String.format("%d,User%d,user%d@example.com,Department%d\n", i, i, i, i % 10));
+          String.format("%d,User%d,user%d@example.com,Department%d%n", i, i, i, i % 10));
     }
 
     ByteArrayInputStream inputStream =
@@ -360,7 +360,7 @@ public class CsvValidateCommandTest {
     StringBuilder csvBuilder = new StringBuilder();
     csvBuilder.append("id,name,email,department\n");
     for (int i = 1; i <= 50; i++) {
-      csvBuilder.append(String.format("%d,User%d,user%d@example.com,Dept%d\n", i, i, i, i % 5));
+      csvBuilder.append(String.format("%d,User%d,user%d@example.com,Dept%d%n", i, i, i, i % 5));
     }
     String csvData = csvBuilder.toString();
 
@@ -396,7 +396,7 @@ public class CsvValidateCommandTest {
     csvBuilder.append("id,name,email,notes\n");
     for (int i = 1; i <= 100; i++) {
       csvBuilder.append(
-          String.format("%d,\"User %d\",user%d@example.com,\"Note for user %d\"\n", i, i, i, i));
+          String.format("%d,\"User %d\",user%d@example.com,\"Note for user %d\"%n", i, i, i, i));
     }
     String csvData = csvBuilder.toString();
 

@@ -190,7 +190,7 @@ dependencies {
     implementation("io.netty:netty-resolver-dns-native-macos:4.1.124.Final")
     implementation("io.netty:netty-transport-classes-epoll:4.1.124.Final")
     implementation("io.netty:netty-transport-native-unix-common:4.1.124.Final")
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.4.3") // CVE-2025-27820修正
+    implementation("org.apache.httpcomponents.client5:httpclient5:5.5") // CVE-2025-27820修正
     implementation("ch.qos.logback:logback-core:1.5.13") // CVE-2024-12798, CVE-2024-12801修正
     implementation("io.projectreactor.netty:reactor-netty-http:1.2.8") // Latest version compatible with Netty 4.1.123.Final
     implementation("org.springframework:spring-web:6.2.8") // CVE-2025-41234修正

@@ -1,5 +1,7 @@
 package com.streamConverter.controller;
 
+import java.util.Optional;
+
 /**
  * Enumeration of supported output data types for stream controllers.
  *
@@ -96,20 +98,32 @@ public enum OutputType {
    * Converts a string value to the corresponding OutputType.
    *
    * @param value the string value to convert
-   * @return the corresponding OutputType, or null if not found
+   * @return Optional containing the corresponding OutputType, or empty if not found
    */
-  public static OutputType fromString(String value) {
+  public static Optional<OutputType> findByValue(String value) {
     if (value == null) {
-      return null;
+      return Optional.empty();
     }
 
     for (OutputType type : values()) {
       if (type.value.equals(value)) {
-        return type;
+        return Optional.of(type);
       }
     }
 
-    return null;
+    return Optional.empty();
+  }
+
+  /**
+   * Converts a string value to the corresponding OutputType.
+   *
+   * @param value the string value to convert
+   * @return the corresponding OutputType, or null if not found
+   * @deprecated Use {@link #findByValue(String)} instead to avoid null returns
+   */
+  @Deprecated
+  public static OutputType fromString(String value) {
+    return findByValue(value).orElse(null);
   }
 
   /**

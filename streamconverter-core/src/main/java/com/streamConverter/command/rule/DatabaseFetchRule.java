@@ -151,7 +151,7 @@ public class DatabaseFetchRule implements IRule {
    */
   private String sanitizeInput(String input) {
     if (input == null) {
-      return null;
+      throw new IllegalArgumentException("Input parameter cannot be null");
     }
 
     // 危険な文字の除去/エスケープ
@@ -192,7 +192,7 @@ public class DatabaseFetchRule implements IRule {
       if (query.contains("?") && input != null && !input.isEmpty()) {
         // 入力値のサニタイズとセキュリティチェック
         String sanitizedInput = sanitizeInput(input);
-        if (sanitizedInput == null || sanitizedInput.isEmpty()) {
+        if (sanitizedInput.isEmpty()) {
           logger.warn(
               "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",
               input);

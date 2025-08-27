@@ -65,6 +65,8 @@ class AbstractStreamCommandTest {
   void testIStreamCommandImplementation() {
     // IStreamCommandインターフェースの実装テスト
     AbstractStreamCommand command = new TestStreamCommand();
-    assertTrue(command instanceof IStreamCommand);
+    // Test that the command can be used as IStreamCommand (polymorphism)
+    IStreamCommand interfaceCommand = command;
+    assertNotNull(interfaceCommand, "Command should be usable as IStreamCommand interface");
   }
 }

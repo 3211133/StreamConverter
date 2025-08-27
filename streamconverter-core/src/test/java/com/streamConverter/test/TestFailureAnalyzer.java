@@ -155,7 +155,8 @@ public class TestFailureAnalyzer {
       this.failures = failures;
       this.errors = errors;
       this.skipped = skipped;
-      this.failureDetails = failureDetails;
+      this.failureDetails =
+          failureDetails != null ? new ArrayList<>(failureDetails) : new ArrayList<>();
     }
 
     /**
@@ -200,7 +201,7 @@ public class TestFailureAnalyzer {
      * @return list of detailed failure information
      */
     public List<TestFailure> getFailureDetails() {
-      return failureDetails;
+      return new ArrayList<>(failureDetails);
     }
 
     /**

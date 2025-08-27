@@ -90,7 +90,8 @@ class MDCBehaviorTest {
             });
 
     childThread.start();
-    latch.await(5, TimeUnit.SECONDS);
+    boolean awaitResult = latch.await(5, TimeUnit.SECONDS);
+    assertTrue(awaitResult, "Latch await should complete within timeout");
 
     // メインスレッドのMDCは変更されていないはず
     assertEquals("main-value", MDC.get("mainThread"));
@@ -140,7 +141,8 @@ class MDCBehaviorTest {
           });
     }
 
-    latch.await(10, TimeUnit.SECONDS);
+    boolean awaitResult = latch.await(10, TimeUnit.SECONDS);
+    assertTrue(awaitResult, "Latch await should complete within timeout");
     executor.shutdown();
 
     // スレッド間でMDCの競合が発生していないことを確認

@@ -1,6 +1,7 @@
 package com.streamConverter.path;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Type-safe representation of JSONPath expressions.
@@ -266,15 +267,26 @@ public class JSONPath implements IPath {
   }
 
   /**
+   * Get the simple property name if this path represents a simple property access like "$.name".
+   *
+   * @return Optional containing the property name, or empty if not a simple property access
+   */
+  public Optional<String> findSimpleProperty() {
+    if (path.startsWith("$.") && !path.contains("[") && path.lastIndexOf('.') == 1) {
+      return Optional.of(path.substring(2));
+    }
+    return Optional.empty();
+  }
+
+  /**
    * Extracts the simple property name if this is a simple property access.
    *
    * @return the property name, or null if not a simple property access
+   * @deprecated Use {@link #findSimpleProperty()} instead to avoid null returns
    */
+  @Deprecated
   public String getSimpleProperty() {
-    if (path.startsWith("$.") && !path.contains("[") && path.lastIndexOf('.') == 1) {
-      return path.substring(2);
-    }
-    return null;
+    return findSimpleProperty().orElse(null);
   }
 
   private static boolean isValidIdentifier(String identifier) {

@@ -77,7 +77,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       // Read JSON content efficiently
       String jsonContent = readJsonContent(reader);
 
-      if (jsonContent == null || jsonContent.trim().isEmpty()) {
+      if (jsonContent.trim().isEmpty()) {
         writer.write("null");
         writer.flush();
         return;
@@ -101,7 +101,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * Read JSON content from reader with memory management
    *
    * @param reader the BufferedReader to read from
-   * @return JSON content as string, or null if empty
+   * @return JSON content as string, or empty string if no content
    * @throws IOException if reading fails
    */
   private String readJsonContent(BufferedReader reader) throws IOException {
@@ -122,7 +122,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       jsonBuilder.append(buffer, 0, charsRead);
     }
 
-    return jsonBuilder.length() > 0 ? jsonBuilder.toString() : null;
+    return jsonBuilder.toString(); // Return empty string instead of null
   }
 
   /**

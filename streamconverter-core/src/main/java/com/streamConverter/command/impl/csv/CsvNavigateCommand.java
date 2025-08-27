@@ -2,7 +2,7 @@ package com.streamConverter.command.impl.csv;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.command.rule.PassThroughRule;
+import com.streamConverter.path.CSVPath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -21,9 +21,12 @@ import java.nio.charset.StandardCharsets;
  */
 public class CsvNavigateCommand extends AbstractStreamCommand {
 
-  private final String columnSelector;
+  private final CSVPath columnSelector;
   private final IRule rule;
   private int columnIndex = -1;
+
+  // Deprecated fields for backward compatibility
+  @Deprecated private final String legacyColumnSelector;
 
   /**
    * Constructor for CSV navigation with column selector and transformation rule.
@@ -31,68 +34,80 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @param columnSelector the column name or index to select (e.g., "name", "2")
    * @param rule the transformation rule to apply to selected column
    * @throws IllegalArgumentException if rule is null
+   * @deprecated Use {@link #CsvNavigateCommand(CSVPath, IRule)} instead
    */
+  @Deprecated
   public CsvNavigateCommand(String columnSelector, IRule rule) {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    this.columnSelector = columnSelector;
+    this.legacyColumnSelector = columnSelector;
+    this.columnSelector = columnSelector != null ? new CSVPath(columnSelector) : null;
     this.rule = rule;
   }
 
   /**
-   * Constructor for CSV navigation with column selector using PassThroughRule.
+   * Constructor for CSV navigation with typed column selector and transformation rule.
+   *
+   * @param columnSelector the typed CSVPath to select column
+   * @param rule the transformation rule to apply to selected column
+   * @throws IllegalArgumentException if rule is null
+   */
+  public CsvNavigateCommand(CSVPath columnSelector, IRule rule) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
+    this.columnSelector = columnSelector;
+    this.legacyColumnSelector = columnSelector != null ? columnSelector.getPath() : null;
+    this.rule = rule;
+  }
+
+  /**
+   * Factory method for creating a CSV navigation command with explicit rule specification. This
+   * method makes the intention explicit: extract data from the specified column and apply the given
+   * transformation rule.
    *
    * @param columnSelector the column name or index to select (e.g., "name", "2")
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #CsvNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #extractOnly(String)}.
+   * @param rule the transformation rule to apply to selected column data
+   * @return a CsvNavigateCommand that extracts the specified column with the given rule
+   * @throws IllegalArgumentException if rule is null
+   * @deprecated Use {@link #create(CSVPath, IRule)} instead
    */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public CsvNavigateCommand(String columnSelector) {
-    this(columnSelector, new PassThroughRule());
+  @Deprecated
+  public static CsvNavigateCommand create(String columnSelector, IRule rule) {
+    return new CsvNavigateCommand(columnSelector, rule);
   }
 
   /**
-   * Default constructor - processes all columns with PassThroughRule.
+   * Factory method for creating a CSV navigation command with typed column selector and rule.
    *
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #CsvNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #extractOnly(String)}.
+   * @param columnSelector the typed CSVPath to select column
+   * @param rule the transformation rule to apply to selected column data
+   * @return a CsvNavigateCommand that extracts the specified column with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public CsvNavigateCommand() {
-    this(null, new PassThroughRule());
+  public static CsvNavigateCommand create(CSVPath columnSelector, IRule rule) {
+    return new CsvNavigateCommand(columnSelector, rule);
   }
 
   /**
-   * Factory method for creating a CSV navigation command that extracts data without transformation.
-   * This method makes the intention explicit: extract data from the specified column as-is.
+   * Factory method for creating a CSV navigation command that processes all columns with explicit
+   * rule specification. This method makes the intention explicit: process all CSV data with the
+   * given transformation rule.
    *
-   * @param columnSelector the column name or index to select (e.g., "name", "2")
-   * @return a CsvNavigateCommand that extracts the specified column without transformation
+   * @param rule the transformation rule to apply to all CSV data
+   * @return a CsvNavigateCommand that processes all columns with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  public static CsvNavigateCommand extractOnly(String columnSelector) {
-    return new CsvNavigateCommand(columnSelector, new PassThroughRule());
-  }
-
-  /**
-   * Factory method for creating a CSV navigation command that processes all columns without
-   * transformation. This method makes the intention explicit: process all CSV data as-is.
-   *
-   * @return a CsvNavigateCommand that processes all columns without transformation
-   */
-  public static CsvNavigateCommand extractAll() {
-    return new CsvNavigateCommand(null, new PassThroughRule());
+  public static CsvNavigateCommand createForAll(IRule rule) {
+    return new CsvNavigateCommand((CSVPath) null, rule);
   }
 
   @Override
   protected String getCommandDetails() {
     String selectorInfo =
         columnSelector != null
-            ? String.format("columnSelector='%s'", columnSelector)
+            ? String.format("columnSelector='%s'", columnSelector.getPath())
             : "all columns";
     return String.format(
         "CsvNavigateCommand(%s, rule='%s')", selectorInfo, rule.getClass().getSimpleName());
@@ -146,9 +161,9 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     String[] headers = parseCSVLine(headerLine);
 
     // Determine column index if selector is provided
-    columnIndex = findColumnIndex(headers, columnSelector);
+    columnIndex = columnSelector.resolveIndex(headers);
     if (columnIndex == -1) {
-      throw new IllegalArgumentException("Column not found: " + columnSelector);
+      throw new IllegalArgumentException("Column not found: " + columnSelector.getPath());
     }
 
     // Write header (unchanged)
@@ -206,6 +221,8 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     return value;
   }
 
+  // This method is now deprecated as CSVPath handles index resolution
+  @Deprecated
   private int findColumnIndex(String[] headers, String selector) {
     // Try to find by column name
     for (int i = 0; i < headers.length; i++) {

@@ -43,7 +43,10 @@ public class CommandFactory {
   public static <T extends IStreamCommand> T createWithLogging(
       Class<T> commandClass, Object... args) {
     try {
-      T command = createInstance(commandClass, args);
+      T command = createNavigateCommandIfApplicable(commandClass, args);
+      if (command == null) {
+        command = createInstance(commandClass, args);
+      }
       log.info(
           "Created command instance: {} with {} args", commandClass.getSimpleName(), args.length);
 
@@ -73,7 +76,10 @@ public class CommandFactory {
   public static <T extends IStreamCommand> T createWithLogging(
       Class<T> commandClass, boolean enableDetailedLogging, Object... args) {
     try {
-      T command = createInstance(commandClass, args);
+      T command = createNavigateCommandIfApplicable(commandClass, args);
+      if (command == null) {
+        command = createInstance(commandClass, args);
+      }
       log.info(
           "Created command instance: {} with {} args (detailed logging: {})",
           commandClass.getSimpleName(),
@@ -161,6 +167,107 @@ public class CommandFactory {
     log.info(
         "Created pipeline with detailed logging for {} commands successfully", commands.size());
     return commands.toArray(new IStreamCommand[0]);
+  }
+
+  /**
+   * Creates Navigate command using factory methods if applicable. This method handles the new API
+   * for Navigate commands that no longer have deprecated constructors.
+   *
+   * @param <T> command type
+   * @param commandClass the command class
+   * @param args constructor arguments
+   * @return created command or null if not applicable
+   */
+  @SuppressWarnings("unchecked")
+  private static <T extends IStreamCommand> T createNavigateCommandIfApplicable(
+      Class<T> commandClass, Object... args) {
+
+    try {
+      String className = commandClass.getSimpleName();
+
+      if ("JsonNavigateCommand".equals(className)) {
+        return createJsonNavigateCommand(commandClass, args);
+      } else if ("CsvNavigateCommand".equals(className)) {
+        return createCsvNavigateCommand(commandClass, args);
+      } else if ("XmlNavigateCommand".equals(className)) {
+        return createXmlNavigateCommand(commandClass, args);
+      }
+
+      return null; // Not a Navigate command
+
+    } catch (Exception e) {
+      log.error("Failed to create Navigate command: " + commandClass.getSimpleName(), e);
+      return null; // Fall back to regular constructor
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends IStreamCommand> T createJsonNavigateCommand(
+      Class<T> commandClass, Object... args) {
+    try {
+      com.streamConverter.command.rule.PassThroughRule defaultRule =
+          new com.streamConverter.command.rule.PassThroughRule();
+
+      if (args.length == 1) {
+        Object path = args[0];
+        return (T)
+            com.streamConverter.command.impl.json.JsonNavigateCommand.create(
+                (String) path, defaultRule);
+      } else if (args.length == 0) {
+        return (T)
+            com.streamConverter.command.impl.json.JsonNavigateCommand.createForAll(defaultRule);
+      } else {
+        return null;
+      }
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends IStreamCommand> T createCsvNavigateCommand(
+      Class<T> commandClass, Object... args) {
+    try {
+      com.streamConverter.command.rule.PassThroughRule defaultRule =
+          new com.streamConverter.command.rule.PassThroughRule();
+
+      if (args.length == 1) {
+        Object path = args[0];
+        return (T)
+            com.streamConverter.command.impl.csv.CsvNavigateCommand.create(
+                (String) path, defaultRule);
+      } else if (args.length == 0) {
+        return (T)
+            com.streamConverter.command.impl.csv.CsvNavigateCommand.createForAll(defaultRule);
+      } else {
+        return null;
+      }
+    } catch (Exception e) {
+      return null;
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends IStreamCommand> T createXmlNavigateCommand(
+      Class<T> commandClass, Object... args) {
+    try {
+      com.streamConverter.command.rule.PassThroughRule defaultRule =
+          new com.streamConverter.command.rule.PassThroughRule();
+
+      if (args.length == 1) {
+        Object path = args[0];
+        return (T)
+            com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
+                (String) path, defaultRule);
+      } else if (args.length == 0) {
+        return (T)
+            com.streamConverter.command.impl.xml.XmlNavigateCommand.createForAll(defaultRule);
+      } else {
+        return null;
+      }
+    } catch (Exception e) {
+      return null;
+    }
   }
 
   /**

@@ -161,7 +161,7 @@ class ConvertTest {
     for (int i = 0; i < 100; i++) {
       textBuilder.append(
           String.format(
-              "Line %03d: English text with Japanese characters: こんにちは世界 %d! Chinese: 你好世界 %d! Korean: 안녕하세요 세계 %d!\n",
+              "Line %03d: English text with Japanese characters: こんにちは世界 %d! Chinese: 你好世界 %d! Korean: 안녕하세요 세계 %d!%n",
               i, i, i, i));
     }
     String testData = textBuilder.toString();
@@ -187,9 +187,8 @@ class ConvertTest {
 
     // Verify the conversion was correct
     String convertedOutput = monitoringOutputStream.getContent();
-    String expectedOutput =
-        new String(testData.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8);
     // Note: We can't directly compare UTF-16 output as string, but verify it has content
+    // (removed unused expectedOutput variable to fix SpotBugs DLS warning)
     assertTrue(convertedOutput.length() > 0, "Should have produced converted output");
   }
 
@@ -204,7 +203,7 @@ class ConvertTest {
     for (int i = 1; i <= 200; i++) {
       contentBuilder.append(
           String.format(
-              "Entry %03d: Mixed languages content - English, 日本語 (Japanese), 中文 (Chinese), 한국어 (Korean), العربية (Arabic), русский (Russian), Ελληνικά (Greek)\n",
+              "Entry %03d: Mixed languages content - English, 日本語 (Japanese), 中文 (Chinese), 한국어 (Korean), العربية (Arabic), русский (Russian), Ελληνικά (Greek)%n",
               i));
 
       // Add occasional longer content blocks

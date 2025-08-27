@@ -172,7 +172,7 @@ class SampleStreamCommandTest {
     for (int i = 1; i <= 200; i++) {
       inputBuilder.append(
           String.format(
-              "Line %03d: Sample stream data with content %s\n",
+              "Line %03d: Sample stream data with content %s%n",
               i, "A".repeat(i % 50))); // Variable length content
     }
     String inputData = inputBuilder.toString();

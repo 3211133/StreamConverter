@@ -1,6 +1,7 @@
 package com.streamConverter.command.impl.csv;
 
 import com.streamConverter.command.AbstractStreamCommand;
+import com.streamConverter.path.CSVPath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -12,6 +13,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * CSV Filter Command Class
@@ -26,8 +28,11 @@ import java.util.List;
  */
 public class CsvFilterCommand extends AbstractStreamCommand {
 
-  private final List<String> columnSelectors;
+  private final List<CSVPath> columnSelectors;
   private final boolean hasHeader;
+
+  // Deprecated fields for backward compatibility
+  @Deprecated private final List<String> legacyColumnSelectors;
 
   /**
    * Constructor for CSV filtering with single column selector.
@@ -35,12 +40,31 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @param columnSelector the column name or index to extract (e.g., "name", "2")
    * @param hasHeader whether the CSV has a header row
    * @throws IllegalArgumentException if columnSelector is null or empty
+   * @deprecated Use {@link #CsvFilterCommand(CSVPath, boolean)} instead
    */
+  @Deprecated
   public CsvFilterCommand(String columnSelector, boolean hasHeader) {
     if (columnSelector == null || columnSelector.trim().isEmpty()) {
       throw new IllegalArgumentException("Column selector cannot be null or empty");
     }
-    this.columnSelectors = Arrays.asList(columnSelector.trim());
+    this.legacyColumnSelectors = Arrays.asList(columnSelector.trim());
+    this.columnSelectors = Arrays.asList(new CSVPath(columnSelector.trim()));
+    this.hasHeader = hasHeader;
+  }
+
+  /**
+   * Constructor for CSV filtering with single typed column selector.
+   *
+   * @param columnSelector the typed CSVPath to extract
+   * @param hasHeader whether the CSV has a header row
+   * @throws IllegalArgumentException if columnSelector is null
+   */
+  public CsvFilterCommand(CSVPath columnSelector, boolean hasHeader) {
+    if (columnSelector == null) {
+      throw new IllegalArgumentException("Column selector cannot be null");
+    }
+    this.columnSelectors = Arrays.asList(columnSelector);
+    this.legacyColumnSelectors = Arrays.asList(columnSelector.getPath());
     this.hasHeader = hasHeader;
   }
 
@@ -50,36 +74,95 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @param columnSelectors list of column names or indices to extract
    * @param hasHeader whether the CSV has a header row
    * @throws IllegalArgumentException if columnSelectors is null or empty
+   * @deprecated Use {@link #CsvFilterCommand(List, boolean)} with CSVPath list instead
    */
+  @Deprecated
   public CsvFilterCommand(List<String> columnSelectors, boolean hasHeader) {
     if (columnSelectors == null || columnSelectors.isEmpty()) {
       throw new IllegalArgumentException("Column selectors cannot be null or empty");
     }
-    this.columnSelectors = new ArrayList<>(columnSelectors);
+    this.legacyColumnSelectors = new ArrayList<>(columnSelectors);
+    this.columnSelectors = columnSelectors.stream().map(CSVPath::new).collect(Collectors.toList());
     this.hasHeader = hasHeader;
+  }
+
+  /**
+   * Private constructor for internal use with typed column selectors.
+   *
+   * @param columnSelectors list of typed CSVPaths to extract
+   * @param hasHeader whether the CSV has a header row
+   * @param internal marker parameter to distinguish from deprecated constructor
+   */
+  private CsvFilterCommand(List<CSVPath> columnSelectors, boolean hasHeader, boolean internal) {
+    if (columnSelectors == null || columnSelectors.isEmpty()) {
+      throw new IllegalArgumentException("Column selectors cannot be null or empty");
+    }
+    this.columnSelectors = new ArrayList<>(columnSelectors);
+    this.legacyColumnSelectors =
+        columnSelectors.stream().map(CSVPath::getPath).collect(Collectors.toList());
+    this.hasHeader = hasHeader;
+  }
+
+  /**
+   * Factory method for CSV filtering with multiple typed column selectors.
+   *
+   * @param columnSelectors list of typed CSVPaths to extract
+   * @param hasHeader whether the CSV has a header row
+   * @return a CsvFilterCommand instance
+   * @throws IllegalArgumentException if columnSelectors is null or empty
+   */
+  public static CsvFilterCommand create(List<CSVPath> columnSelectors, boolean hasHeader) {
+    return new CsvFilterCommand(columnSelectors, hasHeader, true);
   }
 
   /**
    * Constructor for CSV filtering with single column selector (assumes header exists).
    *
    * @param columnSelector the column name or index to extract
+   * @deprecated Use {@link #create(CSVPath)} instead
    */
+  @Deprecated
   public CsvFilterCommand(String columnSelector) {
     this(columnSelector, true);
+  }
+
+  /**
+   * Factory method for CSV filtering with single typed column selector (assumes header exists).
+   *
+   * @param columnSelector the typed CSVPath to extract
+   * @return a CsvFilterCommand instance
+   */
+  public static CsvFilterCommand create(CSVPath columnSelector) {
+    return create(columnSelector, true);
+  }
+
+  /**
+   * Factory method for CSV filtering with single typed column selector.
+   *
+   * @param columnSelector the typed CSVPath to extract
+   * @param hasHeader whether the CSV has a header row
+   * @return a CsvFilterCommand instance
+   */
+  public static CsvFilterCommand create(CSVPath columnSelector, boolean hasHeader) {
+    return create(Arrays.asList(columnSelector), hasHeader);
   }
 
   /**
    * Constructor for CSV filtering with multiple column selectors (assumes header exists).
    *
    * @param columnSelectors list of column names or indices to extract
+   * @deprecated Use constructor with List&lt;CSVPath&gt; instead
    */
+  @Deprecated
   public CsvFilterCommand(List<String> columnSelectors) {
     this(columnSelectors, true);
   }
 
   @Override
   protected String getCommandDetails() {
-    return String.format("CsvFilterCommand(columns=%s, hasHeader=%s)", columnSelectors, hasHeader);
+    List<String> selectorPaths =
+        columnSelectors.stream().map(CSVPath::getPath).collect(Collectors.toList());
+    return String.format("CsvFilterCommand(columns=%s, hasHeader=%s)", selectorPaths, hasHeader);
   }
 
   @Override
@@ -139,36 +222,15 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @return list of column indices
    * @throws IllegalArgumentException if column not found
    */
-  private List<Integer> mapColumnSelectorsToIndices(List<String> selectors, String[] headers) {
+  private List<Integer> mapColumnSelectorsToIndices(List<CSVPath> selectors, String[] headers) {
     List<Integer> indices = new ArrayList<>();
 
-    for (String selector : selectors) {
-      // Try as column name first
-      boolean found = false;
-      for (int i = 0; i < headers.length; i++) {
-        if (headers[i].equals(selector)) {
-          indices.add(i);
-          found = true;
-          break;
-        }
+    for (CSVPath selector : selectors) {
+      int index = selector.resolveIndex(headers);
+      if (index == -1) {
+        throw new IllegalArgumentException("Column not found: " + selector.getPath());
       }
-
-      if (!found) {
-        // Try as numeric index
-        try {
-          int index = Integer.parseInt(selector);
-          if (index >= 0 && index < headers.length) {
-            indices.add(index);
-            found = true;
-          }
-        } catch (NumberFormatException e) {
-          // Not a valid number
-        }
-      }
-
-      if (!found) {
-        throw new IllegalArgumentException("Column not found: " + selector);
-      }
+      indices.add(index);
     }
 
     return indices;
@@ -182,20 +244,20 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @return list of column indices
    * @throws IllegalArgumentException if index is invalid
    */
-  private List<Integer> parseNumericColumnSelectors(List<String> selectors, int totalColumns) {
+  private List<Integer> parseNumericColumnSelectors(List<CSVPath> selectors, int totalColumns) {
     List<Integer> indices = new ArrayList<>();
 
-    for (String selector : selectors) {
-      try {
-        int index = Integer.parseInt(selector);
-        if (index < 0 || index >= totalColumns) {
-          throw new IllegalArgumentException("Column index out of range: " + selector);
-        }
-        indices.add(index);
-      } catch (NumberFormatException e) {
+    for (CSVPath selector : selectors) {
+      if (!selector.isIndexBased()) {
         throw new IllegalArgumentException(
-            "Invalid column index (must be numeric when no header): " + selector);
+            "Column selector must be numeric when no header: " + selector.getPath());
       }
+
+      int index = selector.getColumnIndex();
+      if (index < 0 || index >= totalColumns) {
+        throw new IllegalArgumentException("Column index out of range: " + selector.getPath());
+      }
+      indices.add(index);
     }
 
     return indices;

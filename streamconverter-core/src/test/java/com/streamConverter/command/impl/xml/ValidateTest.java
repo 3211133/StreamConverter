@@ -181,7 +181,7 @@ class ValidateTest {
     for (int i = 0; i < 50; i++) {
       xmlBuilder.append(
           String.format(
-              "  <element>Record %d: This is a test record %d for XML validation streaming behavior verification with value %d</element>\n",
+              "  <element>Record %d: This is a test record %d for XML validation streaming behavior verification with value %d</element>%n",
               i, i, i * 100));
     }
     xmlBuilder.append("</root>");
@@ -225,7 +225,7 @@ class ValidateTest {
     for (int i = 1; i <= 100; i++) {
       xmlBuilder.append(
           String.format(
-              "  <element>XML Validation Record %d with value %d in Category %d - Detailed content for record %d with extensive XML validation streaming behavior testing data and complex nested structures (tags: tag%d, streaming, validation)</element>\n",
+              "  <element>XML Validation Record %d with value %d in Category %d - Detailed content for record %d with extensive XML validation streaming behavior testing data and complex nested structures (tags: tag%d, streaming, validation)</element>%n",
               i, i * 1000, i % 10, i, i));
     }
     xmlBuilder.append("</root>");

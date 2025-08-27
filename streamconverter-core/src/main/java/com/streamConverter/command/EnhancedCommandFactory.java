@@ -5,6 +5,7 @@ import com.streamConverter.factory.FactoryConfiguration;
 import com.streamConverter.factory.FactoryException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -247,31 +248,187 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
 
   // ========== Private Implementation Methods ==========
 
+  /**
+   * Creates Navigate command using factory methods if applicable. This method handles the new API
+   * for Navigate commands that no longer have deprecated constructors.
+   *
+   * @param <T> command type
+   * @param commandClass the command class
+   * @param args constructor arguments
+   * @return created command or null if not applicable
+   * @throws FactoryException if creation fails
+   */
+  @SuppressWarnings("unchecked")
+  private <T extends IStreamCommand> Optional<T> createNavigateCommandIfApplicable(
+      Class<T> commandClass, Object... args) throws FactoryException {
+
+    String className = commandClass.getSimpleName();
+
+    if ("JsonNavigateCommand".equals(className)) {
+      return createJsonNavigateCommand(commandClass, args);
+    } else if ("CsvNavigateCommand".equals(className)) {
+      return createCsvNavigateCommand(commandClass, args);
+    } else if ("XmlNavigateCommand".equals(className)) {
+      return createXmlNavigateCommand(commandClass, args);
+    }
+    return Optional.empty();
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends IStreamCommand> Optional<T> createJsonNavigateCommand(
+      Class<T> commandClass, Object... args) throws FactoryException {
+    try {
+      // We need to add PassThroughRule as second argument for factory method
+      com.streamConverter.command.rule.PassThroughRule defaultRule =
+          new com.streamConverter.command.rule.PassThroughRule();
+
+      if (args.length == 1) {
+        // Single argument - use create(path, rule)
+        Object path = args[0];
+        return Optional.of(
+            (T)
+                com.streamConverter.command.impl.json.JsonNavigateCommand.create(
+                    (String) path, defaultRule));
+      } else if (args.length == 0) {
+        // No arguments - use createForAll(rule)
+        return Optional.of(
+            (T)
+                com.streamConverter.command.impl.json.JsonNavigateCommand.createForAll(
+                    defaultRule));
+      } else if (args.length == 2 && args[1] instanceof com.streamConverter.command.rule.IRule) {
+        // Two arguments (String path, IRule) - use create(path, rule)
+        String path = (String) args[0];
+        com.streamConverter.command.rule.IRule rule =
+            (com.streamConverter.command.rule.IRule) args[1];
+        return Optional.of(
+            (T) com.streamConverter.command.impl.json.JsonNavigateCommand.create(path, rule));
+      } else {
+        // Other argument patterns - throw exception rather than returning empty
+        throw new IllegalArgumentException(
+            "JsonNavigateCommand factory method does not support "
+                + args.length
+                + " arguments of the given types");
+      }
+    } catch (Exception e) {
+      throw new FactoryException("Failed to create JsonNavigateCommand: " + e.getMessage(), e);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends IStreamCommand> Optional<T> createCsvNavigateCommand(
+      Class<T> commandClass, Object... args) throws FactoryException {
+    try {
+      com.streamConverter.command.rule.PassThroughRule defaultRule =
+          new com.streamConverter.command.rule.PassThroughRule();
+
+      if (args.length == 1) {
+        // Single argument - use create(path, rule)
+        Object path = args[0];
+        return Optional.of(
+            (T)
+                com.streamConverter.command.impl.csv.CsvNavigateCommand.create(
+                    (String) path, defaultRule));
+      } else if (args.length == 0) {
+        // No arguments - use createForAll(rule)
+        return Optional.of(
+            (T) com.streamConverter.command.impl.csv.CsvNavigateCommand.createForAll(defaultRule));
+      } else if (args.length == 2 && args[1] instanceof com.streamConverter.command.rule.IRule) {
+        // Two arguments (String path, IRule) - use create(path, rule)
+        String path = (String) args[0];
+        com.streamConverter.command.rule.IRule rule =
+            (com.streamConverter.command.rule.IRule) args[1];
+        return Optional.of(
+            (T) com.streamConverter.command.impl.csv.CsvNavigateCommand.create(path, rule));
+      } else {
+        return Optional.empty();
+      }
+    } catch (Exception e) {
+      throw new FactoryException("Failed to create CsvNavigateCommand: " + e.getMessage(), e);
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private <T extends IStreamCommand> Optional<T> createXmlNavigateCommand(
+      Class<T> commandClass, Object... args) throws FactoryException {
+    try {
+      com.streamConverter.command.rule.PassThroughRule defaultRule =
+          new com.streamConverter.command.rule.PassThroughRule();
+
+      if (args.length == 1) {
+        // Single argument - use create(path, rule)
+        Object path = args[0];
+        return Optional.of(
+            (T)
+                com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
+                    (String) path, defaultRule));
+      } else if (args.length == 0) {
+        // No arguments - use createForAll(rule)
+        return Optional.of(
+            (T) com.streamConverter.command.impl.xml.XmlNavigateCommand.createForAll(defaultRule));
+      } else if (args.length == 2 && args[1] instanceof com.streamConverter.command.rule.IRule) {
+        // Two arguments (String path, IRule) - use create(path, rule)
+        String path = (String) args[0];
+        com.streamConverter.command.rule.IRule rule =
+            (com.streamConverter.command.rule.IRule) args[1];
+        return Optional.of(
+            (T) com.streamConverter.command.impl.xml.XmlNavigateCommand.create(path, rule));
+      } else {
+        return Optional.empty();
+      }
+    } catch (Exception e) {
+      throw new FactoryException("Failed to create XmlNavigateCommand: " + e.getMessage(), e);
+    }
+  }
+
   /** Core command creation method with logging integration. */
   @SuppressWarnings("unchecked")
   private <T extends IStreamCommand> T createCommandWithLogging(
       Class<T> commandClass, boolean enableDetailedLogging, Object... args)
       throws FactoryException {
 
-    T command = createInstance(commandClass, args);
+    Optional<T> navigateResult = createNavigateCommandIfApplicable(commandClass, args);
+    if (navigateResult.isPresent()) {
+      T command = navigateResult.get();
 
-    if (config.isDetailedLoggingEnabled() || enableDetailedLogging) {
-      log.info(
-          "Created command instance: {} with {} args (detailed logging: {})",
-          commandClass.getSimpleName(),
-          args.length,
-          enableDetailedLogging);
-    }
+      if (config.isDetailedLoggingEnabled() || enableDetailedLogging) {
+        log.info(
+            "Created command instance: {} with {} args (detailed logging: {})",
+            commandClass.getSimpleName(),
+            args.length,
+            enableDetailedLogging);
+      }
 
-    // Handle logging decoration
-    if (command instanceof AbstractStreamCommand) {
-      // AbstractStreamCommand already has integrated logging
-      return command;
-    } else if (enableDetailedLogging) {
-      // Wrap with LoggingDecorator for non-AbstractStreamCommand instances
-      return (T) new LoggingDecorator(command);
+      // Handle logging decoration
+      if (command instanceof AbstractStreamCommand) {
+        // AbstractStreamCommand already has integrated logging
+        return command;
+      } else if (enableDetailedLogging) {
+        // Wrap with LoggingDecorator for non-AbstractStreamCommand instances
+        return (T) new LoggingDecorator(command);
+      } else {
+        return command;
+      }
     } else {
-      return command;
+      T command = createInstance(commandClass, args);
+
+      if (config.isDetailedLoggingEnabled() || enableDetailedLogging) {
+        log.info(
+            "Created command instance: {} with {} args (detailed logging: {})",
+            commandClass.getSimpleName(),
+            args.length,
+            enableDetailedLogging);
+      }
+
+      // Handle logging decoration
+      if (command instanceof AbstractStreamCommand) {
+        // AbstractStreamCommand already has integrated logging
+        return command;
+      } else if (enableDetailedLogging) {
+        // Wrap with LoggingDecorator for non-AbstractStreamCommand instances
+        return (T) new LoggingDecorator(command);
+      } else {
+        return command;
+      }
     }
   }
 

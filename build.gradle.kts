@@ -17,7 +17,7 @@ plugins {
     id("com.github.spotbugs") version "6.0.28"
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
-    id("org.springframework.boot") version "3.4.7"
+    id("org.springframework.boot") version "3.5.5"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -170,7 +170,7 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     
     // セキュリティ脆弱性修正のための強制バージョン指定
-    implementation("net.minidev:json-smart:2.5.2") // CVE-2024-57699修正
+    implementation("net.minidev:json-smart:2.6.0") // CVE-2024-57699修正
     
     // Complete Netty version alignment to fix isExplicitNoPreferDirect() compatibility issue
     implementation("io.netty:netty-handler:4.2.4.Final") // CVE-2025-24970修正
@@ -229,8 +229,8 @@ dependencies {
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
     
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.18.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.18.0")
+    testImplementation("org.mockito:mockito-core:5.19.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
 }
 
 tasks.test {

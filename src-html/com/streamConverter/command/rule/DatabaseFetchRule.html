@@ -164,7 +164,7 @@
 <span class="source-line-no">151</span><span id="line-151">   */</span>
 <span class="source-line-no">152</span><span id="line-152">  private String sanitizeInput(String input) {</span>
 <span class="source-line-no">153</span><span id="line-153">    if (input == null) {</span>
-<span class="source-line-no">154</span><span id="line-154">      return null;</span>
+<span class="source-line-no">154</span><span id="line-154">      throw new IllegalArgumentException("Input parameter cannot be null");</span>
 <span class="source-line-no">155</span><span id="line-155">    }</span>
 <span class="source-line-no">156</span><span id="line-156"></span>
 <span class="source-line-no">157</span><span id="line-157">    // 危険な文字の除去/エスケープ</span>
@@ -205,7 +205,7 @@
 <span class="source-line-no">192</span><span id="line-192">      if (query.contains("?") &amp;&amp; input != null &amp;&amp; !input.isEmpty()) {</span>
 <span class="source-line-no">193</span><span id="line-193">        // 入力値のサニタイズとセキュリティチェック</span>
 <span class="source-line-no">194</span><span id="line-194">        String sanitizedInput = sanitizeInput(input);</span>
-<span class="source-line-no">195</span><span id="line-195">        if (sanitizedInput == null || sanitizedInput.isEmpty()) {</span>
+<span class="source-line-no">195</span><span id="line-195">        if (sanitizedInput.isEmpty()) {</span>
 <span class="source-line-no">196</span><span id="line-196">          logger.warn(</span>
 <span class="source-line-no">197</span><span id="line-197">              "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",</span>
 <span class="source-line-no">198</span><span id="line-198">              input);</span>

@@ -85,7 +85,7 @@ loadScripts(document, 'script');</script>
 <dd><a href="ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public static class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-370">ControllerFactory.CsvControllerBuilder</a></span>
+<div class="type-signature"><span class="modifiers">public static class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-411">ControllerFactory.CsvControllerBuilder</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="ControllerFactory.CommandFactoryAwareBuilder.html" title="interface in com.streamConverter.controller">ControllerFactory.CommandFactoryAwareBuilder</a></span></div>
 <div class="block">Builder for CSV controllers.</div>
@@ -134,20 +134,25 @@ implements <a href="ControllerFactory.CommandFactoryAwareBuilder.html" title="in
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Creates a controller with CommandFactory integration.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#forColumnExtraction(java.lang.String)" class="member-name-link">forColumnExtraction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findControllerForOutputType(java.lang.String)" class="member-name-link">findControllerForOutputType</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Creates a controller for column extraction.</div>
+<div class="block">Creates a controller for the specified output type.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#forComplexProcessing(java.lang.String,java.lang.String)" class="member-name-link">forComplexProcessing</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
- <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;processorId)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#forColumnExtraction(java.lang.String)" class="member-name-link">forColumnExtraction</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Creates a controller for complex processing.</div>
+<div class="block">Creates a controller for column extraction.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#forPassThrough()" class="member-name-link">forPassThrough</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#forComplexProcessing(java.lang.String,java.lang.String)" class="member-name-link">forComplexProcessing</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;processorId)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Creates a controller for complex processing.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#forPassThrough()" class="member-name-link">forPassThrough</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Creates a controller for pass-through processing.</div>
 </div>
 </div>
@@ -170,7 +175,7 @@ implements <a href="ControllerFactory.CommandFactoryAwareBuilder.html" title="in
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>CsvControllerBuilder</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-373">CsvControllerBuilder</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-414">CsvControllerBuilder</a></span>()</div>
 <div class="block">Creates a new builder.</div>
 </section>
 </li>
@@ -185,7 +190,7 @@ implements <a href="ControllerFactory.CommandFactoryAwareBuilder.html" title="in
 <li>
 <section class="detail" id="createForOutputType(java.lang.String)">
 <h3>createForOutputType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-375">createForOutputType</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-416">createForOutputType</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="ControllerFactory.ControllerBuilder.html#createForOutputType(java.lang.String)">ControllerFactory.ControllerBuilder</a></code></span></div>
 <div class="block">Creates a controller for the specified output type.</div>
 <dl class="notes">
@@ -199,9 +204,25 @@ implements <a href="ControllerFactory.CommandFactoryAwareBuilder.html" title="in
 </section>
 </li>
 <li>
+<section class="detail" id="findControllerForOutputType(java.lang.String)">
+<h3>findControllerForOutputType</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-421">findControllerForOutputType</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="ControllerFactory.ControllerBuilder.html#findControllerForOutputType(java.lang.String)">ControllerFactory.ControllerBuilder</a></code></span></div>
+<div class="block">Creates a controller for the specified output type.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="ControllerFactory.ControllerBuilder.html#findControllerForOutputType(java.lang.String)">findControllerForOutputType</a></code>&nbsp;in interface&nbsp;<code><a href="ControllerFactory.ControllerBuilder.html" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>outputType</code> - the desired output type</dd>
+<dt>Returns:</dt>
+<dd>Optional containing appropriate controller, or empty if not supported</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="createForOutputType(com.streamConverter.controller.OutputType)">
 <h3>createForOutputType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-393">createForOutputType</a></span><wbr><span class="parameters">(<a href="OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-439">createForOutputType</a></span><wbr><span class="parameters">(<a href="OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType)</span></div>
 <div class="block">Creates a controller for the specified OutputType enum.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -214,7 +235,7 @@ implements <a href="ControllerFactory.CommandFactoryAwareBuilder.html" title="in
 <li>
 <section class="detail" id="forColumnExtraction(java.lang.String)">
 <h3>forColumnExtraction</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-413">forColumnExtraction</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-459">forColumnExtraction</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector)</span></div>
 <div class="block">Creates a controller for column extraction.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -227,7 +248,7 @@ implements <a href="ControllerFactory.CommandFactoryAwareBuilder.html" title="in
 <li>
 <section class="detail" id="forComplexProcessing(java.lang.String,java.lang.String)">
 <h3>forComplexProcessing</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-424">forComplexProcessing</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-470">forComplexProcessing</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnSelector,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;processorId)</span></div>
 <div class="block">Creates a controller for complex processing.</div>
 <dl class="notes">
@@ -242,7 +263,7 @@ implements <a href="ControllerFactory.CommandFactoryAwareBuilder.html" title="in
 <li>
 <section class="detail" id="forPassThrough()">
 <h3>forPassThrough</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-433">forPassThrough</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-479">forPassThrough</a></span>()</div>
 <div class="block">Creates a controller for pass-through processing.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -253,7 +274,7 @@ implements <a href="ControllerFactory.CommandFactoryAwareBuilder.html" title="in
 <li>
 <section class="detail" id="createWithCommandFactory(java.lang.String,boolean)">
 <h3>createWithCommandFactory</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-437">createWithCommandFactory</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#line-483">createWithCommandFactory</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType,
  boolean&nbsp;enableDetailedLogging)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="ControllerFactory.CommandFactoryAwareBuilder.html#createWithCommandFactory(java.lang.String,boolean)">ControllerFactory.CommandFactoryAwareBuilder</a></code></span></div>
 <div class="block">Creates a controller with CommandFactory integration.</div>

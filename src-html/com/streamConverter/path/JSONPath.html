@@ -14,344 +14,356 @@
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamConverter.path;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
 <span class="source-line-no">003</span><span id="line-3">import java.util.Objects;</span>
-<span class="source-line-no">004</span><span id="line-4"></span>
-<span class="source-line-no">005</span><span id="line-5">/**</span>
-<span class="source-line-no">006</span><span id="line-6"> * Type-safe representation of JSONPath expressions.</span>
-<span class="source-line-no">007</span><span id="line-7"> *</span>
-<span class="source-line-no">008</span><span id="line-8"> * &lt;p&gt;This class encapsulates JSONPath expressions used for navigating JSON documents. It validates</span>
-<span class="source-line-no">009</span><span id="line-9"> * the path syntax at construction time and provides type safety for JSON navigation operations.</span>
-<span class="source-line-no">010</span><span id="line-10"> *</span>
-<span class="source-line-no">011</span><span id="line-11"> * &lt;p&gt;Supported JSONPath patterns: - Simple property access: "$.propertyName" - Nested property</span>
-<span class="source-line-no">012</span><span id="line-12"> * access: "$.level1.level2" - Array access: "$.users[0]" - Wildcard array access: "$.users[*]" -</span>
-<span class="source-line-no">013</span><span id="line-13"> * Root reference: "$"</span>
-<span class="source-line-no">014</span><span id="line-14"> *</span>
-<span class="source-line-no">015</span><span id="line-15"> * &lt;p&gt;Note: This is a simplified JSONPath implementation focused on the most common use cases in</span>
-<span class="source-line-no">016</span><span id="line-16"> * StreamConverter.</span>
-<span class="source-line-no">017</span><span id="line-17"> */</span>
-<span class="source-line-no">018</span><span id="line-18">public class JSONPath implements IPath {</span>
-<span class="source-line-no">019</span><span id="line-19"></span>
-<span class="source-line-no">020</span><span id="line-20">  private static final String TYPE = "JSONPath";</span>
-<span class="source-line-no">021</span><span id="line-21"></span>
-<span class="source-line-no">022</span><span id="line-22">  // No regex validation to completely avoid ReDoS vulnerabilities</span>
-<span class="source-line-no">023</span><span id="line-23">  // Use manual parsing for secure validation instead</span>
-<span class="source-line-no">024</span><span id="line-24"></span>
-<span class="source-line-no">025</span><span id="line-25">  private final String path;</span>
-<span class="source-line-no">026</span><span id="line-26"></span>
-<span class="source-line-no">027</span><span id="line-27">  /**</span>
-<span class="source-line-no">028</span><span id="line-28">   * Creates a new JSONPath instance.</span>
-<span class="source-line-no">029</span><span id="line-29">   *</span>
-<span class="source-line-no">030</span><span id="line-30">   * @param path the JSONPath expression (e.g., "$.userName", "$.users[*].name")</span>
-<span class="source-line-no">031</span><span id="line-31">   * @throws IllegalArgumentException if the path is null, empty, or has invalid syntax</span>
-<span class="source-line-no">032</span><span id="line-32">   */</span>
-<span class="source-line-no">033</span><span id="line-33">  public JSONPath(String path) {</span>
-<span class="source-line-no">034</span><span id="line-34">    if (path == null) {</span>
-<span class="source-line-no">035</span><span id="line-35">      throw new IllegalArgumentException("JSONPath cannot be null");</span>
-<span class="source-line-no">036</span><span id="line-36">    }</span>
-<span class="source-line-no">037</span><span id="line-37">    if (path.trim().isEmpty()) {</span>
-<span class="source-line-no">038</span><span id="line-38">      throw new IllegalArgumentException("JSONPath cannot be empty");</span>
-<span class="source-line-no">039</span><span id="line-39">    }</span>
-<span class="source-line-no">040</span><span id="line-40"></span>
-<span class="source-line-no">041</span><span id="line-41">    // Normalize path for backward compatibility</span>
-<span class="source-line-no">042</span><span id="line-42">    String normalizedPath = normalizeJsonPath(path.trim());</span>
-<span class="source-line-no">043</span><span id="line-43">    this.path = normalizedPath;</span>
-<span class="source-line-no">044</span><span id="line-44">    validate();</span>
-<span class="source-line-no">045</span><span id="line-45">  }</span>
-<span class="source-line-no">046</span><span id="line-46"></span>
-<span class="source-line-no">047</span><span id="line-47">  /**</span>
-<span class="source-line-no">048</span><span id="line-48">   * Factory method for creating a JSONPath for root access.</span>
-<span class="source-line-no">049</span><span id="line-49">   *</span>
-<span class="source-line-no">050</span><span id="line-50">   * @return a JSONPath representing root access ("$")</span>
-<span class="source-line-no">051</span><span id="line-51">   */</span>
-<span class="source-line-no">052</span><span id="line-52">  public static JSONPath root() {</span>
-<span class="source-line-no">053</span><span id="line-53">    return new JSONPath("$");</span>
-<span class="source-line-no">054</span><span id="line-54">  }</span>
-<span class="source-line-no">055</span><span id="line-55"></span>
-<span class="source-line-no">056</span><span id="line-56">  /**</span>
-<span class="source-line-no">057</span><span id="line-57">   * Factory method for creating a JSONPath for simple property access.</span>
-<span class="source-line-no">058</span><span id="line-58">   *</span>
-<span class="source-line-no">059</span><span id="line-59">   * @param propertyName the property name</span>
-<span class="source-line-no">060</span><span id="line-60">   * @return a JSONPath for the property (e.g., "$.propertyName")</span>
-<span class="source-line-no">061</span><span id="line-61">   * @throws IllegalArgumentException if propertyName is invalid</span>
-<span class="source-line-no">062</span><span id="line-62">   */</span>
-<span class="source-line-no">063</span><span id="line-63">  public static JSONPath property(String propertyName) {</span>
-<span class="source-line-no">064</span><span id="line-64">    if (propertyName == null || propertyName.trim().isEmpty()) {</span>
-<span class="source-line-no">065</span><span id="line-65">      throw new IllegalArgumentException("Property name cannot be null or empty");</span>
-<span class="source-line-no">066</span><span id="line-66">    }</span>
-<span class="source-line-no">067</span><span id="line-67">    if (!isValidIdentifier(propertyName.trim())) {</span>
-<span class="source-line-no">068</span><span id="line-68">      throw new IllegalArgumentException("Invalid property name: " + propertyName);</span>
-<span class="source-line-no">069</span><span id="line-69">    }</span>
-<span class="source-line-no">070</span><span id="line-70">    return new JSONPath("$." + propertyName.trim());</span>
-<span class="source-line-no">071</span><span id="line-71">  }</span>
-<span class="source-line-no">072</span><span id="line-72"></span>
-<span class="source-line-no">073</span><span id="line-73">  @Override</span>
-<span class="source-line-no">074</span><span id="line-74">  public void validate() {</span>
-<span class="source-line-no">075</span><span id="line-75">    validateJsonPathSafely(path);</span>
-<span class="source-line-no">076</span><span id="line-76">  }</span>
-<span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">  /**</span>
-<span class="source-line-no">079</span><span id="line-79">   * Manually validates JSONPath without regex to avoid ReDoS vulnerabilities. Validates patterns</span>
-<span class="source-line-no">080</span><span id="line-80">   * like: $, $.prop, $.prop[0], $.prop[*], $.prop.nested[0]</span>
-<span class="source-line-no">081</span><span id="line-81">   */</span>
-<span class="source-line-no">082</span><span id="line-82">  private static void validateJsonPathSafely(String path) {</span>
-<span class="source-line-no">083</span><span id="line-83">    if (path == null || path.isEmpty()) {</span>
-<span class="source-line-no">084</span><span id="line-84">      throw new IllegalArgumentException("JSONPath cannot be null or empty");</span>
-<span class="source-line-no">085</span><span id="line-85">    }</span>
-<span class="source-line-no">086</span><span id="line-86"></span>
-<span class="source-line-no">087</span><span id="line-87">    // Must start with $</span>
-<span class="source-line-no">088</span><span id="line-88">    if (!path.startsWith("$")) {</span>
-<span class="source-line-no">089</span><span id="line-89">      throw new IllegalArgumentException("JSONPath must start with '$': " + path);</span>
-<span class="source-line-no">090</span><span id="line-90">    }</span>
-<span class="source-line-no">091</span><span id="line-91"></span>
-<span class="source-line-no">092</span><span id="line-92">    // Just $ is valid (root)</span>
-<span class="source-line-no">093</span><span id="line-93">    if (path.equals("$")) {</span>
-<span class="source-line-no">094</span><span id="line-94">      return;</span>
-<span class="source-line-no">095</span><span id="line-95">    }</span>
-<span class="source-line-no">096</span><span id="line-96"></span>
-<span class="source-line-no">097</span><span id="line-97">    // Parse character by character to avoid regex vulnerabilities</span>
-<span class="source-line-no">098</span><span id="line-98">    int i = 1; // Start after '$'</span>
-<span class="source-line-no">099</span><span id="line-99"></span>
-<span class="source-line-no">100</span><span id="line-100">    while (i &lt; path.length()) {</span>
-<span class="source-line-no">101</span><span id="line-101">      char c = path.charAt(i);</span>
-<span class="source-line-no">102</span><span id="line-102"></span>
-<span class="source-line-no">103</span><span id="line-103">      if (c == '.') {</span>
-<span class="source-line-no">104</span><span id="line-104">        // Dot must be followed by property name</span>
-<span class="source-line-no">105</span><span id="line-105">        i++; // Move past '.'</span>
-<span class="source-line-no">106</span><span id="line-106">        if (i &gt;= path.length()) {</span>
-<span class="source-line-no">107</span><span id="line-107">          throw new IllegalArgumentException("JSONPath cannot end with '.': " + path);</span>
-<span class="source-line-no">108</span><span id="line-108">        }</span>
-<span class="source-line-no">109</span><span id="line-109"></span>
-<span class="source-line-no">110</span><span id="line-110">        // Read property name</span>
-<span class="source-line-no">111</span><span id="line-111">        int propStart = i;</span>
-<span class="source-line-no">112</span><span id="line-112">        while (i &lt; path.length()) {</span>
-<span class="source-line-no">113</span><span id="line-113">          char propChar = path.charAt(i);</span>
-<span class="source-line-no">114</span><span id="line-114">          if (Character.isLetterOrDigit(propChar) || propChar == '_') {</span>
-<span class="source-line-no">115</span><span id="line-115">            i++;</span>
-<span class="source-line-no">116</span><span id="line-116">          } else {</span>
-<span class="source-line-no">117</span><span id="line-117">            break; // Stop at non-property character like '[' or '.'</span>
-<span class="source-line-no">118</span><span id="line-118">          }</span>
-<span class="source-line-no">119</span><span id="line-119">        }</span>
-<span class="source-line-no">120</span><span id="line-120"></span>
-<span class="source-line-no">121</span><span id="line-121">        if (i == propStart) {</span>
-<span class="source-line-no">122</span><span id="line-122">          throw new IllegalArgumentException(</span>
-<span class="source-line-no">123</span><span id="line-123">              "Empty property name after '.' at position " + propStart + ": " + path);</span>
-<span class="source-line-no">124</span><span id="line-124">        }</span>
-<span class="source-line-no">125</span><span id="line-125"></span>
-<span class="source-line-no">126</span><span id="line-126">        String propName = path.substring(propStart, i);</span>
-<span class="source-line-no">127</span><span id="line-127">        if (!isValidPropertyName(propName)) {</span>
-<span class="source-line-no">128</span><span id="line-128">          throw new IllegalArgumentException(</span>
-<span class="source-line-no">129</span><span id="line-129">              "Invalid property name '" + propName + "' at position " + propStart + ": " + path);</span>
-<span class="source-line-no">130</span><span id="line-130">        }</span>
-<span class="source-line-no">131</span><span id="line-131"></span>
-<span class="source-line-no">132</span><span id="line-132">        continue;</span>
-<span class="source-line-no">133</span><span id="line-133">      }</span>
-<span class="source-line-no">134</span><span id="line-134"></span>
-<span class="source-line-no">135</span><span id="line-135">      if (c == '[') {</span>
-<span class="source-line-no">136</span><span id="line-136">        // Parse array accessor [123] or [*]</span>
-<span class="source-line-no">137</span><span id="line-137">        int endBracket = path.indexOf(']', i);</span>
-<span class="source-line-no">138</span><span id="line-138">        if (endBracket == -1) {</span>
-<span class="source-line-no">139</span><span id="line-139">          throw new IllegalArgumentException(</span>
-<span class="source-line-no">140</span><span id="line-140">              "Missing closing bracket ']' after position " + i + ": " + path);</span>
-<span class="source-line-no">141</span><span id="line-141">        }</span>
-<span class="source-line-no">142</span><span id="line-142"></span>
-<span class="source-line-no">143</span><span id="line-143">        String arrayContent = path.substring(i + 1, endBracket);</span>
-<span class="source-line-no">144</span><span id="line-144">        if (arrayContent.equals("*")) {</span>
-<span class="source-line-no">145</span><span id="line-145">          // Wildcard is valid</span>
-<span class="source-line-no">146</span><span id="line-146">        } else if (isNumericIndex(arrayContent)) {</span>
-<span class="source-line-no">147</span><span id="line-147">          // Numeric index is valid</span>
-<span class="source-line-no">148</span><span id="line-148">        } else {</span>
-<span class="source-line-no">149</span><span id="line-149">          throw new IllegalArgumentException(</span>
-<span class="source-line-no">150</span><span id="line-150">              "Invalid array index '" + arrayContent + "' at position " + i + ": " + path);</span>
-<span class="source-line-no">151</span><span id="line-151">        }</span>
-<span class="source-line-no">152</span><span id="line-152"></span>
-<span class="source-line-no">153</span><span id="line-153">        i = endBracket + 1;</span>
-<span class="source-line-no">154</span><span id="line-154">        continue;</span>
-<span class="source-line-no">155</span><span id="line-155">      }</span>
-<span class="source-line-no">156</span><span id="line-156"></span>
-<span class="source-line-no">157</span><span id="line-157">      // If we get here, we have an unexpected character</span>
-<span class="source-line-no">158</span><span id="line-158">      throw new IllegalArgumentException(</span>
-<span class="source-line-no">159</span><span id="line-159">          "Unexpected character '" + c + "' at position " + i + ": " + path);</span>
-<span class="source-line-no">160</span><span id="line-160">    }</span>
-<span class="source-line-no">161</span><span id="line-161">  }</span>
-<span class="source-line-no">162</span><span id="line-162"></span>
-<span class="source-line-no">163</span><span id="line-163">  private static boolean isValidPropertyName(String propName) {</span>
-<span class="source-line-no">164</span><span id="line-164">    if (propName == null || propName.isEmpty()) {</span>
-<span class="source-line-no">165</span><span id="line-165">      return false;</span>
-<span class="source-line-no">166</span><span id="line-166">    }</span>
-<span class="source-line-no">167</span><span id="line-167"></span>
-<span class="source-line-no">168</span><span id="line-168">    char first = propName.charAt(0);</span>
-<span class="source-line-no">169</span><span id="line-169">    if (!Character.isLetter(first) &amp;&amp; first != '_') {</span>
-<span class="source-line-no">170</span><span id="line-170">      return false;</span>
-<span class="source-line-no">171</span><span id="line-171">    }</span>
-<span class="source-line-no">172</span><span id="line-172"></span>
-<span class="source-line-no">173</span><span id="line-173">    for (int i = 1; i &lt; propName.length(); i++) {</span>
-<span class="source-line-no">174</span><span id="line-174">      char c = propName.charAt(i);</span>
-<span class="source-line-no">175</span><span id="line-175">      if (!Character.isLetterOrDigit(c) &amp;&amp; c != '_') {</span>
-<span class="source-line-no">176</span><span id="line-176">        return false;</span>
-<span class="source-line-no">177</span><span id="line-177">      }</span>
-<span class="source-line-no">178</span><span id="line-178">    }</span>
-<span class="source-line-no">179</span><span id="line-179"></span>
-<span class="source-line-no">180</span><span id="line-180">    return true;</span>
-<span class="source-line-no">181</span><span id="line-181">  }</span>
-<span class="source-line-no">182</span><span id="line-182"></span>
-<span class="source-line-no">183</span><span id="line-183">  private static boolean isNumericIndex(String index) {</span>
-<span class="source-line-no">184</span><span id="line-184">    if (index == null || index.isEmpty()) {</span>
-<span class="source-line-no">185</span><span id="line-185">      return false;</span>
-<span class="source-line-no">186</span><span id="line-186">    }</span>
-<span class="source-line-no">187</span><span id="line-187"></span>
-<span class="source-line-no">188</span><span id="line-188">    for (int i = 0; i &lt; index.length(); i++) {</span>
-<span class="source-line-no">189</span><span id="line-189">      if (!Character.isDigit(index.charAt(i))) {</span>
-<span class="source-line-no">190</span><span id="line-190">        return false;</span>
-<span class="source-line-no">191</span><span id="line-191">      }</span>
-<span class="source-line-no">192</span><span id="line-192">    }</span>
-<span class="source-line-no">193</span><span id="line-193"></span>
-<span class="source-line-no">194</span><span id="line-194">    return true;</span>
-<span class="source-line-no">195</span><span id="line-195">  }</span>
-<span class="source-line-no">196</span><span id="line-196"></span>
-<span class="source-line-no">197</span><span id="line-197">  /**</span>
-<span class="source-line-no">198</span><span id="line-198">   * Checks if the path has array notation like property[index] or property[*] without using regex</span>
-<span class="source-line-no">199</span><span id="line-199">   * to avoid ReDoS vulnerabilities.</span>
-<span class="source-line-no">200</span><span id="line-200">   */</span>
-<span class="source-line-no">201</span><span id="line-201">  private static boolean hasArrayNotation(String path) {</span>
-<span class="source-line-no">202</span><span id="line-202">    if (path == null || path.isEmpty()) {</span>
-<span class="source-line-no">203</span><span id="line-203">      return false;</span>
-<span class="source-line-no">204</span><span id="line-204">    }</span>
-<span class="source-line-no">205</span><span id="line-205"></span>
-<span class="source-line-no">206</span><span id="line-206">    // Look for pattern: starts with valid identifier, then has [...]</span>
-<span class="source-line-no">207</span><span id="line-207">    int bracketPos = path.indexOf('[');</span>
-<span class="source-line-no">208</span><span id="line-208">    if (bracketPos == -1) {</span>
-<span class="source-line-no">209</span><span id="line-209">      return false;</span>
-<span class="source-line-no">210</span><span id="line-210">    }</span>
-<span class="source-line-no">211</span><span id="line-211"></span>
-<span class="source-line-no">212</span><span id="line-212">    // Check if there's a valid identifier before the bracket</span>
-<span class="source-line-no">213</span><span id="line-213">    String beforeBracket = path.substring(0, bracketPos);</span>
-<span class="source-line-no">214</span><span id="line-214">    if (!isValidIdentifier(beforeBracket)) {</span>
-<span class="source-line-no">215</span><span id="line-215">      return false;</span>
-<span class="source-line-no">216</span><span id="line-216">    }</span>
-<span class="source-line-no">217</span><span id="line-217"></span>
-<span class="source-line-no">218</span><span id="line-218">    // Check if there's a closing bracket</span>
-<span class="source-line-no">219</span><span id="line-219">    int closeBracketPos = path.indexOf(']', bracketPos);</span>
-<span class="source-line-no">220</span><span id="line-220">    return closeBracketPos != -1;</span>
-<span class="source-line-no">221</span><span id="line-221">  }</span>
-<span class="source-line-no">222</span><span id="line-222"></span>
-<span class="source-line-no">223</span><span id="line-223">  @Override</span>
-<span class="source-line-no">224</span><span id="line-224">  public String getPath() {</span>
-<span class="source-line-no">225</span><span id="line-225">    return path;</span>
-<span class="source-line-no">226</span><span id="line-226">  }</span>
-<span class="source-line-no">227</span><span id="line-227"></span>
-<span class="source-line-no">228</span><span id="line-228">  @Override</span>
-<span class="source-line-no">229</span><span id="line-229">  public String getType() {</span>
-<span class="source-line-no">230</span><span id="line-230">    return TYPE;</span>
-<span class="source-line-no">231</span><span id="line-231">  }</span>
-<span class="source-line-no">232</span><span id="line-232"></span>
-<span class="source-line-no">233</span><span id="line-233">  @Override</span>
-<span class="source-line-no">234</span><span id="line-234">  public boolean isEquivalentTo(IPath other) {</span>
-<span class="source-line-no">235</span><span id="line-235">    if (!(other instanceof JSONPath)) {</span>
-<span class="source-line-no">236</span><span id="line-236">      return false;</span>
-<span class="source-line-no">237</span><span id="line-237">    }</span>
-<span class="source-line-no">238</span><span id="line-238">    return Objects.equals(this.path, ((JSONPath) other).path);</span>
-<span class="source-line-no">239</span><span id="line-239">  }</span>
-<span class="source-line-no">240</span><span id="line-240"></span>
-<span class="source-line-no">241</span><span id="line-241">  /**</span>
-<span class="source-line-no">242</span><span id="line-242">   * Checks if this is a root path ("$").</span>
-<span class="source-line-no">243</span><span id="line-243">   *</span>
-<span class="source-line-no">244</span><span id="line-244">   * @return true if this represents root access</span>
-<span class="source-line-no">245</span><span id="line-245">   */</span>
-<span class="source-line-no">246</span><span id="line-246">  public boolean isRoot() {</span>
-<span class="source-line-no">247</span><span id="line-247">    return "$".equals(path);</span>
-<span class="source-line-no">248</span><span id="line-248">  }</span>
-<span class="source-line-no">249</span><span id="line-249"></span>
-<span class="source-line-no">250</span><span id="line-250">  /**</span>
-<span class="source-line-no">251</span><span id="line-251">   * Checks if this path involves array access.</span>
-<span class="source-line-no">252</span><span id="line-252">   *</span>
-<span class="source-line-no">253</span><span id="line-253">   * @return true if the path contains array notation</span>
-<span class="source-line-no">254</span><span id="line-254">   */</span>
-<span class="source-line-no">255</span><span id="line-255">  public boolean hasArrayAccess() {</span>
-<span class="source-line-no">256</span><span id="line-256">    return path.contains("[");</span>
-<span class="source-line-no">257</span><span id="line-257">  }</span>
-<span class="source-line-no">258</span><span id="line-258"></span>
-<span class="source-line-no">259</span><span id="line-259">  /**</span>
-<span class="source-line-no">260</span><span id="line-260">   * Checks if this path uses wildcard array access.</span>
-<span class="source-line-no">261</span><span id="line-261">   *</span>
-<span class="source-line-no">262</span><span id="line-262">   * @return true if the path contains wildcard array notation</span>
-<span class="source-line-no">263</span><span id="line-263">   */</span>
-<span class="source-line-no">264</span><span id="line-264">  public boolean hasWildcardAccess() {</span>
-<span class="source-line-no">265</span><span id="line-265">    return path.contains("[*]");</span>
-<span class="source-line-no">266</span><span id="line-266">  }</span>
-<span class="source-line-no">267</span><span id="line-267"></span>
-<span class="source-line-no">268</span><span id="line-268">  /**</span>
-<span class="source-line-no">269</span><span id="line-269">   * Extracts the simple property name if this is a simple property access.</span>
-<span class="source-line-no">270</span><span id="line-270">   *</span>
-<span class="source-line-no">271</span><span id="line-271">   * @return the property name, or null if not a simple property access</span>
-<span class="source-line-no">272</span><span id="line-272">   */</span>
-<span class="source-line-no">273</span><span id="line-273">  public String getSimpleProperty() {</span>
-<span class="source-line-no">274</span><span id="line-274">    if (path.startsWith("$.") &amp;&amp; !path.contains("[") &amp;&amp; path.lastIndexOf('.') == 1) {</span>
-<span class="source-line-no">275</span><span id="line-275">      return path.substring(2);</span>
-<span class="source-line-no">276</span><span id="line-276">    }</span>
-<span class="source-line-no">277</span><span id="line-277">    return null;</span>
-<span class="source-line-no">278</span><span id="line-278">  }</span>
-<span class="source-line-no">279</span><span id="line-279"></span>
-<span class="source-line-no">280</span><span id="line-280">  private static boolean isValidIdentifier(String identifier) {</span>
-<span class="source-line-no">281</span><span id="line-281">    if (identifier == null || identifier.isEmpty()) {</span>
-<span class="source-line-no">282</span><span id="line-282">      return false;</span>
-<span class="source-line-no">283</span><span id="line-283">    }</span>
-<span class="source-line-no">284</span><span id="line-284"></span>
-<span class="source-line-no">285</span><span id="line-285">    char first = identifier.charAt(0);</span>
-<span class="source-line-no">286</span><span id="line-286">    if (!(Character.isLetter(first) || first == '_')) {</span>
-<span class="source-line-no">287</span><span id="line-287">      return false;</span>
-<span class="source-line-no">288</span><span id="line-288">    }</span>
-<span class="source-line-no">289</span><span id="line-289"></span>
-<span class="source-line-no">290</span><span id="line-290">    for (int i = 1; i &lt; identifier.length(); i++) {</span>
-<span class="source-line-no">291</span><span id="line-291">      char c = identifier.charAt(i);</span>
-<span class="source-line-no">292</span><span id="line-292">      if (!(Character.isLetterOrDigit(c) || c == '_')) {</span>
-<span class="source-line-no">293</span><span id="line-293">        return false;</span>
-<span class="source-line-no">294</span><span id="line-294">      }</span>
+<span class="source-line-no">004</span><span id="line-4">import java.util.Optional;</span>
+<span class="source-line-no">005</span><span id="line-5"></span>
+<span class="source-line-no">006</span><span id="line-6">/**</span>
+<span class="source-line-no">007</span><span id="line-7"> * Type-safe representation of JSONPath expressions.</span>
+<span class="source-line-no">008</span><span id="line-8"> *</span>
+<span class="source-line-no">009</span><span id="line-9"> * &lt;p&gt;This class encapsulates JSONPath expressions used for navigating JSON documents. It validates</span>
+<span class="source-line-no">010</span><span id="line-10"> * the path syntax at construction time and provides type safety for JSON navigation operations.</span>
+<span class="source-line-no">011</span><span id="line-11"> *</span>
+<span class="source-line-no">012</span><span id="line-12"> * &lt;p&gt;Supported JSONPath patterns: - Simple property access: "$.propertyName" - Nested property</span>
+<span class="source-line-no">013</span><span id="line-13"> * access: "$.level1.level2" - Array access: "$.users[0]" - Wildcard array access: "$.users[*]" -</span>
+<span class="source-line-no">014</span><span id="line-14"> * Root reference: "$"</span>
+<span class="source-line-no">015</span><span id="line-15"> *</span>
+<span class="source-line-no">016</span><span id="line-16"> * &lt;p&gt;Note: This is a simplified JSONPath implementation focused on the most common use cases in</span>
+<span class="source-line-no">017</span><span id="line-17"> * StreamConverter.</span>
+<span class="source-line-no">018</span><span id="line-18"> */</span>
+<span class="source-line-no">019</span><span id="line-19">public class JSONPath implements IPath {</span>
+<span class="source-line-no">020</span><span id="line-20"></span>
+<span class="source-line-no">021</span><span id="line-21">  private static final String TYPE = "JSONPath";</span>
+<span class="source-line-no">022</span><span id="line-22"></span>
+<span class="source-line-no">023</span><span id="line-23">  // No regex validation to completely avoid ReDoS vulnerabilities</span>
+<span class="source-line-no">024</span><span id="line-24">  // Use manual parsing for secure validation instead</span>
+<span class="source-line-no">025</span><span id="line-25"></span>
+<span class="source-line-no">026</span><span id="line-26">  private final String path;</span>
+<span class="source-line-no">027</span><span id="line-27"></span>
+<span class="source-line-no">028</span><span id="line-28">  /**</span>
+<span class="source-line-no">029</span><span id="line-29">   * Creates a new JSONPath instance.</span>
+<span class="source-line-no">030</span><span id="line-30">   *</span>
+<span class="source-line-no">031</span><span id="line-31">   * @param path the JSONPath expression (e.g., "$.userName", "$.users[*].name")</span>
+<span class="source-line-no">032</span><span id="line-32">   * @throws IllegalArgumentException if the path is null, empty, or has invalid syntax</span>
+<span class="source-line-no">033</span><span id="line-33">   */</span>
+<span class="source-line-no">034</span><span id="line-34">  public JSONPath(String path) {</span>
+<span class="source-line-no">035</span><span id="line-35">    if (path == null) {</span>
+<span class="source-line-no">036</span><span id="line-36">      throw new IllegalArgumentException("JSONPath cannot be null");</span>
+<span class="source-line-no">037</span><span id="line-37">    }</span>
+<span class="source-line-no">038</span><span id="line-38">    if (path.trim().isEmpty()) {</span>
+<span class="source-line-no">039</span><span id="line-39">      throw new IllegalArgumentException("JSONPath cannot be empty");</span>
+<span class="source-line-no">040</span><span id="line-40">    }</span>
+<span class="source-line-no">041</span><span id="line-41"></span>
+<span class="source-line-no">042</span><span id="line-42">    // Normalize path for backward compatibility</span>
+<span class="source-line-no">043</span><span id="line-43">    String normalizedPath = normalizeJsonPath(path.trim());</span>
+<span class="source-line-no">044</span><span id="line-44">    this.path = normalizedPath;</span>
+<span class="source-line-no">045</span><span id="line-45">    validate();</span>
+<span class="source-line-no">046</span><span id="line-46">  }</span>
+<span class="source-line-no">047</span><span id="line-47"></span>
+<span class="source-line-no">048</span><span id="line-48">  /**</span>
+<span class="source-line-no">049</span><span id="line-49">   * Factory method for creating a JSONPath for root access.</span>
+<span class="source-line-no">050</span><span id="line-50">   *</span>
+<span class="source-line-no">051</span><span id="line-51">   * @return a JSONPath representing root access ("$")</span>
+<span class="source-line-no">052</span><span id="line-52">   */</span>
+<span class="source-line-no">053</span><span id="line-53">  public static JSONPath root() {</span>
+<span class="source-line-no">054</span><span id="line-54">    return new JSONPath("$");</span>
+<span class="source-line-no">055</span><span id="line-55">  }</span>
+<span class="source-line-no">056</span><span id="line-56"></span>
+<span class="source-line-no">057</span><span id="line-57">  /**</span>
+<span class="source-line-no">058</span><span id="line-58">   * Factory method for creating a JSONPath for simple property access.</span>
+<span class="source-line-no">059</span><span id="line-59">   *</span>
+<span class="source-line-no">060</span><span id="line-60">   * @param propertyName the property name</span>
+<span class="source-line-no">061</span><span id="line-61">   * @return a JSONPath for the property (e.g., "$.propertyName")</span>
+<span class="source-line-no">062</span><span id="line-62">   * @throws IllegalArgumentException if propertyName is invalid</span>
+<span class="source-line-no">063</span><span id="line-63">   */</span>
+<span class="source-line-no">064</span><span id="line-64">  public static JSONPath property(String propertyName) {</span>
+<span class="source-line-no">065</span><span id="line-65">    if (propertyName == null || propertyName.trim().isEmpty()) {</span>
+<span class="source-line-no">066</span><span id="line-66">      throw new IllegalArgumentException("Property name cannot be null or empty");</span>
+<span class="source-line-no">067</span><span id="line-67">    }</span>
+<span class="source-line-no">068</span><span id="line-68">    if (!isValidIdentifier(propertyName.trim())) {</span>
+<span class="source-line-no">069</span><span id="line-69">      throw new IllegalArgumentException("Invalid property name: " + propertyName);</span>
+<span class="source-line-no">070</span><span id="line-70">    }</span>
+<span class="source-line-no">071</span><span id="line-71">    return new JSONPath("$." + propertyName.trim());</span>
+<span class="source-line-no">072</span><span id="line-72">  }</span>
+<span class="source-line-no">073</span><span id="line-73"></span>
+<span class="source-line-no">074</span><span id="line-74">  @Override</span>
+<span class="source-line-no">075</span><span id="line-75">  public void validate() {</span>
+<span class="source-line-no">076</span><span id="line-76">    validateJsonPathSafely(path);</span>
+<span class="source-line-no">077</span><span id="line-77">  }</span>
+<span class="source-line-no">078</span><span id="line-78"></span>
+<span class="source-line-no">079</span><span id="line-79">  /**</span>
+<span class="source-line-no">080</span><span id="line-80">   * Manually validates JSONPath without regex to avoid ReDoS vulnerabilities. Validates patterns</span>
+<span class="source-line-no">081</span><span id="line-81">   * like: $, $.prop, $.prop[0], $.prop[*], $.prop.nested[0]</span>
+<span class="source-line-no">082</span><span id="line-82">   */</span>
+<span class="source-line-no">083</span><span id="line-83">  private static void validateJsonPathSafely(String path) {</span>
+<span class="source-line-no">084</span><span id="line-84">    if (path == null || path.isEmpty()) {</span>
+<span class="source-line-no">085</span><span id="line-85">      throw new IllegalArgumentException("JSONPath cannot be null or empty");</span>
+<span class="source-line-no">086</span><span id="line-86">    }</span>
+<span class="source-line-no">087</span><span id="line-87"></span>
+<span class="source-line-no">088</span><span id="line-88">    // Must start with $</span>
+<span class="source-line-no">089</span><span id="line-89">    if (!path.startsWith("$")) {</span>
+<span class="source-line-no">090</span><span id="line-90">      throw new IllegalArgumentException("JSONPath must start with '$': " + path);</span>
+<span class="source-line-no">091</span><span id="line-91">    }</span>
+<span class="source-line-no">092</span><span id="line-92"></span>
+<span class="source-line-no">093</span><span id="line-93">    // Just $ is valid (root)</span>
+<span class="source-line-no">094</span><span id="line-94">    if (path.equals("$")) {</span>
+<span class="source-line-no">095</span><span id="line-95">      return;</span>
+<span class="source-line-no">096</span><span id="line-96">    }</span>
+<span class="source-line-no">097</span><span id="line-97"></span>
+<span class="source-line-no">098</span><span id="line-98">    // Parse character by character to avoid regex vulnerabilities</span>
+<span class="source-line-no">099</span><span id="line-99">    int i = 1; // Start after '$'</span>
+<span class="source-line-no">100</span><span id="line-100"></span>
+<span class="source-line-no">101</span><span id="line-101">    while (i &lt; path.length()) {</span>
+<span class="source-line-no">102</span><span id="line-102">      char c = path.charAt(i);</span>
+<span class="source-line-no">103</span><span id="line-103"></span>
+<span class="source-line-no">104</span><span id="line-104">      if (c == '.') {</span>
+<span class="source-line-no">105</span><span id="line-105">        // Dot must be followed by property name</span>
+<span class="source-line-no">106</span><span id="line-106">        i++; // Move past '.'</span>
+<span class="source-line-no">107</span><span id="line-107">        if (i &gt;= path.length()) {</span>
+<span class="source-line-no">108</span><span id="line-108">          throw new IllegalArgumentException("JSONPath cannot end with '.': " + path);</span>
+<span class="source-line-no">109</span><span id="line-109">        }</span>
+<span class="source-line-no">110</span><span id="line-110"></span>
+<span class="source-line-no">111</span><span id="line-111">        // Read property name</span>
+<span class="source-line-no">112</span><span id="line-112">        int propStart = i;</span>
+<span class="source-line-no">113</span><span id="line-113">        while (i &lt; path.length()) {</span>
+<span class="source-line-no">114</span><span id="line-114">          char propChar = path.charAt(i);</span>
+<span class="source-line-no">115</span><span id="line-115">          if (Character.isLetterOrDigit(propChar) || propChar == '_') {</span>
+<span class="source-line-no">116</span><span id="line-116">            i++;</span>
+<span class="source-line-no">117</span><span id="line-117">          } else {</span>
+<span class="source-line-no">118</span><span id="line-118">            break; // Stop at non-property character like '[' or '.'</span>
+<span class="source-line-no">119</span><span id="line-119">          }</span>
+<span class="source-line-no">120</span><span id="line-120">        }</span>
+<span class="source-line-no">121</span><span id="line-121"></span>
+<span class="source-line-no">122</span><span id="line-122">        if (i == propStart) {</span>
+<span class="source-line-no">123</span><span id="line-123">          throw new IllegalArgumentException(</span>
+<span class="source-line-no">124</span><span id="line-124">              "Empty property name after '.' at position " + propStart + ": " + path);</span>
+<span class="source-line-no">125</span><span id="line-125">        }</span>
+<span class="source-line-no">126</span><span id="line-126"></span>
+<span class="source-line-no">127</span><span id="line-127">        String propName = path.substring(propStart, i);</span>
+<span class="source-line-no">128</span><span id="line-128">        if (!isValidPropertyName(propName)) {</span>
+<span class="source-line-no">129</span><span id="line-129">          throw new IllegalArgumentException(</span>
+<span class="source-line-no">130</span><span id="line-130">              "Invalid property name '" + propName + "' at position " + propStart + ": " + path);</span>
+<span class="source-line-no">131</span><span id="line-131">        }</span>
+<span class="source-line-no">132</span><span id="line-132"></span>
+<span class="source-line-no">133</span><span id="line-133">        continue;</span>
+<span class="source-line-no">134</span><span id="line-134">      }</span>
+<span class="source-line-no">135</span><span id="line-135"></span>
+<span class="source-line-no">136</span><span id="line-136">      if (c == '[') {</span>
+<span class="source-line-no">137</span><span id="line-137">        // Parse array accessor [123] or [*]</span>
+<span class="source-line-no">138</span><span id="line-138">        int endBracket = path.indexOf(']', i);</span>
+<span class="source-line-no">139</span><span id="line-139">        if (endBracket == -1) {</span>
+<span class="source-line-no">140</span><span id="line-140">          throw new IllegalArgumentException(</span>
+<span class="source-line-no">141</span><span id="line-141">              "Missing closing bracket ']' after position " + i + ": " + path);</span>
+<span class="source-line-no">142</span><span id="line-142">        }</span>
+<span class="source-line-no">143</span><span id="line-143"></span>
+<span class="source-line-no">144</span><span id="line-144">        String arrayContent = path.substring(i + 1, endBracket);</span>
+<span class="source-line-no">145</span><span id="line-145">        if (arrayContent.equals("*")) {</span>
+<span class="source-line-no">146</span><span id="line-146">          // Wildcard is valid</span>
+<span class="source-line-no">147</span><span id="line-147">        } else if (isNumericIndex(arrayContent)) {</span>
+<span class="source-line-no">148</span><span id="line-148">          // Numeric index is valid</span>
+<span class="source-line-no">149</span><span id="line-149">        } else {</span>
+<span class="source-line-no">150</span><span id="line-150">          throw new IllegalArgumentException(</span>
+<span class="source-line-no">151</span><span id="line-151">              "Invalid array index '" + arrayContent + "' at position " + i + ": " + path);</span>
+<span class="source-line-no">152</span><span id="line-152">        }</span>
+<span class="source-line-no">153</span><span id="line-153"></span>
+<span class="source-line-no">154</span><span id="line-154">        i = endBracket + 1;</span>
+<span class="source-line-no">155</span><span id="line-155">        continue;</span>
+<span class="source-line-no">156</span><span id="line-156">      }</span>
+<span class="source-line-no">157</span><span id="line-157"></span>
+<span class="source-line-no">158</span><span id="line-158">      // If we get here, we have an unexpected character</span>
+<span class="source-line-no">159</span><span id="line-159">      throw new IllegalArgumentException(</span>
+<span class="source-line-no">160</span><span id="line-160">          "Unexpected character '" + c + "' at position " + i + ": " + path);</span>
+<span class="source-line-no">161</span><span id="line-161">    }</span>
+<span class="source-line-no">162</span><span id="line-162">  }</span>
+<span class="source-line-no">163</span><span id="line-163"></span>
+<span class="source-line-no">164</span><span id="line-164">  private static boolean isValidPropertyName(String propName) {</span>
+<span class="source-line-no">165</span><span id="line-165">    if (propName == null || propName.isEmpty()) {</span>
+<span class="source-line-no">166</span><span id="line-166">      return false;</span>
+<span class="source-line-no">167</span><span id="line-167">    }</span>
+<span class="source-line-no">168</span><span id="line-168"></span>
+<span class="source-line-no">169</span><span id="line-169">    char first = propName.charAt(0);</span>
+<span class="source-line-no">170</span><span id="line-170">    if (!Character.isLetter(first) &amp;&amp; first != '_') {</span>
+<span class="source-line-no">171</span><span id="line-171">      return false;</span>
+<span class="source-line-no">172</span><span id="line-172">    }</span>
+<span class="source-line-no">173</span><span id="line-173"></span>
+<span class="source-line-no">174</span><span id="line-174">    for (int i = 1; i &lt; propName.length(); i++) {</span>
+<span class="source-line-no">175</span><span id="line-175">      char c = propName.charAt(i);</span>
+<span class="source-line-no">176</span><span id="line-176">      if (!Character.isLetterOrDigit(c) &amp;&amp; c != '_') {</span>
+<span class="source-line-no">177</span><span id="line-177">        return false;</span>
+<span class="source-line-no">178</span><span id="line-178">      }</span>
+<span class="source-line-no">179</span><span id="line-179">    }</span>
+<span class="source-line-no">180</span><span id="line-180"></span>
+<span class="source-line-no">181</span><span id="line-181">    return true;</span>
+<span class="source-line-no">182</span><span id="line-182">  }</span>
+<span class="source-line-no">183</span><span id="line-183"></span>
+<span class="source-line-no">184</span><span id="line-184">  private static boolean isNumericIndex(String index) {</span>
+<span class="source-line-no">185</span><span id="line-185">    if (index == null || index.isEmpty()) {</span>
+<span class="source-line-no">186</span><span id="line-186">      return false;</span>
+<span class="source-line-no">187</span><span id="line-187">    }</span>
+<span class="source-line-no">188</span><span id="line-188"></span>
+<span class="source-line-no">189</span><span id="line-189">    for (int i = 0; i &lt; index.length(); i++) {</span>
+<span class="source-line-no">190</span><span id="line-190">      if (!Character.isDigit(index.charAt(i))) {</span>
+<span class="source-line-no">191</span><span id="line-191">        return false;</span>
+<span class="source-line-no">192</span><span id="line-192">      }</span>
+<span class="source-line-no">193</span><span id="line-193">    }</span>
+<span class="source-line-no">194</span><span id="line-194"></span>
+<span class="source-line-no">195</span><span id="line-195">    return true;</span>
+<span class="source-line-no">196</span><span id="line-196">  }</span>
+<span class="source-line-no">197</span><span id="line-197"></span>
+<span class="source-line-no">198</span><span id="line-198">  /**</span>
+<span class="source-line-no">199</span><span id="line-199">   * Checks if the path has array notation like property[index] or property[*] without using regex</span>
+<span class="source-line-no">200</span><span id="line-200">   * to avoid ReDoS vulnerabilities.</span>
+<span class="source-line-no">201</span><span id="line-201">   */</span>
+<span class="source-line-no">202</span><span id="line-202">  private static boolean hasArrayNotation(String path) {</span>
+<span class="source-line-no">203</span><span id="line-203">    if (path == null || path.isEmpty()) {</span>
+<span class="source-line-no">204</span><span id="line-204">      return false;</span>
+<span class="source-line-no">205</span><span id="line-205">    }</span>
+<span class="source-line-no">206</span><span id="line-206"></span>
+<span class="source-line-no">207</span><span id="line-207">    // Look for pattern: starts with valid identifier, then has [...]</span>
+<span class="source-line-no">208</span><span id="line-208">    int bracketPos = path.indexOf('[');</span>
+<span class="source-line-no">209</span><span id="line-209">    if (bracketPos == -1) {</span>
+<span class="source-line-no">210</span><span id="line-210">      return false;</span>
+<span class="source-line-no">211</span><span id="line-211">    }</span>
+<span class="source-line-no">212</span><span id="line-212"></span>
+<span class="source-line-no">213</span><span id="line-213">    // Check if there's a valid identifier before the bracket</span>
+<span class="source-line-no">214</span><span id="line-214">    String beforeBracket = path.substring(0, bracketPos);</span>
+<span class="source-line-no">215</span><span id="line-215">    if (!isValidIdentifier(beforeBracket)) {</span>
+<span class="source-line-no">216</span><span id="line-216">      return false;</span>
+<span class="source-line-no">217</span><span id="line-217">    }</span>
+<span class="source-line-no">218</span><span id="line-218"></span>
+<span class="source-line-no">219</span><span id="line-219">    // Check if there's a closing bracket</span>
+<span class="source-line-no">220</span><span id="line-220">    int closeBracketPos = path.indexOf(']', bracketPos);</span>
+<span class="source-line-no">221</span><span id="line-221">    return closeBracketPos != -1;</span>
+<span class="source-line-no">222</span><span id="line-222">  }</span>
+<span class="source-line-no">223</span><span id="line-223"></span>
+<span class="source-line-no">224</span><span id="line-224">  @Override</span>
+<span class="source-line-no">225</span><span id="line-225">  public String getPath() {</span>
+<span class="source-line-no">226</span><span id="line-226">    return path;</span>
+<span class="source-line-no">227</span><span id="line-227">  }</span>
+<span class="source-line-no">228</span><span id="line-228"></span>
+<span class="source-line-no">229</span><span id="line-229">  @Override</span>
+<span class="source-line-no">230</span><span id="line-230">  public String getType() {</span>
+<span class="source-line-no">231</span><span id="line-231">    return TYPE;</span>
+<span class="source-line-no">232</span><span id="line-232">  }</span>
+<span class="source-line-no">233</span><span id="line-233"></span>
+<span class="source-line-no">234</span><span id="line-234">  @Override</span>
+<span class="source-line-no">235</span><span id="line-235">  public boolean isEquivalentTo(IPath other) {</span>
+<span class="source-line-no">236</span><span id="line-236">    if (!(other instanceof JSONPath)) {</span>
+<span class="source-line-no">237</span><span id="line-237">      return false;</span>
+<span class="source-line-no">238</span><span id="line-238">    }</span>
+<span class="source-line-no">239</span><span id="line-239">    return Objects.equals(this.path, ((JSONPath) other).path);</span>
+<span class="source-line-no">240</span><span id="line-240">  }</span>
+<span class="source-line-no">241</span><span id="line-241"></span>
+<span class="source-line-no">242</span><span id="line-242">  /**</span>
+<span class="source-line-no">243</span><span id="line-243">   * Checks if this is a root path ("$").</span>
+<span class="source-line-no">244</span><span id="line-244">   *</span>
+<span class="source-line-no">245</span><span id="line-245">   * @return true if this represents root access</span>
+<span class="source-line-no">246</span><span id="line-246">   */</span>
+<span class="source-line-no">247</span><span id="line-247">  public boolean isRoot() {</span>
+<span class="source-line-no">248</span><span id="line-248">    return "$".equals(path);</span>
+<span class="source-line-no">249</span><span id="line-249">  }</span>
+<span class="source-line-no">250</span><span id="line-250"></span>
+<span class="source-line-no">251</span><span id="line-251">  /**</span>
+<span class="source-line-no">252</span><span id="line-252">   * Checks if this path involves array access.</span>
+<span class="source-line-no">253</span><span id="line-253">   *</span>
+<span class="source-line-no">254</span><span id="line-254">   * @return true if the path contains array notation</span>
+<span class="source-line-no">255</span><span id="line-255">   */</span>
+<span class="source-line-no">256</span><span id="line-256">  public boolean hasArrayAccess() {</span>
+<span class="source-line-no">257</span><span id="line-257">    return path.contains("[");</span>
+<span class="source-line-no">258</span><span id="line-258">  }</span>
+<span class="source-line-no">259</span><span id="line-259"></span>
+<span class="source-line-no">260</span><span id="line-260">  /**</span>
+<span class="source-line-no">261</span><span id="line-261">   * Checks if this path uses wildcard array access.</span>
+<span class="source-line-no">262</span><span id="line-262">   *</span>
+<span class="source-line-no">263</span><span id="line-263">   * @return true if the path contains wildcard array notation</span>
+<span class="source-line-no">264</span><span id="line-264">   */</span>
+<span class="source-line-no">265</span><span id="line-265">  public boolean hasWildcardAccess() {</span>
+<span class="source-line-no">266</span><span id="line-266">    return path.contains("[*]");</span>
+<span class="source-line-no">267</span><span id="line-267">  }</span>
+<span class="source-line-no">268</span><span id="line-268"></span>
+<span class="source-line-no">269</span><span id="line-269">  /**</span>
+<span class="source-line-no">270</span><span id="line-270">   * Get the simple property name if this path represents a simple property access like "$.name".</span>
+<span class="source-line-no">271</span><span id="line-271">   *</span>
+<span class="source-line-no">272</span><span id="line-272">   * @return Optional containing the property name, or empty if not a simple property access</span>
+<span class="source-line-no">273</span><span id="line-273">   */</span>
+<span class="source-line-no">274</span><span id="line-274">  public Optional&lt;String&gt; findSimpleProperty() {</span>
+<span class="source-line-no">275</span><span id="line-275">    if (path.startsWith("$.") &amp;&amp; !path.contains("[") &amp;&amp; path.lastIndexOf('.') == 1) {</span>
+<span class="source-line-no">276</span><span id="line-276">      return Optional.of(path.substring(2));</span>
+<span class="source-line-no">277</span><span id="line-277">    }</span>
+<span class="source-line-no">278</span><span id="line-278">    return Optional.empty();</span>
+<span class="source-line-no">279</span><span id="line-279">  }</span>
+<span class="source-line-no">280</span><span id="line-280"></span>
+<span class="source-line-no">281</span><span id="line-281">  /**</span>
+<span class="source-line-no">282</span><span id="line-282">   * Extracts the simple property name if this is a simple property access.</span>
+<span class="source-line-no">283</span><span id="line-283">   *</span>
+<span class="source-line-no">284</span><span id="line-284">   * @return the property name, or null if not a simple property access</span>
+<span class="source-line-no">285</span><span id="line-285">   * @deprecated Use {@link #findSimpleProperty()} instead to avoid null returns</span>
+<span class="source-line-no">286</span><span id="line-286">   */</span>
+<span class="source-line-no">287</span><span id="line-287">  @Deprecated</span>
+<span class="source-line-no">288</span><span id="line-288">  public String getSimpleProperty() {</span>
+<span class="source-line-no">289</span><span id="line-289">    return findSimpleProperty().orElse(null);</span>
+<span class="source-line-no">290</span><span id="line-290">  }</span>
+<span class="source-line-no">291</span><span id="line-291"></span>
+<span class="source-line-no">292</span><span id="line-292">  private static boolean isValidIdentifier(String identifier) {</span>
+<span class="source-line-no">293</span><span id="line-293">    if (identifier == null || identifier.isEmpty()) {</span>
+<span class="source-line-no">294</span><span id="line-294">      return false;</span>
 <span class="source-line-no">295</span><span id="line-295">    }</span>
 <span class="source-line-no">296</span><span id="line-296"></span>
-<span class="source-line-no">297</span><span id="line-297">    return true;</span>
-<span class="source-line-no">298</span><span id="line-298">  }</span>
-<span class="source-line-no">299</span><span id="line-299"></span>
-<span class="source-line-no">300</span><span id="line-300">  /**</span>
-<span class="source-line-no">301</span><span id="line-301">   * Normalizes a path for backward compatibility. Converts bare property names to proper JSONPath</span>
-<span class="source-line-no">302</span><span id="line-302">   * syntax.</span>
-<span class="source-line-no">303</span><span id="line-303">   */</span>
-<span class="source-line-no">304</span><span id="line-304">  private String normalizeJsonPath(String path) {</span>
-<span class="source-line-no">305</span><span id="line-305">    // If already starts with $, assume it's correct</span>
-<span class="source-line-no">306</span><span id="line-306">    if (path.startsWith("$")) {</span>
-<span class="source-line-no">307</span><span id="line-307">      return path;</span>
-<span class="source-line-no">308</span><span id="line-308">    }</span>
-<span class="source-line-no">309</span><span id="line-309"></span>
-<span class="source-line-no">310</span><span id="line-310">    // If it's a simple identifier, convert to $.identifier</span>
-<span class="source-line-no">311</span><span id="line-311">    if (isValidIdentifier(path)) {</span>
-<span class="source-line-no">312</span><span id="line-312">      return "$." + path;</span>
-<span class="source-line-no">313</span><span id="line-313">    }</span>
-<span class="source-line-no">314</span><span id="line-314"></span>
-<span class="source-line-no">315</span><span id="line-315">    // If it contains array notation but no $, assume it needs $</span>
-<span class="source-line-no">316</span><span id="line-316">    if (hasArrayNotation(path)) {</span>
-<span class="source-line-no">317</span><span id="line-317">      return "$." + path;</span>
-<span class="source-line-no">318</span><span id="line-318">    }</span>
-<span class="source-line-no">319</span><span id="line-319"></span>
-<span class="source-line-no">320</span><span id="line-320">    // Return as-is for other cases (will be validated later)</span>
-<span class="source-line-no">321</span><span id="line-321">    return path;</span>
-<span class="source-line-no">322</span><span id="line-322">  }</span>
-<span class="source-line-no">323</span><span id="line-323"></span>
-<span class="source-line-no">324</span><span id="line-324">  @Override</span>
-<span class="source-line-no">325</span><span id="line-325">  public String toString() {</span>
-<span class="source-line-no">326</span><span id="line-326">    return String.format("JSONPath('%s')", path);</span>
-<span class="source-line-no">327</span><span id="line-327">  }</span>
-<span class="source-line-no">328</span><span id="line-328"></span>
-<span class="source-line-no">329</span><span id="line-329">  @Override</span>
-<span class="source-line-no">330</span><span id="line-330">  public boolean equals(Object obj) {</span>
-<span class="source-line-no">331</span><span id="line-331">    if (this == obj) return true;</span>
-<span class="source-line-no">332</span><span id="line-332">    if (obj == null || getClass() != obj.getClass()) return false;</span>
-<span class="source-line-no">333</span><span id="line-333">    JSONPath jsonPath = (JSONPath) obj;</span>
-<span class="source-line-no">334</span><span id="line-334">    return Objects.equals(path, jsonPath.path);</span>
-<span class="source-line-no">335</span><span id="line-335">  }</span>
-<span class="source-line-no">336</span><span id="line-336"></span>
-<span class="source-line-no">337</span><span id="line-337">  @Override</span>
-<span class="source-line-no">338</span><span id="line-338">  public int hashCode() {</span>
-<span class="source-line-no">339</span><span id="line-339">    return Objects.hash(path);</span>
-<span class="source-line-no">340</span><span id="line-340">  }</span>
-<span class="source-line-no">341</span><span id="line-341">}</span>
+<span class="source-line-no">297</span><span id="line-297">    char first = identifier.charAt(0);</span>
+<span class="source-line-no">298</span><span id="line-298">    if (!(Character.isLetter(first) || first == '_')) {</span>
+<span class="source-line-no">299</span><span id="line-299">      return false;</span>
+<span class="source-line-no">300</span><span id="line-300">    }</span>
+<span class="source-line-no">301</span><span id="line-301"></span>
+<span class="source-line-no">302</span><span id="line-302">    for (int i = 1; i &lt; identifier.length(); i++) {</span>
+<span class="source-line-no">303</span><span id="line-303">      char c = identifier.charAt(i);</span>
+<span class="source-line-no">304</span><span id="line-304">      if (!(Character.isLetterOrDigit(c) || c == '_')) {</span>
+<span class="source-line-no">305</span><span id="line-305">        return false;</span>
+<span class="source-line-no">306</span><span id="line-306">      }</span>
+<span class="source-line-no">307</span><span id="line-307">    }</span>
+<span class="source-line-no">308</span><span id="line-308"></span>
+<span class="source-line-no">309</span><span id="line-309">    return true;</span>
+<span class="source-line-no">310</span><span id="line-310">  }</span>
+<span class="source-line-no">311</span><span id="line-311"></span>
+<span class="source-line-no">312</span><span id="line-312">  /**</span>
+<span class="source-line-no">313</span><span id="line-313">   * Normalizes a path for backward compatibility. Converts bare property names to proper JSONPath</span>
+<span class="source-line-no">314</span><span id="line-314">   * syntax.</span>
+<span class="source-line-no">315</span><span id="line-315">   */</span>
+<span class="source-line-no">316</span><span id="line-316">  private String normalizeJsonPath(String path) {</span>
+<span class="source-line-no">317</span><span id="line-317">    // If already starts with $, assume it's correct</span>
+<span class="source-line-no">318</span><span id="line-318">    if (path.startsWith("$")) {</span>
+<span class="source-line-no">319</span><span id="line-319">      return path;</span>
+<span class="source-line-no">320</span><span id="line-320">    }</span>
+<span class="source-line-no">321</span><span id="line-321"></span>
+<span class="source-line-no">322</span><span id="line-322">    // If it's a simple identifier, convert to $.identifier</span>
+<span class="source-line-no">323</span><span id="line-323">    if (isValidIdentifier(path)) {</span>
+<span class="source-line-no">324</span><span id="line-324">      return "$." + path;</span>
+<span class="source-line-no">325</span><span id="line-325">    }</span>
+<span class="source-line-no">326</span><span id="line-326"></span>
+<span class="source-line-no">327</span><span id="line-327">    // If it contains array notation but no $, assume it needs $</span>
+<span class="source-line-no">328</span><span id="line-328">    if (hasArrayNotation(path)) {</span>
+<span class="source-line-no">329</span><span id="line-329">      return "$." + path;</span>
+<span class="source-line-no">330</span><span id="line-330">    }</span>
+<span class="source-line-no">331</span><span id="line-331"></span>
+<span class="source-line-no">332</span><span id="line-332">    // Return as-is for other cases (will be validated later)</span>
+<span class="source-line-no">333</span><span id="line-333">    return path;</span>
+<span class="source-line-no">334</span><span id="line-334">  }</span>
+<span class="source-line-no">335</span><span id="line-335"></span>
+<span class="source-line-no">336</span><span id="line-336">  @Override</span>
+<span class="source-line-no">337</span><span id="line-337">  public String toString() {</span>
+<span class="source-line-no">338</span><span id="line-338">    return String.format("JSONPath('%s')", path);</span>
+<span class="source-line-no">339</span><span id="line-339">  }</span>
+<span class="source-line-no">340</span><span id="line-340"></span>
+<span class="source-line-no">341</span><span id="line-341">  @Override</span>
+<span class="source-line-no">342</span><span id="line-342">  public boolean equals(Object obj) {</span>
+<span class="source-line-no">343</span><span id="line-343">    if (this == obj) return true;</span>
+<span class="source-line-no">344</span><span id="line-344">    if (obj == null || getClass() != obj.getClass()) return false;</span>
+<span class="source-line-no">345</span><span id="line-345">    JSONPath jsonPath = (JSONPath) obj;</span>
+<span class="source-line-no">346</span><span id="line-346">    return Objects.equals(path, jsonPath.path);</span>
+<span class="source-line-no">347</span><span id="line-347">  }</span>
+<span class="source-line-no">348</span><span id="line-348"></span>
+<span class="source-line-no">349</span><span id="line-349">  @Override</span>
+<span class="source-line-no">350</span><span id="line-350">  public int hashCode() {</span>
+<span class="source-line-no">351</span><span id="line-351">    return Objects.hash(path);</span>
+<span class="source-line-no">352</span><span id="line-352">  }</span>
+<span class="source-line-no">353</span><span id="line-353">}</span>
 
 
 

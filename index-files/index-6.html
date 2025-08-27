@@ -102,6 +102,30 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Returns the value of the <a href="../com/streamConverter/command/impl/analysis/PmdXmlToMarkdownCommand.PmdViolation.html#param-file"><code>file</code></a> record component.</div>
 </dd>
+<dt><a href="../com/streamConverter/controller/OutputType.html#findByValue(java.lang.String)" class="member-name-link">findByValue(String)</a> - Static method in enum class com.streamConverter.controller.<a href="../com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
+<dd>
+<div class="block">Converts a string value to the corresponding OutputType.</div>
+</dd>
+<dt><a href="../com/streamConverter/controller/ControllerFactory.html#findController(java.lang.String,com.streamConverter.controller.OutputType)" class="member-name-link">findController(String, OutputType)</a> - Static method in class com.streamConverter.controller.<a href="../com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Gets a controller for the specified input and output data types using OutputType enum.</div>
+</dd>
+<dt><a href="../com/streamConverter/controller/ControllerFactory.html#findController(java.lang.String,java.lang.String)" class="member-name-link">findController(String, String)</a> - Static method in class com.streamConverter.controller.<a href="../com/streamConverter/controller/ControllerFactory.html" title="class in com.streamConverter.controller">ControllerFactory</a></dt>
+<dd>
+<div class="block">Gets a controller for the specified input and output data types.</div>
+</dd>
+<dt><a href="../com/streamConverter/controller/ControllerFactory.ControllerBuilder.html#findControllerForOutputType(java.lang.String)" class="member-name-link">findControllerForOutputType(String)</a> - Method in interface com.streamConverter.controller.<a href="../com/streamConverter/controller/ControllerFactory.ControllerBuilder.html" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a></dt>
+<dd>
+<div class="block">Creates a controller for the specified output type.</div>
+</dd>
+<dt><a href="../com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#findControllerForOutputType(java.lang.String)" class="member-name-link">findControllerForOutputType(String)</a> - Method in class com.streamConverter.controller.<a href="../com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#findControllerForOutputType(java.lang.String)" class="member-name-link">findControllerForOutputType(String)</a> - Method in class com.streamConverter.controller.<a href="../com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
+<dd>&nbsp;</dd>
+<dt><a href="../com/streamConverter/path/JSONPath.html#findSimpleProperty()" class="member-name-link">findSimpleProperty()</a> - Method in class com.streamConverter.path.<a href="../com/streamConverter/path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a></dt>
+<dd>
+<div class="block">Get the simple property name if this path represents a simple property access like "$.name".</div>
+</dd>
 <dt><a href="../com/streamConverter/pathHandler/FixedStaXPathHandler.html" class="type-name-link" title="class in com.streamConverter.pathHandler">FixedStaXPathHandler</a> - Class in <a href="../com/streamConverter/pathHandler/package-summary.html">com.streamConverter.pathHandler</a></dt>
 <dd>
 <div class="block">Xpathを指定して、Xpathの階層を判定するクラス。</div>
@@ -224,7 +248,9 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="../com/streamConverter/controller/OutputType.html#fromString(java.lang.String)" class="member-name-link">fromString(String)</a> - Static method in enum class com.streamConverter.controller.<a href="../com/streamConverter/controller/OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></dt>
 <dd>
-<div class="block">Converts a string value to the corresponding OutputType.</div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../com/streamConverter/controller/OutputType.html#findByValue(java.lang.String)"><code>OutputType.findByValue(String)</code></a> instead to avoid null returns</div>
+</div>
 </dd>
 </dl>
 <a href="index-1.html">A</a>&nbsp;<a href="index-2.html">B</a>&nbsp;<a href="index-3.html">C</a>&nbsp;<a href="index-4.html">D</a>&nbsp;<a href="index-5.html">E</a>&nbsp;<a href="index-6.html">F</a>&nbsp;<a href="index-7.html">G</a>&nbsp;<a href="index-8.html">H</a>&nbsp;<a href="index-9.html">I</a>&nbsp;<a href="index-10.html">J</a>&nbsp;<a href="index-11.html">L</a>&nbsp;<a href="index-12.html">M</a>&nbsp;<a href="index-13.html">O</a>&nbsp;<a href="index-14.html">P</a>&nbsp;<a href="index-15.html">Q</a>&nbsp;<a href="index-16.html">R</a>&nbsp;<a href="index-17.html">S</a>&nbsp;<a href="index-18.html">T</a>&nbsp;<a href="index-19.html">U</a>&nbsp;<a href="index-20.html">V</a>&nbsp;<a href="index-21.html">W</a>&nbsp;<a href="index-22.html">X</a>&nbsp;<br><a href="../allclasses-index.html">All&nbsp;Classes&nbsp;and&nbsp;Interfaces</a><span class="vertical-separator">|</span><a href="../allpackages-index.html">All&nbsp;Packages</a><span class="vertical-separator">|</span><a href="../constant-values.html">Constant&nbsp;Field&nbsp;Values</a><span class="vertical-separator">|</span><a href="../serialized-form.html">Serialized&nbsp;Form</a></main>

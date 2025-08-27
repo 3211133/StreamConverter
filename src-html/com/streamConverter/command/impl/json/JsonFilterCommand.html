@@ -90,7 +90,7 @@
 <span class="source-line-no">077</span><span id="line-77">      // Read JSON content efficiently</span>
 <span class="source-line-no">078</span><span id="line-78">      String jsonContent = readJsonContent(reader);</span>
 <span class="source-line-no">079</span><span id="line-79"></span>
-<span class="source-line-no">080</span><span id="line-80">      if (jsonContent == null || jsonContent.trim().isEmpty()) {</span>
+<span class="source-line-no">080</span><span id="line-80">      if (jsonContent.trim().isEmpty()) {</span>
 <span class="source-line-no">081</span><span id="line-81">        writer.write("null");</span>
 <span class="source-line-no">082</span><span id="line-82">        writer.flush();</span>
 <span class="source-line-no">083</span><span id="line-83">        return;</span>
@@ -114,7 +114,7 @@
 <span class="source-line-no">101</span><span id="line-101">   * Read JSON content from reader with memory management</span>
 <span class="source-line-no">102</span><span id="line-102">   *</span>
 <span class="source-line-no">103</span><span id="line-103">   * @param reader the BufferedReader to read from</span>
-<span class="source-line-no">104</span><span id="line-104">   * @return JSON content as string, or null if empty</span>
+<span class="source-line-no">104</span><span id="line-104">   * @return JSON content as string, or empty string if no content</span>
 <span class="source-line-no">105</span><span id="line-105">   * @throws IOException if reading fails</span>
 <span class="source-line-no">106</span><span id="line-106">   */</span>
 <span class="source-line-no">107</span><span id="line-107">  private String readJsonContent(BufferedReader reader) throws IOException {</span>
@@ -135,7 +135,7 @@
 <span class="source-line-no">122</span><span id="line-122">      jsonBuilder.append(buffer, 0, charsRead);</span>
 <span class="source-line-no">123</span><span id="line-123">    }</span>
 <span class="source-line-no">124</span><span id="line-124"></span>
-<span class="source-line-no">125</span><span id="line-125">    return jsonBuilder.length() &gt; 0 ? jsonBuilder.toString() : null;</span>
+<span class="source-line-no">125</span><span id="line-125">    return jsonBuilder.toString(); // Return empty string instead of null</span>
 <span class="source-line-no">126</span><span id="line-126">  }</span>
 <span class="source-line-no">127</span><span id="line-127"></span>
 <span class="source-line-no">128</span><span id="line-128">  /**</span>

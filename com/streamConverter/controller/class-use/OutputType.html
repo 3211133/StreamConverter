@@ -71,7 +71,9 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color"><code>static <a href="../OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></code></div>
 <div class="col-second even-row-color"><span class="type-name-label">OutputType.</span><code><a href="../OutputType.html#fromString(java.lang.String)" class="member-name-link">fromString</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Converts a string value to the corresponding OutputType.</div>
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../OutputType.html#findByValue(java.lang.String)"><code>findByValue(String)</code></a> instead to avoid null returns</div>
+</div>
 </div>
 <div class="col-first odd-row-color"><code>static <a href="../OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></code></div>
 <div class="col-second odd-row-color"><span class="type-name-label">OutputType.</span><code><a href="../OutputType.html#valueOf(java.lang.String)" class="member-name-link">valueOf</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;name)</code></div>
@@ -83,6 +85,17 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">Returns an array containing the constants of this enum class, in
 the order they are declared.</div>
+</div>
+</div>
+<div class="caption"><span>Methods in <a href="../package-summary.html">com.streamConverter.controller</a> that return types with arguments of type <a href="../OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="../OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">OutputType.</span><code><a href="../OutputType.html#findByValue(java.lang.String)" class="member-name-link">findByValue</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Converts a string value to the corresponding OutputType.</div>
 </div>
 </div>
 <div class="caption"><span>Methods in <a href="../package-summary.html">com.streamConverter.controller</a> with parameters of type <a href="../OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a></span></div>
@@ -114,11 +127,19 @@ the order they are declared.</div>
 <div class="col-last odd-row-color">
 <div class="block">Creates a controller using CommandFactory-style configuration with OutputType enum.</div>
 </div>
-<div class="col-first even-row-color"><code>static <a href="../IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></code></div>
-<div class="col-second even-row-color"><span class="type-name-label">ControllerFactory.</span><code><a href="../ControllerFactory.html#getController(java.lang.String,com.streamConverter.controller.OutputType)" class="member-name-link">getController</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+<div class="col-first even-row-color"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="../IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">ControllerFactory.</span><code><a href="../ControllerFactory.html#findController(java.lang.String,com.streamConverter.controller.OutputType)" class="member-name-link">findController</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="../OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Gets a controller for the specified input and output data types using OutputType enum.</div>
+</div>
+<div class="col-first odd-row-color"><code>static <a href="../IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">ControllerFactory.</span><code><a href="../ControllerFactory.html#getController(java.lang.String,com.streamConverter.controller.OutputType)" class="member-name-link">getController</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+ <a href="../OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType)</code></div>
+<div class="col-last odd-row-color">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="../ControllerFactory.html#findController(java.lang.String,com.streamConverter.controller.OutputType)"><code>ControllerFactory.findController(String, OutputType)</code></a> instead to avoid null returns</div>
+</div>
 </div>
 </div>
 </section>

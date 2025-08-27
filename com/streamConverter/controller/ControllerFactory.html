@@ -77,7 +77,7 @@ loadScripts(document, 'script');</script>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-54">ControllerFactory</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-55">ControllerFactory</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">Factory for creating and managing stream controllers with CommandFactory integration.
 
@@ -164,7 +164,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button><button id="method-summary-table-tab6" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab6', 3)" class="table-tab">Deprecated Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -196,22 +196,38 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Creates a controller using CommandFactory-style configuration.</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#findController(java.lang.String,com.streamConverter.controller.OutputType)" class="member-name-link">findController</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+ <a href="OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Gets a controller for the specified input and output data types using OutputType enum.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a>&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#findController(java.lang.String,java.lang.String)" class="member-name-link">findController</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">Gets a controller for the specified input and output data types.</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="../command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getCommandFactory()" class="member-name-link">getCommandFactory</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Gets the enhanced command factory instance used by this controller factory.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getController(java.lang.String,com.streamConverter.controller.OutputType)" class="member-name-link">getController</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code>static <a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#getController(java.lang.String,com.streamConverter.controller.OutputType)" class="member-name-link">getController</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Gets a controller for the specified input and output data types using OutputType enum.</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#findController(java.lang.String,com.streamConverter.controller.OutputType)"><code>findController(String, OutputType)</code></a> instead to avoid null returns</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getController(java.lang.String,java.lang.String)" class="member-name-link">getController</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code>static <a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#getController(java.lang.String,java.lang.String)" class="member-name-link">getController</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Gets a controller for the specified input and output data types.</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6">
+<div class="block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#findController(java.lang.String,java.lang.String)"><code>findController(String, String)</code></a> instead to avoid null returns</div>
+</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getCsvController()" class="member-name-link">getCsvController</a>()</code></div>
@@ -259,9 +275,9 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="getController(java.lang.String,com.streamConverter.controller.OutputType)">
-<h3>getController</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-91">getController</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+<section class="detail" id="findController(java.lang.String,com.streamConverter.controller.OutputType)">
+<h3>findController</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-92">findController</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType)</span></div>
 <div class="block">Gets a controller for the specified input and output data types using OutputType enum.
 
@@ -272,16 +288,35 @@ loadScripts(document, 'script');</script>
 <dd><code>inputType</code> - the expected input data type (e.g., "CSV", "JSON", "XML")</dd>
 <dd><code>outputType</code> - the expected output data type as enum</dd>
 <dt>Returns:</dt>
-<dd>appropriate controller, or null if none can be created</dd>
+<dd>Optional containing appropriate controller, or empty if none can be created</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if input parameters are invalid</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="getController(java.lang.String,java.lang.String)">
+<section class="detail" id="getController(java.lang.String,com.streamConverter.controller.OutputType)">
 <h3>getController</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-107">getController</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
+</span><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-106">getController</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+ <a href="OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType)</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#findController(java.lang.String,com.streamConverter.controller.OutputType)"><code>findController(String, OutputType)</code></a> instead to avoid null returns</div>
+</div>
+<div class="block">Gets a controller for the specified input and output data types using OutputType enum.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>inputType</code> - the expected input data type (e.g., "CSV", "JSON", "XML")</dd>
+<dd><code>outputType</code> - the expected output data type as enum</dd>
+<dt>Returns:</dt>
+<dd>appropriate controller, or null if none can be created</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="findController(java.lang.String,java.lang.String)">
+<h3>findController</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-122">findController</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType)</span></div>
 <div class="block">Gets a controller for the specified input and output data types.
 
@@ -292,16 +327,35 @@ loadScripts(document, 'script');</script>
 <dd><code>inputType</code> - the expected input data type (e.g., "CSV", "JSON", "XML")</dd>
 <dd><code>outputType</code> - the expected output data type (e.g., "CSV_COLUMN", "JSON_PROPERTY")</dd>
 <dt>Returns:</dt>
-<dd>appropriate controller, or null if none can be created</dd>
+<dd>Optional containing appropriate controller, or empty if none can be created</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if input parameters are invalid</dd>
 </dl>
 </section>
 </li>
 <li>
+<section class="detail" id="getController(java.lang.String,java.lang.String)">
+<h3>getController</h3>
+<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
+</span><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-160">getController</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType)</span></div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use <a href="#findController(java.lang.String,java.lang.String)"><code>findController(String, String)</code></a> instead to avoid null returns</div>
+</div>
+<div class="block">Gets a controller for the specified input and output data types.</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>inputType</code> - the expected input data type (e.g., "CSV", "JSON", "XML")</dd>
+<dd><code>outputType</code> - the expected output data type (e.g., "CSV_COLUMN", "JSON_PROPERTY")</dd>
+<dt>Returns:</dt>
+<dd>appropriate controller, or null if none can be created</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="getCsvController()">
 <h3>getCsvController</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-141">getCsvController</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-170">getCsvController</a></span>()</div>
 <div class="block">Gets a CSV controller builder for advanced configuration.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -312,7 +366,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getJsonController()">
 <h3>getJsonController</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-150">getJsonController</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-179">getJsonController</a></span>()</div>
 <div class="block">Gets a JSON controller builder for advanced configuration.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -323,7 +377,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createWithCommandFactory(java.lang.String,com.streamConverter.controller.OutputType,boolean)">
 <h3>createWithCommandFactory</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-165">createWithCommandFactory</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-194">createWithCommandFactory</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType,
  boolean&nbsp;enableDetailedLogging)</span></div>
 <div class="block">Creates a controller using CommandFactory-style configuration with OutputType enum.
@@ -343,7 +397,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createWithCommandFactory(java.lang.String,java.lang.String,boolean)">
 <h3>createWithCommandFactory</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-182">createWithCommandFactory</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-211">createWithCommandFactory</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType,
  boolean&nbsp;enableDetailedLogging)</span></div>
 <div class="block">Creates a controller using CommandFactory-style configuration.
@@ -363,7 +417,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="registerController(java.lang.String,java.lang.String,com.streamConverter.controller.IStreamController)">
 <h3>registerController</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-226">registerController</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-255">registerController</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;outputType,
  <a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a>&nbsp;controller)</span></div>
 <div class="block">Registers a custom controller for specific input/output type combination.</div>
@@ -380,7 +434,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="registerBuilder(java.lang.String,com.streamConverter.controller.ControllerFactory.ControllerBuilder)">
 <h3>registerBuilder</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-249">registerBuilder</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-278">registerBuilder</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="ControllerFactory.ControllerBuilder.html" title="interface in com.streamConverter.controller">ControllerFactory.ControllerBuilder</a>&nbsp;builder)</span></div>
 <div class="block">Registers a custom controller builder for a specific input type.</div>
 <dl class="notes">
@@ -395,7 +449,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createOptimized(java.lang.String,com.streamConverter.controller.OutputType,com.streamConverter.factory.FactoryConfiguration)">
 <h3>createOptimized</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-270">createOptimized</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-299">createOptimized</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;inputType,
  <a href="OutputType.html" title="enum class in com.streamConverter.controller">OutputType</a>&nbsp;outputType,
  <a href="../factory/FactoryConfiguration.html" title="class in com.streamConverter.factory">FactoryConfiguration</a>&nbsp;config)</span></div>
 <div class="block">Creates a controller with optimized CommandFactory integration. This method addresses Issue
@@ -413,7 +467,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getCommandFactory()">
 <h3>getCommandFactory</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-317">getCommandFactory</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="../command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-346">getCommandFactory</a></span>()</div>
 <div class="block">Gets the enhanced command factory instance used by this controller factory. This provides
  access to the optimized command creation infrastructure.</div>
 <dl class="notes">
@@ -425,7 +479,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getRegisteredTypes()">
 <h3>getRegisteredTypes</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-326">getRegisteredTypes</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-355">getRegisteredTypes</a></span>()</div>
 <div class="block">Gets all registered controller types.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -436,7 +490,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="clearRegistry()">
 <h3>clearRegistry</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-335">clearRegistry</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/ControllerFactory.html#line-364">clearRegistry</a></span>()</div>
 <div class="block">Clears all registered controllers and builders.
 
  <p>This method is primarily for testing purposes.</div>

@@ -1,6 +1,7 @@
 package com.streamConverter.command.impl.json;
 
 import com.streamConverter.command.AbstractStreamCommand;
+import com.streamConverter.path.JSONPath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -26,24 +27,44 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming
   private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer
 
-  private final String jsonPath;
+  private final JSONPath jsonPath;
+
+  // Deprecated fields for backward compatibility
+  @Deprecated private final String legacyJsonPath;
 
   /**
    * Constructor for JSON filtering with JSONPath selector.
    *
    * @param jsonPath the JSONPath expression to extract data (e.g., "$.users", "$.name")
    * @throws IllegalArgumentException if jsonPath is null or empty
+   * @deprecated Use {@link #JsonFilterCommand(JSONPath)} instead
    */
+  @Deprecated
   public JsonFilterCommand(String jsonPath) {
     if (jsonPath == null || jsonPath.trim().isEmpty()) {
       throw new IllegalArgumentException("JSONPath cannot be null or empty");
     }
-    this.jsonPath = jsonPath.trim();
+    this.legacyJsonPath = jsonPath.trim();
+    this.jsonPath = new JSONPath(jsonPath.trim());
+  }
+
+  /**
+   * Constructor for JSON filtering with typed JSONPath selector.
+   *
+   * @param jsonPath the typed JSONPath to extract data
+   * @throws IllegalArgumentException if jsonPath is null
+   */
+  public JsonFilterCommand(JSONPath jsonPath) {
+    if (jsonPath == null) {
+      throw new IllegalArgumentException("JSONPath cannot be null");
+    }
+    this.jsonPath = jsonPath;
+    this.legacyJsonPath = jsonPath.getPath();
   }
 
   @Override
   protected String getCommandDetails() {
-    return String.format("JsonFilterCommand(jsonPath='%s')", jsonPath);
+    return String.format("JsonFilterCommand(jsonPath='%s')", jsonPath.getPath());
   }
 
   @Override
@@ -56,7 +77,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       // Read JSON content efficiently
       String jsonContent = readJsonContent(reader);
 
-      if (jsonContent == null || jsonContent.trim().isEmpty()) {
+      if (jsonContent.trim().isEmpty()) {
         writer.write("null");
         writer.flush();
         return;
@@ -64,7 +85,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
 
       try {
         // Apply simple JSONPath-like extraction using lightweight parsing
-        String result = extractJsonValue(jsonContent, jsonPath);
+        String result = extractJsonValue(jsonContent, jsonPath.getPath());
         writer.write(result);
         writer.flush();
 
@@ -80,7 +101,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * Read JSON content from reader with memory management
    *
    * @param reader the BufferedReader to read from
-   * @return JSON content as string, or null if empty
+   * @return JSON content as string, or empty string if no content
    * @throws IOException if reading fails
    */
   private String readJsonContent(BufferedReader reader) throws IOException {
@@ -101,7 +122,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       jsonBuilder.append(buffer, 0, charsRead);
     }
 
-    return jsonBuilder.length() > 0 ? jsonBuilder.toString() : null;
+    return jsonBuilder.toString(); // Return empty string instead of null
   }
 
   /**

@@ -2,7 +2,7 @@ package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.command.rule.PassThroughRule;
+import com.streamConverter.path.XPath;
 import com.streamConverter.pathHandler.FixedStaXPathHandler;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,9 +32,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlNavigateCommand.class.getName());
   private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
-  private String xpath;
+  private XPath xpath;
   private IRule rule;
   private FixedStaXPathHandler pathHandler;
+
+  // Deprecated fields for backward compatibility
+  @Deprecated private final String legacyXpath;
 
   /**
    * Constructor for XML navigation with XPath selector and transformation rule.
@@ -42,12 +45,15 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @param xpath the XPath expression to select elements (e.g., "users/user/name")
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if rule is null
+   * @deprecated Use {@link #XmlNavigateCommand(XPath, IRule)} instead
    */
+  @Deprecated
   public XmlNavigateCommand(String xpath, IRule rule) {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    this.xpath = xpath;
+    this.legacyXpath = xpath;
+    this.xpath = xpath != null ? new XPath(xpath) : null;
     this.rule = rule;
     if (xpath != null) {
       this.pathHandler = new FixedStaXPathHandler(xpath);
@@ -55,57 +61,69 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Constructor for XML navigation with XPath selector using PassThroughRule.
+   * Constructor for XML navigation with typed XPath selector and transformation rule.
+   *
+   * @param xpath the typed XPath to select elements
+   * @param rule the transformation rule to apply to selected elements
+   * @throws IllegalArgumentException if rule is null
+   */
+  public XmlNavigateCommand(XPath xpath, IRule rule) {
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
+    this.xpath = xpath;
+    this.legacyXpath = xpath != null ? xpath.getPath() : null;
+    this.rule = rule;
+    if (xpath != null) {
+      this.pathHandler = new FixedStaXPathHandler(xpath.getPath());
+    }
+  }
+
+  /**
+   * Factory method for creating an XML navigation command with explicit rule specification. This
+   * method makes the intention explicit: extract data from the specified XPath and apply the given
+   * transformation rule.
    *
    * @param xpath the XPath expression to select elements (e.g., "users/user/name")
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #extractOnly(String)}.
+   * @param rule the transformation rule to apply to selected elements
+   * @return an XmlNavigateCommand that extracts the specified XPath with the given rule
+   * @throws IllegalArgumentException if rule is null
+   * @deprecated Use {@link #create(XPath, IRule)} instead
    */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public XmlNavigateCommand(String xpath) {
-    this(xpath, new PassThroughRule());
+  @Deprecated
+  public static XmlNavigateCommand create(String xpath, IRule rule) {
+    return new XmlNavigateCommand(xpath, rule);
   }
 
   /**
-   * Default constructor - processes entire XML with PassThroughRule.
+   * Factory method for creating an XML navigation command with typed XPath and rule.
    *
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link #extractAll()}.
+   * @param xpath the typed XPath to select elements
+   * @param rule the transformation rule to apply to selected elements
+   * @return an XmlNavigateCommand that extracts the specified XPath with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public XmlNavigateCommand() {
-    this(null, new PassThroughRule());
+  public static XmlNavigateCommand create(XPath xpath, IRule rule) {
+    return new XmlNavigateCommand(xpath, rule);
   }
 
   /**
-   * Factory method for creating an XML navigation command that extracts data without
-   * transformation. This method makes the intention explicit: extract data from the specified XPath
-   * as-is.
+   * Factory method for creating an XML navigation command that processes entire XML with explicit
+   * rule specification. This method makes the intention explicit: process all XML data with the
+   * given transformation rule.
    *
-   * @param xpath the XPath expression to select elements (e.g., "users/user/name")
-   * @return an XmlNavigateCommand that extracts the specified XPath without transformation
+   * @param rule the transformation rule to apply to entire XML
+   * @return an XmlNavigateCommand that processes entire XML with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  public static XmlNavigateCommand extractOnly(String xpath) {
-    return new XmlNavigateCommand(xpath, new PassThroughRule());
-  }
-
-  /**
-   * Factory method for creating an XML navigation command that processes entire XML without
-   * transformation. This method makes the intention explicit: process all XML data as-is.
-   *
-   * @return an XmlNavigateCommand that processes entire XML without transformation
-   */
-  public static XmlNavigateCommand extractAll() {
-    return new XmlNavigateCommand(null, new PassThroughRule());
+  public static XmlNavigateCommand createForAll(IRule rule) {
+    return new XmlNavigateCommand((XPath) null, rule);
   }
 
   @Override
   protected String getCommandDetails() {
     if (xpath != null) {
-      return String.format("XmlNavigateCommand(xpath='%s')", xpath);
+      return String.format("XmlNavigateCommand(xpath='%s')", xpath.getPath());
     } else {
       return "XmlNavigateCommand(entire XML)";
     }

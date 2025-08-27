@@ -8,6 +8,7 @@ import com.streamConverter.command.rule.DatabaseFetchRule;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -30,10 +31,16 @@ class DatabaseRuleIntegrationTest {
     // テスト用データベースの初期化
     try (Connection conn = DriverManager.getConnection(DB_URL)) {
       // テストテーブルの作成
-      conn.prepareStatement("DROP TABLE IF EXISTS users").execute();
-      conn.prepareStatement("DROP TABLE IF EXISTS products").execute();
+      try (PreparedStatement dropUsers = conn.prepareStatement("DROP TABLE IF EXISTS users")) {
+        dropUsers.execute();
+      }
+      try (PreparedStatement dropProducts =
+          conn.prepareStatement("DROP TABLE IF EXISTS products")) {
+        dropProducts.execute();
+      }
 
-      conn.prepareStatement(
+      try (PreparedStatement createUsers =
+          conn.prepareStatement(
               """
                 CREATE TABLE users (
                     id INTEGER PRIMARY KEY,
@@ -41,10 +48,12 @@ class DatabaseRuleIntegrationTest {
                     email VARCHAR(100),
                     department VARCHAR(50)
                 )
-                """)
-          .execute();
+                """)) {
+        createUsers.execute();
+      }
 
-      conn.prepareStatement(
+      try (PreparedStatement createProducts =
+          conn.prepareStatement(
               """
                 CREATE TABLE products (
                     code VARCHAR(20) PRIMARY KEY,
@@ -52,39 +61,42 @@ class DatabaseRuleIntegrationTest {
                     price DECIMAL(10,2),
                     category VARCHAR(50)
                 )
-                """)
-          .execute();
+                """)) {
+        createProducts.execute();
+      }
 
       // テストデータの挿入
-      PreparedStatement userStmt =
+      try (PreparedStatement userStmt =
           conn.prepareStatement(
-              "INSERT INTO users (id, name, email, department) VALUES (?, ?, ?, ?)");
-      userStmt.setInt(1, 1001);
-      userStmt.setString(2, "田中太郎");
-      userStmt.setString(3, "tanaka@example.com");
-      userStmt.setString(4, "開発部");
-      userStmt.execute();
+              "INSERT INTO users (id, name, email, department) VALUES (?, ?, ?, ?)")) {
+        userStmt.setInt(1, 1001);
+        userStmt.setString(2, "田中太郎");
+        userStmt.setString(3, "tanaka@example.com");
+        userStmt.setString(4, "開発部");
+        userStmt.execute();
 
-      userStmt.setInt(1, 1002);
-      userStmt.setString(2, "佐藤花子");
-      userStmt.setString(3, "sato@example.com");
-      userStmt.setString(4, "営業部");
-      userStmt.execute();
+        userStmt.setInt(1, 1002);
+        userStmt.setString(2, "佐藤花子");
+        userStmt.setString(3, "sato@example.com");
+        userStmt.setString(4, "営業部");
+        userStmt.execute();
+      }
 
-      PreparedStatement productStmt =
+      try (PreparedStatement productStmt =
           conn.prepareStatement(
-              "INSERT INTO products (code, name, price, category) VALUES (?, ?, ?, ?)");
-      productStmt.setString(1, "P001");
-      productStmt.setString(2, "高性能ノートPC");
-      productStmt.setBigDecimal(3, new java.math.BigDecimal("120000.00"));
-      productStmt.setString(4, "PC");
-      productStmt.execute();
+              "INSERT INTO products (code, name, price, category) VALUES (?, ?, ?, ?)")) {
+        productStmt.setString(1, "P001");
+        productStmt.setString(2, "高性能ノートPC");
+        productStmt.setBigDecimal(3, new java.math.BigDecimal("120000.00"));
+        productStmt.setString(4, "PC");
+        productStmt.execute();
 
-      productStmt.setString(1, "P002");
-      productStmt.setString(2, "ワイヤレスマウス");
-      productStmt.setBigDecimal(3, new java.math.BigDecimal("2980.00"));
-      productStmt.setString(4, "周辺機器");
-      productStmt.execute();
+        productStmt.setString(1, "P002");
+        productStmt.setString(2, "ワイヤレスマウス");
+        productStmt.setBigDecimal(3, new java.math.BigDecimal("2980.00"));
+        productStmt.setString(4, "周辺機器");
+        productStmt.execute();
+      }
     }
   }
 
@@ -109,12 +121,13 @@ class DatabaseRuleIntegrationTest {
             """;
 
     // 変換実行
-    ByteArrayInputStream input = new ByteArrayInputStream(inputJson.getBytes());
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(inputJson.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     command.execute(input, output);
 
-    String result = output.toString();
+    String result = output.toString(StandardCharsets.UTF_8);
 
     // 結果検証（テストデバッグ情報付き）
     System.out.println("JSON変換結果: " + result);
@@ -142,12 +155,13 @@ class DatabaseRuleIntegrationTest {
             """;
 
     // 変換実行
-    ByteArrayInputStream input = new ByteArrayInputStream(inputCsv.getBytes());
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(inputCsv.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     command.execute(input, output);
 
-    String result = output.toString();
+    String result = output.toString(StandardCharsets.UTF_8);
 
     // 結果検証（テストデバッグ情報付き）
     System.out.println("CSV変換結果: " + result);
@@ -178,12 +192,13 @@ class DatabaseRuleIntegrationTest {
             """;
 
     // 変換実行
-    ByteArrayInputStream input = new ByteArrayInputStream(inputJson.getBytes());
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(inputJson.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     command.execute(input, output);
 
-    String result = output.toString();
+    String result = output.toString(StandardCharsets.UTF_8);
 
     // 結果検証（存在しないIDの場合は空文字列になる）
     assertTrue(result.contains("\"userId\":\"\""), "存在しないIDは空文字列になるべき");
@@ -211,12 +226,13 @@ class DatabaseRuleIntegrationTest {
             """;
 
     // 変換実行
-    ByteArrayInputStream input = new ByteArrayInputStream(inputJson.getBytes());
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(inputJson.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     command.execute(input, output);
 
-    String result = output.toString();
+    String result = output.toString(StandardCharsets.UTF_8);
 
     // 結果検証（テストデバッグ情報付き）
     System.out.println("バッチ処理結果: " + result);
@@ -247,12 +263,13 @@ class DatabaseRuleIntegrationTest {
             """;
 
     // 変換実行
-    ByteArrayInputStream input = new ByteArrayInputStream(inputJson.getBytes());
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(inputJson.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
     command.execute(input, output);
 
-    String result = output.toString();
+    String result = output.toString(StandardCharsets.UTF_8);
 
     // 結果検証
     assertTrue(result.contains("120000"), "商品価格が取得されているべき");

@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
@@ -23,7 +24,7 @@ class XmlNavigateCommandTest {
 
   @BeforeEach
   void setUp() {
-    command = new XmlNavigateCommand();
+    command = XmlNavigateCommand.createForAll(new PassThroughRule());
   }
 
   @Test
@@ -39,7 +40,7 @@ class XmlNavigateCommandTest {
 
     assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
 
-    String result = outputStream.toString();
+    String result = ((ByteArrayOutputStream) outputStream).toString(StandardCharsets.UTF_8);
     assertNotNull(result);
     // For now, just verify that the command doesn't throw an exception
     // Verify basic XML navigation functionality - exact assertions depend on implementation details
@@ -105,13 +106,7 @@ class XmlNavigateCommandTest {
       xmlBuilder.append(
           String.format(
               """
-        <item id="%d">
-          <title>Book Title %d</title>
-          <author>Author %d</author>
-          <description>This is a detailed description of book %d with various content</description>
-          <price currency="USD">%.2f</price>
-        </item>
-        """,
+        <item id="%d">%n          <title>Book Title %d</title>%n          <author>Author %d</author>%n          <description>This is a detailed description of book %d with various content</description>%n          <price currency="USD">%.2f</price>%n        </item>%n        """,
               i, i, i, i, 19.99 + (i * 0.5)));
     }
 
@@ -153,26 +148,7 @@ class XmlNavigateCommandTest {
       xmlBuilder.append(
           String.format(
               """
-        <section name="Section %d">
-          <books>
-            <book id="book%d-1">
-              <title>Advanced Topics in Computer Science %d</title>
-              <chapters>
-                <chapter num="1">Introduction to Concepts %d</chapter>
-                <chapter num="2">Advanced Algorithms %d</chapter>
-                <chapter num="3">Data Structures and Analysis %d</chapter>
-              </chapters>
-            </book>
-            <book id="book%d-2">
-              <title>Practical Software Engineering %d</title>
-              <metadata>
-                <tags>engineering,software,practical</tags>
-                <keywords>design,testing,deployment</keywords>
-              </metadata>
-            </book>
-          </books>
-        </section>
-        """,
+        <section name="Section %d">%n          <books>%n            <book id="book%d-1">%n              <title>Advanced Topics in Computer Science %d</title>%n              <chapters>%n                <chapter num="1">Introduction to Concepts %d</chapter>%n                <chapter num="2">Advanced Algorithms %d</chapter>%n                <chapter num="3">Data Structures and Analysis %d</chapter>%n              </chapters>%n            </book>%n            <book id="book%d-2">%n              <title>Practical Software Engineering %d</title>%n              <metadata>%n                <tags>engineering,software,practical</tags>%n                <keywords>design,testing,deployment</keywords>%n              </metadata>%n            </book>%n          </books>%n        </section>%n        """,
               i, i, i, i, i, i, i, i));
     }
 

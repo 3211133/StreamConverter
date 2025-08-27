@@ -5,6 +5,7 @@ import com.streamConverter.factory.FactoryConfiguration;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -85,12 +86,26 @@ public class ControllerFactory {
    *
    * @param inputType the expected input data type (e.g., "CSV", "JSON", "XML")
    * @param outputType the expected output data type as enum
-   * @return appropriate controller, or null if none can be created
+   * @return Optional containing appropriate controller, or empty if none can be created
    * @throws IllegalArgumentException if input parameters are invalid
    */
-  public static IStreamController getController(String inputType, OutputType outputType) {
+  public static Optional<IStreamController> findController(
+      String inputType, OutputType outputType) {
     Objects.requireNonNull(outputType, "Output type cannot be null");
-    return getController(inputType, outputType.getValue());
+    return findController(inputType, outputType.getValue());
+  }
+
+  /**
+   * Gets a controller for the specified input and output data types using OutputType enum.
+   *
+   * @param inputType the expected input data type (e.g., "CSV", "JSON", "XML")
+   * @param outputType the expected output data type as enum
+   * @return appropriate controller, or null if none can be created
+   * @deprecated Use {@link #findController(String, OutputType)} instead to avoid null returns
+   */
+  @Deprecated
+  public static IStreamController getController(String inputType, OutputType outputType) {
+    return findController(inputType, outputType).orElse(null);
   }
 
   /**
@@ -101,10 +116,10 @@ public class ControllerFactory {
    *
    * @param inputType the expected input data type (e.g., "CSV", "JSON", "XML")
    * @param outputType the expected output data type (e.g., "CSV_COLUMN", "JSON_PROPERTY")
-   * @return appropriate controller, or null if none can be created
+   * @return Optional containing appropriate controller, or empty if none can be created
    * @throws IllegalArgumentException if input parameters are invalid
    */
-  public static IStreamController getController(String inputType, String outputType) {
+  public static Optional<IStreamController> findController(String inputType, String outputType) {
     Objects.requireNonNull(inputType, "Input type cannot be null");
     Objects.requireNonNull(outputType, "Output type cannot be null");
 
@@ -114,23 +129,37 @@ public class ControllerFactory {
     IStreamController cachedController = controllerRegistry.get(key);
     if (cachedController != null) {
       log.debug("Found cached controller for {} → {}", inputType, outputType);
-      return cachedController;
+      return Optional.of(cachedController);
     }
 
     // Try to create using builders
     ControllerBuilder builder = builderRegistry.get(inputType);
     if (builder != null) {
-      IStreamController controller = builder.createForOutputType(outputType);
-      if (controller != null) {
+      Optional<IStreamController> controllerOpt = builder.findControllerForOutputType(outputType);
+      if (controllerOpt.isPresent()) {
+        IStreamController controller = controllerOpt.get();
         log.info("Created controller for {} → {} using builder", inputType, outputType);
         // Cache for future use
         controllerRegistry.put(key, controller);
-        return controller;
+        return Optional.of(controller);
       }
     }
 
     log.warn("No controller available for {} → {}", inputType, outputType);
-    return null;
+    return Optional.empty();
+  }
+
+  /**
+   * Gets a controller for the specified input and output data types.
+   *
+   * @param inputType the expected input data type (e.g., "CSV", "JSON", "XML")
+   * @param outputType the expected output data type (e.g., "CSV_COLUMN", "JSON_PROPERTY")
+   * @return appropriate controller, or null if none can be created
+   * @deprecated Use {@link #findController(String, String)} instead to avoid null returns
+   */
+  @Deprecated
+  public static IStreamController getController(String inputType, String outputType) {
+    return findController(inputType, outputType).orElse(null);
   }
 
   /**
@@ -349,8 +378,20 @@ public class ControllerFactory {
      * Creates a controller for the specified output type.
      *
      * @param outputType the desired output type
-     * @return appropriate controller, or null if not supported
+     * @return Optional containing appropriate controller, or empty if not supported
      */
+    default Optional<IStreamController> findControllerForOutputType(String outputType) {
+      return Optional.ofNullable(createForOutputType(outputType));
+    }
+
+    /**
+     * Creates a controller for the specified output type.
+     *
+     * @param outputType the desired output type
+     * @return appropriate controller, or null if not supported
+     * @deprecated Use {@link #findControllerForOutputType(String)} instead to avoid null returns
+     */
+    @Deprecated
     IStreamController createForOutputType(String outputType);
   }
 
@@ -374,14 +415,19 @@ public class ControllerFactory {
 
     @Override
     public IStreamController createForOutputType(String outputType) {
-      OutputType type = OutputType.fromString(outputType);
-      if (type != null) {
-        return createForOutputType(type);
+      return findControllerForOutputType(outputType).orElse(null);
+    }
+
+    @Override
+    public Optional<IStreamController> findControllerForOutputType(String outputType) {
+      Optional<OutputType> typeOpt = OutputType.findByValue(outputType);
+      if (typeOpt.isPresent()) {
+        return Optional.ofNullable(createForOutputType(typeOpt.get()));
       }
 
       // Fallback for unknown string types
       log.warn("Unknown output type for CSV controller: {}", outputType);
-      return null;
+      return Optional.empty();
     }
 
     /**
@@ -460,14 +506,19 @@ public class ControllerFactory {
 
     @Override
     public IStreamController createForOutputType(String outputType) {
-      OutputType type = OutputType.fromString(outputType);
-      if (type != null) {
-        return createForOutputType(type);
+      return findControllerForOutputType(outputType).orElse(null);
+    }
+
+    @Override
+    public Optional<IStreamController> findControllerForOutputType(String outputType) {
+      Optional<OutputType> typeOpt = OutputType.findByValue(outputType);
+      if (typeOpt.isPresent()) {
+        return Optional.ofNullable(createForOutputType(typeOpt.get()));
       }
 
       // Fallback for unknown string types
       log.warn("Unknown output type for JSON controller: {}", outputType);
-      return null;
+      return Optional.empty();
     }
 
     /**

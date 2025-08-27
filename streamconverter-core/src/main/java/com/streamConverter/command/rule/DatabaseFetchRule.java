@@ -151,7 +151,7 @@ public class DatabaseFetchRule implements IRule {
    */
   private String sanitizeInput(String input) {
     if (input == null) {
-      return null;
+      throw new IllegalArgumentException("Input parameter cannot be null");
     }
 
     // 危険な文字の除去/エスケープ
@@ -182,23 +182,17 @@ public class DatabaseFetchRule implements IRule {
    */
   @Override
   public String apply(String input) {
-    Connection connection = null;
-    PreparedStatement statement = null;
-    ResultSet resultSet = null;
+    try (Connection connection = DriverManager.getConnection(databaseUrl);
+        PreparedStatement statement = connection.prepareStatement(query)) {
 
-    try {
       // データベース接続
       logger.debug("データベースに接続: {}", databaseUrl);
-      connection = DriverManager.getConnection(databaseUrl);
-
-      // クエリの準備
-      statement = connection.prepareStatement(query);
 
       // 入力文字列をパラメータとして設定（クエリに「?」プレースホルダーがある場合）
       if (query.contains("?") && input != null && !input.isEmpty()) {
         // 入力値のサニタイズとセキュリティチェック
         String sanitizedInput = sanitizeInput(input);
-        if (sanitizedInput == null || sanitizedInput.isEmpty()) {
+        if (sanitizedInput.isEmpty()) {
           logger.warn(
               "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",
               input);
@@ -211,87 +205,49 @@ public class DatabaseFetchRule implements IRule {
 
       // クエリ実行
       logger.debug("クエリを実行: {}", query);
-      resultSet = statement.executeQuery();
+      try (ResultSet resultSet = statement.executeQuery()) {
+        // 結果の検証と処理
+        ResultSetMetaData metaData = resultSet.getMetaData();
+        int columnCount = metaData.getColumnCount();
 
-      // 結果の検証と処理
-      ResultSetMetaData metaData = resultSet.getMetaData();
-      int columnCount = metaData.getColumnCount();
+        // 結果がない場合
+        if (!resultSet.next()) {
+          logger.warn("クエリ結果が空です。");
+          return "";
+        }
 
-      // 結果がない場合
-      if (!resultSet.next()) {
-        logger.warn("クエリ結果が空です。");
-        return "";
+        // 列数の検証
+        if (columnCount != 1) {
+          logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);
+        }
+
+        // 先頭行の先頭列の値を取得
+        String value = resultSet.getString(1);
+
+        // 追加の行があるかチェック
+        boolean hasMoreRows = resultSet.next();
+        if (hasMoreRows) {
+          logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");
+        }
+
+        // nullチェック
+        if (value == null) {
+          logger.info("クエリ結果の先頭値がNULLです。");
+          return ""; // NULLの場合は空文字列を返す
+        }
+
+        // 結果が理想的（1行1列）かどうかをログに記録
+        if (columnCount == 1 && !hasMoreRows) {
+          logger.info("データベースから単一値を取得しました: {}", value);
+        } else {
+          logger.info("データベースから先頭値を取得しました: {}", value);
+        }
+
+        return value;
       }
-
-      // 列数の検証
-      if (columnCount != 1) {
-        logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);
-      }
-
-      // 先頭行の先頭列の値を取得
-      String value = resultSet.getString(1);
-
-      // 追加の行があるかチェック
-      boolean hasMoreRows = resultSet.next();
-      if (hasMoreRows) {
-        logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");
-      }
-
-      // nullチェック
-      if (value == null) {
-        logger.info("クエリ結果の先頭値がNULLです。");
-        return ""; // NULLの場合は空文字列を返す
-      }
-
-      // 結果が理想的（1行1列）かどうかをログに記録
-      if (columnCount == 1 && !hasMoreRows) {
-        logger.info("データベースから単一値を取得しました: {}", value);
-      } else {
-        logger.info("データベースから先頭値を取得しました: {}", value);
-      }
-
-      return value;
-
     } catch (SQLException e) {
       logger.error("データベース操作中にエラーが発生しました: {}", e.getMessage(), e);
       return "ERROR: " + e.getMessage();
-    } finally {
-      // リソースのクローズ
-      closeResources(resultSet, statement, connection);
-    }
-  }
-
-  /**
-   * データベースリソースを安全にクローズします。
-   *
-   * @param resultSet 結果セット
-   * @param statement プリペアドステートメント
-   * @param connection データベース接続
-   */
-  private void closeResources(
-      ResultSet resultSet, PreparedStatement statement, Connection connection) {
-    if (resultSet != null) {
-      try {
-        resultSet.close();
-      } catch (SQLException e) {
-        logger.warn("ResultSetのクローズ中にエラーが発生しました: {}", e.getMessage());
-      }
-    }
-
-    if (statement != null) {
-      try {
-        statement.close();
-      } catch (SQLException e) {
-        logger.warn("PreparedStatementのクローズ中にエラーが発生しました: {}", e.getMessage());
-      }
-    }
-
-    if (connection != null) {
-      try {
-        connection.close();
-      } catch (SQLException e) {
-        logger.warn("Connectionのクローズ中にエラーが発生しました: {}", e.getMessage());
-      }
     }
   }
 }

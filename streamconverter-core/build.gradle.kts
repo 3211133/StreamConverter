@@ -36,8 +36,8 @@ dependencies {
     implementation("org.springframework:spring-webflux:6.2.10")
     implementation("org.springframework:spring-context:6.2.10")
     implementation("io.projectreactor.netty:reactor-netty-http:1.2.8")
-    implementation("io.netty:netty-handler:4.1.118.Final")
-    implementation("io.netty:netty-common:4.1.118.Final")
+    implementation("io.netty:netty-handler:4.2.4.Final")
+    implementation("io.netty:netty-common:4.2.4.Final")
     
     // Logging
     implementation("ch.qos.logback:logback-core:1.5.13") // CVE-2024-12798, CVE-2024-12801修正

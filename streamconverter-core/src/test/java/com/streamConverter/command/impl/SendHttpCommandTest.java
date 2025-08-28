@@ -9,6 +9,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 /** SendHttpCommandの包括的なテスト */
 class SendHttpCommandTest {
@@ -420,6 +421,10 @@ class SendHttpCommandTest {
 
   @Test
   @DisplayName("InputStream close timing verification for accurate parallel processing detection")
+  @DisabledIfSystemProperty(
+      named = "skipNetworkTests",
+      matches = "true",
+      disabledReason = "Network-dependent test disabled")
   void testInputStreamCloseTimingVerification() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 
@@ -435,6 +440,10 @@ class SendHttpCommandTest {
 
       // 並列処理検証結果の確認
       ParallelProcessingResult result = inputStream.getParallelProcessingResult();
+      if (result == null) {
+        fail("並列処理検証結果を取得できませんでした");
+        return;
+      }
 
       System.out.println("=== 並列処理検証結果 ===");
       System.out.printf(

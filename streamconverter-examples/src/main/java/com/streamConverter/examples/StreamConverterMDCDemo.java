@@ -6,6 +6,7 @@ import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.context.ExecutionContext;
+import com.streamConverter.path.CSVPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -106,7 +107,8 @@ public class StreamConverterMDCDemo {
 
     // 複数のコマンドでパイプライン構築
     SampleStreamCommand validator = new SampleStreamCommand("validator");
-    CsvNavigateCommand extractor = CsvNavigateCommand.create("product", new PassThroughRule());
+    CsvNavigateCommand extractor =
+        CsvNavigateCommand.create(new CSVPath("product"), new PassThroughRule());
     SampleStreamCommand formatter = new SampleStreamCommand("formatter");
 
     StreamConverter converter = StreamConverter.create(validator, extractor, formatter);

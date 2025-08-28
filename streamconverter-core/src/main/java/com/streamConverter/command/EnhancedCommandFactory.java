@@ -288,7 +288,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         return Optional.of(
             (T)
                 com.streamConverter.command.impl.json.JsonNavigateCommand.create(
-                    (String) path, defaultRule));
+                    new com.streamConverter.path.JSONPath((String) path), defaultRule));
       } else if (args.length == 0) {
         // No arguments - use createForAll(rule)
         return Optional.of(
@@ -301,7 +301,9 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         com.streamConverter.command.rule.IRule rule =
             (com.streamConverter.command.rule.IRule) args[1];
         return Optional.of(
-            (T) com.streamConverter.command.impl.json.JsonNavigateCommand.create(path, rule));
+            (T)
+                com.streamConverter.command.impl.json.JsonNavigateCommand.create(
+                    new com.streamConverter.path.JSONPath(path), rule));
       } else {
         // Other argument patterns - throw exception rather than returning empty
         throw new IllegalArgumentException(
@@ -360,7 +362,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         return Optional.of(
             (T)
                 com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
-                    (String) path, defaultRule));
+                    new com.streamConverter.path.XPath((String) path), defaultRule));
       } else if (args.length == 0) {
         // No arguments - use createForAll(rule)
         return Optional.of(
@@ -371,7 +373,9 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         com.streamConverter.command.rule.IRule rule =
             (com.streamConverter.command.rule.IRule) args[1];
         return Optional.of(
-            (T) com.streamConverter.command.impl.xml.XmlNavigateCommand.create(path, rule));
+            (T)
+                com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
+                    new com.streamConverter.path.XPath(path), rule));
       } else {
         return Optional.empty();
       }

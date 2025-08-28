@@ -1,7 +1,11 @@
 package com.streamConverter.path;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
 
 /**
  * Type-safe representation of JSONPath expressions.
@@ -16,14 +20,17 @@ import java.util.Optional;
  * <p>Note: This is a simplified JSONPath implementation focused on the most common use cases in
  * StreamConverter.
  */
-public class JSONPath implements IPath {
+public class JSONPath extends AbstractPath<JsonNode> {
 
   private static final String TYPE = "JSONPath";
 
   // No regex validation to completely avoid ReDoS vulnerabilities
   // Use manual parsing for secure validation instead
 
-  private final String path;
+  private final List<String> segments;
+  private final boolean isSimpleProperty;
+  private final boolean isArrayAccess;
+  private final boolean isWildcardAccess;
 
   /**
    * Creates a new JSONPath instance.
@@ -32,17 +39,11 @@ public class JSONPath implements IPath {
    * @throws IllegalArgumentException if the path is null, empty, or has invalid syntax
    */
   public JSONPath(String path) {
-    if (path == null) {
-      throw new IllegalArgumentException("JSONPath cannot be null");
-    }
-    if (path.trim().isEmpty()) {
-      throw new IllegalArgumentException("JSONPath cannot be empty");
-    }
-
-    // Normalize path for backward compatibility
-    String normalizedPath = normalizeJsonPath(path.trim());
-    this.path = normalizedPath;
-    validate();
+    super(path, TYPE);
+    this.segments = parseSegments(this.path);
+    this.isSimpleProperty = detectSimpleProperty();
+    this.isArrayAccess = detectArrayAccess();
+    this.isWildcardAccess = detectWildcardAccess();
   }
 
   /**
@@ -74,6 +75,20 @@ public class JSONPath implements IPath {
   @Override
   public void validate() {
     validateJsonPathSafely(path);
+  }
+
+  @Override
+  protected String validateAndNormalize(String rawPath) {
+    if (rawPath == null) {
+      throw new IllegalArgumentException("JSONPath cannot be null");
+    }
+    if (rawPath.trim().isEmpty()) {
+      throw new IllegalArgumentException("JSONPath cannot be empty");
+    }
+
+    // Normalize path for backward compatibility
+    String normalizedPath = normalizeJsonPath(rawPath.trim());
+    return normalizedPath;
   }
 
   /**
@@ -221,23 +236,195 @@ public class JSONPath implements IPath {
     return closeBracketPos != -1;
   }
 
-  @Override
-  public String getPath() {
-    return path;
+  // === JSONPath特化メソッド ===
+
+  /**
+   * 簡単なプロパティの場合、プロパティ名を抽出
+   *
+   * @return 簡単なプロパティアクセスの場合はプロパティ名、そうでなければEmpty
+   */
+  public Optional<String> extractSimpleProperty() {
+    if (isSimpleProperty && segments.size() == 1) {
+      return Optional.of(segments.get(0));
+    }
+    return Optional.empty();
   }
 
-  @Override
-  public String getType() {
-    return TYPE;
+  public boolean isSimplePropertyAccess() {
+    return isSimpleProperty;
   }
 
+  public boolean isArrayAccess() {
+    return isArrayAccess;
+  }
+
+  public boolean isWildcardAccess() {
+    return isWildcardAccess;
+  }
+
+  // === AbstractPath実装 ===
+
   @Override
-  public boolean isEquivalentTo(IPath other) {
-    if (!(other instanceof JSONPath)) {
+  protected boolean doMatches(JsonNode context) {
+    // 簡易実装: 単純なプロパティアクセスのみ
+    try {
+      if (isSimpleProperty && segments.size() == 1) {
+        return context.has(segments.get(0));
+      }
+      return false;
+    } catch (Exception e) {
       return false;
     }
-    return Objects.equals(this.path, ((JSONPath) other).path);
   }
+
+  @Override
+  protected <R> Optional<R> doExtract(Object data, Class<R> resultType) {
+    validateResultType(resultType);
+
+    try {
+      JsonNode jsonNode;
+
+      // データをJsonNodeに変換
+      if (data instanceof JsonNode) {
+        jsonNode = (JsonNode) data;
+      } else if (data instanceof String) {
+        try {
+          com.fasterxml.jackson.databind.ObjectMapper mapper =
+              new com.fasterxml.jackson.databind.ObjectMapper();
+          jsonNode = mapper.readTree((String) data);
+        } catch (Exception e) {
+          return Optional.empty();
+        }
+      } else {
+        return Optional.empty();
+      }
+
+      // JSONPath処理ロジック統合
+      JsonNode resultNode = navigateJsonPath(jsonNode);
+      if (resultNode != null && !resultNode.isMissingNode() && !resultNode.isNull()) {
+        if (resultType == String.class) {
+          return Optional.of(resultType.cast(resultNode.asText()));
+        } else if (resultType == JsonNode.class) {
+          return Optional.of(resultType.cast(resultNode));
+        }
+      }
+      return Optional.empty();
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  protected <R> Stream<R> doExtractAll(Object data, Class<R> resultType) {
+    validateResultType(resultType);
+
+    try {
+      // 配列/リスト結果を想定した実装
+      if (data instanceof JsonNode) {
+        JsonNode jsonNode = (JsonNode) data;
+
+        if (jsonNode.isArray()) {
+          return StreamSupport.stream(jsonNode.spliterator(), false)
+              .filter(node -> !node.isMissingNode())
+              .map(
+                  node -> {
+                    if (resultType == String.class) {
+                      return resultType.cast(node.asText());
+                    }
+                    return null;
+                  })
+              .filter(Objects::nonNull);
+        }
+      }
+      return Stream.empty();
+    } catch (Exception e) {
+      return Stream.empty();
+    }
+  }
+
+  // === 内部実装メソッド ===
+
+  private List<String> parseSegments(String normalizedPath) {
+    // $.user.name -> ["user", "name"]
+    // $.users[*].name -> ["users[*]", "name"]
+    if (normalizedPath.equals("$")) {
+      return List.of();
+    }
+
+    String withoutRoot = normalizedPath.substring(2); // $.を除去
+    if (withoutRoot.isEmpty()) {
+      return List.of();
+    }
+
+    return List.of(withoutRoot.split("\\."));
+  }
+
+  private boolean detectSimpleProperty() {
+    return segments.size() == 1 && !segments.get(0).contains("[") && !segments.get(0).contains("*");
+  }
+
+  private boolean detectArrayAccess() {
+    return segments.stream().anyMatch(s -> s.contains("["));
+  }
+
+  private boolean detectWildcardAccess() {
+    return segments.stream().anyMatch(s -> s.contains("*"));
+  }
+
+  /** JSONPathナビゲーション処理（JsonNavigateCommandから統合） */
+  private JsonNode navigateJsonPath(JsonNode rootNode) {
+    if (isRoot()) {
+      return rootNode;
+    }
+
+    // 単純なプロパティアクセス
+    Optional<String> simpleProperty = extractSimpleProperty();
+    if (simpleProperty.isPresent()) {
+      return rootNode.get(simpleProperty.get());
+    }
+
+    // 複雑なパスの場合はJsonPointerを使用
+    String pathStr = getPath();
+    if (pathStr.startsWith("$.")) {
+      String propertyPath = pathStr.substring(2);
+      return rootNode.at("/" + propertyPath.replace(".", "/"));
+    }
+
+    return rootNode;
+  }
+
+  /**
+   * ストリーミング処理用のパス判定メソッド JSON階層パスのリアルタイム判定に使用（XMLのpathHandlerと同様）
+   *
+   * @param currentPath 現在のJSONパス階層
+   * @return パスがマッチする場合true
+   */
+  public boolean matchesStreamingPath(java.util.List<String> currentPath) {
+    if (currentPath == null) {
+      return false;
+    }
+
+    // ルートパス("$")の場合
+    if (isRoot()) {
+      return currentPath.isEmpty();
+    }
+
+    // セグメント数が一致しない場合はfalse
+    if (currentPath.size() != segments.size()) {
+      return false;
+    }
+
+    // 各セグメントを順次比較（XMLのisTargetと同じロジック）
+    for (int i = 0; i < segments.size(); i++) {
+      if (!segments.get(i).equals(currentPath.get(i))) {
+        return false;
+      }
+    }
+
+    return true;
+  }
+
+  // === 既存メソッド保持 ===
 
   /**
    * Checks if this is a root path ("$").
@@ -276,17 +463,6 @@ public class JSONPath implements IPath {
       return Optional.of(path.substring(2));
     }
     return Optional.empty();
-  }
-
-  /**
-   * Extracts the simple property name if this is a simple property access.
-   *
-   * @return the property name, or null if not a simple property access
-   * @deprecated Use {@link #findSimpleProperty()} instead to avoid null returns
-   */
-  @Deprecated
-  public String getSimpleProperty() {
-    return findSimpleProperty().orElse(null);
   }
 
   private static boolean isValidIdentifier(String identifier) {

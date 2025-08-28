@@ -7,6 +7,9 @@ import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
+import com.streamConverter.path.CSVPath;
+import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.XPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -60,7 +63,8 @@ public class QuickStart {
     String csvData = "name,age,city\nJohn,30,NYC\nJane,25,LA\n";
 
     // Extract name column
-    IStreamCommand csvCommand = CsvNavigateCommand.create("name", new PassThroughRule());
+    IStreamCommand csvCommand =
+        CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule());
     String result = processData(csvData, csvCommand);
 
     log.info("Input CSV:");
@@ -78,7 +82,8 @@ public class QuickStart {
     String jsonData = "{\"name\":\"John\",\"age\":30,\"city\":\"NYC\"}";
 
     // Extract name property
-    IStreamCommand jsonCommand = JsonNavigateCommand.create("name", new PassThroughRule());
+    IStreamCommand jsonCommand =
+        JsonNavigateCommand.create(new JSONPath("name"), new PassThroughRule());
     String result = processData(jsonData, jsonCommand);
 
     log.info("Input JSON:");
@@ -104,7 +109,8 @@ public class QuickStart {
         """;
 
     // Extract name element
-    IStreamCommand xmlCommand = XmlNavigateCommand.create("person/name", new PassThroughRule());
+    IStreamCommand xmlCommand =
+        XmlNavigateCommand.create(new XPath("person/name"), new PassThroughRule());
     String result = processData(xmlData, xmlCommand);
 
     log.info("Input XML:");
@@ -123,7 +129,7 @@ public class QuickStart {
 
     // Create processing pipeline
     IStreamCommand[] pipeline = {
-      CsvNavigateCommand.create("name", new PassThroughRule()), // Extract names
+      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()), // Extract names
       new SampleStreamCommand("processor") // Process names
     };
 

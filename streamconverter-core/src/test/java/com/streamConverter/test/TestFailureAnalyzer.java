@@ -24,7 +24,7 @@ import org.xml.sax.SAXException;
  * <p>This class parses JUnit XML test reports and extracts detailed failure information for easier
  * debugging and analysis.
  */
-public class TestFailureAnalyzer {
+public final class TestFailureAnalyzer {
   private static final Logger LOG = LoggerFactory.getLogger(TestFailureAnalyzer.class);
 
   /** Private constructor to prevent instantiation of utility class */

@@ -1,6 +1,8 @@
 package com.streamConverter.path;
 
 import java.util.Objects;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 /**
  * Type-safe representation of CSV column selectors.
@@ -14,7 +16,7 @@ import java.util.Objects;
  *
  * <p>This implementation provides type safety for CSV column operations in StreamConverter.
  */
-public class CSVPath implements IPath {
+public class CSVPath extends AbstractPath<Integer> {
 
   private static final String TYPE = "CSVPath";
   private final String selector;
@@ -28,14 +30,8 @@ public class CSVPath implements IPath {
    * @throws IllegalArgumentException if the selector is null, empty, or invalid
    */
   public CSVPath(String selector) {
-    if (selector == null) {
-      throw new IllegalArgumentException("CSV column selector cannot be null");
-    }
-    if (selector.trim().isEmpty()) {
-      throw new IllegalArgumentException("CSV column selector cannot be empty");
-    }
-
-    this.selector = selector.trim();
+    super(selector, TYPE);
+    this.selector = this.path;
 
     // Determine if this is an index or name-based selector
     int parsedIndex = parseAsIndex(this.selector);
@@ -46,8 +42,6 @@ public class CSVPath implements IPath {
       this.isIndex = false;
       this.columnIndex = -1;
     }
-
-    validate();
   }
 
   /**
@@ -87,35 +81,107 @@ public class CSVPath implements IPath {
   }
 
   @Override
+  protected String validateAndNormalize(String rawSelector) {
+    if (rawSelector == null) {
+      throw new IllegalArgumentException("CSV column selector cannot be null");
+    }
+    if (rawSelector.trim().isEmpty()) {
+      throw new IllegalArgumentException("CSV column selector cannot be empty");
+    }
+
+    return rawSelector.trim();
+  }
+
+  @Override
   public void validate() {
-    if (isIndex) {
-      // Index validation already done in constructor
+    // AbstractPathから呼ばれる場合、selectorはまだ設定されていないので、pathを使用
+    String selectorToValidate = selector != null ? selector : path;
+
+    if (selectorToValidate == null) {
+      throw new IllegalArgumentException("CSV column selector cannot be null");
+    }
+
+    // isIndexフィールドが初期化されていない場合、parseAsIndexで判定
+    boolean isIndexValue = isIndex;
+    if (selector == null) { // まだコンストラクタ中の場合
+      int parsedIndex = parseAsIndex(selectorToValidate);
+      isIndexValue = parsedIndex >= 0;
+    }
+
+    if (isIndexValue) {
+      // Index validation already done
       return;
     }
 
     // Validate column name
-    if (!isValidColumnName(selector)) {
-      throw new IllegalArgumentException("Invalid CSV column name: " + selector);
+    if (!isValidColumnName(selectorToValidate)) {
+      throw new IllegalArgumentException("Invalid CSV column name: " + selectorToValidate);
+    }
+  }
+
+  // === CSVPath特化メソッド ===
+
+  public int getColumnIndex() {
+    return columnIndex;
+  }
+
+  public String getColumnName() {
+    return isIndex ? null : selector;
+  }
+
+  // === AbstractPath実装 ===
+
+  @Override
+  protected boolean doMatches(Integer currentColumnIndex) {
+    // CSV処理でのカラムインデックスマッチング
+    if (isIndex) {
+      return columnIndex == currentColumnIndex;
+    }
+    // 名前ベースの場合は実際のCSVヘッダー情報が必要
+    // ここでは簡易実装
+    return false;
+  }
+
+  @Override
+  protected <R> Optional<R> doExtract(Object data, Class<R> resultType) {
+    validateResultType(resultType);
+
+    try {
+      // CSV行データからカラム値を抽出
+      if (data instanceof String[]) {
+        String[] csvRow = (String[]) data;
+        if (isIndex && columnIndex >= 0 && columnIndex < csvRow.length) {
+          if (resultType == String.class) {
+            return Optional.of(resultType.cast(csvRow[columnIndex]));
+          }
+        } else if (!isIndex) {
+          // 名前ベースアクセスの場合、ヘッダー情報が必要
+          // 実装は簡易版のためスキップ
+          return Optional.empty();
+        }
+      } else if (data instanceof java.util.List) {
+        // リスト形式のCSVデータ処理
+        @SuppressWarnings("unchecked")
+        java.util.List<String> csvRow = (java.util.List<String>) data;
+        if (isIndex && columnIndex >= 0 && columnIndex < csvRow.size()) {
+          if (resultType == String.class) {
+            return Optional.of(resultType.cast(csvRow.get(columnIndex)));
+          }
+        }
+      }
+      return Optional.empty();
+    } catch (Exception e) {
+      return Optional.empty();
     }
   }
 
   @Override
-  public String getPath() {
-    return selector;
-  }
+  protected <R> Stream<R> doExtractAll(Object data, Class<R> resultType) {
+    validateResultType(resultType);
 
-  @Override
-  public String getType() {
-    return TYPE;
-  }
-
-  @Override
-  public boolean isEquivalentTo(IPath other) {
-    if (!(other instanceof CSVPath)) {
-      return false;
-    }
-    CSVPath csvPath = (CSVPath) other;
-    return Objects.equals(this.selector, csvPath.selector);
+    // CSV全行からのカラム値抽出
+    // 実装は簡易版
+    return Stream.empty();
   }
 
   /**
@@ -134,24 +200,6 @@ public class CSVPath implements IPath {
    */
   public boolean isNameBased() {
     return !isIndex;
-  }
-
-  /**
-   * Gets the column index if this is an index-based selector.
-   *
-   * @return the column index, or -1 if this is not an index-based selector
-   */
-  public int getColumnIndex() {
-    return columnIndex;
-  }
-
-  /**
-   * Gets the column name if this is a name-based selector.
-   *
-   * @return the column name, or null if this is an index-based selector
-   */
-  public String getColumnName() {
-    return isIndex ? null : selector;
   }
 
   /**

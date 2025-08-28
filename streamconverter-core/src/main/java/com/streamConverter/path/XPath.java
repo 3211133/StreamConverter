@@ -2,7 +2,9 @@ package com.streamConverter.path;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 /**
  * Type-safe representation of XPath expressions.
@@ -17,7 +19,7 @@ import java.util.regex.Pattern;
  * <p>Note: This is a simplified XPath implementation focused on element navigation in
  * StreamConverter.
  */
-public class XPath implements IPath {
+public class XPath extends AbstractPath<List<String>> {
 
   private static final String TYPE = "XPath";
 
@@ -25,8 +27,7 @@ public class XPath implements IPath {
   private static final Pattern XML_ELEMENT_NAME_PATTERN =
       Pattern.compile("^[a-zA-Z_][a-zA-Z0-9._-]*$");
 
-  private final String path;
-  private final List<String> pathSegments;
+  private final List<String> segments;
 
   /**
    * Creates a new XPath instance.
@@ -35,11 +36,17 @@ public class XPath implements IPath {
    * @throws IllegalArgumentException if the path is null, empty, or has invalid syntax
    */
   public XPath(String path) {
-    if (path == null) {
+    super(path, TYPE);
+    this.segments = List.of(this.path.split("/"));
+  }
+
+  @Override
+  protected String validateAndNormalize(String rawPath) {
+    if (rawPath == null) {
       throw new IllegalArgumentException("XPath cannot be null");
     }
 
-    String trimmedPath = path.trim();
+    String trimmedPath = rawPath.trim();
     if (trimmedPath.isEmpty()) {
       throw new IllegalArgumentException("XPath cannot be empty");
     }
@@ -55,10 +62,7 @@ public class XPath implements IPath {
       throw new IllegalArgumentException("XPath cannot be just slashes");
     }
 
-    this.path = normalizedPath;
-    this.pathSegments = List.of(normalizedPath.split("/"));
-
-    validate();
+    return normalizedPath;
   }
 
   /**
@@ -98,36 +102,84 @@ public class XPath implements IPath {
 
   @Override
   public void validate() {
+    // AbstractPathから呼ばれる場合、segmentsはまだ設定されていないので、pathを使用
+    List<String> segmentsToValidate = segments != null ? segments : List.of(path.split("/"));
+
     // Validate no empty segments remain after normalization
-    if (pathSegments.contains("")) {
+    if (segmentsToValidate.contains("")) {
       throw new IllegalArgumentException(
           "XPath must not contain empty segments after normalization: " + path);
     }
 
     // Validate each segment is a valid XML element name
-    for (String segment : pathSegments) {
+    for (String segment : segmentsToValidate) {
       if (!isValidXmlElementName(segment)) {
         throw new IllegalArgumentException("Invalid XML element name: " + segment);
       }
     }
   }
 
-  @Override
-  public String getPath() {
-    return path;
+  // === XPath特化メソッド ===
+
+  public int getDepth() {
+    return segments.size();
   }
 
-  @Override
-  public String getType() {
-    return TYPE;
-  }
-
-  @Override
-  public boolean isEquivalentTo(IPath other) {
-    if (!(other instanceof XPath)) {
+  public boolean isDescendantOf(XPath ancestor) {
+    List<String> ancestorSegments = ancestor.getSegments();
+    if (segments.size() <= ancestorSegments.size()) {
       return false;
     }
-    return Objects.equals(this.path, ((XPath) other).path);
+    return segments.subList(0, ancestorSegments.size()).equals(ancestorSegments);
+  }
+
+  // === AbstractPath実装 ===
+
+  @Override
+  protected boolean doMatches(List<String> currentXmlPath) {
+    if (currentXmlPath == null) {
+      return false;
+    }
+    if (currentXmlPath.size() != segments.size()) {
+      return false;
+    }
+    for (int i = 0; i < currentXmlPath.size(); i++) {
+      if (!currentXmlPath.get(i).equals(segments.get(i))) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  @Override
+  protected <R> Optional<R> doExtract(Object data, Class<R> resultType) {
+    validateResultType(resultType);
+
+    // XML Document/Element からXPathで値抽出
+    // 実装は javax.xml.xpath.XPath APIを使用予定
+    // ここではモック実装
+    try {
+      if (data instanceof org.w3c.dom.Document) {
+        // XPath評価による値抽出ロジック
+        return extractFromDocument((org.w3c.dom.Document) data, resultType);
+      }
+      return Optional.empty();
+    } catch (Exception e) {
+      return Optional.empty();
+    }
+  }
+
+  @Override
+  protected <R> Stream<R> doExtractAll(Object data, Class<R> resultType) {
+    validateResultType(resultType);
+
+    // 複数マッチするXPath結果をStreamで返す
+    return Stream.empty(); // モック実装
+  }
+
+  private <R> Optional<R> extractFromDocument(org.w3c.dom.Document doc, Class<R> resultType) {
+    // XPath APIを使用した実装予定
+    return Optional.empty(); // モック実装
   }
 
   /**
@@ -136,16 +188,7 @@ public class XPath implements IPath {
    * @return the path segments
    */
   public List<String> getSegments() {
-    return List.copyOf(pathSegments);
-  }
-
-  /**
-   * Gets the number of path segments.
-   *
-   * @return the depth of the path
-   */
-  public int getDepth() {
-    return pathSegments.size();
+    return List.copyOf(segments);
   }
 
   /**
@@ -154,7 +197,7 @@ public class XPath implements IPath {
    * @return true if the path has only one segment
    */
   public boolean isSingleElement() {
-    return pathSegments.size() == 1;
+    return segments.size() == 1;
   }
 
   /**
@@ -163,7 +206,7 @@ public class XPath implements IPath {
    * @return the last element name
    */
   public String getLastElement() {
-    return pathSegments.get(pathSegments.size() - 1);
+    return segments.get(segments.size() - 1);
   }
 
   /**
@@ -172,7 +215,7 @@ public class XPath implements IPath {
    * @return the first element name
    */
   public String getFirstElement() {
-    return pathSegments.get(0);
+    return segments.get(0);
   }
 
   /**

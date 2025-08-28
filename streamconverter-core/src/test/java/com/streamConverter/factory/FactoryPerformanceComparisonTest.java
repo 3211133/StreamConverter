@@ -6,6 +6,7 @@ import com.streamConverter.command.EnhancedCommandFactory;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
+import com.streamConverter.path.JSONPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -106,7 +107,8 @@ class FactoryPerformanceComparisonTest {
     // Create instances using simple new
     JsonNavigateCommand[] simpleCommands = new JsonNavigateCommand[100];
     for (int i = 0; i < 100; i++) {
-      simpleCommands[i] = JsonNavigateCommand.create(TEST_JSON_PATH, new PassThroughRule());
+      simpleCommands[i] =
+          JsonNavigateCommand.create(new JSONPath(TEST_JSON_PATH), new PassThroughRule());
     }
 
     System.gc();
@@ -208,7 +210,8 @@ class FactoryPerformanceComparisonTest {
 
   private long measureSimpleNewCreation() {
     long startTime = System.currentTimeMillis();
-    JsonNavigateCommand command = JsonNavigateCommand.create(TEST_JSON_PATH, new PassThroughRule());
+    JsonNavigateCommand command =
+        JsonNavigateCommand.create(new JSONPath(TEST_JSON_PATH), new PassThroughRule());
     assertNotNull(command);
     return System.currentTimeMillis() - startTime;
   }
@@ -237,7 +240,7 @@ class FactoryPerformanceComparisonTest {
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < ITERATION_COUNT; i++) {
       JsonNavigateCommand command =
-          JsonNavigateCommand.create(TEST_JSON_PATH, new PassThroughRule());
+          JsonNavigateCommand.create(new JSONPath(TEST_JSON_PATH), new PassThroughRule());
       assertNotNull(command);
     }
     return System.currentTimeMillis() - startTime;
@@ -268,7 +271,8 @@ class FactoryPerformanceComparisonTest {
   }
 
   private long measureSimpleNewExecution() throws IOException {
-    JsonNavigateCommand command = JsonNavigateCommand.create(TEST_JSON_PATH, new PassThroughRule());
+    JsonNavigateCommand command =
+        JsonNavigateCommand.create(new JSONPath(TEST_JSON_PATH), new PassThroughRule());
 
     long startTime = System.currentTimeMillis();
     for (int i = 0; i < 10; i++) {

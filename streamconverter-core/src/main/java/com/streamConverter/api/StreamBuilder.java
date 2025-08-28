@@ -220,10 +220,14 @@ public final class StreamBuilder {
 
     switch (dataFormat) {
       case JSON:
-        this.commands.add(JsonNavigateCommand.create(path, new PassThroughRule()));
+        this.commands.add(
+            JsonNavigateCommand.create(
+                new com.streamConverter.path.JSONPath(path), new PassThroughRule()));
         break;
       case XML:
-        this.commands.add(XmlNavigateCommand.create(path, new PassThroughRule()));
+        this.commands.add(
+            XmlNavigateCommand.create(
+                new com.streamConverter.path.XPath(path), new PassThroughRule()));
         break;
       case CSV:
         this.commands.add(CsvNavigateCommand.create(path, new PassThroughRule()));
@@ -260,7 +264,9 @@ public final class StreamBuilder {
    */
   public StreamBuilder extractJson(final String jsonPath) {
     Objects.requireNonNull(jsonPath, "JSONPath cannot be null");
-    this.commands.add(JsonNavigateCommand.create(jsonPath, new PassThroughRule()));
+    this.commands.add(
+        JsonNavigateCommand.create(
+            new com.streamConverter.path.JSONPath(jsonPath), new PassThroughRule()));
     return this;
   }
 
@@ -282,7 +288,9 @@ public final class StreamBuilder {
    */
   public StreamBuilder extractXml(final String xpath) {
     Objects.requireNonNull(xpath, "XPath cannot be null");
-    this.commands.add(XmlNavigateCommand.create(xpath, new PassThroughRule()));
+    this.commands.add(
+        XmlNavigateCommand.create(
+            new com.streamConverter.path.XPath(xpath), new PassThroughRule()));
     return this;
   }
 

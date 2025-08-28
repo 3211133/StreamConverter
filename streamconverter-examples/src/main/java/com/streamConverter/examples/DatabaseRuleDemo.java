@@ -5,6 +5,8 @@ import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.rule.DatabaseFetchRule;
+import com.streamConverter.path.CSVPath;
+import com.streamConverter.path.JSONPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
@@ -168,7 +170,8 @@ public class DatabaseRuleDemo {
         new DatabaseFetchRule(DB_URL, "SELECT name FROM customers WHERE id = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand("$.customerId", customerRule);
+    JsonNavigateCommand command =
+        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);
 
     // 変換前のJSON
     String inputJson =
@@ -207,7 +210,7 @@ public class DatabaseRuleDemo {
         new DatabaseFetchRule(DB_URL, "SELECT name FROM products WHERE code = ?");
 
     // CsvNavigateCommandの作成
-    CsvNavigateCommand command = new CsvNavigateCommand("product_code", productRule);
+    CsvNavigateCommand command = new CsvNavigateCommand(new CSVPath("product_code"), productRule);
 
     // 変換前のCSV
     String inputCsv =
@@ -241,7 +244,8 @@ public class DatabaseRuleDemo {
         new DatabaseFetchRule(DB_URL, "SELECT name FROM customers WHERE id = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand("$.customerId", customerRule);
+    JsonNavigateCommand command =
+        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);
 
     // 複数の注文を含むJSON
     String inputJson =
@@ -292,8 +296,9 @@ public class DatabaseRuleDemo {
         new DatabaseFetchRule(DB_URL, "SELECT name FROM departments WHERE code = ?");
 
     // 複数段階の変換を組み合わせる
-    JsonNavigateCommand customerCommand = new JsonNavigateCommand("$.customerId", customerRule);
-    JsonNavigateCommand deptCommand = new JsonNavigateCommand("$.deptCode", deptRule);
+    JsonNavigateCommand customerCommand =
+        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);
+    JsonNavigateCommand deptCommand = new JsonNavigateCommand(new JSONPath("$.deptCode"), deptRule);
 
     // StreamConverterで複数のコマンドを組み合わせ
     StreamConverter converter =
@@ -334,7 +339,8 @@ public class DatabaseRuleDemo {
         new DatabaseFetchRule(DB_URL, "SELECT name FROM customers WHERE id = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand("$.customerId", customerRule);
+    JsonNavigateCommand command =
+        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);
 
     // 存在しない顧客IDを含むJSON
     String inputJson =

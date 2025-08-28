@@ -2,7 +2,6 @@ package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.path.XPath;
-import com.streamConverter.pathHandler.FixedStaXPathHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -35,7 +34,6 @@ public class XmlFilterCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlFilterCommand.class.getName());
 
   private final XPath xpath;
-  private final FixedStaXPathHandler pathHandler;
 
   // Deprecated fields for backward compatibility
   @Deprecated private final String legacyXpath;
@@ -54,7 +52,6 @@ public class XmlFilterCommand extends AbstractStreamCommand {
     }
     this.legacyXpath = xpath.trim();
     this.xpath = new XPath(xpath.trim());
-    this.pathHandler = new FixedStaXPathHandler(xpath);
   }
 
   /**
@@ -69,7 +66,6 @@ public class XmlFilterCommand extends AbstractStreamCommand {
     }
     this.xpath = xpath;
     this.legacyXpath = xpath.getPath();
-    this.pathHandler = new FixedStaXPathHandler(xpath.getPath());
   }
 
   @Override
@@ -106,7 +102,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
           currentPath.add(elementName);
 
           // Check if this element matches our target path
-          if (pathHandler.isTarget(currentPath) && !isCapturing) {
+          if (xpath.matches(currentPath) && !isCapturing) {
             isCapturing = true;
             captureDepth = currentDepth;
             elementWriter = new StringWriter();

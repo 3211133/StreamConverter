@@ -46,7 +46,7 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li>Field&nbsp;|&nbsp;</li>
+<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
@@ -73,17 +73,18 @@ loadScripts(document, 'script');</script>
 <h1 title="Class CSVPath" class="title">Class CSVPath</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
+<div class="inheritance"><a href="AbstractPath.html" title="class in com.streamConverter.path">com.streamConverter.path.AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;
 <div class="inheritance">com.streamConverter.path.CSVPath</div>
+</div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a></code></dd>
+<dd><code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-17">CSVPath</a></span>
-<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
-implements <a href="IPath.html" title="interface in com.streamConverter.path">IPath</a></span></div>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-19">CSVPath</a></span>
+<span class="extends-implements">extends <a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</span></div>
 <div class="block">Type-safe representation of CSV column selectors.
 
  <p>This class encapsulates CSV column selectors used for navigating CSV documents. It supports
@@ -97,6 +98,15 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 </section>
 <section class="summary">
 <ul class="summary-list">
+<!-- =========== FIELD SUMMARY =========== -->
+<li>
+<section class="field-summary" id="field-summary">
+<h2>Field Summary</h2>
+<div class="inherited-list">
+<h3 id="fields-inherited-from-class-com.streamConverter.path.AbstractPath">Fields inherited from class&nbsp;com.streamConverter.path.<a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a></h3>
+<code><a href="AbstractPath.html#path">path</a>, <a href="AbstractPath.html#pathType">pathType</a>, <a href="AbstractPath.html#statistics">statistics</a></code></div>
+</section>
+</li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <li>
 <section class="constructor-summary" id="constructor-summary">
@@ -123,47 +133,45 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromIndex(int)" class="member-name-link">fromIndex</a><wbr>(int&nbsp;columnIndex)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;R&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;R&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#doExtract(java.lang.Object,java.lang.Class)" class="member-name-link">doExtract</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;data,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;R&gt;&nbsp;resultType)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">単一値抽出の実装</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected &lt;R&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;R&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#doExtractAll(java.lang.Object,java.lang.Class)" class="member-name-link">doExtractAll</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;data,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;R&gt;&nbsp;resultType)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">複数値抽出の実装</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#doMatches(java.lang.Integer)" class="member-name-link">doMatches</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;currentColumnIndex)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">コンテキストマッチングの実装</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromIndex(int)" class="member-name-link">fromIndex</a><wbr>(int&nbsp;columnIndex)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Factory method for creating a CSVPath from a column index.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromName(java.lang.String)" class="member-name-link">fromName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnName)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromName(java.lang.String)" class="member-name-link">fromName</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnName)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Factory method for creating a CSVPath from a column name.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getColumnIndex()" class="member-name-link">getColumnIndex</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Gets the column index if this is an index-based selector.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getColumnName()" class="member-name-link">getColumnName</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Gets the column name if this is a name-based selector.</div>
-</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getColumnIndex()" class="member-name-link">getColumnIndex</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getPath()" class="member-name-link">getPath</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the string representation of the path.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getType()" class="member-name-link">getType</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Returns the type of this path for identification purposes.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getColumnName()" class="member-name-link">getColumnName</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isEquivalentTo(com.streamConverter.path.IPath)" class="member-name-link">isEquivalentTo</a><wbr>(<a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&nbsp;other)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Checks if this path is equivalent to another path.</div>
-</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isIndexBased()" class="member-name-link">isIndexBased</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
@@ -185,11 +193,19 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validate()" class="member-name-link">validate</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Validates the path syntax and throws an exception if invalid.</div>
+<div class="block">パス構文の妥当性検証</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validateAndNormalize(java.lang.String)" class="member-name-link">validateAndNormalize</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawSelector)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">パス文字列の検証と正規化</div>
 </div>
 </div>
 </div>
 </div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.streamConverter.path.AbstractPath">Methods inherited from class&nbsp;com.streamConverter.path.<a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a></h3>
+<code><a href="AbstractPath.html#extract(java.lang.Object,java.lang.Class)">extract</a>, <a href="AbstractPath.html#extractAll(java.lang.Object,java.lang.Class)">extractAll</a>, <a href="AbstractPath.html#getPath()">getPath</a>, <a href="AbstractPath.html#getStatistics()">getStatistics</a>, <a href="AbstractPath.html#getType()">getType</a>, <a href="AbstractPath.html#isEquivalentTo(com.streamConverter.path.IPath)">isEquivalentTo</a>, <a href="AbstractPath.html#isNullOrEmpty(java.lang.String)">isNullOrEmpty</a>, <a href="AbstractPath.html#matches(T)">matches</a>, <a href="AbstractPath.html#validateResultType(java.lang.Class)">validateResultType</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -207,7 +223,7 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String)">
 <h3>CSVPath</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-30">CSVPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;selector)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-32">CSVPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;selector)</span></div>
 <div class="block">Creates a new CSVPath instance.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -228,7 +244,7 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 <li>
 <section class="detail" id="fromIndex(int)">
 <h3>fromIndex</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-60">fromIndex</a></span><wbr><span class="parameters">(int&nbsp;columnIndex)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-54">fromIndex</a></span><wbr><span class="parameters">(int&nbsp;columnIndex)</span></div>
 <div class="block">Factory method for creating a CSVPath from a column index.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -243,7 +259,7 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 <li>
 <section class="detail" id="fromName(java.lang.String)">
 <h3>fromName</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-74">fromName</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnName)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-68">fromName</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;columnName)</span></div>
 <div class="block">Factory method for creating a CSVPath from a column name.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -256,65 +272,101 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 </section>
 </li>
 <li>
+<section class="detail" id="validateAndNormalize(java.lang.String)">
+<h3>validateAndNormalize</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-83">validateAndNormalize</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawSelector)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">AbstractPath</a></code></span></div>
+<div class="block">パス文字列の検証と正規化</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">validateAndNormalize</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
+<dt>Parameters:</dt>
+<dd><code>rawSelector</code> - 生のパス文字列</dd>
+<dt>Returns:</dt>
+<dd>正規化されたパス文字列</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="validate()">
 <h3>validate</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-89">validate</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-95">validate</a></span>()</div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="IPath.html#validate()">IPath</a></code></span></div>
-<div class="block">Validates the path syntax and throws an exception if invalid.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="IPath.html#validate()">validate</a></code>&nbsp;in interface&nbsp;<code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a></code></dd>
-</dl>
+<div class="block">パス構文の妥当性検証</div>
 </section>
 </li>
 <li>
-<section class="detail" id="getPath()">
-<h3>getPath</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-102">getPath</a></span>()</div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="IPath.html#getPath()">IPath</a></code></span></div>
-<div class="block">Returns the string representation of the path.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="IPath.html#getPath()">getPath</a></code>&nbsp;in interface&nbsp;<code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a></code></dd>
-<dt>Returns:</dt>
-<dd>the path as a string</dd>
-</dl>
+<section class="detail" id="getColumnIndex()">
+<h3>getColumnIndex</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-124">getColumnIndex</a></span>()</div>
 </section>
 </li>
 <li>
-<section class="detail" id="getType()">
-<h3>getType</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-107">getType</a></span>()</div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="IPath.html#getType()">IPath</a></code></span></div>
-<div class="block">Returns the type of this path for identification purposes.</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="IPath.html#getType()">getType</a></code>&nbsp;in interface&nbsp;<code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a></code></dd>
-<dt>Returns:</dt>
-<dd>the path type (e.g., "JSONPath", "XPath", "CSVPath")</dd>
-</dl>
+<section class="detail" id="getColumnName()">
+<h3>getColumnName</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-128">getColumnName</a></span>()</div>
 </section>
 </li>
 <li>
-<section class="detail" id="isEquivalentTo(com.streamConverter.path.IPath)">
-<h3>isEquivalentTo</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-112">isEquivalentTo</a></span><wbr><span class="parameters">(<a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&nbsp;other)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="IPath.html#isEquivalentTo(com.streamConverter.path.IPath)">IPath</a></code></span></div>
-<div class="block">Checks if this path is equivalent to another path.</div>
+<section class="detail" id="doMatches(java.lang.Integer)">
+<h3>doMatches</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-134">doMatches</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&nbsp;currentColumnIndex)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="AbstractPath.html#doMatches(T)">AbstractPath</a></code></span></div>
+<div class="block">コンテキストマッチングの実装</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="IPath.html#isEquivalentTo(com.streamConverter.path.IPath)">isEquivalentTo</a></code>&nbsp;in interface&nbsp;<code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a></code></dd>
+<dd><code><a href="AbstractPath.html#doMatches(T)">doMatches</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
 <dt>Parameters:</dt>
-<dd><code>other</code> - the other path to compare with</dd>
+<dd><code>currentColumnIndex</code> - 判定対象のコンテキスト</dd>
 <dt>Returns:</dt>
-<dd>true if the paths are equivalent, false otherwise</dd>
+<dd>マッチする場合true</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="doExtract(java.lang.Object,java.lang.Class)">
+<h3>doExtract</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;R&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;R&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-145">doExtract</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;data,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;R&gt;&nbsp;resultType)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="AbstractPath.html#doExtract(java.lang.Object,java.lang.Class)">AbstractPath</a></code></span></div>
+<div class="block">単一値抽出の実装</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="AbstractPath.html#doExtract(java.lang.Object,java.lang.Class)">doExtract</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
+<dt>Type Parameters:</dt>
+<dd><code>R</code> - 結果型</dd>
+<dt>Parameters:</dt>
+<dd><code>data</code> - 抽出元データ</dd>
+<dd><code>resultType</code> - 期待する結果型</dd>
+<dt>Returns:</dt>
+<dd>抽出された値（見つからない場合はEmpty）</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="doExtractAll(java.lang.Object,java.lang.Class)">
+<h3>doExtractAll</h3>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="type-parameters">&lt;R&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;R&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-178">doExtractAll</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;data,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;R&gt;&nbsp;resultType)</span></div>
+<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="AbstractPath.html#doExtractAll(java.lang.Object,java.lang.Class)">AbstractPath</a></code></span></div>
+<div class="block">複数値抽出の実装</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="AbstractPath.html#doExtractAll(java.lang.Object,java.lang.Class)">doExtractAll</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
+<dt>Type Parameters:</dt>
+<dd><code>R</code> - 結果型</dd>
+<dt>Parameters:</dt>
+<dd><code>data</code> - 抽出元データ</dd>
+<dd><code>resultType</code> - 期待する結果型</dd>
+<dt>Returns:</dt>
+<dd>抽出された値のストリーム</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="isIndexBased()">
 <h3>isIndexBased</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-126">isIndexBased</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-192">isIndexBased</a></span>()</div>
 <div class="block">Checks if this is an index-based selector.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -325,7 +377,7 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 <li>
 <section class="detail" id="isNameBased()">
 <h3>isNameBased</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-135">isNameBased</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-201">isNameBased</a></span>()</div>
 <div class="block">Checks if this is a name-based selector.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -334,31 +386,9 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 </section>
 </li>
 <li>
-<section class="detail" id="getColumnIndex()">
-<h3>getColumnIndex</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-144">getColumnIndex</a></span>()</div>
-<div class="block">Gets the column index if this is an index-based selector.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the column index, or -1 if this is not an index-based selector</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getColumnName()">
-<h3>getColumnName</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-153">getColumnName</a></span>()</div>
-<div class="block">Gets the column name if this is a name-based selector.</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>the column name, or null if this is an index-based selector</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="resolveIndex(java.lang.String[])">
 <h3>resolveIndex</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-164">resolveIndex</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;headers)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-212">resolveIndex</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;headers)</span></div>
 <div class="block">Resolves this selector to a column index using the provided headers.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -373,30 +403,30 @@ implements <a href="IPath.html" title="interface in com.streamConverter.path">IP
 <li>
 <section class="detail" id="toString()">
 <h3>toString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-203">toString</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-251">toString</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
+<dd><code><a href="AbstractPath.html#toString()">toString</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="equals(java.lang.Object)">
 <h3>equals</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-212">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-260">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
+<dd><code><a href="AbstractPath.html#equals(java.lang.Object)">equals</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="hashCode()">
 <h3>hashCode</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-220">hashCode</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/CSVPath.html#line-268">hashCode</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
+<dd><code><a href="AbstractPath.html#hashCode()">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Integer.html" title="class or interface in java.lang" class="external-link">Integer</a>&gt;</code></dd>
 </dl>
 </section>
 </li>

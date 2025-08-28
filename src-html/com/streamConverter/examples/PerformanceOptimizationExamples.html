@@ -19,262 +19,267 @@
 <span class="source-line-no">006</span><span id="line-6">import com.streamConverter.command.impl.csv.CsvNavigateCommand;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamConverter.command.impl.json.JsonNavigateCommand;</span>
 <span class="source-line-no">008</span><span id="line-8">import com.streamConverter.command.rule.PassThroughRule;</span>
-<span class="source-line-no">009</span><span id="line-9">import java.io.ByteArrayInputStream;</span>
-<span class="source-line-no">010</span><span id="line-10">import java.io.ByteArrayOutputStream;</span>
-<span class="source-line-no">011</span><span id="line-11">import java.io.IOException;</span>
-<span class="source-line-no">012</span><span id="line-12">import java.io.InputStream;</span>
-<span class="source-line-no">013</span><span id="line-13">import java.nio.charset.StandardCharsets;</span>
-<span class="source-line-no">014</span><span id="line-14">import org.slf4j.Logger;</span>
-<span class="source-line-no">015</span><span id="line-15">import org.slf4j.LoggerFactory;</span>
-<span class="source-line-no">016</span><span id="line-16"></span>
-<span class="source-line-no">017</span><span id="line-17">/**</span>
-<span class="source-line-no">018</span><span id="line-18"> * Performance optimization examples for StreamConverter.</span>
-<span class="source-line-no">019</span><span id="line-19"> *</span>
-<span class="source-line-no">020</span><span id="line-20"> * &lt;p&gt;This class demonstrates: - Memory-efficient processing techniques - Concurrent pipeline</span>
-<span class="source-line-no">021</span><span id="line-21"> * optimization - Large dataset handling - Performance monitoring</span>
-<span class="source-line-no">022</span><span id="line-22"> */</span>
-<span class="source-line-no">023</span><span id="line-23">public class PerformanceOptimizationExamples {</span>
-<span class="source-line-no">024</span><span id="line-24"></span>
-<span class="source-line-no">025</span><span id="line-25">  private static final Logger logger =</span>
-<span class="source-line-no">026</span><span id="line-26">      LoggerFactory.getLogger(PerformanceOptimizationExamples.class);</span>
-<span class="source-line-no">027</span><span id="line-27"></span>
-<span class="source-line-no">028</span><span id="line-28">  /**</span>
-<span class="source-line-no">029</span><span id="line-29">   * アプリケーションのエントリーポイント。パフォーマンス最適化の例を実行します。</span>
-<span class="source-line-no">030</span><span id="line-30">   *</span>
-<span class="source-line-no">031</span><span id="line-31">   * @param args コマンドライン引数（使用されません）</span>
-<span class="source-line-no">032</span><span id="line-32">   */</span>
-<span class="source-line-no">033</span><span id="line-33">  public static void main(String[] args) {</span>
-<span class="source-line-no">034</span><span id="line-34">    logger.info("⚡ StreamConverter - Performance Optimization Examples");</span>
-<span class="source-line-no">035</span><span id="line-35">    logger.info("=====================================================\n");</span>
-<span class="source-line-no">036</span><span id="line-36"></span>
-<span class="source-line-no">037</span><span id="line-37">    try {</span>
-<span class="source-line-no">038</span><span id="line-38">      // Example 1: Large dataset processing</span>
-<span class="source-line-no">039</span><span id="line-39">      largeDatasetProcessing();</span>
-<span class="source-line-no">040</span><span id="line-40"></span>
-<span class="source-line-no">041</span><span id="line-41">      // Example 2: Concurrent pipeline optimization</span>
-<span class="source-line-no">042</span><span id="line-42">      concurrentPipelineOptimization();</span>
-<span class="source-line-no">043</span><span id="line-43"></span>
-<span class="source-line-no">044</span><span id="line-44">      // Example 3: Memory-efficient processing</span>
-<span class="source-line-no">045</span><span id="line-45">      memoryEfficientProcessing();</span>
-<span class="source-line-no">046</span><span id="line-46"></span>
-<span class="source-line-no">047</span><span id="line-47">      // Example 4: Performance monitoring</span>
-<span class="source-line-no">048</span><span id="line-48">      performanceMonitoring();</span>
-<span class="source-line-no">049</span><span id="line-49"></span>
-<span class="source-line-no">050</span><span id="line-50">    } catch (Exception e) {</span>
-<span class="source-line-no">051</span><span id="line-51">      logger.error("Performance example failed: {}", e.getMessage(), e);</span>
-<span class="source-line-no">052</span><span id="line-52">    }</span>
-<span class="source-line-no">053</span><span id="line-53">  }</span>
-<span class="source-line-no">054</span><span id="line-54"></span>
-<span class="source-line-no">055</span><span id="line-55">  /** Example 1: Processing large datasets efficiently */</span>
-<span class="source-line-no">056</span><span id="line-56">  private static void largeDatasetProcessing() throws IOException {</span>
-<span class="source-line-no">057</span><span id="line-57">    logger.info("📊 Large Dataset Processing");</span>
-<span class="source-line-no">058</span><span id="line-58">    logger.info("============================");</span>
-<span class="source-line-no">059</span><span id="line-59"></span>
-<span class="source-line-no">060</span><span id="line-60">    // Generate large CSV dataset</span>
-<span class="source-line-no">061</span><span id="line-61">    StringBuilder largeDataset = new StringBuilder();</span>
-<span class="source-line-no">062</span><span id="line-62">    largeDataset.append("id,name,value,timestamp\n");</span>
-<span class="source-line-no">063</span><span id="line-63"></span>
-<span class="source-line-no">064</span><span id="line-64">    for (int i = 1; i &lt;= 10000; i++) {</span>
-<span class="source-line-no">065</span><span id="line-65">      largeDataset.append(</span>
-<span class="source-line-no">066</span><span id="line-66">          String.format(</span>
-<span class="source-line-no">067</span><span id="line-67">              "%d,Item%d,%.2f,2023-07-15T%02d:%02d:%02d\n",</span>
-<span class="source-line-no">068</span><span id="line-68">              i, i, Math.random() * 1000, (i % 24), (i % 60), (i % 60)));</span>
-<span class="source-line-no">069</span><span id="line-69">    }</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">    long startTime = System.currentTimeMillis();</span>
-<span class="source-line-no">072</span><span id="line-72"></span>
-<span class="source-line-no">073</span><span id="line-73">    // Process large dataset with memory-efficient navigation</span>
-<span class="source-line-no">074</span><span id="line-74">    logger.info("🔄 Processing 10,000 records...");</span>
-<span class="source-line-no">075</span><span id="line-75">    processDataWithTiming(</span>
-<span class="source-line-no">076</span><span id="line-76">        largeDataset.toString(), CsvNavigateCommand.create("name", new PassThroughRule()));</span>
-<span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">    long endTime = System.currentTimeMillis();</span>
-<span class="source-line-no">079</span><span id="line-79">    logger.info(String.format("⏱️ Processing completed in %d ms", endTime - startTime));</span>
-<span class="source-line-no">080</span><span id="line-80"></span>
-<span class="source-line-no">081</span><span id="line-81">    // Show memory usage</span>
-<span class="source-line-no">082</span><span id="line-82">    Runtime runtime = Runtime.getRuntime();</span>
-<span class="source-line-no">083</span><span id="line-83">    long memoryUsed = runtime.totalMemory() - runtime.freeMemory();</span>
-<span class="source-line-no">084</span><span id="line-84">    logger.info(String.format("💾 Memory used: %.2f MB", memoryUsed / (1024.0 * 1024.0)));</span>
-<span class="source-line-no">085</span><span id="line-85"></span>
-<span class="source-line-no">086</span><span id="line-86">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">087</span><span id="line-87">  }</span>
-<span class="source-line-no">088</span><span id="line-88"></span>
-<span class="source-line-no">089</span><span id="line-89">  /** Example 2: Concurrent pipeline optimization */</span>
-<span class="source-line-no">090</span><span id="line-90">  private static void concurrentPipelineOptimization() throws IOException {</span>
-<span class="source-line-no">091</span><span id="line-91">    logger.info("🔗 Concurrent Pipeline Optimization");</span>
-<span class="source-line-no">092</span><span id="line-92">    logger.info("====================================");</span>
-<span class="source-line-no">093</span><span id="line-93"></span>
-<span class="source-line-no">094</span><span id="line-94">    String jsonData = generateLargeJsonData();</span>
+<span class="source-line-no">009</span><span id="line-9">import com.streamConverter.path.CSVPath;</span>
+<span class="source-line-no">010</span><span id="line-10">import java.io.ByteArrayInputStream;</span>
+<span class="source-line-no">011</span><span id="line-11">import java.io.ByteArrayOutputStream;</span>
+<span class="source-line-no">012</span><span id="line-12">import java.io.IOException;</span>
+<span class="source-line-no">013</span><span id="line-13">import java.io.InputStream;</span>
+<span class="source-line-no">014</span><span id="line-14">import java.nio.charset.StandardCharsets;</span>
+<span class="source-line-no">015</span><span id="line-15">import org.slf4j.Logger;</span>
+<span class="source-line-no">016</span><span id="line-16">import org.slf4j.LoggerFactory;</span>
+<span class="source-line-no">017</span><span id="line-17"></span>
+<span class="source-line-no">018</span><span id="line-18">/**</span>
+<span class="source-line-no">019</span><span id="line-19"> * Performance optimization examples for StreamConverter.</span>
+<span class="source-line-no">020</span><span id="line-20"> *</span>
+<span class="source-line-no">021</span><span id="line-21"> * &lt;p&gt;This class demonstrates: - Memory-efficient processing techniques - Concurrent pipeline</span>
+<span class="source-line-no">022</span><span id="line-22"> * optimization - Large dataset handling - Performance monitoring</span>
+<span class="source-line-no">023</span><span id="line-23"> */</span>
+<span class="source-line-no">024</span><span id="line-24">public class PerformanceOptimizationExamples {</span>
+<span class="source-line-no">025</span><span id="line-25"></span>
+<span class="source-line-no">026</span><span id="line-26">  private static final Logger logger =</span>
+<span class="source-line-no">027</span><span id="line-27">      LoggerFactory.getLogger(PerformanceOptimizationExamples.class);</span>
+<span class="source-line-no">028</span><span id="line-28"></span>
+<span class="source-line-no">029</span><span id="line-29">  /**</span>
+<span class="source-line-no">030</span><span id="line-30">   * アプリケーションのエントリーポイント。パフォーマンス最適化の例を実行します。</span>
+<span class="source-line-no">031</span><span id="line-31">   *</span>
+<span class="source-line-no">032</span><span id="line-32">   * @param args コマンドライン引数（使用されません）</span>
+<span class="source-line-no">033</span><span id="line-33">   */</span>
+<span class="source-line-no">034</span><span id="line-34">  public static void main(String[] args) {</span>
+<span class="source-line-no">035</span><span id="line-35">    logger.info("⚡ StreamConverter - Performance Optimization Examples");</span>
+<span class="source-line-no">036</span><span id="line-36">    logger.info("=====================================================\n");</span>
+<span class="source-line-no">037</span><span id="line-37"></span>
+<span class="source-line-no">038</span><span id="line-38">    try {</span>
+<span class="source-line-no">039</span><span id="line-39">      // Example 1: Large dataset processing</span>
+<span class="source-line-no">040</span><span id="line-40">      largeDatasetProcessing();</span>
+<span class="source-line-no">041</span><span id="line-41"></span>
+<span class="source-line-no">042</span><span id="line-42">      // Example 2: Concurrent pipeline optimization</span>
+<span class="source-line-no">043</span><span id="line-43">      concurrentPipelineOptimization();</span>
+<span class="source-line-no">044</span><span id="line-44"></span>
+<span class="source-line-no">045</span><span id="line-45">      // Example 3: Memory-efficient processing</span>
+<span class="source-line-no">046</span><span id="line-46">      memoryEfficientProcessing();</span>
+<span class="source-line-no">047</span><span id="line-47"></span>
+<span class="source-line-no">048</span><span id="line-48">      // Example 4: Performance monitoring</span>
+<span class="source-line-no">049</span><span id="line-49">      performanceMonitoring();</span>
+<span class="source-line-no">050</span><span id="line-50"></span>
+<span class="source-line-no">051</span><span id="line-51">    } catch (Exception e) {</span>
+<span class="source-line-no">052</span><span id="line-52">      logger.error("Performance example failed: {}", e.getMessage(), e);</span>
+<span class="source-line-no">053</span><span id="line-53">    }</span>
+<span class="source-line-no">054</span><span id="line-54">  }</span>
+<span class="source-line-no">055</span><span id="line-55"></span>
+<span class="source-line-no">056</span><span id="line-56">  /** Example 1: Processing large datasets efficiently */</span>
+<span class="source-line-no">057</span><span id="line-57">  private static void largeDatasetProcessing() throws IOException {</span>
+<span class="source-line-no">058</span><span id="line-58">    logger.info("📊 Large Dataset Processing");</span>
+<span class="source-line-no">059</span><span id="line-59">    logger.info("============================");</span>
+<span class="source-line-no">060</span><span id="line-60"></span>
+<span class="source-line-no">061</span><span id="line-61">    // Generate large CSV dataset</span>
+<span class="source-line-no">062</span><span id="line-62">    StringBuilder largeDataset = new StringBuilder();</span>
+<span class="source-line-no">063</span><span id="line-63">    largeDataset.append("id,name,value,timestamp\n");</span>
+<span class="source-line-no">064</span><span id="line-64"></span>
+<span class="source-line-no">065</span><span id="line-65">    for (int i = 1; i &lt;= 10000; i++) {</span>
+<span class="source-line-no">066</span><span id="line-66">      largeDataset.append(</span>
+<span class="source-line-no">067</span><span id="line-67">          String.format(</span>
+<span class="source-line-no">068</span><span id="line-68">              "%d,Item%d,%.2f,2023-07-15T%02d:%02d:%02d\n",</span>
+<span class="source-line-no">069</span><span id="line-69">              i, i, Math.random() * 1000, (i % 24), (i % 60), (i % 60)));</span>
+<span class="source-line-no">070</span><span id="line-70">    }</span>
+<span class="source-line-no">071</span><span id="line-71"></span>
+<span class="source-line-no">072</span><span id="line-72">    long startTime = System.currentTimeMillis();</span>
+<span class="source-line-no">073</span><span id="line-73"></span>
+<span class="source-line-no">074</span><span id="line-74">    // Process large dataset with memory-efficient navigation</span>
+<span class="source-line-no">075</span><span id="line-75">    logger.info("🔄 Processing 10,000 records...");</span>
+<span class="source-line-no">076</span><span id="line-76">    processDataWithTiming(</span>
+<span class="source-line-no">077</span><span id="line-77">        largeDataset.toString(),</span>
+<span class="source-line-no">078</span><span id="line-78">        CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()));</span>
+<span class="source-line-no">079</span><span id="line-79"></span>
+<span class="source-line-no">080</span><span id="line-80">    long endTime = System.currentTimeMillis();</span>
+<span class="source-line-no">081</span><span id="line-81">    logger.info(String.format("⏱️ Processing completed in %d ms", endTime - startTime));</span>
+<span class="source-line-no">082</span><span id="line-82"></span>
+<span class="source-line-no">083</span><span id="line-83">    // Show memory usage</span>
+<span class="source-line-no">084</span><span id="line-84">    Runtime runtime = Runtime.getRuntime();</span>
+<span class="source-line-no">085</span><span id="line-85">    long memoryUsed = runtime.totalMemory() - runtime.freeMemory();</span>
+<span class="source-line-no">086</span><span id="line-86">    logger.info(String.format("💾 Memory used: %.2f MB", memoryUsed / (1024.0 * 1024.0)));</span>
+<span class="source-line-no">087</span><span id="line-87"></span>
+<span class="source-line-no">088</span><span id="line-88">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">089</span><span id="line-89">  }</span>
+<span class="source-line-no">090</span><span id="line-90"></span>
+<span class="source-line-no">091</span><span id="line-91">  /** Example 2: Concurrent pipeline optimization */</span>
+<span class="source-line-no">092</span><span id="line-92">  private static void concurrentPipelineOptimization() throws IOException {</span>
+<span class="source-line-no">093</span><span id="line-93">    logger.info("🔗 Concurrent Pipeline Optimization");</span>
+<span class="source-line-no">094</span><span id="line-94">    logger.info("====================================");</span>
 <span class="source-line-no">095</span><span id="line-95"></span>
-<span class="source-line-no">096</span><span id="line-96">    // Single command processing</span>
-<span class="source-line-no">097</span><span id="line-97">    long startTime = System.currentTimeMillis();</span>
-<span class="source-line-no">098</span><span id="line-98">    logger.info("🔄 Single command processing...");</span>
-<span class="source-line-no">099</span><span id="line-99">    processDataWithTiming(jsonData, JsonNavigateCommand.createForAll(new PassThroughRule()));</span>
-<span class="source-line-no">100</span><span id="line-100">    long singleTime = System.currentTimeMillis() - startTime;</span>
-<span class="source-line-no">101</span><span id="line-101"></span>
-<span class="source-line-no">102</span><span id="line-102">    // Pipeline processing (demonstrates concurrent execution)</span>
-<span class="source-line-no">103</span><span id="line-103">    startTime = System.currentTimeMillis();</span>
-<span class="source-line-no">104</span><span id="line-104">    logger.info("\n🔄 Pipeline processing (concurrent)...");</span>
-<span class="source-line-no">105</span><span id="line-105">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">106</span><span id="line-106">      JsonNavigateCommand.createForAll(new PassThroughRule()),</span>
-<span class="source-line-no">107</span><span id="line-107">      new SampleStreamCommand("stage1"),</span>
-<span class="source-line-no">108</span><span id="line-108">      new SampleStreamCommand("stage2")</span>
-<span class="source-line-no">109</span><span id="line-109">    };</span>
-<span class="source-line-no">110</span><span id="line-110">    processDataWithTiming(jsonData, pipeline);</span>
-<span class="source-line-no">111</span><span id="line-111">    long pipelineTime = System.currentTimeMillis() - startTime;</span>
-<span class="source-line-no">112</span><span id="line-112"></span>
-<span class="source-line-no">113</span><span id="line-113">    logger.info(String.format("📈 Performance comparison:"));</span>
-<span class="source-line-no">114</span><span id="line-114">    logger.info(String.format("  Single command: %d ms", singleTime));</span>
-<span class="source-line-no">115</span><span id="line-115">    logger.info(String.format("  Pipeline: %d ms", pipelineTime));</span>
-<span class="source-line-no">116</span><span id="line-116">    logger.info(</span>
-<span class="source-line-no">117</span><span id="line-117">        String.format("  CPU cores utilized: %d", Runtime.getRuntime().availableProcessors()));</span>
-<span class="source-line-no">118</span><span id="line-118"></span>
-<span class="source-line-no">119</span><span id="line-119">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">120</span><span id="line-120">  }</span>
-<span class="source-line-no">121</span><span id="line-121"></span>
-<span class="source-line-no">122</span><span id="line-122">  /** Example 3: Memory-efficient processing demonstration */</span>
-<span class="source-line-no">123</span><span id="line-123">  private static void memoryEfficientProcessing() throws IOException {</span>
-<span class="source-line-no">124</span><span id="line-124">    logger.info("💾 Memory-Efficient Processing");</span>
-<span class="source-line-no">125</span><span id="line-125">    logger.info("===============================");</span>
-<span class="source-line-no">126</span><span id="line-126"></span>
-<span class="source-line-no">127</span><span id="line-127">    // Generate data that would be problematic for memory</span>
-<span class="source-line-no">128</span><span id="line-128">    StringBuilder hugeDataset = new StringBuilder();</span>
-<span class="source-line-no">129</span><span id="line-129">    hugeDataset.append("id,data\n");</span>
-<span class="source-line-no">130</span><span id="line-130"></span>
-<span class="source-line-no">131</span><span id="line-131">    for (int i = 1; i &lt;= 50000; i++) {</span>
-<span class="source-line-no">132</span><span id="line-132">      hugeDataset.append(String.format("%d,%s\n", i, "x".repeat(100))); // 100-char string per row</span>
-<span class="source-line-no">133</span><span id="line-133">    }</span>
-<span class="source-line-no">134</span><span id="line-134"></span>
-<span class="source-line-no">135</span><span id="line-135">    long beforeMemory = getUsedMemory();</span>
+<span class="source-line-no">096</span><span id="line-96">    String jsonData = generateLargeJsonData();</span>
+<span class="source-line-no">097</span><span id="line-97"></span>
+<span class="source-line-no">098</span><span id="line-98">    // Single command processing</span>
+<span class="source-line-no">099</span><span id="line-99">    long startTime = System.currentTimeMillis();</span>
+<span class="source-line-no">100</span><span id="line-100">    logger.info("🔄 Single command processing...");</span>
+<span class="source-line-no">101</span><span id="line-101">    processDataWithTiming(jsonData, JsonNavigateCommand.createForAll(new PassThroughRule()));</span>
+<span class="source-line-no">102</span><span id="line-102">    long singleTime = System.currentTimeMillis() - startTime;</span>
+<span class="source-line-no">103</span><span id="line-103"></span>
+<span class="source-line-no">104</span><span id="line-104">    // Pipeline processing (demonstrates concurrent execution)</span>
+<span class="source-line-no">105</span><span id="line-105">    startTime = System.currentTimeMillis();</span>
+<span class="source-line-no">106</span><span id="line-106">    logger.info("\n🔄 Pipeline processing (concurrent)...");</span>
+<span class="source-line-no">107</span><span id="line-107">    IStreamCommand[] pipeline = {</span>
+<span class="source-line-no">108</span><span id="line-108">      JsonNavigateCommand.createForAll(new PassThroughRule()),</span>
+<span class="source-line-no">109</span><span id="line-109">      new SampleStreamCommand("stage1"),</span>
+<span class="source-line-no">110</span><span id="line-110">      new SampleStreamCommand("stage2")</span>
+<span class="source-line-no">111</span><span id="line-111">    };</span>
+<span class="source-line-no">112</span><span id="line-112">    processDataWithTiming(jsonData, pipeline);</span>
+<span class="source-line-no">113</span><span id="line-113">    long pipelineTime = System.currentTimeMillis() - startTime;</span>
+<span class="source-line-no">114</span><span id="line-114"></span>
+<span class="source-line-no">115</span><span id="line-115">    logger.info(String.format("📈 Performance comparison:"));</span>
+<span class="source-line-no">116</span><span id="line-116">    logger.info(String.format("  Single command: %d ms", singleTime));</span>
+<span class="source-line-no">117</span><span id="line-117">    logger.info(String.format("  Pipeline: %d ms", pipelineTime));</span>
+<span class="source-line-no">118</span><span id="line-118">    logger.info(</span>
+<span class="source-line-no">119</span><span id="line-119">        String.format("  CPU cores utilized: %d", Runtime.getRuntime().availableProcessors()));</span>
+<span class="source-line-no">120</span><span id="line-120"></span>
+<span class="source-line-no">121</span><span id="line-121">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">122</span><span id="line-122">  }</span>
+<span class="source-line-no">123</span><span id="line-123"></span>
+<span class="source-line-no">124</span><span id="line-124">  /** Example 3: Memory-efficient processing demonstration */</span>
+<span class="source-line-no">125</span><span id="line-125">  private static void memoryEfficientProcessing() throws IOException {</span>
+<span class="source-line-no">126</span><span id="line-126">    logger.info("💾 Memory-Efficient Processing");</span>
+<span class="source-line-no">127</span><span id="line-127">    logger.info("===============================");</span>
+<span class="source-line-no">128</span><span id="line-128"></span>
+<span class="source-line-no">129</span><span id="line-129">    // Generate data that would be problematic for memory</span>
+<span class="source-line-no">130</span><span id="line-130">    StringBuilder hugeDataset = new StringBuilder();</span>
+<span class="source-line-no">131</span><span id="line-131">    hugeDataset.append("id,data\n");</span>
+<span class="source-line-no">132</span><span id="line-132"></span>
+<span class="source-line-no">133</span><span id="line-133">    for (int i = 1; i &lt;= 50000; i++) {</span>
+<span class="source-line-no">134</span><span id="line-134">      hugeDataset.append(String.format("%d,%s\n", i, "x".repeat(100))); // 100-char string per row</span>
+<span class="source-line-no">135</span><span id="line-135">    }</span>
 <span class="source-line-no">136</span><span id="line-136"></span>
-<span class="source-line-no">137</span><span id="line-137">    logger.info("🔄 Processing 50,000 records with 100-char data each...");</span>
-<span class="source-line-no">138</span><span id="line-138">    processDataWithTiming(</span>
-<span class="source-line-no">139</span><span id="line-139">        hugeDataset.toString(), CsvNavigateCommand.create("id", new PassThroughRule()));</span>
-<span class="source-line-no">140</span><span id="line-140"></span>
-<span class="source-line-no">141</span><span id="line-141">    long afterMemory = getUsedMemory();</span>
-<span class="source-line-no">142</span><span id="line-142">    long memoryIncrease = afterMemory - beforeMemory;</span>
+<span class="source-line-no">137</span><span id="line-137">    long beforeMemory = getUsedMemory();</span>
+<span class="source-line-no">138</span><span id="line-138"></span>
+<span class="source-line-no">139</span><span id="line-139">    logger.info("🔄 Processing 50,000 records with 100-char data each...");</span>
+<span class="source-line-no">140</span><span id="line-140">    processDataWithTiming(</span>
+<span class="source-line-no">141</span><span id="line-141">        hugeDataset.toString(),</span>
+<span class="source-line-no">142</span><span id="line-142">        CsvNavigateCommand.create(new CSVPath("id"), new PassThroughRule()));</span>
 <span class="source-line-no">143</span><span id="line-143"></span>
-<span class="source-line-no">144</span><span id="line-144">    logger.info(String.format("💾 Memory increase: %.2f MB", memoryIncrease / (1024.0 * 1024.0)));</span>
-<span class="source-line-no">145</span><span id="line-145">    logger.info("✅ Demonstrates streaming processing with constant memory usage");</span>
+<span class="source-line-no">144</span><span id="line-144">    long afterMemory = getUsedMemory();</span>
+<span class="source-line-no">145</span><span id="line-145">    long memoryIncrease = afterMemory - beforeMemory;</span>
 <span class="source-line-no">146</span><span id="line-146"></span>
-<span class="source-line-no">147</span><span id="line-147">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">148</span><span id="line-148">  }</span>
+<span class="source-line-no">147</span><span id="line-147">    logger.info(String.format("💾 Memory increase: %.2f MB", memoryIncrease / (1024.0 * 1024.0)));</span>
+<span class="source-line-no">148</span><span id="line-148">    logger.info("✅ Demonstrates streaming processing with constant memory usage");</span>
 <span class="source-line-no">149</span><span id="line-149"></span>
-<span class="source-line-no">150</span><span id="line-150">  /** Example 4: Performance monitoring and optimization */</span>
-<span class="source-line-no">151</span><span id="line-151">  private static void performanceMonitoring() throws IOException {</span>
-<span class="source-line-no">152</span><span id="line-152">    logger.info("📊 Performance Monitoring");</span>
-<span class="source-line-no">153</span><span id="line-153">    logger.info("==========================");</span>
-<span class="source-line-no">154</span><span id="line-154"></span>
-<span class="source-line-no">155</span><span id="line-155">    String testData = generateTestData();</span>
-<span class="source-line-no">156</span><span id="line-156"></span>
-<span class="source-line-no">157</span><span id="line-157">    // Test different processing strategies</span>
-<span class="source-line-no">158</span><span id="line-158">    logger.info("🧪 Testing different processing strategies:\n");</span>
+<span class="source-line-no">150</span><span id="line-150">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">151</span><span id="line-151">  }</span>
+<span class="source-line-no">152</span><span id="line-152"></span>
+<span class="source-line-no">153</span><span id="line-153">  /** Example 4: Performance monitoring and optimization */</span>
+<span class="source-line-no">154</span><span id="line-154">  private static void performanceMonitoring() throws IOException {</span>
+<span class="source-line-no">155</span><span id="line-155">    logger.info("📊 Performance Monitoring");</span>
+<span class="source-line-no">156</span><span id="line-156">    logger.info("==========================");</span>
+<span class="source-line-no">157</span><span id="line-157"></span>
+<span class="source-line-no">158</span><span id="line-158">    String testData = generateTestData();</span>
 <span class="source-line-no">159</span><span id="line-159"></span>
-<span class="source-line-no">160</span><span id="line-160">    // Strategy 1: Direct processing</span>
-<span class="source-line-no">161</span><span id="line-161">    long start = System.nanoTime();</span>
-<span class="source-line-no">162</span><span id="line-162">    processDataWithTiming(testData, CsvNavigateCommand.create("name", new PassThroughRule()));</span>
-<span class="source-line-no">163</span><span id="line-163">    long directTime = System.nanoTime() - start;</span>
-<span class="source-line-no">164</span><span id="line-164"></span>
-<span class="source-line-no">165</span><span id="line-165">    // Strategy 2: Pipeline processing</span>
-<span class="source-line-no">166</span><span id="line-166">    start = System.nanoTime();</span>
-<span class="source-line-no">167</span><span id="line-167">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">168</span><span id="line-168">      CsvNavigateCommand.create("name", new PassThroughRule()), new SampleStreamCommand("processor")</span>
-<span class="source-line-no">169</span><span id="line-169">    };</span>
-<span class="source-line-no">170</span><span id="line-170">    processDataWithTiming(testData, pipeline);</span>
-<span class="source-line-no">171</span><span id="line-171">    long pipelineTime = System.nanoTime() - start;</span>
-<span class="source-line-no">172</span><span id="line-172"></span>
-<span class="source-line-no">173</span><span id="line-173">    // Strategy 3: Multi-stage processing</span>
-<span class="source-line-no">174</span><span id="line-174">    start = System.nanoTime();</span>
-<span class="source-line-no">175</span><span id="line-175">    IStreamCommand[] multiStage = {</span>
-<span class="source-line-no">176</span><span id="line-176">      CsvNavigateCommand.create("name", new PassThroughRule()),</span>
-<span class="source-line-no">177</span><span id="line-177">      new SampleStreamCommand("stage1"),</span>
-<span class="source-line-no">178</span><span id="line-178">      new SampleStreamCommand("stage2"),</span>
-<span class="source-line-no">179</span><span id="line-179">      new SampleStreamCommand("stage3")</span>
-<span class="source-line-no">180</span><span id="line-180">    };</span>
-<span class="source-line-no">181</span><span id="line-181">    processDataWithTiming(testData, multiStage);</span>
-<span class="source-line-no">182</span><span id="line-182">    long multiStageTime = System.nanoTime() - start;</span>
-<span class="source-line-no">183</span><span id="line-183"></span>
-<span class="source-line-no">184</span><span id="line-184">    // Performance analysis</span>
-<span class="source-line-no">185</span><span id="line-185">    logger.info("\n📈 Performance Analysis:");</span>
-<span class="source-line-no">186</span><span id="line-186">    logger.info(String.format("  Direct processing: %.2f ms", directTime / 1_000_000.0));</span>
-<span class="source-line-no">187</span><span id="line-187">    logger.info(String.format("  Pipeline processing: %.2f ms", pipelineTime / 1_000_000.0));</span>
-<span class="source-line-no">188</span><span id="line-188">    logger.info(String.format("  Multi-stage processing: %.2f ms", multiStageTime / 1_000_000.0));</span>
-<span class="source-line-no">189</span><span id="line-189"></span>
-<span class="source-line-no">190</span><span id="line-190">    double throughput = (testData.length() * 1000.0) / (directTime / 1_000_000.0);</span>
-<span class="source-line-no">191</span><span id="line-191">    logger.info(String.format("  Throughput: %.2f MB/s", throughput / (1024.0 * 1024.0)));</span>
-<span class="source-line-no">192</span><span id="line-192"></span>
-<span class="source-line-no">193</span><span id="line-193">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">194</span><span id="line-194">  }</span>
-<span class="source-line-no">195</span><span id="line-195"></span>
-<span class="source-line-no">196</span><span id="line-196">  /** Helper method to process data with timing */</span>
-<span class="source-line-no">197</span><span id="line-197">  private static void processDataWithTiming(String inputData, IStreamCommand command)</span>
-<span class="source-line-no">198</span><span id="line-198">      throws IOException {</span>
-<span class="source-line-no">199</span><span id="line-199">    processDataWithTiming(inputData, new IStreamCommand[] {command});</span>
-<span class="source-line-no">200</span><span id="line-200">  }</span>
-<span class="source-line-no">201</span><span id="line-201"></span>
-<span class="source-line-no">202</span><span id="line-202">  /** Helper method to process data with timing for pipelines */</span>
-<span class="source-line-no">203</span><span id="line-203">  private static void processDataWithTiming(String inputData, IStreamCommand[] commands)</span>
-<span class="source-line-no">204</span><span id="line-204">      throws IOException {</span>
-<span class="source-line-no">205</span><span id="line-205">    try (InputStream inputStream =</span>
-<span class="source-line-no">206</span><span id="line-206">            new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">207</span><span id="line-207">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="source-line-no">208</span><span id="line-208"></span>
-<span class="source-line-no">209</span><span id="line-209">      StreamConverter converter = new StreamConverter(commands);</span>
-<span class="source-line-no">210</span><span id="line-210">      converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">211</span><span id="line-211"></span>
-<span class="source-line-no">212</span><span id="line-212">      // Show only a sample of output for large datasets</span>
-<span class="source-line-no">213</span><span id="line-213">      String result = outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">214</span><span id="line-214">      String[] lines = result.split("\n");</span>
-<span class="source-line-no">215</span><span id="line-215"></span>
-<span class="source-line-no">216</span><span id="line-216">      if (lines.length &gt; 10) {</span>
-<span class="source-line-no">217</span><span id="line-217">        logger.info("Sample output (first 5 lines):");</span>
-<span class="source-line-no">218</span><span id="line-218">        for (int i = 0; i &lt; Math.min(5, lines.length); i++) {</span>
-<span class="source-line-no">219</span><span id="line-219">          logger.info(lines[i]);</span>
-<span class="source-line-no">220</span><span id="line-220">        }</span>
-<span class="source-line-no">221</span><span id="line-221">        logger.info("... (" + (lines.length - 5) + " more lines)");</span>
-<span class="source-line-no">222</span><span id="line-222">      } else {</span>
-<span class="source-line-no">223</span><span id="line-223">        logger.info("Output:");</span>
-<span class="source-line-no">224</span><span id="line-224">        logger.info(result.trim());</span>
-<span class="source-line-no">225</span><span id="line-225">      }</span>
-<span class="source-line-no">226</span><span id="line-226">    }</span>
-<span class="source-line-no">227</span><span id="line-227">  }</span>
-<span class="source-line-no">228</span><span id="line-228"></span>
-<span class="source-line-no">229</span><span id="line-229">  /** Generate large JSON data for testing */</span>
-<span class="source-line-no">230</span><span id="line-230">  private static String generateLargeJsonData() {</span>
-<span class="source-line-no">231</span><span id="line-231">    StringBuilder json = new StringBuilder();</span>
-<span class="source-line-no">232</span><span id="line-232">    json.append("{\"data\":[");</span>
+<span class="source-line-no">160</span><span id="line-160">    // Test different processing strategies</span>
+<span class="source-line-no">161</span><span id="line-161">    logger.info("🧪 Testing different processing strategies:\n");</span>
+<span class="source-line-no">162</span><span id="line-162"></span>
+<span class="source-line-no">163</span><span id="line-163">    // Strategy 1: Direct processing</span>
+<span class="source-line-no">164</span><span id="line-164">    long start = System.nanoTime();</span>
+<span class="source-line-no">165</span><span id="line-165">    processDataWithTiming(</span>
+<span class="source-line-no">166</span><span id="line-166">        testData, CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()));</span>
+<span class="source-line-no">167</span><span id="line-167">    long directTime = System.nanoTime() - start;</span>
+<span class="source-line-no">168</span><span id="line-168"></span>
+<span class="source-line-no">169</span><span id="line-169">    // Strategy 2: Pipeline processing</span>
+<span class="source-line-no">170</span><span id="line-170">    start = System.nanoTime();</span>
+<span class="source-line-no">171</span><span id="line-171">    IStreamCommand[] pipeline = {</span>
+<span class="source-line-no">172</span><span id="line-172">      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),</span>
+<span class="source-line-no">173</span><span id="line-173">      new SampleStreamCommand("processor")</span>
+<span class="source-line-no">174</span><span id="line-174">    };</span>
+<span class="source-line-no">175</span><span id="line-175">    processDataWithTiming(testData, pipeline);</span>
+<span class="source-line-no">176</span><span id="line-176">    long pipelineTime = System.nanoTime() - start;</span>
+<span class="source-line-no">177</span><span id="line-177"></span>
+<span class="source-line-no">178</span><span id="line-178">    // Strategy 3: Multi-stage processing</span>
+<span class="source-line-no">179</span><span id="line-179">    start = System.nanoTime();</span>
+<span class="source-line-no">180</span><span id="line-180">    IStreamCommand[] multiStage = {</span>
+<span class="source-line-no">181</span><span id="line-181">      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),</span>
+<span class="source-line-no">182</span><span id="line-182">      new SampleStreamCommand("stage1"),</span>
+<span class="source-line-no">183</span><span id="line-183">      new SampleStreamCommand("stage2"),</span>
+<span class="source-line-no">184</span><span id="line-184">      new SampleStreamCommand("stage3")</span>
+<span class="source-line-no">185</span><span id="line-185">    };</span>
+<span class="source-line-no">186</span><span id="line-186">    processDataWithTiming(testData, multiStage);</span>
+<span class="source-line-no">187</span><span id="line-187">    long multiStageTime = System.nanoTime() - start;</span>
+<span class="source-line-no">188</span><span id="line-188"></span>
+<span class="source-line-no">189</span><span id="line-189">    // Performance analysis</span>
+<span class="source-line-no">190</span><span id="line-190">    logger.info("\n📈 Performance Analysis:");</span>
+<span class="source-line-no">191</span><span id="line-191">    logger.info(String.format("  Direct processing: %.2f ms", directTime / 1_000_000.0));</span>
+<span class="source-line-no">192</span><span id="line-192">    logger.info(String.format("  Pipeline processing: %.2f ms", pipelineTime / 1_000_000.0));</span>
+<span class="source-line-no">193</span><span id="line-193">    logger.info(String.format("  Multi-stage processing: %.2f ms", multiStageTime / 1_000_000.0));</span>
+<span class="source-line-no">194</span><span id="line-194"></span>
+<span class="source-line-no">195</span><span id="line-195">    double throughput = (testData.length() * 1000.0) / (directTime / 1_000_000.0);</span>
+<span class="source-line-no">196</span><span id="line-196">    logger.info(String.format("  Throughput: %.2f MB/s", throughput / (1024.0 * 1024.0)));</span>
+<span class="source-line-no">197</span><span id="line-197"></span>
+<span class="source-line-no">198</span><span id="line-198">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">199</span><span id="line-199">  }</span>
+<span class="source-line-no">200</span><span id="line-200"></span>
+<span class="source-line-no">201</span><span id="line-201">  /** Helper method to process data with timing */</span>
+<span class="source-line-no">202</span><span id="line-202">  private static void processDataWithTiming(String inputData, IStreamCommand command)</span>
+<span class="source-line-no">203</span><span id="line-203">      throws IOException {</span>
+<span class="source-line-no">204</span><span id="line-204">    processDataWithTiming(inputData, new IStreamCommand[] {command});</span>
+<span class="source-line-no">205</span><span id="line-205">  }</span>
+<span class="source-line-no">206</span><span id="line-206"></span>
+<span class="source-line-no">207</span><span id="line-207">  /** Helper method to process data with timing for pipelines */</span>
+<span class="source-line-no">208</span><span id="line-208">  private static void processDataWithTiming(String inputData, IStreamCommand[] commands)</span>
+<span class="source-line-no">209</span><span id="line-209">      throws IOException {</span>
+<span class="source-line-no">210</span><span id="line-210">    try (InputStream inputStream =</span>
+<span class="source-line-no">211</span><span id="line-211">            new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">212</span><span id="line-212">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="source-line-no">213</span><span id="line-213"></span>
+<span class="source-line-no">214</span><span id="line-214">      StreamConverter converter = new StreamConverter(commands);</span>
+<span class="source-line-no">215</span><span id="line-215">      converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">216</span><span id="line-216"></span>
+<span class="source-line-no">217</span><span id="line-217">      // Show only a sample of output for large datasets</span>
+<span class="source-line-no">218</span><span id="line-218">      String result = outputStream.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">219</span><span id="line-219">      String[] lines = result.split("\n");</span>
+<span class="source-line-no">220</span><span id="line-220"></span>
+<span class="source-line-no">221</span><span id="line-221">      if (lines.length &gt; 10) {</span>
+<span class="source-line-no">222</span><span id="line-222">        logger.info("Sample output (first 5 lines):");</span>
+<span class="source-line-no">223</span><span id="line-223">        for (int i = 0; i &lt; Math.min(5, lines.length); i++) {</span>
+<span class="source-line-no">224</span><span id="line-224">          logger.info(lines[i]);</span>
+<span class="source-line-no">225</span><span id="line-225">        }</span>
+<span class="source-line-no">226</span><span id="line-226">        logger.info("... (" + (lines.length - 5) + " more lines)");</span>
+<span class="source-line-no">227</span><span id="line-227">      } else {</span>
+<span class="source-line-no">228</span><span id="line-228">        logger.info("Output:");</span>
+<span class="source-line-no">229</span><span id="line-229">        logger.info(result.trim());</span>
+<span class="source-line-no">230</span><span id="line-230">      }</span>
+<span class="source-line-no">231</span><span id="line-231">    }</span>
+<span class="source-line-no">232</span><span id="line-232">  }</span>
 <span class="source-line-no">233</span><span id="line-233"></span>
-<span class="source-line-no">234</span><span id="line-234">    for (int i = 1; i &lt;= 1000; i++) {</span>
-<span class="source-line-no">235</span><span id="line-235">      if (i &gt; 1) json.append(",");</span>
-<span class="source-line-no">236</span><span id="line-236">      json.append(</span>
-<span class="source-line-no">237</span><span id="line-237">          String.format(</span>
-<span class="source-line-no">238</span><span id="line-238">              "{\"id\":%d,\"name\":\"Item%d\",\"value\":%.2f,\"active\":%s}",</span>
-<span class="source-line-no">239</span><span id="line-239">              i, i, Math.random() * 1000, (i % 2 == 0) ? "true" : "false"));</span>
-<span class="source-line-no">240</span><span id="line-240">    }</span>
-<span class="source-line-no">241</span><span id="line-241"></span>
-<span class="source-line-no">242</span><span id="line-242">    json.append("],\"total\":1000}");</span>
-<span class="source-line-no">243</span><span id="line-243">    return json.toString();</span>
-<span class="source-line-no">244</span><span id="line-244">  }</span>
-<span class="source-line-no">245</span><span id="line-245"></span>
-<span class="source-line-no">246</span><span id="line-246">  /** Generate test data for performance monitoring */</span>
-<span class="source-line-no">247</span><span id="line-247">  private static String generateTestData() {</span>
-<span class="source-line-no">248</span><span id="line-248">    StringBuilder data = new StringBuilder();</span>
-<span class="source-line-no">249</span><span id="line-249">    data.append("id,name,category,price\n");</span>
+<span class="source-line-no">234</span><span id="line-234">  /** Generate large JSON data for testing */</span>
+<span class="source-line-no">235</span><span id="line-235">  private static String generateLargeJsonData() {</span>
+<span class="source-line-no">236</span><span id="line-236">    StringBuilder json = new StringBuilder();</span>
+<span class="source-line-no">237</span><span id="line-237">    json.append("{\"data\":[");</span>
+<span class="source-line-no">238</span><span id="line-238"></span>
+<span class="source-line-no">239</span><span id="line-239">    for (int i = 1; i &lt;= 1000; i++) {</span>
+<span class="source-line-no">240</span><span id="line-240">      if (i &gt; 1) json.append(",");</span>
+<span class="source-line-no">241</span><span id="line-241">      json.append(</span>
+<span class="source-line-no">242</span><span id="line-242">          String.format(</span>
+<span class="source-line-no">243</span><span id="line-243">              "{\"id\":%d,\"name\":\"Item%d\",\"value\":%.2f,\"active\":%s}",</span>
+<span class="source-line-no">244</span><span id="line-244">              i, i, Math.random() * 1000, (i % 2 == 0) ? "true" : "false"));</span>
+<span class="source-line-no">245</span><span id="line-245">    }</span>
+<span class="source-line-no">246</span><span id="line-246"></span>
+<span class="source-line-no">247</span><span id="line-247">    json.append("],\"total\":1000}");</span>
+<span class="source-line-no">248</span><span id="line-248">    return json.toString();</span>
+<span class="source-line-no">249</span><span id="line-249">  }</span>
 <span class="source-line-no">250</span><span id="line-250"></span>
-<span class="source-line-no">251</span><span id="line-251">    for (int i = 1; i &lt;= 5000; i++) {</span>
-<span class="source-line-no">252</span><span id="line-252">      data.append(</span>
-<span class="source-line-no">253</span><span id="line-253">          String.format("%d,Product%d,Category%d,%.2f\n", i, i, (i % 10) + 1, Math.random() * 100));</span>
-<span class="source-line-no">254</span><span id="line-254">    }</span>
+<span class="source-line-no">251</span><span id="line-251">  /** Generate test data for performance monitoring */</span>
+<span class="source-line-no">252</span><span id="line-252">  private static String generateTestData() {</span>
+<span class="source-line-no">253</span><span id="line-253">    StringBuilder data = new StringBuilder();</span>
+<span class="source-line-no">254</span><span id="line-254">    data.append("id,name,category,price\n");</span>
 <span class="source-line-no">255</span><span id="line-255"></span>
-<span class="source-line-no">256</span><span id="line-256">    return data.toString();</span>
-<span class="source-line-no">257</span><span id="line-257">  }</span>
-<span class="source-line-no">258</span><span id="line-258"></span>
-<span class="source-line-no">259</span><span id="line-259">  /** Get current memory usage */</span>
-<span class="source-line-no">260</span><span id="line-260">  private static long getUsedMemory() {</span>
-<span class="source-line-no">261</span><span id="line-261">    Runtime runtime = Runtime.getRuntime();</span>
-<span class="source-line-no">262</span><span id="line-262">    return runtime.totalMemory() - runtime.freeMemory();</span>
-<span class="source-line-no">263</span><span id="line-263">  }</span>
-<span class="source-line-no">264</span><span id="line-264">}</span>
+<span class="source-line-no">256</span><span id="line-256">    for (int i = 1; i &lt;= 5000; i++) {</span>
+<span class="source-line-no">257</span><span id="line-257">      data.append(</span>
+<span class="source-line-no">258</span><span id="line-258">          String.format("%d,Product%d,Category%d,%.2f\n", i, i, (i % 10) + 1, Math.random() * 100));</span>
+<span class="source-line-no">259</span><span id="line-259">    }</span>
+<span class="source-line-no">260</span><span id="line-260"></span>
+<span class="source-line-no">261</span><span id="line-261">    return data.toString();</span>
+<span class="source-line-no">262</span><span id="line-262">  }</span>
+<span class="source-line-no">263</span><span id="line-263"></span>
+<span class="source-line-no">264</span><span id="line-264">  /** Get current memory usage */</span>
+<span class="source-line-no">265</span><span id="line-265">  private static long getUsedMemory() {</span>
+<span class="source-line-no">266</span><span id="line-266">    Runtime runtime = Runtime.getRuntime();</span>
+<span class="source-line-no">267</span><span id="line-267">    return runtime.totalMemory() - runtime.freeMemory();</span>
+<span class="source-line-no">268</span><span id="line-268">  }</span>
+<span class="source-line-no">269</span><span id="line-269">}</span>
 
 
 

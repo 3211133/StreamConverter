@@ -225,7 +225,7 @@
 <span class="source-line-no">212</span><span id="line-212">        Object path = args[0];</span>
 <span class="source-line-no">213</span><span id="line-213">        return (T)</span>
 <span class="source-line-no">214</span><span id="line-214">            com.streamConverter.command.impl.json.JsonNavigateCommand.create(</span>
-<span class="source-line-no">215</span><span id="line-215">                (String) path, defaultRule);</span>
+<span class="source-line-no">215</span><span id="line-215">                new com.streamConverter.path.JSONPath((String) path), defaultRule);</span>
 <span class="source-line-no">216</span><span id="line-216">      } else if (args.length == 0) {</span>
 <span class="source-line-no">217</span><span id="line-217">        return (T)</span>
 <span class="source-line-no">218</span><span id="line-218">            com.streamConverter.command.impl.json.JsonNavigateCommand.createForAll(defaultRule);</span>
@@ -271,7 +271,7 @@
 <span class="source-line-no">258</span><span id="line-258">        Object path = args[0];</span>
 <span class="source-line-no">259</span><span id="line-259">        return (T)</span>
 <span class="source-line-no">260</span><span id="line-260">            com.streamConverter.command.impl.xml.XmlNavigateCommand.create(</span>
-<span class="source-line-no">261</span><span id="line-261">                (String) path, defaultRule);</span>
+<span class="source-line-no">261</span><span id="line-261">                new com.streamConverter.path.XPath((String) path), defaultRule);</span>
 <span class="source-line-no">262</span><span id="line-262">      } else if (args.length == 0) {</span>
 <span class="source-line-no">263</span><span id="line-263">        return (T)</span>
 <span class="source-line-no">264</span><span id="line-264">            com.streamConverter.command.impl.xml.XmlNavigateCommand.createForAll(defaultRule);</span>

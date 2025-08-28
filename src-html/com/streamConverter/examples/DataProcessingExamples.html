@@ -20,247 +20,260 @@
 <span class="source-line-no">007</span><span id="line-7">import com.streamConverter.command.impl.json.JsonNavigateCommand;</span>
 <span class="source-line-no">008</span><span id="line-8">import com.streamConverter.command.impl.xml.XmlNavigateCommand;</span>
 <span class="source-line-no">009</span><span id="line-9">import com.streamConverter.command.rule.PassThroughRule;</span>
-<span class="source-line-no">010</span><span id="line-10">import java.io.ByteArrayInputStream;</span>
-<span class="source-line-no">011</span><span id="line-11">import java.io.ByteArrayOutputStream;</span>
-<span class="source-line-no">012</span><span id="line-12">import java.io.IOException;</span>
-<span class="source-line-no">013</span><span id="line-13">import java.io.InputStream;</span>
-<span class="source-line-no">014</span><span id="line-14">import java.nio.charset.StandardCharsets;</span>
-<span class="source-line-no">015</span><span id="line-15">import org.slf4j.Logger;</span>
-<span class="source-line-no">016</span><span id="line-16">import org.slf4j.LoggerFactory;</span>
-<span class="source-line-no">017</span><span id="line-17"></span>
-<span class="source-line-no">018</span><span id="line-18">/**</span>
-<span class="source-line-no">019</span><span id="line-19"> * Real-world data processing examples using StreamConverter.</span>
-<span class="source-line-no">020</span><span id="line-20"> *</span>
-<span class="source-line-no">021</span><span id="line-21"> * &lt;p&gt;This class demonstrates practical use cases including: - Data extraction from various formats</span>
-<span class="source-line-no">022</span><span id="line-22"> * - Data transformation pipelines - Format conversion workflows - Performance optimization</span>
-<span class="source-line-no">023</span><span id="line-23"> * techniques</span>
-<span class="source-line-no">024</span><span id="line-24"> */</span>
-<span class="source-line-no">025</span><span id="line-25">public class DataProcessingExamples {</span>
-<span class="source-line-no">026</span><span id="line-26"></span>
-<span class="source-line-no">027</span><span id="line-27">  private static final Logger logger = LoggerFactory.getLogger(DataProcessingExamples.class);</span>
-<span class="source-line-no">028</span><span id="line-28"></span>
-<span class="source-line-no">029</span><span id="line-29">  /**</span>
-<span class="source-line-no">030</span><span id="line-30">   * アプリケーションのエントリーポイント。実用的なデータ処理例を実行します。</span>
-<span class="source-line-no">031</span><span id="line-31">   *</span>
-<span class="source-line-no">032</span><span id="line-32">   * @param args コマンドライン引数（使用されません）</span>
-<span class="source-line-no">033</span><span id="line-33">   */</span>
-<span class="source-line-no">034</span><span id="line-34">  public static void main(String[] args) {</span>
-<span class="source-line-no">035</span><span id="line-35">    logger.info("🚀 StreamConverter - Real-world Examples");</span>
-<span class="source-line-no">036</span><span id="line-36">    logger.info("=========================================\n");</span>
-<span class="source-line-no">037</span><span id="line-37"></span>
-<span class="source-line-no">038</span><span id="line-38">    try {</span>
-<span class="source-line-no">039</span><span id="line-39">      // Example 1: Employee data processing</span>
-<span class="source-line-no">040</span><span id="line-40">      employeeDataProcessing();</span>
-<span class="source-line-no">041</span><span id="line-41"></span>
-<span class="source-line-no">042</span><span id="line-42">      // Example 2: API response processing</span>
-<span class="source-line-no">043</span><span id="line-43">      apiResponseProcessing();</span>
+<span class="source-line-no">010</span><span id="line-10">import com.streamConverter.path.CSVPath;</span>
+<span class="source-line-no">011</span><span id="line-11">import com.streamConverter.path.JSONPath;</span>
+<span class="source-line-no">012</span><span id="line-12">import com.streamConverter.path.XPath;</span>
+<span class="source-line-no">013</span><span id="line-13">import java.io.ByteArrayInputStream;</span>
+<span class="source-line-no">014</span><span id="line-14">import java.io.ByteArrayOutputStream;</span>
+<span class="source-line-no">015</span><span id="line-15">import java.io.IOException;</span>
+<span class="source-line-no">016</span><span id="line-16">import java.io.InputStream;</span>
+<span class="source-line-no">017</span><span id="line-17">import java.nio.charset.StandardCharsets;</span>
+<span class="source-line-no">018</span><span id="line-18">import org.slf4j.Logger;</span>
+<span class="source-line-no">019</span><span id="line-19">import org.slf4j.LoggerFactory;</span>
+<span class="source-line-no">020</span><span id="line-20"></span>
+<span class="source-line-no">021</span><span id="line-21">/**</span>
+<span class="source-line-no">022</span><span id="line-22"> * Real-world data processing examples using StreamConverter.</span>
+<span class="source-line-no">023</span><span id="line-23"> *</span>
+<span class="source-line-no">024</span><span id="line-24"> * &lt;p&gt;This class demonstrates practical use cases including: - Data extraction from various formats</span>
+<span class="source-line-no">025</span><span id="line-25"> * - Data transformation pipelines - Format conversion workflows - Performance optimization</span>
+<span class="source-line-no">026</span><span id="line-26"> * techniques</span>
+<span class="source-line-no">027</span><span id="line-27"> */</span>
+<span class="source-line-no">028</span><span id="line-28">public class DataProcessingExamples {</span>
+<span class="source-line-no">029</span><span id="line-29"></span>
+<span class="source-line-no">030</span><span id="line-30">  private static final Logger logger = LoggerFactory.getLogger(DataProcessingExamples.class);</span>
+<span class="source-line-no">031</span><span id="line-31"></span>
+<span class="source-line-no">032</span><span id="line-32">  /**</span>
+<span class="source-line-no">033</span><span id="line-33">   * アプリケーションのエントリーポイント。実用的なデータ処理例を実行します。</span>
+<span class="source-line-no">034</span><span id="line-34">   *</span>
+<span class="source-line-no">035</span><span id="line-35">   * @param args コマンドライン引数（使用されません）</span>
+<span class="source-line-no">036</span><span id="line-36">   */</span>
+<span class="source-line-no">037</span><span id="line-37">  public static void main(String[] args) {</span>
+<span class="source-line-no">038</span><span id="line-38">    logger.info("🚀 StreamConverter - Real-world Examples");</span>
+<span class="source-line-no">039</span><span id="line-39">    logger.info("=========================================\n");</span>
+<span class="source-line-no">040</span><span id="line-40"></span>
+<span class="source-line-no">041</span><span id="line-41">    try {</span>
+<span class="source-line-no">042</span><span id="line-42">      // Example 1: Employee data processing</span>
+<span class="source-line-no">043</span><span id="line-43">      employeeDataProcessing();</span>
 <span class="source-line-no">044</span><span id="line-44"></span>
-<span class="source-line-no">045</span><span id="line-45">      // Example 3: Configuration file processing</span>
-<span class="source-line-no">046</span><span id="line-46">      configurationProcessing();</span>
+<span class="source-line-no">045</span><span id="line-45">      // Example 2: API response processing</span>
+<span class="source-line-no">046</span><span id="line-46">      apiResponseProcessing();</span>
 <span class="source-line-no">047</span><span id="line-47"></span>
-<span class="source-line-no">048</span><span id="line-48">      // Example 4: Log analysis</span>
-<span class="source-line-no">049</span><span id="line-49">      logAnalysis();</span>
+<span class="source-line-no">048</span><span id="line-48">      // Example 3: Configuration file processing</span>
+<span class="source-line-no">049</span><span id="line-49">      configurationProcessing();</span>
 <span class="source-line-no">050</span><span id="line-50"></span>
-<span class="source-line-no">051</span><span id="line-51">      // Example 5: Data format conversion</span>
-<span class="source-line-no">052</span><span id="line-52">      dataFormatConversion();</span>
+<span class="source-line-no">051</span><span id="line-51">      // Example 4: Log analysis</span>
+<span class="source-line-no">052</span><span id="line-52">      logAnalysis();</span>
 <span class="source-line-no">053</span><span id="line-53"></span>
-<span class="source-line-no">054</span><span id="line-54">    } catch (Exception e) {</span>
-<span class="source-line-no">055</span><span id="line-55">      logger.error("Example failed: " + e.getMessage());</span>
-<span class="source-line-no">056</span><span id="line-56">      e.printStackTrace();</span>
-<span class="source-line-no">057</span><span id="line-57">    }</span>
-<span class="source-line-no">058</span><span id="line-58">  }</span>
-<span class="source-line-no">059</span><span id="line-59"></span>
-<span class="source-line-no">060</span><span id="line-60">  /** Example 1: Processing employee data from CSV format */</span>
-<span class="source-line-no">061</span><span id="line-61">  private static void employeeDataProcessing() throws IOException {</span>
-<span class="source-line-no">062</span><span id="line-62">    logger.info("👥 Employee Data Processing");</span>
-<span class="source-line-no">063</span><span id="line-63">    logger.info("============================");</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">    String employeeData =</span>
-<span class="source-line-no">066</span><span id="line-66">        """</span>
-<span class="source-line-no">067</span><span id="line-67">        employee_id,name,department,salary,location</span>
-<span class="source-line-no">068</span><span id="line-68">        E001,John Smith,Engineering,75000,New York</span>
-<span class="source-line-no">069</span><span id="line-69">        E002,Jane Doe,Marketing,65000,Los Angeles</span>
-<span class="source-line-no">070</span><span id="line-70">        E003,Bob Johnson,Engineering,80000,Chicago</span>
-<span class="source-line-no">071</span><span id="line-71">        E004,Alice Brown,HR,60000,Houston</span>
-<span class="source-line-no">072</span><span id="line-72">        E005,Charlie Wilson,Engineering,70000,Seattle</span>
-<span class="source-line-no">073</span><span id="line-73">        """;</span>
-<span class="source-line-no">074</span><span id="line-74"></span>
-<span class="source-line-no">075</span><span id="line-75">    // Extract employee names for a directory</span>
-<span class="source-line-no">076</span><span id="line-76">    logger.info("📋 Extract employee names:");</span>
-<span class="source-line-no">077</span><span id="line-77">    processData(employeeData, CsvNavigateCommand.create("name", new PassThroughRule()));</span>
-<span class="source-line-no">078</span><span id="line-78"></span>
-<span class="source-line-no">079</span><span id="line-79">    // Extract salary information for budget analysis</span>
-<span class="source-line-no">080</span><span id="line-80">    logger.info("\n💰 Extract salary information:");</span>
-<span class="source-line-no">081</span><span id="line-81">    processData(employeeData, CsvNavigateCommand.create("salary", new PassThroughRule()));</span>
+<span class="source-line-no">054</span><span id="line-54">      // Example 5: Data format conversion</span>
+<span class="source-line-no">055</span><span id="line-55">      dataFormatConversion();</span>
+<span class="source-line-no">056</span><span id="line-56"></span>
+<span class="source-line-no">057</span><span id="line-57">    } catch (Exception e) {</span>
+<span class="source-line-no">058</span><span id="line-58">      logger.error("Example failed: " + e.getMessage());</span>
+<span class="source-line-no">059</span><span id="line-59">      e.printStackTrace();</span>
+<span class="source-line-no">060</span><span id="line-60">    }</span>
+<span class="source-line-no">061</span><span id="line-61">  }</span>
+<span class="source-line-no">062</span><span id="line-62"></span>
+<span class="source-line-no">063</span><span id="line-63">  /** Example 1: Processing employee data from CSV format */</span>
+<span class="source-line-no">064</span><span id="line-64">  private static void employeeDataProcessing() throws IOException {</span>
+<span class="source-line-no">065</span><span id="line-65">    logger.info("👥 Employee Data Processing");</span>
+<span class="source-line-no">066</span><span id="line-66">    logger.info("============================");</span>
+<span class="source-line-no">067</span><span id="line-67"></span>
+<span class="source-line-no">068</span><span id="line-68">    String employeeData =</span>
+<span class="source-line-no">069</span><span id="line-69">        """</span>
+<span class="source-line-no">070</span><span id="line-70">        employee_id,name,department,salary,location</span>
+<span class="source-line-no">071</span><span id="line-71">        E001,John Smith,Engineering,75000,New York</span>
+<span class="source-line-no">072</span><span id="line-72">        E002,Jane Doe,Marketing,65000,Los Angeles</span>
+<span class="source-line-no">073</span><span id="line-73">        E003,Bob Johnson,Engineering,80000,Chicago</span>
+<span class="source-line-no">074</span><span id="line-74">        E004,Alice Brown,HR,60000,Houston</span>
+<span class="source-line-no">075</span><span id="line-75">        E005,Charlie Wilson,Engineering,70000,Seattle</span>
+<span class="source-line-no">076</span><span id="line-76">        """;</span>
+<span class="source-line-no">077</span><span id="line-77"></span>
+<span class="source-line-no">078</span><span id="line-78">    // Extract employee names for a directory</span>
+<span class="source-line-no">079</span><span id="line-79">    logger.info("📋 Extract employee names:");</span>
+<span class="source-line-no">080</span><span id="line-80">    processData(</span>
+<span class="source-line-no">081</span><span id="line-81">        employeeData, CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()));</span>
 <span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">    // Extract department information for organization chart</span>
-<span class="source-line-no">084</span><span id="line-84">    logger.info("\n🏢 Extract department information:");</span>
-<span class="source-line-no">085</span><span id="line-85">    processData(employeeData, CsvNavigateCommand.create("department", new PassThroughRule()));</span>
-<span class="source-line-no">086</span><span id="line-86"></span>
-<span class="source-line-no">087</span><span id="line-87">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">088</span><span id="line-88">  }</span>
-<span class="source-line-no">089</span><span id="line-89"></span>
-<span class="source-line-no">090</span><span id="line-90">  /** Example 2: Processing API response data */</span>
-<span class="source-line-no">091</span><span id="line-91">  private static void apiResponseProcessing() throws IOException {</span>
-<span class="source-line-no">092</span><span id="line-92">    logger.info("🌐 API Response Processing");</span>
-<span class="source-line-no">093</span><span id="line-93">    logger.info("===========================");</span>
-<span class="source-line-no">094</span><span id="line-94"></span>
-<span class="source-line-no">095</span><span id="line-95">    String apiResponse =</span>
-<span class="source-line-no">096</span><span id="line-96">        """</span>
-<span class="source-line-no">097</span><span id="line-97">        {</span>
-<span class="source-line-no">098</span><span id="line-98">          "status": "success",</span>
-<span class="source-line-no">099</span><span id="line-99">          "data": {</span>
-<span class="source-line-no">100</span><span id="line-100">            "users": [</span>
-<span class="source-line-no">101</span><span id="line-101">              {"id": 1, "name": "John", "email": "john@example.com", "active": true},</span>
-<span class="source-line-no">102</span><span id="line-102">              {"id": 2, "name": "Jane", "email": "jane@example.com", "active": false}</span>
-<span class="source-line-no">103</span><span id="line-103">            ],</span>
-<span class="source-line-no">104</span><span id="line-104">            "pagination": {</span>
-<span class="source-line-no">105</span><span id="line-105">              "total": 2,</span>
-<span class="source-line-no">106</span><span id="line-106">              "page": 1,</span>
-<span class="source-line-no">107</span><span id="line-107">              "per_page": 10</span>
-<span class="source-line-no">108</span><span id="line-108">            }</span>
-<span class="source-line-no">109</span><span id="line-109">          }</span>
-<span class="source-line-no">110</span><span id="line-110">        }</span>
-<span class="source-line-no">111</span><span id="line-111">        """;</span>
-<span class="source-line-no">112</span><span id="line-112"></span>
-<span class="source-line-no">113</span><span id="line-113">    // Extract status for monitoring</span>
-<span class="source-line-no">114</span><span id="line-114">    logger.info("📊 Extract API status:");</span>
-<span class="source-line-no">115</span><span id="line-115">    processData(apiResponse, JsonNavigateCommand.create("status", new PassThroughRule()));</span>
-<span class="source-line-no">116</span><span id="line-116"></span>
-<span class="source-line-no">117</span><span id="line-117">    // Extract user data for processing</span>
-<span class="source-line-no">118</span><span id="line-118">    logger.info("\n👤 Extract user data:");</span>
-<span class="source-line-no">119</span><span id="line-119">    processData(apiResponse, JsonNavigateCommand.create("data", new PassThroughRule()));</span>
-<span class="source-line-no">120</span><span id="line-120"></span>
-<span class="source-line-no">121</span><span id="line-121">    // Format entire response for logging</span>
-<span class="source-line-no">122</span><span id="line-122">    logger.info("\n📝 Format entire response:");</span>
-<span class="source-line-no">123</span><span id="line-123">    processData(apiResponse, JsonNavigateCommand.createForAll(new PassThroughRule()));</span>
-<span class="source-line-no">124</span><span id="line-124"></span>
-<span class="source-line-no">125</span><span id="line-125">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">126</span><span id="line-126">  }</span>
-<span class="source-line-no">127</span><span id="line-127"></span>
-<span class="source-line-no">128</span><span id="line-128">  /** Example 3: Configuration file processing */</span>
-<span class="source-line-no">129</span><span id="line-129">  private static void configurationProcessing() throws IOException {</span>
-<span class="source-line-no">130</span><span id="line-130">    logger.info("⚙️ Configuration Processing");</span>
-<span class="source-line-no">131</span><span id="line-131">    logger.info("============================");</span>
+<span class="source-line-no">083</span><span id="line-83">    // Extract salary information for budget analysis</span>
+<span class="source-line-no">084</span><span id="line-84">    logger.info("\n💰 Extract salary information:");</span>
+<span class="source-line-no">085</span><span id="line-85">    processData(</span>
+<span class="source-line-no">086</span><span id="line-86">        employeeData, CsvNavigateCommand.create(new CSVPath("salary"), new PassThroughRule()));</span>
+<span class="source-line-no">087</span><span id="line-87"></span>
+<span class="source-line-no">088</span><span id="line-88">    // Extract department information for organization chart</span>
+<span class="source-line-no">089</span><span id="line-89">    logger.info("\n🏢 Extract department information:");</span>
+<span class="source-line-no">090</span><span id="line-90">    processData(</span>
+<span class="source-line-no">091</span><span id="line-91">        employeeData, CsvNavigateCommand.create(new CSVPath("department"), new PassThroughRule()));</span>
+<span class="source-line-no">092</span><span id="line-92"></span>
+<span class="source-line-no">093</span><span id="line-93">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">094</span><span id="line-94">  }</span>
+<span class="source-line-no">095</span><span id="line-95"></span>
+<span class="source-line-no">096</span><span id="line-96">  /** Example 2: Processing API response data */</span>
+<span class="source-line-no">097</span><span id="line-97">  private static void apiResponseProcessing() throws IOException {</span>
+<span class="source-line-no">098</span><span id="line-98">    logger.info("🌐 API Response Processing");</span>
+<span class="source-line-no">099</span><span id="line-99">    logger.info("===========================");</span>
+<span class="source-line-no">100</span><span id="line-100"></span>
+<span class="source-line-no">101</span><span id="line-101">    String apiResponse =</span>
+<span class="source-line-no">102</span><span id="line-102">        """</span>
+<span class="source-line-no">103</span><span id="line-103">        {</span>
+<span class="source-line-no">104</span><span id="line-104">          "status": "success",</span>
+<span class="source-line-no">105</span><span id="line-105">          "data": {</span>
+<span class="source-line-no">106</span><span id="line-106">            "users": [</span>
+<span class="source-line-no">107</span><span id="line-107">              {"id": 1, "name": "John", "email": "john@example.com", "active": true},</span>
+<span class="source-line-no">108</span><span id="line-108">              {"id": 2, "name": "Jane", "email": "jane@example.com", "active": false}</span>
+<span class="source-line-no">109</span><span id="line-109">            ],</span>
+<span class="source-line-no">110</span><span id="line-110">            "pagination": {</span>
+<span class="source-line-no">111</span><span id="line-111">              "total": 2,</span>
+<span class="source-line-no">112</span><span id="line-112">              "page": 1,</span>
+<span class="source-line-no">113</span><span id="line-113">              "per_page": 10</span>
+<span class="source-line-no">114</span><span id="line-114">            }</span>
+<span class="source-line-no">115</span><span id="line-115">          }</span>
+<span class="source-line-no">116</span><span id="line-116">        }</span>
+<span class="source-line-no">117</span><span id="line-117">        """;</span>
+<span class="source-line-no">118</span><span id="line-118"></span>
+<span class="source-line-no">119</span><span id="line-119">    // Extract status for monitoring</span>
+<span class="source-line-no">120</span><span id="line-120">    logger.info("📊 Extract API status:");</span>
+<span class="source-line-no">121</span><span id="line-121">    processData(</span>
+<span class="source-line-no">122</span><span id="line-122">        apiResponse, JsonNavigateCommand.create(new JSONPath("status"), new PassThroughRule()));</span>
+<span class="source-line-no">123</span><span id="line-123"></span>
+<span class="source-line-no">124</span><span id="line-124">    // Extract user data for processing</span>
+<span class="source-line-no">125</span><span id="line-125">    logger.info("\n👤 Extract user data:");</span>
+<span class="source-line-no">126</span><span id="line-126">    processData(</span>
+<span class="source-line-no">127</span><span id="line-127">        apiResponse, JsonNavigateCommand.create(new JSONPath("data"), new PassThroughRule()));</span>
+<span class="source-line-no">128</span><span id="line-128"></span>
+<span class="source-line-no">129</span><span id="line-129">    // Format entire response for logging</span>
+<span class="source-line-no">130</span><span id="line-130">    logger.info("\n📝 Format entire response:");</span>
+<span class="source-line-no">131</span><span id="line-131">    processData(apiResponse, JsonNavigateCommand.createForAll(new PassThroughRule()));</span>
 <span class="source-line-no">132</span><span id="line-132"></span>
-<span class="source-line-no">133</span><span id="line-133">    String configXml =</span>
-<span class="source-line-no">134</span><span id="line-134">        """</span>
-<span class="source-line-no">135</span><span id="line-135">        &lt;?xml version="1.0"?&gt;</span>
-<span class="source-line-no">136</span><span id="line-136">        &lt;configuration&gt;</span>
-<span class="source-line-no">137</span><span id="line-137">          &lt;database&gt;</span>
-<span class="source-line-no">138</span><span id="line-138">            &lt;host&gt;localhost&lt;/host&gt;</span>
-<span class="source-line-no">139</span><span id="line-139">            &lt;port&gt;5432&lt;/port&gt;</span>
-<span class="source-line-no">140</span><span id="line-140">            &lt;name&gt;myapp&lt;/name&gt;</span>
-<span class="source-line-no">141</span><span id="line-141">          &lt;/database&gt;</span>
-<span class="source-line-no">142</span><span id="line-142">          &lt;server&gt;</span>
-<span class="source-line-no">143</span><span id="line-143">            &lt;port&gt;8080&lt;/port&gt;</span>
-<span class="source-line-no">144</span><span id="line-144">            &lt;ssl&gt;true&lt;/ssl&gt;</span>
-<span class="source-line-no">145</span><span id="line-145">          &lt;/server&gt;</span>
-<span class="source-line-no">146</span><span id="line-146">          &lt;logging&gt;</span>
-<span class="source-line-no">147</span><span id="line-147">            &lt;level&gt;INFO&lt;/level&gt;</span>
-<span class="source-line-no">148</span><span id="line-148">            &lt;file&gt;app.log&lt;/file&gt;</span>
-<span class="source-line-no">149</span><span id="line-149">          &lt;/logging&gt;</span>
-<span class="source-line-no">150</span><span id="line-150">        &lt;/configuration&gt;</span>
-<span class="source-line-no">151</span><span id="line-151">        """;</span>
-<span class="source-line-no">152</span><span id="line-152"></span>
-<span class="source-line-no">153</span><span id="line-153">    // Extract database configuration</span>
-<span class="source-line-no">154</span><span id="line-154">    logger.info("🗄️ Extract database configuration:");</span>
-<span class="source-line-no">155</span><span id="line-155">    processData(</span>
-<span class="source-line-no">156</span><span id="line-156">        configXml, XmlNavigateCommand.create("configuration/database", new PassThroughRule()));</span>
-<span class="source-line-no">157</span><span id="line-157"></span>
-<span class="source-line-no">158</span><span id="line-158">    // Extract server configuration</span>
-<span class="source-line-no">159</span><span id="line-159">    logger.info("\n🖥️ Extract server configuration:");</span>
-<span class="source-line-no">160</span><span id="line-160">    processData(</span>
-<span class="source-line-no">161</span><span id="line-161">        configXml, XmlNavigateCommand.create("configuration/server", new PassThroughRule()));</span>
-<span class="source-line-no">162</span><span id="line-162"></span>
-<span class="source-line-no">163</span><span id="line-163">    // Extract logging configuration</span>
-<span class="source-line-no">164</span><span id="line-164">    logger.info("\n📊 Extract logging configuration:");</span>
-<span class="source-line-no">165</span><span id="line-165">    processData(</span>
-<span class="source-line-no">166</span><span id="line-166">        configXml, XmlNavigateCommand.create("configuration/logging", new PassThroughRule()));</span>
-<span class="source-line-no">167</span><span id="line-167"></span>
-<span class="source-line-no">168</span><span id="line-168">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">169</span><span id="line-169">  }</span>
-<span class="source-line-no">170</span><span id="line-170"></span>
-<span class="source-line-no">171</span><span id="line-171">  /** Example 4: Log analysis workflow */</span>
-<span class="source-line-no">172</span><span id="line-172">  private static void logAnalysis() throws IOException {</span>
-<span class="source-line-no">173</span><span id="line-173">    logger.info("📈 Log Analysis Workflow");</span>
-<span class="source-line-no">174</span><span id="line-174">    logger.info("=========================");</span>
-<span class="source-line-no">175</span><span id="line-175"></span>
-<span class="source-line-no">176</span><span id="line-176">    String logData =</span>
-<span class="source-line-no">177</span><span id="line-177">        """</span>
-<span class="source-line-no">178</span><span id="line-178">        timestamp,level,service,message</span>
-<span class="source-line-no">179</span><span id="line-179">        2023-07-15T10:30:00Z,INFO,auth-service,User login successful</span>
-<span class="source-line-no">180</span><span id="line-180">        2023-07-15T10:31:00Z,ERROR,payment-service,Payment processing failed</span>
-<span class="source-line-no">181</span><span id="line-181">        2023-07-15T10:32:00Z,WARN,auth-service,Rate limit exceeded</span>
-<span class="source-line-no">182</span><span id="line-182">        2023-07-15T10:33:00Z,INFO,order-service,Order placed successfully</span>
-<span class="source-line-no">183</span><span id="line-183">        """;</span>
-<span class="source-line-no">184</span><span id="line-184"></span>
-<span class="source-line-no">185</span><span id="line-185">    // Create analysis pipeline</span>
-<span class="source-line-no">186</span><span id="line-186">    IStreamCommand[] analysisPipeline = {</span>
-<span class="source-line-no">187</span><span id="line-187">      CsvNavigateCommand.create("level", new PassThroughRule()), // Extract log levels</span>
-<span class="source-line-no">188</span><span id="line-188">      new SampleStreamCommand("level-analyzer") // Analyze log levels</span>
-<span class="source-line-no">189</span><span id="line-189">    };</span>
-<span class="source-line-no">190</span><span id="line-190"></span>
-<span class="source-line-no">191</span><span id="line-191">    logger.info("🔍 Log level analysis:");</span>
-<span class="source-line-no">192</span><span id="line-192">    processData(logData, analysisPipeline);</span>
-<span class="source-line-no">193</span><span id="line-193"></span>
-<span class="source-line-no">194</span><span id="line-194">    // Service-specific analysis</span>
-<span class="source-line-no">195</span><span id="line-195">    logger.info("\n🔧 Service analysis:");</span>
-<span class="source-line-no">196</span><span id="line-196">    processData(logData, CsvNavigateCommand.create("service", new PassThroughRule()));</span>
-<span class="source-line-no">197</span><span id="line-197"></span>
-<span class="source-line-no">198</span><span id="line-198">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">199</span><span id="line-199">  }</span>
-<span class="source-line-no">200</span><span id="line-200"></span>
-<span class="source-line-no">201</span><span id="line-201">  /** Example 5: Data format conversion */</span>
-<span class="source-line-no">202</span><span id="line-202">  private static void dataFormatConversion() throws IOException {</span>
-<span class="source-line-no">203</span><span id="line-203">    logger.info("🔄 Data Format Conversion");</span>
-<span class="source-line-no">204</span><span id="line-204">    logger.info("==========================");</span>
-<span class="source-line-no">205</span><span id="line-205"></span>
-<span class="source-line-no">206</span><span id="line-206">    String productData =</span>
-<span class="source-line-no">207</span><span id="line-207">        """</span>
-<span class="source-line-no">208</span><span id="line-208">        product_id,name,price,category</span>
-<span class="source-line-no">209</span><span id="line-209">        P001,Laptop,999.99,Electronics</span>
-<span class="source-line-no">210</span><span id="line-210">        P002,Chair,149.99,Furniture</span>
-<span class="source-line-no">211</span><span id="line-211">        P003,Book,29.99,Education</span>
-<span class="source-line-no">212</span><span id="line-212">        """;</span>
-<span class="source-line-no">213</span><span id="line-213"></span>
-<span class="source-line-no">214</span><span id="line-214">    // Multi-stage conversion pipeline</span>
-<span class="source-line-no">215</span><span id="line-215">    IStreamCommand[] conversionPipeline = {</span>
-<span class="source-line-no">216</span><span id="line-216">      CsvNavigateCommand.create("name", new PassThroughRule()), // Extract product names</span>
-<span class="source-line-no">217</span><span id="line-217">      new SampleStreamCommand("name-processor"), // Process names</span>
-<span class="source-line-no">218</span><span id="line-218">      new SampleStreamCommand("format-converter") // Convert format</span>
-<span class="source-line-no">219</span><span id="line-219">    };</span>
-<span class="source-line-no">220</span><span id="line-220"></span>
-<span class="source-line-no">221</span><span id="line-221">    logger.info("🛍️ Product name conversion pipeline:");</span>
-<span class="source-line-no">222</span><span id="line-222">    processData(productData, conversionPipeline);</span>
-<span class="source-line-no">223</span><span id="line-223"></span>
-<span class="source-line-no">224</span><span id="line-224">    // Price extraction for financial analysis</span>
-<span class="source-line-no">225</span><span id="line-225">    logger.info("\n💲 Price extraction:");</span>
-<span class="source-line-no">226</span><span id="line-226">    processData(productData, CsvNavigateCommand.create("price", new PassThroughRule()));</span>
-<span class="source-line-no">227</span><span id="line-227"></span>
-<span class="source-line-no">228</span><span id="line-228">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">229</span><span id="line-229">  }</span>
-<span class="source-line-no">230</span><span id="line-230"></span>
-<span class="source-line-no">231</span><span id="line-231">  /** Helper method to process data with given commands */</span>
-<span class="source-line-no">232</span><span id="line-232">  private static void processData(String inputData, IStreamCommand command) throws IOException {</span>
-<span class="source-line-no">233</span><span id="line-233">    processData(inputData, new IStreamCommand[] {command});</span>
-<span class="source-line-no">234</span><span id="line-234">  }</span>
+<span class="source-line-no">133</span><span id="line-133">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">134</span><span id="line-134">  }</span>
+<span class="source-line-no">135</span><span id="line-135"></span>
+<span class="source-line-no">136</span><span id="line-136">  /** Example 3: Configuration file processing */</span>
+<span class="source-line-no">137</span><span id="line-137">  private static void configurationProcessing() throws IOException {</span>
+<span class="source-line-no">138</span><span id="line-138">    logger.info("⚙️ Configuration Processing");</span>
+<span class="source-line-no">139</span><span id="line-139">    logger.info("============================");</span>
+<span class="source-line-no">140</span><span id="line-140"></span>
+<span class="source-line-no">141</span><span id="line-141">    String configXml =</span>
+<span class="source-line-no">142</span><span id="line-142">        """</span>
+<span class="source-line-no">143</span><span id="line-143">        &lt;?xml version="1.0"?&gt;</span>
+<span class="source-line-no">144</span><span id="line-144">        &lt;configuration&gt;</span>
+<span class="source-line-no">145</span><span id="line-145">          &lt;database&gt;</span>
+<span class="source-line-no">146</span><span id="line-146">            &lt;host&gt;localhost&lt;/host&gt;</span>
+<span class="source-line-no">147</span><span id="line-147">            &lt;port&gt;5432&lt;/port&gt;</span>
+<span class="source-line-no">148</span><span id="line-148">            &lt;name&gt;myapp&lt;/name&gt;</span>
+<span class="source-line-no">149</span><span id="line-149">          &lt;/database&gt;</span>
+<span class="source-line-no">150</span><span id="line-150">          &lt;server&gt;</span>
+<span class="source-line-no">151</span><span id="line-151">            &lt;port&gt;8080&lt;/port&gt;</span>
+<span class="source-line-no">152</span><span id="line-152">            &lt;ssl&gt;true&lt;/ssl&gt;</span>
+<span class="source-line-no">153</span><span id="line-153">          &lt;/server&gt;</span>
+<span class="source-line-no">154</span><span id="line-154">          &lt;logging&gt;</span>
+<span class="source-line-no">155</span><span id="line-155">            &lt;level&gt;INFO&lt;/level&gt;</span>
+<span class="source-line-no">156</span><span id="line-156">            &lt;file&gt;app.log&lt;/file&gt;</span>
+<span class="source-line-no">157</span><span id="line-157">          &lt;/logging&gt;</span>
+<span class="source-line-no">158</span><span id="line-158">        &lt;/configuration&gt;</span>
+<span class="source-line-no">159</span><span id="line-159">        """;</span>
+<span class="source-line-no">160</span><span id="line-160"></span>
+<span class="source-line-no">161</span><span id="line-161">    // Extract database configuration</span>
+<span class="source-line-no">162</span><span id="line-162">    logger.info("🗄️ Extract database configuration:");</span>
+<span class="source-line-no">163</span><span id="line-163">    processData(</span>
+<span class="source-line-no">164</span><span id="line-164">        configXml,</span>
+<span class="source-line-no">165</span><span id="line-165">        XmlNavigateCommand.create(new XPath("configuration/database"), new PassThroughRule()));</span>
+<span class="source-line-no">166</span><span id="line-166"></span>
+<span class="source-line-no">167</span><span id="line-167">    // Extract server configuration</span>
+<span class="source-line-no">168</span><span id="line-168">    logger.info("\n🖥️ Extract server configuration:");</span>
+<span class="source-line-no">169</span><span id="line-169">    processData(</span>
+<span class="source-line-no">170</span><span id="line-170">        configXml,</span>
+<span class="source-line-no">171</span><span id="line-171">        XmlNavigateCommand.create(new XPath("configuration/server"), new PassThroughRule()));</span>
+<span class="source-line-no">172</span><span id="line-172"></span>
+<span class="source-line-no">173</span><span id="line-173">    // Extract logging configuration</span>
+<span class="source-line-no">174</span><span id="line-174">    logger.info("\n📊 Extract logging configuration:");</span>
+<span class="source-line-no">175</span><span id="line-175">    processData(</span>
+<span class="source-line-no">176</span><span id="line-176">        configXml,</span>
+<span class="source-line-no">177</span><span id="line-177">        XmlNavigateCommand.create(new XPath("configuration/logging"), new PassThroughRule()));</span>
+<span class="source-line-no">178</span><span id="line-178"></span>
+<span class="source-line-no">179</span><span id="line-179">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">180</span><span id="line-180">  }</span>
+<span class="source-line-no">181</span><span id="line-181"></span>
+<span class="source-line-no">182</span><span id="line-182">  /** Example 4: Log analysis workflow */</span>
+<span class="source-line-no">183</span><span id="line-183">  private static void logAnalysis() throws IOException {</span>
+<span class="source-line-no">184</span><span id="line-184">    logger.info("📈 Log Analysis Workflow");</span>
+<span class="source-line-no">185</span><span id="line-185">    logger.info("=========================");</span>
+<span class="source-line-no">186</span><span id="line-186"></span>
+<span class="source-line-no">187</span><span id="line-187">    String logData =</span>
+<span class="source-line-no">188</span><span id="line-188">        """</span>
+<span class="source-line-no">189</span><span id="line-189">        timestamp,level,service,message</span>
+<span class="source-line-no">190</span><span id="line-190">        2023-07-15T10:30:00Z,INFO,auth-service,User login successful</span>
+<span class="source-line-no">191</span><span id="line-191">        2023-07-15T10:31:00Z,ERROR,payment-service,Payment processing failed</span>
+<span class="source-line-no">192</span><span id="line-192">        2023-07-15T10:32:00Z,WARN,auth-service,Rate limit exceeded</span>
+<span class="source-line-no">193</span><span id="line-193">        2023-07-15T10:33:00Z,INFO,order-service,Order placed successfully</span>
+<span class="source-line-no">194</span><span id="line-194">        """;</span>
+<span class="source-line-no">195</span><span id="line-195"></span>
+<span class="source-line-no">196</span><span id="line-196">    // Create analysis pipeline</span>
+<span class="source-line-no">197</span><span id="line-197">    IStreamCommand[] analysisPipeline = {</span>
+<span class="source-line-no">198</span><span id="line-198">      CsvNavigateCommand.create(new CSVPath("level"), new PassThroughRule()), // Extract log levels</span>
+<span class="source-line-no">199</span><span id="line-199">      new SampleStreamCommand("level-analyzer") // Analyze log levels</span>
+<span class="source-line-no">200</span><span id="line-200">    };</span>
+<span class="source-line-no">201</span><span id="line-201"></span>
+<span class="source-line-no">202</span><span id="line-202">    logger.info("🔍 Log level analysis:");</span>
+<span class="source-line-no">203</span><span id="line-203">    processData(logData, analysisPipeline);</span>
+<span class="source-line-no">204</span><span id="line-204"></span>
+<span class="source-line-no">205</span><span id="line-205">    // Service-specific analysis</span>
+<span class="source-line-no">206</span><span id="line-206">    logger.info("\n🔧 Service analysis:");</span>
+<span class="source-line-no">207</span><span id="line-207">    processData(logData, CsvNavigateCommand.create(new CSVPath("service"), new PassThroughRule()));</span>
+<span class="source-line-no">208</span><span id="line-208"></span>
+<span class="source-line-no">209</span><span id="line-209">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">210</span><span id="line-210">  }</span>
+<span class="source-line-no">211</span><span id="line-211"></span>
+<span class="source-line-no">212</span><span id="line-212">  /** Example 5: Data format conversion */</span>
+<span class="source-line-no">213</span><span id="line-213">  private static void dataFormatConversion() throws IOException {</span>
+<span class="source-line-no">214</span><span id="line-214">    logger.info("🔄 Data Format Conversion");</span>
+<span class="source-line-no">215</span><span id="line-215">    logger.info("==========================");</span>
+<span class="source-line-no">216</span><span id="line-216"></span>
+<span class="source-line-no">217</span><span id="line-217">    String productData =</span>
+<span class="source-line-no">218</span><span id="line-218">        """</span>
+<span class="source-line-no">219</span><span id="line-219">        product_id,name,price,category</span>
+<span class="source-line-no">220</span><span id="line-220">        P001,Laptop,999.99,Electronics</span>
+<span class="source-line-no">221</span><span id="line-221">        P002,Chair,149.99,Furniture</span>
+<span class="source-line-no">222</span><span id="line-222">        P003,Book,29.99,Education</span>
+<span class="source-line-no">223</span><span id="line-223">        """;</span>
+<span class="source-line-no">224</span><span id="line-224"></span>
+<span class="source-line-no">225</span><span id="line-225">    // Multi-stage conversion pipeline</span>
+<span class="source-line-no">226</span><span id="line-226">    IStreamCommand[] conversionPipeline = {</span>
+<span class="source-line-no">227</span><span id="line-227">      CsvNavigateCommand.create(</span>
+<span class="source-line-no">228</span><span id="line-228">          new CSVPath("name"), new PassThroughRule()), // Extract product names</span>
+<span class="source-line-no">229</span><span id="line-229">      new SampleStreamCommand("name-processor"), // Process names</span>
+<span class="source-line-no">230</span><span id="line-230">      new SampleStreamCommand("format-converter") // Convert format</span>
+<span class="source-line-no">231</span><span id="line-231">    };</span>
+<span class="source-line-no">232</span><span id="line-232"></span>
+<span class="source-line-no">233</span><span id="line-233">    logger.info("🛍️ Product name conversion pipeline:");</span>
+<span class="source-line-no">234</span><span id="line-234">    processData(productData, conversionPipeline);</span>
 <span class="source-line-no">235</span><span id="line-235"></span>
-<span class="source-line-no">236</span><span id="line-236">  /** Helper method to process data with command pipeline */</span>
-<span class="source-line-no">237</span><span id="line-237">  private static void processData(String inputData, IStreamCommand[] commands) throws IOException {</span>
-<span class="source-line-no">238</span><span id="line-238">    try (InputStream inputStream =</span>
-<span class="source-line-no">239</span><span id="line-239">            new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">240</span><span id="line-240">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="source-line-no">241</span><span id="line-241"></span>
-<span class="source-line-no">242</span><span id="line-242">      StreamConverter converter = new StreamConverter(commands);</span>
-<span class="source-line-no">243</span><span id="line-243">      converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">244</span><span id="line-244"></span>
-<span class="source-line-no">245</span><span id="line-245">      String result = outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">246</span><span id="line-246">      logger.info("Output:");</span>
-<span class="source-line-no">247</span><span id="line-247">      logger.info(result.trim());</span>
-<span class="source-line-no">248</span><span id="line-248">    }</span>
-<span class="source-line-no">249</span><span id="line-249">  }</span>
-<span class="source-line-no">250</span><span id="line-250">}</span>
+<span class="source-line-no">236</span><span id="line-236">    // Price extraction for financial analysis</span>
+<span class="source-line-no">237</span><span id="line-237">    logger.info("\n💲 Price extraction:");</span>
+<span class="source-line-no">238</span><span id="line-238">    processData(</span>
+<span class="source-line-no">239</span><span id="line-239">        productData, CsvNavigateCommand.create(new CSVPath("price"), new PassThroughRule()));</span>
+<span class="source-line-no">240</span><span id="line-240"></span>
+<span class="source-line-no">241</span><span id="line-241">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">242</span><span id="line-242">  }</span>
+<span class="source-line-no">243</span><span id="line-243"></span>
+<span class="source-line-no">244</span><span id="line-244">  /** Helper method to process data with given commands */</span>
+<span class="source-line-no">245</span><span id="line-245">  private static void processData(String inputData, IStreamCommand command) throws IOException {</span>
+<span class="source-line-no">246</span><span id="line-246">    processData(inputData, new IStreamCommand[] {command});</span>
+<span class="source-line-no">247</span><span id="line-247">  }</span>
+<span class="source-line-no">248</span><span id="line-248"></span>
+<span class="source-line-no">249</span><span id="line-249">  /** Helper method to process data with command pipeline */</span>
+<span class="source-line-no">250</span><span id="line-250">  private static void processData(String inputData, IStreamCommand[] commands) throws IOException {</span>
+<span class="source-line-no">251</span><span id="line-251">    try (InputStream inputStream =</span>
+<span class="source-line-no">252</span><span id="line-252">            new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">253</span><span id="line-253">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="source-line-no">254</span><span id="line-254"></span>
+<span class="source-line-no">255</span><span id="line-255">      StreamConverter converter = new StreamConverter(commands);</span>
+<span class="source-line-no">256</span><span id="line-256">      converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">257</span><span id="line-257"></span>
+<span class="source-line-no">258</span><span id="line-258">      String result = outputStream.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">259</span><span id="line-259">      logger.info("Output:");</span>
+<span class="source-line-no">260</span><span id="line-260">      logger.info(result.trim());</span>
+<span class="source-line-no">261</span><span id="line-261">    }</span>
+<span class="source-line-no">262</span><span id="line-262">  }</span>
+<span class="source-line-no">263</span><span id="line-263">}</span>
 
 
 

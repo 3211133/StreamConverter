@@ -83,7 +83,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="../../IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-29">JsonNavigateCommand</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-31">JsonNavigateCommand</a></span>
 <span class="extends-implements">extends <a href="../../AbstractStreamCommand.html" title="class in com.streamConverter.command">AbstractStreamCommand</a></span></div>
 <div class="block">Memory-Optimized JSON Navigate Command Class
 
@@ -117,21 +117,6 @@ loadScripts(document, 'script');</script>
 <div class="block">Constructor for JSON navigation with typed JSONPath selector, transformation rule, and
  extraction mode.</div>
 </div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">JsonNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
-<div class="col-last even-row-color">
-<div class="block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)"><code>JsonNavigateCommand(JSONPath, IRule)</code></a> instead</div>
-</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,com.streamConverter.command.rule.IRule,boolean)" class="member-name-link">JsonNavigateCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule,
- boolean&nbsp;extractValue)</code></div>
-<div class="col-last odd-row-color">
-<div class="block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule,boolean)"><code>JsonNavigateCommand(JSONPath, IRule, boolean)</code></a> instead</div>
-</div>
-</div>
 </div>
 </section>
 </li>
@@ -140,7 +125,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button><button id="method-summary-table-tab6" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab6', 3)" class="table-tab">Deprecated Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -152,28 +137,12 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Factory method for creating a JSON navigation command with typed JSONPath and rule.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code>static <a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#create(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">create</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)" class="member-name-link">createExtractValue</a><wbr>(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6">
-<div class="block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#create(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)"><code>create(JSONPath, IRule)</code></a> instead</div>
-</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)" class="member-name-link">createExtractValue</a><wbr>(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Factory method for creating a JSON navigation command that extracts and transforms a specific
  value using typed JSONPath.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code>static <a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6"><code><a href="#createExtractValue(java.lang.String,com.streamConverter.command.rule.IRule)" class="member-name-link">createExtractValue</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4 method-summary-table-tab6">
-<div class="block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)"><code>createExtractValue(JSONPath, IRule)</code></a> instead</div>
-</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
@@ -216,28 +185,9 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(java.lang.String,com.streamConverter.command.rule.IRule)">
-<h3>JsonNavigateCommand</h3>
-<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
-</span><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-47">JsonNavigateCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)"><code>JsonNavigateCommand(JSONPath, IRule)</code></a> instead</div>
-</div>
-<div class="block">Constructor for JSON navigation with JSONPath selector and transformation rule.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>jsonPath</code> - the JSONPath expression to select data (e.g., "$.users[*].name")</dd>
-<dd><code>rule</code> - the transformation rule to apply to selected elements</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="&lt;init&gt;(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)">
 <h3>JsonNavigateCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-59">JsonNavigateCommand</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-45">JsonNavigateCommand</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Constructor for JSON navigation with typed JSONPath selector and transformation rule.</div>
 <dl class="notes">
@@ -250,31 +200,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="&lt;init&gt;(java.lang.String,com.streamConverter.command.rule.IRule,boolean)">
-<h3>JsonNavigateCommand</h3>
-<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
-</span><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-73">JsonNavigateCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule,
- boolean&nbsp;extractValue)</span></div>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule,boolean)"><code>JsonNavigateCommand(JSONPath, IRule, boolean)</code></a> instead</div>
-</div>
-<div class="block">Constructor for JSON navigation with JSONPath selector, transformation rule, and extraction
- mode.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>jsonPath</code> - the JSONPath expression to select data (e.g., "$.users[*].name")</dd>
-<dd><code>rule</code> - the transformation rule to apply to selected elements</dd>
-<dd><code>extractValue</code> - if true, extract only the transformed value; if false, return modified JSON</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="&lt;init&gt;(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule,boolean)">
 <h3>JsonNavigateCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-94">JsonNavigateCommand</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-58">JsonNavigateCommand</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule,
  boolean&nbsp;extractValue)</span></div>
 <div class="block">Constructor for JSON navigation with typed JSONPath selector, transformation rule, and
@@ -298,32 +226,9 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="create(java.lang.String,com.streamConverter.command.rule.IRule)">
-<h3>create</h3>
-<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
-</span><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-116">create</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#create(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)"><code>create(JSONPath, IRule)</code></a> instead</div>
-</div>
-<div class="block">Factory method for creating a JSON navigation command with explicit rule specification. This
- method makes the intention explicit: extract data from the specified JSONPath and apply the
- given transformation rule.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>jsonPath</code> - the JSONPath expression to select data (e.g., "$.users[*].name")</dd>
-<dd><code>rule</code> - the transformation rule to apply to selected elements</dd>
-<dt>Returns:</dt>
-<dd>a JsonNavigateCommand that extracts the specified path with the given rule</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="create(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-129">create</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-76">create</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Factory method for creating a JSON navigation command with typed JSONPath and rule.</div>
 <dl class="notes">
@@ -340,7 +245,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createForAll(com.streamConverter.command.rule.IRule)">
 <h3>createForAll</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-142">createForAll</a></span><wbr><span class="parameters">(<a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-89">createForAll</a></span><wbr><span class="parameters">(<a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Factory method for creating a JSON navigation command that processes entire JSON with explicit
  rule specification. This method makes the intention explicit: process all JSON data with the
  given transformation rule.</div>
@@ -355,31 +260,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="createExtractValue(java.lang.String,com.streamConverter.command.rule.IRule)">
-<h3>createExtractValue</h3>
-<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
-</span><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-156">createExtractValue</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)"><code>createExtractValue(JSONPath, IRule)</code></a> instead</div>
-</div>
-<div class="block">Factory method for creating a JSON navigation command that extracts and transforms a specific
- value. This command returns only the transformed value, not the entire JSON object.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>jsonPath</code> - the JSONPath expression to select data (e.g., "$.userName")</dd>
-<dd><code>rule</code> - the transformation rule to apply to selected value</dd>
-<dt>Returns:</dt>
-<dd>a JsonNavigateCommand that extracts and transforms the specified value</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)">
 <h3>createExtractValue</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-171">createExtractValue</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-103">createExtractValue</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Factory method for creating a JSON navigation command that extracts and transforms a specific
  value using typed JSONPath. This command returns only the transformed value, not the entire
@@ -398,7 +281,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getCommandDetails()">
 <h3>getCommandDetails</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-175">getCommandDetails</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-107">getCommandDetails</a></span>()</div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#getCommandDetails()">AbstractStreamCommand</a></code></span></div>
 <div class="block">コマンドの詳細情報を取得します。
 
@@ -414,7 +297,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="executeInternal(java.io.InputStream,java.io.OutputStream)">
 <h3>executeInternal</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-183">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-115">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#executeInternal(java.io.InputStream,java.io.OutputStream)">AbstractStreamCommand</a></code></span></div>

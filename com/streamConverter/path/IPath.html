@@ -70,22 +70,24 @@ loadScripts(document, 'script');</script>
 <!-- ======== START OF CLASS DATA ======== -->
 <div class="header">
 <div class="sub-title"><span class="package-label-in-type">Package</span>&nbsp;<a href="package-summary.html">com.streamConverter.path</a></div>
-<h1 title="Interface IPath" class="title">Interface IPath</h1>
+<h1 title="Interface IPath" class="title">Interface IPath&lt;T&gt;</h1>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>T</code> - コンテキスト型（JSONPath=JsonNode, XPath=List&lt;String&gt;, CSVPath=Integer）</dd>
+</dl>
+<dl class="notes">
 <dt>All Known Implementing Classes:</dt>
-<dd><code><a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></code>, <code><a href="JSONPath.html" title="class in com.streamConverter.path">JSONPath</a></code>, <code><a href="XPath.html" title="class in com.streamConverter.path">XPath</a></code></dd>
+<dd><code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a></code>, <code><a href="CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></code>, <code><a href="JSONPath.html" title="class in com.streamConverter.path">JSONPath</a></code>, <code><a href="XPath.html" title="class in com.streamConverter.path">XPath</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-12">IPath</a></span></div>
-<div class="block">Base interface for type-safe path representations.
+<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-15">IPath</a>&lt;T&gt;</span></div>
+<div class="block">完全統合されたPathインターフェース データ表現と処理機能を単一のオブジェクトに統合
 
- <p>This interface provides a contract for different types of path selectors used in
- StreamConverter commands, such as JSONPath, XPath, and CSV column selectors.
+ <p>このインターフェースは、StreamConverterで使用される様々な種類のパスセレクタ （JSONPath、XPath、CSVパス）の統一的な契約を提供します。
 
- <p>Path implementations should validate their syntax at construction time and provide meaningful
- error messages for invalid paths.</div>
+ <p>Path実装は構築時に構文を検証し、不正なパスに対して意味のある エラーメッセージを提供する必要があります。</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -100,25 +102,47 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;R&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;R&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extract(java.lang.Object,java.lang.Class)" class="member-name-link">extract</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;data,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;R&gt;&nbsp;resultType)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">データから単一値を抽出</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>&lt;R&gt;&nbsp;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;R&gt;</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#extractAll(java.lang.Object,java.lang.Class)" class="member-name-link">extractAll</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;data,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;R&gt;&nbsp;resultType)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">データから複数値をストリームで抽出 配列やリスト構造に対応</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getPath()" class="member-name-link">getPath</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Returns the string representation of the path.</div>
+<div class="block">パス文字列を取得</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getType()" class="member-name-link">getType</a>()</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="PathStatistics.html" title="class in com.streamConverter.path">PathStatistics</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getStatistics()" class="member-name-link">getStatistics</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Returns the type of this path for identification purposes.</div>
+<div class="block">実行統計情報の取得 マッチ成功率、抽出成功率などを監視</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#getType()" class="member-name-link">getType</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">パス種別を取得</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#isEquivalentTo(com.streamConverter.path.IPath)" class="member-name-link">isEquivalentTo</a><wbr>(<a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;?&gt;&nbsp;other)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="block">他のパスとの等価性判定 パス文字列と型が同じかチェック</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#isEquivalentTo(com.streamConverter.path.IPath)" class="member-name-link">isEquivalentTo</a><wbr>(<a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&nbsp;other)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#matches(T)" class="member-name-link">matches</a><wbr>(<a href="IPath.html" title="type parameter in IPath">T</a>&nbsp;context)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Checks if this path is equivalent to another path.</div>
+<div class="block">指定されたコンテキストがこのパスにマッチするか判定 旧PathHandler.isTarget()相当</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#validate()" class="member-name-link">validate</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
-<div class="block">Validates the path syntax and throws an exception if invalid.</div>
+<div class="block">パス構文の妥当性検証</div>
 </div>
 </div>
 </div>
@@ -137,46 +161,104 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="validate()">
 <h3>validate</h3>
-<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-19">validate</a></span>()</div>
-<div class="block">Validates the path syntax and throws an exception if invalid.</div>
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-24">validate</a></span>()</div>
+<div class="block">パス構文の妥当性検証</div>
 <dl class="notes">
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if the path syntax is invalid</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - パス構文が不正な場合</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getPath()">
 <h3>getPath</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-26">getPath</a></span>()</div>
-<div class="block">Returns the string representation of the path.</div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-31">getPath</a></span>()</div>
+<div class="block">パス文字列を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the path as a string</dd>
+<dd>正規化されたパス文字列</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getType()">
 <h3>getType</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-33">getType</a></span>()</div>
-<div class="block">Returns the type of this path for identification purposes.</div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-38">getType</a></span>()</div>
+<div class="block">パス種別を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>the path type (e.g., "JSONPath", "XPath", "CSVPath")</dd>
+<dd>パス種別（例: "JSONPath", "XPath", "CSVPath"）</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="isEquivalentTo(com.streamConverter.path.IPath)">
 <h3>isEquivalentTo</h3>
-<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-41">isEquivalentTo</a></span><wbr><span class="parameters">(<a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&nbsp;other)</span></div>
-<div class="block">Checks if this path is equivalent to another path.</div>
+<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-46">isEquivalentTo</a></span><wbr><span class="parameters">(<a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;?&gt;&nbsp;other)</span></div>
+<div class="block">他のパスとの等価性判定 パス文字列と型が同じかチェック</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>other</code> - the other path to compare with</dd>
+<dd><code>other</code> - 比較対象のパス</dd>
 <dt>Returns:</dt>
-<dd>true if the paths are equivalent, false otherwise</dd>
+<dd>パスが等価な場合true</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="matches(T)">
+<h3 id="matches(java.lang.Object)">matches</h3>
+<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-56">matches</a></span><wbr><span class="parameters">(<a href="IPath.html" title="type parameter in IPath">T</a>&nbsp;context)</span></div>
+<div class="block">指定されたコンテキストがこのパスにマッチするか判定 旧PathHandler.isTarget()相当</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>context</code> - 判定対象のコンテキスト</dd>
+<dt>Returns:</dt>
+<dd>マッチする場合true</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="extract(java.lang.Object,java.lang.Class)">
+<h3>extract</h3>
+<div class="member-signature"><span class="type-parameters">&lt;R&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;R&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-66">extract</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;data,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;R&gt;&nbsp;resultType)</span></div>
+<div class="block">データから単一値を抽出</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>R</code> - 結果型</dd>
+<dt>Parameters:</dt>
+<dd><code>data</code> - 抽出元データ</dd>
+<dd><code>resultType</code> - 期待する結果型</dd>
+<dt>Returns:</dt>
+<dd>抽出された値（見つからない場合はEmpty）</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="extractAll(java.lang.Object,java.lang.Class)">
+<h3>extractAll</h3>
+<div class="member-signature"><span class="type-parameters">&lt;R&gt;</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/stream/Stream.html" title="class or interface in java.util.stream" class="external-link">Stream</a>&lt;R&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-76">extractAll</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;data,
+ <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;R&gt;&nbsp;resultType)</span></div>
+<div class="block">データから複数値をストリームで抽出 配列やリスト構造に対応</div>
+<dl class="notes">
+<dt>Type Parameters:</dt>
+<dd><code>R</code> - 結果型</dd>
+<dt>Parameters:</dt>
+<dd><code>data</code> - 抽出元データ</dd>
+<dd><code>resultType</code> - 期待する結果型</dd>
+<dt>Returns:</dt>
+<dd>抽出された値のストリーム</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getStatistics()">
+<h3>getStatistics</h3>
+<div class="member-signature"><span class="return-type"><a href="PathStatistics.html" title="class in com.streamConverter.path">PathStatistics</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/IPath.html#line-85">getStatistics</a></span>()</div>
+<div class="block">実行統計情報の取得 マッチ成功率、抽出成功率などを監視</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>パフォーマンス統計</dd>
 </dl>
 </section>
 </li>

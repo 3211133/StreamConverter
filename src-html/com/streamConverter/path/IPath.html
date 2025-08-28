@@ -13,46 +13,90 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamConverter.path;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">/**</span>
-<span class="source-line-no">004</span><span id="line-4"> * Base interface for type-safe path representations.</span>
-<span class="source-line-no">005</span><span id="line-5"> *</span>
-<span class="source-line-no">006</span><span id="line-6"> * &lt;p&gt;This interface provides a contract for different types of path selectors used in</span>
-<span class="source-line-no">007</span><span id="line-7"> * StreamConverter commands, such as JSONPath, XPath, and CSV column selectors.</span>
+<span class="source-line-no">003</span><span id="line-3">import java.util.Optional;</span>
+<span class="source-line-no">004</span><span id="line-4">import java.util.stream.Stream;</span>
+<span class="source-line-no">005</span><span id="line-5"></span>
+<span class="source-line-no">006</span><span id="line-6">/**</span>
+<span class="source-line-no">007</span><span id="line-7"> * 完全統合されたPathインターフェース データ表現と処理機能を単一のオブジェクトに統合</span>
 <span class="source-line-no">008</span><span id="line-8"> *</span>
-<span class="source-line-no">009</span><span id="line-9"> * &lt;p&gt;Path implementations should validate their syntax at construction time and provide meaningful</span>
-<span class="source-line-no">010</span><span id="line-10"> * error messages for invalid paths.</span>
-<span class="source-line-no">011</span><span id="line-11"> */</span>
-<span class="source-line-no">012</span><span id="line-12">public interface IPath {</span>
-<span class="source-line-no">013</span><span id="line-13"></span>
-<span class="source-line-no">014</span><span id="line-14">  /**</span>
-<span class="source-line-no">015</span><span id="line-15">   * Validates the path syntax and throws an exception if invalid.</span>
-<span class="source-line-no">016</span><span id="line-16">   *</span>
-<span class="source-line-no">017</span><span id="line-17">   * @throws IllegalArgumentException if the path syntax is invalid</span>
-<span class="source-line-no">018</span><span id="line-18">   */</span>
-<span class="source-line-no">019</span><span id="line-19">  void validate();</span>
-<span class="source-line-no">020</span><span id="line-20"></span>
-<span class="source-line-no">021</span><span id="line-21">  /**</span>
-<span class="source-line-no">022</span><span id="line-22">   * Returns the string representation of the path.</span>
-<span class="source-line-no">023</span><span id="line-23">   *</span>
-<span class="source-line-no">024</span><span id="line-24">   * @return the path as a string</span>
-<span class="source-line-no">025</span><span id="line-25">   */</span>
-<span class="source-line-no">026</span><span id="line-26">  String getPath();</span>
-<span class="source-line-no">027</span><span id="line-27"></span>
-<span class="source-line-no">028</span><span id="line-28">  /**</span>
-<span class="source-line-no">029</span><span id="line-29">   * Returns the type of this path for identification purposes.</span>
-<span class="source-line-no">030</span><span id="line-30">   *</span>
-<span class="source-line-no">031</span><span id="line-31">   * @return the path type (e.g., "JSONPath", "XPath", "CSVPath")</span>
-<span class="source-line-no">032</span><span id="line-32">   */</span>
-<span class="source-line-no">033</span><span id="line-33">  String getType();</span>
-<span class="source-line-no">034</span><span id="line-34"></span>
-<span class="source-line-no">035</span><span id="line-35">  /**</span>
-<span class="source-line-no">036</span><span id="line-36">   * Checks if this path is equivalent to another path.</span>
-<span class="source-line-no">037</span><span id="line-37">   *</span>
-<span class="source-line-no">038</span><span id="line-38">   * @param other the other path to compare with</span>
-<span class="source-line-no">039</span><span id="line-39">   * @return true if the paths are equivalent, false otherwise</span>
-<span class="source-line-no">040</span><span id="line-40">   */</span>
-<span class="source-line-no">041</span><span id="line-41">  boolean isEquivalentTo(IPath other);</span>
-<span class="source-line-no">042</span><span id="line-42">}</span>
+<span class="source-line-no">009</span><span id="line-9"> * &lt;p&gt;このインターフェースは、StreamConverterで使用される様々な種類のパスセレクタ （JSONPath、XPath、CSVパス）の統一的な契約を提供します。</span>
+<span class="source-line-no">010</span><span id="line-10"> *</span>
+<span class="source-line-no">011</span><span id="line-11"> * &lt;p&gt;Path実装は構築時に構文を検証し、不正なパスに対して意味のある エラーメッセージを提供する必要があります。</span>
+<span class="source-line-no">012</span><span id="line-12"> *</span>
+<span class="source-line-no">013</span><span id="line-13"> * @param &lt;T&gt; コンテキスト型（JSONPath=JsonNode, XPath=List&amp;lt;String&amp;gt;, CSVPath=Integer）</span>
+<span class="source-line-no">014</span><span id="line-14"> */</span>
+<span class="source-line-no">015</span><span id="line-15">public interface IPath&lt;T&gt; {</span>
+<span class="source-line-no">016</span><span id="line-16"></span>
+<span class="source-line-no">017</span><span id="line-17">  // === 基本データアクセス ===</span>
+<span class="source-line-no">018</span><span id="line-18"></span>
+<span class="source-line-no">019</span><span id="line-19">  /**</span>
+<span class="source-line-no">020</span><span id="line-20">   * パス構文の妥当性検証</span>
+<span class="source-line-no">021</span><span id="line-21">   *</span>
+<span class="source-line-no">022</span><span id="line-22">   * @throws IllegalArgumentException パス構文が不正な場合</span>
+<span class="source-line-no">023</span><span id="line-23">   */</span>
+<span class="source-line-no">024</span><span id="line-24">  void validate();</span>
+<span class="source-line-no">025</span><span id="line-25"></span>
+<span class="source-line-no">026</span><span id="line-26">  /**</span>
+<span class="source-line-no">027</span><span id="line-27">   * パス文字列を取得</span>
+<span class="source-line-no">028</span><span id="line-28">   *</span>
+<span class="source-line-no">029</span><span id="line-29">   * @return 正規化されたパス文字列</span>
+<span class="source-line-no">030</span><span id="line-30">   */</span>
+<span class="source-line-no">031</span><span id="line-31">  String getPath();</span>
+<span class="source-line-no">032</span><span id="line-32"></span>
+<span class="source-line-no">033</span><span id="line-33">  /**</span>
+<span class="source-line-no">034</span><span id="line-34">   * パス種別を取得</span>
+<span class="source-line-no">035</span><span id="line-35">   *</span>
+<span class="source-line-no">036</span><span id="line-36">   * @return パス種別（例: "JSONPath", "XPath", "CSVPath"）</span>
+<span class="source-line-no">037</span><span id="line-37">   */</span>
+<span class="source-line-no">038</span><span id="line-38">  String getType();</span>
+<span class="source-line-no">039</span><span id="line-39"></span>
+<span class="source-line-no">040</span><span id="line-40">  /**</span>
+<span class="source-line-no">041</span><span id="line-41">   * 他のパスとの等価性判定 パス文字列と型が同じかチェック</span>
+<span class="source-line-no">042</span><span id="line-42">   *</span>
+<span class="source-line-no">043</span><span id="line-43">   * @param other 比較対象のパス</span>
+<span class="source-line-no">044</span><span id="line-44">   * @return パスが等価な場合true</span>
+<span class="source-line-no">045</span><span id="line-45">   */</span>
+<span class="source-line-no">046</span><span id="line-46">  boolean isEquivalentTo(IPath&lt;?&gt; other);</span>
+<span class="source-line-no">047</span><span id="line-47"></span>
+<span class="source-line-no">048</span><span id="line-48">  // === 処理機能（PathHandlerの統合）===</span>
+<span class="source-line-no">049</span><span id="line-49"></span>
+<span class="source-line-no">050</span><span id="line-50">  /**</span>
+<span class="source-line-no">051</span><span id="line-51">   * 指定されたコンテキストがこのパスにマッチするか判定 旧PathHandler.isTarget()相当</span>
+<span class="source-line-no">052</span><span id="line-52">   *</span>
+<span class="source-line-no">053</span><span id="line-53">   * @param context 判定対象のコンテキスト</span>
+<span class="source-line-no">054</span><span id="line-54">   * @return マッチする場合true</span>
+<span class="source-line-no">055</span><span id="line-55">   */</span>
+<span class="source-line-no">056</span><span id="line-56">  boolean matches(T context);</span>
+<span class="source-line-no">057</span><span id="line-57"></span>
+<span class="source-line-no">058</span><span id="line-58">  /**</span>
+<span class="source-line-no">059</span><span id="line-59">   * データから単一値を抽出</span>
+<span class="source-line-no">060</span><span id="line-60">   *</span>
+<span class="source-line-no">061</span><span id="line-61">   * @param data 抽出元データ</span>
+<span class="source-line-no">062</span><span id="line-62">   * @param resultType 期待する結果型</span>
+<span class="source-line-no">063</span><span id="line-63">   * @param &lt;R&gt; 結果型</span>
+<span class="source-line-no">064</span><span id="line-64">   * @return 抽出された値（見つからない場合はEmpty）</span>
+<span class="source-line-no">065</span><span id="line-65">   */</span>
+<span class="source-line-no">066</span><span id="line-66">  &lt;R&gt; Optional&lt;R&gt; extract(Object data, Class&lt;R&gt; resultType);</span>
+<span class="source-line-no">067</span><span id="line-67"></span>
+<span class="source-line-no">068</span><span id="line-68">  /**</span>
+<span class="source-line-no">069</span><span id="line-69">   * データから複数値をストリームで抽出 配列やリスト構造に対応</span>
+<span class="source-line-no">070</span><span id="line-70">   *</span>
+<span class="source-line-no">071</span><span id="line-71">   * @param data 抽出元データ</span>
+<span class="source-line-no">072</span><span id="line-72">   * @param resultType 期待する結果型</span>
+<span class="source-line-no">073</span><span id="line-73">   * @param &lt;R&gt; 結果型</span>
+<span class="source-line-no">074</span><span id="line-74">   * @return 抽出された値のストリーム</span>
+<span class="source-line-no">075</span><span id="line-75">   */</span>
+<span class="source-line-no">076</span><span id="line-76">  &lt;R&gt; Stream&lt;R&gt; extractAll(Object data, Class&lt;R&gt; resultType);</span>
+<span class="source-line-no">077</span><span id="line-77"></span>
+<span class="source-line-no">078</span><span id="line-78">  // === メタ情報とパフォーマンス ===</span>
+<span class="source-line-no">079</span><span id="line-79"></span>
+<span class="source-line-no">080</span><span id="line-80">  /**</span>
+<span class="source-line-no">081</span><span id="line-81">   * 実行統計情報の取得 マッチ成功率、抽出成功率などを監視</span>
+<span class="source-line-no">082</span><span id="line-82">   *</span>
+<span class="source-line-no">083</span><span id="line-83">   * @return パフォーマンス統計</span>
+<span class="source-line-no">084</span><span id="line-84">   */</span>
+<span class="source-line-no">085</span><span id="line-85">  PathStatistics getStatistics();</span>
+<span class="source-line-no">086</span><span id="line-86">}</span>
 
 
 

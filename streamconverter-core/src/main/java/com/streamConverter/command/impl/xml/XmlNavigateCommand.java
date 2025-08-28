@@ -2,8 +2,7 @@ package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.pathHandler.FixedStaXPathHandler;
+import com.streamConverter.path.XPath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -32,80 +31,53 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlNavigateCommand.class.getName());
   private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
-  private String xpath;
+  private XPath xpath;
   private IRule rule;
-  private FixedStaXPathHandler pathHandler;
 
   /**
-   * Constructor for XML navigation with XPath selector and transformation rule.
+   * Constructor for XML navigation with typed XPath selector and transformation rule.
    *
-   * @param xpath the XPath expression to select elements (e.g., "users/user/name")
+   * @param xpath the typed XPath to select elements
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if rule is null
    */
-  public XmlNavigateCommand(String xpath, IRule rule) {
+  public XmlNavigateCommand(XPath xpath, IRule rule) {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
     this.xpath = xpath;
     this.rule = rule;
-    if (xpath != null) {
-      this.pathHandler = new FixedStaXPathHandler(xpath);
-    }
   }
 
   /**
-   * Constructor for XML navigation with XPath selector using PassThroughRule.
+   * Factory method for creating an XML navigation command with typed XPath and rule.
    *
-   * @param xpath the XPath expression to select elements (e.g., "users/user/name")
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link
-   *     #extractOnly(String)}.
+   * @param xpath the typed XPath to select elements
+   * @param rule the transformation rule to apply to selected elements
+   * @return an XmlNavigateCommand that extracts the specified XPath with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public XmlNavigateCommand(String xpath) {
-    this(xpath, new PassThroughRule());
+  public static XmlNavigateCommand create(XPath xpath, IRule rule) {
+    return new XmlNavigateCommand(xpath, rule);
   }
 
   /**
-   * Default constructor - processes entire XML with PassThroughRule.
+   * Factory method for creating an XML navigation command that processes entire XML with explicit
+   * rule specification. This method makes the intention explicit: process all XML data with the
+   * given transformation rule.
    *
-   * @deprecated This constructor uses PassThroughRule by default, which may not be the intended
-   *     behavior. Use {@link #XmlNavigateCommand(String, IRule)} to explicitly specify the
-   *     transformation rule. For data extraction without transformation, use {@link #extractAll()}.
+   * @param rule the transformation rule to apply to entire XML
+   * @return an XmlNavigateCommand that processes entire XML with the given rule
+   * @throws IllegalArgumentException if rule is null
    */
-  @Deprecated(since = "1.2.0", forRemoval = true)
-  public XmlNavigateCommand() {
-    this(null, new PassThroughRule());
-  }
-
-  /**
-   * Factory method for creating an XML navigation command that extracts data without
-   * transformation. This method makes the intention explicit: extract data from the specified XPath
-   * as-is.
-   *
-   * @param xpath the XPath expression to select elements (e.g., "users/user/name")
-   * @return an XmlNavigateCommand that extracts the specified XPath without transformation
-   */
-  public static XmlNavigateCommand extractOnly(String xpath) {
-    return new XmlNavigateCommand(xpath, new PassThroughRule());
-  }
-
-  /**
-   * Factory method for creating an XML navigation command that processes entire XML without
-   * transformation. This method makes the intention explicit: process all XML data as-is.
-   *
-   * @return an XmlNavigateCommand that processes entire XML without transformation
-   */
-  public static XmlNavigateCommand extractAll() {
-    return new XmlNavigateCommand(null, new PassThroughRule());
+  public static XmlNavigateCommand createForAll(IRule rule) {
+    return new XmlNavigateCommand((XPath) null, rule);
   }
 
   @Override
   protected String getCommandDetails() {
     if (xpath != null) {
-      return String.format("XmlNavigateCommand(xpath='%s')", xpath);
+      return String.format("XmlNavigateCommand(xpath='%s')", xpath.getPath());
     } else {
       return "XmlNavigateCommand(entire XML)";
     }
@@ -156,7 +128,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     try {
       eventReader = createXMLEventReader(inputStream);
       eventWriter = createXMLEventWriter(writer);
-      navigateXmlWithRule(eventReader, eventWriter, pathHandler, rule);
+      navigateXmlWithRule(eventReader, eventWriter, xpath, rule);
     } catch (XMLStreamException e) {
       handleXmlException(e);
     } finally {
@@ -165,10 +137,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   private void navigateXmlWithRule(
-      XMLEventReader eventReader,
-      XMLEventWriter eventWriter,
-      FixedStaXPathHandler pathHandler,
-      IRule rule)
+      XMLEventReader eventReader, XMLEventWriter eventWriter, XPath xpath, IRule rule)
       throws XMLStreamException {
     List<String> currentPath = new ArrayList<>();
     boolean inTargetElement = false;
@@ -181,7 +150,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         String elementName = event.asStartElement().getName().getLocalPart();
         currentPath.add(elementName);
 
-        if (pathHandler.isTarget(currentPath)) {
+        if (xpath.matches(currentPath)) {
           inTargetElement = true;
           targetDepth = currentPath.size();
           eventWriter.add(event);

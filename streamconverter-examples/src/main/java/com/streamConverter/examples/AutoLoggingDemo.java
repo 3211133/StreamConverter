@@ -8,6 +8,9 @@ import com.streamConverter.command.LoggingDecorator;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
+import com.streamConverter.command.rule.PassThroughRule;
+import com.streamConverter.path.CSVPath;
+import com.streamConverter.path.JSONPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -65,7 +68,8 @@ public class AutoLoggingDemo {
     String csvData = "name,age,city\nAlice,25,Tokyo\nBob,30,Osaka\n";
 
     // 通常のコマンド実行 - AbstractStreamCommandの自動ログ出力が動作
-    IStreamCommand csvCommand = new CsvNavigateCommand("name");
+    IStreamCommand csvCommand =
+        CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule());
     String result = processData(csvData, csvCommand);
 
     log.info("Standard logging result: {}", result.trim());
@@ -80,7 +84,8 @@ public class AutoLoggingDemo {
     String jsonData = "{\"users\":[{\"name\":\"Alice\",\"age\":25},{\"name\":\"Bob\",\"age\":30}]}";
 
     // LoggingDecoratorでラップして詳細ログ出力
-    IStreamCommand originalCommand = new JsonNavigateCommand("name");
+    IStreamCommand originalCommand =
+        JsonNavigateCommand.create(new JSONPath("name"), new PassThroughRule());
     IStreamCommand detailedCommand = new LoggingDecorator(originalCommand);
 
     String result = processData(jsonData, detailedCommand);

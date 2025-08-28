@@ -12,6 +12,7 @@ import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.json.JsonValidateCommand;
 import com.streamConverter.command.impl.xml.ValidateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
+import com.streamConverter.command.rule.PassThroughRule;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -219,13 +220,17 @@ public final class StreamBuilder {
 
     switch (dataFormat) {
       case JSON:
-        this.commands.add(JsonNavigateCommand.extractOnly(path));
+        this.commands.add(
+            JsonNavigateCommand.create(
+                new com.streamConverter.path.JSONPath(path), new PassThroughRule()));
         break;
       case XML:
-        this.commands.add(XmlNavigateCommand.extractOnly(path));
+        this.commands.add(
+            XmlNavigateCommand.create(
+                new com.streamConverter.path.XPath(path), new PassThroughRule()));
         break;
       case CSV:
-        this.commands.add(CsvNavigateCommand.extractOnly(path));
+        this.commands.add(CsvNavigateCommand.create(path, new PassThroughRule()));
         break;
       case GENERIC:
       default:
@@ -245,7 +250,7 @@ public final class StreamBuilder {
     if (dataFormat != DataFormat.JSON) {
       throw new IllegalStateException("Format operation is only supported for JSON data format");
     }
-    this.commands.add(JsonNavigateCommand.extractAll());
+    this.commands.add(JsonNavigateCommand.createForAll(new PassThroughRule()));
     return this;
   }
 
@@ -259,7 +264,9 @@ public final class StreamBuilder {
    */
   public StreamBuilder extractJson(final String jsonPath) {
     Objects.requireNonNull(jsonPath, "JSONPath cannot be null");
-    this.commands.add(JsonNavigateCommand.extractOnly(jsonPath));
+    this.commands.add(
+        JsonNavigateCommand.create(
+            new com.streamConverter.path.JSONPath(jsonPath), new PassThroughRule()));
     return this;
   }
 
@@ -269,7 +276,7 @@ public final class StreamBuilder {
    * @return このビルダーインスタンス（メソッドチェーン用）
    */
   public StreamBuilder formatJson() {
-    this.commands.add(JsonNavigateCommand.extractAll());
+    this.commands.add(JsonNavigateCommand.createForAll(new PassThroughRule()));
     return this;
   }
 
@@ -281,7 +288,9 @@ public final class StreamBuilder {
    */
   public StreamBuilder extractXml(final String xpath) {
     Objects.requireNonNull(xpath, "XPath cannot be null");
-    this.commands.add(XmlNavigateCommand.extractOnly(xpath));
+    this.commands.add(
+        XmlNavigateCommand.create(
+            new com.streamConverter.path.XPath(xpath), new PassThroughRule()));
     return this;
   }
 
@@ -293,7 +302,7 @@ public final class StreamBuilder {
    */
   public StreamBuilder extractCsv(final String columnName) {
     Objects.requireNonNull(columnName, "Column name cannot be null");
-    this.commands.add(CsvNavigateCommand.extractOnly(columnName));
+    this.commands.add(CsvNavigateCommand.create(columnName, new PassThroughRule()));
     return this;
   }
 

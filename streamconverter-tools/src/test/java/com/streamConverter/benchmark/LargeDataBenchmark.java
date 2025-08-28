@@ -9,6 +9,9 @@ import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
+import com.streamConverter.command.rule.PassThroughRule;
+import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.XPath;
 import com.streamConverter.test.PlatformAdaptiveTestUtils;
 import java.io.*;
 import java.nio.file.Files;
@@ -377,7 +380,7 @@ class LargeDataBenchmark {
     StreamConverter converter =
         new StreamConverter(
             new IStreamCommand[] {
-              new JsonNavigateCommand("/orders"),
+              JsonNavigateCommand.create(new JSONPath("/orders"), new PassThroughRule()),
               new SampleStreamCommand("stage1"),
               new SampleStreamCommand("stage2"),
               new SampleStreamCommand("stage3")
@@ -479,7 +482,7 @@ class LargeDataBenchmark {
       StreamConverter converter =
           new StreamConverter(
               new IStreamCommand[] {
-                new XmlNavigateCommand("/orders"),
+                XmlNavigateCommand.create(new XPath("/orders"), new PassThroughRule()),
                 new SampleStreamCommand("transform1"),
                 new SampleStreamCommand("transform2"),
                 new SampleStreamCommand("validate")
@@ -794,11 +797,11 @@ class LargeDataBenchmark {
   private IStreamCommand createFormatSpecificCommand(String format) {
     switch (format.toUpperCase()) {
       case "XML":
-        return new XmlNavigateCommand("/orders");
+        return XmlNavigateCommand.create(new XPath("/orders"), new PassThroughRule());
       case "JSON":
-        return new JsonNavigateCommand("/orders");
+        return JsonNavigateCommand.create(new JSONPath("/orders"), new PassThroughRule());
       case "CSV":
-        return new CsvNavigateCommand();
+        return CsvNavigateCommand.createForAll(new PassThroughRule());
       default:
         return new SampleStreamCommand("generic-" + format.toLowerCase());
     }

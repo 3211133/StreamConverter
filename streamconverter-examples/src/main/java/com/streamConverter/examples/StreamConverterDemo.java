@@ -6,6 +6,10 @@ import com.streamConverter.command.impl.SampleStreamCommand;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
+import com.streamConverter.command.rule.PassThroughRule;
+import com.streamConverter.path.CSVPath;
+import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.XPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -70,15 +74,15 @@ public class StreamConverterDemo {
 
     // Demo 1a: Extract specific column by name
     logger.info("1. Extract 'name' column:");
-    runDemo(csvData, new CsvNavigateCommand("name"));
+    runDemo(csvData, CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()));
 
     // Demo 1b: Extract column by index
     logger.info("\n2. Extract column at index 2 (city):");
-    runDemo(csvData, new CsvNavigateCommand("2"));
+    runDemo(csvData, CsvNavigateCommand.create(new CSVPath("2"), new PassThroughRule()));
 
     // Demo 1c: Process all columns
     logger.info("\n3. Process all columns (formatted):");
-    runDemo(csvData, new CsvNavigateCommand());
+    runDemo(csvData, CsvNavigateCommand.createForAll(new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -94,15 +98,15 @@ public class StreamConverterDemo {
 
     // Demo 2a: Extract specific property
     logger.info("1. Extract 'total' property:");
-    runDemo(jsonData, new JsonNavigateCommand("total"));
+    runDemo(jsonData, JsonNavigateCommand.create(new JSONPath("total"), new PassThroughRule()));
 
     // Demo 2b: Navigate nested properties
     logger.info("\n2. Navigate to users array:");
-    runDemo(jsonData, new JsonNavigateCommand("users"));
+    runDemo(jsonData, JsonNavigateCommand.create(new JSONPath("users"), new PassThroughRule()));
 
     // Demo 2c: Format entire JSON
     logger.info("\n3. Format entire JSON:");
-    runDemo(jsonData, new JsonNavigateCommand());
+    runDemo(jsonData, JsonNavigateCommand.createForAll(new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -130,15 +134,16 @@ public class StreamConverterDemo {
 
     // Demo 3a: Extract specific elements
     logger.info("1. Extract all 'name' elements:");
-    runDemo(xmlData, new XmlNavigateCommand("users/user/name"));
+    runDemo(
+        xmlData, XmlNavigateCommand.create(new XPath("users/user/name"), new PassThroughRule()));
 
     // Demo 3b: Extract user elements
     logger.info("\n2. Extract all 'user' elements:");
-    runDemo(xmlData, new XmlNavigateCommand("users/user"));
+    runDemo(xmlData, XmlNavigateCommand.create(new XPath("users/user"), new PassThroughRule()));
 
     // Demo 3c: Process entire XML
     logger.info("\n3. Process entire XML:");
-    runDemo(xmlData, new XmlNavigateCommand());
+    runDemo(xmlData, XmlNavigateCommand.createForAll(new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -155,7 +160,7 @@ public class StreamConverterDemo {
     // Demo 4: Chain JSON formatting with sample processing
     logger.info("1. JSON formatting → Sample processing:");
     IStreamCommand[] pipeline = {
-      new JsonNavigateCommand(), // Format JSON
+      JsonNavigateCommand.createForAll(new PassThroughRule()), // Format JSON
       new SampleStreamCommand("formatter") // Add processing info
     };
 
@@ -179,7 +184,7 @@ public class StreamConverterDemo {
     // Demo 5: Multi-stage processing
     logger.info("1. Multi-stage CSV processing:");
     IStreamCommand[] complexPipeline = {
-      new CsvNavigateCommand("name"), // Extract names
+      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()), // Extract names
       new SampleStreamCommand("name-processor"), // Process names
       new SampleStreamCommand("final-formatter") // Final formatting
     };

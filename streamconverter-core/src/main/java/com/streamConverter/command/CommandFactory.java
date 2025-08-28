@@ -212,7 +212,7 @@ public class CommandFactory {
         Object path = args[0];
         return (T)
             com.streamConverter.command.impl.json.JsonNavigateCommand.create(
-                (String) path, defaultRule);
+                new com.streamConverter.path.JSONPath((String) path), defaultRule);
       } else if (args.length == 0) {
         return (T)
             com.streamConverter.command.impl.json.JsonNavigateCommand.createForAll(defaultRule);
@@ -258,7 +258,7 @@ public class CommandFactory {
         Object path = args[0];
         return (T)
             com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
-                (String) path, defaultRule);
+                new com.streamConverter.path.XPath((String) path), defaultRule);
       } else if (args.length == 0) {
         return (T)
             com.streamConverter.command.impl.xml.XmlNavigateCommand.createForAll(defaultRule);

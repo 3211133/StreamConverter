@@ -3,7 +3,6 @@ package com.streamConverter.command.impl.xml;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
 import com.streamConverter.path.XPath;
-import com.streamConverter.pathHandler.FixedStaXPathHandler;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -34,31 +33,6 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
 
   private XPath xpath;
   private IRule rule;
-  private FixedStaXPathHandler pathHandler;
-
-  // Deprecated fields for backward compatibility
-  @Deprecated private final String legacyXpath;
-
-  /**
-   * Constructor for XML navigation with XPath selector and transformation rule.
-   *
-   * @param xpath the XPath expression to select elements (e.g., "users/user/name")
-   * @param rule the transformation rule to apply to selected elements
-   * @throws IllegalArgumentException if rule is null
-   * @deprecated Use {@link #XmlNavigateCommand(XPath, IRule)} instead
-   */
-  @Deprecated
-  public XmlNavigateCommand(String xpath, IRule rule) {
-    if (rule == null) {
-      throw new IllegalArgumentException("Rule cannot be null");
-    }
-    this.legacyXpath = xpath;
-    this.xpath = xpath != null ? new XPath(xpath) : null;
-    this.rule = rule;
-    if (xpath != null) {
-      this.pathHandler = new FixedStaXPathHandler(xpath);
-    }
-  }
 
   /**
    * Constructor for XML navigation with typed XPath selector and transformation rule.
@@ -72,27 +46,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("Rule cannot be null");
     }
     this.xpath = xpath;
-    this.legacyXpath = xpath != null ? xpath.getPath() : null;
     this.rule = rule;
-    if (xpath != null) {
-      this.pathHandler = new FixedStaXPathHandler(xpath.getPath());
-    }
-  }
-
-  /**
-   * Factory method for creating an XML navigation command with explicit rule specification. This
-   * method makes the intention explicit: extract data from the specified XPath and apply the given
-   * transformation rule.
-   *
-   * @param xpath the XPath expression to select elements (e.g., "users/user/name")
-   * @param rule the transformation rule to apply to selected elements
-   * @return an XmlNavigateCommand that extracts the specified XPath with the given rule
-   * @throws IllegalArgumentException if rule is null
-   * @deprecated Use {@link #create(XPath, IRule)} instead
-   */
-  @Deprecated
-  public static XmlNavigateCommand create(String xpath, IRule rule) {
-    return new XmlNavigateCommand(xpath, rule);
   }
 
   /**
@@ -174,7 +128,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     try {
       eventReader = createXMLEventReader(inputStream);
       eventWriter = createXMLEventWriter(writer);
-      navigateXmlWithRule(eventReader, eventWriter, pathHandler, rule);
+      navigateXmlWithRule(eventReader, eventWriter, xpath, rule);
     } catch (XMLStreamException e) {
       handleXmlException(e);
     } finally {
@@ -183,10 +137,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   private void navigateXmlWithRule(
-      XMLEventReader eventReader,
-      XMLEventWriter eventWriter,
-      FixedStaXPathHandler pathHandler,
-      IRule rule)
+      XMLEventReader eventReader, XMLEventWriter eventWriter, XPath xpath, IRule rule)
       throws XMLStreamException {
     List<String> currentPath = new ArrayList<>();
     boolean inTargetElement = false;
@@ -199,7 +150,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         String elementName = event.asStartElement().getName().getLocalPart();
         currentPath.add(elementName);
 
-        if (pathHandler.isTarget(currentPath)) {
+        if (xpath.matches(currentPath)) {
           inTargetElement = true;
           targetDepth = currentPath.size();
           eventWriter.add(event);

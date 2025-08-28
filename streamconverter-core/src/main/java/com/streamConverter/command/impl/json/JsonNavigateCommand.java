@@ -14,6 +14,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Memory-Optimized JSON Navigate Command Class
@@ -33,22 +35,6 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   private final boolean extractValue;
   private final ObjectMapper objectMapper;
 
-  // Deprecated fields for backward compatibility
-  @Deprecated private final String legacyJsonPath;
-
-  /**
-   * Constructor for JSON navigation with JSONPath selector and transformation rule.
-   *
-   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
-   * @param rule the transformation rule to apply to selected elements
-   * @throws IllegalArgumentException if rule is null
-   * @deprecated Use {@link #JsonNavigateCommand(JSONPath, IRule)} instead
-   */
-  @Deprecated
-  public JsonNavigateCommand(String jsonPath, IRule rule) {
-    this(jsonPath, rule, false);
-  }
-
   /**
    * Constructor for JSON navigation with typed JSONPath selector and transformation rule.
    *
@@ -58,28 +44,6 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    */
   public JsonNavigateCommand(JSONPath jsonPath, IRule rule) {
     this(jsonPath, rule, false);
-  }
-
-  /**
-   * Constructor for JSON navigation with JSONPath selector, transformation rule, and extraction
-   * mode.
-   *
-   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
-   * @param rule the transformation rule to apply to selected elements
-   * @param extractValue if true, extract only the transformed value; if false, return modified JSON
-   * @throws IllegalArgumentException if rule is null
-   * @deprecated Use {@link #JsonNavigateCommand(JSONPath, IRule, boolean)} instead
-   */
-  @Deprecated
-  public JsonNavigateCommand(String jsonPath, IRule rule, boolean extractValue) {
-    if (rule == null) {
-      throw new IllegalArgumentException("Rule cannot be null");
-    }
-    this.legacyJsonPath = jsonPath;
-    this.jsonPath = jsonPath != null ? new JSONPath(jsonPath) : null;
-    this.rule = rule;
-    this.extractValue = extractValue;
-    this.objectMapper = new ObjectMapper();
   }
 
   /**
@@ -96,26 +60,9 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("Rule cannot be null");
     }
     this.jsonPath = jsonPath;
-    this.legacyJsonPath = jsonPath != null ? jsonPath.getPath() : null;
     this.rule = rule;
     this.extractValue = extractValue;
     this.objectMapper = new ObjectMapper();
-  }
-
-  /**
-   * Factory method for creating a JSON navigation command with explicit rule specification. This
-   * method makes the intention explicit: extract data from the specified JSONPath and apply the
-   * given transformation rule.
-   *
-   * @param jsonPath the JSONPath expression to select data (e.g., "$.users[*].name")
-   * @param rule the transformation rule to apply to selected elements
-   * @return a JsonNavigateCommand that extracts the specified path with the given rule
-   * @throws IllegalArgumentException if rule is null
-   * @deprecated Use {@link #create(JSONPath, IRule)} instead
-   */
-  @Deprecated
-  public static JsonNavigateCommand create(String jsonPath, IRule rule) {
-    return new JsonNavigateCommand(jsonPath, rule);
   }
 
   /**
@@ -145,21 +92,6 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /**
    * Factory method for creating a JSON navigation command that extracts and transforms a specific
-   * value. This command returns only the transformed value, not the entire JSON object.
-   *
-   * @param jsonPath the JSONPath expression to select data (e.g., "$.userName")
-   * @param rule the transformation rule to apply to selected value
-   * @return a JsonNavigateCommand that extracts and transforms the specified value
-   * @throws IllegalArgumentException if rule is null
-   * @deprecated Use {@link #createExtractValue(JSONPath, IRule)} instead
-   */
-  @Deprecated
-  public static JsonNavigateCommand createExtractValue(String jsonPath, IRule rule) {
-    return new JsonNavigateCommand(jsonPath, rule, true);
-  }
-
-  /**
-   * Factory method for creating a JSON navigation command that extracts and transforms a specific
    * value using typed JSONPath. This command returns only the transformed value, not the entire
    * JSON object.
    *
@@ -183,33 +115,91 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   @Override
   protected void executeInternal(InputStream inputStream, OutputStream outputStream)
       throws IOException {
-    if (jsonPath == null || isSimpleTransformation()) {
-      // Use Jackson streaming for simple transformations
-      processJsonWithJacksonStreaming(inputStream, outputStream);
-    } else {
-      // Use Jackson tree model for complex JSONPath operations
-      processJsonWithJacksonTree(inputStream, outputStream);
-    }
-  }
-
-  /** Determine if this is a simple transformation that can be processed line-by-line */
-  private boolean isSimpleTransformation() {
-    // extractValue mode always requires tree processing for proper value extraction
-    if (extractValue) {
-      return false;
-    }
-    // Simple transformations that don't require complete JSON structure
-    if (jsonPath == null) {
-      return true;
-    }
-    // Use JSONPath utility methods to determine if it's a simple property access
-    return jsonPath.getSimpleProperty() != null;
+    // Always use streaming for memory efficiency - core principle of StreamConverter
+    processJsonWithFullStreaming(inputStream, outputStream);
   }
 
   /**
-   * Jackson streaming approach for memory-efficient JSON processing Uses JsonParser for parsing and
-   * JsonGenerator for output
+   * Full streaming JSON processing - core implementation for StreamConverter Processes any JSON
+   * structure and JSONPath without loading entire document into memory
    */
+  private void processJsonWithFullStreaming(InputStream inputStream, OutputStream outputStream)
+      throws IOException {
+    JsonFactory jsonFactory = objectMapper.getFactory();
+
+    // For extractValue mode, we need special handling to avoid JsonGenerator interference
+    if (extractValue) {
+      try (JsonParser parser = jsonFactory.createParser(inputStream)) {
+        processExtractValueStreaming(parser, outputStream);
+      } catch (com.fasterxml.jackson.core.JsonParseException e) {
+        handleJsonParseException(outputStream, e);
+      }
+    } else {
+      try (JsonParser parser = jsonFactory.createParser(inputStream);
+          JsonGenerator generator = jsonFactory.createGenerator(outputStream)) {
+
+        if (jsonPath == null) {
+          // Process entire JSON stream
+          processEntireJsonStream(parser, generator);
+        } else {
+          // Process with JSONPath filtering - fully streaming
+          processJsonStreamWithPath(parser, generator, outputStream);
+        }
+
+        generator.flush();
+      } catch (com.fasterxml.jackson.core.JsonParseException e) {
+        handleJsonParseException(outputStream, e);
+      }
+    }
+  }
+
+  /** Dedicated streaming method for extractValue mode - outputs only transformed value */
+  private void processExtractValueStreaming(JsonParser parser, OutputStream outputStream)
+      throws IOException {
+    List<String> currentPath = new ArrayList<>();
+
+    JsonToken token;
+    int depth = 0;
+    while ((token = parser.nextToken()) != null) {
+      if (token == JsonToken.START_OBJECT || token == JsonToken.START_ARRAY) {
+        depth++;
+      } else if (token == JsonToken.END_OBJECT || token == JsonToken.END_ARRAY) {
+        depth--;
+        if (!currentPath.isEmpty()) {
+          currentPath.remove(currentPath.size() - 1);
+        }
+      } else if (token == JsonToken.FIELD_NAME) {
+        String fieldName = parser.currentName();
+
+        // Adjust path based on depth
+        while (currentPath.size() >= depth) {
+          currentPath.remove(currentPath.size() - 1);
+        }
+        currentPath.add(fieldName);
+
+        // Check if we've reached the target JSONPath
+        if (jsonPath.matchesStreamingPath(currentPath)) {
+          // Extract value mode: skip to the value and extract it
+          token = parser.nextToken();
+          String value = getTokenValueAsString(parser, token);
+          String transformedValue = rule.apply(value);
+
+          // Write only the transformed value directly to OutputStream
+          OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+          writer.write(transformedValue);
+          writer.flush();
+          return; // Complete processing for extractValue mode
+        }
+      }
+    }
+
+    // If we reach here, the path was not found - write empty result
+    OutputStreamWriter writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8);
+    writer.write("");
+    writer.flush();
+  }
+
+  /** Legacy streaming method - replaced by processJsonWithFullStreaming */
   private void processJsonWithJacksonStreaming(InputStream inputStream, OutputStream outputStream)
       throws IOException {
     JsonFactory jsonFactory = objectMapper.getFactory();
@@ -245,70 +235,17 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     }
   }
 
-  /**
-   * Jackson tree model for complex JSONPath operations Uses JsonNode for navigating complex paths
-   */
-  private void processJsonWithJacksonTree(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  /** Handle JSON parse exceptions gracefully */
+  private void handleJsonParseException(
+      OutputStream outputStream, com.fasterxml.jackson.core.JsonParseException e) {
     try {
-      JsonNode rootNode = objectMapper.readTree(inputStream);
-
-      if (jsonPath == null) {
-        // Process entire JSON with rule
-        String transformedResult = rule.apply(rootNode.toString());
-        try (OutputStreamWriter writer =
-            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-          writer.write(transformedResult);
-          writer.flush();
-        }
-      } else if (extractValue) {
-        // Extract and return only the transformed value as plain text
-        JsonNode targetNode = navigateJsonPath(rootNode, jsonPath);
-        String result;
-
-        if (targetNode != null && !targetNode.isMissingNode()) {
-          String propertyValue = targetNode.asText();
-          result = rule.apply(propertyValue);
-        } else {
-          result = ""; // Return empty string if path not found
-        }
-
-        // Write as plain text directly to output stream
-        byte[] bytes = result.getBytes(StandardCharsets.UTF_8);
-        outputStream.write(bytes);
-        outputStream.flush();
-      } else {
-        // Handle both JSON arrays and objects
-        JsonNode modifiedRoot;
-
-        if (rootNode.isArray()) {
-          // Process each element in the array
-          modifiedRoot = processJsonArray(rootNode, jsonPath);
-        } else {
-          // Process single JSON object
-          modifiedRoot = processSingleJsonObject(rootNode, jsonPath);
-        }
-
-        try (OutputStreamWriter writer =
-            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-          writer.write(modifiedRoot.toString());
-          writer.flush();
-        }
+      try (OutputStreamWriter writer =
+          new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+        writer.write("Invalid JSON format");
+        writer.flush();
       }
-
-    } catch (com.fasterxml.jackson.core.JsonParseException e) {
-      // Handle invalid JSON gracefully - write simple error message
-      try {
-        try (OutputStreamWriter writer =
-            new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-          writer.write("Invalid JSON format");
-          writer.flush();
-        }
-      } catch (IOException writeException) {
-        // If we can't write to output, just ignore for invalid JSON case
-      }
-    } catch (Exception e) {
-      throw new IOException("Failed to process JSON with Jackson: " + e.getMessage(), e);
+    } catch (IOException writeException) {
+      // If we can't write to output, just ignore for invalid JSON case
     }
   }
 
@@ -321,52 +258,93 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     }
   }
 
-  /** Process JSON stream with simple path filtering */
+  /** Process JSON stream with JSONPath filtering - fully streaming implementation */
   private void processJsonStreamWithPath(
       JsonParser parser, JsonGenerator generator, OutputStream outputStream) throws IOException {
-    // For streaming with simple paths, we'll use a simplified approach
-    // that maintains the streaming nature while applying basic filtering
-    String propertyName = extractPropertyFromPath(jsonPath);
-    boolean inTargetProperty = false;
+    // Hierarchical JSON path tracking similar to XML processing
+    List<String> currentPath = new ArrayList<>();
+    boolean inTargetPath = false;
+    int depth = 0;
 
-    // This method should not be called for extractValue mode
-    // extractValue mode uses processJsonWithJsonPath instead
-    if (extractValue) {
-      throw new UnsupportedOperationException(
-          "extractValue mode should use processJsonWithJsonPath");
-    }
-
-    {
-      // Normal mode - write complete JSON structure
-      JsonToken token;
-      while ((token = parser.nextToken()) != null) {
-        if (token == JsonToken.FIELD_NAME && propertyName.equals(parser.currentName())) {
-          inTargetProperty = true;
-          generator.writeFieldName(parser.currentName());
-        } else if (inTargetProperty && token == JsonToken.VALUE_STRING) {
-          // Apply rule to string value
-          String transformedValue = rule.apply(parser.getValueAsString());
-          generator.writeString(transformedValue);
-          inTargetProperty = false;
-        } else if (inTargetProperty) {
-          copyTokenWithRule(parser, generator, token);
-          if (token == JsonToken.END_OBJECT || token == JsonToken.END_ARRAY) {
-            inTargetProperty = false;
-          }
-        } else {
-          copyToken(parser, generator, token);
+    JsonToken token;
+    while ((token = parser.nextToken()) != null) {
+      if (token == JsonToken.START_OBJECT || token == JsonToken.START_ARRAY) {
+        depth++;
+        generator.copyCurrentEvent(parser);
+      } else if (token == JsonToken.END_OBJECT || token == JsonToken.END_ARRAY) {
+        depth--;
+        // Remove path elements when exiting object/array
+        while (currentPath.size() > depth) {
+          currentPath.remove(currentPath.size() - 1);
         }
+        generator.copyCurrentEvent(parser);
+      } else if (token == JsonToken.FIELD_NAME) {
+        String fieldName = parser.currentName();
+
+        // Manage current path: remove previous fields at same object level
+        while (currentPath.size() >= Math.max(1, depth - 1)) {
+          currentPath.remove(currentPath.size() - 1);
+        }
+        currentPath.add(fieldName);
+
+        // Check if we've reached the target JSONPath
+        inTargetPath = jsonPath.matchesStreamingPath(currentPath);
+
+        // Always write field names to maintain JSON structure
+        generator.writeFieldName(fieldName);
+
+      } else if (inTargetPath) {
+        // Apply rule to all value tokens in target path
+        if (token == JsonToken.VALUE_STRING
+            || token == JsonToken.VALUE_NUMBER_INT
+            || token == JsonToken.VALUE_NUMBER_FLOAT
+            || token == JsonToken.VALUE_TRUE
+            || token == JsonToken.VALUE_FALSE
+            || token == JsonToken.VALUE_NULL) {
+          // Apply transformation to target values
+          String value = getTokenValueAsString(parser, token);
+          String transformedValue = rule.apply(value);
+          generator.writeString(transformedValue);
+        } else {
+          // For complex values (nested objects/arrays), copy with rule
+          generator.copyCurrentEvent(parser);
+        }
+        // Reset inTargetPath after processing the target value
+        inTargetPath = false;
+
+      } else {
+        // Copy non-target tokens as-is
+        generator.copyCurrentEvent(parser);
       }
     }
   }
 
-  /** Navigate JSONPath using JsonNode (for complex paths) */
+  /** Extract string value from any JSON token type */
+  private String getTokenValueAsString(JsonParser parser, JsonToken token) throws IOException {
+    switch (token) {
+      case VALUE_STRING:
+        return parser.getValueAsString();
+      case VALUE_NUMBER_INT:
+      case VALUE_NUMBER_FLOAT:
+        return parser.getValueAsString();
+      case VALUE_TRUE:
+      case VALUE_FALSE:
+        return parser.getValueAsString();
+      case VALUE_NULL:
+        return "null";
+      default:
+        // For complex objects/arrays, read as tree and convert
+        return parser.readValueAsTree().toString();
+    }
+  }
+
+  /** Navigate JSONPath using JsonNode (for complex paths) - DEPRECATED */
   private JsonNode navigateJsonPath(JsonNode rootNode, JSONPath path) {
     if (path.isRoot()) {
       return rootNode;
     }
 
-    String simpleProperty = path.getSimpleProperty();
+    String simpleProperty = path.findSimpleProperty().orElse(null);
     if (simpleProperty != null) {
       // Handle simple property access
       return rootNode.get(simpleProperty);
@@ -383,7 +361,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Extract property name from simple JSONPath */
   private String extractPropertyFromPath(JSONPath path) {
-    String simpleProperty = path.getSimpleProperty();
+    String simpleProperty = path.findSimpleProperty().orElse(null);
     if (simpleProperty != null) {
       return simpleProperty;
     }
@@ -451,7 +429,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Replace property value in JsonNode (creates a new modified tree) */
   private JsonNode replacePropertyValue(JsonNode rootNode, JSONPath path, String newValue) {
-    String simpleProperty = path.getSimpleProperty();
+    String simpleProperty = path.findSimpleProperty().orElse(null);
     if (simpleProperty != null) {
       return replaceSimpleProperty(rootNode, simpleProperty, newValue);
     }

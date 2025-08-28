@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.rule.DatabaseFetchRule;
+import com.streamConverter.path.CSVPath;
+import com.streamConverter.path.JSONPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -107,7 +109,7 @@ class DatabaseRuleIntegrationTest {
     DatabaseFetchRule dbRule = new DatabaseFetchRule(DB_URL, "SELECT name FROM users WHERE id = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand("$.userId", dbRule);
+    JsonNavigateCommand command = new JsonNavigateCommand(new JSONPath("$.userId"), dbRule);
 
     // テスト用JSON
     String inputJson =
@@ -144,7 +146,7 @@ class DatabaseRuleIntegrationTest {
         new DatabaseFetchRule(DB_URL, "SELECT name FROM products WHERE code = ?");
 
     // CsvNavigateCommandの作成
-    CsvNavigateCommand command = new CsvNavigateCommand("product_code", dbRule);
+    CsvNavigateCommand command = new CsvNavigateCommand(new CSVPath("product_code"), dbRule);
 
     // テスト用CSV
     String inputCsv =
@@ -179,7 +181,7 @@ class DatabaseRuleIntegrationTest {
     DatabaseFetchRule dbRule = new DatabaseFetchRule(DB_URL, "SELECT name FROM users WHERE id = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand("$.userId", dbRule);
+    JsonNavigateCommand command = new JsonNavigateCommand(new JSONPath("$.userId"), dbRule);
 
     // 存在しないユーザーIDを含むJSON
     String inputJson =
@@ -213,7 +215,7 @@ class DatabaseRuleIntegrationTest {
         new DatabaseFetchRule(DB_URL, "SELECT department FROM users WHERE id = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand("$.userId", dbRule);
+    JsonNavigateCommand command = new JsonNavigateCommand(new JSONPath("$.userId"), dbRule);
 
     // 複数のユーザーIDを含むJSON配列
     String inputJson =
@@ -250,7 +252,7 @@ class DatabaseRuleIntegrationTest {
         new DatabaseFetchRule(DB_URL, "SELECT price FROM products WHERE code = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand("$.productCode", dbRule);
+    JsonNavigateCommand command = new JsonNavigateCommand(new JSONPath("$.productCode"), dbRule);
 
     // テスト用JSON
     String inputJson =

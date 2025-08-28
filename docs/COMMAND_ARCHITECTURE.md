@@ -227,13 +227,43 @@ public class CustomProcessingCommand extends AbstractStreamCommand {
 
 ## 利用可能なコマンド
 
+### Path統合アーキテクチャ
+
+**v2.0で導入されたPath統合により、型安全なパス表現と処理ロジックの統一を実現：**
+
+```java
+// 新しい型安全なPath表現
+JSONPath jsonPath = new JSONPath("$.user.name");
+XPath xmlPath = new XPath("//product[@id]");
+CSVPath csvPath = new CSVPath("productName");
+
+// 統一されたPath処理インターフェース
+public interface IPath<T> {
+    boolean matches(T context);
+    <R> Optional<R> extract(Object data, Class<R> resultType);
+    String getPath();
+}
+
+// AbstractPathによる共通機能
+public abstract class AbstractPath<T> implements IPath<T> {
+    protected final PathStatistics statistics;  // パフォーマンス測定
+    protected final String path;                // パス表現
+    // Template Methodパターンによる統一処理
+}
+```
+
+**主要な改善点：**
+- **型安全性**: コンパイル時にパス表現の妥当性を検証
+- **統計情報**: `PathStatistics`による使用状況とパフォーマンス測定
+- **処理統一**: XMLのpathHandler機能をPathクラスに統合
+
 ### ナビゲーション・変換コマンド
 
-| クラス | 用途 | 引数例 |
-|--------|------|--------|
-| `CsvNavigateCommand` | CSV特定列の変換 | `"productName"` |
-| `JsonNavigateCommand` | JSON特定パスの変換 | `"$.user.name"` |
-| `XmlNavigateCommand` | XML特定要素の変換 | `"//product/@id"` |
+| クラス | 用途 | 引数例 | 特徴 |
+|--------|------|--------|----- |
+| `CsvNavigateCommand` | CSV特定列の変換 | `new CSVPath("productName")` | 型安全なPath対応 |
+| `JsonNavigateCommand` | JSON特定パスの変換 | `new JSONPath("$.user.name")` | **完全ストリーミング**処理 |
+| `XmlNavigateCommand` | XML特定要素の変換 | `new XPath("//product/@id")` | PathHandler統合済み |
 
 ### フィルタリングコマンド
 

@@ -9,34 +9,37 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 /**
- * 木構造データ用の統一パスクラス
+ * Unified path class for tree structure data.
  *
- * <p>JSON形式とXML形式のパス表現を内部で統一的に扱い、相互変換機能を提供します。 内部的には階層セグメント形式で保持し、必要に応じて各形式に変換します。
+ * <p>This class provides unified handling of JSON and XML path expressions with bidirectional
+ * conversion capabilities. Internally maintains hierarchical segment representation and converts to
+ * specific formats as needed.
  *
- * <p>サポートする形式: - JSON形式: "$.user.profile.name", "$.items[0].title" - XML形式: "user/profile/name",
- * "items/item[0]/title"
+ * <p>Supported formats: - JSON format: "$.user.profile.name", "$.items[0].title" - XML format:
+ * "user/profile/name", "items/item[0]/title"
  *
- * <p>内部表現例: - セグメント: ["user", "profile", "name"] - 配列インデックス情報: profile→なし、name→なし
+ * <p>Internal representation example: - Segments: ["user", "profile", "name"] - Array index
+ * information: profile→none, name→none
  */
 public class TreePath extends AbstractPath<Object> {
 
   private static final String TYPE = "TreePath";
 
-  // パス形式
+  // Path format enumeration
   public enum PathFormat {
-    JSON, // JSONPath形式 ($.prop.nested)
-    XML // XPath形式 (prop/nested)
+    JSON, // JSONPath format ($.prop.nested)
+    XML // XPath format (prop/nested)
   }
 
-  // 内部階層表現
+  // Internal hierarchical representation
   private final List<PathSegment> segments;
   private final PathFormat sourceFormat;
 
-  /** パスセグメントを表現するクラス */
+  /** Class representing a path segment */
   public static class PathSegment {
     private final String name;
-    private final Integer arrayIndex; // 配列アクセスの場合のインデックス
-    private final boolean isWildcard; // [*]の場合true
+    private final Integer arrayIndex; // Array index for array access
+    private final boolean isWildcard; // true for [*] notation
 
     public PathSegment(String name) {
       this(name, null, false);
@@ -90,33 +93,33 @@ public class TreePath extends AbstractPath<Object> {
     }
   }
 
-  // === コンストラクタ ===
+  // === Constructors ===
 
   /**
-   * JSON形式パスからTreePathを作成
+   * Creates TreePath from JSON format path
    *
-   * @param jsonPath JSON形式のパス (例: "$.user.name", "$.items[0].title")
-   * @return TreePathインスタンス
+   * @param jsonPath JSON format path (e.g., "$.user.name", "$.items[0].title")
+   * @return TreePath instance
    */
   public static TreePath fromJsonPath(String jsonPath) {
     return new TreePath(jsonPath, PathFormat.JSON);
   }
 
   /**
-   * XML形式パスからTreePathを作成
+   * Creates TreePath from XML format path
    *
-   * @param xmlPath XML形式のパス (例: "user/name", "items/item[0]/title")
-   * @return TreePathインスタンス
+   * @param xmlPath XML format path (e.g., "user/name", "items/item[0]/title")
+   * @return TreePath instance
    */
   public static TreePath fromXmlPath(String xmlPath) {
     return new TreePath(xmlPath, PathFormat.XML);
   }
 
   /**
-   * セグメントリストからTreePathを作成
+   * Creates TreePath from segment list
    *
-   * @param segments パスセグメントのリスト
-   * @return TreePathインスタンス
+   * @param segments List of path segments
+   * @return TreePath instance
    */
   public static TreePath fromSegments(List<PathSegment> segments) {
     if (segments == null || segments.isEmpty()) {
@@ -138,9 +141,9 @@ public class TreePath extends AbstractPath<Object> {
   private TreePath(String pathExpression, PathFormat format) {
     super(validateAndNormalizeTreePath(pathExpression), TYPE);
     this.sourceFormat = format;
-    // parsePathToSegmentsはstaticメソッドなので、this.pathが初期化された後に呼び出し可能
+    // parsePathToSegments is static method, can be called after this.path is initialized
     this.segments = parsePathToSegments(this.path, format);
-    // セグメント固有の検証を実行
+    // Execute segment-specific validation
     validateSegments();
   }
 
@@ -150,12 +153,12 @@ public class TreePath extends AbstractPath<Object> {
     }
 
     String trimmedPath = rawPath.trim();
-    // 空文字列は許可（XMLルートパスとして有効）
-    // JSONの場合は"$"、XMLの場合は""がルートパス
+    // Empty string is allowed (valid as XML root path)
+    // For JSON: "$", for XML: "" represents root path
     return trimmedPath;
   }
 
-  // === AbstractPath実装 ===
+  // === AbstractPath Implementation ===
 
   @Override
   protected String validateAndNormalize(String rawPath) {
@@ -164,8 +167,8 @@ public class TreePath extends AbstractPath<Object> {
 
   @Override
   public void validate() {
-    // AbstractPathのvalidateは基本的なパス文字列検証のみ
-    // セグメント固有の検証は別途validateSegments()で実行
+    // AbstractPath validate only performs basic path string validation
+    // Segment-specific validation is performed separately in validateSegments()
   }
 
   private void validateSegments() {
@@ -173,18 +176,18 @@ public class TreePath extends AbstractPath<Object> {
       throw new IllegalStateException("Segments not initialized");
     }
 
-    // 空のセグメント（ルートパス）は許可
+    // Empty segments (root path) are allowed
     if (segments.isEmpty()) {
       return;
     }
 
-    // セグメント名の妥当性チェック
+    // Validate segment names
     for (PathSegment segment : segments) {
       if (isNullOrEmpty(segment.getName())) {
         throw new IllegalArgumentException("Path segment name cannot be null or empty");
       }
 
-      // XML要素名として有効かチェック
+      // Check if valid as XML element name
       if (!isValidElementName(segment.getName())) {
         throw new IllegalArgumentException("Invalid element name: " + segment.getName());
       }
@@ -193,7 +196,7 @@ public class TreePath extends AbstractPath<Object> {
 
   @Override
   protected boolean doMatches(Object context) {
-    // コンテキストの型に応じて適切な判定を行う
+    // Perform appropriate judgment based on context type
     if (context instanceof JsonNode) {
       return matchesJsonContext((JsonNode) context);
     } else if (context instanceof List) {

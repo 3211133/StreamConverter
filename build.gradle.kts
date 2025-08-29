@@ -215,7 +215,7 @@ dependencies {
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
     
     // Database support
-    implementation("com.zaxxer:HikariCP:6.2.1")
+    implementation("com.zaxxer:HikariCP:7.0.2")
     testImplementation("com.h2database:h2:2.2.224")
     
     // Spring Boot Test

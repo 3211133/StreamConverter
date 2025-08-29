@@ -60,7 +60,7 @@ dependencies {
     implementation("com.google.guava:guava:33.4.8-jre")
     
     // Database support
-    implementation("com.zaxxer:HikariCP:6.2.1")
+    implementation("com.zaxxer:HikariCP:7.0.2")
     testImplementation("com.h2database:h2:2.2.224")
     
 

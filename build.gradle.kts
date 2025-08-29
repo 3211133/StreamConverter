@@ -207,7 +207,7 @@ dependencies {
     implementation("com.opencsv:opencsv:5.12.0")
     
     // IP address validation
-    implementation("com.google.guava:guava:33.4.0-jre")
+    implementation("com.google.guava:guava:33.4.8-jre")
     
     // JSON processing with Jackson
     implementation("com.fasterxml.jackson.core:jackson-core:2.19.2")

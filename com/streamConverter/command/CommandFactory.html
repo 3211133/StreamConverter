@@ -77,7 +77,7 @@ loadScripts(document, 'script');</script>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-28">CommandFactory</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-33">CommandFactory</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">コマンドファクトリークラス
 
@@ -153,7 +153,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createWithLogging(java.lang.Class,java.lang.Object...)">
 <h3>createWithLogging</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;T extends <a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>&gt;</span>&nbsp;<span class="return-type">T</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-42">createWithLogging</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;commandClass,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;T extends <a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>&gt;</span>&nbsp;<span class="return-type">T</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-47">createWithLogging</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;commandClass,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>...&nbsp;args)</span></div>
 <div class="block">ログ機能付きコマンドを生成</div>
 <dl class="notes">
@@ -170,7 +170,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createWithLogging(java.lang.Class,boolean,java.lang.Object...)">
 <h3>createWithLogging</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;T extends <a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>&gt;</span>&nbsp;<span class="return-type">T</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-75">createWithLogging</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;commandClass,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="type-parameters">&lt;T extends <a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>&gt;</span>&nbsp;<span class="return-type">T</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-79">createWithLogging</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Class.html" title="class or interface in java.lang" class="external-link">Class</a>&lt;T&gt;&nbsp;commandClass,
  boolean&nbsp;enableDetailedLogging,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>...&nbsp;args)</span></div>
 <div class="block">ログ機能付きコマンドを生成（詳細ログ付き）</div>
@@ -189,7 +189,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createPipelineWithLogging(com.streamConverter.command.CommandConfig...)">
 <h3>createPipelineWithLogging</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-108">createPipelineWithLogging</a></span><wbr><span class="parameters">(<a href="CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a>...&nbsp;configs)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-111">createPipelineWithLogging</a></span><wbr><span class="parameters">(<a href="CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a>...&nbsp;configs)</span></div>
 <div class="block">ログ機能付きパイプラインを生成</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -202,7 +202,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createPipelineWithDetailedLogging(com.streamConverter.command.CommandConfig...)">
 <h3>createPipelineWithDetailedLogging</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-140">createPipelineWithDetailedLogging</a></span><wbr><span class="parameters">(<a href="CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a>...&nbsp;configs)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/command/CommandFactory.html#line-143">createPipelineWithDetailedLogging</a></span><wbr><span class="parameters">(<a href="CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a>...&nbsp;configs)</span></div>
 <div class="block">パイプライン全体を詳細ログ付きで生成</div>
 <dl class="notes">
 <dt>Parameters:</dt>

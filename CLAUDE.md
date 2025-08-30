@@ -154,9 +154,9 @@ Foundation Layer   → Path handlers, utilities, security components
 
 ## Personal Insights
 
-- InputStreamを全て読み込んではならない
-- Spring WebClientは並列処理ではなく逐次処理を行うことが検証済み
-- メモリ効率テストはGCタイミングの影響で信頼性が低い場合がある
+- Do not read the entire InputStream at once
+- It has been verified that Spring WebClient performs sequential, not parallel, processing
+- Memory efficiency tests may be unreliable due to the effects of GC timing
 
 ## Development Notes
 

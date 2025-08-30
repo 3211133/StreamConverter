@@ -147,9 +147,7 @@ Foundation Layer   → Path handlers, utilities, security components
 
 ## Workflow Guidelines
 
-- When proposing workflows, output to a separate proposal directory
-- Log unexpected behavior during implementation for troubleshooting
-- Document insights: "Thought X, did Y, but Z happened, so revised understanding to A and will do B"
+- Document insights with concrete examples, e.g.: "Expected stream to process in parallel, implemented concurrent pipeline, but observed sequential execution due to thread pool limits, so adjusted configuration and updated documentation."
 - Always validate design decisions and change content appropriateness
 
 ## Personal Insights

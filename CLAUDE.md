@@ -102,7 +102,7 @@ Foundation Layer   → Path handlers, utilities, security components
 - **Data Extraction**: `CsvNavigateCommand`, `JsonNavigateCommand`, `XmlNavigateCommand`
 - **Data Transformation**: `CharacterConvertCommand`, `LineEndingNormalizeCommand`
 - **Communication**: `SendHttpCommand` (HTTP requests with Spring WebClient)
-- **Validation**: `JsonValidateCommand`, `CsvValidateCommand`, `xml.ValidateCommand`
+- **Validation**: `JsonValidateCommand`, `CsvValidateCommand`, `ValidateCommand` (XML)
 - **Filtering**: `CsvFilterCommand`, `JsonFilterCommand`, `XmlFilterCommand`
 
 ### Testing Patterns

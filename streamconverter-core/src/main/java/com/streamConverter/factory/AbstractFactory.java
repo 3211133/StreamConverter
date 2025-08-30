@@ -58,7 +58,6 @@ public abstract class AbstractFactory<T> {
    * @return created instance
    * @throws FactoryException if instance creation fails
    */
-  @SuppressWarnings("unchecked")
   protected <U extends T> U createInstance(Class<U> clazz, Object... args) throws FactoryException {
     try {
       // Try default constructor first
@@ -92,7 +91,6 @@ public abstract class AbstractFactory<T> {
    * @return best matching constructor
    * @throws NoSuchMethodException if no compatible constructor found
    */
-  @SuppressWarnings("unchecked")
   private <U extends T> Constructor<U> findBestMatchingConstructor(Class<U> clazz, Object[] args)
       throws NoSuchMethodException {
     Constructor<?>[] constructors = clazz.getDeclaredConstructors();

@@ -161,7 +161,6 @@ public class CSVPath extends AbstractPath<Integer> {
         }
       } else if (data instanceof java.util.List) {
         // リスト形式のCSVデータ処理
-        @SuppressWarnings("unchecked")
         java.util.List<String> csvRow = (java.util.List<String>) data;
         if (isIndex && columnIndex >= 0 && columnIndex < csvRow.size()) {
           if (resultType == String.class) {

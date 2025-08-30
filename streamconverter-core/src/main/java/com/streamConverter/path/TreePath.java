@@ -200,7 +200,6 @@ public class TreePath extends AbstractPath<Object> {
     if (context instanceof JsonNode) {
       return matchesJsonContext((JsonNode) context);
     } else if (context instanceof List) {
-      @SuppressWarnings("unchecked")
       List<String> xmlPath = (List<String>) context;
       return matchesXmlContext(xmlPath);
     }

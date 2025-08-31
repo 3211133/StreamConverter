@@ -33,16 +33,19 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    *
    * @param columnSelector the column name or index to select (e.g., "name", "2")
    * @param rule the transformation rule to apply to selected column
-   * @throws IllegalArgumentException if rule is null
+   * @throws IllegalArgumentException if columnSelector or rule is null
    * @deprecated Use {@link #CsvNavigateCommand(CSVPath, IRule)} instead
    */
   @Deprecated
   public CsvNavigateCommand(String columnSelector, IRule rule) {
+    if (columnSelector == null) {
+      throw new IllegalArgumentException("Column selector cannot be null");
+    }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
     this.legacyColumnSelector = columnSelector;
-    this.columnSelector = columnSelector != null ? new CSVPath(columnSelector) : null;
+    this.columnSelector = new CSVPath(columnSelector);
     this.rule = rule;
   }
 
@@ -51,14 +54,17 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    *
    * @param columnSelector the typed CSVPath to select column
    * @param rule the transformation rule to apply to selected column
-   * @throws IllegalArgumentException if rule is null
+   * @throws IllegalArgumentException if columnSelector or rule is null
    */
   public CsvNavigateCommand(CSVPath columnSelector, IRule rule) {
+    if (columnSelector == null) {
+      throw new IllegalArgumentException("Column selector cannot be null");
+    }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
     this.columnSelector = columnSelector;
-    this.legacyColumnSelector = columnSelector != null ? columnSelector.toString() : null;
+    this.legacyColumnSelector = columnSelector.toString();
     this.rule = rule;
   }
 
@@ -90,27 +96,11 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     return new CsvNavigateCommand(columnSelector, rule);
   }
 
-  /**
-   * Factory method for creating a CSV navigation command that processes all columns with explicit
-   * rule specification. This method makes the intention explicit: process all CSV data with the
-   * given transformation rule.
-   *
-   * @param rule the transformation rule to apply to all CSV data
-   * @return a CsvNavigateCommand that processes all columns with the given rule
-   * @throws IllegalArgumentException if rule is null
-   */
-  public static CsvNavigateCommand createForAll(IRule rule) {
-    return new CsvNavigateCommand((CSVPath) null, rule);
-  }
-
   @Override
   protected String getCommandDetails() {
-    String selectorInfo =
-        columnSelector != null
-            ? String.format("columnSelector='%s'", columnSelector.toString())
-            : "all columns";
     return String.format(
-        "CsvNavigateCommand(%s, rule='%s')", selectorInfo, rule.getClass().getSimpleName());
+        "CsvNavigateCommand(columnSelector='%s', rule='%s')",
+        columnSelector.toString(), rule.getClass().getSimpleName());
   }
 
   @Override
@@ -120,35 +110,9 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
             new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
 
-      if (columnSelector == null) {
-        // Apply rule to entire CSV content
-        applyRuleToEntireCsv(reader, writer);
-      } else {
-        // Apply rule to specific column while preserving structure
-        applyRuleToColumn(reader, writer);
-      }
+      // Apply rule to specific column while preserving structure
+      applyRuleToColumn(reader, writer);
     }
-  }
-
-  /** Apply transformation rule to entire CSV content using streaming approach */
-  private void applyRuleToEntireCsv(BufferedReader reader, Writer writer) throws IOException {
-    String line;
-    boolean isFirstLine = true;
-
-    // Stream through CSV lines and apply rule to each line
-    while ((line = reader.readLine()) != null) {
-      if (!isFirstLine) {
-        writer.write(System.lineSeparator());
-      }
-
-      // Apply rule to each line individually to avoid loading entire CSV
-      String transformedLine = rule.apply(line);
-      writer.write(transformedLine);
-
-      isFirstLine = false;
-    }
-
-    writer.flush();
   }
 
   /** Apply transformation rule to specific column while preserving CSV structure */

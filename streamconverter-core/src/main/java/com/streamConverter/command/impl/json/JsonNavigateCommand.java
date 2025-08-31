@@ -34,11 +34,14 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   /**
    * Constructor for JSON navigation with typed JSONPath selector and transformation rule.
    *
-   * @param jsonPath the typed JSONPath to select data (null for entire JSON processing)
+   * @param jsonPath the typed JSONPath to select data
    * @param rule the transformation rule to apply to selected elements
-   * @throws IllegalArgumentException if rule is null
+   * @throws IllegalArgumentException if jsonPath or rule is null
    */
   public JsonNavigateCommand(JSONPath jsonPath, IRule rule) {
+    if (jsonPath == null) {
+      throw new IllegalArgumentException("JSONPath cannot be null");
+    }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
@@ -59,24 +62,11 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     return new JsonNavigateCommand(jsonPath, rule);
   }
 
-  /**
-   * Factory method for creating a JSON navigation command that processes entire JSON with the given
-   * rule.
-   *
-   * @param rule the transformation rule to apply to all string values
-   * @return a JsonNavigateCommand that processes entire JSON with the given rule
-   * @throws IllegalArgumentException if rule is null
-   */
-  public static JsonNavigateCommand createForAll(IRule rule) {
-    return new JsonNavigateCommand(null, rule);
-  }
-
   @Override
   protected String getCommandDetails() {
-    String pathInfo =
-        jsonPath != null ? String.format("jsonPath='%s'", jsonPath.toString()) : "entire JSON";
     return String.format(
-        "JsonNavigateCommand(%s, rule='%s')", pathInfo, rule.getClass().getSimpleName());
+        "JsonNavigateCommand(jsonPath='%s', rule='%s')",
+        jsonPath.toString(), rule.getClass().getSimpleName());
   }
 
   @Override
@@ -93,65 +83,12 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     try (JsonParser parser = jsonFactory.createParser(inputStream);
         JsonGenerator generator = jsonFactory.createGenerator(outputStream)) {
 
-      if (jsonPath == null) {
-        // Process entire JSON stream - transform all string values
-        processEntireJsonStream(parser, generator);
-      } else {
-        // Process with JSONPath filtering - transform matching elements
-        processJsonStreamWithPath(parser, generator);
-      }
+      // Process with JSONPath filtering - transform matching elements
+      processJsonStreamWithPath(parser, generator);
 
       generator.flush();
     } catch (com.fasterxml.jackson.core.JsonParseException e) {
       handleJsonParseException(outputStream, e);
-    }
-  }
-
-  /** Process entire JSON and apply rule to all string values */
-  private void processEntireJsonStream(JsonParser parser, JsonGenerator generator)
-      throws IOException {
-    JsonToken token;
-    while ((token = parser.nextToken()) != null) {
-      switch (token) {
-        case VALUE_STRING:
-          String transformedValue = rule.apply(parser.getText());
-          generator.writeString(transformedValue);
-          break;
-        case FIELD_NAME:
-          generator.writeFieldName(parser.getCurrentName());
-          break;
-        case START_OBJECT:
-          generator.writeStartObject();
-          break;
-        case END_OBJECT:
-          generator.writeEndObject();
-          break;
-        case START_ARRAY:
-          generator.writeStartArray();
-          break;
-        case END_ARRAY:
-          generator.writeEndArray();
-          break;
-        case VALUE_NUMBER_INT:
-          generator.writeNumber(parser.getIntValue());
-          break;
-        case VALUE_NUMBER_FLOAT:
-          generator.writeNumber(parser.getDoubleValue());
-          break;
-        case VALUE_TRUE:
-          generator.writeBoolean(true);
-          break;
-        case VALUE_FALSE:
-          generator.writeBoolean(false);
-          break;
-        case VALUE_NULL:
-          generator.writeNull();
-          break;
-        default:
-          // Copy other tokens as-is
-          generator.copyCurrentEvent(parser);
-          break;
-      }
     }
   }
 
@@ -221,7 +158,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Simple path matching for streaming JSON processing */
   private boolean isMatchingPath(List<String> currentPath) {
-    if (jsonPath == null || currentPath.isEmpty()) {
+    if (currentPath.isEmpty()) {
       return false;
     }
 

@@ -80,9 +80,9 @@ public class StreamConverterDemo {
     logger.info("\n2. Extract column at index 2 (city):");
     runDemo(csvData, CsvNavigateCommand.create(new CSVPath("2"), new PassThroughRule()));
 
-    // Demo 1c: Process all columns
-    logger.info("\n3. Process all columns (formatted):");
-    runDemo(csvData, CsvNavigateCommand.createForAll(new PassThroughRule()));
+    // Demo 1c: Process name column (first column by name)
+    logger.info("\n3. Process name column:");
+    runDemo(csvData, CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -104,9 +104,9 @@ public class StreamConverterDemo {
     logger.info("\n2. Navigate to users array:");
     runDemo(jsonData, JsonNavigateCommand.create(new JSONPath("users"), new PassThroughRule()));
 
-    // Demo 2c: Format entire JSON
-    logger.info("\n3. Format entire JSON:");
-    runDemo(jsonData, JsonNavigateCommand.createForAll(new PassThroughRule()));
+    // Demo 2c: Format root JSON
+    logger.info("\n3. Format root JSON:");
+    runDemo(jsonData, JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -141,9 +141,9 @@ public class StreamConverterDemo {
     logger.info("\n2. Extract all 'user' elements:");
     runDemo(xmlData, XmlNavigateCommand.create(new XPath("users/user"), new PassThroughRule()));
 
-    // Demo 3c: Process entire XML
-    logger.info("\n3. Process entire XML:");
-    runDemo(xmlData, XmlNavigateCommand.createForAll(new PassThroughRule()));
+    // Demo 3c: Process root XML
+    logger.info("\n3. Process root XML:");
+    runDemo(xmlData, XmlNavigateCommand.create(new XPath("//users"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -160,7 +160,7 @@ public class StreamConverterDemo {
     // Demo 4: Chain JSON formatting with sample processing
     logger.info("1. JSON formatting → Sample processing:");
     IStreamCommand[] pipeline = {
-      JsonNavigateCommand.createForAll(new PassThroughRule()), // Format JSON
+      JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()), // Format JSON
       new SampleStreamCommand("formatter") // Add processing info
     };
 

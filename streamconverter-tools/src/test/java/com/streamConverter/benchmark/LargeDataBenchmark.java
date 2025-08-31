@@ -10,6 +10,7 @@ import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
+import com.streamConverter.path.CSVPath;
 import com.streamConverter.path.JSONPath;
 import com.streamConverter.path.XPath;
 import com.streamConverter.test.PlatformAdaptiveTestUtils;
@@ -801,7 +802,7 @@ class LargeDataBenchmark {
       case "JSON":
         return JsonNavigateCommand.create(new JSONPath("/orders"), new PassThroughRule());
       case "CSV":
-        return CsvNavigateCommand.createForAll(new PassThroughRule());
+        return CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule());
       default:
         return new SampleStreamCommand("generic-" + format.toLowerCase());
     }

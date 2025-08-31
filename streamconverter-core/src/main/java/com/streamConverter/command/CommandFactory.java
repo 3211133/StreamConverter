@@ -214,8 +214,8 @@ public class CommandFactory {
             com.streamConverter.command.impl.json.JsonNavigateCommand.create(
                 new com.streamConverter.path.JSONPath((String) path), defaultRule);
       } else if (args.length == 0) {
-        return (T)
-            com.streamConverter.command.impl.json.JsonNavigateCommand.createForAll(defaultRule);
+        throw new IllegalArgumentException(
+            "JsonNavigateCommand requires a JSONPath - use a dedicated transform command for entire JSON processing");
       } else {
         return null;
       }
@@ -237,8 +237,8 @@ public class CommandFactory {
             com.streamConverter.command.impl.csv.CsvNavigateCommand.create(
                 (String) path, defaultRule);
       } else if (args.length == 0) {
-        return (T)
-            com.streamConverter.command.impl.csv.CsvNavigateCommand.createForAll(defaultRule);
+        throw new IllegalArgumentException(
+            "CsvNavigateCommand requires a column selector - use a dedicated transform command for entire CSV processing");
       } else {
         return null;
       }
@@ -260,8 +260,8 @@ public class CommandFactory {
             com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
                 new com.streamConverter.path.XPath((String) path), defaultRule);
       } else if (args.length == 0) {
-        return (T)
-            com.streamConverter.command.impl.xml.XmlNavigateCommand.createForAll(defaultRule);
+        throw new IllegalArgumentException(
+            "XmlNavigateCommand requires an XPath - use a dedicated transform command for entire XML processing");
       } else {
         return null;
       }

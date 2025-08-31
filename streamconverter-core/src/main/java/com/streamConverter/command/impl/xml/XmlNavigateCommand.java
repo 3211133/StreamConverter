@@ -39,9 +39,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    *
    * @param xpath the typed XPath to select elements
    * @param rule the transformation rule to apply to selected elements
-   * @throws IllegalArgumentException if rule is null
+   * @throws IllegalArgumentException if xpath or rule is null
    */
   public XmlNavigateCommand(XPath xpath, IRule rule) {
+    if (xpath == null) {
+      throw new IllegalArgumentException("XPath cannot be null");
+    }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
@@ -61,58 +64,19 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     return new XmlNavigateCommand(xpath, rule);
   }
 
-  /**
-   * Factory method for creating an XML navigation command that processes entire XML with explicit
-   * rule specification. This method makes the intention explicit: process all XML data with the
-   * given transformation rule.
-   *
-   * @param rule the transformation rule to apply to entire XML
-   * @return an XmlNavigateCommand that processes entire XML with the given rule
-   * @throws IllegalArgumentException if rule is null
-   */
-  public static XmlNavigateCommand createForAll(IRule rule) {
-    return new XmlNavigateCommand((XPath) null, rule);
-  }
-
   @Override
   protected String getCommandDetails() {
-    if (xpath != null) {
-      return String.format("XmlNavigateCommand(xpath='%s')", xpath.toString());
-    } else {
-      return "XmlNavigateCommand(entire XML)";
-    }
+    return String.format("XmlNavigateCommand(xpath='%s')", xpath.toString());
   }
 
   @Override
   protected void executeInternal(InputStream inputStream, OutputStream outputStream)
       throws IOException {
     try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-      if (xpath == null) {
-        // Apply rule to entire XML content
-        applyRuleToEntireXml(inputStream, writer);
-      } else {
-        // Apply rule to specific XPath elements while preserving structure
-        applyRuleToXmlPath(inputStream, writer);
-      }
+      // Apply rule to specific XPath elements while preserving structure
+      applyRuleToXmlPath(inputStream, writer);
     } catch (XMLStreamException e) {
       throw new IOException("XML processing error", e);
-    }
-  }
-
-  /** Apply transformation rule to entire XML content */
-  private void applyRuleToEntireXml(InputStream inputStream, Writer writer)
-      throws IOException, XMLStreamException {
-    XMLEventReader eventReader = null;
-    XMLEventWriter eventWriter = null;
-
-    try {
-      eventReader = createXMLEventReader(inputStream);
-      eventWriter = createXMLEventWriter(writer);
-      processXmlEvents(eventReader, eventWriter, (event, data) -> rule.apply(data));
-    } catch (XMLStreamException e) {
-      handleXmlException(e);
-    } finally {
-      closeResources(eventReader, eventWriter);
     }
   }
 

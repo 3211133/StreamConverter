@@ -7,6 +7,7 @@ import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.path.CSVPath;
+import com.streamConverter.path.JSONPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -98,14 +99,15 @@ public class PerformanceOptimizationExamples {
     // Single command processing
     long startTime = System.currentTimeMillis();
     logger.info("🔄 Single command processing...");
-    processDataWithTiming(jsonData, JsonNavigateCommand.createForAll(new PassThroughRule()));
+    processDataWithTiming(
+        jsonData, JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()));
     long singleTime = System.currentTimeMillis() - startTime;
 
     // Pipeline processing (demonstrates concurrent execution)
     startTime = System.currentTimeMillis();
     logger.info("\n🔄 Pipeline processing (concurrent)...");
     IStreamCommand[] pipeline = {
-      JsonNavigateCommand.createForAll(new PassThroughRule()),
+      JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()),
       new SampleStreamCommand("stage1"),
       new SampleStreamCommand("stage2")
     };

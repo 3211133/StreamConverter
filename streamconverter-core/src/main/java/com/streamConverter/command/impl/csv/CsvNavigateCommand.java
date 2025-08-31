@@ -244,22 +244,14 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     return -1;
   }
 
-  /** Resolve column index using CSVPath */
+  /** Resolve column index using CSVPath matches() method */
   private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
-    String selector = csvPath.toString();
-
-    // Try to parse as numeric index first
-    try {
-      int index = Integer.parseInt(selector);
-      return (index >= 0 && index < headers.length) ? index : -1;
-    } catch (NumberFormatException e) {
-      // Not numeric, treat as column name
-      for (int i = 0; i < headers.length; i++) {
-        if (headers[i].trim().equalsIgnoreCase(selector.trim())) {
-          return i;
-        }
+    // Use matches() method to check each column
+    for (int i = 0; i < headers.length; i++) {
+      if (csvPath.matches(headers, i)) {
+        return i;
       }
-      return -1;
     }
+    return -1; // Not found
   }
 }

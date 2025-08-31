@@ -55,6 +55,26 @@ public class CSVPath extends AbstractPath<Integer> {
     return false;
   }
 
+  /**
+   * 列ヘッダー配列との一致判定
+   *
+   * @param headers CSV列ヘッダー配列
+   * @param targetIndex 対象列のインデックス
+   * @return 一致する場合true
+   */
+  public boolean matches(String[] headers, int targetIndex) {
+    if (headers == null || targetIndex < 0 || targetIndex >= headers.length) {
+      return false;
+    }
+
+    if (isIndex) {
+      return this.columnIndex == targetIndex;
+    } else {
+      // 列名での一致判定
+      return headers[targetIndex].trim().equalsIgnoreCase(selector.trim());
+    }
+  }
+
   /** 文字列が数値インデックスかどうかを判定 */
   private static int parseAsIndex(String selector) {
     if (selector == null || selector.isEmpty()) {

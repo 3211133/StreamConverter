@@ -248,14 +248,17 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     List<Integer> indices = new ArrayList<>();
 
     for (CSVPath selector : selectors) {
-      String selectorStr = selector.toString();
-      try {
-        int index = Integer.parseInt(selectorStr);
-        if (index < 0 || index >= totalColumns) {
-          throw new IllegalArgumentException("Column index out of range: " + selector.toString());
+      // Try to find matching column index using matches()
+      boolean found = false;
+      for (int i = 0; i < totalColumns; i++) {
+        if (selector.matches(i)) {
+          indices.add(i);
+          found = true;
+          break;
         }
-        indices.add(index);
-      } catch (NumberFormatException e) {
+      }
+
+      if (!found) {
         throw new IllegalArgumentException(
             "Column selector must be numeric when no header: " + selector.toString());
       }
@@ -329,22 +332,14 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     }
   }
 
-  /** Resolve column index using CSVPath */
+  /** Resolve column index using CSVPath matches() method */
   private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
-    String selector = csvPath.toString();
-
-    // Try to parse as numeric index first
-    try {
-      int index = Integer.parseInt(selector);
-      return (index >= 0 && index < headers.length) ? index : -1;
-    } catch (NumberFormatException e) {
-      // Not numeric, treat as column name
-      for (int i = 0; i < headers.length; i++) {
-        if (headers[i].trim().equalsIgnoreCase(selector.trim())) {
-          return i;
-        }
+    // Use matches() method to check each column
+    for (int i = 0; i < headers.length; i++) {
+      if (csvPath.matches(headers, i)) {
+        return i;
       }
-      return -1;
     }
+    return -1; // Not found
   }
 }

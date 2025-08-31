@@ -133,9 +133,6 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @return extracted value as JSON string
    */
   private String extractJsonValue(String jsonContent, String path) {
-    System.out.println("Extracting from path: " + path);
-    System.out.println("JSON content: " + jsonContent);
-
     // Handle root path
     if ("$".equals(path)) {
       return jsonContent.trim();
@@ -144,13 +141,11 @@ public class JsonFilterCommand extends AbstractStreamCommand {
     // Simple property extraction: $.property
     if (path.startsWith("$.") && !path.contains("[") && path.indexOf(".", 2) == -1) {
       String property = path.substring(2);
-      System.out.println("Extracting property: " + property);
       return extractSimpleProperty(jsonContent, property);
     }
 
     // For complex paths, return the original content for now
     // In a full implementation, you would add array indexing, nested properties, etc.
-    System.out.println("Returning full content for complex path");
     return jsonContent.trim();
   }
 

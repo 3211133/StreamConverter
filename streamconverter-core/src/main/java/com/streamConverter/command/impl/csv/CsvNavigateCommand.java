@@ -246,13 +246,16 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
 
   /** Resolve column index using CSVPath */
   private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
-    if (csvPath.isIndexBased()) {
-      return csvPath.getColumnIndex();
-    } else {
-      // Find column by name
-      String columnName = csvPath.getColumnName();
+    String selector = csvPath.toString();
+
+    // Try to parse as numeric index first
+    try {
+      int index = Integer.parseInt(selector);
+      return (index >= 0 && index < headers.length) ? index : -1;
+    } catch (NumberFormatException e) {
+      // Not numeric, treat as column name
       for (int i = 0; i < headers.length; i++) {
-        if (headers[i].trim().equalsIgnoreCase(columnName.trim())) {
+        if (headers[i].trim().equalsIgnoreCase(selector.trim())) {
           return i;
         }
       }

@@ -69,21 +69,6 @@ public class CSVPath extends AbstractPath<Integer> {
     }
   }
 
-  /** 列名を取得（列名指定の場合） */
-  public String getColumnName() {
-    return isIndex ? null : selector;
-  }
-
-  /** 列インデックスを取得（インデックス指定の場合） */
-  public int getColumnIndex() {
-    return columnIndex;
-  }
-
-  /** インデックス指定かどうかを判定 */
-  public boolean isIndexBased() {
-    return isIndex;
-  }
-
   @Override
   public String toString() {
     return selector;

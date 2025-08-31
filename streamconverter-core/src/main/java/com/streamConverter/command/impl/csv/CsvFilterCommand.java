@@ -248,16 +248,17 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     List<Integer> indices = new ArrayList<>();
 
     for (CSVPath selector : selectors) {
-      if (!selector.isIndexBased()) {
+      String selectorStr = selector.toString();
+      try {
+        int index = Integer.parseInt(selectorStr);
+        if (index < 0 || index >= totalColumns) {
+          throw new IllegalArgumentException("Column index out of range: " + selector.toString());
+        }
+        indices.add(index);
+      } catch (NumberFormatException e) {
         throw new IllegalArgumentException(
             "Column selector must be numeric when no header: " + selector.toString());
       }
-
-      int index = selector.getColumnIndex();
-      if (index < 0 || index >= totalColumns) {
-        throw new IllegalArgumentException("Column index out of range: " + selector.toString());
-      }
-      indices.add(index);
     }
 
     return indices;
@@ -330,13 +331,16 @@ public class CsvFilterCommand extends AbstractStreamCommand {
 
   /** Resolve column index using CSVPath */
   private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
-    if (csvPath.isIndexBased()) {
-      return csvPath.getColumnIndex();
-    } else {
-      // Find column by name
-      String columnName = csvPath.getColumnName();
+    String selector = csvPath.toString();
+
+    // Try to parse as numeric index first
+    try {
+      int index = Integer.parseInt(selector);
+      return (index >= 0 && index < headers.length) ? index : -1;
+    } catch (NumberFormatException e) {
+      // Not numeric, treat as column name
       for (int i = 0; i < headers.length; i++) {
-        if (headers[i].trim().equalsIgnoreCase(columnName.trim())) {
+        if (headers[i].trim().equalsIgnoreCase(selector.trim())) {
           return i;
         }
       }

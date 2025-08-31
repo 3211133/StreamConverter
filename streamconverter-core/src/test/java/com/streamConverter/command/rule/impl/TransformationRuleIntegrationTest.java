@@ -23,8 +23,7 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"userName\": \"john_doe\", \"firstName\": \"John\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.userName"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.userName"), CamelToSnakeCaseRule.create());
 
     String result = executeCommand(command, inputJson);
     assertEquals("john_doe", result.trim());
@@ -35,8 +34,7 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"user_name\": \"john_doe\", \"first_name\": \"John\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.user_name"), SnakeToCamelCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.user_name"), SnakeToCamelCaseRule.create());
 
     String result = executeCommand(command, inputJson);
     assertEquals("johnDoe", result.trim());
@@ -47,7 +45,7 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"user_name\": \"hello_world\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
+        JsonNavigateCommand.create(
             new JSONPath("$.user_name"), SnakeToCamelCaseRule.createPascalCase());
 
     String result = executeCommand(command, inputJson);
@@ -66,8 +64,7 @@ class TransformationRuleIntegrationTest {
             .addRule(new LowerCaseRule())
             .build();
 
-    IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(new JSONPath("$.fieldName"), chainRule);
+    IStreamCommand command = JsonNavigateCommand.create(new JSONPath("$.fieldName"), chainRule);
 
     String result = executeCommand(command, inputJson);
     assertEquals("xml_http_request", result.trim());
@@ -83,8 +80,7 @@ class TransformationRuleIntegrationTest {
             new TrimRule(),
             CamelToSnakeCaseRule.builder().handleAcronyms(true).preserveUnderscores(false).build());
 
-    IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(new JSONPath("$.userAccountID"), chainRule);
+    IStreamCommand command = JsonNavigateCommand.create(new JSONPath("$.userAccountID"), chainRule);
 
     String result = executeCommand(command, inputJson);
     assertEquals("my_complex_variable_name", result.trim());
@@ -98,8 +94,7 @@ class TransformationRuleIntegrationTest {
     ChainRule roundTrip =
         ChainRule.of(CamelToSnakeCaseRule.create(), SnakeToCamelCaseRule.create());
 
-    IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(new JSONPath("$.original"), roundTrip);
+    IStreamCommand command = JsonNavigateCommand.create(new JSONPath("$.original"), roundTrip);
 
     String result = executeCommand(command, inputJson);
     assertEquals("userName", result.trim());
@@ -111,15 +106,13 @@ class TransformationRuleIntegrationTest {
 
     // Process firstName field
     IStreamCommand command1 =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.firstName"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.firstName"), CamelToSnakeCaseRule.create());
     String result1 = executeCommand(command1, inputJson);
     assertEquals("john", result1.trim()); // CamelToSnakeCaseRule always converts to lowercase
 
     // Process lastName field
     IStreamCommand command2 =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.lastName"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.lastName"), CamelToSnakeCaseRule.create());
     String result2 = executeCommand(command2, inputJson);
     assertEquals("doe", result2.trim()); // CamelToSnakeCaseRule always converts to lowercase
   }
@@ -129,8 +122,7 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"field\": null}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.field"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.field"), CamelToSnakeCaseRule.create());
 
     // Should handle null gracefully
     String result = executeCommand(command, inputJson);
@@ -142,8 +134,7 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"existing\": \"value\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.nonExistent"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.nonExistent"), CamelToSnakeCaseRule.create());
 
     String result = executeCommand(command, inputJson);
     // JsonPath returns empty when field doesn't exist

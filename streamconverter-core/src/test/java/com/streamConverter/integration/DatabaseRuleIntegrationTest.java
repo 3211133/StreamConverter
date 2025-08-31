@@ -104,8 +104,6 @@ class DatabaseRuleIntegrationTest {
 
   @Test
   @DisplayName("JSON内のユーザーIDを名前に変換")
-  @org.junit.jupiter.api.Disabled(
-      "JsonNavigateCommand changed behavior - preserves structure instead of extracting values")
   void testJsonUserIdToNameConversion() throws IOException {
     // DatabaseFetchRuleの作成
     DatabaseFetchRule dbRule = new DatabaseFetchRule(DB_URL, "SELECT name FROM users WHERE id = ?");
@@ -178,8 +176,6 @@ class DatabaseRuleIntegrationTest {
 
   @Test
   @DisplayName("存在しないIDの処理")
-  @org.junit.jupiter.api.Disabled(
-      "JsonNavigateCommand changed behavior - preserves structure instead of extracting values")
   void testNonExistentIdHandling() throws IOException {
     // DatabaseFetchRuleの作成
     DatabaseFetchRule dbRule = new DatabaseFetchRule(DB_URL, "SELECT name FROM users WHERE id = ?");
@@ -213,8 +209,6 @@ class DatabaseRuleIntegrationTest {
 
   @Test
   @DisplayName("複数レコードのバッチ処理")
-  @org.junit.jupiter.api.Disabled(
-      "JsonNavigateCommand changed behavior - preserves structure instead of extracting values")
   void testMultipleRecordBatchProcessing() throws IOException {
     // DatabaseFetchRuleの作成
     DatabaseFetchRule dbRule =
@@ -252,8 +246,6 @@ class DatabaseRuleIntegrationTest {
 
   @Test
   @DisplayName("数値データの処理")
-  @org.junit.jupiter.api.Disabled(
-      "JsonNavigateCommand changed behavior - preserves structure instead of extracting values")
   void testNumericDataProcessing() throws IOException {
     // DatabaseFetchRuleの作成（価格を取得）
     DatabaseFetchRule dbRule =

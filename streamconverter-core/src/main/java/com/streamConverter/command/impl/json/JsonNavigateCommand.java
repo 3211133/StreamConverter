@@ -160,38 +160,46 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
       throws IOException {
     List<String> currentPath = new ArrayList<>();
     JsonToken token;
-    boolean inTargetPath = false;
 
     while ((token = parser.nextToken()) != null) {
       switch (token) {
         case FIELD_NAME:
           String fieldName = parser.getCurrentName();
-          currentPath.add(fieldName);
 
-          // Check if we've reached the target JSONPath
-          inTargetPath = isMatchingPath(currentPath);
+          // Reset path for new field at current level
+          if (!currentPath.isEmpty() && currentPath.size() > 1) {
+            // Remove previous sibling field from path
+            currentPath.set(currentPath.size() - 1, fieldName);
+          } else {
+            // Clear and add current field
+            currentPath.clear();
+            currentPath.add(fieldName);
+          }
 
           generator.writeFieldName(fieldName);
           break;
 
         case VALUE_STRING:
+          String originalValue = parser.getText();
+          boolean inTargetPath = isMatchingPath(currentPath);
           if (inTargetPath) {
-            String transformedValue = rule.apply(parser.getText());
+            String transformedValue = rule.apply(originalValue);
             generator.writeString(transformedValue);
           } else {
-            generator.writeString(parser.getText());
+            generator.writeString(originalValue);
           }
           break;
 
         case START_OBJECT:
           generator.writeStartObject();
+          // Don't modify path on object start
           break;
 
         case END_OBJECT:
           generator.writeEndObject();
-          if (!currentPath.isEmpty()) {
+          // Remove one level from path
+          if (currentPath.size() > 1) {
             currentPath.remove(currentPath.size() - 1);
-            inTargetPath = !currentPath.isEmpty() && isMatchingPath(currentPath);
           }
           break;
 
@@ -221,7 +229,8 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     if (currentPath.size() == 1) {
       com.fasterxml.jackson.databind.node.ObjectNode testNode = objectMapper.createObjectNode();
       testNode.put(currentPath.get(0), "test");
-      return jsonPath.matches(testNode);
+      boolean matches = jsonPath.matches(testNode);
+      return matches;
     }
 
     return false;

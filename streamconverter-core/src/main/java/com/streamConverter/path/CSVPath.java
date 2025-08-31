@@ -13,64 +13,7 @@ import java.util.List;
  */
 public class CSVPath extends AbstractPath<Integer> {
 
-  private final List<SingleSelector> selectors;
-
-  /** 内部セレクター表現 */
-  private static class SingleSelector {
-    private final String selector;
-    private final boolean isIndex;
-    private final int columnIndex;
-
-    SingleSelector(String selector) {
-      this.selector = selector.trim();
-      int parsedIndex = parseAsIndex(this.selector);
-      if (parsedIndex >= 0) {
-        this.isIndex = true;
-        this.columnIndex = parsedIndex;
-      } else {
-        this.isIndex = false;
-        this.columnIndex = -1;
-      }
-    }
-
-    private static int parseAsIndex(String selector) {
-      if (selector == null || selector.isEmpty()) {
-        return -1;
-      }
-      try {
-        int index = Integer.parseInt(selector);
-        return index >= 0 ? index : -1;
-      } catch (NumberFormatException e) {
-        return -1;
-      }
-    }
-
-    boolean matches(Integer columnIndex) {
-      if (columnIndex == null || columnIndex < 0) {
-        return false;
-      }
-      if (isIndex) {
-        return this.columnIndex == columnIndex;
-      }
-      return false;
-    }
-
-    boolean matches(String[] headers, int targetIndex) {
-      if (headers == null || targetIndex < 0 || targetIndex >= headers.length) {
-        return false;
-      }
-      if (isIndex) {
-        return this.columnIndex == targetIndex;
-      } else {
-        return headers[targetIndex].trim().equalsIgnoreCase(selector.trim());
-      }
-    }
-
-    @Override
-    public String toString() {
-      return selector;
-    }
-  }
+  private final List<String> selectors;
 
   /**
    * 単一セレクターでCSVPathを作成
@@ -80,7 +23,7 @@ public class CSVPath extends AbstractPath<Integer> {
    */
   public CSVPath(String selector) {
     super(selector);
-    this.selectors = Collections.singletonList(new SingleSelector(selector));
+    this.selectors = Collections.singletonList(selector.trim());
   }
 
   /**
@@ -94,9 +37,9 @@ public class CSVPath extends AbstractPath<Integer> {
     if (selectorList == null || selectorList.isEmpty()) {
       throw new IllegalArgumentException("Selector list cannot be null or empty");
     }
-    List<SingleSelector> temp = new ArrayList<>();
+    List<String> temp = new ArrayList<>();
     for (String sel : selectorList) {
-      temp.add(new SingleSelector(sel));
+      temp.add(sel.trim());
     }
     this.selectors = Collections.unmodifiableList(temp);
   }
@@ -110,9 +53,13 @@ public class CSVPath extends AbstractPath<Integer> {
 
   @Override
   public boolean matches(Integer columnIndex) {
+    if (columnIndex == null || columnIndex < 0) {
+      return false;
+    }
+
     // OR条件：いずれかのセレクターがマッチすればtrue
-    for (SingleSelector selector : selectors) {
-      if (selector.matches(columnIndex)) {
+    for (String selector : selectors) {
+      if (matchesSingleSelector(selector, columnIndex)) {
         return true;
       }
     }
@@ -127,9 +74,13 @@ public class CSVPath extends AbstractPath<Integer> {
    * @return いずれかのセレクターが一致する場合true
    */
   public boolean matches(String[] headers, int targetIndex) {
+    if (headers == null || targetIndex < 0 || targetIndex >= headers.length) {
+      return false;
+    }
+
     // OR条件：いずれかのセレクターがマッチすればtrue
-    for (SingleSelector selector : selectors) {
-      if (selector.matches(headers, targetIndex)) {
+    for (String selector : selectors) {
+      if (matchesSingleSelector(selector, headers, targetIndex)) {
         return true;
       }
     }
@@ -173,14 +124,46 @@ public class CSVPath extends AbstractPath<Integer> {
     return matchingIndices;
   }
 
+  /** 単一セレクターの列インデックス一致判定 */
+  private boolean matchesSingleSelector(String selector, Integer columnIndex) {
+    int parsedIndex = parseAsIndex(selector);
+    if (parsedIndex >= 0) {
+      return parsedIndex == columnIndex;
+    }
+    return false; // 列名指定はヘッダー情報が必要
+  }
+
+  /** 単一セレクターのヘッダー一致判定 */
+  private boolean matchesSingleSelector(String selector, String[] headers, int targetIndex) {
+    int parsedIndex = parseAsIndex(selector);
+    if (parsedIndex >= 0) {
+      // インデックス指定の場合
+      return parsedIndex == targetIndex;
+    } else {
+      // 列名指定の場合
+      return headers[targetIndex].trim().equalsIgnoreCase(selector.trim());
+    }
+  }
+
+  /** 文字列が数値インデックスかどうかを判定 */
+  private static int parseAsIndex(String selector) {
+    if (selector == null || selector.isEmpty()) {
+      return -1;
+    }
+    try {
+      int index = Integer.parseInt(selector.trim());
+      return index >= 0 ? index : -1;
+    } catch (NumberFormatException e) {
+      return -1;
+    }
+  }
+
   @Override
   public String toString() {
     if (selectors.size() == 1) {
-      return selectors.get(0).toString();
+      return selectors.get(0);
     } else {
-      return selectors.stream()
-          .map(SingleSelector::toString)
-          .collect(java.util.stream.Collectors.joining(","));
+      return String.join(",", selectors);
     }
   }
 }

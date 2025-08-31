@@ -28,10 +28,11 @@ import java.util.stream.Collectors;
  */
 public class CsvFilterCommand extends AbstractStreamCommand {
 
-  private final List<CSVPath> columnSelectors;
+  private final CSVPath combinedSelector;
   private final boolean hasHeader;
 
   // Deprecated fields for backward compatibility
+  @Deprecated private final List<CSVPath> columnSelectors;
   @Deprecated private final List<String> legacyColumnSelectors;
 
   /**
@@ -47,8 +48,9 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     if (columnSelector == null || columnSelector.trim().isEmpty()) {
       throw new IllegalArgumentException("Column selector cannot be null or empty");
     }
+    this.combinedSelector = new CSVPath(columnSelector.trim());
     this.legacyColumnSelectors = Arrays.asList(columnSelector.trim());
-    this.columnSelectors = Arrays.asList(new CSVPath(columnSelector.trim()));
+    this.columnSelectors = Arrays.asList(this.combinedSelector); // For backward compatibility
     this.hasHeader = hasHeader;
   }
 
@@ -63,7 +65,8 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     if (columnSelector == null) {
       throw new IllegalArgumentException("Column selector cannot be null");
     }
-    this.columnSelectors = Arrays.asList(columnSelector);
+    this.combinedSelector = columnSelector;
+    this.columnSelectors = Arrays.asList(columnSelector); // For backward compatibility
     this.legacyColumnSelectors = Arrays.asList(columnSelector.toString());
     this.hasHeader = hasHeader;
   }
@@ -81,8 +84,12 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     if (columnSelectors == null || columnSelectors.isEmpty()) {
       throw new IllegalArgumentException("Column selectors cannot be null or empty");
     }
+    this.combinedSelector = new CSVPath(columnSelectors); // Use multi-selector constructor
     this.legacyColumnSelectors = new ArrayList<>(columnSelectors);
-    this.columnSelectors = columnSelectors.stream().map(CSVPath::new).collect(Collectors.toList());
+    this.columnSelectors =
+        columnSelectors.stream()
+            .map(CSVPath::new)
+            .collect(Collectors.toList()); // For backward compatibility
     this.hasHeader = hasHeader;
   }
 
@@ -97,9 +104,12 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     if (columnSelectors == null || columnSelectors.isEmpty()) {
       throw new IllegalArgumentException("Column selectors cannot be null or empty");
     }
-    this.columnSelectors = new ArrayList<>(columnSelectors);
-    this.legacyColumnSelectors =
+    // Combine multiple CSVPath objects into one with multiple selectors
+    List<String> selectorStrings =
         columnSelectors.stream().map(CSVPath::toString).collect(Collectors.toList());
+    this.combinedSelector = new CSVPath(selectorStrings);
+    this.columnSelectors = new ArrayList<>(columnSelectors); // For backward compatibility
+    this.legacyColumnSelectors = selectorStrings;
     this.hasHeader = hasHeader;
   }
 
@@ -160,9 +170,8 @@ public class CsvFilterCommand extends AbstractStreamCommand {
 
   @Override
   protected String getCommandDetails() {
-    List<String> selectorPaths =
-        columnSelectors.stream().map(CSVPath::toString).collect(Collectors.toList());
-    return String.format("CsvFilterCommand(columns=%s, hasHeader=%s)", selectorPaths, hasHeader);
+    return String.format(
+        "CsvFilterCommand(columns=%s, hasHeader=%s)", combinedSelector.toString(), hasHeader);
   }
 
   @Override
@@ -188,14 +197,14 @@ public class CsvFilterCommand extends AbstractStreamCommand {
       if (hasHeader) {
         headers = firstRowFields;
         // Map column selectors to indices
-        columnIndices = mapColumnSelectorsToIndices(columnSelectors, headers);
+        columnIndices = mapColumnSelectorsToIndices(combinedSelector, headers);
 
         // Write filtered header
         writeFilteredRow(writer, firstRowFields, columnIndices);
         writer.write(System.lineSeparator());
       } else {
         // No header - column selectors must be numeric indices
-        columnIndices = parseNumericColumnSelectors(columnSelectors, firstRowFields.length);
+        columnIndices = parseNumericColumnSelectors(combinedSelector, firstRowFields.length);
 
         // Write filtered first data row
         writeFilteredRow(writer, firstRowFields, columnIndices);
@@ -215,55 +224,35 @@ public class CsvFilterCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Map column selectors to column indices
+   * Map column selectors to column indices using Don't Ask Tell pattern
    *
-   * @param selectors list of column names or indices
+   * @param csvPath the CSV path containing multiple selectors
    * @param headers array of header names
    * @return list of column indices
-   * @throws IllegalArgumentException if column not found
+   * @throws IllegalArgumentException if no columns found
    */
-  private List<Integer> mapColumnSelectorsToIndices(List<CSVPath> selectors, String[] headers) {
-    List<Integer> indices = new ArrayList<>();
-
-    for (CSVPath selector : selectors) {
-      int index = resolveColumnIndex(headers, selector);
-      if (index == -1) {
-        throw new IllegalArgumentException("Column not found: " + selector.toString());
-      }
-      indices.add(index);
+  private List<Integer> mapColumnSelectorsToIndices(CSVPath csvPath, String[] headers) {
+    List<Integer> indices = csvPath.findMatchingIndices(headers);
+    if (indices.isEmpty()) {
+      throw new IllegalArgumentException("No columns found for selector: " + csvPath.toString());
     }
-
     return indices;
   }
 
   /**
-   * Parse numeric column selectors when no header exists
+   * Parse numeric column selectors when no header exists using Don't Ask Tell pattern
    *
-   * @param selectors list of column indices as strings
+   * @param csvPath the CSV path containing column selectors
    * @param totalColumns total number of columns available
    * @return list of column indices
-   * @throws IllegalArgumentException if index is invalid
+   * @throws IllegalArgumentException if no valid indices found
    */
-  private List<Integer> parseNumericColumnSelectors(List<CSVPath> selectors, int totalColumns) {
-    List<Integer> indices = new ArrayList<>();
-
-    for (CSVPath selector : selectors) {
-      // Try to find matching column index using matches()
-      boolean found = false;
-      for (int i = 0; i < totalColumns; i++) {
-        if (selector.matches(i)) {
-          indices.add(i);
-          found = true;
-          break;
-        }
-      }
-
-      if (!found) {
-        throw new IllegalArgumentException(
-            "Column selector must be numeric when no header: " + selector.toString());
-      }
+  private List<Integer> parseNumericColumnSelectors(CSVPath csvPath, int totalColumns) {
+    List<Integer> indices = csvPath.findMatchingIndices(totalColumns);
+    if (indices.isEmpty()) {
+      throw new IllegalArgumentException(
+          "Column selector must be numeric when no header: " + csvPath.toString());
     }
-
     return indices;
   }
 
@@ -330,16 +319,5 @@ public class CsvFilterCommand extends AbstractStreamCommand {
         writer.write("");
       }
     }
-  }
-
-  /** Resolve column index using CSVPath matches() method */
-  private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
-    // Use matches() method to check each column
-    for (int i = 0; i < headers.length; i++) {
-      if (csvPath.matches(headers, i)) {
-        return i;
-      }
-    }
-    return -1; // Not found
   }
 }

@@ -54,7 +54,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    *
    * @param xpath the typed XPath to select elements
    * @param rule the transformation rule to apply to selected elements
-   * @return an XmlNavigateCommand that extracts the specified XPath with the given rule
+   * @return an XmlNavigateCommand that transforms the specified XPath elements with the given rule
    * @throws IllegalArgumentException if rule is null
    */
   public static XmlNavigateCommand create(XPath xpath, IRule rule) {

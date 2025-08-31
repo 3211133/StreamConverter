@@ -59,12 +59,12 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("JSONPath cannot be null");
     }
     this.jsonPath = jsonPath;
-    this.legacyJsonPath = jsonPath.getPath();
+    this.legacyJsonPath = jsonPath.toString();
   }
 
   @Override
   protected String getCommandDetails() {
-    return String.format("JsonFilterCommand(jsonPath='%s')", jsonPath.getPath());
+    return String.format("JsonFilterCommand(jsonPath='%s')", jsonPath.toString());
   }
 
   @Override
@@ -85,7 +85,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
 
       try {
         // Apply simple JSONPath-like extraction using lightweight parsing
-        String result = extractJsonValue(jsonContent, jsonPath.getPath());
+        String result = extractJsonValue(jsonContent, jsonPath.toString());
         writer.write(result);
         writer.flush();
 
@@ -133,6 +133,9 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @return extracted value as JSON string
    */
   private String extractJsonValue(String jsonContent, String path) {
+    System.out.println("Extracting from path: " + path);
+    System.out.println("JSON content: " + jsonContent);
+
     // Handle root path
     if ("$".equals(path)) {
       return jsonContent.trim();
@@ -141,11 +144,13 @@ public class JsonFilterCommand extends AbstractStreamCommand {
     // Simple property extraction: $.property
     if (path.startsWith("$.") && !path.contains("[") && path.indexOf(".", 2) == -1) {
       String property = path.substring(2);
+      System.out.println("Extracting property: " + property);
       return extractSimpleProperty(jsonContent, property);
     }
 
     // For complex paths, return the original content for now
     // In a full implementation, you would add array indexing, nested properties, etc.
+    System.out.println("Returning full content for complex path");
     return jsonContent.trim();
   }
 

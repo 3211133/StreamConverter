@@ -58,7 +58,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("Rule cannot be null");
     }
     this.columnSelector = columnSelector;
-    this.legacyColumnSelector = columnSelector != null ? columnSelector.getPath() : null;
+    this.legacyColumnSelector = columnSelector != null ? columnSelector.toString() : null;
     this.rule = rule;
   }
 
@@ -107,7 +107,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
   protected String getCommandDetails() {
     String selectorInfo =
         columnSelector != null
-            ? String.format("columnSelector='%s'", columnSelector.getPath())
+            ? String.format("columnSelector='%s'", columnSelector.toString())
             : "all columns";
     return String.format(
         "CsvNavigateCommand(%s, rule='%s')", selectorInfo, rule.getClass().getSimpleName());
@@ -161,9 +161,9 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     String[] headers = parseCSVLine(headerLine);
 
     // Determine column index if selector is provided
-    columnIndex = columnSelector.resolveIndex(headers);
+    columnIndex = resolveColumnIndex(headers, columnSelector);
     if (columnIndex == -1) {
-      throw new IllegalArgumentException("Column not found: " + columnSelector.getPath());
+      throw new IllegalArgumentException("Column not found: " + columnSelector.toString());
     }
 
     // Write header (unchanged)
@@ -242,5 +242,21 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     }
 
     return -1;
+  }
+
+  /** Resolve column index using CSVPath */
+  private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
+    if (csvPath.isIndexBased()) {
+      return csvPath.getColumnIndex();
+    } else {
+      // Find column by name
+      String columnName = csvPath.getColumnName();
+      for (int i = 0; i < headers.length; i++) {
+        if (headers[i].trim().equalsIgnoreCase(columnName.trim())) {
+          return i;
+        }
+      }
+      return -1;
+    }
   }
 }

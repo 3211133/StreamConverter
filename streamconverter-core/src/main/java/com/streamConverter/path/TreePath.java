@@ -34,6 +34,7 @@ public class TreePath extends AbstractPath<Object> {
   // Internal hierarchical representation
   private final List<PathSegment> segments;
   private final PathFormat sourceFormat;
+  private final String originalPath;
 
   /** Class representing a path segment */
   public static class PathSegment {
@@ -139,10 +140,11 @@ public class TreePath extends AbstractPath<Object> {
   }
 
   private TreePath(String pathExpression, PathFormat format) {
-    super(validateAndNormalizeTreePath(pathExpression), TYPE);
+    super(pathExpression);
+    this.originalPath = pathExpression;
     this.sourceFormat = format;
     // parsePathToSegments is static method, can be called after this.path is initialized
-    this.segments = parsePathToSegments(this.path, format);
+    this.segments = parsePathToSegments(pathExpression, format);
     // Execute segment-specific validation
     validateSegments();
   }
@@ -161,14 +163,28 @@ public class TreePath extends AbstractPath<Object> {
   // === AbstractPath Implementation ===
 
   @Override
-  protected String validateAndNormalize(String rawPath) {
-    return validateAndNormalizeTreePath(rawPath);
+  protected void validateAndNormalize(String rawPath) {
+    if (rawPath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
+    }
   }
 
   @Override
-  public void validate() {
-    // AbstractPath validate only performs basic path string validation
-    // Segment-specific validation is performed separately in validateSegments()
+  public boolean matches(Object context) {
+    if (context == null) {
+      return false;
+    }
+
+    // Basic matching based on context type
+    if (context instanceof com.fasterxml.jackson.databind.JsonNode) {
+      return matchesJsonContext((com.fasterxml.jackson.databind.JsonNode) context);
+    } else if (context instanceof java.util.List) {
+      @SuppressWarnings("unchecked")
+      java.util.List<String> xmlPath = (java.util.List<String>) context;
+      return matchesXmlContext(xmlPath);
+    }
+
+    return false;
   }
 
   private void validateSegments() {
@@ -194,44 +210,9 @@ public class TreePath extends AbstractPath<Object> {
     }
   }
 
-  @Override
-  protected boolean doMatches(Object context) {
-    // Perform appropriate judgment based on context type
-    if (context instanceof JsonNode) {
-      return matchesJsonContext((JsonNode) context);
-    } else if (context instanceof List) {
-      @SuppressWarnings("unchecked")
-      List<String> xmlPath = (List<String>) context;
-      return matchesXmlContext(xmlPath);
-    }
-    return false;
-  }
+  // Removed old doMatches method following simplified design
 
-  @Override
-  protected <R> Optional<R> doExtract(Object data, Class<R> resultType) {
-    validateResultType(resultType);
-
-    // データ型に応じて適切な抽出処理を実行
-    if (data instanceof JsonNode) {
-      return extractFromJson((JsonNode) data, resultType);
-    } else if (data instanceof org.w3c.dom.Document) {
-      return extractFromXml((org.w3c.dom.Document) data, resultType);
-    }
-
-    return Optional.empty();
-  }
-
-  @Override
-  protected <R> Stream<R> doExtractAll(Object data, Class<R> resultType) {
-    validateResultType(resultType);
-
-    // 配列/リスト抽出の実装
-    if (data instanceof JsonNode) {
-      return extractAllFromJson((JsonNode) data, resultType);
-    }
-
-    return Stream.empty();
-  }
+  // Removed complex extraction methods following simplified design
 
   // === パス形式変換機能 ===
 
@@ -265,7 +246,7 @@ public class TreePath extends AbstractPath<Object> {
       case XML:
         return toXmlPath();
       default:
-        return getPath();
+        return toString();
     }
   }
 
@@ -566,9 +547,7 @@ public class TreePath extends AbstractPath<Object> {
 
   @Override
   public String toString() {
-    return String.format(
-        "TreePath('%s', format=%s, segments=%d)",
-        toOriginalFormat(), sourceFormat, segments.size());
+    return originalPath;
   }
 
   @Override

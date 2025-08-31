@@ -65,12 +65,12 @@ public class XmlFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("XPath cannot be null");
     }
     this.xpath = xpath;
-    this.legacyXpath = xpath.getPath();
+    this.legacyXpath = xpath.toString();
   }
 
   @Override
   protected String getCommandDetails() {
-    return String.format("XmlFilterCommand(xpath='%s')", xpath.getPath());
+    return String.format("XmlFilterCommand(xpath='%s')", xpath.toString());
   }
 
   @Override

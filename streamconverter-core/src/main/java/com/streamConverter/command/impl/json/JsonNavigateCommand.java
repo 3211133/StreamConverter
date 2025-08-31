@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
@@ -107,7 +106,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   @Override
   protected String getCommandDetails() {
     String pathInfo =
-        jsonPath != null ? String.format("jsonPath='%s'", jsonPath.getPath()) : "entire JSON";
+        jsonPath != null ? String.format("jsonPath='%s'", jsonPath.toString()) : "entire JSON";
     return String.format(
         "JsonNavigateCommand(%s, rule='%s')", pathInfo, rule.getClass().getSimpleName());
   }
@@ -178,7 +177,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
         currentPath.add(fieldName);
 
         // Check if we've reached the target JSONPath
-        if (jsonPath.matchesStreamingPath(currentPath)) {
+        if (isMatchingPath(currentPath)) {
           // Extract value mode: skip to the value and extract it
           token = parser.nextToken();
           String value = getTokenValueAsString(parser, token);
@@ -288,7 +287,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
         currentPath.add(fieldName);
 
         // Check if we've reached the target JSONPath
-        inTargetPath = jsonPath.matchesStreamingPath(currentPath);
+        inTargetPath = isMatchingPath(currentPath);
 
         // Always write field names to maintain JSON structure
         generator.writeFieldName(fieldName);
@@ -338,39 +337,21 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     }
   }
 
-  /** Navigate JSONPath using JsonNode (for complex paths) - DEPRECATED */
-  private JsonNode navigateJsonPath(JsonNode rootNode, JSONPath path) {
-    if (path.isRoot()) {
-      return rootNode;
+  /** Simple path matching for streaming JSON processing */
+  private boolean isMatchingPath(List<String> currentPath) {
+    if (jsonPath == null || currentPath.isEmpty()) {
+      return false;
     }
 
-    String simpleProperty = path.findSimpleProperty().orElse(null);
-    if (simpleProperty != null) {
-      // Handle simple property access
-      return rootNode.get(simpleProperty);
-    } else {
-      // For complex paths, use JsonPointer
-      String pathStr = path.getPath();
-      if (pathStr.startsWith("$.")) {
-        String propertyPath = pathStr.substring(2);
-        return rootNode.at("/" + propertyPath.replace(".", "/"));
-      }
+    // For simple paths like "$.propertyName", match last element
+    if (currentPath.size() == 1) {
+      // Create a JsonNode context with the current property name
+      com.fasterxml.jackson.databind.node.ObjectNode testNode = objectMapper.createObjectNode();
+      testNode.put(currentPath.get(0), "test");
+      return jsonPath.matches(testNode);
     }
-    return rootNode;
-  }
 
-  /** Extract property name from simple JSONPath */
-  private String extractPropertyFromPath(JSONPath path) {
-    String simpleProperty = path.findSimpleProperty().orElse(null);
-    if (simpleProperty != null) {
-      return simpleProperty;
-    }
-    // Fallback for complex paths
-    String pathStr = path.getPath();
-    if (pathStr.startsWith("$.")) {
-      return pathStr.substring(2);
-    }
-    return pathStr;
+    return false;
   }
 
   /** Copy token with rule application (for string values) */
@@ -424,57 +405,6 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
       default:
         // Handle other token types if needed
         break;
-    }
-  }
-
-  /** Replace property value in JsonNode (creates a new modified tree) */
-  private JsonNode replacePropertyValue(JsonNode rootNode, JSONPath path, String newValue) {
-    String simpleProperty = path.findSimpleProperty().orElse(null);
-    if (simpleProperty != null) {
-      return replaceSimpleProperty(rootNode, simpleProperty, newValue);
-    }
-    return rootNode; // Return original if cannot replace complex paths
-  }
-
-  /** Replace simple property in JsonNode */
-  private JsonNode replaceSimpleProperty(JsonNode rootNode, String propertyName, String newValue) {
-    if (rootNode.isObject() && rootNode.has(propertyName)) {
-      // Create a mutable copy
-      com.fasterxml.jackson.databind.node.ObjectNode objectNode =
-          (com.fasterxml.jackson.databind.node.ObjectNode) rootNode.deepCopy();
-      objectNode.put(propertyName, newValue);
-      return objectNode;
-    }
-    return rootNode;
-  }
-
-  /** Process JSON array by applying transformations to each element */
-  private JsonNode processJsonArray(JsonNode arrayNode, JSONPath jsonPath) {
-    com.fasterxml.jackson.databind.node.ArrayNode resultArray = objectMapper.createArrayNode();
-
-    for (JsonNode element : arrayNode) {
-      JsonNode modifiedElement = processSingleJsonObject(element, jsonPath);
-      resultArray.add(modifiedElement);
-    }
-
-    return resultArray;
-  }
-
-  /** Process single JSON object */
-  private JsonNode processSingleJsonObject(JsonNode objectNode, JSONPath jsonPath) {
-    // Navigate to specific property and replace it with transformed value
-    JsonNode targetNode = navigateJsonPath(objectNode, jsonPath);
-
-    if (targetNode != null && !targetNode.isMissingNode()) {
-      String propertyValue = targetNode.asText();
-      String transformedValue = rule.apply(propertyValue);
-
-      // Replace the property value in the original JSON structure
-      // Note: Even if transformedValue is empty string, we should still replace it
-      return replacePropertyValue(objectNode, jsonPath, transformedValue);
-    } else {
-      // Property not found, return original object
-      return objectNode;
     }
   }
 }

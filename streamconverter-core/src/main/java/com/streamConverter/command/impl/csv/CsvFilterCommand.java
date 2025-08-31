@@ -64,7 +64,7 @@ public class CsvFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("Column selector cannot be null");
     }
     this.columnSelectors = Arrays.asList(columnSelector);
-    this.legacyColumnSelectors = Arrays.asList(columnSelector.getPath());
+    this.legacyColumnSelectors = Arrays.asList(columnSelector.toString());
     this.hasHeader = hasHeader;
   }
 
@@ -99,7 +99,7 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     }
     this.columnSelectors = new ArrayList<>(columnSelectors);
     this.legacyColumnSelectors =
-        columnSelectors.stream().map(CSVPath::getPath).collect(Collectors.toList());
+        columnSelectors.stream().map(CSVPath::toString).collect(Collectors.toList());
     this.hasHeader = hasHeader;
   }
 
@@ -161,7 +161,7 @@ public class CsvFilterCommand extends AbstractStreamCommand {
   @Override
   protected String getCommandDetails() {
     List<String> selectorPaths =
-        columnSelectors.stream().map(CSVPath::getPath).collect(Collectors.toList());
+        columnSelectors.stream().map(CSVPath::toString).collect(Collectors.toList());
     return String.format("CsvFilterCommand(columns=%s, hasHeader=%s)", selectorPaths, hasHeader);
   }
 
@@ -226,9 +226,9 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     List<Integer> indices = new ArrayList<>();
 
     for (CSVPath selector : selectors) {
-      int index = selector.resolveIndex(headers);
+      int index = resolveColumnIndex(headers, selector);
       if (index == -1) {
-        throw new IllegalArgumentException("Column not found: " + selector.getPath());
+        throw new IllegalArgumentException("Column not found: " + selector.toString());
       }
       indices.add(index);
     }
@@ -250,12 +250,12 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     for (CSVPath selector : selectors) {
       if (!selector.isIndexBased()) {
         throw new IllegalArgumentException(
-            "Column selector must be numeric when no header: " + selector.getPath());
+            "Column selector must be numeric when no header: " + selector.toString());
       }
 
       int index = selector.getColumnIndex();
       if (index < 0 || index >= totalColumns) {
-        throw new IllegalArgumentException("Column index out of range: " + selector.getPath());
+        throw new IllegalArgumentException("Column index out of range: " + selector.toString());
       }
       indices.add(index);
     }
@@ -325,6 +325,22 @@ public class CsvFilterCommand extends AbstractStreamCommand {
         // Column doesn't exist in this row - write empty field
         writer.write("");
       }
+    }
+  }
+
+  /** Resolve column index using CSVPath */
+  private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
+    if (csvPath.isIndexBased()) {
+      return csvPath.getColumnIndex();
+    } else {
+      // Find column by name
+      String columnName = csvPath.getColumnName();
+      for (int i = 0; i < headers.length; i++) {
+        if (headers[i].trim().equalsIgnoreCase(columnName.trim())) {
+          return i;
+        }
+      }
+      return -1;
     }
   }
 }

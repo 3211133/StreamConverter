@@ -77,7 +77,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   @Override
   protected String getCommandDetails() {
     if (xpath != null) {
-      return String.format("XmlNavigateCommand(xpath='%s')", xpath.getPath());
+      return String.format("XmlNavigateCommand(xpath='%s')", xpath.toString());
     } else {
       return "XmlNavigateCommand(entire XML)";
     }

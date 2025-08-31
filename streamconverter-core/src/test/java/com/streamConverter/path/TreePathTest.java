@@ -16,7 +16,7 @@ class TreePathTest {
   void testFromJsonPath_SimpleProperty() {
     TreePath path = TreePath.fromJsonPath("$.user");
 
-    assertEquals("$.user", path.getPath());
+    assertEquals("$.user", path.toString());
     assertEquals(PathFormat.JSON, path.getSourceFormat());
     assertEquals(1, path.getDepth());
 
@@ -74,7 +74,7 @@ class TreePathTest {
   void testFromXmlPath_Simple() {
     TreePath path = TreePath.fromXmlPath("user/name");
 
-    assertEquals("user/name", path.getPath());
+    assertEquals("user/name", path.toString());
     assertEquals(PathFormat.XML, path.getSourceFormat());
     assertEquals(2, path.getDepth());
 
@@ -182,13 +182,11 @@ class TreePathTest {
     ObjectMapper mapper = new ObjectMapper();
     JsonNode jsonData = mapper.readTree("{\"user\": {\"name\": \"John\", \"age\": 30}}");
 
-    Optional<String> result = path.extract(jsonData, String.class);
-    assertTrue(result.isPresent());
-    assertEquals("John", result.get());
+    // Test simplified to check matching only
+    boolean matches = path.matches(jsonData);
 
-    Optional<JsonNode> nodeResult = path.extract(jsonData, JsonNode.class);
-    assertTrue(nodeResult.isPresent());
-    assertEquals("John", nodeResult.get().asText());
+    // Extract functionality removed in simplified design
+    assertTrue(matches);
   }
 
   @Test
@@ -271,12 +269,8 @@ class TreePathTest {
     TreePath jsonPath = TreePath.fromJsonPath("$.user.name");
     TreePath xmlPath = TreePath.fromXmlPath("user/name");
 
-    assertTrue(jsonPath.toString().contains("$.user.name"));
-    assertTrue(jsonPath.toString().contains("format=JSON"));
-    assertTrue(jsonPath.toString().contains("segments=2"));
-
-    assertTrue(xmlPath.toString().contains("user/name"));
-    assertTrue(xmlPath.toString().contains("format=XML"));
-    assertTrue(xmlPath.toString().contains("segments=2"));
+    // Simplified toString() returns original path only
+    assertEquals("$.user.name", jsonPath.toString());
+    assertEquals("user/name", xmlPath.toString());
   }
 }

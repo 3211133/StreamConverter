@@ -216,7 +216,7 @@ dependencies {
     
     // Database support
     implementation("com.zaxxer:HikariCP:7.0.2")
-    testImplementation("com.h2database:h2:2.2.224")
+    testImplementation("com.h2database:h2:2.3.232")
     
     // Spring Boot Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")

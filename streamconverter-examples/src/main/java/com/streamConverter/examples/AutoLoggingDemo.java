@@ -2,7 +2,7 @@ package com.streamConverter.examples;
 
 import com.streamConverter.StreamConverter;
 import com.streamConverter.command.CommandConfig;
-import com.streamConverter.command.CommandFactory;
+import com.streamConverter.command.EnhancedCommandFactory;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.LoggingDecorator;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
@@ -116,7 +116,7 @@ public class AutoLoggingDemo {
 
     // CommandFactoryで自動ログ機能付きコマンドを生成
     IStreamCommand factoryCommand =
-        CommandFactory.createWithLogging(XmlNavigateCommand.class, "users/user/name");
+        EnhancedCommandFactory.createWithLogging(XmlNavigateCommand.class, "users/user/name");
 
     String result = processData(xmlData, factoryCommand);
 
@@ -133,7 +133,7 @@ public class AutoLoggingDemo {
 
     // CommandFactoryでパイプライン全体を生成
     IStreamCommand[] pipeline =
-        CommandFactory.createPipelineWithDetailedLogging(
+        EnhancedCommandFactory.createPipelineWithDetailedLogging(
             new CommandConfig(CsvNavigateCommand.class, "CSV name extraction", "name"));
 
     String result = processData(csvData, pipeline);
@@ -153,7 +153,7 @@ public class AutoLoggingDemo {
 
       // 詳細ログ付きでコマンドを作成
       IStreamCommand baseCommand =
-          CommandFactory.createWithLogging(XmlNavigateCommand.class, "invalid/path");
+          EnhancedCommandFactory.createWithLogging(XmlNavigateCommand.class, "invalid/path");
       IStreamCommand xmlCommand = new LoggingDecorator(baseCommand);
       processData(invalidXml, xmlCommand);
 
@@ -178,7 +178,8 @@ public class AutoLoggingDemo {
     }
 
     // 詳細ログ付きでコマンドを作成
-    IStreamCommand baseCommand = CommandFactory.createWithLogging(CsvNavigateCommand.class, "name");
+    IStreamCommand baseCommand =
+        EnhancedCommandFactory.createWithLogging(CsvNavigateCommand.class, "name");
     IStreamCommand command = new LoggingDecorator(baseCommand);
 
     long startTime = System.currentTimeMillis();

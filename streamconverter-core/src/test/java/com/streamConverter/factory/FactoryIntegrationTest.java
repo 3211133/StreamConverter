@@ -2,7 +2,6 @@ package com.streamConverter.factory;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.command.CommandFactory;
 import com.streamConverter.command.EnhancedCommandFactory;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
@@ -30,7 +29,8 @@ class FactoryIntegrationTest {
   @Test
   void testEnhancedCommandFactory_BackwardCompatibility() {
     // Test that EnhancedCommandFactory maintains backward compatibility with CommandFactory API
-    IStreamCommand command1 = CommandFactory.createWithLogging(JsonNavigateCommand.class, "$.name");
+    IStreamCommand command1 =
+        EnhancedCommandFactory.createWithLogging(JsonNavigateCommand.class, "$.name");
     IStreamCommand command2 =
         EnhancedCommandFactory.createWithLogging(JsonNavigateCommand.class, "$.name");
 

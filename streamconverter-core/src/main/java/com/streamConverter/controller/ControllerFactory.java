@@ -96,19 +96,6 @@ public class ControllerFactory {
   }
 
   /**
-   * Gets a controller for the specified input and output data types using OutputType enum.
-   *
-   * @param inputType the expected input data type (e.g., "CSV", "JSON", "XML")
-   * @param outputType the expected output data type as enum
-   * @return appropriate controller, or null if none can be created
-   * @deprecated Use {@link #findController(String, OutputType)} instead to avoid null returns
-   */
-  @Deprecated
-  public static IStreamController getController(String inputType, OutputType outputType) {
-    return findController(inputType, outputType).orElse(null);
-  }
-
-  /**
    * Gets a controller for the specified input and output data types.
    *
    * <p>This method attempts to find an appropriate controller from the registry or create a new one
@@ -147,19 +134,6 @@ public class ControllerFactory {
 
     log.warn("No controller available for {} → {}", inputType, outputType);
     return Optional.empty();
-  }
-
-  /**
-   * Gets a controller for the specified input and output data types.
-   *
-   * @param inputType the expected input data type (e.g., "CSV", "JSON", "XML")
-   * @param outputType the expected output data type (e.g., "CSV_COLUMN", "JSON_PROPERTY")
-   * @return appropriate controller, or null if none can be created
-   * @deprecated Use {@link #findController(String, String)} instead to avoid null returns
-   */
-  @Deprecated
-  public static IStreamController getController(String inputType, String outputType) {
-    return findController(inputType, outputType).orElse(null);
   }
 
   /**
@@ -241,7 +215,7 @@ public class ControllerFactory {
     }
 
     // Fallback to standard creation
-    return getController(inputType, outputType);
+    return findController(inputType, outputType).orElse(null);
   }
 
   /**
@@ -334,7 +308,7 @@ public class ControllerFactory {
     }
 
     // Fallback to standard creation
-    return getController(inputType, outputType);
+    return findController(inputType, outputType).orElse(null);
   }
 
   /**
@@ -380,19 +354,7 @@ public class ControllerFactory {
      * @param outputType the desired output type
      * @return Optional containing appropriate controller, or empty if not supported
      */
-    default Optional<IStreamController> findControllerForOutputType(String outputType) {
-      return Optional.ofNullable(createForOutputType(outputType));
-    }
-
-    /**
-     * Creates a controller for the specified output type.
-     *
-     * @param outputType the desired output type
-     * @return appropriate controller, or null if not supported
-     * @deprecated Use {@link #findControllerForOutputType(String)} instead to avoid null returns
-     */
-    @Deprecated
-    IStreamController createForOutputType(String outputType);
+    Optional<IStreamController> findControllerForOutputType(String outputType);
   }
 
   /** Interface for builders that can integrate with CommandFactory. */
@@ -412,11 +374,6 @@ public class ControllerFactory {
 
     /** Creates a new builder. */
     public CsvControllerBuilder() {}
-
-    @Override
-    public IStreamController createForOutputType(String outputType) {
-      return findControllerForOutputType(outputType).orElse(null);
-    }
 
     @Override
     public Optional<IStreamController> findControllerForOutputType(String outputType) {
@@ -485,16 +442,18 @@ public class ControllerFactory {
         String outputType, boolean enableDetailedLogging) {
       // Create controller using standard method, as AbstractStreamController
       // already integrates with CommandFactory for command creation
-      IStreamController controller = createForOutputType(outputType);
-
-      if (controller != null) {
-        log.debug(
-            "Created CSV controller with CommandFactory integration for output type: {}, detailed logging: {}",
-            outputType,
-            enableDetailedLogging);
+      Optional<OutputType> outputTypeEnum = OutputType.findByValue(outputType);
+      if (outputTypeEnum.isPresent()) {
+        IStreamController controller = createForOutputType(outputTypeEnum.get());
+        if (controller != null) {
+          log.debug(
+              "Created CSV controller with CommandFactory integration for output type: {}, detailed logging: {}",
+              outputType,
+              enableDetailedLogging);
+        }
+        return controller;
       }
-
-      return controller;
+      return null;
     }
   }
 
@@ -503,11 +462,6 @@ public class ControllerFactory {
 
     /** Creates a new builder. */
     public JsonControllerBuilder() {}
-
-    @Override
-    public IStreamController createForOutputType(String outputType) {
-      return findControllerForOutputType(outputType).orElse(null);
-    }
 
     @Override
     public Optional<IStreamController> findControllerForOutputType(String outputType) {
@@ -581,16 +535,18 @@ public class ControllerFactory {
         String outputType, boolean enableDetailedLogging) {
       // Create controller using standard method, as AbstractStreamController
       // already integrates with CommandFactory for command creation
-      IStreamController controller = createForOutputType(outputType);
-
-      if (controller != null) {
-        log.debug(
-            "Created JSON controller with CommandFactory integration for output type: {}, detailed logging: {}",
-            outputType,
-            enableDetailedLogging);
+      Optional<OutputType> outputTypeEnum = OutputType.findByValue(outputType);
+      if (outputTypeEnum.isPresent()) {
+        IStreamController controller = createForOutputType(outputTypeEnum.get());
+        if (controller != null) {
+          log.debug(
+              "Created JSON controller with CommandFactory integration for output type: {}, detailed logging: {}",
+              outputType,
+              enableDetailedLogging);
+        }
+        return controller;
       }
-
-      return controller;
+      return null;
     }
   }
 }

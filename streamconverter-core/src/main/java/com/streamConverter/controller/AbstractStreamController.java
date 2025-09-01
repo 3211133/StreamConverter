@@ -3,7 +3,7 @@ package com.streamConverter.controller;
 import com.streamConverter.CommandResult;
 import com.streamConverter.StreamConverter;
 import com.streamConverter.command.CommandConfig;
-import com.streamConverter.command.CommandFactory;
+import com.streamConverter.command.EnhancedCommandFactory;
 import com.streamConverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
@@ -172,7 +172,7 @@ public abstract class AbstractStreamController implements IStreamController {
    *
    * <p>Subclasses must implement this method to define their specific processing pipeline. The
    * returned CommandConfig array will be used to create the actual command objects using
-   * CommandFactory.
+   * EnhancedCommandFactory.
    *
    * <p>Example implementation:
    *
@@ -212,7 +212,7 @@ public abstract class AbstractStreamController implements IStreamController {
       }
 
       // Create command pipeline using CommandFactory
-      IStreamCommand[] commands = CommandFactory.createPipelineWithLogging(commandConfigs);
+      IStreamCommand[] commands = EnhancedCommandFactory.createPipelineWithLogging(commandConfigs);
 
       // Create StreamConverter with the configured commands
       streamConverter = StreamConverter.create(Arrays.asList(commands));

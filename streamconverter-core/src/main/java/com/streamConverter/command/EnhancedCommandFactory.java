@@ -4,14 +4,16 @@ import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.factory.AbstractFactory;
 import com.streamConverter.factory.FactoryConfiguration;
 import com.streamConverter.factory.FactoryException;
 import com.streamConverter.path.JSONPath;
 import com.streamConverter.path.XPath;
+import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -50,15 +52,22 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0
  */
-public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
+public class EnhancedCommandFactory {
   private static final Logger log = LoggerFactory.getLogger(EnhancedCommandFactory.class);
 
   /** Default singleton instance for static methods */
   private static final EnhancedCommandFactory DEFAULT_INSTANCE = new EnhancedCommandFactory();
 
+  /** Thread-safe cache for created instances */
+  private final Map<String, IStreamCommand> instanceCache = new ConcurrentHashMap<>();
+
+  /** Factory configuration settings */
+  private final FactoryConfiguration config;
+
   /** Creates factory with default configuration. */
   public EnhancedCommandFactory() {
-    super();
+    this.config = FactoryConfiguration.defaultConfig();
+    log.debug("Initialized {} with default configuration", getClass().getSimpleName());
   }
 
   /**
@@ -67,7 +76,8 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
    * @param config factory configuration
    */
   public EnhancedCommandFactory(FactoryConfiguration config) {
-    super(config);
+    this.config = config != null ? config : FactoryConfiguration.defaultConfig();
+    log.debug("Initialized {} with custom configuration", getClass().getSimpleName());
   }
 
   // ========== Static Methods (Backward Compatibility) ==========
@@ -91,58 +101,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
-   * Creates command with logging using default instance, allowing FactoryException to propagate.
-   * This method provides better error handling by preserving the specific exception type.
-   *
-   * @param <T> command type
-   * @param commandClass command class
-   * @param args constructor arguments
-   * @return command with logging enabled
-   * @throws FactoryException if command creation fails
-   */
-  public static <T extends IStreamCommand> T createWithLoggingChecked(
-      Class<T> commandClass, Object... args) throws FactoryException {
-    return DEFAULT_INSTANCE.createCommandWithLogging(commandClass, false, args);
-  }
-
-  /**
-   * Creates command with detailed logging using default instance.
-   *
-   * @param <T> command type
-   * @param commandClass command class
-   * @param enableDetailedLogging whether to enable detailed logging
-   * @param args constructor arguments
-   * @return command with configured logging
-   */
-  public static <T extends IStreamCommand> T createWithLogging(
-      Class<T> commandClass, boolean enableDetailedLogging, Object... args) {
-    try {
-      return DEFAULT_INSTANCE.createCommandWithLogging(commandClass, enableDetailedLogging, args);
-    } catch (FactoryException e) {
-      throw new RuntimeException("Command creation failed: " + commandClass.getSimpleName(), e);
-    }
-  }
-
-  /**
-   * Creates command with detailed logging using default instance, allowing FactoryException to
-   * propagate. This method provides better error handling by preserving the specific exception
-   * type.
-   *
-   * @param <T> command type
-   * @param commandClass command class
-   * @param enableDetailedLogging whether to enable detailed logging
-   * @param args constructor arguments
-   * @return command with configured logging
-   * @throws FactoryException if command creation fails
-   */
-  public static <T extends IStreamCommand> T createWithLoggingChecked(
-      Class<T> commandClass, boolean enableDetailedLogging, Object... args)
-      throws FactoryException {
-    return DEFAULT_INSTANCE.createCommandWithLogging(commandClass, enableDetailedLogging, args);
-  }
-
-  /**
-   * Creates pipeline with logging using default instance.
+   * Creates pipeline with logging using default instance for backward compatibility.
    *
    * @param configs command configurations
    * @return array of commands with logging
@@ -156,7 +115,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /**
-   * Creates pipeline with detailed logging using default instance.
+   * Creates pipeline with detailed logging using default instance for backward compatibility.
    *
    * @param configs command configurations
    * @return array of commands with detailed logging
@@ -167,33 +126,6 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
     } catch (FactoryException e) {
       throw new RuntimeException("Pipeline creation failed", e);
     }
-  }
-
-  /**
-   * Creates pipeline with logging using default instance, allowing FactoryException to propagate.
-   * This method provides better error handling by preserving the specific exception type.
-   *
-   * @param configs command configurations
-   * @return array of commands with logging
-   * @throws FactoryException if pipeline creation fails
-   */
-  public static IStreamCommand[] createPipelineWithLoggingChecked(CommandConfig... configs)
-      throws FactoryException {
-    return DEFAULT_INSTANCE.createPipeline(configs, false);
-  }
-
-  /**
-   * Creates pipeline with detailed logging using default instance, allowing FactoryException to
-   * propagate. This method provides better error handling by preserving the specific exception
-   * type.
-   *
-   * @param configs command configurations
-   * @return array of commands with detailed logging
-   * @throws FactoryException if pipeline creation fails
-   */
-  public static IStreamCommand[] createPipelineWithDetailedLoggingChecked(CommandConfig... configs)
-      throws FactoryException {
-    return DEFAULT_INSTANCE.createPipeline(configs, true);
   }
 
   // ========== Enhanced Instance Methods ==========
@@ -211,14 +143,17 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
       throws FactoryException {
     String cacheKey = createCacheKey(commandClass.getName(), args);
 
-    T cached = (T) getCachedInstance(cacheKey);
+    T cached = (T) instanceCache.get(cacheKey);
     if (cached != null) {
       log.debug("Retrieved cached command: {} (key: {})", commandClass.getSimpleName(), cacheKey);
       return cached;
     }
 
     T command = createCommandWithLogging(commandClass, config.isDetailedLoggingEnabled(), args);
-    cacheInstance(cacheKey, command);
+    if (config.isCachingEnabled()) {
+      instanceCache.put(cacheKey, command);
+      log.debug("Cached instance: {} -> {}", cacheKey, command.getClass().getSimpleName());
+    }
     return command;
   }
 
@@ -486,5 +421,195 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
    */
   public static EnhancedCommandFactory createDevelopmentInstance() {
     return new EnhancedCommandFactory(FactoryConfiguration.developmentConfig());
+  }
+
+  // ========== Helper Methods from AbstractFactory ==========
+
+  /**
+   * Creates an instance using reflection with intelligent constructor matching.
+   *
+   * @param <U> the specific type of instance to create
+   * @param clazz the class to instantiate
+   * @param args constructor arguments
+   * @return created instance
+   * @throws FactoryException if instance creation fails
+   */
+  private <U extends IStreamCommand> U createInstance(Class<U> clazz, Object... args)
+      throws FactoryException {
+    try {
+      // Try default constructor first
+      if (args.length == 0) {
+        Constructor<U> constructor = clazz.getDeclaredConstructor();
+        constructor.setAccessible(true);
+        return constructor.newInstance();
+      }
+
+      // Find best matching constructor
+      Constructor<U> bestMatch = findBestMatchingConstructor(clazz, args);
+      bestMatch.setAccessible(true);
+      return bestMatch.newInstance(args);
+
+    } catch (Exception e) {
+      String message =
+          String.format(
+              "Failed to create instance of %s with %d arguments",
+              clazz.getSimpleName(), args.length);
+      log.error(message, e);
+      throw new FactoryException(message, e);
+    }
+  }
+
+  /**
+   * Finds the best matching constructor for the given arguments.
+   *
+   * @param <U> the type to construct
+   * @param clazz the class
+   * @param args constructor arguments
+   * @return best matching constructor
+   * @throws NoSuchMethodException if no compatible constructor found
+   */
+  private <U extends IStreamCommand> Constructor<U> findBestMatchingConstructor(
+      Class<U> clazz, Object[] args) throws NoSuchMethodException {
+    Constructor<?>[] constructors = clazz.getDeclaredConstructors();
+
+    // First pass: exact match
+    for (Constructor<?> constructor : constructors) {
+      if (isExactMatch(constructor, args)) {
+        return (Constructor<U>) constructor;
+      }
+    }
+
+    // Second pass: compatible match
+    for (Constructor<?> constructor : constructors) {
+      if (isCompatibleMatch(constructor, args)) {
+        return (Constructor<U>) constructor;
+      }
+    }
+
+    throw new NoSuchMethodException(
+        String.format(
+            "No compatible constructor found for %s with argument types: %s",
+            clazz.getSimpleName(), getArgumentTypes(args)));
+  }
+
+  /** Checks if constructor parameters exactly match argument types. */
+  private boolean isExactMatch(Constructor<?> constructor, Object[] args) {
+    Class<?>[] paramTypes = constructor.getParameterTypes();
+    if (paramTypes.length != args.length) {
+      return false;
+    }
+
+    for (int i = 0; i < paramTypes.length; i++) {
+      if (!paramTypes[i].equals(args[i].getClass())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /** Checks if constructor parameters are compatible with argument types. */
+  private boolean isCompatibleMatch(Constructor<?> constructor, Object[] args) {
+    Class<?>[] paramTypes = constructor.getParameterTypes();
+    if (paramTypes.length != args.length) {
+      return false;
+    }
+
+    for (int i = 0; i < paramTypes.length; i++) {
+      if (!isTypeCompatible(paramTypes[i], args[i].getClass())) {
+        return false;
+      }
+    }
+    return true;
+  }
+
+  /** Checks type compatibility including primitives and inheritance. */
+  private boolean isTypeCompatible(Class<?> paramType, Class<?> argType) {
+    if (paramType.equals(argType)) {
+      return true;
+    }
+
+    // Primitive and wrapper type compatibility
+    if (isPrimitiveWrapperMatch(paramType, argType)) {
+      return true;
+    }
+
+    // Inheritance compatibility
+    return paramType.isAssignableFrom(argType);
+  }
+
+  /** Map of primitive types to their corresponding wrapper classes. */
+  private static final Map<Class<?>, Class<?>> PRIMITIVE_WRAPPER_MAP =
+      Map.of(
+          int.class, Integer.class,
+          long.class, Long.class,
+          boolean.class, Boolean.class,
+          double.class, Double.class,
+          float.class, Float.class,
+          char.class, Character.class,
+          byte.class, Byte.class,
+          short.class, Short.class);
+
+  /** Checks if parameter and argument are primitive/wrapper type pair. */
+  private boolean isPrimitiveWrapperMatch(Class<?> paramType, Class<?> argType) {
+    return PRIMITIVE_WRAPPER_MAP.get(paramType) == argType;
+  }
+
+  /** Gets string representation of argument types for error messages. */
+  private String getArgumentTypes(Object[] args) {
+    if (args.length == 0) {
+      return "[]";
+    }
+
+    StringBuilder sb = new StringBuilder("[");
+    for (int i = 0; i < args.length; i++) {
+      if (i > 0) sb.append(", ");
+      sb.append(args[i].getClass().getSimpleName());
+    }
+    sb.append("]");
+    return sb.toString();
+  }
+
+  /**
+   * Creates a cache key for the given parameters.
+   *
+   * @param keyComponents components to create key from
+   * @return cache key string
+   */
+  private String createCacheKey(Object... keyComponents) {
+    if (keyComponents.length == 0) {
+      return "default";
+    }
+
+    StringBuilder sb = new StringBuilder();
+    for (int i = 0; i < keyComponents.length; i++) {
+      if (i > 0) sb.append(":");
+      sb.append(keyComponents[i] != null ? keyComponents[i].toString() : "null");
+    }
+    return sb.toString();
+  }
+
+  /** Clears all cached instances. */
+  public void clearCache() {
+    int cacheSize = instanceCache.size();
+    instanceCache.clear();
+    log.info("Cleared factory cache: {} instances removed", cacheSize);
+  }
+
+  /**
+   * Gets current cache size.
+   *
+   * @return number of cached instances
+   */
+  public int getCacheSize() {
+    return instanceCache.size();
+  }
+
+  /**
+   * Gets factory configuration.
+   *
+   * @return current configuration
+   */
+  public FactoryConfiguration getConfiguration() {
+    return config;
   }
 }

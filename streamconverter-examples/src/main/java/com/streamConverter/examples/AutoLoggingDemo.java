@@ -1,8 +1,6 @@
 package com.streamConverter.examples;
 
 import com.streamConverter.StreamConverter;
-import com.streamConverter.command.CommandConfig;
-import com.streamConverter.command.CommandFactory;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.LoggingDecorator;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
@@ -114,9 +112,11 @@ public class AutoLoggingDemo {
             </users>
             """;
 
-    // CommandFactoryで自動ログ機能付きコマンドを生成
-    IStreamCommand factoryCommand =
-        CommandFactory.createWithLogging(XmlNavigateCommand.class, "users/user/name");
+    // 直接生成 + LoggingDecoratorで手動ログ機能付き
+    IStreamCommand baseCommand =
+        new XmlNavigateCommand(
+            new com.streamConverter.path.XPath("users/user/name"), new PassThroughRule());
+    IStreamCommand factoryCommand = new LoggingDecorator(baseCommand);
 
     String result = processData(xmlData, factoryCommand);
 
@@ -131,10 +131,11 @@ public class AutoLoggingDemo {
 
     String csvData = "id,name,status\n1,Alice,active\n2,Bob,inactive\n3,Charlie,active\n";
 
-    // CommandFactoryでパイプライン全体を生成
+    // 直接生成でパイプライン全体を作成
     IStreamCommand[] pipeline =
-        CommandFactory.createPipelineWithDetailedLogging(
-            new CommandConfig(CsvNavigateCommand.class, "CSV name extraction", "name"));
+        new IStreamCommand[] {
+          new LoggingDecorator(new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()))
+        };
 
     String result = processData(csvData, pipeline);
 
@@ -153,7 +154,8 @@ public class AutoLoggingDemo {
 
       // 詳細ログ付きでコマンドを作成
       IStreamCommand baseCommand =
-          CommandFactory.createWithLogging(XmlNavigateCommand.class, "invalid/path");
+          new XmlNavigateCommand(
+              new com.streamConverter.path.XPath("invalid/path"), new PassThroughRule());
       IStreamCommand xmlCommand = new LoggingDecorator(baseCommand);
       processData(invalidXml, xmlCommand);
 
@@ -178,7 +180,7 @@ public class AutoLoggingDemo {
     }
 
     // 詳細ログ付きでコマンドを作成
-    IStreamCommand baseCommand = CommandFactory.createWithLogging(CsvNavigateCommand.class, "name");
+    IStreamCommand baseCommand = new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule());
     IStreamCommand command = new LoggingDecorator(baseCommand);
 
     long startTime = System.currentTimeMillis();

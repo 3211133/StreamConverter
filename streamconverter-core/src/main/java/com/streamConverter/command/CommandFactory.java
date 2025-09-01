@@ -1,5 +1,10 @@
 package com.streamConverter.command;
 
+import com.streamConverter.command.impl.csv.CsvNavigateCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
+import com.streamConverter.command.impl.xml.XmlNavigateCommand;
+import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.XPath;
 import java.lang.reflect.Constructor;
 import java.util.ArrayList;
 import java.util.List;
@@ -39,7 +44,6 @@ public class CommandFactory {
    * @param args コンストラクタ引数
    * @return ログ機能付きコマンド
    */
-  @SuppressWarnings("unchecked")
   public static <T extends IStreamCommand> T createWithLogging(
       Class<T> commandClass, Object... args) {
     try {
@@ -72,7 +76,6 @@ public class CommandFactory {
    * @param args コンストラクタ引数
    * @return ログ機能付きコマンド
    */
-  @SuppressWarnings("unchecked")
   public static <T extends IStreamCommand> T createWithLogging(
       Class<T> commandClass, boolean enableDetailedLogging, Object... args) {
     try {
@@ -178,7 +181,6 @@ public class CommandFactory {
    * @param args constructor arguments
    * @return created command or null if not applicable
    */
-  @SuppressWarnings("unchecked")
   private static <T extends IStreamCommand> T createNavigateCommandIfApplicable(
       Class<T> commandClass, Object... args) {
 
@@ -201,7 +203,6 @@ public class CommandFactory {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private static <T extends IStreamCommand> T createJsonNavigateCommand(
       Class<T> commandClass, Object... args) {
     try {
@@ -210,9 +211,7 @@ public class CommandFactory {
 
       if (args.length == 1) {
         Object path = args[0];
-        return (T)
-            com.streamConverter.command.impl.json.JsonNavigateCommand.create(
-                new com.streamConverter.path.JSONPath((String) path), defaultRule);
+        return (T) JsonNavigateCommand.create(new JSONPath((String) path), defaultRule);
       } else if (args.length == 0) {
         throw new IllegalArgumentException(
             "JsonNavigateCommand requires a JSONPath - use a dedicated transform command for entire JSON processing");
@@ -224,7 +223,6 @@ public class CommandFactory {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private static <T extends IStreamCommand> T createCsvNavigateCommand(
       Class<T> commandClass, Object... args) {
     try {
@@ -233,9 +231,7 @@ public class CommandFactory {
 
       if (args.length == 1) {
         Object path = args[0];
-        return (T)
-            com.streamConverter.command.impl.csv.CsvNavigateCommand.create(
-                (String) path, defaultRule);
+        return (T) CsvNavigateCommand.create((String) path, defaultRule);
       } else if (args.length == 0) {
         throw new IllegalArgumentException(
             "CsvNavigateCommand requires a column selector - use a dedicated transform command for entire CSV processing");
@@ -247,7 +243,6 @@ public class CommandFactory {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private static <T extends IStreamCommand> T createXmlNavigateCommand(
       Class<T> commandClass, Object... args) {
     try {
@@ -256,9 +251,7 @@ public class CommandFactory {
 
       if (args.length == 1) {
         Object path = args[0];
-        return (T)
-            com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
-                new com.streamConverter.path.XPath((String) path), defaultRule);
+        return (T) XmlNavigateCommand.create(new XPath((String) path), defaultRule);
       } else if (args.length == 0) {
         throw new IllegalArgumentException(
             "XmlNavigateCommand requires an XPath - use a dedicated transform command for entire XML processing");
@@ -313,7 +306,6 @@ public class CommandFactory {
    * @return コマンドインスタンス
    * @throws Exception インスタンス生成失敗時
    */
-  @SuppressWarnings("unchecked")
   private static <T extends IStreamCommand> T createInstanceWithBestMatch(
       Class<T> commandClass, Object[] args, Class<?>[] argTypes) throws Exception {
     Constructor<?>[] constructors = commandClass.getDeclaredConstructors();

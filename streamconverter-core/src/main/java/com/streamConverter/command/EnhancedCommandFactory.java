@@ -1,8 +1,14 @@
 package com.streamConverter.command;
 
+import com.streamConverter.command.impl.csv.CsvNavigateCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
+import com.streamConverter.command.impl.xml.XmlNavigateCommand;
+import com.streamConverter.command.rule.IRule;
 import com.streamConverter.factory.AbstractFactory;
 import com.streamConverter.factory.FactoryConfiguration;
 import com.streamConverter.factory.FactoryException;
+import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.XPath;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -205,7 +211,6 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
       throws FactoryException {
     String cacheKey = createCacheKey(commandClass.getName(), args);
 
-    @SuppressWarnings("unchecked")
     T cached = (T) getCachedInstance(cacheKey);
     if (cached != null) {
       log.debug("Retrieved cached command: {} (key: {})", commandClass.getSimpleName(), cacheKey);
@@ -258,7 +263,6 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
    * @return created command or null if not applicable
    * @throws FactoryException if creation fails
    */
-  @SuppressWarnings("unchecked")
   private <T extends IStreamCommand> Optional<T> createNavigateCommandIfApplicable(
       Class<T> commandClass, Object... args) throws FactoryException {
 
@@ -274,7 +278,6 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
     return Optional.empty();
   }
 
-  @SuppressWarnings("unchecked")
   private <T extends IStreamCommand> Optional<T> createJsonNavigateCommand(
       Class<T> commandClass, Object... args) throws FactoryException {
     try {
@@ -286,9 +289,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         // Single argument - use create(path, rule)
         Object path = args[0];
         return Optional.of(
-            (T)
-                com.streamConverter.command.impl.json.JsonNavigateCommand.create(
-                    new com.streamConverter.path.JSONPath((String) path), defaultRule));
+            (T) JsonNavigateCommand.create(new JSONPath((String) path), defaultRule));
       } else if (args.length == 0) {
         // No arguments - NavigateCommand requires a path
         throw new IllegalArgumentException(
@@ -298,10 +299,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         String path = (String) args[0];
         com.streamConverter.command.rule.IRule rule =
             (com.streamConverter.command.rule.IRule) args[1];
-        return Optional.of(
-            (T)
-                com.streamConverter.command.impl.json.JsonNavigateCommand.create(
-                    new com.streamConverter.path.JSONPath(path), rule));
+        return Optional.of((T) JsonNavigateCommand.create(new JSONPath(path), rule));
       } else {
         // Other argument patterns - throw exception rather than returning empty
         throw new IllegalArgumentException(
@@ -314,7 +312,6 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private <T extends IStreamCommand> Optional<T> createCsvNavigateCommand(
       Class<T> commandClass, Object... args) throws FactoryException {
     try {
@@ -324,10 +321,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
       if (args.length == 1) {
         // Single argument - use create(path, rule)
         Object path = args[0];
-        return Optional.of(
-            (T)
-                com.streamConverter.command.impl.csv.CsvNavigateCommand.create(
-                    (String) path, defaultRule));
+        return Optional.of((T) CsvNavigateCommand.create((String) path, defaultRule));
       } else if (args.length == 0) {
         // No arguments - NavigateCommand requires a path
         throw new IllegalArgumentException(
@@ -337,8 +331,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         String path = (String) args[0];
         com.streamConverter.command.rule.IRule rule =
             (com.streamConverter.command.rule.IRule) args[1];
-        return Optional.of(
-            (T) com.streamConverter.command.impl.csv.CsvNavigateCommand.create(path, rule));
+        return Optional.of((T) CsvNavigateCommand.create(path, rule));
       } else {
         return Optional.empty();
       }
@@ -347,7 +340,6 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
     }
   }
 
-  @SuppressWarnings("unchecked")
   private <T extends IStreamCommand> Optional<T> createXmlNavigateCommand(
       Class<T> commandClass, Object... args) throws FactoryException {
     try {
@@ -357,10 +349,7 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
       if (args.length == 1) {
         // Single argument - use create(path, rule)
         Object path = args[0];
-        return Optional.of(
-            (T)
-                com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
-                    new com.streamConverter.path.XPath((String) path), defaultRule));
+        return Optional.of((T) XmlNavigateCommand.create(new XPath((String) path), defaultRule));
       } else if (args.length == 0) {
         // No arguments - NavigateCommand requires a path
         throw new IllegalArgumentException(
@@ -368,12 +357,8 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
       } else if (args.length == 2 && args[1] instanceof com.streamConverter.command.rule.IRule) {
         // Two arguments (String path, IRule) - use create(path, rule)
         String path = (String) args[0];
-        com.streamConverter.command.rule.IRule rule =
-            (com.streamConverter.command.rule.IRule) args[1];
-        return Optional.of(
-            (T)
-                com.streamConverter.command.impl.xml.XmlNavigateCommand.create(
-                    new com.streamConverter.path.XPath(path), rule));
+        IRule rule = (IRule) args[1];
+        return Optional.of((T) XmlNavigateCommand.create(new XPath(path), rule));
       } else {
         return Optional.empty();
       }
@@ -383,7 +368,6 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
   }
 
   /** Core command creation method with logging integration. */
-  @SuppressWarnings("unchecked")
   private <T extends IStreamCommand> T createCommandWithLogging(
       Class<T> commandClass, boolean enableDetailedLogging, Object... args)
       throws FactoryException {

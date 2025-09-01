@@ -122,9 +122,21 @@ loadScripts(document, 'script');</script>
 <dd>&nbsp;</dd>
 <dt><a href="../com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html#findControllerForOutputType(java.lang.String)" class="member-name-link">findControllerForOutputType(String)</a> - Method in class com.streamConverter.controller.<a href="../com/streamConverter/controller/ControllerFactory.JsonControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.JsonControllerBuilder</a></dt>
 <dd>&nbsp;</dd>
-<dt><a href="../com/streamConverter/path/JSONPath.html#findSimpleProperty()" class="member-name-link">findSimpleProperty()</a> - Method in class com.streamConverter.path.<a href="../com/streamConverter/path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a></dt>
+<dt><a href="../com/streamConverter/path/CSVPath.html#findMatchingIndices(int)" class="member-name-link">findMatchingIndices(int)</a> - Method in class com.streamConverter.path.<a href="../com/streamConverter/path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></dt>
 <dd>
-<div class="block">Get the simple property name if this path represents a simple property access like "$.name".</div>
+<div class="block">マッチするすべての列インデックスを取得（ヘッダーなしの場合）</div>
+</dd>
+<dt><a href="../com/streamConverter/path/CSVPath.html#findMatchingIndices(java.lang.String%5B%5D)" class="member-name-link">findMatchingIndices(String[])</a> - Method in class com.streamConverter.path.<a href="../com/streamConverter/path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></dt>
+<dd>
+<div class="block">マッチするすべての列インデックスを取得（Don't Ask Tell準拠）</div>
+</dd>
+<dt><a href="../com/streamConverter/path/JSONPath.html#findMatchingPaths(com.fasterxml.jackson.databind.JsonNode)" class="member-name-link">findMatchingPaths(JsonNode)</a> - Method in class com.streamConverter.path.<a href="../com/streamConverter/path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a></dt>
+<dd>
+<div class="block">マッチするすべてのパスを取得（Don't Ask Tell準拠）</div>
+</dd>
+<dt><a href="../com/streamConverter/path/XPath.html#findMatchingPaths(java.util.List)" class="member-name-link">findMatchingPaths(List&lt;String&gt;)</a> - Method in class com.streamConverter.path.<a href="../com/streamConverter/path/XPath.html" title="class in com.streamConverter.path">XPath</a></dt>
+<dd>
+<div class="block">マッチするすべてのパスを取得（Don't Ask Tell準拠）</div>
 </dd>
 <dt><a href="../com/streamConverter/pathHandler/FixedStaXPathHandler.html" class="type-name-link" title="class in com.streamConverter.pathHandler">FixedStaXPathHandler</a> - Class in <a href="../com/streamConverter/pathHandler/package-summary.html">com.streamConverter.pathHandler</a></dt>
 <dd>
@@ -180,7 +192,9 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="../com/streamConverter/api/StreamBuilder.html#format()" class="member-name-link">format()</a> - Method in class com.streamConverter.api.<a href="../com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
-<div class="block">JSONデータのフォーマット処理を追加（JSON形式のみ）</div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use a dedicated formatting command instead of NavigateCommand with null path</div>
+</div>
 </dd>
 <dt><a href="../com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html#FORMAT_ONLY" class="member-name-link">FORMAT_ONLY</a> - Enum constant in enum class com.streamConverter.controller.<a href="../com/streamConverter/controller/JsonProcessingController.ProcessingScenario.html" title="enum class in com.streamConverter.controller">JsonProcessingController.ProcessingScenario</a></dt>
 <dd>
@@ -188,7 +202,9 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="../com/streamConverter/api/StreamBuilder.html#formatJson()" class="member-name-link">formatJson()</a> - Method in class com.streamConverter.api.<a href="../com/streamConverter/api/StreamBuilder.html" title="class in com.streamConverter.api">StreamBuilder</a></dt>
 <dd>
-<div class="block">JSONデータのフォーマット処理を追加（JSONPath指定なし）</div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">Use a dedicated formatting command instead of NavigateCommand with null path</div>
+</div>
 </dd>
 <dt><a href="../com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html#forPassThrough()" class="member-name-link">forPassThrough()</a> - Method in class com.streamConverter.controller.<a href="../com/streamConverter/controller/ControllerFactory.CsvControllerBuilder.html" title="class in com.streamConverter.controller">ControllerFactory.CsvControllerBuilder</a></dt>
 <dd>
@@ -226,21 +242,9 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">ファイルから入力ストリームを作成</div>
 </dd>
-<dt><a href="../com/streamConverter/path/CSVPath.html#fromIndex(int)" class="member-name-link">fromIndex(int)</a> - Static method in class com.streamConverter.path.<a href="../com/streamConverter/path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></dt>
-<dd>
-<div class="block">Factory method for creating a CSVPath from a column index.</div>
-</dd>
 <dt><a href="../com/streamConverter/path/TreePath.html#fromJsonPath(java.lang.String)" class="member-name-link">fromJsonPath(String)</a> - Static method in class com.streamConverter.path.<a href="../com/streamConverter/path/TreePath.html" title="class in com.streamConverter.path">TreePath</a></dt>
 <dd>
 <div class="block">Creates TreePath from JSON format path</div>
-</dd>
-<dt><a href="../com/streamConverter/path/CSVPath.html#fromName(java.lang.String)" class="member-name-link">fromName(String)</a> - Static method in class com.streamConverter.path.<a href="../com/streamConverter/path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></dt>
-<dd>
-<div class="block">Factory method for creating a CSVPath from a column name.</div>
-</dd>
-<dt><a href="../com/streamConverter/path/XPath.html#fromSegments(java.lang.String...)" class="member-name-link">fromSegments(String...)</a> - Static method in class com.streamConverter.path.<a href="../com/streamConverter/path/XPath.html" title="class in com.streamConverter.path">XPath</a></dt>
-<dd>
-<div class="block">Factory method for creating an XPath from path segments.</div>
 </dd>
 <dt><a href="../com/streamConverter/path/TreePath.html#fromSegments(java.util.List)" class="member-name-link">fromSegments(List&lt;TreePath.PathSegment&gt;)</a> - Static method in class com.streamConverter.path.<a href="../com/streamConverter/path/TreePath.html" title="class in com.streamConverter.path">TreePath</a></dt>
 <dd>

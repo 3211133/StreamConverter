@@ -41,306 +41,299 @@
 <span class="source-line-no">028</span><span id="line-28"> */</span>
 <span class="source-line-no">029</span><span id="line-29">public class CsvFilterCommand extends AbstractStreamCommand {</span>
 <span class="source-line-no">030</span><span id="line-30"></span>
-<span class="source-line-no">031</span><span id="line-31">  private final List&lt;CSVPath&gt; columnSelectors;</span>
+<span class="source-line-no">031</span><span id="line-31">  private final CSVPath combinedSelector;</span>
 <span class="source-line-no">032</span><span id="line-32">  private final boolean hasHeader;</span>
 <span class="source-line-no">033</span><span id="line-33"></span>
 <span class="source-line-no">034</span><span id="line-34">  // Deprecated fields for backward compatibility</span>
-<span class="source-line-no">035</span><span id="line-35">  @Deprecated private final List&lt;String&gt; legacyColumnSelectors;</span>
-<span class="source-line-no">036</span><span id="line-36"></span>
-<span class="source-line-no">037</span><span id="line-37">  /**</span>
-<span class="source-line-no">038</span><span id="line-38">   * Constructor for CSV filtering with single column selector.</span>
-<span class="source-line-no">039</span><span id="line-39">   *</span>
-<span class="source-line-no">040</span><span id="line-40">   * @param columnSelector the column name or index to extract (e.g., "name", "2")</span>
-<span class="source-line-no">041</span><span id="line-41">   * @param hasHeader whether the CSV has a header row</span>
-<span class="source-line-no">042</span><span id="line-42">   * @throws IllegalArgumentException if columnSelector is null or empty</span>
-<span class="source-line-no">043</span><span id="line-43">   * @deprecated Use {@link #CsvFilterCommand(CSVPath, boolean)} instead</span>
-<span class="source-line-no">044</span><span id="line-44">   */</span>
-<span class="source-line-no">045</span><span id="line-45">  @Deprecated</span>
-<span class="source-line-no">046</span><span id="line-46">  public CsvFilterCommand(String columnSelector, boolean hasHeader) {</span>
-<span class="source-line-no">047</span><span id="line-47">    if (columnSelector == null || columnSelector.trim().isEmpty()) {</span>
-<span class="source-line-no">048</span><span id="line-48">      throw new IllegalArgumentException("Column selector cannot be null or empty");</span>
-<span class="source-line-no">049</span><span id="line-49">    }</span>
-<span class="source-line-no">050</span><span id="line-50">    this.legacyColumnSelectors = Arrays.asList(columnSelector.trim());</span>
-<span class="source-line-no">051</span><span id="line-51">    this.columnSelectors = Arrays.asList(new CSVPath(columnSelector.trim()));</span>
-<span class="source-line-no">052</span><span id="line-52">    this.hasHeader = hasHeader;</span>
-<span class="source-line-no">053</span><span id="line-53">  }</span>
-<span class="source-line-no">054</span><span id="line-54"></span>
-<span class="source-line-no">055</span><span id="line-55">  /**</span>
-<span class="source-line-no">056</span><span id="line-56">   * Constructor for CSV filtering with single typed column selector.</span>
-<span class="source-line-no">057</span><span id="line-57">   *</span>
-<span class="source-line-no">058</span><span id="line-58">   * @param columnSelector the typed CSVPath to extract</span>
-<span class="source-line-no">059</span><span id="line-59">   * @param hasHeader whether the CSV has a header row</span>
-<span class="source-line-no">060</span><span id="line-60">   * @throws IllegalArgumentException if columnSelector is null</span>
-<span class="source-line-no">061</span><span id="line-61">   */</span>
-<span class="source-line-no">062</span><span id="line-62">  public CsvFilterCommand(CSVPath columnSelector, boolean hasHeader) {</span>
-<span class="source-line-no">063</span><span id="line-63">    if (columnSelector == null) {</span>
-<span class="source-line-no">064</span><span id="line-64">      throw new IllegalArgumentException("Column selector cannot be null");</span>
-<span class="source-line-no">065</span><span id="line-65">    }</span>
-<span class="source-line-no">066</span><span id="line-66">    this.columnSelectors = Arrays.asList(columnSelector);</span>
-<span class="source-line-no">067</span><span id="line-67">    this.legacyColumnSelectors = Arrays.asList(columnSelector.getPath());</span>
-<span class="source-line-no">068</span><span id="line-68">    this.hasHeader = hasHeader;</span>
-<span class="source-line-no">069</span><span id="line-69">  }</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">  /**</span>
-<span class="source-line-no">072</span><span id="line-72">   * Constructor for CSV filtering with multiple column selectors.</span>
-<span class="source-line-no">073</span><span id="line-73">   *</span>
-<span class="source-line-no">074</span><span id="line-74">   * @param columnSelectors list of column names or indices to extract</span>
-<span class="source-line-no">075</span><span id="line-75">   * @param hasHeader whether the CSV has a header row</span>
-<span class="source-line-no">076</span><span id="line-76">   * @throws IllegalArgumentException if columnSelectors is null or empty</span>
-<span class="source-line-no">077</span><span id="line-77">   * @deprecated Use {@link #CsvFilterCommand(List, boolean)} with CSVPath list instead</span>
-<span class="source-line-no">078</span><span id="line-78">   */</span>
-<span class="source-line-no">079</span><span id="line-79">  @Deprecated</span>
-<span class="source-line-no">080</span><span id="line-80">  public CsvFilterCommand(List&lt;String&gt; columnSelectors, boolean hasHeader) {</span>
-<span class="source-line-no">081</span><span id="line-81">    if (columnSelectors == null || columnSelectors.isEmpty()) {</span>
-<span class="source-line-no">082</span><span id="line-82">      throw new IllegalArgumentException("Column selectors cannot be null or empty");</span>
-<span class="source-line-no">083</span><span id="line-83">    }</span>
-<span class="source-line-no">084</span><span id="line-84">    this.legacyColumnSelectors = new ArrayList&lt;&gt;(columnSelectors);</span>
-<span class="source-line-no">085</span><span id="line-85">    this.columnSelectors = columnSelectors.stream().map(CSVPath::new).collect(Collectors.toList());</span>
-<span class="source-line-no">086</span><span id="line-86">    this.hasHeader = hasHeader;</span>
-<span class="source-line-no">087</span><span id="line-87">  }</span>
-<span class="source-line-no">088</span><span id="line-88"></span>
-<span class="source-line-no">089</span><span id="line-89">  /**</span>
-<span class="source-line-no">090</span><span id="line-90">   * Private constructor for internal use with typed column selectors.</span>
-<span class="source-line-no">091</span><span id="line-91">   *</span>
-<span class="source-line-no">092</span><span id="line-92">   * @param columnSelectors list of typed CSVPaths to extract</span>
-<span class="source-line-no">093</span><span id="line-93">   * @param hasHeader whether the CSV has a header row</span>
-<span class="source-line-no">094</span><span id="line-94">   * @param internal marker parameter to distinguish from deprecated constructor</span>
-<span class="source-line-no">095</span><span id="line-95">   */</span>
-<span class="source-line-no">096</span><span id="line-96">  private CsvFilterCommand(List&lt;CSVPath&gt; columnSelectors, boolean hasHeader, boolean internal) {</span>
-<span class="source-line-no">097</span><span id="line-97">    if (columnSelectors == null || columnSelectors.isEmpty()) {</span>
-<span class="source-line-no">098</span><span id="line-98">      throw new IllegalArgumentException("Column selectors cannot be null or empty");</span>
-<span class="source-line-no">099</span><span id="line-99">    }</span>
-<span class="source-line-no">100</span><span id="line-100">    this.columnSelectors = new ArrayList&lt;&gt;(columnSelectors);</span>
-<span class="source-line-no">101</span><span id="line-101">    this.legacyColumnSelectors =</span>
-<span class="source-line-no">102</span><span id="line-102">        columnSelectors.stream().map(CSVPath::getPath).collect(Collectors.toList());</span>
-<span class="source-line-no">103</span><span id="line-103">    this.hasHeader = hasHeader;</span>
-<span class="source-line-no">104</span><span id="line-104">  }</span>
-<span class="source-line-no">105</span><span id="line-105"></span>
-<span class="source-line-no">106</span><span id="line-106">  /**</span>
-<span class="source-line-no">107</span><span id="line-107">   * Factory method for CSV filtering with multiple typed column selectors.</span>
-<span class="source-line-no">108</span><span id="line-108">   *</span>
-<span class="source-line-no">109</span><span id="line-109">   * @param columnSelectors list of typed CSVPaths to extract</span>
-<span class="source-line-no">110</span><span id="line-110">   * @param hasHeader whether the CSV has a header row</span>
-<span class="source-line-no">111</span><span id="line-111">   * @return a CsvFilterCommand instance</span>
-<span class="source-line-no">112</span><span id="line-112">   * @throws IllegalArgumentException if columnSelectors is null or empty</span>
-<span class="source-line-no">113</span><span id="line-113">   */</span>
-<span class="source-line-no">114</span><span id="line-114">  public static CsvFilterCommand create(List&lt;CSVPath&gt; columnSelectors, boolean hasHeader) {</span>
-<span class="source-line-no">115</span><span id="line-115">    return new CsvFilterCommand(columnSelectors, hasHeader, true);</span>
-<span class="source-line-no">116</span><span id="line-116">  }</span>
-<span class="source-line-no">117</span><span id="line-117"></span>
-<span class="source-line-no">118</span><span id="line-118">  /**</span>
-<span class="source-line-no">119</span><span id="line-119">   * Constructor for CSV filtering with single column selector (assumes header exists).</span>
-<span class="source-line-no">120</span><span id="line-120">   *</span>
-<span class="source-line-no">121</span><span id="line-121">   * @param columnSelector the column name or index to extract</span>
-<span class="source-line-no">122</span><span id="line-122">   * @deprecated Use {@link #create(CSVPath)} instead</span>
+<span class="source-line-no">035</span><span id="line-35">  @Deprecated private final List&lt;CSVPath&gt; columnSelectors;</span>
+<span class="source-line-no">036</span><span id="line-36">  @Deprecated private final List&lt;String&gt; legacyColumnSelectors;</span>
+<span class="source-line-no">037</span><span id="line-37"></span>
+<span class="source-line-no">038</span><span id="line-38">  /**</span>
+<span class="source-line-no">039</span><span id="line-39">   * Constructor for CSV filtering with single column selector.</span>
+<span class="source-line-no">040</span><span id="line-40">   *</span>
+<span class="source-line-no">041</span><span id="line-41">   * @param columnSelector the column name or index to extract (e.g., "name", "2")</span>
+<span class="source-line-no">042</span><span id="line-42">   * @param hasHeader whether the CSV has a header row</span>
+<span class="source-line-no">043</span><span id="line-43">   * @throws IllegalArgumentException if columnSelector is null or empty</span>
+<span class="source-line-no">044</span><span id="line-44">   * @deprecated Use {@link #CsvFilterCommand(CSVPath, boolean)} instead</span>
+<span class="source-line-no">045</span><span id="line-45">   */</span>
+<span class="source-line-no">046</span><span id="line-46">  @Deprecated</span>
+<span class="source-line-no">047</span><span id="line-47">  public CsvFilterCommand(String columnSelector, boolean hasHeader) {</span>
+<span class="source-line-no">048</span><span id="line-48">    if (columnSelector == null || columnSelector.trim().isEmpty()) {</span>
+<span class="source-line-no">049</span><span id="line-49">      throw new IllegalArgumentException("Column selector cannot be null or empty");</span>
+<span class="source-line-no">050</span><span id="line-50">    }</span>
+<span class="source-line-no">051</span><span id="line-51">    this.combinedSelector = new CSVPath(columnSelector.trim());</span>
+<span class="source-line-no">052</span><span id="line-52">    this.legacyColumnSelectors = Arrays.asList(columnSelector.trim());</span>
+<span class="source-line-no">053</span><span id="line-53">    this.columnSelectors = Arrays.asList(this.combinedSelector); // For backward compatibility</span>
+<span class="source-line-no">054</span><span id="line-54">    this.hasHeader = hasHeader;</span>
+<span class="source-line-no">055</span><span id="line-55">  }</span>
+<span class="source-line-no">056</span><span id="line-56"></span>
+<span class="source-line-no">057</span><span id="line-57">  /**</span>
+<span class="source-line-no">058</span><span id="line-58">   * Constructor for CSV filtering with single typed column selector.</span>
+<span class="source-line-no">059</span><span id="line-59">   *</span>
+<span class="source-line-no">060</span><span id="line-60">   * @param columnSelector the typed CSVPath to extract</span>
+<span class="source-line-no">061</span><span id="line-61">   * @param hasHeader whether the CSV has a header row</span>
+<span class="source-line-no">062</span><span id="line-62">   * @throws IllegalArgumentException if columnSelector is null</span>
+<span class="source-line-no">063</span><span id="line-63">   */</span>
+<span class="source-line-no">064</span><span id="line-64">  public CsvFilterCommand(CSVPath columnSelector, boolean hasHeader) {</span>
+<span class="source-line-no">065</span><span id="line-65">    if (columnSelector == null) {</span>
+<span class="source-line-no">066</span><span id="line-66">      throw new IllegalArgumentException("Column selector cannot be null");</span>
+<span class="source-line-no">067</span><span id="line-67">    }</span>
+<span class="source-line-no">068</span><span id="line-68">    this.combinedSelector = columnSelector;</span>
+<span class="source-line-no">069</span><span id="line-69">    this.columnSelectors = Arrays.asList(columnSelector); // For backward compatibility</span>
+<span class="source-line-no">070</span><span id="line-70">    this.legacyColumnSelectors = Arrays.asList(columnSelector.toString());</span>
+<span class="source-line-no">071</span><span id="line-71">    this.hasHeader = hasHeader;</span>
+<span class="source-line-no">072</span><span id="line-72">  }</span>
+<span class="source-line-no">073</span><span id="line-73"></span>
+<span class="source-line-no">074</span><span id="line-74">  /**</span>
+<span class="source-line-no">075</span><span id="line-75">   * Constructor for CSV filtering with multiple column selectors.</span>
+<span class="source-line-no">076</span><span id="line-76">   *</span>
+<span class="source-line-no">077</span><span id="line-77">   * @param columnSelectors list of column names or indices to extract</span>
+<span class="source-line-no">078</span><span id="line-78">   * @param hasHeader whether the CSV has a header row</span>
+<span class="source-line-no">079</span><span id="line-79">   * @throws IllegalArgumentException if columnSelectors is null or empty</span>
+<span class="source-line-no">080</span><span id="line-80">   * @deprecated Use {@link #CsvFilterCommand(List, boolean)} with CSVPath list instead</span>
+<span class="source-line-no">081</span><span id="line-81">   */</span>
+<span class="source-line-no">082</span><span id="line-82">  @Deprecated</span>
+<span class="source-line-no">083</span><span id="line-83">  public CsvFilterCommand(List&lt;String&gt; columnSelectors, boolean hasHeader) {</span>
+<span class="source-line-no">084</span><span id="line-84">    if (columnSelectors == null || columnSelectors.isEmpty()) {</span>
+<span class="source-line-no">085</span><span id="line-85">      throw new IllegalArgumentException("Column selectors cannot be null or empty");</span>
+<span class="source-line-no">086</span><span id="line-86">    }</span>
+<span class="source-line-no">087</span><span id="line-87">    this.combinedSelector = new CSVPath(columnSelectors); // Use multi-selector constructor</span>
+<span class="source-line-no">088</span><span id="line-88">    this.legacyColumnSelectors = new ArrayList&lt;&gt;(columnSelectors);</span>
+<span class="source-line-no">089</span><span id="line-89">    this.columnSelectors =</span>
+<span class="source-line-no">090</span><span id="line-90">        columnSelectors.stream()</span>
+<span class="source-line-no">091</span><span id="line-91">            .map(CSVPath::new)</span>
+<span class="source-line-no">092</span><span id="line-92">            .collect(Collectors.toList()); // For backward compatibility</span>
+<span class="source-line-no">093</span><span id="line-93">    this.hasHeader = hasHeader;</span>
+<span class="source-line-no">094</span><span id="line-94">  }</span>
+<span class="source-line-no">095</span><span id="line-95"></span>
+<span class="source-line-no">096</span><span id="line-96">  /**</span>
+<span class="source-line-no">097</span><span id="line-97">   * Private constructor for internal use with typed column selectors.</span>
+<span class="source-line-no">098</span><span id="line-98">   *</span>
+<span class="source-line-no">099</span><span id="line-99">   * @param columnSelectors list of typed CSVPaths to extract</span>
+<span class="source-line-no">100</span><span id="line-100">   * @param hasHeader whether the CSV has a header row</span>
+<span class="source-line-no">101</span><span id="line-101">   * @param internal marker parameter to distinguish from deprecated constructor</span>
+<span class="source-line-no">102</span><span id="line-102">   */</span>
+<span class="source-line-no">103</span><span id="line-103">  private CsvFilterCommand(List&lt;CSVPath&gt; columnSelectors, boolean hasHeader, boolean internal) {</span>
+<span class="source-line-no">104</span><span id="line-104">    if (columnSelectors == null || columnSelectors.isEmpty()) {</span>
+<span class="source-line-no">105</span><span id="line-105">      throw new IllegalArgumentException("Column selectors cannot be null or empty");</span>
+<span class="source-line-no">106</span><span id="line-106">    }</span>
+<span class="source-line-no">107</span><span id="line-107">    // Combine multiple CSVPath objects into one with multiple selectors</span>
+<span class="source-line-no">108</span><span id="line-108">    List&lt;String&gt; selectorStrings =</span>
+<span class="source-line-no">109</span><span id="line-109">        columnSelectors.stream().map(CSVPath::toString).collect(Collectors.toList());</span>
+<span class="source-line-no">110</span><span id="line-110">    this.combinedSelector = new CSVPath(selectorStrings);</span>
+<span class="source-line-no">111</span><span id="line-111">    this.columnSelectors = new ArrayList&lt;&gt;(columnSelectors); // For backward compatibility</span>
+<span class="source-line-no">112</span><span id="line-112">    this.legacyColumnSelectors = selectorStrings;</span>
+<span class="source-line-no">113</span><span id="line-113">    this.hasHeader = hasHeader;</span>
+<span class="source-line-no">114</span><span id="line-114">  }</span>
+<span class="source-line-no">115</span><span id="line-115"></span>
+<span class="source-line-no">116</span><span id="line-116">  /**</span>
+<span class="source-line-no">117</span><span id="line-117">   * Factory method for CSV filtering with multiple typed column selectors.</span>
+<span class="source-line-no">118</span><span id="line-118">   *</span>
+<span class="source-line-no">119</span><span id="line-119">   * @param columnSelectors list of typed CSVPaths to extract</span>
+<span class="source-line-no">120</span><span id="line-120">   * @param hasHeader whether the CSV has a header row</span>
+<span class="source-line-no">121</span><span id="line-121">   * @return a CsvFilterCommand instance</span>
+<span class="source-line-no">122</span><span id="line-122">   * @throws IllegalArgumentException if columnSelectors is null or empty</span>
 <span class="source-line-no">123</span><span id="line-123">   */</span>
-<span class="source-line-no">124</span><span id="line-124">  @Deprecated</span>
-<span class="source-line-no">125</span><span id="line-125">  public CsvFilterCommand(String columnSelector) {</span>
-<span class="source-line-no">126</span><span id="line-126">    this(columnSelector, true);</span>
-<span class="source-line-no">127</span><span id="line-127">  }</span>
-<span class="source-line-no">128</span><span id="line-128"></span>
-<span class="source-line-no">129</span><span id="line-129">  /**</span>
-<span class="source-line-no">130</span><span id="line-130">   * Factory method for CSV filtering with single typed column selector (assumes header exists).</span>
-<span class="source-line-no">131</span><span id="line-131">   *</span>
-<span class="source-line-no">132</span><span id="line-132">   * @param columnSelector the typed CSVPath to extract</span>
-<span class="source-line-no">133</span><span id="line-133">   * @return a CsvFilterCommand instance</span>
-<span class="source-line-no">134</span><span id="line-134">   */</span>
-<span class="source-line-no">135</span><span id="line-135">  public static CsvFilterCommand create(CSVPath columnSelector) {</span>
-<span class="source-line-no">136</span><span id="line-136">    return create(columnSelector, true);</span>
+<span class="source-line-no">124</span><span id="line-124">  public static CsvFilterCommand create(List&lt;CSVPath&gt; columnSelectors, boolean hasHeader) {</span>
+<span class="source-line-no">125</span><span id="line-125">    return new CsvFilterCommand(columnSelectors, hasHeader, true);</span>
+<span class="source-line-no">126</span><span id="line-126">  }</span>
+<span class="source-line-no">127</span><span id="line-127"></span>
+<span class="source-line-no">128</span><span id="line-128">  /**</span>
+<span class="source-line-no">129</span><span id="line-129">   * Constructor for CSV filtering with single column selector (assumes header exists).</span>
+<span class="source-line-no">130</span><span id="line-130">   *</span>
+<span class="source-line-no">131</span><span id="line-131">   * @param columnSelector the column name or index to extract</span>
+<span class="source-line-no">132</span><span id="line-132">   * @deprecated Use {@link #create(CSVPath)} instead</span>
+<span class="source-line-no">133</span><span id="line-133">   */</span>
+<span class="source-line-no">134</span><span id="line-134">  @Deprecated</span>
+<span class="source-line-no">135</span><span id="line-135">  public CsvFilterCommand(String columnSelector) {</span>
+<span class="source-line-no">136</span><span id="line-136">    this(columnSelector, true);</span>
 <span class="source-line-no">137</span><span id="line-137">  }</span>
 <span class="source-line-no">138</span><span id="line-138"></span>
 <span class="source-line-no">139</span><span id="line-139">  /**</span>
-<span class="source-line-no">140</span><span id="line-140">   * Factory method for CSV filtering with single typed column selector.</span>
+<span class="source-line-no">140</span><span id="line-140">   * Factory method for CSV filtering with single typed column selector (assumes header exists).</span>
 <span class="source-line-no">141</span><span id="line-141">   *</span>
 <span class="source-line-no">142</span><span id="line-142">   * @param columnSelector the typed CSVPath to extract</span>
-<span class="source-line-no">143</span><span id="line-143">   * @param hasHeader whether the CSV has a header row</span>
-<span class="source-line-no">144</span><span id="line-144">   * @return a CsvFilterCommand instance</span>
-<span class="source-line-no">145</span><span id="line-145">   */</span>
-<span class="source-line-no">146</span><span id="line-146">  public static CsvFilterCommand create(CSVPath columnSelector, boolean hasHeader) {</span>
-<span class="source-line-no">147</span><span id="line-147">    return create(Arrays.asList(columnSelector), hasHeader);</span>
-<span class="source-line-no">148</span><span id="line-148">  }</span>
-<span class="source-line-no">149</span><span id="line-149"></span>
-<span class="source-line-no">150</span><span id="line-150">  /**</span>
-<span class="source-line-no">151</span><span id="line-151">   * Constructor for CSV filtering with multiple column selectors (assumes header exists).</span>
-<span class="source-line-no">152</span><span id="line-152">   *</span>
-<span class="source-line-no">153</span><span id="line-153">   * @param columnSelectors list of column names or indices to extract</span>
-<span class="source-line-no">154</span><span id="line-154">   * @deprecated Use constructor with List&amp;lt;CSVPath&amp;gt; instead</span>
+<span class="source-line-no">143</span><span id="line-143">   * @return a CsvFilterCommand instance</span>
+<span class="source-line-no">144</span><span id="line-144">   */</span>
+<span class="source-line-no">145</span><span id="line-145">  public static CsvFilterCommand create(CSVPath columnSelector) {</span>
+<span class="source-line-no">146</span><span id="line-146">    return create(columnSelector, true);</span>
+<span class="source-line-no">147</span><span id="line-147">  }</span>
+<span class="source-line-no">148</span><span id="line-148"></span>
+<span class="source-line-no">149</span><span id="line-149">  /**</span>
+<span class="source-line-no">150</span><span id="line-150">   * Factory method for CSV filtering with single typed column selector.</span>
+<span class="source-line-no">151</span><span id="line-151">   *</span>
+<span class="source-line-no">152</span><span id="line-152">   * @param columnSelector the typed CSVPath to extract</span>
+<span class="source-line-no">153</span><span id="line-153">   * @param hasHeader whether the CSV has a header row</span>
+<span class="source-line-no">154</span><span id="line-154">   * @return a CsvFilterCommand instance</span>
 <span class="source-line-no">155</span><span id="line-155">   */</span>
-<span class="source-line-no">156</span><span id="line-156">  @Deprecated</span>
-<span class="source-line-no">157</span><span id="line-157">  public CsvFilterCommand(List&lt;String&gt; columnSelectors) {</span>
-<span class="source-line-no">158</span><span id="line-158">    this(columnSelectors, true);</span>
-<span class="source-line-no">159</span><span id="line-159">  }</span>
-<span class="source-line-no">160</span><span id="line-160"></span>
-<span class="source-line-no">161</span><span id="line-161">  @Override</span>
-<span class="source-line-no">162</span><span id="line-162">  protected String getCommandDetails() {</span>
-<span class="source-line-no">163</span><span id="line-163">    List&lt;String&gt; selectorPaths =</span>
-<span class="source-line-no">164</span><span id="line-164">        columnSelectors.stream().map(CSVPath::getPath).collect(Collectors.toList());</span>
-<span class="source-line-no">165</span><span id="line-165">    return String.format("CsvFilterCommand(columns=%s, hasHeader=%s)", selectorPaths, hasHeader);</span>
-<span class="source-line-no">166</span><span id="line-166">  }</span>
-<span class="source-line-no">167</span><span id="line-167"></span>
-<span class="source-line-no">168</span><span id="line-168">  @Override</span>
-<span class="source-line-no">169</span><span id="line-169">  protected void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
-<span class="source-line-no">170</span><span id="line-170">      throws IOException {</span>
-<span class="source-line-no">171</span><span id="line-171">    try (BufferedReader reader =</span>
-<span class="source-line-no">172</span><span id="line-172">            new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));</span>
-<span class="source-line-no">173</span><span id="line-173">        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
-<span class="source-line-no">174</span><span id="line-174"></span>
-<span class="source-line-no">175</span><span id="line-175">      List&lt;Integer&gt; columnIndices = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">176</span><span id="line-176">      String[] headers = null;</span>
-<span class="source-line-no">177</span><span id="line-177"></span>
-<span class="source-line-no">178</span><span id="line-178">      // Read first line</span>
-<span class="source-line-no">179</span><span id="line-179">      String firstLine = reader.readLine();</span>
-<span class="source-line-no">180</span><span id="line-180">      if (firstLine == null) {</span>
-<span class="source-line-no">181</span><span id="line-181">        // Empty CSV</span>
-<span class="source-line-no">182</span><span id="line-182">        writer.flush();</span>
-<span class="source-line-no">183</span><span id="line-183">        return;</span>
-<span class="source-line-no">184</span><span id="line-184">      }</span>
-<span class="source-line-no">185</span><span id="line-185"></span>
-<span class="source-line-no">186</span><span id="line-186">      String[] firstRowFields = parseCsvLine(firstLine);</span>
-<span class="source-line-no">187</span><span id="line-187"></span>
-<span class="source-line-no">188</span><span id="line-188">      if (hasHeader) {</span>
-<span class="source-line-no">189</span><span id="line-189">        headers = firstRowFields;</span>
-<span class="source-line-no">190</span><span id="line-190">        // Map column selectors to indices</span>
-<span class="source-line-no">191</span><span id="line-191">        columnIndices = mapColumnSelectorsToIndices(columnSelectors, headers);</span>
-<span class="source-line-no">192</span><span id="line-192"></span>
-<span class="source-line-no">193</span><span id="line-193">        // Write filtered header</span>
-<span class="source-line-no">194</span><span id="line-194">        writeFilteredRow(writer, firstRowFields, columnIndices);</span>
-<span class="source-line-no">195</span><span id="line-195">        writer.write(System.lineSeparator());</span>
-<span class="source-line-no">196</span><span id="line-196">      } else {</span>
-<span class="source-line-no">197</span><span id="line-197">        // No header - column selectors must be numeric indices</span>
-<span class="source-line-no">198</span><span id="line-198">        columnIndices = parseNumericColumnSelectors(columnSelectors, firstRowFields.length);</span>
-<span class="source-line-no">199</span><span id="line-199"></span>
-<span class="source-line-no">200</span><span id="line-200">        // Write filtered first data row</span>
-<span class="source-line-no">201</span><span id="line-201">        writeFilteredRow(writer, firstRowFields, columnIndices);</span>
-<span class="source-line-no">202</span><span id="line-202">        writer.write(System.lineSeparator());</span>
-<span class="source-line-no">203</span><span id="line-203">      }</span>
-<span class="source-line-no">204</span><span id="line-204"></span>
-<span class="source-line-no">205</span><span id="line-205">      // Process remaining data rows</span>
-<span class="source-line-no">206</span><span id="line-206">      String line;</span>
-<span class="source-line-no">207</span><span id="line-207">      while ((line = reader.readLine()) != null) {</span>
-<span class="source-line-no">208</span><span id="line-208">        String[] fields = parseCsvLine(line);</span>
-<span class="source-line-no">209</span><span id="line-209">        writeFilteredRow(writer, fields, columnIndices);</span>
-<span class="source-line-no">210</span><span id="line-210">        writer.write(System.lineSeparator());</span>
-<span class="source-line-no">211</span><span id="line-211">      }</span>
-<span class="source-line-no">212</span><span id="line-212"></span>
-<span class="source-line-no">213</span><span id="line-213">      writer.flush();</span>
-<span class="source-line-no">214</span><span id="line-214">    }</span>
-<span class="source-line-no">215</span><span id="line-215">  }</span>
-<span class="source-line-no">216</span><span id="line-216"></span>
-<span class="source-line-no">217</span><span id="line-217">  /**</span>
-<span class="source-line-no">218</span><span id="line-218">   * Map column selectors to column indices</span>
-<span class="source-line-no">219</span><span id="line-219">   *</span>
-<span class="source-line-no">220</span><span id="line-220">   * @param selectors list of column names or indices</span>
-<span class="source-line-no">221</span><span id="line-221">   * @param headers array of header names</span>
-<span class="source-line-no">222</span><span id="line-222">   * @return list of column indices</span>
-<span class="source-line-no">223</span><span id="line-223">   * @throws IllegalArgumentException if column not found</span>
-<span class="source-line-no">224</span><span id="line-224">   */</span>
-<span class="source-line-no">225</span><span id="line-225">  private List&lt;Integer&gt; mapColumnSelectorsToIndices(List&lt;CSVPath&gt; selectors, String[] headers) {</span>
-<span class="source-line-no">226</span><span id="line-226">    List&lt;Integer&gt; indices = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">227</span><span id="line-227"></span>
-<span class="source-line-no">228</span><span id="line-228">    for (CSVPath selector : selectors) {</span>
-<span class="source-line-no">229</span><span id="line-229">      int index = selector.resolveIndex(headers);</span>
-<span class="source-line-no">230</span><span id="line-230">      if (index == -1) {</span>
-<span class="source-line-no">231</span><span id="line-231">        throw new IllegalArgumentException("Column not found: " + selector.getPath());</span>
-<span class="source-line-no">232</span><span id="line-232">      }</span>
-<span class="source-line-no">233</span><span id="line-233">      indices.add(index);</span>
-<span class="source-line-no">234</span><span id="line-234">    }</span>
-<span class="source-line-no">235</span><span id="line-235"></span>
-<span class="source-line-no">236</span><span id="line-236">    return indices;</span>
-<span class="source-line-no">237</span><span id="line-237">  }</span>
-<span class="source-line-no">238</span><span id="line-238"></span>
-<span class="source-line-no">239</span><span id="line-239">  /**</span>
-<span class="source-line-no">240</span><span id="line-240">   * Parse numeric column selectors when no header exists</span>
-<span class="source-line-no">241</span><span id="line-241">   *</span>
-<span class="source-line-no">242</span><span id="line-242">   * @param selectors list of column indices as strings</span>
-<span class="source-line-no">243</span><span id="line-243">   * @param totalColumns total number of columns available</span>
-<span class="source-line-no">244</span><span id="line-244">   * @return list of column indices</span>
-<span class="source-line-no">245</span><span id="line-245">   * @throws IllegalArgumentException if index is invalid</span>
-<span class="source-line-no">246</span><span id="line-246">   */</span>
-<span class="source-line-no">247</span><span id="line-247">  private List&lt;Integer&gt; parseNumericColumnSelectors(List&lt;CSVPath&gt; selectors, int totalColumns) {</span>
-<span class="source-line-no">248</span><span id="line-248">    List&lt;Integer&gt; indices = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">249</span><span id="line-249"></span>
-<span class="source-line-no">250</span><span id="line-250">    for (CSVPath selector : selectors) {</span>
-<span class="source-line-no">251</span><span id="line-251">      if (!selector.isIndexBased()) {</span>
-<span class="source-line-no">252</span><span id="line-252">        throw new IllegalArgumentException(</span>
-<span class="source-line-no">253</span><span id="line-253">            "Column selector must be numeric when no header: " + selector.getPath());</span>
-<span class="source-line-no">254</span><span id="line-254">      }</span>
-<span class="source-line-no">255</span><span id="line-255"></span>
-<span class="source-line-no">256</span><span id="line-256">      int index = selector.getColumnIndex();</span>
-<span class="source-line-no">257</span><span id="line-257">      if (index &lt; 0 || index &gt;= totalColumns) {</span>
-<span class="source-line-no">258</span><span id="line-258">        throw new IllegalArgumentException("Column index out of range: " + selector.getPath());</span>
-<span class="source-line-no">259</span><span id="line-259">      }</span>
-<span class="source-line-no">260</span><span id="line-260">      indices.add(index);</span>
-<span class="source-line-no">261</span><span id="line-261">    }</span>
-<span class="source-line-no">262</span><span id="line-262"></span>
-<span class="source-line-no">263</span><span id="line-263">    return indices;</span>
-<span class="source-line-no">264</span><span id="line-264">  }</span>
-<span class="source-line-no">265</span><span id="line-265"></span>
-<span class="source-line-no">266</span><span id="line-266">  /**</span>
-<span class="source-line-no">267</span><span id="line-267">   * Parse a CSV line into fields (simple implementation)</span>
-<span class="source-line-no">268</span><span id="line-268">   *</span>
-<span class="source-line-no">269</span><span id="line-269">   * @param line CSV line</span>
-<span class="source-line-no">270</span><span id="line-270">   * @return array of field values</span>
-<span class="source-line-no">271</span><span id="line-271">   */</span>
-<span class="source-line-no">272</span><span id="line-272">  private String[] parseCsvLine(String line) {</span>
-<span class="source-line-no">273</span><span id="line-273">    // Simple CSV parsing - handles basic comma separation</span>
-<span class="source-line-no">274</span><span id="line-274">    // For production, consider using a proper CSV library</span>
-<span class="source-line-no">275</span><span id="line-275">    if (line == null || line.isEmpty()) {</span>
-<span class="source-line-no">276</span><span id="line-276">      return new String[0];</span>
-<span class="source-line-no">277</span><span id="line-277">    }</span>
+<span class="source-line-no">156</span><span id="line-156">  public static CsvFilterCommand create(CSVPath columnSelector, boolean hasHeader) {</span>
+<span class="source-line-no">157</span><span id="line-157">    return create(Arrays.asList(columnSelector), hasHeader);</span>
+<span class="source-line-no">158</span><span id="line-158">  }</span>
+<span class="source-line-no">159</span><span id="line-159"></span>
+<span class="source-line-no">160</span><span id="line-160">  /**</span>
+<span class="source-line-no">161</span><span id="line-161">   * Constructor for CSV filtering with multiple column selectors (assumes header exists).</span>
+<span class="source-line-no">162</span><span id="line-162">   *</span>
+<span class="source-line-no">163</span><span id="line-163">   * @param columnSelectors list of column names or indices to extract</span>
+<span class="source-line-no">164</span><span id="line-164">   * @deprecated Use constructor with List&amp;lt;CSVPath&amp;gt; instead</span>
+<span class="source-line-no">165</span><span id="line-165">   */</span>
+<span class="source-line-no">166</span><span id="line-166">  @Deprecated</span>
+<span class="source-line-no">167</span><span id="line-167">  public CsvFilterCommand(List&lt;String&gt; columnSelectors) {</span>
+<span class="source-line-no">168</span><span id="line-168">    this(columnSelectors, true);</span>
+<span class="source-line-no">169</span><span id="line-169">  }</span>
+<span class="source-line-no">170</span><span id="line-170"></span>
+<span class="source-line-no">171</span><span id="line-171">  @Override</span>
+<span class="source-line-no">172</span><span id="line-172">  protected String getCommandDetails() {</span>
+<span class="source-line-no">173</span><span id="line-173">    return String.format(</span>
+<span class="source-line-no">174</span><span id="line-174">        "CsvFilterCommand(columns=%s, hasHeader=%s)", combinedSelector.toString(), hasHeader);</span>
+<span class="source-line-no">175</span><span id="line-175">  }</span>
+<span class="source-line-no">176</span><span id="line-176"></span>
+<span class="source-line-no">177</span><span id="line-177">  @Override</span>
+<span class="source-line-no">178</span><span id="line-178">  protected void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
+<span class="source-line-no">179</span><span id="line-179">      throws IOException {</span>
+<span class="source-line-no">180</span><span id="line-180">    try (BufferedReader reader =</span>
+<span class="source-line-no">181</span><span id="line-181">            new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));</span>
+<span class="source-line-no">182</span><span id="line-182">        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
+<span class="source-line-no">183</span><span id="line-183"></span>
+<span class="source-line-no">184</span><span id="line-184">      List&lt;Integer&gt; columnIndices = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">185</span><span id="line-185">      String[] headers = null;</span>
+<span class="source-line-no">186</span><span id="line-186"></span>
+<span class="source-line-no">187</span><span id="line-187">      // Read first line</span>
+<span class="source-line-no">188</span><span id="line-188">      String firstLine = reader.readLine();</span>
+<span class="source-line-no">189</span><span id="line-189">      if (firstLine == null) {</span>
+<span class="source-line-no">190</span><span id="line-190">        // Empty CSV</span>
+<span class="source-line-no">191</span><span id="line-191">        writer.flush();</span>
+<span class="source-line-no">192</span><span id="line-192">        return;</span>
+<span class="source-line-no">193</span><span id="line-193">      }</span>
+<span class="source-line-no">194</span><span id="line-194"></span>
+<span class="source-line-no">195</span><span id="line-195">      String[] firstRowFields = parseCsvLine(firstLine);</span>
+<span class="source-line-no">196</span><span id="line-196"></span>
+<span class="source-line-no">197</span><span id="line-197">      if (hasHeader) {</span>
+<span class="source-line-no">198</span><span id="line-198">        headers = firstRowFields;</span>
+<span class="source-line-no">199</span><span id="line-199">        // Map column selectors to indices</span>
+<span class="source-line-no">200</span><span id="line-200">        columnIndices = mapColumnSelectorsToIndices(combinedSelector, headers);</span>
+<span class="source-line-no">201</span><span id="line-201"></span>
+<span class="source-line-no">202</span><span id="line-202">        // Write filtered header</span>
+<span class="source-line-no">203</span><span id="line-203">        writeFilteredRow(writer, firstRowFields, columnIndices);</span>
+<span class="source-line-no">204</span><span id="line-204">        writer.write(System.lineSeparator());</span>
+<span class="source-line-no">205</span><span id="line-205">      } else {</span>
+<span class="source-line-no">206</span><span id="line-206">        // No header - column selectors must be numeric indices</span>
+<span class="source-line-no">207</span><span id="line-207">        columnIndices = parseNumericColumnSelectors(combinedSelector, firstRowFields.length);</span>
+<span class="source-line-no">208</span><span id="line-208"></span>
+<span class="source-line-no">209</span><span id="line-209">        // Write filtered first data row</span>
+<span class="source-line-no">210</span><span id="line-210">        writeFilteredRow(writer, firstRowFields, columnIndices);</span>
+<span class="source-line-no">211</span><span id="line-211">        writer.write(System.lineSeparator());</span>
+<span class="source-line-no">212</span><span id="line-212">      }</span>
+<span class="source-line-no">213</span><span id="line-213"></span>
+<span class="source-line-no">214</span><span id="line-214">      // Process remaining data rows</span>
+<span class="source-line-no">215</span><span id="line-215">      String line;</span>
+<span class="source-line-no">216</span><span id="line-216">      while ((line = reader.readLine()) != null) {</span>
+<span class="source-line-no">217</span><span id="line-217">        String[] fields = parseCsvLine(line);</span>
+<span class="source-line-no">218</span><span id="line-218">        writeFilteredRow(writer, fields, columnIndices);</span>
+<span class="source-line-no">219</span><span id="line-219">        writer.write(System.lineSeparator());</span>
+<span class="source-line-no">220</span><span id="line-220">      }</span>
+<span class="source-line-no">221</span><span id="line-221"></span>
+<span class="source-line-no">222</span><span id="line-222">      writer.flush();</span>
+<span class="source-line-no">223</span><span id="line-223">    }</span>
+<span class="source-line-no">224</span><span id="line-224">  }</span>
+<span class="source-line-no">225</span><span id="line-225"></span>
+<span class="source-line-no">226</span><span id="line-226">  /**</span>
+<span class="source-line-no">227</span><span id="line-227">   * Map column selectors to column indices using Don't Ask Tell pattern</span>
+<span class="source-line-no">228</span><span id="line-228">   *</span>
+<span class="source-line-no">229</span><span id="line-229">   * @param csvPath the CSV path containing multiple selectors</span>
+<span class="source-line-no">230</span><span id="line-230">   * @param headers array of header names</span>
+<span class="source-line-no">231</span><span id="line-231">   * @return list of column indices</span>
+<span class="source-line-no">232</span><span id="line-232">   * @throws IllegalArgumentException if no columns found</span>
+<span class="source-line-no">233</span><span id="line-233">   */</span>
+<span class="source-line-no">234</span><span id="line-234">  private List&lt;Integer&gt; mapColumnSelectorsToIndices(CSVPath csvPath, String[] headers) {</span>
+<span class="source-line-no">235</span><span id="line-235">    List&lt;Integer&gt; indices = csvPath.findMatchingIndices(headers);</span>
+<span class="source-line-no">236</span><span id="line-236">    if (indices.isEmpty()) {</span>
+<span class="source-line-no">237</span><span id="line-237">      throw new IllegalArgumentException("No columns found for selector: " + csvPath.toString());</span>
+<span class="source-line-no">238</span><span id="line-238">    }</span>
+<span class="source-line-no">239</span><span id="line-239">    return indices;</span>
+<span class="source-line-no">240</span><span id="line-240">  }</span>
+<span class="source-line-no">241</span><span id="line-241"></span>
+<span class="source-line-no">242</span><span id="line-242">  /**</span>
+<span class="source-line-no">243</span><span id="line-243">   * Parse numeric column selectors when no header exists using Don't Ask Tell pattern</span>
+<span class="source-line-no">244</span><span id="line-244">   *</span>
+<span class="source-line-no">245</span><span id="line-245">   * @param csvPath the CSV path containing column selectors</span>
+<span class="source-line-no">246</span><span id="line-246">   * @param totalColumns total number of columns available</span>
+<span class="source-line-no">247</span><span id="line-247">   * @return list of column indices</span>
+<span class="source-line-no">248</span><span id="line-248">   * @throws IllegalArgumentException if no valid indices found</span>
+<span class="source-line-no">249</span><span id="line-249">   */</span>
+<span class="source-line-no">250</span><span id="line-250">  private List&lt;Integer&gt; parseNumericColumnSelectors(CSVPath csvPath, int totalColumns) {</span>
+<span class="source-line-no">251</span><span id="line-251">    List&lt;Integer&gt; indices = csvPath.findMatchingIndices(totalColumns);</span>
+<span class="source-line-no">252</span><span id="line-252">    if (indices.isEmpty()) {</span>
+<span class="source-line-no">253</span><span id="line-253">      throw new IllegalArgumentException(</span>
+<span class="source-line-no">254</span><span id="line-254">          "Column selector must be numeric when no header: " + csvPath.toString());</span>
+<span class="source-line-no">255</span><span id="line-255">    }</span>
+<span class="source-line-no">256</span><span id="line-256">    return indices;</span>
+<span class="source-line-no">257</span><span id="line-257">  }</span>
+<span class="source-line-no">258</span><span id="line-258"></span>
+<span class="source-line-no">259</span><span id="line-259">  /**</span>
+<span class="source-line-no">260</span><span id="line-260">   * Parse a CSV line into fields (simple implementation)</span>
+<span class="source-line-no">261</span><span id="line-261">   *</span>
+<span class="source-line-no">262</span><span id="line-262">   * @param line CSV line</span>
+<span class="source-line-no">263</span><span id="line-263">   * @return array of field values</span>
+<span class="source-line-no">264</span><span id="line-264">   */</span>
+<span class="source-line-no">265</span><span id="line-265">  private String[] parseCsvLine(String line) {</span>
+<span class="source-line-no">266</span><span id="line-266">    // Simple CSV parsing - handles basic comma separation</span>
+<span class="source-line-no">267</span><span id="line-267">    // For production, consider using a proper CSV library</span>
+<span class="source-line-no">268</span><span id="line-268">    if (line == null || line.isEmpty()) {</span>
+<span class="source-line-no">269</span><span id="line-269">      return new String[0];</span>
+<span class="source-line-no">270</span><span id="line-270">    }</span>
+<span class="source-line-no">271</span><span id="line-271"></span>
+<span class="source-line-no">272</span><span id="line-272">    List&lt;String&gt; fields = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">273</span><span id="line-273">    StringBuilder current = new StringBuilder();</span>
+<span class="source-line-no">274</span><span id="line-274">    boolean inQuotes = false;</span>
+<span class="source-line-no">275</span><span id="line-275"></span>
+<span class="source-line-no">276</span><span id="line-276">    for (int i = 0; i &lt; line.length(); i++) {</span>
+<span class="source-line-no">277</span><span id="line-277">      char c = line.charAt(i);</span>
 <span class="source-line-no">278</span><span id="line-278"></span>
-<span class="source-line-no">279</span><span id="line-279">    List&lt;String&gt; fields = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">280</span><span id="line-280">    StringBuilder current = new StringBuilder();</span>
-<span class="source-line-no">281</span><span id="line-281">    boolean inQuotes = false;</span>
-<span class="source-line-no">282</span><span id="line-282"></span>
-<span class="source-line-no">283</span><span id="line-283">    for (int i = 0; i &lt; line.length(); i++) {</span>
-<span class="source-line-no">284</span><span id="line-284">      char c = line.charAt(i);</span>
-<span class="source-line-no">285</span><span id="line-285"></span>
-<span class="source-line-no">286</span><span id="line-286">      if (c == '"') {</span>
-<span class="source-line-no">287</span><span id="line-287">        inQuotes = !inQuotes;</span>
-<span class="source-line-no">288</span><span id="line-288">      } else if (c == ',' &amp;&amp; !inQuotes) {</span>
-<span class="source-line-no">289</span><span id="line-289">        fields.add(current.toString().trim());</span>
-<span class="source-line-no">290</span><span id="line-290">        current.setLength(0);</span>
-<span class="source-line-no">291</span><span id="line-291">      } else {</span>
-<span class="source-line-no">292</span><span id="line-292">        current.append(c);</span>
-<span class="source-line-no">293</span><span id="line-293">      }</span>
-<span class="source-line-no">294</span><span id="line-294">    }</span>
-<span class="source-line-no">295</span><span id="line-295"></span>
-<span class="source-line-no">296</span><span id="line-296">    fields.add(current.toString().trim());</span>
-<span class="source-line-no">297</span><span id="line-297">    return fields.toArray(new String[0]);</span>
-<span class="source-line-no">298</span><span id="line-298">  }</span>
-<span class="source-line-no">299</span><span id="line-299"></span>
-<span class="source-line-no">300</span><span id="line-300">  /**</span>
-<span class="source-line-no">301</span><span id="line-301">   * Write filtered row with only selected columns</span>
-<span class="source-line-no">302</span><span id="line-302">   *</span>
-<span class="source-line-no">303</span><span id="line-303">   * @param writer output writer</span>
-<span class="source-line-no">304</span><span id="line-304">   * @param fields all field values</span>
-<span class="source-line-no">305</span><span id="line-305">   * @param columnIndices indices of columns to include</span>
-<span class="source-line-no">306</span><span id="line-306">   * @throws IOException if writing fails</span>
-<span class="source-line-no">307</span><span id="line-307">   */</span>
-<span class="source-line-no">308</span><span id="line-308">  private void writeFilteredRow(Writer writer, String[] fields, List&lt;Integer&gt; columnIndices)</span>
-<span class="source-line-no">309</span><span id="line-309">      throws IOException {</span>
-<span class="source-line-no">310</span><span id="line-310">    for (int i = 0; i &lt; columnIndices.size(); i++) {</span>
-<span class="source-line-no">311</span><span id="line-311">      if (i &gt; 0) {</span>
-<span class="source-line-no">312</span><span id="line-312">        writer.write(",");</span>
-<span class="source-line-no">313</span><span id="line-313">      }</span>
-<span class="source-line-no">314</span><span id="line-314"></span>
-<span class="source-line-no">315</span><span id="line-315">      int columnIndex = columnIndices.get(i);</span>
-<span class="source-line-no">316</span><span id="line-316">      if (columnIndex &lt; fields.length) {</span>
-<span class="source-line-no">317</span><span id="line-317">        String field = fields[columnIndex];</span>
-<span class="source-line-no">318</span><span id="line-318">        // Quote field if it contains comma or quotes</span>
-<span class="source-line-no">319</span><span id="line-319">        if (field.contains(",") || field.contains("\"")) {</span>
-<span class="source-line-no">320</span><span id="line-320">          writer.write("\"" + field.replace("\"", "\"\"") + "\"");</span>
-<span class="source-line-no">321</span><span id="line-321">        } else {</span>
-<span class="source-line-no">322</span><span id="line-322">          writer.write(field);</span>
-<span class="source-line-no">323</span><span id="line-323">        }</span>
-<span class="source-line-no">324</span><span id="line-324">      } else {</span>
-<span class="source-line-no">325</span><span id="line-325">        // Column doesn't exist in this row - write empty field</span>
-<span class="source-line-no">326</span><span id="line-326">        writer.write("");</span>
-<span class="source-line-no">327</span><span id="line-327">      }</span>
-<span class="source-line-no">328</span><span id="line-328">    }</span>
-<span class="source-line-no">329</span><span id="line-329">  }</span>
-<span class="source-line-no">330</span><span id="line-330">}</span>
+<span class="source-line-no">279</span><span id="line-279">      if (c == '"') {</span>
+<span class="source-line-no">280</span><span id="line-280">        inQuotes = !inQuotes;</span>
+<span class="source-line-no">281</span><span id="line-281">      } else if (c == ',' &amp;&amp; !inQuotes) {</span>
+<span class="source-line-no">282</span><span id="line-282">        fields.add(current.toString().trim());</span>
+<span class="source-line-no">283</span><span id="line-283">        current.setLength(0);</span>
+<span class="source-line-no">284</span><span id="line-284">      } else {</span>
+<span class="source-line-no">285</span><span id="line-285">        current.append(c);</span>
+<span class="source-line-no">286</span><span id="line-286">      }</span>
+<span class="source-line-no">287</span><span id="line-287">    }</span>
+<span class="source-line-no">288</span><span id="line-288"></span>
+<span class="source-line-no">289</span><span id="line-289">    fields.add(current.toString().trim());</span>
+<span class="source-line-no">290</span><span id="line-290">    return fields.toArray(new String[0]);</span>
+<span class="source-line-no">291</span><span id="line-291">  }</span>
+<span class="source-line-no">292</span><span id="line-292"></span>
+<span class="source-line-no">293</span><span id="line-293">  /**</span>
+<span class="source-line-no">294</span><span id="line-294">   * Write filtered row with only selected columns</span>
+<span class="source-line-no">295</span><span id="line-295">   *</span>
+<span class="source-line-no">296</span><span id="line-296">   * @param writer output writer</span>
+<span class="source-line-no">297</span><span id="line-297">   * @param fields all field values</span>
+<span class="source-line-no">298</span><span id="line-298">   * @param columnIndices indices of columns to include</span>
+<span class="source-line-no">299</span><span id="line-299">   * @throws IOException if writing fails</span>
+<span class="source-line-no">300</span><span id="line-300">   */</span>
+<span class="source-line-no">301</span><span id="line-301">  private void writeFilteredRow(Writer writer, String[] fields, List&lt;Integer&gt; columnIndices)</span>
+<span class="source-line-no">302</span><span id="line-302">      throws IOException {</span>
+<span class="source-line-no">303</span><span id="line-303">    for (int i = 0; i &lt; columnIndices.size(); i++) {</span>
+<span class="source-line-no">304</span><span id="line-304">      if (i &gt; 0) {</span>
+<span class="source-line-no">305</span><span id="line-305">        writer.write(",");</span>
+<span class="source-line-no">306</span><span id="line-306">      }</span>
+<span class="source-line-no">307</span><span id="line-307"></span>
+<span class="source-line-no">308</span><span id="line-308">      int columnIndex = columnIndices.get(i);</span>
+<span class="source-line-no">309</span><span id="line-309">      if (columnIndex &lt; fields.length) {</span>
+<span class="source-line-no">310</span><span id="line-310">        String field = fields[columnIndex];</span>
+<span class="source-line-no">311</span><span id="line-311">        // Quote field if it contains comma or quotes</span>
+<span class="source-line-no">312</span><span id="line-312">        if (field.contains(",") || field.contains("\"")) {</span>
+<span class="source-line-no">313</span><span id="line-313">          writer.write("\"" + field.replace("\"", "\"\"") + "\"");</span>
+<span class="source-line-no">314</span><span id="line-314">        } else {</span>
+<span class="source-line-no">315</span><span id="line-315">          writer.write(field);</span>
+<span class="source-line-no">316</span><span id="line-316">        }</span>
+<span class="source-line-no">317</span><span id="line-317">      } else {</span>
+<span class="source-line-no">318</span><span id="line-318">        // Column doesn't exist in this row - write empty field</span>
+<span class="source-line-no">319</span><span id="line-319">        writer.write("");</span>
+<span class="source-line-no">320</span><span id="line-320">      }</span>
+<span class="source-line-no">321</span><span id="line-321">    }</span>
+<span class="source-line-no">322</span><span id="line-322">  }</span>
+<span class="source-line-no">323</span><span id="line-323">}</span>
 
 
 

@@ -83,17 +83,17 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="../../IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-31">JsonNavigateCommand</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-28">JsonNavigateCommand</a></span>
 <span class="extends-implements">extends <a href="../../AbstractStreamCommand.html" title="class in com.streamConverter.command">AbstractStreamCommand</a></span></div>
-<div class="block">Memory-Optimized JSON Navigate Command Class
+<div class="block">JSON Navigation Command for applying transformations to JSON data
 
- <p>This class implements memory-efficient JSON processing for targeted transformation using
- JSONPath. It processes large JSON files (5GB+) within a 50MB memory budget by using streaming
- approaches and avoiding loading entire content into memory.
+ <p>This command navigates through JSON structures and applies transformations using rules while
+ preserving the overall JSON structure. It focuses purely on navigation and transformation, not
+ extraction.
 
- <p>Key optimizations: - Line-by-line streaming for simple transformations - Chunked processing
- for complex JSONPath operations - Fixed memory buffers instead of StringBuilder - Incremental
- JSON parsing when possible</div>
+ <p>Responsibilities: - Navigate to specified JSON paths - Apply transformation rules to matching
+ elements - Preserve JSON structure during transformation - Stream processing for memory
+ efficiency</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -109,13 +109,6 @@ loadScripts(document, 'script');</script>
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructor for JSON navigation with typed JSONPath selector and transformation rule.</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule,boolean)" class="member-name-link">JsonNavigateCommand</a><wbr>(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule,
- boolean&nbsp;extractValue)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructor for JSON navigation with typed JSONPath selector, transformation rule, and
- extraction mode.</div>
 </div>
 </div>
 </section>
@@ -136,19 +129,6 @@ loadScripts(document, 'script');</script>
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">Factory method for creating a JSON navigation command with typed JSONPath and rule.</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)" class="member-name-link">createExtractValue</a><wbr>(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Factory method for creating a JSON navigation command that extracts and transforms a specific
- value using typed JSONPath.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll</a><wbr>(<a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Factory method for creating a JSON navigation command that processes entire JSON with explicit
- rule specification.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#executeInternal(java.io.InputStream,java.io.OutputStream)" class="member-name-link">executeInternal</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
@@ -187,7 +167,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)">
 <h3>JsonNavigateCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-45">JsonNavigateCommand</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-41">JsonNavigateCommand</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Constructor for JSON navigation with typed JSONPath selector and transformation rule.</div>
 <dl class="notes">
@@ -195,25 +175,7 @@ loadScripts(document, 'script');</script>
 <dd><code>jsonPath</code> - the typed JSONPath to select data</dd>
 <dd><code>rule</code> - the transformation rule to apply to selected elements</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="&lt;init&gt;(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule,boolean)">
-<h3>JsonNavigateCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-58">JsonNavigateCommand</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule,
- boolean&nbsp;extractValue)</span></div>
-<div class="block">Constructor for JSON navigation with typed JSONPath selector, transformation rule, and
- extraction mode.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>jsonPath</code> - the typed JSONPath to select data</dd>
-<dd><code>rule</code> - the transformation rule to apply to selected elements</dd>
-<dd><code>extractValue</code> - if true, extract only the transformed value; if false, return modified JSON</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if jsonPath or rule is null</dd>
 </dl>
 </section>
 </li>
@@ -228,7 +190,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="create(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-76">create</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-61">create</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
  <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Factory method for creating a JSON navigation command with typed JSONPath and rule.</div>
 <dl class="notes">
@@ -236,43 +198,7 @@ loadScripts(document, 'script');</script>
 <dd><code>jsonPath</code> - the typed JSONPath to select data</dd>
 <dd><code>rule</code> - the transformation rule to apply to selected elements</dd>
 <dt>Returns:</dt>
-<dd>a JsonNavigateCommand that extracts the specified path with the given rule</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="createForAll(com.streamConverter.command.rule.IRule)">
-<h3>createForAll</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-89">createForAll</a></span><wbr><span class="parameters">(<a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
-<div class="block">Factory method for creating a JSON navigation command that processes entire JSON with explicit
- rule specification. This method makes the intention explicit: process all JSON data with the
- given transformation rule.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>rule</code> - the transformation rule to apply to entire JSON</dd>
-<dt>Returns:</dt>
-<dd>a JsonNavigateCommand that processes entire JSON with the given rule</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)">
-<h3>createExtractValue</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-103">createExtractValue</a></span><wbr><span class="parameters">(<a href="../../../path/JSONPath.html" title="class in com.streamConverter.path">JSONPath</a>&nbsp;jsonPath,
- <a href="../../rule/IRule.html" title="interface in com.streamConverter.command.rule">IRule</a>&nbsp;rule)</span></div>
-<div class="block">Factory method for creating a JSON navigation command that extracts and transforms a specific
- value using typed JSONPath. This command returns only the transformed value, not the entire
- JSON object.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>jsonPath</code> - the typed JSONPath to select data</dd>
-<dd><code>rule</code> - the transformation rule to apply to selected value</dd>
-<dt>Returns:</dt>
-<dd>a JsonNavigateCommand that extracts and transforms the specified value</dd>
+<dd>a JsonNavigateCommand that transforms the specified path with the given rule</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if rule is null</dd>
 </dl>
@@ -281,7 +207,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getCommandDetails()">
 <h3>getCommandDetails</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-107">getCommandDetails</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-65">getCommandDetails</a></span>()</div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#getCommandDetails()">AbstractStreamCommand</a></code></span></div>
 <div class="block">コマンドの詳細情報を取得します。
 
@@ -297,7 +223,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="executeInternal(java.io.InputStream,java.io.OutputStream)">
 <h3>executeInternal</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-115">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonNavigateCommand.html#line-72">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#executeInternal(java.io.InputStream,java.io.OutputStream)">AbstractStreamCommand</a></code></span></div>

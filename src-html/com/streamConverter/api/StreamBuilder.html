@@ -258,278 +258,279 @@
 <span class="source-line-no">245</span><span id="line-245">   * JSONデータのフォーマット処理を追加（JSON形式のみ）</span>
 <span class="source-line-no">246</span><span id="line-246">   *</span>
 <span class="source-line-no">247</span><span id="line-247">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">248</span><span id="line-248">   */</span>
-<span class="source-line-no">249</span><span id="line-249">  public StreamBuilder format() {</span>
-<span class="source-line-no">250</span><span id="line-250">    if (dataFormat != DataFormat.JSON) {</span>
-<span class="source-line-no">251</span><span id="line-251">      throw new IllegalStateException("Format operation is only supported for JSON data format");</span>
-<span class="source-line-no">252</span><span id="line-252">    }</span>
-<span class="source-line-no">253</span><span id="line-253">    this.commands.add(JsonNavigateCommand.createForAll(new PassThroughRule()));</span>
-<span class="source-line-no">254</span><span id="line-254">    return this;</span>
-<span class="source-line-no">255</span><span id="line-255">  }</span>
-<span class="source-line-no">256</span><span id="line-256"></span>
-<span class="source-line-no">257</span><span id="line-257">  // === Extraction Commands ===</span>
-<span class="source-line-no">258</span><span id="line-258"></span>
-<span class="source-line-no">259</span><span id="line-259">  /**</span>
-<span class="source-line-no">260</span><span id="line-260">   * JSONパスによるデータ抽出を追加</span>
-<span class="source-line-no">261</span><span id="line-261">   *</span>
-<span class="source-line-no">262</span><span id="line-262">   * @param jsonPath JSONPath式（例: "$.user.name"）</span>
-<span class="source-line-no">263</span><span id="line-263">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">264</span><span id="line-264">   */</span>
-<span class="source-line-no">265</span><span id="line-265">  public StreamBuilder extractJson(final String jsonPath) {</span>
-<span class="source-line-no">266</span><span id="line-266">    Objects.requireNonNull(jsonPath, "JSONPath cannot be null");</span>
-<span class="source-line-no">267</span><span id="line-267">    this.commands.add(</span>
-<span class="source-line-no">268</span><span id="line-268">        JsonNavigateCommand.create(</span>
-<span class="source-line-no">269</span><span id="line-269">            new com.streamConverter.path.JSONPath(jsonPath), new PassThroughRule()));</span>
-<span class="source-line-no">270</span><span id="line-270">    return this;</span>
-<span class="source-line-no">271</span><span id="line-271">  }</span>
-<span class="source-line-no">272</span><span id="line-272"></span>
-<span class="source-line-no">273</span><span id="line-273">  /**</span>
-<span class="source-line-no">274</span><span id="line-274">   * JSONデータのフォーマット処理を追加（JSONPath指定なし）</span>
-<span class="source-line-no">275</span><span id="line-275">   *</span>
-<span class="source-line-no">276</span><span id="line-276">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">248</span><span id="line-248">   * @deprecated Use a dedicated formatting command instead of NavigateCommand with null path</span>
+<span class="source-line-no">249</span><span id="line-249">   */</span>
+<span class="source-line-no">250</span><span id="line-250">  @Deprecated</span>
+<span class="source-line-no">251</span><span id="line-251">  public StreamBuilder format() {</span>
+<span class="source-line-no">252</span><span id="line-252">    throw new UnsupportedOperationException(</span>
+<span class="source-line-no">253</span><span id="line-253">        "format() method removed - NavigateCommand requires a specific path. Use a dedicated formatting command instead.");</span>
+<span class="source-line-no">254</span><span id="line-254">  }</span>
+<span class="source-line-no">255</span><span id="line-255"></span>
+<span class="source-line-no">256</span><span id="line-256">  // === Extraction Commands ===</span>
+<span class="source-line-no">257</span><span id="line-257"></span>
+<span class="source-line-no">258</span><span id="line-258">  /**</span>
+<span class="source-line-no">259</span><span id="line-259">   * JSONパスによるデータ抽出を追加</span>
+<span class="source-line-no">260</span><span id="line-260">   *</span>
+<span class="source-line-no">261</span><span id="line-261">   * @param jsonPath JSONPath式（例: "$.user.name"）</span>
+<span class="source-line-no">262</span><span id="line-262">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">263</span><span id="line-263">   */</span>
+<span class="source-line-no">264</span><span id="line-264">  public StreamBuilder extractJson(final String jsonPath) {</span>
+<span class="source-line-no">265</span><span id="line-265">    Objects.requireNonNull(jsonPath, "JSONPath cannot be null");</span>
+<span class="source-line-no">266</span><span id="line-266">    this.commands.add(</span>
+<span class="source-line-no">267</span><span id="line-267">        JsonNavigateCommand.create(</span>
+<span class="source-line-no">268</span><span id="line-268">            new com.streamConverter.path.JSONPath(jsonPath), new PassThroughRule()));</span>
+<span class="source-line-no">269</span><span id="line-269">    return this;</span>
+<span class="source-line-no">270</span><span id="line-270">  }</span>
+<span class="source-line-no">271</span><span id="line-271"></span>
+<span class="source-line-no">272</span><span id="line-272">  /**</span>
+<span class="source-line-no">273</span><span id="line-273">   * JSONデータのフォーマット処理を追加（JSONPath指定なし）</span>
+<span class="source-line-no">274</span><span id="line-274">   *</span>
+<span class="source-line-no">275</span><span id="line-275">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">276</span><span id="line-276">   * @deprecated Use a dedicated formatting command instead of NavigateCommand with null path</span>
 <span class="source-line-no">277</span><span id="line-277">   */</span>
-<span class="source-line-no">278</span><span id="line-278">  public StreamBuilder formatJson() {</span>
-<span class="source-line-no">279</span><span id="line-279">    this.commands.add(JsonNavigateCommand.createForAll(new PassThroughRule()));</span>
-<span class="source-line-no">280</span><span id="line-280">    return this;</span>
-<span class="source-line-no">281</span><span id="line-281">  }</span>
-<span class="source-line-no">282</span><span id="line-282"></span>
-<span class="source-line-no">283</span><span id="line-283">  /**</span>
-<span class="source-line-no">284</span><span id="line-284">   * XPathによるXMLデータ抽出を追加</span>
-<span class="source-line-no">285</span><span id="line-285">   *</span>
-<span class="source-line-no">286</span><span id="line-286">   * @param xpath XPath式（例: "//user/name"）</span>
-<span class="source-line-no">287</span><span id="line-287">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">288</span><span id="line-288">   */</span>
-<span class="source-line-no">289</span><span id="line-289">  public StreamBuilder extractXml(final String xpath) {</span>
-<span class="source-line-no">290</span><span id="line-290">    Objects.requireNonNull(xpath, "XPath cannot be null");</span>
-<span class="source-line-no">291</span><span id="line-291">    this.commands.add(</span>
-<span class="source-line-no">292</span><span id="line-292">        XmlNavigateCommand.create(</span>
-<span class="source-line-no">293</span><span id="line-293">            new com.streamConverter.path.XPath(xpath), new PassThroughRule()));</span>
-<span class="source-line-no">294</span><span id="line-294">    return this;</span>
-<span class="source-line-no">295</span><span id="line-295">  }</span>
-<span class="source-line-no">296</span><span id="line-296"></span>
-<span class="source-line-no">297</span><span id="line-297">  /**</span>
-<span class="source-line-no">298</span><span id="line-298">   * CSV列による抽出を追加</span>
-<span class="source-line-no">299</span><span id="line-299">   *</span>
-<span class="source-line-no">300</span><span id="line-300">   * @param columnName 列名</span>
-<span class="source-line-no">301</span><span id="line-301">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">302</span><span id="line-302">   */</span>
-<span class="source-line-no">303</span><span id="line-303">  public StreamBuilder extractCsv(final String columnName) {</span>
-<span class="source-line-no">304</span><span id="line-304">    Objects.requireNonNull(columnName, "Column name cannot be null");</span>
-<span class="source-line-no">305</span><span id="line-305">    this.commands.add(CsvNavigateCommand.create(columnName, new PassThroughRule()));</span>
-<span class="source-line-no">306</span><span id="line-306">    return this;</span>
-<span class="source-line-no">307</span><span id="line-307">  }</span>
-<span class="source-line-no">308</span><span id="line-308"></span>
-<span class="source-line-no">309</span><span id="line-309">  // === Transformation Commands ===</span>
-<span class="source-line-no">310</span><span id="line-310"></span>
-<span class="source-line-no">311</span><span id="line-311">  /**</span>
-<span class="source-line-no">312</span><span id="line-312">   * 文字エンコーディング変換を追加</span>
-<span class="source-line-no">313</span><span id="line-313">   *</span>
-<span class="source-line-no">314</span><span id="line-314">   * @param fromEncoding 変換元エンコーディング（例: "UTF-8"）</span>
-<span class="source-line-no">315</span><span id="line-315">   * @param toEncoding 変換先エンコーディング（例: "UTF-16"）</span>
-<span class="source-line-no">316</span><span id="line-316">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">317</span><span id="line-317">   */</span>
-<span class="source-line-no">318</span><span id="line-318">  public StreamBuilder convertEncoding(final String fromEncoding, final String toEncoding) {</span>
-<span class="source-line-no">319</span><span id="line-319">    Objects.requireNonNull(fromEncoding, "From encoding cannot be null");</span>
-<span class="source-line-no">320</span><span id="line-320">    Objects.requireNonNull(toEncoding, "To encoding cannot be null");</span>
-<span class="source-line-no">321</span><span id="line-321">    this.commands.add(new CharacterConvertCommand(fromEncoding, toEncoding));</span>
-<span class="source-line-no">322</span><span id="line-322">    return this;</span>
-<span class="source-line-no">323</span><span id="line-323">  }</span>
-<span class="source-line-no">324</span><span id="line-324"></span>
-<span class="source-line-no">325</span><span id="line-325">  /**</span>
-<span class="source-line-no">326</span><span id="line-326">   * カスタム処理コマンドを追加</span>
-<span class="source-line-no">327</span><span id="line-327">   *</span>
-<span class="source-line-no">328</span><span id="line-328">   * @param commandName コマンド名（ログ用）</span>
-<span class="source-line-no">329</span><span id="line-329">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">330</span><span id="line-330">   */</span>
-<span class="source-line-no">331</span><span id="line-331">  public StreamBuilder process(final String commandName) {</span>
-<span class="source-line-no">332</span><span id="line-332">    Objects.requireNonNull(commandName, "Command name cannot be null");</span>
-<span class="source-line-no">333</span><span id="line-333">    this.commands.add(new SampleStreamCommand(commandName));</span>
-<span class="source-line-no">334</span><span id="line-334">    return this;</span>
-<span class="source-line-no">335</span><span id="line-335">  }</span>
-<span class="source-line-no">336</span><span id="line-336"></span>
-<span class="source-line-no">337</span><span id="line-337">  /**</span>
-<span class="source-line-no">338</span><span id="line-338">   * カスタムコマンドを追加</span>
-<span class="source-line-no">339</span><span id="line-339">   *</span>
-<span class="source-line-no">340</span><span id="line-340">   * @param command カスタムIStreamCommandの実装</span>
-<span class="source-line-no">341</span><span id="line-341">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">342</span><span id="line-342">   */</span>
-<span class="source-line-no">343</span><span id="line-343">  public StreamBuilder addCommand(final IStreamCommand command) {</span>
-<span class="source-line-no">344</span><span id="line-344">    Objects.requireNonNull(command, "Command cannot be null");</span>
-<span class="source-line-no">345</span><span id="line-345">    this.commands.add(command);</span>
-<span class="source-line-no">346</span><span id="line-346">    return this;</span>
-<span class="source-line-no">347</span><span id="line-347">  }</span>
-<span class="source-line-no">348</span><span id="line-348"></span>
-<span class="source-line-no">349</span><span id="line-349">  // === Network Commands ===</span>
-<span class="source-line-no">350</span><span id="line-350"></span>
-<span class="source-line-no">351</span><span id="line-351">  /**</span>
-<span class="source-line-no">352</span><span id="line-352">   * HTTP送信コマンドを追加</span>
-<span class="source-line-no">353</span><span id="line-353">   *</span>
-<span class="source-line-no">354</span><span id="line-354">   * @param url 送信先URL</span>
-<span class="source-line-no">355</span><span id="line-355">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">356</span><span id="line-356">   */</span>
-<span class="source-line-no">357</span><span id="line-357">  public StreamBuilder sendHttp(final String url) {</span>
-<span class="source-line-no">358</span><span id="line-358">    Objects.requireNonNull(url, "URL cannot be null");</span>
-<span class="source-line-no">359</span><span id="line-359">    this.commands.add(new SendHttpCommand(url));</span>
-<span class="source-line-no">360</span><span id="line-360">    return this;</span>
-<span class="source-line-no">361</span><span id="line-361">  }</span>
-<span class="source-line-no">362</span><span id="line-362"></span>
-<span class="source-line-no">363</span><span id="line-363">  /**</span>
-<span class="source-line-no">364</span><span id="line-364">   * HTTP送信コマンドを追加（基本実装のみサポート）</span>
-<span class="source-line-no">365</span><span id="line-365">   *</span>
-<span class="source-line-no">366</span><span id="line-366">   * @param url 送信先URL</span>
-<span class="source-line-no">367</span><span id="line-367">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">368</span><span id="line-368">   */</span>
-<span class="source-line-no">369</span><span id="line-369">  public StreamBuilder sendHttpPost(final String url) {</span>
-<span class="source-line-no">370</span><span id="line-370">    Objects.requireNonNull(url, "URL cannot be null");</span>
-<span class="source-line-no">371</span><span id="line-371">    this.commands.add(new SendHttpCommand(url));</span>
-<span class="source-line-no">372</span><span id="line-372">    return this;</span>
-<span class="source-line-no">373</span><span id="line-373">  }</span>
-<span class="source-line-no">374</span><span id="line-374"></span>
-<span class="source-line-no">375</span><span id="line-375">  // === Configuration and Conditional Operations ===</span>
-<span class="source-line-no">376</span><span id="line-376"></span>
-<span class="source-line-no">377</span><span id="line-377">  /**</span>
-<span class="source-line-no">378</span><span id="line-378">   * 条件付きでコマンドを追加</span>
-<span class="source-line-no">379</span><span id="line-379">   *</span>
-<span class="source-line-no">380</span><span id="line-380">   * @param condition 条件</span>
-<span class="source-line-no">381</span><span id="line-381">   * @param configurer 条件がtrueの場合に実行する設定ラムダ</span>
-<span class="source-line-no">382</span><span id="line-382">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
-<span class="source-line-no">383</span><span id="line-383">   */</span>
-<span class="source-line-no">384</span><span id="line-384">  public StreamBuilder when(final boolean condition, final Consumer&lt;StreamBuilder&gt; configurer) {</span>
-<span class="source-line-no">385</span><span id="line-385">    Objects.requireNonNull(configurer, "Configurer cannot be null");</span>
-<span class="source-line-no">386</span><span id="line-386">    if (condition) {</span>
-<span class="source-line-no">387</span><span id="line-387">      configurer.accept(this);</span>
-<span class="source-line-no">388</span><span id="line-388">    }</span>
-<span class="source-line-no">389</span><span id="line-389">    return this;</span>
-<span class="source-line-no">390</span><span id="line-390">  }</span>
-<span class="source-line-no">391</span><span id="line-391"></span>
-<span class="source-line-no">392</span><span id="line-392">  // === Terminal Operations ===</span>
-<span class="source-line-no">393</span><span id="line-393"></span>
-<span class="source-line-no">394</span><span id="line-394">  /**</span>
-<span class="source-line-no">395</span><span id="line-395">   * パイプラインを実行して結果を文字列として取得</span>
-<span class="source-line-no">396</span><span id="line-396">   *</span>
-<span class="source-line-no">397</span><span id="line-397">   * @return 処理結果の文字列</span>
-<span class="source-line-no">398</span><span id="line-398">   * @throws IOException 処理中にI/Oエラーが発生した場合</span>
-<span class="source-line-no">399</span><span id="line-399">   */</span>
-<span class="source-line-no">400</span><span id="line-400">  public String asString() throws IOException {</span>
-<span class="source-line-no">401</span><span id="line-401">    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="source-line-no">402</span><span id="line-402">      execute(outputStream);</span>
-<span class="source-line-no">403</span><span id="line-403">      return outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">404</span><span id="line-404">    }</span>
-<span class="source-line-no">405</span><span id="line-405">  }</span>
-<span class="source-line-no">406</span><span id="line-406"></span>
-<span class="source-line-no">407</span><span id="line-407">  /**</span>
-<span class="source-line-no">408</span><span id="line-408">   * パイプラインを実行して指定されたOutputStreamに結果を書き込み</span>
-<span class="source-line-no">409</span><span id="line-409">   *</span>
-<span class="source-line-no">410</span><span id="line-410">   * @param outputStream 出力先ストリーム</span>
-<span class="source-line-no">411</span><span id="line-411">   * @return コマンド実行結果のリスト</span>
-<span class="source-line-no">412</span><span id="line-412">   * @throws IOException 処理中にI/Oエラーが発生した場合</span>
-<span class="source-line-no">413</span><span id="line-413">   */</span>
-<span class="source-line-no">414</span><span id="line-414">  public List&lt;CommandResult&gt; toStream(final OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">415</span><span id="line-415">    Objects.requireNonNull(outputStream, "OutputStream cannot be null");</span>
-<span class="source-line-no">416</span><span id="line-416">    return execute(outputStream);</span>
-<span class="source-line-no">417</span><span id="line-417">  }</span>
-<span class="source-line-no">418</span><span id="line-418"></span>
-<span class="source-line-no">419</span><span id="line-419">  /**</span>
-<span class="source-line-no">420</span><span id="line-420">   * パイプラインを実行してファイルに結果を出力</span>
-<span class="source-line-no">421</span><span id="line-421">   *</span>
-<span class="source-line-no">422</span><span id="line-422">   * @param filePath 出力ファイルパス</span>
-<span class="source-line-no">423</span><span id="line-423">   * @return コマンド実行結果のリスト</span>
-<span class="source-line-no">424</span><span id="line-424">   * @throws IOException 処理中にI/Oエラーが発生した場合</span>
-<span class="source-line-no">425</span><span id="line-425">   */</span>
-<span class="source-line-no">426</span><span id="line-426">  public List&lt;CommandResult&gt; toFile(final String filePath) throws IOException {</span>
-<span class="source-line-no">427</span><span id="line-427">    Objects.requireNonNull(filePath, "File path cannot be null");</span>
-<span class="source-line-no">428</span><span id="line-428">    try (OutputStream outputStream = Files.newOutputStream(Paths.get(filePath))) {</span>
-<span class="source-line-no">429</span><span id="line-429">      return execute(outputStream);</span>
-<span class="source-line-no">430</span><span id="line-430">    }</span>
-<span class="source-line-no">431</span><span id="line-431">  }</span>
-<span class="source-line-no">432</span><span id="line-432"></span>
-<span class="source-line-no">433</span><span id="line-433">  /**</span>
-<span class="source-line-no">434</span><span id="line-434">   * StreamConverterを構築（再利用可能）</span>
-<span class="source-line-no">435</span><span id="line-435">   *</span>
-<span class="source-line-no">436</span><span id="line-436">   * @return 構築されたStreamConverterインスタンス</span>
-<span class="source-line-no">437</span><span id="line-437">   * @throws IllegalStateException コマンドが設定されていない場合</span>
-<span class="source-line-no">438</span><span id="line-438">   */</span>
-<span class="source-line-no">439</span><span id="line-439">  public StreamConverter build() {</span>
-<span class="source-line-no">440</span><span id="line-440">    if (commands.isEmpty()) {</span>
-<span class="source-line-no">441</span><span id="line-441">      throw new IllegalStateException("No commands have been added to the pipeline");</span>
-<span class="source-line-no">442</span><span id="line-442">    }</span>
-<span class="source-line-no">443</span><span id="line-443">    return new StreamConverter(new ArrayList&lt;&gt;(commands));</span>
-<span class="source-line-no">444</span><span id="line-444">  }</span>
-<span class="source-line-no">445</span><span id="line-445"></span>
-<span class="source-line-no">446</span><span id="line-446">  // === Utility Methods ===</span>
-<span class="source-line-no">447</span><span id="line-447"></span>
-<span class="source-line-no">448</span><span id="line-448">  /**</span>
-<span class="source-line-no">449</span><span id="line-449">   * 現在のパイプライン情報を取得</span>
-<span class="source-line-no">450</span><span id="line-450">   *</span>
-<span class="source-line-no">451</span><span id="line-451">   * @return パイプライン情報の文字列</span>
-<span class="source-line-no">452</span><span id="line-452">   */</span>
-<span class="source-line-no">453</span><span id="line-453">  public String getPipelineInfo() {</span>
-<span class="source-line-no">454</span><span id="line-454">    final StringBuilder info = new StringBuilder(64);</span>
-<span class="source-line-no">455</span><span id="line-455">    info.append("StreamBuilder Pipeline (").append(commands.size()).append(" commands):\n");</span>
-<span class="source-line-no">456</span><span id="line-456">    for (int i = 0; i &lt; commands.size(); i++) {</span>
-<span class="source-line-no">457</span><span id="line-457">      final IStreamCommand command = commands.get(i);</span>
-<span class="source-line-no">458</span><span id="line-458">      final String commandInfo = formatCommandInfo(command);</span>
-<span class="source-line-no">459</span><span id="line-459">      info.append("  ").append(i + 1).append(". ").append(commandInfo).append('\n');</span>
-<span class="source-line-no">460</span><span id="line-460">    }</span>
-<span class="source-line-no">461</span><span id="line-461">    return info.toString();</span>
-<span class="source-line-no">462</span><span id="line-462">  }</span>
-<span class="source-line-no">463</span><span id="line-463"></span>
-<span class="source-line-no">464</span><span id="line-464">  /**</span>
-<span class="source-line-no">465</span><span id="line-465">   * コマンド情報を適切にフォーマットする</span>
-<span class="source-line-no">466</span><span id="line-466">   *</span>
-<span class="source-line-no">467</span><span id="line-467">   * @param command フォーマット対象のコマンド</span>
-<span class="source-line-no">468</span><span id="line-468">   * @return フォーマットされたコマンド情報</span>
-<span class="source-line-no">469</span><span id="line-469">   */</span>
-<span class="source-line-no">470</span><span id="line-470">  private String formatCommandInfo(final IStreamCommand command) {</span>
-<span class="source-line-no">471</span><span id="line-471">    String className = command.getClass().getSimpleName();</span>
-<span class="source-line-no">472</span><span id="line-472"></span>
-<span class="source-line-no">473</span><span id="line-473">    // SampleStreamCommandの場合、IDも含める</span>
-<span class="source-line-no">474</span><span id="line-474">    if (command instanceof SampleStreamCommand) {</span>
-<span class="source-line-no">475</span><span id="line-475">      String commandString = command.toString();</span>
-<span class="source-line-no">476</span><span id="line-476">      if (commandString.contains("[id=")) {</span>
-<span class="source-line-no">477</span><span id="line-477">        String id =</span>
-<span class="source-line-no">478</span><span id="line-478">            commandString.substring(commandString.indexOf("[id=") + 4, commandString.indexOf("]"));</span>
-<span class="source-line-no">479</span><span id="line-479">        return className + " [" + id + "]";</span>
-<span class="source-line-no">480</span><span id="line-480">      }</span>
-<span class="source-line-no">481</span><span id="line-481">    }</span>
-<span class="source-line-no">482</span><span id="line-482"></span>
-<span class="source-line-no">483</span><span id="line-483">    // その他のコマンドは従来通りクラス名のみ</span>
-<span class="source-line-no">484</span><span id="line-484">    return className;</span>
-<span class="source-line-no">485</span><span id="line-485">  }</span>
-<span class="source-line-no">486</span><span id="line-486"></span>
-<span class="source-line-no">487</span><span id="line-487">  /**</span>
-<span class="source-line-no">488</span><span id="line-488">   * コマンド数を取得</span>
-<span class="source-line-no">489</span><span id="line-489">   *</span>
-<span class="source-line-no">490</span><span id="line-490">   * @return 現在設定されているコマンド数</span>
-<span class="source-line-no">491</span><span id="line-491">   */</span>
-<span class="source-line-no">492</span><span id="line-492">  public int getCommandCount() {</span>
-<span class="source-line-no">493</span><span id="line-493">    return commands.size();</span>
-<span class="source-line-no">494</span><span id="line-494">  }</span>
-<span class="source-line-no">495</span><span id="line-495"></span>
-<span class="source-line-no">496</span><span id="line-496">  /**</span>
-<span class="source-line-no">497</span><span id="line-497">   * パイプラインが空かどうかを確認</span>
-<span class="source-line-no">498</span><span id="line-498">   *</span>
-<span class="source-line-no">499</span><span id="line-499">   * @return コマンドが設定されていない場合true</span>
-<span class="source-line-no">500</span><span id="line-500">   */</span>
-<span class="source-line-no">501</span><span id="line-501">  public boolean isEmpty() {</span>
-<span class="source-line-no">502</span><span id="line-502">    return commands.isEmpty();</span>
-<span class="source-line-no">503</span><span id="line-503">  }</span>
-<span class="source-line-no">504</span><span id="line-504"></span>
-<span class="source-line-no">505</span><span id="line-505">  // === Private Helper Methods ===</span>
-<span class="source-line-no">506</span><span id="line-506"></span>
-<span class="source-line-no">507</span><span id="line-507">  /** 内部実行メソッド */</span>
-<span class="source-line-no">508</span><span id="line-508">  private List&lt;CommandResult&gt; execute(OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">509</span><span id="line-509">    if (inputStream == null) {</span>
-<span class="source-line-no">510</span><span id="line-510">      throw new IllegalStateException("No input source has been specified");</span>
-<span class="source-line-no">511</span><span id="line-511">    }</span>
-<span class="source-line-no">512</span><span id="line-512">    if (commands.isEmpty()) {</span>
-<span class="source-line-no">513</span><span id="line-513">      throw new IllegalStateException("No commands have been added to the pipeline");</span>
-<span class="source-line-no">514</span><span id="line-514">    }</span>
-<span class="source-line-no">515</span><span id="line-515"></span>
-<span class="source-line-no">516</span><span id="line-516">    StreamConverter converter = new StreamConverter(new ArrayList&lt;&gt;(commands));</span>
-<span class="source-line-no">517</span><span id="line-517">    return converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">518</span><span id="line-518">  }</span>
-<span class="source-line-no">519</span><span id="line-519">}</span>
+<span class="source-line-no">278</span><span id="line-278">  @Deprecated</span>
+<span class="source-line-no">279</span><span id="line-279">  public StreamBuilder formatJson() {</span>
+<span class="source-line-no">280</span><span id="line-280">    throw new UnsupportedOperationException(</span>
+<span class="source-line-no">281</span><span id="line-281">        "formatJson() method removed - NavigateCommand requires a specific path. Use a dedicated formatting command instead.");</span>
+<span class="source-line-no">282</span><span id="line-282">  }</span>
+<span class="source-line-no">283</span><span id="line-283"></span>
+<span class="source-line-no">284</span><span id="line-284">  /**</span>
+<span class="source-line-no">285</span><span id="line-285">   * XPathによるXMLデータ抽出を追加</span>
+<span class="source-line-no">286</span><span id="line-286">   *</span>
+<span class="source-line-no">287</span><span id="line-287">   * @param xpath XPath式（例: "//user/name"）</span>
+<span class="source-line-no">288</span><span id="line-288">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">289</span><span id="line-289">   */</span>
+<span class="source-line-no">290</span><span id="line-290">  public StreamBuilder extractXml(final String xpath) {</span>
+<span class="source-line-no">291</span><span id="line-291">    Objects.requireNonNull(xpath, "XPath cannot be null");</span>
+<span class="source-line-no">292</span><span id="line-292">    this.commands.add(</span>
+<span class="source-line-no">293</span><span id="line-293">        XmlNavigateCommand.create(</span>
+<span class="source-line-no">294</span><span id="line-294">            new com.streamConverter.path.XPath(xpath), new PassThroughRule()));</span>
+<span class="source-line-no">295</span><span id="line-295">    return this;</span>
+<span class="source-line-no">296</span><span id="line-296">  }</span>
+<span class="source-line-no">297</span><span id="line-297"></span>
+<span class="source-line-no">298</span><span id="line-298">  /**</span>
+<span class="source-line-no">299</span><span id="line-299">   * CSV列による抽出を追加</span>
+<span class="source-line-no">300</span><span id="line-300">   *</span>
+<span class="source-line-no">301</span><span id="line-301">   * @param columnName 列名</span>
+<span class="source-line-no">302</span><span id="line-302">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">303</span><span id="line-303">   */</span>
+<span class="source-line-no">304</span><span id="line-304">  public StreamBuilder extractCsv(final String columnName) {</span>
+<span class="source-line-no">305</span><span id="line-305">    Objects.requireNonNull(columnName, "Column name cannot be null");</span>
+<span class="source-line-no">306</span><span id="line-306">    this.commands.add(CsvNavigateCommand.create(columnName, new PassThroughRule()));</span>
+<span class="source-line-no">307</span><span id="line-307">    return this;</span>
+<span class="source-line-no">308</span><span id="line-308">  }</span>
+<span class="source-line-no">309</span><span id="line-309"></span>
+<span class="source-line-no">310</span><span id="line-310">  // === Transformation Commands ===</span>
+<span class="source-line-no">311</span><span id="line-311"></span>
+<span class="source-line-no">312</span><span id="line-312">  /**</span>
+<span class="source-line-no">313</span><span id="line-313">   * 文字エンコーディング変換を追加</span>
+<span class="source-line-no">314</span><span id="line-314">   *</span>
+<span class="source-line-no">315</span><span id="line-315">   * @param fromEncoding 変換元エンコーディング（例: "UTF-8"）</span>
+<span class="source-line-no">316</span><span id="line-316">   * @param toEncoding 変換先エンコーディング（例: "UTF-16"）</span>
+<span class="source-line-no">317</span><span id="line-317">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">318</span><span id="line-318">   */</span>
+<span class="source-line-no">319</span><span id="line-319">  public StreamBuilder convertEncoding(final String fromEncoding, final String toEncoding) {</span>
+<span class="source-line-no">320</span><span id="line-320">    Objects.requireNonNull(fromEncoding, "From encoding cannot be null");</span>
+<span class="source-line-no">321</span><span id="line-321">    Objects.requireNonNull(toEncoding, "To encoding cannot be null");</span>
+<span class="source-line-no">322</span><span id="line-322">    this.commands.add(new CharacterConvertCommand(fromEncoding, toEncoding));</span>
+<span class="source-line-no">323</span><span id="line-323">    return this;</span>
+<span class="source-line-no">324</span><span id="line-324">  }</span>
+<span class="source-line-no">325</span><span id="line-325"></span>
+<span class="source-line-no">326</span><span id="line-326">  /**</span>
+<span class="source-line-no">327</span><span id="line-327">   * カスタム処理コマンドを追加</span>
+<span class="source-line-no">328</span><span id="line-328">   *</span>
+<span class="source-line-no">329</span><span id="line-329">   * @param commandName コマンド名（ログ用）</span>
+<span class="source-line-no">330</span><span id="line-330">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">331</span><span id="line-331">   */</span>
+<span class="source-line-no">332</span><span id="line-332">  public StreamBuilder process(final String commandName) {</span>
+<span class="source-line-no">333</span><span id="line-333">    Objects.requireNonNull(commandName, "Command name cannot be null");</span>
+<span class="source-line-no">334</span><span id="line-334">    this.commands.add(new SampleStreamCommand(commandName));</span>
+<span class="source-line-no">335</span><span id="line-335">    return this;</span>
+<span class="source-line-no">336</span><span id="line-336">  }</span>
+<span class="source-line-no">337</span><span id="line-337"></span>
+<span class="source-line-no">338</span><span id="line-338">  /**</span>
+<span class="source-line-no">339</span><span id="line-339">   * カスタムコマンドを追加</span>
+<span class="source-line-no">340</span><span id="line-340">   *</span>
+<span class="source-line-no">341</span><span id="line-341">   * @param command カスタムIStreamCommandの実装</span>
+<span class="source-line-no">342</span><span id="line-342">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">343</span><span id="line-343">   */</span>
+<span class="source-line-no">344</span><span id="line-344">  public StreamBuilder addCommand(final IStreamCommand command) {</span>
+<span class="source-line-no">345</span><span id="line-345">    Objects.requireNonNull(command, "Command cannot be null");</span>
+<span class="source-line-no">346</span><span id="line-346">    this.commands.add(command);</span>
+<span class="source-line-no">347</span><span id="line-347">    return this;</span>
+<span class="source-line-no">348</span><span id="line-348">  }</span>
+<span class="source-line-no">349</span><span id="line-349"></span>
+<span class="source-line-no">350</span><span id="line-350">  // === Network Commands ===</span>
+<span class="source-line-no">351</span><span id="line-351"></span>
+<span class="source-line-no">352</span><span id="line-352">  /**</span>
+<span class="source-line-no">353</span><span id="line-353">   * HTTP送信コマンドを追加</span>
+<span class="source-line-no">354</span><span id="line-354">   *</span>
+<span class="source-line-no">355</span><span id="line-355">   * @param url 送信先URL</span>
+<span class="source-line-no">356</span><span id="line-356">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">357</span><span id="line-357">   */</span>
+<span class="source-line-no">358</span><span id="line-358">  public StreamBuilder sendHttp(final String url) {</span>
+<span class="source-line-no">359</span><span id="line-359">    Objects.requireNonNull(url, "URL cannot be null");</span>
+<span class="source-line-no">360</span><span id="line-360">    this.commands.add(new SendHttpCommand(url));</span>
+<span class="source-line-no">361</span><span id="line-361">    return this;</span>
+<span class="source-line-no">362</span><span id="line-362">  }</span>
+<span class="source-line-no">363</span><span id="line-363"></span>
+<span class="source-line-no">364</span><span id="line-364">  /**</span>
+<span class="source-line-no">365</span><span id="line-365">   * HTTP送信コマンドを追加（基本実装のみサポート）</span>
+<span class="source-line-no">366</span><span id="line-366">   *</span>
+<span class="source-line-no">367</span><span id="line-367">   * @param url 送信先URL</span>
+<span class="source-line-no">368</span><span id="line-368">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">369</span><span id="line-369">   */</span>
+<span class="source-line-no">370</span><span id="line-370">  public StreamBuilder sendHttpPost(final String url) {</span>
+<span class="source-line-no">371</span><span id="line-371">    Objects.requireNonNull(url, "URL cannot be null");</span>
+<span class="source-line-no">372</span><span id="line-372">    this.commands.add(new SendHttpCommand(url));</span>
+<span class="source-line-no">373</span><span id="line-373">    return this;</span>
+<span class="source-line-no">374</span><span id="line-374">  }</span>
+<span class="source-line-no">375</span><span id="line-375"></span>
+<span class="source-line-no">376</span><span id="line-376">  // === Configuration and Conditional Operations ===</span>
+<span class="source-line-no">377</span><span id="line-377"></span>
+<span class="source-line-no">378</span><span id="line-378">  /**</span>
+<span class="source-line-no">379</span><span id="line-379">   * 条件付きでコマンドを追加</span>
+<span class="source-line-no">380</span><span id="line-380">   *</span>
+<span class="source-line-no">381</span><span id="line-381">   * @param condition 条件</span>
+<span class="source-line-no">382</span><span id="line-382">   * @param configurer 条件がtrueの場合に実行する設定ラムダ</span>
+<span class="source-line-no">383</span><span id="line-383">   * @return このビルダーインスタンス（メソッドチェーン用）</span>
+<span class="source-line-no">384</span><span id="line-384">   */</span>
+<span class="source-line-no">385</span><span id="line-385">  public StreamBuilder when(final boolean condition, final Consumer&lt;StreamBuilder&gt; configurer) {</span>
+<span class="source-line-no">386</span><span id="line-386">    Objects.requireNonNull(configurer, "Configurer cannot be null");</span>
+<span class="source-line-no">387</span><span id="line-387">    if (condition) {</span>
+<span class="source-line-no">388</span><span id="line-388">      configurer.accept(this);</span>
+<span class="source-line-no">389</span><span id="line-389">    }</span>
+<span class="source-line-no">390</span><span id="line-390">    return this;</span>
+<span class="source-line-no">391</span><span id="line-391">  }</span>
+<span class="source-line-no">392</span><span id="line-392"></span>
+<span class="source-line-no">393</span><span id="line-393">  // === Terminal Operations ===</span>
+<span class="source-line-no">394</span><span id="line-394"></span>
+<span class="source-line-no">395</span><span id="line-395">  /**</span>
+<span class="source-line-no">396</span><span id="line-396">   * パイプラインを実行して結果を文字列として取得</span>
+<span class="source-line-no">397</span><span id="line-397">   *</span>
+<span class="source-line-no">398</span><span id="line-398">   * @return 処理結果の文字列</span>
+<span class="source-line-no">399</span><span id="line-399">   * @throws IOException 処理中にI/Oエラーが発生した場合</span>
+<span class="source-line-no">400</span><span id="line-400">   */</span>
+<span class="source-line-no">401</span><span id="line-401">  public String asString() throws IOException {</span>
+<span class="source-line-no">402</span><span id="line-402">    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="source-line-no">403</span><span id="line-403">      execute(outputStream);</span>
+<span class="source-line-no">404</span><span id="line-404">      return outputStream.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">405</span><span id="line-405">    }</span>
+<span class="source-line-no">406</span><span id="line-406">  }</span>
+<span class="source-line-no">407</span><span id="line-407"></span>
+<span class="source-line-no">408</span><span id="line-408">  /**</span>
+<span class="source-line-no">409</span><span id="line-409">   * パイプラインを実行して指定されたOutputStreamに結果を書き込み</span>
+<span class="source-line-no">410</span><span id="line-410">   *</span>
+<span class="source-line-no">411</span><span id="line-411">   * @param outputStream 出力先ストリーム</span>
+<span class="source-line-no">412</span><span id="line-412">   * @return コマンド実行結果のリスト</span>
+<span class="source-line-no">413</span><span id="line-413">   * @throws IOException 処理中にI/Oエラーが発生した場合</span>
+<span class="source-line-no">414</span><span id="line-414">   */</span>
+<span class="source-line-no">415</span><span id="line-415">  public List&lt;CommandResult&gt; toStream(final OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">416</span><span id="line-416">    Objects.requireNonNull(outputStream, "OutputStream cannot be null");</span>
+<span class="source-line-no">417</span><span id="line-417">    return execute(outputStream);</span>
+<span class="source-line-no">418</span><span id="line-418">  }</span>
+<span class="source-line-no">419</span><span id="line-419"></span>
+<span class="source-line-no">420</span><span id="line-420">  /**</span>
+<span class="source-line-no">421</span><span id="line-421">   * パイプラインを実行してファイルに結果を出力</span>
+<span class="source-line-no">422</span><span id="line-422">   *</span>
+<span class="source-line-no">423</span><span id="line-423">   * @param filePath 出力ファイルパス</span>
+<span class="source-line-no">424</span><span id="line-424">   * @return コマンド実行結果のリスト</span>
+<span class="source-line-no">425</span><span id="line-425">   * @throws IOException 処理中にI/Oエラーが発生した場合</span>
+<span class="source-line-no">426</span><span id="line-426">   */</span>
+<span class="source-line-no">427</span><span id="line-427">  public List&lt;CommandResult&gt; toFile(final String filePath) throws IOException {</span>
+<span class="source-line-no">428</span><span id="line-428">    Objects.requireNonNull(filePath, "File path cannot be null");</span>
+<span class="source-line-no">429</span><span id="line-429">    try (OutputStream outputStream = Files.newOutputStream(Paths.get(filePath))) {</span>
+<span class="source-line-no">430</span><span id="line-430">      return execute(outputStream);</span>
+<span class="source-line-no">431</span><span id="line-431">    }</span>
+<span class="source-line-no">432</span><span id="line-432">  }</span>
+<span class="source-line-no">433</span><span id="line-433"></span>
+<span class="source-line-no">434</span><span id="line-434">  /**</span>
+<span class="source-line-no">435</span><span id="line-435">   * StreamConverterを構築（再利用可能）</span>
+<span class="source-line-no">436</span><span id="line-436">   *</span>
+<span class="source-line-no">437</span><span id="line-437">   * @return 構築されたStreamConverterインスタンス</span>
+<span class="source-line-no">438</span><span id="line-438">   * @throws IllegalStateException コマンドが設定されていない場合</span>
+<span class="source-line-no">439</span><span id="line-439">   */</span>
+<span class="source-line-no">440</span><span id="line-440">  public StreamConverter build() {</span>
+<span class="source-line-no">441</span><span id="line-441">    if (commands.isEmpty()) {</span>
+<span class="source-line-no">442</span><span id="line-442">      throw new IllegalStateException("No commands have been added to the pipeline");</span>
+<span class="source-line-no">443</span><span id="line-443">    }</span>
+<span class="source-line-no">444</span><span id="line-444">    return new StreamConverter(new ArrayList&lt;&gt;(commands));</span>
+<span class="source-line-no">445</span><span id="line-445">  }</span>
+<span class="source-line-no">446</span><span id="line-446"></span>
+<span class="source-line-no">447</span><span id="line-447">  // === Utility Methods ===</span>
+<span class="source-line-no">448</span><span id="line-448"></span>
+<span class="source-line-no">449</span><span id="line-449">  /**</span>
+<span class="source-line-no">450</span><span id="line-450">   * 現在のパイプライン情報を取得</span>
+<span class="source-line-no">451</span><span id="line-451">   *</span>
+<span class="source-line-no">452</span><span id="line-452">   * @return パイプライン情報の文字列</span>
+<span class="source-line-no">453</span><span id="line-453">   */</span>
+<span class="source-line-no">454</span><span id="line-454">  public String getPipelineInfo() {</span>
+<span class="source-line-no">455</span><span id="line-455">    final StringBuilder info = new StringBuilder(64);</span>
+<span class="source-line-no">456</span><span id="line-456">    info.append("StreamBuilder Pipeline (").append(commands.size()).append(" commands):\n");</span>
+<span class="source-line-no">457</span><span id="line-457">    for (int i = 0; i &lt; commands.size(); i++) {</span>
+<span class="source-line-no">458</span><span id="line-458">      final IStreamCommand command = commands.get(i);</span>
+<span class="source-line-no">459</span><span id="line-459">      final String commandInfo = formatCommandInfo(command);</span>
+<span class="source-line-no">460</span><span id="line-460">      info.append("  ").append(i + 1).append(". ").append(commandInfo).append('\n');</span>
+<span class="source-line-no">461</span><span id="line-461">    }</span>
+<span class="source-line-no">462</span><span id="line-462">    return info.toString();</span>
+<span class="source-line-no">463</span><span id="line-463">  }</span>
+<span class="source-line-no">464</span><span id="line-464"></span>
+<span class="source-line-no">465</span><span id="line-465">  /**</span>
+<span class="source-line-no">466</span><span id="line-466">   * コマンド情報を適切にフォーマットする</span>
+<span class="source-line-no">467</span><span id="line-467">   *</span>
+<span class="source-line-no">468</span><span id="line-468">   * @param command フォーマット対象のコマンド</span>
+<span class="source-line-no">469</span><span id="line-469">   * @return フォーマットされたコマンド情報</span>
+<span class="source-line-no">470</span><span id="line-470">   */</span>
+<span class="source-line-no">471</span><span id="line-471">  private String formatCommandInfo(final IStreamCommand command) {</span>
+<span class="source-line-no">472</span><span id="line-472">    String className = command.getClass().getSimpleName();</span>
+<span class="source-line-no">473</span><span id="line-473"></span>
+<span class="source-line-no">474</span><span id="line-474">    // SampleStreamCommandの場合、IDも含める</span>
+<span class="source-line-no">475</span><span id="line-475">    if (command instanceof SampleStreamCommand) {</span>
+<span class="source-line-no">476</span><span id="line-476">      String commandString = command.toString();</span>
+<span class="source-line-no">477</span><span id="line-477">      if (commandString.contains("[id=")) {</span>
+<span class="source-line-no">478</span><span id="line-478">        String id =</span>
+<span class="source-line-no">479</span><span id="line-479">            commandString.substring(commandString.indexOf("[id=") + 4, commandString.indexOf("]"));</span>
+<span class="source-line-no">480</span><span id="line-480">        return className + " [" + id + "]";</span>
+<span class="source-line-no">481</span><span id="line-481">      }</span>
+<span class="source-line-no">482</span><span id="line-482">    }</span>
+<span class="source-line-no">483</span><span id="line-483"></span>
+<span class="source-line-no">484</span><span id="line-484">    // その他のコマンドは従来通りクラス名のみ</span>
+<span class="source-line-no">485</span><span id="line-485">    return className;</span>
+<span class="source-line-no">486</span><span id="line-486">  }</span>
+<span class="source-line-no">487</span><span id="line-487"></span>
+<span class="source-line-no">488</span><span id="line-488">  /**</span>
+<span class="source-line-no">489</span><span id="line-489">   * コマンド数を取得</span>
+<span class="source-line-no">490</span><span id="line-490">   *</span>
+<span class="source-line-no">491</span><span id="line-491">   * @return 現在設定されているコマンド数</span>
+<span class="source-line-no">492</span><span id="line-492">   */</span>
+<span class="source-line-no">493</span><span id="line-493">  public int getCommandCount() {</span>
+<span class="source-line-no">494</span><span id="line-494">    return commands.size();</span>
+<span class="source-line-no">495</span><span id="line-495">  }</span>
+<span class="source-line-no">496</span><span id="line-496"></span>
+<span class="source-line-no">497</span><span id="line-497">  /**</span>
+<span class="source-line-no">498</span><span id="line-498">   * パイプラインが空かどうかを確認</span>
+<span class="source-line-no">499</span><span id="line-499">   *</span>
+<span class="source-line-no">500</span><span id="line-500">   * @return コマンドが設定されていない場合true</span>
+<span class="source-line-no">501</span><span id="line-501">   */</span>
+<span class="source-line-no">502</span><span id="line-502">  public boolean isEmpty() {</span>
+<span class="source-line-no">503</span><span id="line-503">    return commands.isEmpty();</span>
+<span class="source-line-no">504</span><span id="line-504">  }</span>
+<span class="source-line-no">505</span><span id="line-505"></span>
+<span class="source-line-no">506</span><span id="line-506">  // === Private Helper Methods ===</span>
+<span class="source-line-no">507</span><span id="line-507"></span>
+<span class="source-line-no">508</span><span id="line-508">  /** 内部実行メソッド */</span>
+<span class="source-line-no">509</span><span id="line-509">  private List&lt;CommandResult&gt; execute(OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">510</span><span id="line-510">    if (inputStream == null) {</span>
+<span class="source-line-no">511</span><span id="line-511">      throw new IllegalStateException("No input source has been specified");</span>
+<span class="source-line-no">512</span><span id="line-512">    }</span>
+<span class="source-line-no">513</span><span id="line-513">    if (commands.isEmpty()) {</span>
+<span class="source-line-no">514</span><span id="line-514">      throw new IllegalStateException("No commands have been added to the pipeline");</span>
+<span class="source-line-no">515</span><span id="line-515">    }</span>
+<span class="source-line-no">516</span><span id="line-516"></span>
+<span class="source-line-no">517</span><span id="line-517">    StreamConverter converter = new StreamConverter(new ArrayList&lt;&gt;(commands));</span>
+<span class="source-line-no">518</span><span id="line-518">    return converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">519</span><span id="line-519">  }</span>
+<span class="source-line-no">520</span><span id="line-520">}</span>
 
 
 

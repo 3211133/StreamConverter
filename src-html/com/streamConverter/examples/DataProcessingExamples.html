@@ -139,9 +139,9 @@
 <span class="source-line-no">126</span><span id="line-126">    processData(</span>
 <span class="source-line-no">127</span><span id="line-127">        apiResponse, JsonNavigateCommand.create(new JSONPath("data"), new PassThroughRule()));</span>
 <span class="source-line-no">128</span><span id="line-128"></span>
-<span class="source-line-no">129</span><span id="line-129">    // Format entire response for logging</span>
+<span class="source-line-no">129</span><span id="line-129">    // Format entire response for logging (using root selector)</span>
 <span class="source-line-no">130</span><span id="line-130">    logger.info("\n📝 Format entire response:");</span>
-<span class="source-line-no">131</span><span id="line-131">    processData(apiResponse, JsonNavigateCommand.createForAll(new PassThroughRule()));</span>
+<span class="source-line-no">131</span><span id="line-131">    processData(apiResponse, JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()));</span>
 <span class="source-line-no">132</span><span id="line-132"></span>
 <span class="source-line-no">133</span><span id="line-133">    logger.info("\n" + "=".repeat(60) + "\n");</span>
 <span class="source-line-no">134</span><span id="line-134">  }</span>

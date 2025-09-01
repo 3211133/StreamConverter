@@ -98,10 +98,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">子パスを作成</div>
 </dd>
-<dt><a href="../com/streamConverter/path/XPath.html#child(java.lang.String)" class="member-name-link">child(String)</a> - Method in class com.streamConverter.path.<a href="../com/streamConverter/path/XPath.html" title="class in com.streamConverter.path">XPath</a></dt>
-<dd>
-<div class="block">Creates a child XPath by appending an element.</div>
-</dd>
 <dt><a href="../com/streamConverter/path/TreePath.html#childWithArray(java.lang.String,int)" class="member-name-link">childWithArray(String, int)</a> - Method in class com.streamConverter.path.<a href="../com/streamConverter/path/TreePath.html" title="class in com.streamConverter.path">TreePath</a></dt>
 <dd>
 <div class="block">配列アクセス付き子パスを作成</div>
@@ -413,26 +409,6 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Creates a development-friendly factory instance.</div>
 </dd>
-<dt><a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html#createExtractValue(com.streamConverter.path.JSONPath,com.streamConverter.command.rule.IRule)" class="member-name-link">createExtractValue(JSONPath, IRule)</a> - Static method in class com.streamConverter.command.impl.json.<a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></dt>
-<dd>
-<div class="block">Factory method for creating a JSON navigation command that extracts and transforms a specific
- value using typed JSONPath.</div>
-</dd>
-<dt><a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll(IRule)</a> - Static method in class com.streamConverter.command.impl.csv.<a href="../com/streamConverter/command/impl/csv/CsvNavigateCommand.html" title="class in com.streamConverter.command.impl.csv">CsvNavigateCommand</a></dt>
-<dd>
-<div class="block">Factory method for creating a CSV navigation command that processes all columns with explicit
- rule specification.</div>
-</dd>
-<dt><a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll(IRule)</a> - Static method in class com.streamConverter.command.impl.json.<a href="../com/streamConverter/command/impl/json/JsonNavigateCommand.html" title="class in com.streamConverter.command.impl.json">JsonNavigateCommand</a></dt>
-<dd>
-<div class="block">Factory method for creating a JSON navigation command that processes entire JSON with explicit
- rule specification.</div>
-</dd>
-<dt><a href="../com/streamConverter/command/impl/xml/XmlNavigateCommand.html#createForAll(com.streamConverter.command.rule.IRule)" class="member-name-link">createForAll(IRule)</a> - Static method in class com.streamConverter.command.impl.xml.<a href="../com/streamConverter/command/impl/xml/XmlNavigateCommand.html" title="class in com.streamConverter.command.impl.xml">XmlNavigateCommand</a></dt>
-<dd>
-<div class="block">Factory method for creating an XML navigation command that processes entire XML with explicit
- rule specification.</div>
-</dd>
 <dt><a href="../com/streamConverter/command/EnhancedCommandFactory.html#createForControllerIntegration(java.lang.Class,boolean,java.lang.Object...)" class="member-name-link">createForControllerIntegration(Class&lt;T&gt;, boolean, Object...)</a> - Method in class com.streamConverter.command.<a href="../com/streamConverter/command/EnhancedCommandFactory.html" title="class in com.streamConverter.command">EnhancedCommandFactory</a></dt>
 <dd>
 <div class="block">Creates command specifically for ControllerFactory integration.</div>
@@ -649,11 +625,15 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="../com/streamConverter/path/CSVPath.html" class="type-name-link" title="class in com.streamConverter.path">CSVPath</a> - Class in <a href="../com/streamConverter/path/package-summary.html">com.streamConverter.path</a></dt>
 <dd>
-<div class="block">Type-safe representation of CSV column selectors.</div>
+<div class="block">最小限のCSVPath実装</div>
 </dd>
 <dt><a href="../com/streamConverter/path/CSVPath.html#%3Cinit%3E(java.lang.String)" class="member-name-link">CSVPath(String)</a> - Constructor for class com.streamConverter.path.<a href="../com/streamConverter/path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></dt>
 <dd>
-<div class="block">Creates a new CSVPath instance.</div>
+<div class="block">単一セレクターでCSVPathを作成</div>
+</dd>
+<dt><a href="../com/streamConverter/path/CSVPath.html#%3Cinit%3E(java.util.List)" class="member-name-link">CSVPath(List&lt;String&gt;)</a> - Constructor for class com.streamConverter.path.<a href="../com/streamConverter/path/CSVPath.html" title="class in com.streamConverter.path">CSVPath</a></dt>
+<dd>
+<div class="block">複数セレクターでCSVPathを作成（OR条件）</div>
 </dd>
 <dt><a href="../com/streamConverter/controller/CsvProcessingController.html" class="type-name-link" title="class in com.streamConverter.controller">CsvProcessingController</a> - Class in <a href="../com/streamConverter/controller/package-summary.html">com.streamConverter.controller</a></dt>
 <dd>

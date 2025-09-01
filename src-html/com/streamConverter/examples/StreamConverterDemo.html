@@ -93,9 +93,9 @@
 <span class="source-line-no">080</span><span id="line-80">    logger.info("\n2. Extract column at index 2 (city):");</span>
 <span class="source-line-no">081</span><span id="line-81">    runDemo(csvData, CsvNavigateCommand.create(new CSVPath("2"), new PassThroughRule()));</span>
 <span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">    // Demo 1c: Process all columns</span>
-<span class="source-line-no">084</span><span id="line-84">    logger.info("\n3. Process all columns (formatted):");</span>
-<span class="source-line-no">085</span><span id="line-85">    runDemo(csvData, CsvNavigateCommand.createForAll(new PassThroughRule()));</span>
+<span class="source-line-no">083</span><span id="line-83">    // Demo 1c: Process name column (first column by name)</span>
+<span class="source-line-no">084</span><span id="line-84">    logger.info("\n3. Process name column:");</span>
+<span class="source-line-no">085</span><span id="line-85">    runDemo(csvData, CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()));</span>
 <span class="source-line-no">086</span><span id="line-86"></span>
 <span class="source-line-no">087</span><span id="line-87">    logger.info("\n" + "=".repeat(50) + "\n");</span>
 <span class="source-line-no">088</span><span id="line-88">  }</span>
@@ -117,9 +117,9 @@
 <span class="source-line-no">104</span><span id="line-104">    logger.info("\n2. Navigate to users array:");</span>
 <span class="source-line-no">105</span><span id="line-105">    runDemo(jsonData, JsonNavigateCommand.create(new JSONPath("users"), new PassThroughRule()));</span>
 <span class="source-line-no">106</span><span id="line-106"></span>
-<span class="source-line-no">107</span><span id="line-107">    // Demo 2c: Format entire JSON</span>
-<span class="source-line-no">108</span><span id="line-108">    logger.info("\n3. Format entire JSON:");</span>
-<span class="source-line-no">109</span><span id="line-109">    runDemo(jsonData, JsonNavigateCommand.createForAll(new PassThroughRule()));</span>
+<span class="source-line-no">107</span><span id="line-107">    // Demo 2c: Format root JSON</span>
+<span class="source-line-no">108</span><span id="line-108">    logger.info("\n3. Format root JSON:");</span>
+<span class="source-line-no">109</span><span id="line-109">    runDemo(jsonData, JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()));</span>
 <span class="source-line-no">110</span><span id="line-110"></span>
 <span class="source-line-no">111</span><span id="line-111">    logger.info("\n" + "=".repeat(50) + "\n");</span>
 <span class="source-line-no">112</span><span id="line-112">  }</span>
@@ -154,9 +154,9 @@
 <span class="source-line-no">141</span><span id="line-141">    logger.info("\n2. Extract all 'user' elements:");</span>
 <span class="source-line-no">142</span><span id="line-142">    runDemo(xmlData, XmlNavigateCommand.create(new XPath("users/user"), new PassThroughRule()));</span>
 <span class="source-line-no">143</span><span id="line-143"></span>
-<span class="source-line-no">144</span><span id="line-144">    // Demo 3c: Process entire XML</span>
-<span class="source-line-no">145</span><span id="line-145">    logger.info("\n3. Process entire XML:");</span>
-<span class="source-line-no">146</span><span id="line-146">    runDemo(xmlData, XmlNavigateCommand.createForAll(new PassThroughRule()));</span>
+<span class="source-line-no">144</span><span id="line-144">    // Demo 3c: Process root XML</span>
+<span class="source-line-no">145</span><span id="line-145">    logger.info("\n3. Process root XML:");</span>
+<span class="source-line-no">146</span><span id="line-146">    runDemo(xmlData, XmlNavigateCommand.create(new XPath("//users"), new PassThroughRule()));</span>
 <span class="source-line-no">147</span><span id="line-147"></span>
 <span class="source-line-no">148</span><span id="line-148">    logger.info("\n" + "=".repeat(50) + "\n");</span>
 <span class="source-line-no">149</span><span id="line-149">  }</span>
@@ -173,7 +173,7 @@
 <span class="source-line-no">160</span><span id="line-160">    // Demo 4: Chain JSON formatting with sample processing</span>
 <span class="source-line-no">161</span><span id="line-161">    logger.info("1. JSON formatting → Sample processing:");</span>
 <span class="source-line-no">162</span><span id="line-162">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">163</span><span id="line-163">      JsonNavigateCommand.createForAll(new PassThroughRule()), // Format JSON</span>
+<span class="source-line-no">163</span><span id="line-163">      JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()), // Format JSON</span>
 <span class="source-line-no">164</span><span id="line-164">      new SampleStreamCommand("formatter") // Add processing info</span>
 <span class="source-line-no">165</span><span id="line-165">    };</span>
 <span class="source-line-no">166</span><span id="line-166"></span>

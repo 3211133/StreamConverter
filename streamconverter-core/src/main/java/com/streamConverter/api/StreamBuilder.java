@@ -245,13 +245,12 @@ public final class StreamBuilder {
    * JSONデータのフォーマット処理を追加（JSON形式のみ）
    *
    * @return このビルダーインスタンス（メソッドチェーン用）
+   * @deprecated Use a dedicated formatting command instead of NavigateCommand with null path
    */
+  @Deprecated
   public StreamBuilder format() {
-    if (dataFormat != DataFormat.JSON) {
-      throw new IllegalStateException("Format operation is only supported for JSON data format");
-    }
-    this.commands.add(JsonNavigateCommand.createForAll(new PassThroughRule()));
-    return this;
+    throw new UnsupportedOperationException(
+        "format() method removed - NavigateCommand requires a specific path. Use a dedicated formatting command instead.");
   }
 
   // === Extraction Commands ===
@@ -274,10 +273,12 @@ public final class StreamBuilder {
    * JSONデータのフォーマット処理を追加（JSONPath指定なし）
    *
    * @return このビルダーインスタンス（メソッドチェーン用）
+   * @deprecated Use a dedicated formatting command instead of NavigateCommand with null path
    */
+  @Deprecated
   public StreamBuilder formatJson() {
-    this.commands.add(JsonNavigateCommand.createForAll(new PassThroughRule()));
-    return this;
+    throw new UnsupportedOperationException(
+        "formatJson() method removed - NavigateCommand requires a specific path. Use a dedicated formatting command instead.");
   }
 
   /**

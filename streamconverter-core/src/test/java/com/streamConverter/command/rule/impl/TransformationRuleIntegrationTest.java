@@ -15,7 +15,12 @@ import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.Test;
 
-/** Integration tests for transformation rules with Navigate commands. */
+/**
+ * Integration tests for transformation rules with Navigate commands.
+ *
+ * <p>Updated to match the new JsonNavigateCommand behavior which preserves JSON structure while
+ * transforming matching fields, rather than extracting values.
+ */
 class TransformationRuleIntegrationTest {
 
   @Test
@@ -23,11 +28,14 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"userName\": \"john_doe\", \"firstName\": \"John\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.userName"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.userName"), CamelToSnakeCaseRule.create());
 
     String result = executeCommand(command, inputJson);
-    assertEquals("john_doe", result.trim());
+    // JsonNavigateCommand preserves structure and transforms the matching field value
+    assertTrue(
+        result.contains("\"userName\":\"john_doe\""),
+        "Should contain transformed userName field value");
+    assertTrue(result.contains("\"firstName\":\"John\""), "Should preserve other fields unchanged");
   }
 
   @Test
@@ -35,11 +43,14 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"user_name\": \"john_doe\", \"first_name\": \"John\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.user_name"), SnakeToCamelCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.user_name"), SnakeToCamelCaseRule.create());
 
     String result = executeCommand(command, inputJson);
-    assertEquals("johnDoe", result.trim());
+    // Structure preserved, user_name field value transformed
+    assertTrue(
+        result.contains("\"user_name\":\"johnDoe\""), "Should transform user_name field value");
+    assertTrue(
+        result.contains("\"first_name\":\"John\""), "Should preserve other fields unchanged");
   }
 
   @Test
@@ -47,11 +58,12 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"user_name\": \"hello_world\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
+        JsonNavigateCommand.create(
             new JSONPath("$.user_name"), SnakeToCamelCaseRule.createPascalCase());
 
     String result = executeCommand(command, inputJson);
-    assertEquals("HelloWorld", result.trim());
+    // Structure preserved, value transformed to PascalCase
+    assertTrue(result.contains("\"user_name\":\"HelloWorld\""), "Should transform to PascalCase");
   }
 
   @Test
@@ -66,11 +78,13 @@ class TransformationRuleIntegrationTest {
             .addRule(new LowerCaseRule())
             .build();
 
-    IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(new JSONPath("$.fieldName"), chainRule);
+    IStreamCommand command = JsonNavigateCommand.create(new JSONPath("$.fieldName"), chainRule);
 
     String result = executeCommand(command, inputJson);
-    assertEquals("xml_http_request", result.trim());
+    // Structure preserved, chain transformation applied to field value
+    assertTrue(
+        result.contains("\"fieldName\":\"xml_http_request\""),
+        "Should apply chain transformation to field value");
   }
 
   @Test
@@ -83,11 +97,13 @@ class TransformationRuleIntegrationTest {
             new TrimRule(),
             CamelToSnakeCaseRule.builder().handleAcronyms(true).preserveUnderscores(false).build());
 
-    IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(new JSONPath("$.userAccountID"), chainRule);
+    IStreamCommand command = JsonNavigateCommand.create(new JSONPath("$.userAccountID"), chainRule);
 
     String result = executeCommand(command, inputJson);
-    assertEquals("my_complex_variable_name", result.trim());
+    // Structure preserved, complex transformation applied to field value
+    assertTrue(
+        result.contains("\"userAccountID\":\"my_complex_variable_name\""),
+        "Should apply complex chain transformation");
   }
 
   @Test
@@ -98,11 +114,12 @@ class TransformationRuleIntegrationTest {
     ChainRule roundTrip =
         ChainRule.of(CamelToSnakeCaseRule.create(), SnakeToCamelCaseRule.create());
 
-    IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(new JSONPath("$.original"), roundTrip);
+    IStreamCommand command = JsonNavigateCommand.create(new JSONPath("$.original"), roundTrip);
 
     String result = executeCommand(command, inputJson);
-    assertEquals("userName", result.trim());
+    // Structure preserved, round trip transformation applied
+    assertTrue(
+        result.contains("\"original\":\"userName\""), "Should apply round trip transformation");
   }
 
   @Test
@@ -111,17 +128,19 @@ class TransformationRuleIntegrationTest {
 
     // Process firstName field
     IStreamCommand command1 =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.firstName"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.firstName"), CamelToSnakeCaseRule.create());
     String result1 = executeCommand(command1, inputJson);
-    assertEquals("john", result1.trim()); // CamelToSnakeCaseRule always converts to lowercase
+    // Structure preserved, firstName value transformed
+    assertTrue(result1.contains("\"firstName\":\"john\""), "Should transform firstName value");
+    assertTrue(result1.contains("\"lastName\":\"Doe\""), "Should preserve lastName unchanged");
 
     // Process lastName field
     IStreamCommand command2 =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.lastName"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.lastName"), CamelToSnakeCaseRule.create());
     String result2 = executeCommand(command2, inputJson);
-    assertEquals("doe", result2.trim()); // CamelToSnakeCaseRule always converts to lowercase
+    // Structure preserved, lastName value transformed
+    assertTrue(result2.contains("\"lastName\":\"doe\""), "Should transform lastName value");
+    assertTrue(result2.contains("\"firstName\":\"John\""), "Should preserve firstName unchanged");
   }
 
   @Test
@@ -129,12 +148,11 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"field\": null}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.field"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.field"), CamelToSnakeCaseRule.create());
 
-    // Should handle null gracefully
+    // Should handle null gracefully and preserve structure
     String result = executeCommand(command, inputJson);
-    assertEquals("null", result.trim());
+    assertTrue(result.contains("\"field\":null"), "Should preserve null field in structure");
   }
 
   @Test
@@ -142,12 +160,13 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"existing\": \"value\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.createExtractValue(
-            new JSONPath("$.nonExistent"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new JSONPath("$.nonExistent"), CamelToSnakeCaseRule.create());
 
     String result = executeCommand(command, inputJson);
-    // JsonPath returns empty when field doesn't exist
-    assertTrue(result.trim().isEmpty() || result.trim().equals("null"));
+    // Non-existent path should preserve original structure unchanged
+    assertTrue(
+        result.contains("\"existing\":\"value\""),
+        "Should preserve original structure when path not found");
   }
 
   /** Helper method to execute a command and return the result as a string. */

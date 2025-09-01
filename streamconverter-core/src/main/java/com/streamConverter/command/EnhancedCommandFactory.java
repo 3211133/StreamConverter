@@ -291,8 +291,9 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         return Optional.of(
             (T) JsonNavigateCommand.create(new JSONPath((String) path), defaultRule));
       } else if (args.length == 0) {
-        // No arguments - use createForAll(rule)
-        return Optional.of((T) JsonNavigateCommand.createForAll(defaultRule));
+        // No arguments - NavigateCommand requires a path
+        throw new IllegalArgumentException(
+            "JsonNavigateCommand requires a JSONPath - cannot create without path");
       } else if (args.length == 2 && args[1] instanceof com.streamConverter.command.rule.IRule) {
         // Two arguments (String path, IRule) - use create(path, rule)
         String path = (String) args[0];
@@ -322,9 +323,10 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         Object path = args[0];
         return Optional.of((T) CsvNavigateCommand.create((String) path, defaultRule));
       } else if (args.length == 0) {
-        // No arguments - use createForAll(rule)
-        return Optional.of((T) CsvNavigateCommand.createForAll(defaultRule));
-      } else if (args.length == 2 && args[1] instanceof IRule) {
+        // No arguments - NavigateCommand requires a path
+        throw new IllegalArgumentException(
+            "CsvNavigateCommand requires a CSVPath - cannot create without path");
+      } else if (args.length == 2 && args[1] instanceof com.streamConverter.command.rule.IRule) {
         // Two arguments (String path, IRule) - use create(path, rule)
         String path = (String) args[0];
         com.streamConverter.command.rule.IRule rule =
@@ -349,9 +351,10 @@ public class EnhancedCommandFactory extends AbstractFactory<IStreamCommand> {
         Object path = args[0];
         return Optional.of((T) XmlNavigateCommand.create(new XPath((String) path), defaultRule));
       } else if (args.length == 0) {
-        // No arguments - use createForAll(rule)
-        return Optional.of((T) XmlNavigateCommand.createForAll(defaultRule));
-      } else if (args.length == 2 && args[1] instanceof IRule) {
+        // No arguments - NavigateCommand requires a path
+        throw new IllegalArgumentException(
+            "XmlNavigateCommand requires an XPath - cannot create without path");
+      } else if (args.length == 2 && args[1] instanceof com.streamConverter.command.rule.IRule) {
         // Two arguments (String path, IRule) - use create(path, rule)
         String path = (String) args[0];
         IRule rule = (IRule) args[1];

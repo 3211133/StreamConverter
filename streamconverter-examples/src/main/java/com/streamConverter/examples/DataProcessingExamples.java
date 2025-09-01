@@ -126,9 +126,9 @@ public class DataProcessingExamples {
     processData(
         apiResponse, JsonNavigateCommand.create(new JSONPath("data"), new PassThroughRule()));
 
-    // Format entire response for logging
+    // Format entire response for logging (using root selector)
     logger.info("\n📝 Format entire response:");
-    processData(apiResponse, JsonNavigateCommand.createForAll(new PassThroughRule()));
+    processData(apiResponse, JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }

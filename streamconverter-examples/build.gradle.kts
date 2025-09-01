@@ -83,11 +83,11 @@ tasks.register<JavaExec>("runContextDemo") {
     mainClass.set("com.streamConverter.examples.ContextPropagationDemo")
 }
 
-tasks.register<JavaExec>("runFluentApiDemo") {
+tasks.register<JavaExec>("runDirectApiDemo") {
     group = "application"
-    description = "Run Fluent API Demo"
+    description = "Run Direct API Demo"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.FluentApiDemo")
+    mainClass.set("com.streamConverter.examples.DirectApiDemo")
 }
 
 // Spotless configuration for code formatting

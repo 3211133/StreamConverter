@@ -15,11 +15,9 @@ import java.util.Optional;
  * <p>Usage examples:
  *
  * <pre>
- * // Using enum instead of string literals
- * IStreamController controller = ControllerFactory.getController("CSV", OutputType.CSV_COLUMN);
- *
- * // Type-safe controller creation
- * IStreamController controller = ControllerFactory.createWithOutputType("JSON", OutputType.JSON_FORMATTED);
+ * // Using enum for type-safe output specification
+ * OutputType outputType = OutputType.CSV_COLUMN;
+ * String outputTypeValue = outputType.getValue();
  * </pre>
  *
  * @author StreamConverter Team

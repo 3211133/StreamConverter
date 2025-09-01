@@ -80,19 +80,6 @@ JsonProcessingController controller = JsonProcessingController.forTransformation
 JsonProcessingController controller = JsonProcessingController.forFormatting();
 ```
 
-### 4. ControllerFactory for Advanced Management
-
-```java
-// Get controller by data types
-IStreamController controller = ControllerFactory.getController("CSV", "JSON_PROPERTY");
-
-// Use builders for specific configuration
-IStreamController controller = ControllerFactory.getCsvController()
-    .forColumnExtraction("name");
-
-// Register custom controllers
-ControllerFactory.registerController("CUSTOM_CSV", "PROCESSED", customController);
-```
 
 ## Architecture Benefits
 
@@ -155,7 +142,6 @@ try (InputStream input = externalSystem.getDataStream();
 ```java
 // External systems can route based on data types
 String inputType = detectDataType(inputStream);
-IStreamController controller = ControllerFactory.getController(inputType, "PROCESSED_DATA");
 if (controller != null) {
     controller.process(inputStream, outputStream);
 }
@@ -182,7 +168,6 @@ List<CommandResult> results = controller.process(jsonInputStream, outputStream);
 ### External System Integration
 ```java
 // Factory-based controller creation
-IStreamController controller = ControllerFactory.getController("CSV", "JSON_PROPERTY");
 if (controller.isConfigured()) {
     List<CommandResult> results = controller.process(inputStream, outputStream);
     // Process results...
@@ -229,7 +214,6 @@ Controllers provide comprehensive error handling:
 
 ### Performance Considerations
 - Lazy configuration reduces startup overhead
-- Controller caching in ControllerFactory for reuse
 - Minimal overhead over direct StreamConverter usage
 - Leverages existing StreamConverter optimization features
 

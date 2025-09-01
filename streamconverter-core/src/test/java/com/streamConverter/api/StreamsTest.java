@@ -62,8 +62,8 @@ class StreamsTest {
     // Then
     assertNotNull(jsonBuilder);
 
-    // Method chaining test
-    String result = jsonBuilder.format().extract("user").asString();
+    // Method chaining test - using specific JSONPath instead of deprecated format()
+    String result = jsonBuilder.extractJson("user").asString();
 
     assertNotNull(result);
     assertFalse(result.isEmpty());
@@ -159,7 +159,7 @@ class StreamsTest {
     // JSON with encoding conversion
     String jsonResult =
         Streams.json(SAMPLE_JSON)
-            .format()
+            .extractJson("$")
             .convertEncoding("UTF-8", "UTF-16")
             .convertEncoding("UTF-16", "UTF-8")
             .asString();
@@ -193,7 +193,7 @@ class StreamsTest {
     // When & Then (実際のHTTP送信はしないが、パイプライン構築をテスト)
     assertDoesNotThrow(
         () -> {
-          StreamBuilder builder = Streams.json(SAMPLE_JSON).format().sendHttp(testUrl);
+          StreamBuilder builder = Streams.json(SAMPLE_JSON).extractJson("$").sendHttp(testUrl);
           assertNotNull(builder);
         });
   }
@@ -202,7 +202,7 @@ class StreamsTest {
   @DisplayName("汎用StreamBuilderへの変換")
   void testAsGenericConversion() throws IOException {
     // JSON -> Generic
-    StreamBuilder genericFromJson = Streams.json(SAMPLE_JSON).format();
+    StreamBuilder genericFromJson = Streams.json(SAMPLE_JSON).extractJson("$");
     assertNotNull(genericFromJson);
     assertTrue(genericFromJson.getCommandCount() > 0);
 
@@ -222,7 +222,8 @@ class StreamsTest {
   void testOutputStreamOperations() throws IOException {
     // JSON to OutputStream
     ByteArrayOutputStream jsonOutput = new ByteArrayOutputStream();
-    List<CommandResult> jsonResults = Streams.json(SAMPLE_JSON).format().toStream(jsonOutput);
+    List<CommandResult> jsonResults =
+        Streams.json(SAMPLE_JSON).extractJson("$").toStream(jsonOutput);
     assertNotNull(jsonResults);
     assertTrue(jsonOutput.size() > 0);
 
@@ -247,7 +248,7 @@ class StreamsTest {
     // Complex JSON processing chain
     String jsonResult =
         Streams.json(SAMPLE_JSON)
-            .format()
+            .extractJson("$")
             .extract("user")
             .process("user-validator")
             .process("user-formatter")
@@ -300,41 +301,6 @@ class StreamsTest {
     assertThrows(NullPointerException.class, () -> Streams.xml(null));
     assertThrows(NullPointerException.class, () -> Streams.from((String) null));
     assertThrows(NullPointerException.class, () -> Streams.from((ByteArrayInputStream) null));
-  }
-
-  @Test
-  @DisplayName("format()メソッドの形式制限確認")
-  void testFormatMethodRestriction() throws IOException {
-    // JSON形式では format() が正常に動作することを確認
-    assertDoesNotThrow(
-        () -> {
-          StreamBuilder jsonBuilder = Streams.json(SAMPLE_JSON);
-          jsonBuilder.format(); // JSON形式なので例外は発生しない
-        });
-
-    // CSV形式で format() を呼び出すと例外が発生することを確認
-    assertThrows(
-        IllegalStateException.class,
-        () -> {
-          StreamBuilder csvBuilder = Streams.csv(SAMPLE_CSV);
-          csvBuilder.format(); // CSV形式なので例外が発生
-        });
-
-    // XML形式で format() を呼び出すと例外が発生することを確認
-    assertThrows(
-        IllegalStateException.class,
-        () -> {
-          StreamBuilder xmlBuilder = Streams.xml(SAMPLE_XML);
-          xmlBuilder.format(); // XML形式なので例外が発生
-        });
-
-    // 汎用形式で format() を呼び出すと例外が発生することを確認
-    assertThrows(
-        IllegalStateException.class,
-        () -> {
-          StreamBuilder genericBuilder = Streams.from("test data");
-          genericBuilder.format(); // 汎用形式なので例外が発生
-        });
   }
 
   @Test

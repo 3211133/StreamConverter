@@ -124,10 +124,20 @@ public class XPath extends AbstractPath<List<String>> {
       trimmed = trimmed.substring(1);
     }
 
-    // Validate segments
+    // Validate segments (handle double slash "//" correctly)
     String[] segments = trimmed.split("/");
-    for (String segment : segments) {
+    for (int i = 0; i < segments.length; i++) {
+      String segment = segments[i];
+      // Skip empty segments that result from double slash "//" at beginning or middle
       if (segment.isEmpty()) {
+        // Allow empty segment if it's from leading "/" or "//"
+        if (i == 0 || (i == 1 && segments[0].isEmpty())) {
+          continue;
+        }
+        // Allow empty segments from "//" in the middle
+        if (i > 0 && segments[i - 1].isEmpty()) {
+          continue;
+        }
         throw new IllegalArgumentException("XPath cannot contain empty segments: " + rawPath);
       }
       if (!XML_ELEMENT_NAME_PATTERN.matcher(segment).matches()) {

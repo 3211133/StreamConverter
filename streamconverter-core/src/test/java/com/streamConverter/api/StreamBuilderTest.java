@@ -62,9 +62,9 @@ class StreamBuilderTest {
   @Test
   @DisplayName("JSON特化メソッドの動作確認")
   void testJsonSpecificMethods() throws IOException {
-    // When
+    // When - using specific JSONPath instead of deprecated formatJson()
     StreamBuilder builder =
-        StreamBuilder.create().fromString(SAMPLE_JSON).formatJson().extractJson("user");
+        StreamBuilder.create().fromString(SAMPLE_JSON).extractJson("$").extractJson("user");
 
     // Then
     assertEquals(2, builder.getCommandCount());
@@ -138,9 +138,9 @@ class StreamBuilderTest {
     String input = SAMPLE_JSON;
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    // When
+    // When - using specific JSONPath instead of deprecated formatJson()
     List<CommandResult> results =
-        StreamBuilder.create().fromString(input).formatJson().toStream(outputStream);
+        StreamBuilder.create().fromString(input).extractJson("$").toStream(outputStream);
 
     // Then
     assertNotNull(results);
@@ -276,11 +276,11 @@ class StreamBuilderTest {
             }
             """;
 
-    // When
+    // When - using specific JSONPath instead of deprecated formatJson()
     String result =
         StreamBuilder.create()
             .fromString(jsonInput)
-            .formatJson()
+            .extractJson("$")
             .extractJson("data")
             .process("data-processor")
             .when(true, builder -> builder.process("conditional-processor"))

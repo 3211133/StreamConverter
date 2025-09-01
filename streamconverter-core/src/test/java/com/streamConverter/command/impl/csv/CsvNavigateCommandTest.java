@@ -93,12 +93,16 @@ class CsvNavigateCommandTest {
     }
     String csvData = csvBuilder.toString();
 
+    // Create command for the specific column that exists in this test's data
+    CsvNavigateCommand testCommand =
+        CsvNavigateCommand.create(new CSVPath("id"), new PassThroughRule());
+
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
     MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
 
     // When - execute CSV navigation
-    command.execute(trackingInputStream, monitoringOutputStream);
+    testCommand.execute(trackingInputStream, monitoringOutputStream);
 
     // Then - verify streaming behavior occurred
     assertTrue(
@@ -132,13 +136,17 @@ class CsvNavigateCommandTest {
     }
     String csvData = csvBuilder.toString();
 
+    // Create command for the specific column that exists in this test's data
+    CsvNavigateCommand testCommand =
+        CsvNavigateCommand.create(new CSVPath("employee_id"), new PassThroughRule());
+
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
     MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
 
     // When - perform incremental CSV navigation processing
     long processingStart = System.nanoTime();
-    command.execute(trackingInputStream, monitoringOutputStream);
+    testCommand.execute(trackingInputStream, monitoringOutputStream);
     long processingEnd = System.nanoTime();
 
     // Then - verify incremental processing characteristics

@@ -4,7 +4,7 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
-    id("com.github.spotbugs") version "6.0.28"
+    id("com.github.spotbugs") version "6.2.6"
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
 }

@@ -40,8 +40,8 @@ dependencies {
     implementation("io.netty:netty-common:4.2.4.Final")
     
     // Logging
-    implementation("ch.qos.logback:logback-core:1.5.13") // CVE-2024-12798, CVE-2024-12801修正
-    implementation("ch.qos.logback:logback-classic:1.5.13")
+    implementation("ch.qos.logback:logback-core:1.5.18") // CVE-2024-12798, CVE-2024-12801修正
+    implementation("ch.qos.logback:logback-classic:1.5.18")
     
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.18.0") // Already fixed CVE-2025-48924

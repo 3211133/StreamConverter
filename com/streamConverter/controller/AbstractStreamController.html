@@ -85,7 +85,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="CsvProcessingController.html" title="class in com.streamConverter.controller">CsvProcessingController</a></code>, <code><a href="JsonProcessingController.html" title="class in com.streamConverter.controller">JsonProcessingController</a></code>, <code><a href="PmdAnalysisController.html" title="class in com.streamConverter.controller">PmdAnalysisController</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-58">AbstractStreamController</a></span>
+<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-57">AbstractStreamController</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="IStreamController.html" title="interface in com.streamConverter.controller">IStreamController</a></span></div>
 <div class="block">Abstract base class for stream controllers.
@@ -220,7 +220,7 @@ implements <a href="IStreamController.html" title="interface in com.streamConver
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>AbstractStreamController</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-77">AbstractStreamController</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-76">AbstractStreamController</a></span>()</div>
 <div class="block">Default constructor that initializes the controller.
 
  <p>The controller will be configured lazily on first use to allow subclasses to complete their
@@ -238,7 +238,7 @@ implements <a href="IStreamController.html" title="interface in com.streamConver
 <li>
 <section class="detail" id="process(java.io.InputStream,java.io.OutputStream)">
 <h3>process</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-94">process</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../CommandResult.html" title="class in com.streamConverter">CommandResult</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-93">process</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                                   throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">Processes data from input stream to output stream using the configured command pipeline.
@@ -263,7 +263,7 @@ implements <a href="IStreamController.html" title="interface in com.streamConver
 <li>
 <section class="detail" id="isConfigured()">
 <h3>isConfigured</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-133">isConfigured</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-132">isConfigured</a></span>()</div>
 <div class="block">Checks if the controller is properly configured.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
@@ -276,7 +276,7 @@ implements <a href="IStreamController.html" title="interface in com.streamConver
 <li>
 <section class="detail" id="getConfigurationDescription()">
 <h3>getConfigurationDescription</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-143">getConfigurationDescription</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-142">getConfigurationDescription</a></span>()</div>
 <div class="block">Gets a description of the controller's current configuration.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
@@ -289,12 +289,12 @@ implements <a href="IStreamController.html" title="interface in com.streamConver
 <li>
 <section class="detail" id="configureCommands()">
 <h3>configureCommands</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type"><a href="../command/CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-192">configureCommands</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type"><a href="../command/CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-191">configureCommands</a></span>()</div>
 <div class="block">Configures the command pipeline for this controller.
 
  <p>Subclasses must implement this method to define their specific processing pipeline. The
  returned CommandConfig array will be used to create the actual command objects using
- CommandFactory.
+ EnhancedCommandFactory.
 
  <p>Example implementation:
 
@@ -318,7 +318,7 @@ implements <a href="IStreamController.html" title="interface in com.streamConver
 <li>
 <section class="detail" id="getCommandConfigs()">
 <h3>getCommandConfigs</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="../command/CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-242">getCommandConfigs</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="../command/CommandConfig.html" title="class in com.streamConverter.command">CommandConfig</a>[]</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-281">getCommandConfigs</a></span>()</div>
 <div class="block">Gets the configured command configurations.
 
  <p>This method is protected to allow subclasses access to the configuration for advanced
@@ -332,7 +332,7 @@ implements <a href="IStreamController.html" title="interface in com.streamConver
 <li>
 <section class="detail" id="getStreamConverter()">
 <h3>getStreamConverter</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="../StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-254">getStreamConverter</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type"><a href="../StreamConverter.html" title="class in com.streamConverter">StreamConverter</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-293">getStreamConverter</a></span>()</div>
 <div class="block">Gets the configured StreamConverter instance.
 
  <p>This method is protected to allow subclasses access to the StreamConverter for advanced
@@ -346,7 +346,7 @@ implements <a href="IStreamController.html" title="interface in com.streamConver
 <li>
 <section class="detail" id="validateConfiguration()">
 <h3>validateConfiguration</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-266">validateConfiguration</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/controller/AbstractStreamController.html#line-305">validateConfiguration</a></span>()</div>
 <div class="block">Allows subclasses to perform additional validation after configuration.
 
  <p>This method is called after the command pipeline is configured but before the controller is

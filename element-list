@@ -1,6 +1,5 @@
 com.streamConverter
 com.streamConverter.analysis
-com.streamConverter.api
 com.streamConverter.benchmark
 com.streamConverter.command
 com.streamConverter.command.impl
@@ -17,7 +16,6 @@ com.streamConverter.config
 com.streamConverter.context
 com.streamConverter.controller
 com.streamConverter.examples
-com.streamConverter.factory
 com.streamConverter.path
 com.streamConverter.pathHandler
 com.streamConverter.security

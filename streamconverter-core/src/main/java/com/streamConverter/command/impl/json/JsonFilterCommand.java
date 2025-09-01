@@ -1,5 +1,7 @@
 package com.streamConverter.command.impl.json;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.path.JSONPath;
 import java.io.BufferedReader;
@@ -10,6 +12,7 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 
 /**
  * JSON Filter Command Class
@@ -28,6 +31,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer
 
   private final JSONPath jsonPath;
+  private final ObjectMapper objectMapper;
 
   // Deprecated fields for backward compatibility
   @Deprecated private final String legacyJsonPath;
@@ -46,6 +50,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
     }
     this.legacyJsonPath = jsonPath.trim();
     this.jsonPath = new JSONPath(jsonPath.trim());
+    this.objectMapper = new ObjectMapper();
   }
 
   /**
@@ -60,6 +65,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
     }
     this.jsonPath = jsonPath;
     this.legacyJsonPath = jsonPath.toString();
+    this.objectMapper = new ObjectMapper();
   }
 
   @Override
@@ -133,6 +139,141 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @return extracted value as JSON string
    */
   private String extractJsonValue(String jsonContent, String path) {
+    try {
+      JsonNode rootNode = objectMapper.readTree(jsonContent);
+
+      // Handle root path
+      if ("$".equals(path)) {
+        return objectMapper.writeValueAsString(rootNode);
+      }
+
+      // Handle special case of $[*].property (root array with wildcard)
+      if (path.startsWith("$[*].") && path.length() > 5) {
+        String propertyPath = path.substring(5); // Remove "$[*]."
+        if (rootNode.isArray()) {
+          StringBuilder resultBuilder = new StringBuilder("[");
+          boolean first = true;
+          for (JsonNode arrayElement : rootNode) {
+            if (!first) resultBuilder.append(",");
+            first = false;
+
+            // Apply the property path to each array element
+            String[] propertySegments = propertyPath.split("\\.");
+            JsonNode extractedNode = arrayElement;
+            for (String segment : propertySegments) {
+              if (segment.isEmpty()) continue;
+              extractedNode = extractedNode.get(segment);
+              if (extractedNode == null) {
+                extractedNode = objectMapper.getNodeFactory().nullNode();
+                break;
+              }
+            }
+            resultBuilder.append(objectMapper.writeValueAsString(extractedNode));
+          }
+          resultBuilder.append("]");
+          return resultBuilder.toString();
+        } else {
+          return "null";
+        }
+      }
+
+      // Remove the '$.' prefix if present
+      String normalizedPath = path.startsWith("$.") ? path.substring(2) : path;
+
+      // Navigate through the path
+      JsonNode currentNode = rootNode;
+      String[] pathSegments = normalizedPath.split("\\.");
+
+      for (String segment : pathSegments) {
+        if (segment.isEmpty()) continue;
+
+        // Handle array indexing (e.g., "users[0]")
+        if (segment.contains("[") && segment.endsWith("]")) {
+          String fieldName = segment.substring(0, segment.indexOf("["));
+          String indexStr = segment.substring(segment.indexOf("[") + 1, segment.indexOf("]"));
+
+          if (!fieldName.isEmpty()) {
+            currentNode = currentNode.get(fieldName);
+            if (currentNode == null) return "null";
+          }
+
+          // Handle wildcard array access [*]
+          if ("*".equals(indexStr)) {
+            if (currentNode.isArray()) {
+              // For wildcard, we need to handle subsequent path segments differently
+              // This is a simplified implementation that extracts all matching elements
+              StringBuilder resultBuilder = new StringBuilder("[");
+              boolean first = true;
+              for (JsonNode arrayElement : currentNode) {
+                if (!first) resultBuilder.append(",");
+                first = false;
+
+                // If there are more path segments, apply them to each array element
+                String remainingPath =
+                    String.join(
+                        ".",
+                        Arrays.copyOfRange(
+                            pathSegments,
+                            Arrays.asList(pathSegments).indexOf(segment) + 1,
+                            pathSegments.length));
+                if (!remainingPath.isEmpty()) {
+                  JsonNode extractedNode = arrayElement;
+                  String[] remainingSegments = remainingPath.split("\\.");
+                  for (String remainingSeg : remainingSegments) {
+                    if (remainingSeg.isEmpty()) continue;
+                    extractedNode = extractedNode.get(remainingSeg);
+                    if (extractedNode == null) {
+                      extractedNode = objectMapper.getNodeFactory().nullNode();
+                      break;
+                    }
+                  }
+                  resultBuilder.append(objectMapper.writeValueAsString(extractedNode));
+                } else {
+                  resultBuilder.append(objectMapper.writeValueAsString(arrayElement));
+                }
+              }
+              resultBuilder.append("]");
+              return resultBuilder.toString();
+            } else {
+              return "null";
+            }
+          } else {
+            // Regular array indexing
+            try {
+              int index = Integer.parseInt(indexStr);
+              if (currentNode.isArray() && index >= 0 && index < currentNode.size()) {
+                currentNode = currentNode.get(index);
+              } else {
+                return "null";
+              }
+            } catch (NumberFormatException e) {
+              return "null";
+            }
+          }
+        } else {
+          // Simple property access
+          currentNode = currentNode.get(segment);
+          if (currentNode == null) {
+            return "null";
+          }
+        }
+      }
+
+      return objectMapper.writeValueAsString(currentNode);
+    } catch (Exception e) {
+      // If JSON parsing fails, fall back to simple string-based extraction
+      return extractSimplePropertyFallback(jsonContent, path);
+    }
+  }
+
+  /**
+   * Fallback method for simple string-based extraction when JSON parsing fails
+   *
+   * @param jsonContent the JSON content string
+   * @param path the JSONPath expression
+   * @return extracted value as JSON string or original content
+   */
+  private String extractSimplePropertyFallback(String jsonContent, String path) {
     // Handle root path
     if ("$".equals(path)) {
       return jsonContent.trim();
@@ -144,9 +285,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       return extractSimpleProperty(jsonContent, property);
     }
 
-    // For complex paths, return the original content for now
-    // In a full implementation, you would add array indexing, nested properties, etc.
-    return jsonContent.trim();
+    // For other complex paths that couldn't be parsed, return null instead of original content
+    return "null";
   }
 
   /**

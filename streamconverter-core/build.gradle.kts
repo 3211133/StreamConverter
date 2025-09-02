@@ -114,7 +114,7 @@ tasks.test {
     
     // テスト実行時の詳細ログを表示
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
     

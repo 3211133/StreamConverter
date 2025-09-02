@@ -59,7 +59,7 @@ tasks.register<Test>("benchmarkLargeData") {
     jvmArgs("-Xmx3g", "-Xms1g")
     
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
@@ -74,7 +74,7 @@ tasks.register<Test>("benchmarkInfrastructure") {
     jvmArgs("-Xmx1g", "-Xms512m")
     
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
 }
@@ -85,7 +85,7 @@ tasks.register<Test>("benchmarkMemoryEfficiency") {
     useJUnitPlatform()
     include("**/MemoryEfficiencyTest*")
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
     // Increase heap size for memory efficiency tests
@@ -98,7 +98,7 @@ tasks.register<Test>("benchmarkAll") {
     useJUnitPlatform()
     include("**/benchmark/**/*Test*", "**/MemoryEfficiencyTest*")
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
     // Increase heap size for all benchmarks
@@ -129,7 +129,7 @@ tasks.test {
     exclude("**/benchmark/**", "**/*Benchmark*", "**/MemoryEfficiencyTest*")
 
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
 }

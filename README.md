@@ -92,9 +92,9 @@ for (CommandResult result : results) {
 | | `CharacterConvertCommand` | 文字エンコーディング変換 | `new CharacterConvertCommand("UTF-8", "Shift_JIS")` |
 | | `LineEndingNormalizeCommand` | 改行コード正規化 | `new LineEndingNormalizeCommand(LineEndingType.UNIX)` |
 | | `xml.ConvertCommand` | XSLT 変換 | `new ConvertCommand("style.xsl")` |
-| **フィルタリング** | `csv.CsvFilterCommand` | CSV 行フィルタリング | `new CsvFilterCommand(predicate)` |
-| | `json.JsonFilterCommand` | JSON 要素フィルタリング | `new JsonFilterCommand(jsonPath, predicate)` |
-| | `xml.XmlFilterCommand` | XML 要素フィルタリング | `new XmlFilterCommand(xpath, predicate)` |
+| **フィルタリング** | `csv.CsvFilterCommand` | CSV 行フィルタリング | `new CsvFilterCommand("columnName", true)` |
+| | `json.JsonFilterCommand` | JSON 要素フィルタリング | `new JsonFilterCommand("$.path")` |
+| | `xml.XmlFilterCommand` | XML 要素フィルタリング | `new XmlFilterCommand("//element/path")` |
 | **通信** | `SendHttpCommand` | HTTP リクエスト | `new SendHttpCommand("http://api.example.com")` |
 | **検証** | `csv.CsvValidateCommand` | CSV 構造検証 | `new CsvValidateCommand(requiredColumns)` |
 | | `json.JsonValidateCommand` | JSON スキーマ検証 | `new JsonValidateCommand("schema.json")` |

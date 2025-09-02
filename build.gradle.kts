@@ -300,7 +300,7 @@ tasks.named("spotlessCheck") {
 
 // PMD configuration for code smell detection
 pmd {
-    isConsoleOutput = true
+    isConsoleOutput = false
     toolVersion = "7.16.0"
     rulesMinimumPriority = 5
     ruleSets = listOf(

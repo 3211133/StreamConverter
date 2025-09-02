@@ -88,7 +88,7 @@ for (CommandResult result : results) {
 |----------|----------|------|--------|
 | **データ変換** | `csv.CsvNavigateCommand` | CSV 特定列の変換 | `new CsvNavigateCommand("name")` |
 | | `json.JsonNavigateCommand` | JSON 特定パスの変換 | `new JsonNavigateCommand("$.user.id")` |
-| | `xml.XmlNavigateCommand` | XML 特定要素の変換 (IRule rule が必要) | `new XmlNavigateCommand(new XPath("//item/@id"), rule)` |
+| | `xml.XmlNavigateCommand` | XML 特定要素の変換 (`IRule rule` が必要) | `new XmlNavigateCommand(new javax.xml.xpath.XPathExpression("//item/@id"), rule)`<br/><sup>※ XPath式は`javax.xml.xpath.XPathExpression`型で指定してください。</sup> |
 | | `CharacterConvertCommand` | 文字エンコーディング変換 | `new CharacterConvertCommand("UTF-8", "Shift_JIS")` |
 | | `LineEndingNormalizeCommand` | 改行コード正規化 | `new LineEndingNormalizeCommand(LineEndingType.UNIX)` |
 | | `xml.ConvertCommand` | XSLT 変換 | `new ConvertCommand("style.xsl")` |

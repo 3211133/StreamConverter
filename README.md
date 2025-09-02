@@ -91,7 +91,7 @@ for (CommandResult result : results) {
 | | `xml.XmlNavigateCommand` | XML 特定要素の変換 | `new XmlNavigateCommand("//item/@id")` |
 | | `CharacterConvertCommand` | 文字エンコーディング変換 | `new CharacterConvertCommand("UTF-8", "Shift_JIS")` |
 | | `LineEndingNormalizeCommand` | 改行コード正規化 | `new LineEndingNormalizeCommand(LineEndingType.UNIX)` |
-| | `xml.ConvertCommand` | XSLT 変換 | `new ConvertCommand("style.xsl")` |
+| | `xml.ConvertCommand` | XSLT 変換 | `new ConvertCommand(rule, "style.xsl")` |
 | **フィルタリング** | `csv.CsvFilterCommand` | CSV 行フィルタリング | `new CsvFilterCommand(predicate)` |
 | | `json.JsonFilterCommand` | JSON 要素フィルタリング | `new JsonFilterCommand(jsonPath, predicate)` |
 | | `xml.XmlFilterCommand` | XML 要素フィルタリング | `new XmlFilterCommand(xpath, predicate)` |

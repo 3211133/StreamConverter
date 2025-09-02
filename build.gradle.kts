@@ -364,6 +364,10 @@ tasks.named("check") {
 allprojects {
     group = "com.streamConverter"
     version = "1.2.0"
+
+    tasks.withType<Test>().configureEach {
+        systemProperty("skipNetworkTests", System.getProperty("skipNetworkTests", "true"))
+    }
 }
 
 tasks.register("buildAll") {

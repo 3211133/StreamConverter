@@ -61,7 +61,7 @@ dependencies {
     
     // Database support
     implementation("com.zaxxer:HikariCP:7.0.2")
-    testImplementation("com.h2database:h2:2.2.224")
+    testImplementation("com.h2database:h2:2.3.232")
     
 
     // JUnit 5 の依存関係（テスト用）

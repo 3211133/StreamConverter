@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,7 +27,7 @@ import java.util.List;
  */
 public class JsonNavigateCommand extends AbstractStreamCommand {
 
-  private final JSONPath jsonPath;
+  private final TreePath treePath;
   private final IRule rule;
   private final ObjectMapper objectMapper;
 
@@ -38,14 +38,14 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if jsonPath or rule is null
    */
-  public JsonNavigateCommand(JSONPath jsonPath, IRule rule) {
-    if (jsonPath == null) {
-      throw new IllegalArgumentException("JSONPath cannot be null");
+  public JsonNavigateCommand(TreePath treePath, IRule rule) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
     }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    this.jsonPath = jsonPath;
+    this.treePath = treePath;
     this.rule = rule;
     this.objectMapper = new ObjectMapper();
   }
@@ -58,15 +58,15 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * @return a JsonNavigateCommand that transforms the specified path with the given rule
    * @throws IllegalArgumentException if rule is null
    */
-  public static JsonNavigateCommand create(JSONPath jsonPath, IRule rule) {
-    return new JsonNavigateCommand(jsonPath, rule);
+  public static JsonNavigateCommand create(TreePath treePath, IRule rule) {
+    return new JsonNavigateCommand(treePath, rule);
   }
 
   @Override
   protected String getCommandDetails() {
     return String.format(
         "JsonNavigateCommand(jsonPath='%s', rule='%s')",
-        jsonPath.toString(), rule.getClass().getSimpleName());
+        treePath.toString(), rule.getClass().getSimpleName());
   }
 
   @Override
@@ -166,7 +166,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     if (currentPath.size() == 1) {
       com.fasterxml.jackson.databind.node.ObjectNode testNode = objectMapper.createObjectNode();
       testNode.put(currentPath.get(0), "test");
-      boolean matches = jsonPath.matches(testNode);
+      boolean matches = treePath.matches(testNode);
       return matches;
     }
 

@@ -6,7 +6,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 /**
  * Unified path class for tree structure data.
@@ -116,28 +115,7 @@ public class TreePath extends AbstractPath<Object> {
     return new TreePath(xmlPath, PathFormat.XML);
   }
 
-  /**
-   * Creates TreePath from segment list
-   *
-   * @param segments List of path segments
-   * @return TreePath instance
-   */
-  public static TreePath fromSegments(List<PathSegment> segments) {
-    if (segments == null || segments.isEmpty()) {
-      return new TreePath("$", PathFormat.JSON);
-    }
-
-    StringBuilder sb = new StringBuilder("$");
-    for (PathSegment segment : segments) {
-      sb.append(".").append(segment.getName());
-      if (segment.isWildcard()) {
-        sb.append("[*]");
-      } else if (segment.getArrayIndex().isPresent()) {
-        sb.append("[").append(segment.getArrayIndex().get()).append("]");
-      }
-    }
-    return new TreePath(sb.toString(), PathFormat.JSON);
-  }
+  // Note: fromSegments method removed - use fromJsonPath or fromXmlPath instead
 
   private TreePath(String pathExpression, PathFormat format) {
     super(pathExpression);
@@ -214,59 +192,8 @@ public class TreePath extends AbstractPath<Object> {
 
   // Removed complex extraction methods following simplified design
 
-  // === パス形式変換機能 ===
-
-  /**
-   * JSON形式パスとして出力
-   *
-   * @return JSON形式のパス文字列 (例: "$.user.name")
-   */
-  public String toJsonPath() {
-    return segmentsToJsonPath(segments);
-  }
-
-  /**
-   * XML形式パスとして出力
-   *
-   * @return XML形式のパス文字列 (例: "user/name")
-   */
-  public String toXmlPath() {
-    return segmentsToXmlPath(segments);
-  }
-
-  /**
-   * 元の形式でパスを出力
-   *
-   * @return 元の形式のパス文字列
-   */
-  public String toOriginalFormat() {
-    switch (sourceFormat) {
-      case JSON:
-        return toJsonPath();
-      case XML:
-        return toXmlPath();
-      default:
-        return toString();
-    }
-  }
-
-  /**
-   * パスセグメントのリストを取得
-   *
-   * @return パスセグメントの不変リスト
-   */
-  public List<PathSegment> getSegments() {
-    return List.copyOf(segments);
-  }
-
-  /**
-   * 元の形式を取得
-   *
-   * @return 元のパス形式
-   */
-  public PathFormat getSourceFormat() {
-    return sourceFormat;
-  }
+  // Note: Path conversion features removed for simplification
+  // Only core matching functionality is retained
 
   // === 内部実装メソッド ===
 
@@ -356,43 +283,7 @@ public class TreePath extends AbstractPath<Object> {
     }
   }
 
-  private String segmentsToJsonPath(List<PathSegment> segments) {
-    if (segments.isEmpty()) {
-      return "$";
-    }
-
-    StringBuilder sb = new StringBuilder("$");
-    for (PathSegment segment : segments) {
-      sb.append(".").append(segment.getName());
-      if (segment.isWildcard()) {
-        sb.append("[*]");
-      } else if (segment.getArrayIndex().isPresent()) {
-        sb.append("[").append(segment.getArrayIndex().get()).append("]");
-      }
-    }
-    return sb.toString();
-  }
-
-  private String segmentsToXmlPath(List<PathSegment> segments) {
-    if (segments.isEmpty()) {
-      return "";
-    }
-
-    StringBuilder sb = new StringBuilder();
-    for (int i = 0; i < segments.size(); i++) {
-      if (i > 0) {
-        sb.append("/");
-      }
-      PathSegment segment = segments.get(i);
-      sb.append(segment.getName());
-      if (segment.isWildcard()) {
-        sb.append("[*]");
-      } else if (segment.getArrayIndex().isPresent()) {
-        sb.append("[").append(segment.getArrayIndex().get()).append("]");
-      }
-    }
-    return sb.toString();
-  }
+  // Note: Path conversion helper methods removed for simplification
 
   private boolean matchesJsonContext(JsonNode context) {
     // JSON階層パスマッチング（JsonNavigateCommandと同じロジック）
@@ -422,27 +313,7 @@ public class TreePath extends AbstractPath<Object> {
     return navigateJsonNode(node) != null;
   }
 
-  private <R> Optional<R> extractFromJson(JsonNode data, Class<R> resultType) {
-    JsonNode result = navigateJsonNode(data);
-    if (result != null && !result.isMissingNode() && !result.isNull()) {
-      if (resultType == String.class) {
-        return Optional.of(resultType.cast(result.asText()));
-      } else if (resultType == JsonNode.class) {
-        return Optional.of(resultType.cast(result));
-      }
-    }
-    return Optional.empty();
-  }
-
-  private <R> Optional<R> extractFromXml(org.w3c.dom.Document doc, Class<R> resultType) {
-    // XML extraction implementation (placeholder)
-    return Optional.empty();
-  }
-
-  private <R> Stream<R> extractAllFromJson(JsonNode data, Class<R> resultType) {
-    // 配列抽出の実装（JsonNavigateCommandと同様）
-    return Stream.empty();
-  }
+  // Note: Data extraction methods removed - TreePath only handles path matching
 
   private JsonNode navigateJsonNode(JsonNode rootNode) {
     JsonNode currentNode = rootNode;
@@ -477,73 +348,8 @@ public class TreePath extends AbstractPath<Object> {
     return xmlElementPattern.matcher(name).matches();
   }
 
-  // === TreePath特有のメソッド ===
-
-  /**
-   * パスの深度を取得
-   *
-   * @return パスの階層数
-   */
-  public int getDepth() {
-    return segments.size();
-  }
-
-  /**
-   * 指定したTreePathの子パスかどうか判定
-   *
-   * @param ancestor 祖先となるパス
-   * @return 子パスの場合true
-   */
-  public boolean isDescendantOf(TreePath ancestor) {
-    List<PathSegment> ancestorSegments = ancestor.getSegments();
-    if (segments.size() <= ancestorSegments.size()) {
-      return false;
-    }
-
-    for (int i = 0; i < ancestorSegments.size(); i++) {
-      if (!segments.get(i).equals(ancestorSegments.get(i))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  /**
-   * 子パスを作成
-   *
-   * @param childElementName 子要素名
-   * @return 子パスを表すTreePath
-   */
-  public TreePath child(String childElementName) {
-    List<PathSegment> newSegments = new ArrayList<>(segments);
-    newSegments.add(new PathSegment(childElementName));
-    return TreePath.fromSegments(newSegments);
-  }
-
-  /**
-   * 配列アクセス付き子パスを作成
-   *
-   * @param childElementName 子要素名
-   * @param arrayIndex 配列インデックス
-   * @return 配列アクセス付き子パスを表すTreePath
-   */
-  public TreePath childWithArray(String childElementName, int arrayIndex) {
-    List<PathSegment> newSegments = new ArrayList<>(segments);
-    newSegments.add(new PathSegment(childElementName, arrayIndex, false));
-    return TreePath.fromSegments(newSegments);
-  }
-
-  /**
-   * ワイルドカード配列アクセス付き子パスを作成
-   *
-   * @param childElementName 子要素名
-   * @return ワイルドカード配列アクセス付き子パスを表すTreePath
-   */
-  public TreePath childWithWildcard(String childElementName) {
-    List<PathSegment> newSegments = new ArrayList<>(segments);
-    newSegments.add(new PathSegment(childElementName, null, true));
-    return TreePath.fromSegments(newSegments);
-  }
+  // Note: Dynamic path construction methods removed for simplification
+  // Only core factory methods and matching functionality are retained
 
   @Override
   public String toString() {

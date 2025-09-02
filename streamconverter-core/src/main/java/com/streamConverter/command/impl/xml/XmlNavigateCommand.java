@@ -2,7 +2,7 @@ package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.path.XPath;
+import com.streamConverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,42 +31,54 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlNavigateCommand.class.getName());
   private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
-  private XPath xpath;
+  private TreePath treePath;
   private IRule rule;
 
   /**
-   * Constructor for XML navigation with typed XPath selector and transformation rule.
+   * Constructor for XML navigation with TreePath selector and transformation rule.
    *
-   * @param xpath the typed XPath to select elements
+   * @param treePath the TreePath to select elements
    * @param rule the transformation rule to apply to selected elements
-   * @throws IllegalArgumentException if xpath or rule is null
+   * @throws IllegalArgumentException if treePath or rule is null
    */
-  public XmlNavigateCommand(XPath xpath, IRule rule) {
-    if (xpath == null) {
-      throw new IllegalArgumentException("XPath cannot be null");
+  public XmlNavigateCommand(TreePath treePath, IRule rule) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
     }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    this.xpath = xpath;
+    this.treePath = treePath;
     this.rule = rule;
   }
 
   /**
-   * Factory method for creating an XML navigation command with typed XPath and rule.
+   * Factory method for creating an XML navigation command from XML path string.
    *
-   * @param xpath the typed XPath to select elements
+   * @param xmlPath the XML path string (e.g., "user/name")
    * @param rule the transformation rule to apply to selected elements
-   * @return an XmlNavigateCommand that transforms the specified XPath elements with the given rule
+   * @return an XmlNavigateCommand that transforms the specified path elements with the given rule
    * @throws IllegalArgumentException if rule is null
    */
-  public static XmlNavigateCommand create(XPath xpath, IRule rule) {
-    return new XmlNavigateCommand(xpath, rule);
+  public static XmlNavigateCommand create(String xmlPath, IRule rule) {
+    return new XmlNavigateCommand(TreePath.fromXmlPath(xmlPath), rule);
+  }
+
+  /**
+   * Factory method for creating an XML navigation command with TreePath.
+   *
+   * @param treePath the TreePath to select elements
+   * @param rule the transformation rule to apply to selected elements
+   * @return an XmlNavigateCommand that transforms the specified elements with the given rule
+   * @throws IllegalArgumentException if rule is null
+   */
+  public static XmlNavigateCommand create(TreePath treePath, IRule rule) {
+    return new XmlNavigateCommand(treePath, rule);
   }
 
   @Override
   protected String getCommandDetails() {
-    return String.format("XmlNavigateCommand(xpath='%s')", xpath.toString());
+    return String.format("XmlNavigateCommand(treePath='%s')", treePath.toString());
   }
 
   @Override
@@ -92,7 +104,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     try {
       eventReader = createXMLEventReader(inputStream);
       eventWriter = createXMLEventWriter(writer);
-      navigateXmlWithRule(eventReader, eventWriter, xpath, rule);
+      navigateXmlWithRule(eventReader, eventWriter, treePath, rule);
     } catch (XMLStreamException e) {
       handleXmlException(e);
     } finally {
@@ -101,7 +113,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   private void navigateXmlWithRule(
-      XMLEventReader eventReader, XMLEventWriter eventWriter, XPath xpath, IRule rule)
+      XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)
       throws XMLStreamException {
     List<String> currentPath = new ArrayList<>();
     boolean inTargetElement = false;
@@ -114,7 +126,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         String elementName = event.asStartElement().getName().getLocalPart();
         currentPath.add(elementName);
 
-        if (xpath.matches(currentPath)) {
+        if (treePath.matches(currentPath)) {
           inTargetElement = true;
           targetDepth = currentPath.size();
           eventWriter.add(event);

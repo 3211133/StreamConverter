@@ -3,7 +3,7 @@ package com.streamConverter.command.impl.json;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -30,7 +30,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming
   private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer
 
-  private final JSONPath jsonPath;
+  private final TreePath treePath;
   private final ObjectMapper objectMapper;
 
   // Deprecated fields for backward compatibility
@@ -49,28 +49,28 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("JSONPath cannot be null or empty");
     }
     this.legacyJsonPath = jsonPath.trim();
-    this.jsonPath = new JSONPath(jsonPath.trim());
+    this.treePath = TreePath.fromJsonPath(jsonPath.trim());
     this.objectMapper = new ObjectMapper();
   }
 
   /**
-   * Constructor for JSON filtering with typed JSONPath selector.
+   * Constructor for JSON filtering with TreePath selector.
    *
-   * @param jsonPath the typed JSONPath to extract data
-   * @throws IllegalArgumentException if jsonPath is null
+   * @param treePath the TreePath to extract data
+   * @throws IllegalArgumentException if treePath is null
    */
-  public JsonFilterCommand(JSONPath jsonPath) {
-    if (jsonPath == null) {
-      throw new IllegalArgumentException("JSONPath cannot be null");
+  public JsonFilterCommand(TreePath treePath) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
     }
-    this.jsonPath = jsonPath;
-    this.legacyJsonPath = jsonPath.toString();
+    this.treePath = treePath;
+    this.legacyJsonPath = treePath.toString();
     this.objectMapper = new ObjectMapper();
   }
 
   @Override
   protected String getCommandDetails() {
-    return String.format("JsonFilterCommand(jsonPath='%s')", jsonPath.toString());
+    return String.format("JsonFilterCommand(treePath='%s')", treePath.toString());
   }
 
   @Override
@@ -91,7 +91,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
 
       try {
         // Apply simple JSONPath-like extraction using lightweight parsing
-        String result = extractJsonValue(jsonContent, jsonPath.toString());
+        String result = extractJsonValue(jsonContent, treePath.toString());
         writer.write(result);
         writer.flush();
 

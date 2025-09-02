@@ -1,7 +1,7 @@
 package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.path.XPath;
+import com.streamConverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,7 +33,7 @@ import javax.xml.stream.events.XMLEvent;
 public class XmlFilterCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlFilterCommand.class.getName());
 
-  private final XPath xpath;
+  private final TreePath treePath;
 
   // Deprecated fields for backward compatibility
   @Deprecated private final String legacyXpath;
@@ -51,26 +51,26 @@ public class XmlFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("XPath cannot be null or empty");
     }
     this.legacyXpath = xpath.trim();
-    this.xpath = new XPath(xpath.trim());
+    this.treePath = TreePath.fromXmlPath(xpath.trim());
   }
 
   /**
-   * Constructor for XML filtering with typed XPath selector.
+   * Constructor for XML filtering with TreePath selector.
    *
-   * @param xpath the typed XPath to extract elements
-   * @throws IllegalArgumentException if xpath is null
+   * @param treePath the TreePath to extract elements
+   * @throws IllegalArgumentException if treePath is null
    */
-  public XmlFilterCommand(XPath xpath) {
-    if (xpath == null) {
-      throw new IllegalArgumentException("XPath cannot be null");
+  public XmlFilterCommand(TreePath treePath) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
     }
-    this.xpath = xpath;
-    this.legacyXpath = xpath.toString();
+    this.treePath = treePath;
+    this.legacyXpath = treePath.toString();
   }
 
   @Override
   protected String getCommandDetails() {
-    return String.format("XmlFilterCommand(xpath='%s')", xpath.toString());
+    return String.format("XmlFilterCommand(treePath='%s')", treePath.toString());
   }
 
   @Override
@@ -102,7 +102,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
           currentPath.add(elementName);
 
           // Check if this element matches our target path
-          if (xpath.matches(currentPath) && !isCapturing) {
+          if (treePath.matches(currentPath) && !isCapturing) {
             isCapturing = true;
             captureDepth = currentDepth;
             elementWriter = new StringWriter();

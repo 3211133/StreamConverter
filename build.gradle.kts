@@ -300,7 +300,7 @@ tasks.named("spotlessCheck") {
 
 // PMD configuration for code smell detection
 pmd {
-    isConsoleOutput = true
+    isConsoleOutput = false
     toolVersion = "7.16.0"
     rulesMinimumPriority = 5
     ruleSets = listOf(
@@ -364,6 +364,10 @@ tasks.named("check") {
 allprojects {
     group = "com.streamConverter"
     version = "1.2.0"
+
+    tasks.withType<Test>().configureEach {
+        systemProperty("skipNetworkTests", System.getProperty("skipNetworkTests", "true"))
+    }
 }
 
 tasks.register("buildAll") {

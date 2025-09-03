@@ -20,7 +20,7 @@
 <span class="source-line-no">007</span><span id="line-7">import com.streamConverter.command.impl.json.JsonNavigateCommand;</span>
 <span class="source-line-no">008</span><span id="line-8">import com.streamConverter.command.rule.PassThroughRule;</span>
 <span class="source-line-no">009</span><span id="line-9">import com.streamConverter.path.CSVPath;</span>
-<span class="source-line-no">010</span><span id="line-10">import com.streamConverter.path.JSONPath;</span>
+<span class="source-line-no">010</span><span id="line-10">import com.streamConverter.path.TreePath;</span>
 <span class="source-line-no">011</span><span id="line-11">import java.io.ByteArrayInputStream;</span>
 <span class="source-line-no">012</span><span id="line-12">import java.io.ByteArrayOutputStream;</span>
 <span class="source-line-no">013</span><span id="line-13">import java.io.IOException;</span>
@@ -113,14 +113,14 @@
 <span class="source-line-no">100</span><span id="line-100">    long startTime = System.currentTimeMillis();</span>
 <span class="source-line-no">101</span><span id="line-101">    logger.info("🔄 Single command processing...");</span>
 <span class="source-line-no">102</span><span id="line-102">    processDataWithTiming(</span>
-<span class="source-line-no">103</span><span id="line-103">        jsonData, JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()));</span>
+<span class="source-line-no">103</span><span id="line-103">        jsonData, JsonNavigateCommand.create(TreePath.fromJsonPath("$"), new PassThroughRule()));</span>
 <span class="source-line-no">104</span><span id="line-104">    long singleTime = System.currentTimeMillis() - startTime;</span>
 <span class="source-line-no">105</span><span id="line-105"></span>
 <span class="source-line-no">106</span><span id="line-106">    // Pipeline processing (demonstrates concurrent execution)</span>
 <span class="source-line-no">107</span><span id="line-107">    startTime = System.currentTimeMillis();</span>
 <span class="source-line-no">108</span><span id="line-108">    logger.info("\n🔄 Pipeline processing (concurrent)...");</span>
 <span class="source-line-no">109</span><span id="line-109">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">110</span><span id="line-110">      JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()),</span>
+<span class="source-line-no">110</span><span id="line-110">      JsonNavigateCommand.create(TreePath.fromJsonPath("$"), new PassThroughRule()),</span>
 <span class="source-line-no">111</span><span id="line-111">      new SampleStreamCommand("stage1"),</span>
 <span class="source-line-no">112</span><span id="line-112">      new SampleStreamCommand("stage2")</span>
 <span class="source-line-no">113</span><span id="line-113">    };</span>

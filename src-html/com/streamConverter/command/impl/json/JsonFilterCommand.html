@@ -16,7 +16,7 @@
 <span class="source-line-no">003</span><span id="line-3">import com.fasterxml.jackson.databind.JsonNode;</span>
 <span class="source-line-no">004</span><span id="line-4">import com.fasterxml.jackson.databind.ObjectMapper;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.streamConverter.command.AbstractStreamCommand;</span>
-<span class="source-line-no">006</span><span id="line-6">import com.streamConverter.path.JSONPath;</span>
+<span class="source-line-no">006</span><span id="line-6">import com.streamConverter.path.TreePath;</span>
 <span class="source-line-no">007</span><span id="line-7">import java.io.BufferedReader;</span>
 <span class="source-line-no">008</span><span id="line-8">import java.io.IOException;</span>
 <span class="source-line-no">009</span><span id="line-9">import java.io.InputStream;</span>
@@ -30,11 +30,11 @@
 <span class="source-line-no">017</span><span id="line-17">/**</span>
 <span class="source-line-no">018</span><span id="line-18"> * JSON Filter Command Class</span>
 <span class="source-line-no">019</span><span id="line-19"> *</span>
-<span class="source-line-no">020</span><span id="line-20"> * &lt;p&gt;This class implements pure data extraction from JSON using JSONPath expressions. Unlike</span>
+<span class="source-line-no">020</span><span id="line-20"> * &lt;p&gt;This class implements pure data extraction from JSON using TreePath expressions. Unlike</span>
 <span class="source-line-no">021</span><span id="line-21"> * JsonNavigateCommand which applies transformations, JsonFilterCommand only extracts/filters data</span>
 <span class="source-line-no">022</span><span id="line-22"> * based on specified paths without any modifications.</span>
 <span class="source-line-no">023</span><span id="line-23"> *</span>
-<span class="source-line-no">024</span><span id="line-24"> * &lt;p&gt;Features: - Extract specific elements using JSONPath expressions - Preserve exact data types</span>
+<span class="source-line-no">024</span><span id="line-24"> * &lt;p&gt;Features: - Extract specific elements using TreePath expressions - Preserve exact data types</span>
 <span class="source-line-no">025</span><span id="line-25"> * and structure of extracted elements - Memory-efficient processing for large JSON files - Support</span>
 <span class="source-line-no">026</span><span id="line-26"> * for simple path expressions</span>
 <span class="source-line-no">027</span><span id="line-27"> */</span>
@@ -43,38 +43,38 @@
 <span class="source-line-no">030</span><span id="line-30">  private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming</span>
 <span class="source-line-no">031</span><span id="line-31">  private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer</span>
 <span class="source-line-no">032</span><span id="line-32"></span>
-<span class="source-line-no">033</span><span id="line-33">  private final JSONPath jsonPath;</span>
+<span class="source-line-no">033</span><span id="line-33">  private final TreePath jsonPath;</span>
 <span class="source-line-no">034</span><span id="line-34">  private final ObjectMapper objectMapper;</span>
 <span class="source-line-no">035</span><span id="line-35"></span>
 <span class="source-line-no">036</span><span id="line-36">  // Deprecated fields for backward compatibility</span>
 <span class="source-line-no">037</span><span id="line-37">  @Deprecated private final String legacyJsonPath;</span>
 <span class="source-line-no">038</span><span id="line-38"></span>
 <span class="source-line-no">039</span><span id="line-39">  /**</span>
-<span class="source-line-no">040</span><span id="line-40">   * Constructor for JSON filtering with JSONPath selector.</span>
+<span class="source-line-no">040</span><span id="line-40">   * Constructor for JSON filtering with TreePath selector.</span>
 <span class="source-line-no">041</span><span id="line-41">   *</span>
-<span class="source-line-no">042</span><span id="line-42">   * @param jsonPath the JSONPath expression to extract data (e.g., "$.users", "$.name")</span>
+<span class="source-line-no">042</span><span id="line-42">   * @param jsonPath the TreePath expression to extract data (e.g., "$.users", "$.name")</span>
 <span class="source-line-no">043</span><span id="line-43">   * @throws IllegalArgumentException if jsonPath is null or empty</span>
-<span class="source-line-no">044</span><span id="line-44">   * @deprecated Use {@link #JsonFilterCommand(JSONPath)} instead</span>
+<span class="source-line-no">044</span><span id="line-44">   * @deprecated Use {@link #JsonFilterCommand(TreePath)} instead</span>
 <span class="source-line-no">045</span><span id="line-45">   */</span>
 <span class="source-line-no">046</span><span id="line-46">  @Deprecated</span>
 <span class="source-line-no">047</span><span id="line-47">  public JsonFilterCommand(String jsonPath) {</span>
 <span class="source-line-no">048</span><span id="line-48">    if (jsonPath == null || jsonPath.trim().isEmpty()) {</span>
-<span class="source-line-no">049</span><span id="line-49">      throw new IllegalArgumentException("JSONPath cannot be null or empty");</span>
+<span class="source-line-no">049</span><span id="line-49">      throw new IllegalArgumentException("TreePath cannot be null or empty");</span>
 <span class="source-line-no">050</span><span id="line-50">    }</span>
 <span class="source-line-no">051</span><span id="line-51">    this.legacyJsonPath = jsonPath.trim();</span>
-<span class="source-line-no">052</span><span id="line-52">    this.jsonPath = new JSONPath(jsonPath.trim());</span>
+<span class="source-line-no">052</span><span id="line-52">    this.jsonPath = TreePath.fromJsonPath(jsonPath.trim());</span>
 <span class="source-line-no">053</span><span id="line-53">    this.objectMapper = new ObjectMapper();</span>
 <span class="source-line-no">054</span><span id="line-54">  }</span>
 <span class="source-line-no">055</span><span id="line-55"></span>
 <span class="source-line-no">056</span><span id="line-56">  /**</span>
-<span class="source-line-no">057</span><span id="line-57">   * Constructor for JSON filtering with typed JSONPath selector.</span>
+<span class="source-line-no">057</span><span id="line-57">   * Constructor for JSON filtering with typed TreePath selector.</span>
 <span class="source-line-no">058</span><span id="line-58">   *</span>
-<span class="source-line-no">059</span><span id="line-59">   * @param jsonPath the typed JSONPath to extract data</span>
+<span class="source-line-no">059</span><span id="line-59">   * @param jsonPath the typed TreePath to extract data</span>
 <span class="source-line-no">060</span><span id="line-60">   * @throws IllegalArgumentException if jsonPath is null</span>
 <span class="source-line-no">061</span><span id="line-61">   */</span>
-<span class="source-line-no">062</span><span id="line-62">  public JsonFilterCommand(JSONPath jsonPath) {</span>
+<span class="source-line-no">062</span><span id="line-62">  public JsonFilterCommand(TreePath jsonPath) {</span>
 <span class="source-line-no">063</span><span id="line-63">    if (jsonPath == null) {</span>
-<span class="source-line-no">064</span><span id="line-64">      throw new IllegalArgumentException("JSONPath cannot be null");</span>
+<span class="source-line-no">064</span><span id="line-64">      throw new IllegalArgumentException("TreePath cannot be null");</span>
 <span class="source-line-no">065</span><span id="line-65">    }</span>
 <span class="source-line-no">066</span><span id="line-66">    this.jsonPath = jsonPath;</span>
 <span class="source-line-no">067</span><span id="line-67">    this.legacyJsonPath = jsonPath.toString();</span>
@@ -103,7 +103,7 @@
 <span class="source-line-no">090</span><span id="line-90">      }</span>
 <span class="source-line-no">091</span><span id="line-91"></span>
 <span class="source-line-no">092</span><span id="line-92">      try {</span>
-<span class="source-line-no">093</span><span id="line-93">        // Apply simple JSONPath-like extraction using lightweight parsing</span>
+<span class="source-line-no">093</span><span id="line-93">        // Apply simple TreePath-like extraction using lightweight parsing</span>
 <span class="source-line-no">094</span><span id="line-94">        String result = extractJsonValue(jsonContent, jsonPath.toString());</span>
 <span class="source-line-no">095</span><span id="line-95">        writer.write(result);</span>
 <span class="source-line-no">096</span><span id="line-96">        writer.flush();</span>
@@ -145,10 +145,10 @@
 <span class="source-line-no">132</span><span id="line-132">  }</span>
 <span class="source-line-no">133</span><span id="line-133"></span>
 <span class="source-line-no">134</span><span id="line-134">  /**</span>
-<span class="source-line-no">135</span><span id="line-135">   * Extract JSON value using simple JSONPath-like expressions</span>
+<span class="source-line-no">135</span><span id="line-135">   * Extract JSON value using simple TreePath-like expressions</span>
 <span class="source-line-no">136</span><span id="line-136">   *</span>
 <span class="source-line-no">137</span><span id="line-137">   * @param jsonContent the JSON content string</span>
-<span class="source-line-no">138</span><span id="line-138">   * @param path the JSONPath expression (simplified)</span>
+<span class="source-line-no">138</span><span id="line-138">   * @param path the TreePath expression (simplified)</span>
 <span class="source-line-no">139</span><span id="line-139">   * @return extracted value as JSON string</span>
 <span class="source-line-no">140</span><span id="line-140">   */</span>
 <span class="source-line-no">141</span><span id="line-141">  private String extractJsonValue(String jsonContent, String path) {</span>
@@ -283,7 +283,7 @@
 <span class="source-line-no">270</span><span id="line-270">   * Fallback method for simple string-based extraction when JSON parsing fails</span>
 <span class="source-line-no">271</span><span id="line-271">   *</span>
 <span class="source-line-no">272</span><span id="line-272">   * @param jsonContent the JSON content string</span>
-<span class="source-line-no">273</span><span id="line-273">   * @param path the JSONPath expression</span>
+<span class="source-line-no">273</span><span id="line-273">   * @param path the TreePath expression</span>
 <span class="source-line-no">274</span><span id="line-274">   * @return extracted value as JSON string or original content</span>
 <span class="source-line-no">275</span><span id="line-275">   */</span>
 <span class="source-line-no">276</span><span id="line-276">  private String extractSimplePropertyFallback(String jsonContent, String path) {</span>

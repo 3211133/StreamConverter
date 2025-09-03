@@ -16,11 +16,11 @@
 <span class="source-line-no">003</span><span id="line-3">/**</span>
 <span class="source-line-no">004</span><span id="line-4"> * 最小限のPathインターフェース</span>
 <span class="source-line-no">005</span><span id="line-5"> *</span>
-<span class="source-line-no">006</span><span id="line-6"> * &lt;p&gt;このインターフェースは、StreamConverterで使用される様々な種類のパスセレクタ （JSONPath、XPath、CSVパス）の統一的な契約を提供します。</span>
+<span class="source-line-no">006</span><span id="line-6"> * &lt;p&gt;このインターフェースは、StreamConverterで使用される様々な種類のパスセレクタ （TreePath、TreePath、CSVパス）の統一的な契約を提供します。</span>
 <span class="source-line-no">007</span><span id="line-7"> *</span>
 <span class="source-line-no">008</span><span id="line-8"> * &lt;p&gt;Don't Ask, Tell原則に従い、パス一致判定のみに特化した設計です。</span>
 <span class="source-line-no">009</span><span id="line-9"> *</span>
-<span class="source-line-no">010</span><span id="line-10"> * @param &lt;T&gt; コンテキスト型（JSONPath=JsonNode, XPath=List&amp;lt;String&amp;gt;, CSVPath=Integer）</span>
+<span class="source-line-no">010</span><span id="line-10"> * @param &lt;T&gt; コンテキスト型（TreePath=JsonNode, TreePath=List&amp;lt;String&amp;gt;, CSVPath=Integer）</span>
 <span class="source-line-no">011</span><span id="line-11"> */</span>
 <span class="source-line-no">012</span><span id="line-12">public interface IPath&lt;T&gt; {</span>
 <span class="source-line-no">013</span><span id="line-13"></span>

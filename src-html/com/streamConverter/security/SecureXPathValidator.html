@@ -79,12 +79,12 @@
 <span class="source-line-no">066</span><span id="line-66">   */</span>
 <span class="source-line-no">067</span><span id="line-67">  public static void validateXPath(String xpath) {</span>
 <span class="source-line-no">068</span><span id="line-68">    if (xpath == null || xpath.trim().isEmpty()) {</span>
-<span class="source-line-no">069</span><span id="line-69">      throw new IllegalArgumentException("XPath expression cannot be null or empty");</span>
+<span class="source-line-no">069</span><span id="line-69">      throw new IllegalArgumentException("TreePath expression cannot be null or empty");</span>
 <span class="source-line-no">070</span><span id="line-70">    }</span>
 <span class="source-line-no">071</span><span id="line-71"></span>
 <span class="source-line-no">072</span><span id="line-72">    // XPath検証が無効な場合はスキップ</span>
 <span class="source-line-no">073</span><span id="line-73">    if (!securityConfig.isXPathValidationEnabled()) {</span>
-<span class="source-line-no">074</span><span id="line-74">      logger.debug("XPath validation is disabled");</span>
+<span class="source-line-no">074</span><span id="line-74">      logger.debug("TreePath validation is disabled");</span>
 <span class="source-line-no">075</span><span id="line-75">      return;</span>
 <span class="source-line-no">076</span><span id="line-76">    }</span>
 <span class="source-line-no">077</span><span id="line-77"></span>
@@ -107,7 +107,7 @@
 <span class="source-line-no">094</span><span id="line-94">      validateStrictMode(trimmedXpath);</span>
 <span class="source-line-no">095</span><span id="line-95">    }</span>
 <span class="source-line-no">096</span><span id="line-96"></span>
-<span class="source-line-no">097</span><span id="line-97">    securityLogger.debug("XPath validation passed: {}", sanitizeForLogging(trimmedXpath));</span>
+<span class="source-line-no">097</span><span id="line-97">    securityLogger.debug("TreePath validation passed: {}", sanitizeForLogging(trimmedXpath));</span>
 <span class="source-line-no">098</span><span id="line-98">  }</span>
 <span class="source-line-no">099</span><span id="line-99"></span>
 <span class="source-line-no">100</span><span id="line-100">  /**</span>
@@ -135,7 +135,7 @@
 <span class="source-line-no">122</span><span id="line-122">    sanitized = sanitized.replaceAll("\\s+", " ");</span>
 <span class="source-line-no">123</span><span id="line-123"></span>
 <span class="source-line-no">124</span><span id="line-124">    securityLogger.debug(</span>
-<span class="source-line-no">125</span><span id="line-125">        "XPath sanitized: {} -&gt; {}", sanitizeForLogging(xpath), sanitizeForLogging(sanitized));</span>
+<span class="source-line-no">125</span><span id="line-125">        "TreePath sanitized: {} -&gt; {}", sanitizeForLogging(xpath), sanitizeForLogging(sanitized));</span>
 <span class="source-line-no">126</span><span id="line-126"></span>
 <span class="source-line-no">127</span><span id="line-127">    return sanitized;</span>
 <span class="source-line-no">128</span><span id="line-128">  }</span>
@@ -151,7 +151,7 @@
 <span class="source-line-no">138</span><span id="line-138">      validateXPath(xpath);</span>
 <span class="source-line-no">139</span><span id="line-139">      return true;</span>
 <span class="source-line-no">140</span><span id="line-140">    } catch (SecurityException | IllegalArgumentException e) {</span>
-<span class="source-line-no">141</span><span id="line-141">      securityLogger.warn("Unsafe XPath detected: {}", sanitizeForLogging(xpath));</span>
+<span class="source-line-no">141</span><span id="line-141">      securityLogger.warn("Unsafe TreePath detected: {}", sanitizeForLogging(xpath));</span>
 <span class="source-line-no">142</span><span id="line-142">      return false;</span>
 <span class="source-line-no">143</span><span id="line-143">    }</span>
 <span class="source-line-no">144</span><span id="line-144">  }</span>
@@ -196,103 +196,104 @@
 <span class="source-line-no">183</span><span id="line-183"></span>
 <span class="source-line-no">184</span><span id="line-184">  private static void validateBasicInjectionPatterns(String xpath) {</span>
 <span class="source-line-no">185</span><span id="line-185">    if (XPATH_INJECTION_PATTERN.matcher(xpath).matches()) {</span>
-<span class="source-line-no">186</span><span id="line-186">      securityLogger.warn("Basic XPath injection pattern detected: {}", sanitizeForLogging(xpath));</span>
-<span class="source-line-no">187</span><span id="line-187">      throw new SecurityException(</span>
-<span class="source-line-no">188</span><span id="line-188">          "Potentially malicious XPath expression detected: basic injection pattern");</span>
-<span class="source-line-no">189</span><span id="line-189">    }</span>
-<span class="source-line-no">190</span><span id="line-190">  }</span>
-<span class="source-line-no">191</span><span id="line-191"></span>
-<span class="source-line-no">192</span><span id="line-192">  private static void validateDangerousFunctions(String xpath) {</span>
-<span class="source-line-no">193</span><span id="line-193">    if (DANGEROUS_FUNCTIONS_PATTERN.matcher(xpath).matches()) {</span>
-<span class="source-line-no">194</span><span id="line-194">      securityLogger.warn("Dangerous XPath function detected: {}", sanitizeForLogging(xpath));</span>
-<span class="source-line-no">195</span><span id="line-195">      throw new SecurityException(</span>
-<span class="source-line-no">196</span><span id="line-196">          "Potentially malicious XPath expression detected: dangerous function usage");</span>
-<span class="source-line-no">197</span><span id="line-197">    }</span>
-<span class="source-line-no">198</span><span id="line-198">  }</span>
-<span class="source-line-no">199</span><span id="line-199"></span>
-<span class="source-line-no">200</span><span id="line-200">  private static void validateExternalReferences(String xpath) {</span>
-<span class="source-line-no">201</span><span id="line-201">    if (EXTERNAL_REFERENCE_PATTERN.matcher(xpath).matches()) {</span>
-<span class="source-line-no">202</span><span id="line-202">      securityLogger.warn("External reference in XPath detected: {}", sanitizeForLogging(xpath));</span>
-<span class="source-line-no">203</span><span id="line-203">      throw new SecurityException(</span>
-<span class="source-line-no">204</span><span id="line-204">          "Potentially malicious XPath expression detected: external reference");</span>
-<span class="source-line-no">205</span><span id="line-205">    }</span>
-<span class="source-line-no">206</span><span id="line-206">  }</span>
-<span class="source-line-no">207</span><span id="line-207"></span>
-<span class="source-line-no">208</span><span id="line-208">  private static void validateSqlLikeInjection(String xpath) {</span>
-<span class="source-line-no">209</span><span id="line-209">    if (SQL_LIKE_INJECTION_PATTERN.matcher(xpath).matches()) {</span>
-<span class="source-line-no">210</span><span id="line-210">      securityLogger.warn(</span>
-<span class="source-line-no">211</span><span id="line-211">          "SQL-like injection pattern in XPath detected: {}", sanitizeForLogging(xpath));</span>
-<span class="source-line-no">212</span><span id="line-212">      throw new SecurityException(</span>
-<span class="source-line-no">213</span><span id="line-213">          "Potentially malicious XPath expression detected: SQL-like injection pattern");</span>
-<span class="source-line-no">214</span><span id="line-214">    }</span>
-<span class="source-line-no">215</span><span id="line-215">  }</span>
-<span class="source-line-no">216</span><span id="line-216"></span>
-<span class="source-line-no">217</span><span id="line-217">  private static void validateStrictMode(String xpath) {</span>
-<span class="source-line-no">218</span><span id="line-218">    // 厳格モードでの追加検証</span>
-<span class="source-line-no">219</span><span id="line-219"></span>
-<span class="source-line-no">220</span><span id="line-220">    // 長すぎるXPath式を拒否</span>
-<span class="source-line-no">221</span><span id="line-221">    if (xpath.length() &gt; 1000) {</span>
-<span class="source-line-no">222</span><span id="line-222">      securityLogger.warn(</span>
-<span class="source-line-no">223</span><span id="line-223">          "XPath expression too long in strict mode: {} characters", xpath.length());</span>
-<span class="source-line-no">224</span><span id="line-224">      throw new SecurityException("XPath expression exceeds maximum length in strict mode");</span>
-<span class="source-line-no">225</span><span id="line-225">    }</span>
-<span class="source-line-no">226</span><span id="line-226"></span>
-<span class="source-line-no">227</span><span id="line-227">    // 深いネストを拒否</span>
-<span class="source-line-no">228</span><span id="line-228">    long nestingLevel = xpath.chars().filter(ch -&gt; ch == '[').count();</span>
-<span class="source-line-no">229</span><span id="line-229">    if (nestingLevel &gt; 10) {</span>
-<span class="source-line-no">230</span><span id="line-230">      securityLogger.warn(</span>
-<span class="source-line-no">231</span><span id="line-231">          "XPath expression has too deep nesting in strict mode: {} levels", nestingLevel);</span>
-<span class="source-line-no">232</span><span id="line-232">      throw new SecurityException("XPath expression has excessive nesting in strict mode");</span>
-<span class="source-line-no">233</span><span id="line-233">    }</span>
-<span class="source-line-no">234</span><span id="line-234"></span>
-<span class="source-line-no">235</span><span id="line-235">    // 複雑な演算子の組み合わせを制限</span>
-<span class="source-line-no">236</span><span id="line-236">    if (xpath.contains("and") &amp;&amp; xpath.contains("or") &amp;&amp; xpath.contains("not")) {</span>
-<span class="source-line-no">237</span><span id="line-237">      securityLogger.warn(</span>
-<span class="source-line-no">238</span><span id="line-238">          "Complex operator combination in XPath in strict mode: {}", sanitizeForLogging(xpath));</span>
-<span class="source-line-no">239</span><span id="line-239">      throw new SecurityException("Complex operator combinations not allowed in strict mode");</span>
-<span class="source-line-no">240</span><span id="line-240">    }</span>
-<span class="source-line-no">241</span><span id="line-241"></span>
-<span class="source-line-no">242</span><span id="line-242">    // ワイルドカードの過度な使用を制限</span>
-<span class="source-line-no">243</span><span id="line-243">    long wildcardCount = xpath.chars().filter(ch -&gt; ch == '*').count();</span>
-<span class="source-line-no">244</span><span id="line-244">    if (wildcardCount &gt; 5) {</span>
-<span class="source-line-no">245</span><span id="line-245">      securityLogger.warn(</span>
-<span class="source-line-no">246</span><span id="line-246">          "Excessive wildcard usage in XPath in strict mode: {} wildcards", wildcardCount);</span>
-<span class="source-line-no">247</span><span id="line-247">      throw new SecurityException("Excessive wildcard usage not allowed in strict mode");</span>
-<span class="source-line-no">248</span><span id="line-248">    }</span>
-<span class="source-line-no">249</span><span id="line-249">  }</span>
-<span class="source-line-no">250</span><span id="line-250"></span>
-<span class="source-line-no">251</span><span id="line-251">  private static String sanitizeForLogging(String xpath) {</span>
-<span class="source-line-no">252</span><span id="line-252">    if (xpath == null) {</span>
-<span class="source-line-no">253</span><span id="line-253">      return "null";</span>
-<span class="source-line-no">254</span><span id="line-254">    }</span>
-<span class="source-line-no">255</span><span id="line-255"></span>
-<span class="source-line-no">256</span><span id="line-256">    // ログ出力用のサニタイズ（機密情報や長すぎる文字列の対策）</span>
-<span class="source-line-no">257</span><span id="line-257">    String sanitized = xpath;</span>
-<span class="source-line-no">258</span><span id="line-258"></span>
-<span class="source-line-no">259</span><span id="line-259">    // 長すぎる場合は省略</span>
-<span class="source-line-no">260</span><span id="line-260">    if (sanitized.length() &gt; 100) {</span>
-<span class="source-line-no">261</span><span id="line-261">      sanitized = sanitized.substring(0, 97) + "...";</span>
-<span class="source-line-no">262</span><span id="line-262">    }</span>
-<span class="source-line-no">263</span><span id="line-263"></span>
-<span class="source-line-no">264</span><span id="line-264">    // 制御文字を除去</span>
-<span class="source-line-no">265</span><span id="line-265">    sanitized = sanitized.replaceAll("[\\p{Cntrl}\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]", "");</span>
-<span class="source-line-no">266</span><span id="line-266"></span>
-<span class="source-line-no">267</span><span id="line-267">    return sanitized;</span>
-<span class="source-line-no">268</span><span id="line-268">  }</span>
-<span class="source-line-no">269</span><span id="line-269"></span>
-<span class="source-line-no">270</span><span id="line-270">  /** セキュリティ設定の現在の状態をログに出力します */</span>
-<span class="source-line-no">271</span><span id="line-271">  public static void logSecurityStatus() {</span>
-<span class="source-line-no">272</span><span id="line-272">    if (securityConfig.isSecurityLoggingEnabled()) {</span>
-<span class="source-line-no">273</span><span id="line-273">      securityLogger.info("=== XPath Security Configuration Status ===");</span>
-<span class="source-line-no">274</span><span id="line-274">      securityLogger.info(</span>
-<span class="source-line-no">275</span><span id="line-275">          "XPath Validation Enabled: {}", securityConfig.isXPathValidationEnabled());</span>
-<span class="source-line-no">276</span><span id="line-276">      securityLogger.info(</span>
-<span class="source-line-no">277</span><span id="line-277">          "XPath Strict Mode Enabled: {}", securityConfig.isXPathStrictModeEnabled());</span>
-<span class="source-line-no">278</span><span id="line-278">      securityLogger.info("Production Environment: {}", securityConfig.isProductionEnvironment());</span>
-<span class="source-line-no">279</span><span id="line-279">      securityLogger.info("===========================================");</span>
-<span class="source-line-no">280</span><span id="line-280">    }</span>
-<span class="source-line-no">281</span><span id="line-281">  }</span>
-<span class="source-line-no">282</span><span id="line-282">}</span>
+<span class="source-line-no">186</span><span id="line-186">      securityLogger.warn(</span>
+<span class="source-line-no">187</span><span id="line-187">          "Basic TreePath injection pattern detected: {}", sanitizeForLogging(xpath));</span>
+<span class="source-line-no">188</span><span id="line-188">      throw new SecurityException(</span>
+<span class="source-line-no">189</span><span id="line-189">          "Potentially malicious TreePath expression detected: basic injection pattern");</span>
+<span class="source-line-no">190</span><span id="line-190">    }</span>
+<span class="source-line-no">191</span><span id="line-191">  }</span>
+<span class="source-line-no">192</span><span id="line-192"></span>
+<span class="source-line-no">193</span><span id="line-193">  private static void validateDangerousFunctions(String xpath) {</span>
+<span class="source-line-no">194</span><span id="line-194">    if (DANGEROUS_FUNCTIONS_PATTERN.matcher(xpath).matches()) {</span>
+<span class="source-line-no">195</span><span id="line-195">      securityLogger.warn("Dangerous TreePath function detected: {}", sanitizeForLogging(xpath));</span>
+<span class="source-line-no">196</span><span id="line-196">      throw new SecurityException(</span>
+<span class="source-line-no">197</span><span id="line-197">          "Potentially malicious TreePath expression detected: dangerous function usage");</span>
+<span class="source-line-no">198</span><span id="line-198">    }</span>
+<span class="source-line-no">199</span><span id="line-199">  }</span>
+<span class="source-line-no">200</span><span id="line-200"></span>
+<span class="source-line-no">201</span><span id="line-201">  private static void validateExternalReferences(String xpath) {</span>
+<span class="source-line-no">202</span><span id="line-202">    if (EXTERNAL_REFERENCE_PATTERN.matcher(xpath).matches()) {</span>
+<span class="source-line-no">203</span><span id="line-203">      securityLogger.warn("External reference in TreePath detected: {}", sanitizeForLogging(xpath));</span>
+<span class="source-line-no">204</span><span id="line-204">      throw new SecurityException(</span>
+<span class="source-line-no">205</span><span id="line-205">          "Potentially malicious TreePath expression detected: external reference");</span>
+<span class="source-line-no">206</span><span id="line-206">    }</span>
+<span class="source-line-no">207</span><span id="line-207">  }</span>
+<span class="source-line-no">208</span><span id="line-208"></span>
+<span class="source-line-no">209</span><span id="line-209">  private static void validateSqlLikeInjection(String xpath) {</span>
+<span class="source-line-no">210</span><span id="line-210">    if (SQL_LIKE_INJECTION_PATTERN.matcher(xpath).matches()) {</span>
+<span class="source-line-no">211</span><span id="line-211">      securityLogger.warn(</span>
+<span class="source-line-no">212</span><span id="line-212">          "SQL-like injection pattern in TreePath detected: {}", sanitizeForLogging(xpath));</span>
+<span class="source-line-no">213</span><span id="line-213">      throw new SecurityException(</span>
+<span class="source-line-no">214</span><span id="line-214">          "Potentially malicious TreePath expression detected: SQL-like injection pattern");</span>
+<span class="source-line-no">215</span><span id="line-215">    }</span>
+<span class="source-line-no">216</span><span id="line-216">  }</span>
+<span class="source-line-no">217</span><span id="line-217"></span>
+<span class="source-line-no">218</span><span id="line-218">  private static void validateStrictMode(String xpath) {</span>
+<span class="source-line-no">219</span><span id="line-219">    // 厳格モードでの追加検証</span>
+<span class="source-line-no">220</span><span id="line-220"></span>
+<span class="source-line-no">221</span><span id="line-221">    // 長すぎるXPath式を拒否</span>
+<span class="source-line-no">222</span><span id="line-222">    if (xpath.length() &gt; 1000) {</span>
+<span class="source-line-no">223</span><span id="line-223">      securityLogger.warn(</span>
+<span class="source-line-no">224</span><span id="line-224">          "TreePath expression too long in strict mode: {} characters", xpath.length());</span>
+<span class="source-line-no">225</span><span id="line-225">      throw new SecurityException("TreePath expression exceeds maximum length in strict mode");</span>
+<span class="source-line-no">226</span><span id="line-226">    }</span>
+<span class="source-line-no">227</span><span id="line-227"></span>
+<span class="source-line-no">228</span><span id="line-228">    // 深いネストを拒否</span>
+<span class="source-line-no">229</span><span id="line-229">    long nestingLevel = xpath.chars().filter(ch -&gt; ch == '[').count();</span>
+<span class="source-line-no">230</span><span id="line-230">    if (nestingLevel &gt; 10) {</span>
+<span class="source-line-no">231</span><span id="line-231">      securityLogger.warn(</span>
+<span class="source-line-no">232</span><span id="line-232">          "TreePath expression has too deep nesting in strict mode: {} levels", nestingLevel);</span>
+<span class="source-line-no">233</span><span id="line-233">      throw new SecurityException("TreePath expression has excessive nesting in strict mode");</span>
+<span class="source-line-no">234</span><span id="line-234">    }</span>
+<span class="source-line-no">235</span><span id="line-235"></span>
+<span class="source-line-no">236</span><span id="line-236">    // 複雑な演算子の組み合わせを制限</span>
+<span class="source-line-no">237</span><span id="line-237">    if (xpath.contains("and") &amp;&amp; xpath.contains("or") &amp;&amp; xpath.contains("not")) {</span>
+<span class="source-line-no">238</span><span id="line-238">      securityLogger.warn(</span>
+<span class="source-line-no">239</span><span id="line-239">          "Complex operator combination in TreePath in strict mode: {}", sanitizeForLogging(xpath));</span>
+<span class="source-line-no">240</span><span id="line-240">      throw new SecurityException("Complex operator combinations not allowed in strict mode");</span>
+<span class="source-line-no">241</span><span id="line-241">    }</span>
+<span class="source-line-no">242</span><span id="line-242"></span>
+<span class="source-line-no">243</span><span id="line-243">    // ワイルドカードの過度な使用を制限</span>
+<span class="source-line-no">244</span><span id="line-244">    long wildcardCount = xpath.chars().filter(ch -&gt; ch == '*').count();</span>
+<span class="source-line-no">245</span><span id="line-245">    if (wildcardCount &gt; 5) {</span>
+<span class="source-line-no">246</span><span id="line-246">      securityLogger.warn(</span>
+<span class="source-line-no">247</span><span id="line-247">          "Excessive wildcard usage in TreePath in strict mode: {} wildcards", wildcardCount);</span>
+<span class="source-line-no">248</span><span id="line-248">      throw new SecurityException("Excessive wildcard usage not allowed in strict mode");</span>
+<span class="source-line-no">249</span><span id="line-249">    }</span>
+<span class="source-line-no">250</span><span id="line-250">  }</span>
+<span class="source-line-no">251</span><span id="line-251"></span>
+<span class="source-line-no">252</span><span id="line-252">  private static String sanitizeForLogging(String xpath) {</span>
+<span class="source-line-no">253</span><span id="line-253">    if (xpath == null) {</span>
+<span class="source-line-no">254</span><span id="line-254">      return "null";</span>
+<span class="source-line-no">255</span><span id="line-255">    }</span>
+<span class="source-line-no">256</span><span id="line-256"></span>
+<span class="source-line-no">257</span><span id="line-257">    // ログ出力用のサニタイズ（機密情報や長すぎる文字列の対策）</span>
+<span class="source-line-no">258</span><span id="line-258">    String sanitized = xpath;</span>
+<span class="source-line-no">259</span><span id="line-259"></span>
+<span class="source-line-no">260</span><span id="line-260">    // 長すぎる場合は省略</span>
+<span class="source-line-no">261</span><span id="line-261">    if (sanitized.length() &gt; 100) {</span>
+<span class="source-line-no">262</span><span id="line-262">      sanitized = sanitized.substring(0, 97) + "...";</span>
+<span class="source-line-no">263</span><span id="line-263">    }</span>
+<span class="source-line-no">264</span><span id="line-264"></span>
+<span class="source-line-no">265</span><span id="line-265">    // 制御文字を除去</span>
+<span class="source-line-no">266</span><span id="line-266">    sanitized = sanitized.replaceAll("[\\p{Cntrl}\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]", "");</span>
+<span class="source-line-no">267</span><span id="line-267"></span>
+<span class="source-line-no">268</span><span id="line-268">    return sanitized;</span>
+<span class="source-line-no">269</span><span id="line-269">  }</span>
+<span class="source-line-no">270</span><span id="line-270"></span>
+<span class="source-line-no">271</span><span id="line-271">  /** セキュリティ設定の現在の状態をログに出力します */</span>
+<span class="source-line-no">272</span><span id="line-272">  public static void logSecurityStatus() {</span>
+<span class="source-line-no">273</span><span id="line-273">    if (securityConfig.isSecurityLoggingEnabled()) {</span>
+<span class="source-line-no">274</span><span id="line-274">      securityLogger.info("=== TreePath Security Configuration Status ===");</span>
+<span class="source-line-no">275</span><span id="line-275">      securityLogger.info(</span>
+<span class="source-line-no">276</span><span id="line-276">          "TreePath Validation Enabled: {}", securityConfig.isXPathValidationEnabled());</span>
+<span class="source-line-no">277</span><span id="line-277">      securityLogger.info(</span>
+<span class="source-line-no">278</span><span id="line-278">          "TreePath Strict Mode Enabled: {}", securityConfig.isXPathStrictModeEnabled());</span>
+<span class="source-line-no">279</span><span id="line-279">      securityLogger.info("Production Environment: {}", securityConfig.isProductionEnvironment());</span>
+<span class="source-line-no">280</span><span id="line-280">      securityLogger.info("===========================================");</span>
+<span class="source-line-no">281</span><span id="line-281">    }</span>
+<span class="source-line-no">282</span><span id="line-282">  }</span>
+<span class="source-line-no">283</span><span id="line-283">}</span>
 
 
 

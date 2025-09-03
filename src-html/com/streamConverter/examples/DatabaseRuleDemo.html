@@ -19,7 +19,7 @@
 <span class="source-line-no">006</span><span id="line-6">import com.streamConverter.command.impl.json.JsonNavigateCommand;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamConverter.command.rule.DatabaseFetchRule;</span>
 <span class="source-line-no">008</span><span id="line-8">import com.streamConverter.path.CSVPath;</span>
-<span class="source-line-no">009</span><span id="line-9">import com.streamConverter.path.JSONPath;</span>
+<span class="source-line-no">009</span><span id="line-9">import com.streamConverter.path.TreePath;</span>
 <span class="source-line-no">010</span><span id="line-10">import java.io.ByteArrayInputStream;</span>
 <span class="source-line-no">011</span><span id="line-11">import java.io.ByteArrayOutputStream;</span>
 <span class="source-line-no">012</span><span id="line-12">import java.sql.Connection;</span>
@@ -184,7 +184,7 @@
 <span class="source-line-no">171</span><span id="line-171"></span>
 <span class="source-line-no">172</span><span id="line-172">    // JsonNavigateCommandの作成</span>
 <span class="source-line-no">173</span><span id="line-173">    JsonNavigateCommand command =</span>
-<span class="source-line-no">174</span><span id="line-174">        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);</span>
+<span class="source-line-no">174</span><span id="line-174">        new JsonNavigateCommand(TreePath.fromJsonPath("$.customerId"), customerRule);</span>
 <span class="source-line-no">175</span><span id="line-175"></span>
 <span class="source-line-no">176</span><span id="line-176">    // 変換前のJSON</span>
 <span class="source-line-no">177</span><span id="line-177">    String inputJson =</span>
@@ -258,7 +258,7 @@
 <span class="source-line-no">245</span><span id="line-245"></span>
 <span class="source-line-no">246</span><span id="line-246">    // JsonNavigateCommandの作成</span>
 <span class="source-line-no">247</span><span id="line-247">    JsonNavigateCommand command =</span>
-<span class="source-line-no">248</span><span id="line-248">        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);</span>
+<span class="source-line-no">248</span><span id="line-248">        new JsonNavigateCommand(TreePath.fromJsonPath("$.customerId"), customerRule);</span>
 <span class="source-line-no">249</span><span id="line-249"></span>
 <span class="source-line-no">250</span><span id="line-250">    // 複数の注文を含むJSON</span>
 <span class="source-line-no">251</span><span id="line-251">    String inputJson =</span>
@@ -310,79 +310,80 @@
 <span class="source-line-no">297</span><span id="line-297"></span>
 <span class="source-line-no">298</span><span id="line-298">    // 複数段階の変換を組み合わせる</span>
 <span class="source-line-no">299</span><span id="line-299">    JsonNavigateCommand customerCommand =</span>
-<span class="source-line-no">300</span><span id="line-300">        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);</span>
-<span class="source-line-no">301</span><span id="line-301">    JsonNavigateCommand deptCommand = new JsonNavigateCommand(new JSONPath("$.deptCode"), deptRule);</span>
-<span class="source-line-no">302</span><span id="line-302"></span>
-<span class="source-line-no">303</span><span id="line-303">    // StreamConverterで複数のコマンドを組み合わせ</span>
-<span class="source-line-no">304</span><span id="line-304">    StreamConverter converter =</span>
-<span class="source-line-no">305</span><span id="line-305">        new StreamConverter(new IStreamCommand[] {customerCommand, deptCommand});</span>
-<span class="source-line-no">306</span><span id="line-306"></span>
-<span class="source-line-no">307</span><span id="line-307">    // 変換前のJSON</span>
-<span class="source-line-no">308</span><span id="line-308">    String inputJson =</span>
-<span class="source-line-no">309</span><span id="line-309">        """</span>
-<span class="source-line-no">310</span><span id="line-310">            {</span>
-<span class="source-line-no">311</span><span id="line-311">                "employeeId": "EMP-001",</span>
-<span class="source-line-no">312</span><span id="line-312">                "customerId": "1001",</span>
-<span class="source-line-no">313</span><span id="line-313">                "deptCode": "DEV",</span>
-<span class="source-line-no">314</span><span id="line-314">                "projectName": "新システム開発",</span>
-<span class="source-line-no">315</span><span id="line-315">                "status": "進行中"</span>
-<span class="source-line-no">316</span><span id="line-316">            }</span>
-<span class="source-line-no">317</span><span id="line-317">            """;</span>
-<span class="source-line-no">318</span><span id="line-318"></span>
-<span class="source-line-no">319</span><span id="line-319">    System.out.println("📄 変換前のJSON:");</span>
-<span class="source-line-no">320</span><span id="line-320">    System.out.println(inputJson);</span>
-<span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">    // パイプライン実行</span>
-<span class="source-line-no">323</span><span id="line-323">    ByteArrayInputStream input = new ByteArrayInputStream(inputJson.getBytes());</span>
-<span class="source-line-no">324</span><span id="line-324">    ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
-<span class="source-line-no">325</span><span id="line-325"></span>
-<span class="source-line-no">326</span><span id="line-326">    converter.run(input, output);</span>
-<span class="source-line-no">327</span><span id="line-327"></span>
-<span class="source-line-no">328</span><span id="line-328">    System.out.println("✨ パイプライン変換後のJSON:");</span>
-<span class="source-line-no">329</span><span id="line-329">    System.out.println(output.toString());</span>
-<span class="source-line-no">330</span><span id="line-330">    System.out.println();</span>
-<span class="source-line-no">331</span><span id="line-331">  }</span>
-<span class="source-line-no">332</span><span id="line-332"></span>
-<span class="source-line-no">333</span><span id="line-333">  /** シナリオ5: エラーハンドリングの例 */</span>
-<span class="source-line-no">334</span><span id="line-334">  private static void demonstrateErrorHandling() throws Exception {</span>
-<span class="source-line-no">335</span><span id="line-335">    System.out.println("--- シナリオ5: エラーハンドリング ---");</span>
-<span class="source-line-no">336</span><span id="line-336"></span>
-<span class="source-line-no">337</span><span id="line-337">    // DatabaseFetchRuleの作成</span>
-<span class="source-line-no">338</span><span id="line-338">    DatabaseFetchRule customerRule =</span>
-<span class="source-line-no">339</span><span id="line-339">        new DatabaseFetchRule(DB_URL, "SELECT name FROM customers WHERE id = ?");</span>
-<span class="source-line-no">340</span><span id="line-340"></span>
-<span class="source-line-no">341</span><span id="line-341">    // JsonNavigateCommandの作成</span>
-<span class="source-line-no">342</span><span id="line-342">    JsonNavigateCommand command =</span>
-<span class="source-line-no">343</span><span id="line-343">        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);</span>
-<span class="source-line-no">344</span><span id="line-344"></span>
-<span class="source-line-no">345</span><span id="line-345">    // 存在しない顧客IDを含むJSON</span>
-<span class="source-line-no">346</span><span id="line-346">    String inputJson =</span>
-<span class="source-line-no">347</span><span id="line-347">        """</span>
-<span class="source-line-no">348</span><span id="line-348">            {</span>
-<span class="source-line-no">349</span><span id="line-349">                "orderId": "ORD-9999",</span>
-<span class="source-line-no">350</span><span id="line-350">                "customerId": "9999",</span>
-<span class="source-line-no">351</span><span id="line-351">                "amount": 50000,</span>
-<span class="source-line-no">352</span><span id="line-352">                "note": "存在しない顧客IDのテスト"</span>
-<span class="source-line-no">353</span><span id="line-353">            }</span>
-<span class="source-line-no">354</span><span id="line-354">            """;</span>
-<span class="source-line-no">355</span><span id="line-355"></span>
-<span class="source-line-no">356</span><span id="line-356">    System.out.println("📄 存在しない顧客IDを含むJSON:");</span>
-<span class="source-line-no">357</span><span id="line-357">    System.out.println(inputJson);</span>
-<span class="source-line-no">358</span><span id="line-358"></span>
-<span class="source-line-no">359</span><span id="line-359">    // 変換実行</span>
-<span class="source-line-no">360</span><span id="line-360">    ByteArrayInputStream input = new ByteArrayInputStream(inputJson.getBytes());</span>
-<span class="source-line-no">361</span><span id="line-361">    ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
-<span class="source-line-no">362</span><span id="line-362"></span>
-<span class="source-line-no">363</span><span id="line-363">    command.execute(input, output);</span>
-<span class="source-line-no">364</span><span id="line-364"></span>
-<span class="source-line-no">365</span><span id="line-365">    System.out.println("✨ 変換結果（存在しないIDは空文字列になる）:");</span>
-<span class="source-line-no">366</span><span id="line-366">    System.out.println(output.toString());</span>
-<span class="source-line-no">367</span><span id="line-367"></span>
-<span class="source-line-no">368</span><span id="line-368">    System.out.println("💡 DatabaseFetchRuleは存在しないIDに対して空文字列を返し、");</span>
-<span class="source-line-no">369</span><span id="line-369">    System.out.println("   システム全体の安定性を保ちます。");</span>
-<span class="source-line-no">370</span><span id="line-370">    System.out.println();</span>
-<span class="source-line-no">371</span><span id="line-371">  }</span>
-<span class="source-line-no">372</span><span id="line-372">}</span>
+<span class="source-line-no">300</span><span id="line-300">        new JsonNavigateCommand(TreePath.fromJsonPath("$.customerId"), customerRule);</span>
+<span class="source-line-no">301</span><span id="line-301">    JsonNavigateCommand deptCommand =</span>
+<span class="source-line-no">302</span><span id="line-302">        new JsonNavigateCommand(TreePath.fromJsonPath("$.deptCode"), deptRule);</span>
+<span class="source-line-no">303</span><span id="line-303"></span>
+<span class="source-line-no">304</span><span id="line-304">    // StreamConverterで複数のコマンドを組み合わせ</span>
+<span class="source-line-no">305</span><span id="line-305">    StreamConverter converter =</span>
+<span class="source-line-no">306</span><span id="line-306">        new StreamConverter(new IStreamCommand[] {customerCommand, deptCommand});</span>
+<span class="source-line-no">307</span><span id="line-307"></span>
+<span class="source-line-no">308</span><span id="line-308">    // 変換前のJSON</span>
+<span class="source-line-no">309</span><span id="line-309">    String inputJson =</span>
+<span class="source-line-no">310</span><span id="line-310">        """</span>
+<span class="source-line-no">311</span><span id="line-311">            {</span>
+<span class="source-line-no">312</span><span id="line-312">                "employeeId": "EMP-001",</span>
+<span class="source-line-no">313</span><span id="line-313">                "customerId": "1001",</span>
+<span class="source-line-no">314</span><span id="line-314">                "deptCode": "DEV",</span>
+<span class="source-line-no">315</span><span id="line-315">                "projectName": "新システム開発",</span>
+<span class="source-line-no">316</span><span id="line-316">                "status": "進行中"</span>
+<span class="source-line-no">317</span><span id="line-317">            }</span>
+<span class="source-line-no">318</span><span id="line-318">            """;</span>
+<span class="source-line-no">319</span><span id="line-319"></span>
+<span class="source-line-no">320</span><span id="line-320">    System.out.println("📄 変換前のJSON:");</span>
+<span class="source-line-no">321</span><span id="line-321">    System.out.println(inputJson);</span>
+<span class="source-line-no">322</span><span id="line-322"></span>
+<span class="source-line-no">323</span><span id="line-323">    // パイプライン実行</span>
+<span class="source-line-no">324</span><span id="line-324">    ByteArrayInputStream input = new ByteArrayInputStream(inputJson.getBytes());</span>
+<span class="source-line-no">325</span><span id="line-325">    ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
+<span class="source-line-no">326</span><span id="line-326"></span>
+<span class="source-line-no">327</span><span id="line-327">    converter.run(input, output);</span>
+<span class="source-line-no">328</span><span id="line-328"></span>
+<span class="source-line-no">329</span><span id="line-329">    System.out.println("✨ パイプライン変換後のJSON:");</span>
+<span class="source-line-no">330</span><span id="line-330">    System.out.println(output.toString());</span>
+<span class="source-line-no">331</span><span id="line-331">    System.out.println();</span>
+<span class="source-line-no">332</span><span id="line-332">  }</span>
+<span class="source-line-no">333</span><span id="line-333"></span>
+<span class="source-line-no">334</span><span id="line-334">  /** シナリオ5: エラーハンドリングの例 */</span>
+<span class="source-line-no">335</span><span id="line-335">  private static void demonstrateErrorHandling() throws Exception {</span>
+<span class="source-line-no">336</span><span id="line-336">    System.out.println("--- シナリオ5: エラーハンドリング ---");</span>
+<span class="source-line-no">337</span><span id="line-337"></span>
+<span class="source-line-no">338</span><span id="line-338">    // DatabaseFetchRuleの作成</span>
+<span class="source-line-no">339</span><span id="line-339">    DatabaseFetchRule customerRule =</span>
+<span class="source-line-no">340</span><span id="line-340">        new DatabaseFetchRule(DB_URL, "SELECT name FROM customers WHERE id = ?");</span>
+<span class="source-line-no">341</span><span id="line-341"></span>
+<span class="source-line-no">342</span><span id="line-342">    // JsonNavigateCommandの作成</span>
+<span class="source-line-no">343</span><span id="line-343">    JsonNavigateCommand command =</span>
+<span class="source-line-no">344</span><span id="line-344">        new JsonNavigateCommand(TreePath.fromJsonPath("$.customerId"), customerRule);</span>
+<span class="source-line-no">345</span><span id="line-345"></span>
+<span class="source-line-no">346</span><span id="line-346">    // 存在しない顧客IDを含むJSON</span>
+<span class="source-line-no">347</span><span id="line-347">    String inputJson =</span>
+<span class="source-line-no">348</span><span id="line-348">        """</span>
+<span class="source-line-no">349</span><span id="line-349">            {</span>
+<span class="source-line-no">350</span><span id="line-350">                "orderId": "ORD-9999",</span>
+<span class="source-line-no">351</span><span id="line-351">                "customerId": "9999",</span>
+<span class="source-line-no">352</span><span id="line-352">                "amount": 50000,</span>
+<span class="source-line-no">353</span><span id="line-353">                "note": "存在しない顧客IDのテスト"</span>
+<span class="source-line-no">354</span><span id="line-354">            }</span>
+<span class="source-line-no">355</span><span id="line-355">            """;</span>
+<span class="source-line-no">356</span><span id="line-356"></span>
+<span class="source-line-no">357</span><span id="line-357">    System.out.println("📄 存在しない顧客IDを含むJSON:");</span>
+<span class="source-line-no">358</span><span id="line-358">    System.out.println(inputJson);</span>
+<span class="source-line-no">359</span><span id="line-359"></span>
+<span class="source-line-no">360</span><span id="line-360">    // 変換実行</span>
+<span class="source-line-no">361</span><span id="line-361">    ByteArrayInputStream input = new ByteArrayInputStream(inputJson.getBytes());</span>
+<span class="source-line-no">362</span><span id="line-362">    ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
+<span class="source-line-no">363</span><span id="line-363"></span>
+<span class="source-line-no">364</span><span id="line-364">    command.execute(input, output);</span>
+<span class="source-line-no">365</span><span id="line-365"></span>
+<span class="source-line-no">366</span><span id="line-366">    System.out.println("✨ 変換結果（存在しないIDは空文字列になる）:");</span>
+<span class="source-line-no">367</span><span id="line-367">    System.out.println(output.toString());</span>
+<span class="source-line-no">368</span><span id="line-368"></span>
+<span class="source-line-no">369</span><span id="line-369">    System.out.println("💡 DatabaseFetchRuleは存在しないIDに対して空文字列を返し、");</span>
+<span class="source-line-no">370</span><span id="line-370">    System.out.println("   システム全体の安定性を保ちます。");</span>
+<span class="source-line-no">371</span><span id="line-371">    System.out.println();</span>
+<span class="source-line-no">372</span><span id="line-372">  }</span>
+<span class="source-line-no">373</span><span id="line-373">}</span>
 
 
 

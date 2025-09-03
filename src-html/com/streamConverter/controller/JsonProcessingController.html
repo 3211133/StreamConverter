@@ -25,7 +25,7 @@
 <span class="source-line-no">012</span><span id="line-12"> * supports various JSON processing scenarios:</span>
 <span class="source-line-no">013</span><span id="line-13"> *</span>
 <span class="source-line-no">014</span><span id="line-14"> * &lt;ul&gt;</span>
-<span class="source-line-no">015</span><span id="line-15"> *   &lt;li&gt;Property extraction using JSONPath-like expressions</span>
+<span class="source-line-no">015</span><span id="line-15"> *   &lt;li&gt;Property extraction using TreePath-like expressions</span>
 <span class="source-line-no">016</span><span id="line-16"> *   &lt;li&gt;JSON formatting and pretty-printing</span>
 <span class="source-line-no">017</span><span id="line-17"> *   &lt;li&gt;Data validation with custom rules</span>
 <span class="source-line-no">018</span><span id="line-18"> *   &lt;li&gt;Transformation pipelines with multiple stages</span>
@@ -69,7 +69,7 @@
 <span class="source-line-no">056</span><span id="line-56">  /** The processing scenario */</span>
 <span class="source-line-no">057</span><span id="line-57">  private final ProcessingScenario scenario;</span>
 <span class="source-line-no">058</span><span id="line-58"></span>
-<span class="source-line-no">059</span><span id="line-59">  /** JSONPath-like expression for property extraction */</span>
+<span class="source-line-no">059</span><span id="line-59">  /** TreePath-like expression for property extraction */</span>
 <span class="source-line-no">060</span><span id="line-60">  private final String propertyPath;</span>
 <span class="source-line-no">061</span><span id="line-61"></span>
 <span class="source-line-no">062</span><span id="line-62">  /** Whether to enable validation */</span>
@@ -108,7 +108,7 @@
 <span class="source-line-no">095</span><span id="line-95">  /**</span>
 <span class="source-line-no">096</span><span id="line-96">   * Factory method for property extraction.</span>
 <span class="source-line-no">097</span><span id="line-97">   *</span>
-<span class="source-line-no">098</span><span id="line-98">   * @param propertyPath JSONPath-like expression (e.g., "user.name", "data[0].id")</span>
+<span class="source-line-no">098</span><span id="line-98">   * @param propertyPath TreePath-like expression (e.g., "user.name", "data[0].id")</span>
 <span class="source-line-no">099</span><span id="line-99">   * @param enableValidation whether to enable validation</span>
 <span class="source-line-no">100</span><span id="line-100">   * @return configured controller</span>
 <span class="source-line-no">101</span><span id="line-101">   */</span>
@@ -132,7 +132,7 @@
 <span class="source-line-no">119</span><span id="line-119">  /**</span>
 <span class="source-line-no">120</span><span id="line-120">   * Factory method for multi-stage transformation.</span>
 <span class="source-line-no">121</span><span id="line-121">   *</span>
-<span class="source-line-no">122</span><span id="line-122">   * @param propertyPath JSONPath-like expression for initial extraction</span>
+<span class="source-line-no">122</span><span id="line-122">   * @param propertyPath TreePath-like expression for initial extraction</span>
 <span class="source-line-no">123</span><span id="line-123">   * @param processingStages array of processor IDs for transformation stages</span>
 <span class="source-line-no">124</span><span id="line-124">   * @return configured controller</span>
 <span class="source-line-no">125</span><span id="line-125">   */</span>

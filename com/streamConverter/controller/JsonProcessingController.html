@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
  supports various JSON processing scenarios:
 
  <ul>
-   <li>Property extraction using JSONPath-like expressions
+   <li>Property extraction using TreePath-like expressions
    <li>JSON formatting and pretty-printing
    <li>Data validation with custom rules
    <li>Transformation pipelines with multiple stages
@@ -239,7 +239,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Factory method for property extraction.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>propertyPath</code> - JSONPath-like expression (e.g., "user.name", "data[0].id")</dd>
+<dd><code>propertyPath</code> - TreePath-like expression (e.g., "user.name", "data[0].id")</dd>
 <dd><code>enableValidation</code> - whether to enable validation</dd>
 <dt>Returns:</dt>
 <dd>configured controller</dd>
@@ -265,7 +265,7 @@ loadScripts(document, 'script');</script>
 <div class="block">Factory method for multi-stage transformation.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>propertyPath</code> - JSONPath-like expression for initial extraction</dd>
+<dd><code>propertyPath</code> - TreePath-like expression for initial extraction</dd>
 <dd><code>processingStages</code> - array of processor IDs for transformation stages</dd>
 <dt>Returns:</dt>
 <dd>configured controller</dd>

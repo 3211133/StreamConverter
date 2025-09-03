@@ -18,7 +18,7 @@
 <span class="source-line-no">005</span><span id="line-5">import com.streamConverter.command.impl.SampleStreamCommand;</span>
 <span class="source-line-no">006</span><span id="line-6">import com.streamConverter.command.impl.xml.XmlNavigateCommand;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamConverter.command.rule.PassThroughRule;</span>
-<span class="source-line-no">008</span><span id="line-8">import com.streamConverter.path.XPath;</span>
+<span class="source-line-no">008</span><span id="line-8">import com.streamConverter.path.TreePath;</span>
 <span class="source-line-no">009</span><span id="line-9">import java.io.ByteArrayInputStream;</span>
 <span class="source-line-no">010</span><span id="line-10">import java.io.ByteArrayOutputStream;</span>
 <span class="source-line-no">011</span><span id="line-11">import java.io.IOException;</span>
@@ -110,7 +110,7 @@
 <span class="source-line-no">097</span><span id="line-97"></span>
 <span class="source-line-no">098</span><span id="line-98">    // Translation pipeline: Extract key fields and transform</span>
 <span class="source-line-no">099</span><span id="line-99">    IStreamCommand[] translationPipeline = {</span>
-<span class="source-line-no">100</span><span id="line-100">      XmlNavigateCommand.create(new XPath("LegacyOrder/OrderID"), new PassThroughRule()),</span>
+<span class="source-line-no">100</span><span id="line-100">      XmlNavigateCommand.create(TreePath.fromXmlPath("LegacyOrder/OrderID"), new PassThroughRule()),</span>
 <span class="source-line-no">101</span><span id="line-101">      new SampleStreamCommand("order-translator"),</span>
 <span class="source-line-no">102</span><span id="line-102">      new SampleStreamCommand("format-modernizer")</span>
 <span class="source-line-no">103</span><span id="line-103">    };</span>
@@ -161,7 +161,7 @@
 <span class="source-line-no">148</span><span id="line-148"></span>
 <span class="source-line-no">149</span><span id="line-149">      // Route based on message type</span>
 <span class="source-line-no">150</span><span id="line-150">      IStreamCommand[] routingPipeline = {</span>
-<span class="source-line-no">151</span><span id="line-151">        XmlNavigateCommand.create(new XPath("Message/Type"), new PassThroughRule()),</span>
+<span class="source-line-no">151</span><span id="line-151">        XmlNavigateCommand.create(TreePath.fromXmlPath("Message/Type"), new PassThroughRule()),</span>
 <span class="source-line-no">152</span><span id="line-152">        new SampleStreamCommand("content-router-" + (i + 1))</span>
 <span class="source-line-no">153</span><span id="line-153">      };</span>
 <span class="source-line-no">154</span><span id="line-154"></span>
@@ -206,7 +206,7 @@
 <span class="source-line-no">193</span><span id="line-193">                  // Simulate processing with each supplier</span>
 <span class="source-line-no">194</span><span id="line-194">                  IStreamCommand[] supplierPipeline = {</span>
 <span class="source-line-no">195</span><span id="line-195">                    XmlNavigateCommand.create(</span>
-<span class="source-line-no">196</span><span id="line-196">                        new XPath("PriceRequest/ProductID"), new PassThroughRule()),</span>
+<span class="source-line-no">196</span><span id="line-196">                        TreePath.fromXmlPath("PriceRequest/ProductID"), new PassThroughRule()),</span>
 <span class="source-line-no">197</span><span id="line-197">                    new SampleStreamCommand("supplier-" + supplier),</span>
 <span class="source-line-no">198</span><span id="line-198">                    new SampleStreamCommand("price-calculator-" + supplierIndex)</span>
 <span class="source-line-no">199</span><span id="line-199">                  };</span>
@@ -262,7 +262,7 @@
 <span class="source-line-no">249</span><span id="line-249"></span>
 <span class="source-line-no">250</span><span id="line-250">                IStreamCommand[] requestPipeline = {</span>
 <span class="source-line-no">251</span><span id="line-251">                  XmlNavigateCommand.create(</span>
-<span class="source-line-no">252</span><span id="line-252">                      new XPath("ServiceRequest/UserID"), new PassThroughRule()),</span>
+<span class="source-line-no">252</span><span id="line-252">                      TreePath.fromXmlPath("ServiceRequest/UserID"), new PassThroughRule()),</span>
 <span class="source-line-no">253</span><span id="line-253">                  new SampleStreamCommand("user-validator"),</span>
 <span class="source-line-no">254</span><span id="line-254">                  new SampleStreamCommand("response-formatter")</span>
 <span class="source-line-no">255</span><span id="line-255">                };</span>
@@ -330,147 +330,148 @@
 <span class="source-line-no">317</span><span id="line-317">        logger.info("\n🚨 Processing ERROR message " + (i + 1) + ":");</span>
 <span class="source-line-no">318</span><span id="line-318"></span>
 <span class="source-line-no">319</span><span id="line-319">        IStreamCommand[] filterPipeline = {</span>
-<span class="source-line-no">320</span><span id="line-320">          XmlNavigateCommand.create(new XPath("LogEntry/Message"), new PassThroughRule()),</span>
-<span class="source-line-no">321</span><span id="line-321">          new SampleStreamCommand("error-processor"),</span>
-<span class="source-line-no">322</span><span id="line-322">          new SampleStreamCommand("alert-sender")</span>
-<span class="source-line-no">323</span><span id="line-323">        };</span>
-<span class="source-line-no">324</span><span id="line-324"></span>
-<span class="source-line-no">325</span><span id="line-325">        executePattern(messages[i], filterPipeline, "Error Processing");</span>
-<span class="source-line-no">326</span><span id="line-326">      } else {</span>
-<span class="source-line-no">327</span><span id="line-327">        logger.info("\n✅ Filtered out " + level + " message " + (i + 1));</span>
-<span class="source-line-no">328</span><span id="line-328">      }</span>
-<span class="source-line-no">329</span><span id="line-329">    }</span>
-<span class="source-line-no">330</span><span id="line-330"></span>
-<span class="source-line-no">331</span><span id="line-331">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">332</span><span id="line-332">  }</span>
-<span class="source-line-no">333</span><span id="line-333"></span>
-<span class="source-line-no">334</span><span id="line-334">  /** Pattern 6: Dead Letter Queue Handles failed messages */</span>
-<span class="source-line-no">335</span><span id="line-335">  private static void demonstrateDeadLetterQueue() throws IOException {</span>
-<span class="source-line-no">336</span><span id="line-336">    logger.info("💀 Dead Letter Queue Pattern");</span>
-<span class="source-line-no">337</span><span id="line-337">    logger.info("=============================");</span>
-<span class="source-line-no">338</span><span id="line-338"></span>
-<span class="source-line-no">339</span><span id="line-339">    String[] problematicMessages = {</span>
-<span class="source-line-no">340</span><span id="line-340">      """</span>
-<span class="source-line-no">341</span><span id="line-341">        &lt;?xml version="1.0"?&gt;</span>
-<span class="source-line-no">342</span><span id="line-342">        &lt;BadMessage&gt;</span>
-<span class="source-line-no">343</span><span id="line-343">          &lt;InvalidField&gt;This will cause processing error&lt;/InvalidField&gt;</span>
-<span class="source-line-no">344</span><span id="line-344">          &lt;!-- Missing required fields --&gt;</span>
-<span class="source-line-no">345</span><span id="line-345">        &lt;/BadMessage&gt;</span>
-<span class="source-line-no">346</span><span id="line-346">        """,</span>
-<span class="source-line-no">347</span><span id="line-347">      """</span>
-<span class="source-line-no">348</span><span id="line-348">        &lt;?xml version="1.0"?&gt;</span>
-<span class="source-line-no">349</span><span id="line-349">        &lt;Message&gt;</span>
-<span class="source-line-no">350</span><span id="line-350">          &lt;Type&gt;INVALID_TYPE&lt;/Type&gt;</span>
-<span class="source-line-no">351</span><span id="line-351">          &lt;Data&gt;Unknown message type&lt;/Data&gt;</span>
-<span class="source-line-no">352</span><span id="line-352">        &lt;/Message&gt;</span>
-<span class="source-line-no">353</span><span id="line-353">        """,</span>
-<span class="source-line-no">354</span><span id="line-354">      """</span>
-<span class="source-line-no">355</span><span id="line-355">        This is not even valid XML!</span>
-<span class="source-line-no">356</span><span id="line-356">        """</span>
-<span class="source-line-no">357</span><span id="line-357">    };</span>
-<span class="source-line-no">358</span><span id="line-358"></span>
-<span class="source-line-no">359</span><span id="line-359">    logger.info("⚠️ Processing problematic messages...");</span>
-<span class="source-line-no">360</span><span id="line-360"></span>
-<span class="source-line-no">361</span><span id="line-361">    for (int i = 0; i &lt; problematicMessages.length; i++) {</span>
-<span class="source-line-no">362</span><span id="line-362">      logger.info("\n📨 Message " + (i + 1) + ":");</span>
-<span class="source-line-no">363</span><span id="line-363"></span>
-<span class="source-line-no">364</span><span id="line-364">      try {</span>
-<span class="source-line-no">365</span><span id="line-365">        IStreamCommand[] processingPipeline = {</span>
-<span class="source-line-no">366</span><span id="line-366">          XmlNavigateCommand.create(new XPath("Message/Type"), new PassThroughRule()),</span>
-<span class="source-line-no">367</span><span id="line-367">          new SampleStreamCommand("message-processor")</span>
-<span class="source-line-no">368</span><span id="line-368">        };</span>
-<span class="source-line-no">369</span><span id="line-369"></span>
-<span class="source-line-no">370</span><span id="line-370">        executePattern(problematicMessages[i], processingPipeline, "Normal Processing");</span>
-<span class="source-line-no">371</span><span id="line-371">        logger.info("✅ Message processed successfully");</span>
-<span class="source-line-no">372</span><span id="line-372"></span>
-<span class="source-line-no">373</span><span id="line-373">      } catch (Exception e) {</span>
-<span class="source-line-no">374</span><span id="line-374">        logger.info("❌ Processing failed: " + e.getMessage());</span>
-<span class="source-line-no">375</span><span id="line-375">        logger.info("📤 Sending to Dead Letter Queue...");</span>
-<span class="source-line-no">376</span><span id="line-376"></span>
-<span class="source-line-no">377</span><span id="line-377">        // Send to Dead Letter Queue</span>
-<span class="source-line-no">378</span><span id="line-378">        sendToDeadLetterQueue(problematicMessages[i], e.getMessage());</span>
-<span class="source-line-no">379</span><span id="line-379">      }</span>
-<span class="source-line-no">380</span><span id="line-380">    }</span>
-<span class="source-line-no">381</span><span id="line-381"></span>
-<span class="source-line-no">382</span><span id="line-382">    logger.info("\n" + "=".repeat(60) + "\n");</span>
-<span class="source-line-no">383</span><span id="line-383">  }</span>
-<span class="source-line-no">384</span><span id="line-384"></span>
-<span class="source-line-no">385</span><span id="line-385">  /** Helper method to execute a pattern */</span>
-<span class="source-line-no">386</span><span id="line-386">  private static void executePattern(String inputXml, IStreamCommand[] pipeline, String patternName)</span>
-<span class="source-line-no">387</span><span id="line-387">      throws IOException {</span>
-<span class="source-line-no">388</span><span id="line-388">    try (InputStream inputStream =</span>
-<span class="source-line-no">389</span><span id="line-389">            new ByteArrayInputStream(inputXml.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">390</span><span id="line-390">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="source-line-no">391</span><span id="line-391"></span>
-<span class="source-line-no">392</span><span id="line-392">      StreamConverter converter = new StreamConverter(pipeline);</span>
-<span class="source-line-no">393</span><span id="line-393">      converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">394</span><span id="line-394"></span>
-<span class="source-line-no">395</span><span id="line-395">      String result = outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">396</span><span id="line-396">      logger.info("✅ " + patternName + " result:");</span>
-<span class="source-line-no">397</span><span id="line-397">      logger.info(result.trim());</span>
-<span class="source-line-no">398</span><span id="line-398">    }</span>
-<span class="source-line-no">399</span><span id="line-399">  }</span>
-<span class="source-line-no">400</span><span id="line-400"></span>
-<span class="source-line-no">401</span><span id="line-401">  /** Helper method to process supplier requests */</span>
-<span class="source-line-no">402</span><span id="line-402">  private static String processSupplierRequest(</span>
-<span class="source-line-no">403</span><span id="line-403">      String requestXml, IStreamCommand[] pipeline, String supplier) throws IOException {</span>
-<span class="source-line-no">404</span><span id="line-404">    try (InputStream inputStream =</span>
-<span class="source-line-no">405</span><span id="line-405">            new ByteArrayInputStream(requestXml.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">406</span><span id="line-406">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="source-line-no">407</span><span id="line-407"></span>
-<span class="source-line-no">408</span><span id="line-408">      StreamConverter converter = new StreamConverter(pipeline);</span>
-<span class="source-line-no">409</span><span id="line-409">      converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">410</span><span id="line-410"></span>
-<span class="source-line-no">411</span><span id="line-411">      return outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">412</span><span id="line-412">    }</span>
-<span class="source-line-no">413</span><span id="line-413">  }</span>
-<span class="source-line-no">414</span><span id="line-414"></span>
-<span class="source-line-no">415</span><span id="line-415">  /** Helper method to process with timeout */</span>
-<span class="source-line-no">416</span><span id="line-416">  private static String processWithTimeout(String requestXml, IStreamCommand[] pipeline)</span>
-<span class="source-line-no">417</span><span id="line-417">      throws IOException {</span>
-<span class="source-line-no">418</span><span id="line-418">    try (InputStream inputStream =</span>
-<span class="source-line-no">419</span><span id="line-419">            new ByteArrayInputStream(requestXml.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">420</span><span id="line-420">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="source-line-no">421</span><span id="line-421"></span>
-<span class="source-line-no">422</span><span id="line-422">      StreamConverter converter = new StreamConverter(pipeline);</span>
-<span class="source-line-no">423</span><span id="line-423">      converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">424</span><span id="line-424"></span>
-<span class="source-line-no">425</span><span id="line-425">      return outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">426</span><span id="line-426">    }</span>
-<span class="source-line-no">427</span><span id="line-427">  }</span>
-<span class="source-line-no">428</span><span id="line-428"></span>
-<span class="source-line-no">429</span><span id="line-429">  /** Helper method to extract level from log message */</span>
-<span class="source-line-no">430</span><span id="line-430">  private static String extractLevel(String logXml) {</span>
-<span class="source-line-no">431</span><span id="line-431">    // Simple extraction for demo purposes</span>
-<span class="source-line-no">432</span><span id="line-432">    if (logXml.contains("&lt;Level&gt;ERROR&lt;/Level&gt;")) {</span>
-<span class="source-line-no">433</span><span id="line-433">      return "ERROR";</span>
-<span class="source-line-no">434</span><span id="line-434">    } else if (logXml.contains("&lt;Level&gt;INFO&lt;/Level&gt;")) {</span>
-<span class="source-line-no">435</span><span id="line-435">      return "INFO";</span>
-<span class="source-line-no">436</span><span id="line-436">    }</span>
-<span class="source-line-no">437</span><span id="line-437">    return "UNKNOWN";</span>
-<span class="source-line-no">438</span><span id="line-438">  }</span>
-<span class="source-line-no">439</span><span id="line-439"></span>
-<span class="source-line-no">440</span><span id="line-440">  /** Helper method to send message to Dead Letter Queue */</span>
-<span class="source-line-no">441</span><span id="line-441">  private static void sendToDeadLetterQueue(String message, String error) {</span>
-<span class="source-line-no">442</span><span id="line-442">    logger.info("💀 Dead Letter Queue Entry:");</span>
-<span class="source-line-no">443</span><span id="line-443">    logger.info("   Message: " + message.substring(0, Math.min(100, message.length())) + "...");</span>
-<span class="source-line-no">444</span><span id="line-444">    logger.info("   Error: " + error);</span>
-<span class="source-line-no">445</span><span id="line-445">    logger.info("   Timestamp: " + java.time.Instant.now());</span>
-<span class="source-line-no">446</span><span id="line-446">    logger.info("   Status: QUEUED_FOR_MANUAL_REVIEW");</span>
-<span class="source-line-no">447</span><span id="line-447">  }</span>
-<span class="source-line-no">448</span><span id="line-448"></span>
-<span class="source-line-no">449</span><span id="line-449">  /** Helper method to shutdown executor */</span>
-<span class="source-line-no">450</span><span id="line-450">  private static void shutdownExecutor() {</span>
-<span class="source-line-no">451</span><span id="line-451">    executorService.shutdown();</span>
-<span class="source-line-no">452</span><span id="line-452">    try {</span>
-<span class="source-line-no">453</span><span id="line-453">      if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {</span>
-<span class="source-line-no">454</span><span id="line-454">        executorService.shutdownNow();</span>
-<span class="source-line-no">455</span><span id="line-455">      }</span>
-<span class="source-line-no">456</span><span id="line-456">    } catch (InterruptedException e) {</span>
-<span class="source-line-no">457</span><span id="line-457">      executorService.shutdownNow();</span>
-<span class="source-line-no">458</span><span id="line-458">    }</span>
-<span class="source-line-no">459</span><span id="line-459">  }</span>
-<span class="source-line-no">460</span><span id="line-460">}</span>
+<span class="source-line-no">320</span><span id="line-320">          XmlNavigateCommand.create(</span>
+<span class="source-line-no">321</span><span id="line-321">              TreePath.fromXmlPath("LogEntry/Message"), new PassThroughRule()),</span>
+<span class="source-line-no">322</span><span id="line-322">          new SampleStreamCommand("error-processor"),</span>
+<span class="source-line-no">323</span><span id="line-323">          new SampleStreamCommand("alert-sender")</span>
+<span class="source-line-no">324</span><span id="line-324">        };</span>
+<span class="source-line-no">325</span><span id="line-325"></span>
+<span class="source-line-no">326</span><span id="line-326">        executePattern(messages[i], filterPipeline, "Error Processing");</span>
+<span class="source-line-no">327</span><span id="line-327">      } else {</span>
+<span class="source-line-no">328</span><span id="line-328">        logger.info("\n✅ Filtered out " + level + " message " + (i + 1));</span>
+<span class="source-line-no">329</span><span id="line-329">      }</span>
+<span class="source-line-no">330</span><span id="line-330">    }</span>
+<span class="source-line-no">331</span><span id="line-331"></span>
+<span class="source-line-no">332</span><span id="line-332">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">333</span><span id="line-333">  }</span>
+<span class="source-line-no">334</span><span id="line-334"></span>
+<span class="source-line-no">335</span><span id="line-335">  /** Pattern 6: Dead Letter Queue Handles failed messages */</span>
+<span class="source-line-no">336</span><span id="line-336">  private static void demonstrateDeadLetterQueue() throws IOException {</span>
+<span class="source-line-no">337</span><span id="line-337">    logger.info("💀 Dead Letter Queue Pattern");</span>
+<span class="source-line-no">338</span><span id="line-338">    logger.info("=============================");</span>
+<span class="source-line-no">339</span><span id="line-339"></span>
+<span class="source-line-no">340</span><span id="line-340">    String[] problematicMessages = {</span>
+<span class="source-line-no">341</span><span id="line-341">      """</span>
+<span class="source-line-no">342</span><span id="line-342">        &lt;?xml version="1.0"?&gt;</span>
+<span class="source-line-no">343</span><span id="line-343">        &lt;BadMessage&gt;</span>
+<span class="source-line-no">344</span><span id="line-344">          &lt;InvalidField&gt;This will cause processing error&lt;/InvalidField&gt;</span>
+<span class="source-line-no">345</span><span id="line-345">          &lt;!-- Missing required fields --&gt;</span>
+<span class="source-line-no">346</span><span id="line-346">        &lt;/BadMessage&gt;</span>
+<span class="source-line-no">347</span><span id="line-347">        """,</span>
+<span class="source-line-no">348</span><span id="line-348">      """</span>
+<span class="source-line-no">349</span><span id="line-349">        &lt;?xml version="1.0"?&gt;</span>
+<span class="source-line-no">350</span><span id="line-350">        &lt;Message&gt;</span>
+<span class="source-line-no">351</span><span id="line-351">          &lt;Type&gt;INVALID_TYPE&lt;/Type&gt;</span>
+<span class="source-line-no">352</span><span id="line-352">          &lt;Data&gt;Unknown message type&lt;/Data&gt;</span>
+<span class="source-line-no">353</span><span id="line-353">        &lt;/Message&gt;</span>
+<span class="source-line-no">354</span><span id="line-354">        """,</span>
+<span class="source-line-no">355</span><span id="line-355">      """</span>
+<span class="source-line-no">356</span><span id="line-356">        This is not even valid XML!</span>
+<span class="source-line-no">357</span><span id="line-357">        """</span>
+<span class="source-line-no">358</span><span id="line-358">    };</span>
+<span class="source-line-no">359</span><span id="line-359"></span>
+<span class="source-line-no">360</span><span id="line-360">    logger.info("⚠️ Processing problematic messages...");</span>
+<span class="source-line-no">361</span><span id="line-361"></span>
+<span class="source-line-no">362</span><span id="line-362">    for (int i = 0; i &lt; problematicMessages.length; i++) {</span>
+<span class="source-line-no">363</span><span id="line-363">      logger.info("\n📨 Message " + (i + 1) + ":");</span>
+<span class="source-line-no">364</span><span id="line-364"></span>
+<span class="source-line-no">365</span><span id="line-365">      try {</span>
+<span class="source-line-no">366</span><span id="line-366">        IStreamCommand[] processingPipeline = {</span>
+<span class="source-line-no">367</span><span id="line-367">          XmlNavigateCommand.create(TreePath.fromXmlPath("Message/Type"), new PassThroughRule()),</span>
+<span class="source-line-no">368</span><span id="line-368">          new SampleStreamCommand("message-processor")</span>
+<span class="source-line-no">369</span><span id="line-369">        };</span>
+<span class="source-line-no">370</span><span id="line-370"></span>
+<span class="source-line-no">371</span><span id="line-371">        executePattern(problematicMessages[i], processingPipeline, "Normal Processing");</span>
+<span class="source-line-no">372</span><span id="line-372">        logger.info("✅ Message processed successfully");</span>
+<span class="source-line-no">373</span><span id="line-373"></span>
+<span class="source-line-no">374</span><span id="line-374">      } catch (Exception e) {</span>
+<span class="source-line-no">375</span><span id="line-375">        logger.info("❌ Processing failed: " + e.getMessage());</span>
+<span class="source-line-no">376</span><span id="line-376">        logger.info("📤 Sending to Dead Letter Queue...");</span>
+<span class="source-line-no">377</span><span id="line-377"></span>
+<span class="source-line-no">378</span><span id="line-378">        // Send to Dead Letter Queue</span>
+<span class="source-line-no">379</span><span id="line-379">        sendToDeadLetterQueue(problematicMessages[i], e.getMessage());</span>
+<span class="source-line-no">380</span><span id="line-380">      }</span>
+<span class="source-line-no">381</span><span id="line-381">    }</span>
+<span class="source-line-no">382</span><span id="line-382"></span>
+<span class="source-line-no">383</span><span id="line-383">    logger.info("\n" + "=".repeat(60) + "\n");</span>
+<span class="source-line-no">384</span><span id="line-384">  }</span>
+<span class="source-line-no">385</span><span id="line-385"></span>
+<span class="source-line-no">386</span><span id="line-386">  /** Helper method to execute a pattern */</span>
+<span class="source-line-no">387</span><span id="line-387">  private static void executePattern(String inputXml, IStreamCommand[] pipeline, String patternName)</span>
+<span class="source-line-no">388</span><span id="line-388">      throws IOException {</span>
+<span class="source-line-no">389</span><span id="line-389">    try (InputStream inputStream =</span>
+<span class="source-line-no">390</span><span id="line-390">            new ByteArrayInputStream(inputXml.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">391</span><span id="line-391">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="source-line-no">392</span><span id="line-392"></span>
+<span class="source-line-no">393</span><span id="line-393">      StreamConverter converter = new StreamConverter(pipeline);</span>
+<span class="source-line-no">394</span><span id="line-394">      converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">395</span><span id="line-395"></span>
+<span class="source-line-no">396</span><span id="line-396">      String result = outputStream.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">397</span><span id="line-397">      logger.info("✅ " + patternName + " result:");</span>
+<span class="source-line-no">398</span><span id="line-398">      logger.info(result.trim());</span>
+<span class="source-line-no">399</span><span id="line-399">    }</span>
+<span class="source-line-no">400</span><span id="line-400">  }</span>
+<span class="source-line-no">401</span><span id="line-401"></span>
+<span class="source-line-no">402</span><span id="line-402">  /** Helper method to process supplier requests */</span>
+<span class="source-line-no">403</span><span id="line-403">  private static String processSupplierRequest(</span>
+<span class="source-line-no">404</span><span id="line-404">      String requestXml, IStreamCommand[] pipeline, String supplier) throws IOException {</span>
+<span class="source-line-no">405</span><span id="line-405">    try (InputStream inputStream =</span>
+<span class="source-line-no">406</span><span id="line-406">            new ByteArrayInputStream(requestXml.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">407</span><span id="line-407">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="source-line-no">408</span><span id="line-408"></span>
+<span class="source-line-no">409</span><span id="line-409">      StreamConverter converter = new StreamConverter(pipeline);</span>
+<span class="source-line-no">410</span><span id="line-410">      converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">411</span><span id="line-411"></span>
+<span class="source-line-no">412</span><span id="line-412">      return outputStream.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">413</span><span id="line-413">    }</span>
+<span class="source-line-no">414</span><span id="line-414">  }</span>
+<span class="source-line-no">415</span><span id="line-415"></span>
+<span class="source-line-no">416</span><span id="line-416">  /** Helper method to process with timeout */</span>
+<span class="source-line-no">417</span><span id="line-417">  private static String processWithTimeout(String requestXml, IStreamCommand[] pipeline)</span>
+<span class="source-line-no">418</span><span id="line-418">      throws IOException {</span>
+<span class="source-line-no">419</span><span id="line-419">    try (InputStream inputStream =</span>
+<span class="source-line-no">420</span><span id="line-420">            new ByteArrayInputStream(requestXml.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">421</span><span id="line-421">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="source-line-no">422</span><span id="line-422"></span>
+<span class="source-line-no">423</span><span id="line-423">      StreamConverter converter = new StreamConverter(pipeline);</span>
+<span class="source-line-no">424</span><span id="line-424">      converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">425</span><span id="line-425"></span>
+<span class="source-line-no">426</span><span id="line-426">      return outputStream.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">427</span><span id="line-427">    }</span>
+<span class="source-line-no">428</span><span id="line-428">  }</span>
+<span class="source-line-no">429</span><span id="line-429"></span>
+<span class="source-line-no">430</span><span id="line-430">  /** Helper method to extract level from log message */</span>
+<span class="source-line-no">431</span><span id="line-431">  private static String extractLevel(String logXml) {</span>
+<span class="source-line-no">432</span><span id="line-432">    // Simple extraction for demo purposes</span>
+<span class="source-line-no">433</span><span id="line-433">    if (logXml.contains("&lt;Level&gt;ERROR&lt;/Level&gt;")) {</span>
+<span class="source-line-no">434</span><span id="line-434">      return "ERROR";</span>
+<span class="source-line-no">435</span><span id="line-435">    } else if (logXml.contains("&lt;Level&gt;INFO&lt;/Level&gt;")) {</span>
+<span class="source-line-no">436</span><span id="line-436">      return "INFO";</span>
+<span class="source-line-no">437</span><span id="line-437">    }</span>
+<span class="source-line-no">438</span><span id="line-438">    return "UNKNOWN";</span>
+<span class="source-line-no">439</span><span id="line-439">  }</span>
+<span class="source-line-no">440</span><span id="line-440"></span>
+<span class="source-line-no">441</span><span id="line-441">  /** Helper method to send message to Dead Letter Queue */</span>
+<span class="source-line-no">442</span><span id="line-442">  private static void sendToDeadLetterQueue(String message, String error) {</span>
+<span class="source-line-no">443</span><span id="line-443">    logger.info("💀 Dead Letter Queue Entry:");</span>
+<span class="source-line-no">444</span><span id="line-444">    logger.info("   Message: " + message.substring(0, Math.min(100, message.length())) + "...");</span>
+<span class="source-line-no">445</span><span id="line-445">    logger.info("   Error: " + error);</span>
+<span class="source-line-no">446</span><span id="line-446">    logger.info("   Timestamp: " + java.time.Instant.now());</span>
+<span class="source-line-no">447</span><span id="line-447">    logger.info("   Status: QUEUED_FOR_MANUAL_REVIEW");</span>
+<span class="source-line-no">448</span><span id="line-448">  }</span>
+<span class="source-line-no">449</span><span id="line-449"></span>
+<span class="source-line-no">450</span><span id="line-450">  /** Helper method to shutdown executor */</span>
+<span class="source-line-no">451</span><span id="line-451">  private static void shutdownExecutor() {</span>
+<span class="source-line-no">452</span><span id="line-452">    executorService.shutdown();</span>
+<span class="source-line-no">453</span><span id="line-453">    try {</span>
+<span class="source-line-no">454</span><span id="line-454">      if (!executorService.awaitTermination(5, TimeUnit.SECONDS)) {</span>
+<span class="source-line-no">455</span><span id="line-455">        executorService.shutdownNow();</span>
+<span class="source-line-no">456</span><span id="line-456">      }</span>
+<span class="source-line-no">457</span><span id="line-457">    } catch (InterruptedException e) {</span>
+<span class="source-line-no">458</span><span id="line-458">      executorService.shutdownNow();</span>
+<span class="source-line-no">459</span><span id="line-459">    }</span>
+<span class="source-line-no">460</span><span id="line-460">  }</span>
+<span class="source-line-no">461</span><span id="line-461">}</span>
 
 
 

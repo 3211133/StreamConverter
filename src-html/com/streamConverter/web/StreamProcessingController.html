@@ -20,7 +20,7 @@
 <span class="source-line-no">007</span><span id="line-7">import com.streamConverter.command.impl.json.JsonNavigateCommand;</span>
 <span class="source-line-no">008</span><span id="line-8">import com.streamConverter.command.rule.PassThroughRule;</span>
 <span class="source-line-no">009</span><span id="line-9">import com.streamConverter.path.CSVPath;</span>
-<span class="source-line-no">010</span><span id="line-10">import com.streamConverter.path.JSONPath;</span>
+<span class="source-line-no">010</span><span id="line-10">import com.streamConverter.path.TreePath;</span>
 <span class="source-line-no">011</span><span id="line-11"></span>
 <span class="source-line-no">012</span><span id="line-12">import java.io.ByteArrayInputStream;</span>
 <span class="source-line-no">013</span><span id="line-13">import java.io.ByteArrayOutputStream;</span>
@@ -91,7 +91,7 @@
 <span class="source-line-no">078</span><span id="line-78">    return inputData</span>
 <span class="source-line-no">079</span><span id="line-79">        .collectList()</span>
 <span class="source-line-no">080</span><span id="line-80">        .map(this::combineDataBuffers)</span>
-<span class="source-line-no">081</span><span id="line-81">        .map(data -&gt; processWithStreamConverter(data, JsonNavigateCommand.create(new JSONPath(jsonPath), new PassThroughRule())))</span>
+<span class="source-line-no">081</span><span id="line-81">        .map(data -&gt; processWithStreamConverter(data, JsonNavigateCommand.create(TreePath.fromJsonPath(jsonPath), new PassThroughRule())))</span>
 <span class="source-line-no">082</span><span id="line-82">        .map(result -&gt; ResponseEntity.ok(createDataBufferFlux(result)))</span>
 <span class="source-line-no">083</span><span id="line-83">        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
 <span class="source-line-no">084</span><span id="line-84">  }</span>
@@ -202,7 +202,7 @@
 <span class="source-line-no">189</span><span id="line-189">      commands[i] =</span>
 <span class="source-line-no">190</span><span id="line-190">          switch (commandType.toLowerCase()) {</span>
 <span class="source-line-no">191</span><span id="line-191">            case "csv" -&gt; CsvNavigateCommand.create(new CSVPath(parameter), new PassThroughRule());</span>
-<span class="source-line-no">192</span><span id="line-192">            case "json" -&gt; JsonNavigateCommand.create(new JSONPath(parameter), new PassThroughRule());</span>
+<span class="source-line-no">192</span><span id="line-192">            case "json" -&gt; JsonNavigateCommand.create(TreePath.fromJsonPath(parameter), new PassThroughRule());</span>
 <span class="source-line-no">193</span><span id="line-193">            case "process" -&gt; new SampleStreamCommand(parameter);</span>
 <span class="source-line-no">194</span><span id="line-194">            default -&gt; throw new IllegalArgumentException("Unknown command type: " + commandType);</span>
 <span class="source-line-no">195</span><span id="line-195">          };</span>

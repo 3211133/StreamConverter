@@ -2,121 +2,97 @@ package com.streamConverter.path;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 /**
- * Simplified tree path class for hierarchical path matching.
+ * Represents a hierarchical path for tree-like data structures (JSON, XML).
  *
- * <p>This class provides simple path matching against List&lt;String&gt; hierarchical paths. It
- * supports both JSON-style ("$.user.name") and XML-style ("user/name") path formats.
+ * <p>This class handles parsing and matching of path expressions in both JSON-style ("$.user.name")
+ * and XML-style ("user/name") formats. It converts path expressions into hierarchical segments for
+ * efficient matching during data processing.
  */
-public class TreePath extends AbstractPath<List<String>> {
+public class TreePath {
 
-  // Internal hierarchical representation as simple string list
-  private final List<List<String>> pathSegmentsList;
+  private final List<String> segments;
   private final String originalPath;
 
-  // === Constructors ===
-
-  /**
-   * Private constructor for internal use by factory methods
-   *
-   * @param pathExpression Path expression
-   */
-  private TreePath(String pathExpression) {
-    super(pathExpression);
-    this.originalPath = pathExpression;
-    this.pathSegmentsList = Collections.singletonList(parsePathToSegments(pathExpression));
+  // Private constructor for factory methods
+  private TreePath(String originalPath, List<String> segments) {
+    this.originalPath = originalPath;
+    this.segments = segments;
   }
 
   /**
-   * Creates TreePath from multiple paths (OR condition)
+   * Creates a TreePath from an XML path expression.
    *
-   * @param pathList List of path expressions
-   */
-  public TreePath(List<String> pathList) {
-    super(String.join(",", pathList));
-    if (pathList == null || pathList.isEmpty()) {
-      throw new IllegalArgumentException("Path list cannot be null or empty");
-    }
-    this.originalPath = String.join(",", pathList);
-    List<List<String>> temp = new ArrayList<>();
-    for (String path : pathList) {
-      temp.add(parsePathToSegments(path));
-    }
-    this.pathSegmentsList = Collections.unmodifiableList(temp);
-  }
-
-  /**
-   * Creates TreePath from JSON format path
-   *
-   * @param jsonPath JSON format path (e.g., "$.user.name", "$.items.title")
+   * @param xmlPath the XML path expression (e.g., "user/name")
    * @return TreePath instance
+   * @throws IllegalArgumentException if xmlPath is null or invalid
    */
-  public static TreePath fromJsonPath(String jsonPath) {
-    return new TreePath(jsonPath);
+  public static TreePath fromXml(String xmlPath) {
+    if (xmlPath == null || xmlPath.trim().isEmpty()) {
+      throw new IllegalArgumentException("XML path cannot be null or empty");
+    }
+    String trimmedPath = xmlPath.trim();
+    List<String> segments = parseXmlPathToSegments(trimmedPath);
+    return new TreePath(trimmedPath, segments);
   }
 
   /**
-   * Creates TreePath from XML format path
+   * Creates a TreePath from a JSON path expression.
    *
-   * @param xmlPath XML format path (e.g., "user/name", "items/title")
+   * @param jsonPath the JSON path expression (e.g., "$.user.name")
    * @return TreePath instance
+   * @throws IllegalArgumentException if jsonPath is null or invalid
    */
-  public static TreePath fromXmlPath(String xmlPath) {
-    return new TreePath(xmlPath);
-  }
-
-  // === AbstractPath Implementation ===
-
-  @Override
-  protected void validateAndNormalize(String rawPath) {
-    if (rawPath == null || rawPath.trim().isEmpty()) {
-      throw new IllegalArgumentException("TreePath cannot be null or empty");
+  public static TreePath fromJson(String jsonPath) {
+    if (jsonPath == null || jsonPath.trim().isEmpty()) {
+      throw new IllegalArgumentException("JSON path cannot be null or empty");
     }
+    String trimmedPath = jsonPath.trim();
+    List<String> segments = parseJsonPathToSegments(trimmedPath);
+    return new TreePath(trimmedPath, segments);
   }
 
-  @Override
-  public boolean matches(List<String> currentPath) {
+  /**
+   * Checks if current path matches the target path segments
+   *
+   * @param currentPath current path segments to match against
+   * @return true if paths match exactly
+   */
+  public boolean match(List<String> currentPath) {
     if (currentPath == null) {
       return false;
     }
+    return segments.equals(currentPath);
+  }
 
-    // OR condition: return true if any path matches
-    for (List<String> pathSegments : pathSegmentsList) {
-      if (pathSegments.equals(currentPath)) {
-        return true;
-      }
-    }
-    return false;
+  /**
+   * Returns the original path expression.
+   *
+   * @return the original path expression
+   */
+  @Override
+  public String toString() {
+    return originalPath;
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
+    TreePath treePath = (TreePath) obj;
+    return segments.equals(treePath.segments);
+  }
+
+  @Override
+  public int hashCode() {
+    return segments.hashCode();
   }
 
   // === Internal Implementation ===
 
-  private List<String> parsePathToSegments(String pathExpression) {
-    String trimmed = pathExpression.trim();
-
-    if (trimmed.isEmpty()) {
-      throw new IllegalArgumentException("Path expression cannot be empty");
-    }
-
-    // Parse as JSON-style path if starts with "$"
-    if (trimmed.startsWith("$")) {
-      return parseJsonPathToSegments(trimmed);
-    }
-
-    // Parse as slash-separated path if contains "/"
-    if (trimmed.contains("/")) {
-      return parseXmlPathToSegments(trimmed);
-    }
-
-    // Single segment path
-    return List.of(trimmed);
-  }
-
-  private List<String> parseJsonPathToSegments(String jsonPath) {
+  private static List<String> parseJsonPathToSegments(String jsonPath) {
     // Handle root path
     if ("$".equals(jsonPath)) {
       return new ArrayList<>();
@@ -141,14 +117,14 @@ public class TreePath extends AbstractPath<List<String>> {
     throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);
   }
 
-  private List<String> parseComplexJsonPath(String jsonPath) {
+  private static List<String> parseComplexJsonPath(String jsonPath) {
     // For paths with array syntax like $[*].name or $.users[0].name
     // Keep them as single segments to maintain compatibility
     // The actual array handling is done in JsonFilterCommand
     return List.of(jsonPath);
   }
 
-  private List<String> parseXmlPathToSegments(String xmlPath) {
+  private static List<String> parseXmlPathToSegments(String xmlPath) {
     // Remove leading and trailing slashes without regex to avoid polynomial complexity
     String normalizedPath = removeLeadingTrailingSlashes(xmlPath);
     if (normalizedPath.isEmpty()) {
@@ -176,7 +152,7 @@ public class TreePath extends AbstractPath<List<String>> {
    * @param path the input path
    * @return path with leading/trailing slashes removed
    */
-  private String removeLeadingTrailingSlashes(String path) {
+  private static String removeLeadingTrailingSlashes(String path) {
     if (path == null || path.isEmpty()) {
       return "";
     }
@@ -195,23 +171,5 @@ public class TreePath extends AbstractPath<List<String>> {
     }
 
     return path.substring(start, end);
-  }
-
-  @Override
-  public String toString() {
-    return originalPath;
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null || getClass() != obj.getClass()) return false;
-    TreePath treePath = (TreePath) obj;
-    return Objects.equals(pathSegmentsList, treePath.pathSegmentsList);
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(pathSegmentsList);
   }
 }

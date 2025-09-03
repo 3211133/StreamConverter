@@ -3,6 +3,7 @@ package com.streamConverter.command.impl.csv;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
 import com.streamConverter.path.CSVPath;
+import com.streamConverter.path.TreePath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -65,6 +66,27 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     }
     this.columnSelector = columnSelector;
     this.legacyColumnSelector = columnSelector.toString();
+    this.rule = rule;
+  }
+
+  /**
+   * Constructor for CSV navigation with TreePath (for compatibility).
+   *
+   * @param treePath the TreePath representing column selector
+   * @param rule the transformation rule to apply to selected column
+   * @throws IllegalArgumentException if treePath or rule is null
+   */
+  public CsvNavigateCommand(TreePath treePath, IRule rule) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
+    }
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
+    // Convert TreePath to CSVPath - assume simple column name
+    String columnName = treePath.toString();
+    this.columnSelector = new CSVPath(columnName);
+    this.legacyColumnSelector = columnName;
     this.rule = rule;
   }
 

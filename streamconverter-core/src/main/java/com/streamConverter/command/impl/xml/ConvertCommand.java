@@ -36,15 +36,14 @@ public class ConvertCommand extends AbstractStreamCommand {
    * デフォルトコンストラクタ
    *
    * @param rule 変換ルール
-   * @param path 変換対象のXPath
+   * @param treePath 変換対象のTreePath
    */
-  public ConvertCommand(IRule rule, String path) {
+  public ConvertCommand(IRule rule, TreePath treePath) {
     super();
     Objects.requireNonNull(rule, "rule must not be null");
-    Objects.requireNonNull(path, "path must not be null");
+    Objects.requireNonNull(treePath, "treePath must not be null");
     this.rule = rule;
-
-    this.treePath = TreePath.fromXmlPath(path);
+    this.treePath = treePath;
   }
 
   /**
@@ -85,7 +84,7 @@ public class ConvertCommand extends AbstractStreamCommand {
               break;
             // 変換対象の箇所なら変換処理を実行する
             case XMLEvent.CHARACTERS:
-              if (this.treePath.matches(currentDirectory)) {
+              if (this.treePath.match(currentDirectory)) {
                 String transformedData = rule.apply(event.asCharacters().getData());
                 event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);
               }

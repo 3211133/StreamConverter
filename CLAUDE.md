@@ -45,12 +45,20 @@ StreamConverter is a Java library for efficient stream processing of large files
 # Run all benchmarks (requires more memory)
 ./gradlew benchmarkAll
 
-# Run large data benchmarks (5GB tests)
+# Run large data benchmarks (5GB tests) - requires 3GB heap
 ./gradlew benchmarkLargeData
 
 # Run memory efficiency benchmarks
 ./gradlew benchmarkMemoryEfficiency
+
+# Run benchmark infrastructure tests
+./gradlew benchmarkInfrastructure
 ```
+
+**Memory Requirements:**
+- Large data benchmarks: `-Xmx3g -Xms1g` (automatically configured)
+- Memory efficiency tests: `-Xms1g -Xmx2g` (automatically configured)
+- Regular tests: `-Xmx1g -Xms512m` (automatically configured)
 
 ### Code Quality
 ```bash
@@ -72,6 +80,8 @@ StreamConverter is a Java library for efficient stream processing of large files
 ./gradlew runContextDemo
 ./gradlew runMDC
 ./gradlew runDataProcessing
+./gradlew runDirectApiDemo
+./gradlew runDemo
 ```
 
 ## High-Level Architecture
@@ -100,10 +110,29 @@ Foundation Layer   → Path handlers, utilities, security components
 
 ### Command Types by Category
 - **Data Extraction**: `CsvNavigateCommand`, `JsonNavigateCommand`, `XmlNavigateCommand`
-- **Data Transformation**: `CharacterConvertCommand`, `LineEndingNormalizeCommand`
+- **Data Transformation**: `CharacterConvertCommand`, `LineEndingNormalizeCommand`, `xml.ConvertCommand` (XSLT)
 - **Communication**: `SendHttpCommand` (HTTP requests with Spring WebClient)
-- **Validation**: `JsonValidateCommand`, `CsvValidateCommand`, `ValidateCommand` (XML)
+- **Validation**: `JsonValidateCommand`, `JsonStreamingValidateCommand`, `CsvValidateCommand`, `ValidateCommand` (XML)
 - **Filtering**: `CsvFilterCommand`, `JsonFilterCommand`, `XmlFilterCommand`
+
+### Common Usage Patterns
+```java
+// Basic pipeline: CSV → HTTP API → JSON
+IStreamCommand[] pipeline = {
+    new CsvNavigateCommand("productName"),      // Extract from CSV
+    new SendHttpCommand("http://api.example.com"), // Send to API
+    new JsonNavigateCommand("$.result")         // Extract from response
+};
+
+// Context-aware processing (recommended)
+ExecutionContext context = ExecutionContext.builder()
+    .globalContext("requestId", "REQ-12345")
+    .globalContext("userId", "user789")
+    .build();
+
+StreamConverter converter = StreamConverter.createWithContext(context, pipeline);
+List<CommandResult> results = converter.run(inputStream, outputStream);
+```
 
 ### Testing Patterns
 - **Unit Tests**: Standard JUnit 5 with Mockito
@@ -145,10 +174,21 @@ Foundation Layer   → Path handlers, utilities, security components
 - Prefer functional verification over performance-based assertions
 - Spring WebClient uses sequential processing, not parallel (verified via InputStreamCloseTimingVerification)
 
+## Available Documentation
+
+The project includes comprehensive documentation in the `docs/` directory:
+- **[docs/TESTING.md](docs/TESTING.md)** - Test strategy and benchmark execution
+- **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and design patterns
+- **[docs/AUTO_LOGGING.md](docs/AUTO_LOGGING.md)** - MDC and context propagation details
+- **[docs/SECURITY_ANALYSIS.md](docs/SECURITY_ANALYSIS.md)** - Security measures and analysis
+- **[docs/BENCHMARK_IMPLEMENTATION.md](docs/BENCHMARK_IMPLEMENTATION.md)** - Performance measurement details
+- **[CONTRIBUTING.md](CONTRIBUTING.md)** - Development contribution guidelines
+
 ## Workflow Guidelines
 
 - Document insights with concrete examples, e.g.: "Expected stream to process in parallel, implemented concurrent pipeline, but observed sequential execution due to thread pool limits, so adjusted configuration and updated documentation."
 - Always validate design decisions and change content appropriateness
+- Focus on design validity and content appropriateness (per Copilot guidelines)
 
 ## Personal Insights
 
@@ -172,6 +212,15 @@ Foundation Layer   → Path handlers, utilities, security components
 
 ### Multi-Module Considerations
 - Cross-module dependencies managed via Gradle composite builds
-- Unified Javadoc generation across all modules
+- Unified Javadoc generation across all modules with `./gradlew javadocAll`
 - Consistent versioning strategy (currently 1.2.0)
 - Module-specific test execution patterns
+- Security vulnerability management with explicit version overrides
+- Gradle Kotlin DSL used throughout for type-safe configuration
+
+### Security Focus
+- Proactive security vulnerability patching with explicit dependency versions
+- XML External Entity (XXE) prevention in XML processing
+- SQL injection protection in database operations
+- Input sanitization and URL scheme validation
+- Regular dependency updates for security fixes

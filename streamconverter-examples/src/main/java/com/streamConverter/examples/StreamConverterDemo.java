@@ -97,20 +97,15 @@ public class StreamConverterDemo {
 
     // Demo 2a: Extract specific property
     logger.info("1. Extract 'total' property:");
-    runDemo(
-        jsonData,
-        JsonNavigateCommand.create(TreePath.fromJsonPath("total"), new PassThroughRule()));
+    runDemo(jsonData, JsonNavigateCommand.create(TreePath.fromXml("total"), new PassThroughRule()));
 
     // Demo 2b: Navigate nested properties
     logger.info("\n2. Navigate to users array:");
-    runDemo(
-        jsonData,
-        JsonNavigateCommand.create(TreePath.fromJsonPath("users"), new PassThroughRule()));
+    runDemo(jsonData, JsonNavigateCommand.create(TreePath.fromXml("users"), new PassThroughRule()));
 
     // Demo 2c: Format root JSON
     logger.info("\n3. Format root JSON:");
-    runDemo(
-        jsonData, JsonNavigateCommand.create(TreePath.fromJsonPath("$"), new PassThroughRule()));
+    runDemo(jsonData, JsonNavigateCommand.create(TreePath.fromJson("$"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -140,18 +135,16 @@ public class StreamConverterDemo {
     logger.info("1. Extract all 'name' elements:");
     runDemo(
         xmlData,
-        XmlNavigateCommand.create(TreePath.fromXmlPath("users/user/name"), new PassThroughRule()));
+        XmlNavigateCommand.create(TreePath.fromXml("users/user/name"), new PassThroughRule()));
 
     // Demo 3b: Extract user elements
     logger.info("\n2. Extract all 'user' elements:");
     runDemo(
-        xmlData,
-        XmlNavigateCommand.create(TreePath.fromXmlPath("users/user"), new PassThroughRule()));
+        xmlData, XmlNavigateCommand.create(TreePath.fromXml("users/user"), new PassThroughRule()));
 
     // Demo 3c: Process root XML
     logger.info("\n3. Process root XML:");
-    runDemo(
-        xmlData, XmlNavigateCommand.create(TreePath.fromXmlPath("//users"), new PassThroughRule()));
+    runDemo(xmlData, XmlNavigateCommand.create(TreePath.fromXml("//users"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -168,7 +161,7 @@ public class StreamConverterDemo {
     // Demo 4: Chain JSON formatting with sample processing
     logger.info("1. JSON formatting → Sample processing:");
     IStreamCommand[] pipeline = {
-      JsonNavigateCommand.create(TreePath.fromJsonPath("$"), new PassThroughRule()), // Format JSON
+      JsonNavigateCommand.create(TreePath.fromJson("$"), new PassThroughRule()), // Format JSON
       new SampleStreamCommand("formatter") // Add processing info
     };
 

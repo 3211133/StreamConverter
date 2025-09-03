@@ -98,7 +98,7 @@ public class DirectApiDemo {
 
     // JSONパス抽出
     IStreamCommand jsonCommand =
-        new JsonNavigateCommand(TreePath.fromJsonPath("$.user.name"), new PassThroughRule());
+        new JsonNavigateCommand(TreePath.fromJson("$.user.name"), new PassThroughRule());
     StreamConverter converter = new StreamConverter(new IStreamCommand[] {jsonCommand});
 
     String result = processString(converter, jsonData);
@@ -126,7 +126,7 @@ public class DirectApiDemo {
 
     // XML要素抽出
     IStreamCommand xmlCommand =
-        new XmlNavigateCommand(TreePath.fromXmlPath("//name"), new PassThroughRule());
+        new XmlNavigateCommand(TreePath.fromXml("//name"), new PassThroughRule());
     StreamConverter converter = new StreamConverter(new IStreamCommand[] {xmlCommand});
 
     String result = processString(converter, xmlData);
@@ -149,7 +149,7 @@ public class DirectApiDemo {
     // 複合パイプライン: CSV -> JSON抽出
     IStreamCommand[] commands = {
       new CsvNavigateCommand(new CSVPath("data"), new PassThroughRule()),
-      new JsonNavigateCommand(TreePath.fromJsonPath("$.message"), new PassThroughRule())
+      new JsonNavigateCommand(TreePath.fromJson("$.message"), new PassThroughRule())
     };
 
     StreamConverter converter = new StreamConverter(commands);

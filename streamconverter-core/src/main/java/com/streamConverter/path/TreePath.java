@@ -6,7 +6,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 /**
  * Simplified tree path class for hierarchical path matching.
@@ -180,15 +179,23 @@ public class TreePath extends AbstractPath<List<String>> {
   }
 
   private List<String> parseXmlPathToSegments(String xmlPath) {
-    String normalizedPath = xmlPath.replaceAll("^/+", "").replaceAll("/+$", "");
+    // Remove leading and trailing slashes without regex to avoid polynomial complexity
+    String normalizedPath = removeLeadingTrailingSlashes(xmlPath);
     if (normalizedPath.isEmpty()) {
       return new ArrayList<>();
     }
 
-    List<String> segments =
-        Arrays.stream(normalizedPath.split("/"))
-            .filter(segment -> !segment.isEmpty())
-            .collect(Collectors.toList());
+    // Split by single slash and filter empty segments to handle multiple consecutive slashes
+    List<String> segments = new ArrayList<>();
+    int start = 0;
+    for (int i = 0; i <= normalizedPath.length(); i++) {
+      if (i == normalizedPath.length() || normalizedPath.charAt(i) == '/') {
+        if (i > start) {
+          segments.add(normalizedPath.substring(start, i));
+        }
+        start = i + 1;
+      }
+    }
 
     // Validate XML element names
     for (String segment : segments) {
@@ -198,6 +205,33 @@ public class TreePath extends AbstractPath<List<String>> {
     }
 
     return segments;
+  }
+
+  /**
+   * Removes leading and trailing slashes from path without regex
+   *
+   * @param path the input path
+   * @return path with leading/trailing slashes removed
+   */
+  private String removeLeadingTrailingSlashes(String path) {
+    if (path == null || path.isEmpty()) {
+      return "";
+    }
+
+    int start = 0;
+    int end = path.length();
+
+    // Remove leading slashes
+    while (start < end && path.charAt(start) == '/') {
+      start++;
+    }
+
+    // Remove trailing slashes
+    while (end > start && path.charAt(end - 1) == '/') {
+      end--;
+    }
+
+    return path.substring(start, end);
   }
 
   @Override

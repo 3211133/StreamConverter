@@ -28,7 +28,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic")
     
     // H2 database for examples that use databases
-    implementation("com.h2database:h2:2.2.224")
+    implementation("com.h2database:h2:2.3.232")
     
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
@@ -108,7 +108,7 @@ tasks.test {
     useJUnitPlatform()
     
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
 }

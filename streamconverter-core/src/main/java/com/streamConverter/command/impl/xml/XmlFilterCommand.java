@@ -22,55 +22,55 @@ import javax.xml.stream.events.XMLEvent;
 /**
  * XML Filter Command Class
  *
- * <p>This class implements pure data extraction from XML using XPath expressions. Unlike
+ * <p>This class implements pure data extraction from XML using TreePath expressions. Unlike
  * XmlNavigateCommand which applies transformations, XmlFilterCommand only extracts/filters elements
  * based on specified paths without any modifications.
  *
- * <p>Features: - Extract specific elements using XPath expressions - Preserve exact XML structure
- * of extracted elements - Memory-efficient streaming processing - Support for complex path
- * expressions including nested elements and attributes
+ * <p>Features: - Extract specific elements using TreePath expressions - Preserve exact XML
+ * structure of extracted elements - Memory-efficient streaming processing - Support for complex
+ * path expressions including nested elements and attributes
  */
 public class XmlFilterCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlFilterCommand.class.getName());
 
-  private final TreePath treePath;
+  private final TreePath xpath;
 
   // Deprecated fields for backward compatibility
   @Deprecated private final String legacyXpath;
 
   /**
-   * Constructor for XML filtering with XPath selector.
+   * Constructor for XML filtering with TreePath selector.
    *
-   * @param xpath the XPath expression to extract elements (e.g., "users/user/name")
+   * @param xpath the TreePath expression to extract elements (e.g., "users/user/name")
    * @throws IllegalArgumentException if xpath is null or empty
-   * @deprecated Use {@link #XmlFilterCommand(XPath)} instead
+   * @deprecated Use {@link #XmlFilterCommand(TreePath)} instead
    */
   @Deprecated
   public XmlFilterCommand(String xpath) {
     if (xpath == null || xpath.trim().isEmpty()) {
-      throw new IllegalArgumentException("XPath cannot be null or empty");
+      throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
     this.legacyXpath = xpath.trim();
-    this.treePath = TreePath.fromXmlPath(xpath.trim());
+    this.xpath = TreePath.fromXmlPath(xpath.trim());
   }
 
   /**
-   * Constructor for XML filtering with TreePath selector.
+   * Constructor for XML filtering with typed TreePath selector.
    *
-   * @param treePath the TreePath to extract elements
-   * @throws IllegalArgumentException if treePath is null
+   * @param xpath the typed TreePath to extract elements
+   * @throws IllegalArgumentException if xpath is null
    */
-  public XmlFilterCommand(TreePath treePath) {
-    if (treePath == null) {
+  public XmlFilterCommand(TreePath xpath) {
+    if (xpath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
-    this.treePath = treePath;
-    this.legacyXpath = treePath.toString();
+    this.xpath = xpath;
+    this.legacyXpath = xpath.toString();
   }
 
   @Override
   protected String getCommandDetails() {
-    return String.format("XmlFilterCommand(treePath='%s')", treePath.toString());
+    return String.format("XmlFilterCommand(xpath='%s')", xpath.toString());
   }
 
   @Override
@@ -102,7 +102,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
           currentPath.add(elementName);
 
           // Check if this element matches our target path
-          if (treePath.matches(currentPath) && !isCapturing) {
+          if (xpath.matches(currentPath) && !isCapturing) {
             isCapturing = true;
             captureDepth = currentDepth;
             elementWriter = new StringWriter();

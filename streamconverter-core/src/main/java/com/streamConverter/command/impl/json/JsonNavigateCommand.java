@@ -32,11 +32,11 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   private final ObjectMapper objectMapper;
 
   /**
-   * Constructor for JSON navigation with typed JSONPath selector and transformation rule.
+   * Constructor for JSON navigation with TreePath selector and transformation rule.
    *
-   * @param jsonPath the typed JSONPath to select data
+   * @param treePath the TreePath to select data
    * @param rule the transformation rule to apply to selected elements
-   * @throws IllegalArgumentException if jsonPath or rule is null
+   * @throws IllegalArgumentException if treePath or rule is null
    */
   public JsonNavigateCommand(TreePath treePath, IRule rule) {
     if (treePath == null) {
@@ -51,9 +51,9 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Factory method for creating a JSON navigation command with typed JSONPath and rule.
+   * Factory method for creating a JSON navigation command with TreePath and rule.
    *
-   * @param jsonPath the typed JSONPath to select data
+   * @param treePath the TreePath to select data
    * @param rule the transformation rule to apply to selected elements
    * @return a JsonNavigateCommand that transforms the specified path with the given rule
    * @throws IllegalArgumentException if rule is null
@@ -65,7 +65,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   @Override
   protected String getCommandDetails() {
     return String.format(
-        "JsonNavigateCommand(jsonPath='%s', rule='%s')",
+        "JsonNavigateCommand(treePath='%s', rule='%s')",
         treePath.toString(), rule.getClass().getSimpleName());
   }
 
@@ -158,19 +158,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Simple path matching for streaming JSON processing */
   private boolean isMatchingPath(List<String> currentPath) {
-    if (currentPath.isEmpty()) {
-      return false;
-    }
-
-    // For simple paths like "$.propertyName", match last element
-    if (currentPath.size() == 1) {
-      com.fasterxml.jackson.databind.node.ObjectNode testNode = objectMapper.createObjectNode();
-      testNode.put(currentPath.get(0), "test");
-      boolean matches = treePath.matches(testNode);
-      return matches;
-    }
-
-    return false;
+    return treePath.matches(currentPath);
   }
 
   /** Handle JSON parsing exceptions */

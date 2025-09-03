@@ -124,6 +124,9 @@ public final class CommandResult {
 
   /** CommandResultのビルダークラス */
   public static final class Builder {
+    /** Default constructor for CommandResult Builder. */
+    public Builder() {}
+
     private String commandName;
     private boolean success;
     private long execMillis;

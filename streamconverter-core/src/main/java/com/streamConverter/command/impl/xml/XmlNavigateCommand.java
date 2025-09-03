@@ -53,23 +53,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Factory method for creating an XML navigation command from XML path string.
-   *
-   * @param xmlPath the XML path string (e.g., "user/name")
-   * @param rule the transformation rule to apply to selected elements
-   * @return an XmlNavigateCommand that transforms the specified path elements with the given rule
-   * @throws IllegalArgumentException if rule is null
-   */
-  public static XmlNavigateCommand create(String xmlPath, IRule rule) {
-    return new XmlNavigateCommand(TreePath.fromXmlPath(xmlPath), rule);
-  }
-
-  /**
-   * Factory method for creating an XML navigation command with TreePath.
+   * Factory method for creating an XML navigation command with TreePath and rule.
    *
    * @param treePath the TreePath to select elements
    * @param rule the transformation rule to apply to selected elements
-   * @return an XmlNavigateCommand that transforms the specified elements with the given rule
+   * @return an XmlNavigateCommand that transforms the specified TreePath elements with the given
+   *     rule
    * @throws IllegalArgumentException if rule is null
    */
   public static XmlNavigateCommand create(TreePath treePath, IRule rule) {

@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  *
  * <p>This class demonstrates the usage of the StreamConverter with sample commands.
  */
-public class Main {
+public final class Main {
   private static final Logger LOG = LoggerFactory.getLogger(Main.class);
 
   /** Prevent instantiation. */
@@ -29,10 +29,10 @@ public class Main {
    */
   public static void main(String[] args) throws IOException {
     LOG.info("Starting StreamConverter application");
-    IStreamCommand[] commands = {
+    final IStreamCommand[] commands = {
       new SampleStreamCommand("0"), new SampleStreamCommand("1"), new SampleStreamCommand("2")
     };
-    StreamConverter converter = new StreamConverter(commands);
+    final StreamConverter converter = new StreamConverter(commands);
     try (InputStream inputStream =
             new ByteArrayInputStream("any message".getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {

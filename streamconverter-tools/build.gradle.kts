@@ -28,7 +28,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic")
     
     // H2 database for tools that use databases
-    implementation("com.h2database:h2:2.2.224")
+    implementation("com.h2database:h2:2.3.232")
     
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
@@ -40,10 +40,10 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
     
     // JSON processing with Jackson
-    implementation("com.fasterxml.jackson.core:jackson-core:2.19.2")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.2")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.19.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.20.0")
 }
 
 // Benchmark tasks
@@ -59,7 +59,7 @@ tasks.register<Test>("benchmarkLargeData") {
     jvmArgs("-Xmx3g", "-Xms1g")
     
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
@@ -74,7 +74,7 @@ tasks.register<Test>("benchmarkInfrastructure") {
     jvmArgs("-Xmx1g", "-Xms512m")
     
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
 }
@@ -85,7 +85,7 @@ tasks.register<Test>("benchmarkMemoryEfficiency") {
     useJUnitPlatform()
     include("**/MemoryEfficiencyTest*")
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
     // Increase heap size for memory efficiency tests
@@ -98,7 +98,7 @@ tasks.register<Test>("benchmarkAll") {
     useJUnitPlatform()
     include("**/benchmark/**/*Test*", "**/MemoryEfficiencyTest*")
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
     // Increase heap size for all benchmarks
@@ -129,7 +129,7 @@ tasks.test {
     exclude("**/benchmark/**", "**/*Benchmark*", "**/MemoryEfficiencyTest*")
 
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
 }

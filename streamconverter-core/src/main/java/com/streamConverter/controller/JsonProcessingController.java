@@ -12,7 +12,7 @@ import com.streamConverter.command.impl.json.JsonValidateCommand;
  * supports various JSON processing scenarios:
  *
  * <ul>
- *   <li>Property extraction using JSONPath-like expressions
+ *   <li>Property extraction using TreePath-like expressions
  *   <li>JSON formatting and pretty-printing
  *   <li>Data validation with custom rules
  *   <li>Transformation pipelines with multiple stages
@@ -56,7 +56,7 @@ public class JsonProcessingController extends AbstractStreamController {
   /** The processing scenario */
   private final ProcessingScenario scenario;
 
-  /** JSONPath-like expression for property extraction */
+  /** TreePath-like expression for property extraction */
   private final String propertyPath;
 
   /** Whether to enable validation */
@@ -95,7 +95,7 @@ public class JsonProcessingController extends AbstractStreamController {
   /**
    * Factory method for property extraction.
    *
-   * @param propertyPath JSONPath-like expression (e.g., "user.name", "data[0].id")
+   * @param propertyPath TreePath-like expression (e.g., "user.name", "data[0].id")
    * @param enableValidation whether to enable validation
    * @return configured controller
    */
@@ -119,7 +119,7 @@ public class JsonProcessingController extends AbstractStreamController {
   /**
    * Factory method for multi-stage transformation.
    *
-   * @param propertyPath JSONPath-like expression for initial extraction
+   * @param propertyPath TreePath-like expression for initial extraction
    * @param processingStages array of processor IDs for transformation stages
    * @return configured controller
    */

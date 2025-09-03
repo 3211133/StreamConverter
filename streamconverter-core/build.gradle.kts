@@ -4,7 +4,7 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
-    id("com.github.spotbugs") version "6.0.28"
+    id("com.github.spotbugs") version "6.2.6"
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
 }
@@ -40,8 +40,8 @@ dependencies {
     implementation("io.netty:netty-common:4.2.4.Final")
     
     // Logging
-    implementation("ch.qos.logback:logback-core:1.5.13") // CVE-2024-12798, CVE-2024-12801修正
-    implementation("ch.qos.logback:logback-classic:1.5.13")
+    implementation("ch.qos.logback:logback-core:1.5.18") // CVE-2024-12798, CVE-2024-12801修正
+    implementation("ch.qos.logback:logback-classic:1.5.18")
     
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.18.0") // Already fixed CVE-2025-48924
@@ -61,7 +61,7 @@ dependencies {
     
     // Database support
     implementation("com.zaxxer:HikariCP:7.0.2")
-    testImplementation("com.h2database:h2:2.2.224")
+    testImplementation("com.h2database:h2:2.3.232")
     
 
     // JUnit 5 の依存関係（テスト用）
@@ -114,7 +114,7 @@ tasks.test {
     
     // テスト実行時の詳細ログを表示
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
     
@@ -166,12 +166,12 @@ tasks.named("spotlessCheck") {
 
 // PMD configuration for code smell detection
 pmd {
-    isConsoleOutput = true
+    isConsoleOutput = false
     toolVersion = "7.16.0"
     rulesMinimumPriority = 5
     ruleSets = listOf(
         "category/java/bestpractices.xml",
-        "category/java/codestyle.xml", 
+        "category/java/codestyle.xml",
         "category/java/design.xml",
         "category/java/errorprone.xml",
         "category/java/performance.xml",

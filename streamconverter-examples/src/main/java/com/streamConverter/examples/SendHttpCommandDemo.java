@@ -5,7 +5,7 @@ import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.SendHttpCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -108,7 +108,7 @@ public class SendHttpCommandDemo {
 
     // JSON変換 → HTTP送信のパイプライン
     JsonNavigateCommand jsonCommand =
-        JsonNavigateCommand.create(new JSONPath("$.message"), new PassThroughRule());
+        JsonNavigateCommand.create(TreePath.fromJsonPath("$.message"), new PassThroughRule());
     SendHttpCommand httpCommand = new SendHttpCommand("https://httpbin.org/post");
 
     String originalJson =

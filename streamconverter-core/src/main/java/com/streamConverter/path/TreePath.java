@@ -1,355 +1,201 @@
 package com.streamConverter.path;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
-import java.util.regex.Pattern;
 
 /**
- * Unified path class for tree structure data.
+ * Simplified tree path class for hierarchical path matching.
  *
- * <p>This class provides unified handling of JSON and XML path expressions with bidirectional
- * conversion capabilities. Internally maintains hierarchical segment representation and converts to
- * specific formats as needed.
- *
- * <p>Supported formats: - JSON format: "$.user.profile.name", "$.items[0].title" - XML format:
- * "user/profile/name", "items/item[0]/title"
- *
- * <p>Internal representation example: - Segments: ["user", "profile", "name"] - Array index
- * information: profile→none, name→none
+ * <p>This class provides simple path matching against List&lt;String&gt; hierarchical paths. It
+ * supports both JSON-style ("$.user.name") and XML-style ("user/name") path formats.
  */
-public class TreePath extends AbstractPath<Object> {
+public class TreePath extends AbstractPath<List<String>> {
 
-  private static final String TYPE = "TreePath";
-
-  // Path format enumeration
-  public enum PathFormat {
-    JSON, // JSONPath format ($.prop.nested)
-    XML // XPath format (prop/nested)
-  }
-
-  // Internal hierarchical representation
-  private final List<PathSegment> segments;
-  private final PathFormat sourceFormat;
+  // Internal hierarchical representation as simple string list
+  private final List<List<String>> pathSegmentsList;
   private final String originalPath;
-
-  /** Class representing a path segment */
-  public static class PathSegment {
-    private final String name;
-    private final Integer arrayIndex; // Array index for array access
-    private final boolean isWildcard; // true for [*] notation
-
-    public PathSegment(String name) {
-      this(name, null, false);
-    }
-
-    public PathSegment(String name, Integer arrayIndex, boolean isWildcard) {
-      this.name = name;
-      this.arrayIndex = arrayIndex;
-      this.isWildcard = isWildcard;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public Optional<Integer> getArrayIndex() {
-      return Optional.ofNullable(arrayIndex);
-    }
-
-    public boolean isWildcard() {
-      return isWildcard;
-    }
-
-    public boolean hasArrayAccess() {
-      return arrayIndex != null || isWildcard;
-    }
-
-    @Override
-    public String toString() {
-      if (isWildcard) {
-        return name + "[*]";
-      } else if (arrayIndex != null) {
-        return name + "[" + arrayIndex + "]";
-      }
-      return name;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-      if (this == obj) return true;
-      if (obj == null || getClass() != obj.getClass()) return false;
-      PathSegment segment = (PathSegment) obj;
-      return Objects.equals(name, segment.name)
-          && Objects.equals(arrayIndex, segment.arrayIndex)
-          && isWildcard == segment.isWildcard;
-    }
-
-    @Override
-    public int hashCode() {
-      return Objects.hash(name, arrayIndex, isWildcard);
-    }
-  }
 
   // === Constructors ===
 
   /**
+   * Private constructor for internal use by factory methods
+   *
+   * @param pathExpression Path expression
+   */
+  private TreePath(String pathExpression) {
+    super(pathExpression);
+    this.originalPath = pathExpression;
+    this.pathSegmentsList = Collections.singletonList(parsePathToSegments(pathExpression));
+  }
+
+  /**
+   * Creates TreePath from multiple paths (OR condition)
+   *
+   * @param pathList List of path expressions
+   */
+  public TreePath(List<String> pathList) {
+    super(String.join(",", pathList));
+    if (pathList == null || pathList.isEmpty()) {
+      throw new IllegalArgumentException("Path list cannot be null or empty");
+    }
+    this.originalPath = String.join(",", pathList);
+    List<List<String>> temp = new ArrayList<>();
+    for (String path : pathList) {
+      temp.add(parsePathToSegments(path));
+    }
+    this.pathSegmentsList = Collections.unmodifiableList(temp);
+  }
+
+  /**
    * Creates TreePath from JSON format path
    *
-   * @param jsonPath JSON format path (e.g., "$.user.name", "$.items[0].title")
+   * @param jsonPath JSON format path (e.g., "$.user.name", "$.items.title")
    * @return TreePath instance
    */
   public static TreePath fromJsonPath(String jsonPath) {
-    return new TreePath(jsonPath, PathFormat.JSON);
+    return new TreePath(jsonPath);
   }
 
   /**
    * Creates TreePath from XML format path
    *
-   * @param xmlPath XML format path (e.g., "user/name", "items/item[0]/title")
+   * @param xmlPath XML format path (e.g., "user/name", "items/title")
    * @return TreePath instance
    */
   public static TreePath fromXmlPath(String xmlPath) {
-    return new TreePath(xmlPath, PathFormat.XML);
-  }
-
-  // Note: fromSegments method removed - use fromJsonPath or fromXmlPath instead
-
-  private TreePath(String pathExpression, PathFormat format) {
-    super(pathExpression);
-    this.originalPath = pathExpression;
-    this.sourceFormat = format;
-    // parsePathToSegments is static method, can be called after this.path is initialized
-    this.segments = parsePathToSegments(pathExpression, format);
-    // Execute segment-specific validation
-    validateSegments();
-  }
-
-  private static String validateAndNormalizeTreePath(String rawPath) {
-    if (rawPath == null) {
-      throw new IllegalArgumentException("TreePath cannot be null");
-    }
-
-    String trimmedPath = rawPath.trim();
-    // Empty string is allowed (valid as XML root path)
-    // For JSON: "$", for XML: "" represents root path
-    return trimmedPath;
+    return new TreePath(xmlPath);
   }
 
   // === AbstractPath Implementation ===
 
   @Override
   protected void validateAndNormalize(String rawPath) {
-    if (rawPath == null) {
-      throw new IllegalArgumentException("TreePath cannot be null");
+    if (rawPath == null || rawPath.trim().isEmpty()) {
+      throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
   }
 
   @Override
-  public boolean matches(Object context) {
-    if (context == null) {
+  public boolean matches(List<String> currentPath) {
+    if (currentPath == null) {
       return false;
     }
 
-    // Basic matching based on context type
-    if (context instanceof com.fasterxml.jackson.databind.JsonNode) {
-      return matchesJsonContext((com.fasterxml.jackson.databind.JsonNode) context);
-    } else if (context instanceof java.util.List) {
-      @SuppressWarnings("unchecked")
-      java.util.List<String> xmlPath = (java.util.List<String>) context;
-      return matchesXmlContext(xmlPath);
+    // OR condition: return true if any path matches
+    for (List<String> pathSegments : pathSegmentsList) {
+      if (pathSegments.equals(currentPath)) {
+        return true;
+      }
     }
-
     return false;
   }
 
-  private void validateSegments() {
-    if (segments == null) {
-      throw new IllegalStateException("Segments not initialized");
+  // === Internal Implementation ===
+
+  private List<String> parsePathToSegments(String pathExpression) {
+    String trimmed = pathExpression.trim();
+
+    if (trimmed.isEmpty()) {
+      throw new IllegalArgumentException("Path expression cannot be empty");
     }
 
-    // Empty segments (root path) are allowed
-    if (segments.isEmpty()) {
-      return;
+    // Parse as JSON-style path if starts with "$"
+    if (trimmed.startsWith("$")) {
+      return parseJsonPathToSegments(trimmed);
     }
 
-    // Validate segment names
-    for (PathSegment segment : segments) {
-      if (isNullOrEmpty(segment.getName())) {
-        throw new IllegalArgumentException("Path segment name cannot be null or empty");
-      }
-
-      // Check if valid as XML element name
-      if (!isValidElementName(segment.getName())) {
-        throw new IllegalArgumentException("Invalid element name: " + segment.getName());
-      }
+    // Parse as slash-separated path if contains "/"
+    if (trimmed.contains("/")) {
+      return parseXmlPathToSegments(trimmed);
     }
+
+    // Single segment path
+    return List.of(trimmed);
   }
 
-  // Removed old doMatches method following simplified design
-
-  // Removed complex extraction methods following simplified design
-
-  // Note: Path conversion features removed for simplification
-  // Only core matching functionality is retained
-
-  // === 内部実装メソッド ===
-
-  private static List<PathSegment> parsePathToSegments(String pathExpression, PathFormat format) {
-    switch (format) {
-      case JSON:
-        return parseJsonPathToSegments(pathExpression);
-      case XML:
-        return parseXmlPathToSegments(pathExpression);
-      default:
-        throw new IllegalArgumentException("Unsupported path format: " + format);
-    }
-  }
-
-  private static List<PathSegment> parseJsonPathToSegments(String jsonPath) {
-    List<PathSegment> result = new ArrayList<>();
-
-    // ルートパス "$" の処理
+  private List<String> parseJsonPathToSegments(String jsonPath) {
+    // Handle root path
     if ("$".equals(jsonPath)) {
-      return result; // 空のリストでルートを表現
+      return new ArrayList<>();
     }
 
-    // "$." で始まることを確認
-    if (!jsonPath.startsWith("$.")) {
-      throw new IllegalArgumentException("JSON path must start with '$.' : " + jsonPath);
+    // Handle array syntax preservation for JsonFilterCommand compatibility
+    if (jsonPath.contains("[")) {
+      // For complex paths with arrays, preserve original parsing logic
+      // This ensures JsonFilterCommand continues to work
+      return parseComplexJsonPath(jsonPath);
     }
 
-    // "$." を除去してパースを開始
-    String pathWithoutRoot = jsonPath.substring(2);
-    if (pathWithoutRoot.isEmpty()) {
-      return result;
+    // Simple property paths: $.property or $.nested.property
+    if (jsonPath.startsWith("$.")) {
+      String pathWithoutRoot = jsonPath.substring(2);
+      if (pathWithoutRoot.isEmpty()) {
+        return new ArrayList<>();
+      }
+      return Arrays.asList(pathWithoutRoot.split("\\."));
     }
 
-    // 手動パース（正規表現を避けてセキュリティ対策）
-    String[] parts = pathWithoutRoot.split("\\.");
-    for (String part : parts) {
-      result.add(parseSegmentPart(part));
-    }
-
-    return result;
+    throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);
   }
 
-  private static List<PathSegment> parseXmlPathToSegments(String xmlPath) {
-    List<PathSegment> result = new ArrayList<>();
+  private List<String> parseComplexJsonPath(String jsonPath) {
+    // For paths with array syntax like $[*].name or $.users[0].name
+    // Keep them as single segments to maintain compatibility
+    // The actual array handling is done in JsonFilterCommand
+    return List.of(jsonPath);
+  }
 
-    // 先頭・末尾の "/" を正規化
-    String normalizedPath = xmlPath.replaceAll("^/+", "").replaceAll("/+$", "");
+  private List<String> parseXmlPathToSegments(String xmlPath) {
+    // Remove leading and trailing slashes without regex to avoid polynomial complexity
+    String normalizedPath = removeLeadingTrailingSlashes(xmlPath);
     if (normalizedPath.isEmpty()) {
-      return result;
+      return new ArrayList<>();
     }
 
-    String[] parts = normalizedPath.split("/");
-    for (String part : parts) {
-      if (!part.isEmpty()) {
-        result.add(parseSegmentPart(part));
-      }
-    }
-
-    return result;
-  }
-
-  private static PathSegment parseSegmentPart(String part) {
-    // 配列アクセス [n] または [*] のパース
-    int bracketStart = part.indexOf('[');
-    if (bracketStart == -1) {
-      // 通常のセグメント
-      return new PathSegment(part);
-    }
-
-    int bracketEnd = part.lastIndexOf(']');
-    if (bracketEnd == -1 || bracketEnd <= bracketStart) {
-      throw new IllegalArgumentException("Invalid array access syntax: " + part);
-    }
-
-    String elementName = part.substring(0, bracketStart);
-    String indexPart = part.substring(bracketStart + 1, bracketEnd);
-
-    if ("*".equals(indexPart)) {
-      return new PathSegment(elementName, null, true);
-    } else {
-      try {
-        int index = Integer.parseInt(indexPart);
-        return new PathSegment(elementName, index, false);
-      } catch (NumberFormatException e) {
-        throw new IllegalArgumentException("Invalid array index: " + indexPart);
-      }
-    }
-  }
-
-  // Note: Path conversion helper methods removed for simplification
-
-  private boolean matchesJsonContext(JsonNode context) {
-    // JSON階層パスマッチング（JsonNavigateCommandと同じロジック）
-    return context != null && hasTargetProperty(context);
-  }
-
-  private boolean matchesXmlContext(List<String> xmlPath) {
-    // XML階層パスマッチング（XmlNavigateCommandと同じロジック）
-    if (xmlPath.size() != segments.size()) {
-      return false;
-    }
-
-    for (int i = 0; i < segments.size(); i++) {
-      if (!segments.get(i).getName().equals(xmlPath.get(i))) {
-        return false;
-      }
-    }
-    return true;
-  }
-
-  private boolean hasTargetProperty(JsonNode node) {
-    if (segments.size() == 1 && !segments.get(0).hasArrayAccess()) {
-      return node.has(segments.get(0).getName());
-    }
-
-    // より複雑なパスの場合は簡易実装
-    return navigateJsonNode(node) != null;
-  }
-
-  // Note: Data extraction methods removed - TreePath only handles path matching
-
-  private JsonNode navigateJsonNode(JsonNode rootNode) {
-    JsonNode currentNode = rootNode;
-
-    for (PathSegment segment : segments) {
-      if (currentNode == null || currentNode.isMissingNode()) {
-        return null;
-      }
-
-      currentNode = currentNode.get(segment.getName());
-
-      if (segment.hasArrayAccess() && currentNode != null && currentNode.isArray()) {
-        if (segment.isWildcard()) {
-          // ワイルドカードの場合は最初の要素を返す（簡易実装）
-          currentNode = currentNode.get(0);
-        } else if (segment.getArrayIndex().isPresent()) {
-          currentNode = currentNode.get(segment.getArrayIndex().get());
+    // Split by single slash and filter empty segments to handle multiple consecutive slashes
+    List<String> segments = new ArrayList<>();
+    int start = 0;
+    for (int i = 0; i <= normalizedPath.length(); i++) {
+      if (i == normalizedPath.length() || normalizedPath.charAt(i) == '/') {
+        if (i > start) {
+          segments.add(normalizedPath.substring(start, i));
         }
+        start = i + 1;
       }
     }
 
-    return currentNode;
+    return segments;
   }
 
-  private static boolean isValidElementName(String name) {
-    if (isNullOrEmpty(name)) {
-      return false;
+  /**
+   * Removes leading and trailing slashes from path without regex
+   *
+   * @param path the input path
+   * @return path with leading/trailing slashes removed
+   */
+  private String removeLeadingTrailingSlashes(String path) {
+    if (path == null || path.isEmpty()) {
+      return "";
     }
 
-    // XML要素名の基本パターン（簡易版）
-    Pattern xmlElementPattern = Pattern.compile("^[a-zA-Z_][a-zA-Z0-9._-]*$");
-    return xmlElementPattern.matcher(name).matches();
-  }
+    int start = 0;
+    int end = path.length();
 
-  // Note: Dynamic path construction methods removed for simplification
-  // Only core factory methods and matching functionality are retained
+    // Remove leading slashes
+    while (start < end && path.charAt(start) == '/') {
+      start++;
+    }
+
+    // Remove trailing slashes
+    while (end > start && path.charAt(end - 1) == '/') {
+      end--;
+    }
+
+    return path.substring(start, end);
+  }
 
   @Override
   public String toString() {
@@ -361,11 +207,11 @@ public class TreePath extends AbstractPath<Object> {
     if (this == obj) return true;
     if (obj == null || getClass() != obj.getClass()) return false;
     TreePath treePath = (TreePath) obj;
-    return Objects.equals(segments, treePath.segments);
+    return Objects.equals(pathSegmentsList, treePath.pathSegmentsList);
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(segments);
+    return Objects.hash(pathSegmentsList);
   }
 }

@@ -14,7 +14,7 @@ plugins {
     id("jacoco")
     id("application")
     id("pmd")
-    id("com.github.spotbugs") version "6.0.28"
+    id("com.github.spotbugs") version "6.2.6"
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
     id("org.springframework.boot") version "3.5.5"
@@ -89,7 +89,7 @@ tasks.register<Test>("benchmarkLargeData") {
     jvmArgs("-Xmx3g", "-Xms1g")
     
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
         exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
     }
@@ -103,7 +103,7 @@ tasks.register<Test>("benchmarkInfrastructure") {
     jvmArgs("-Xmx1g", "-Xms512m")
     
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
 }
@@ -114,7 +114,7 @@ tasks.register<Test>("benchmarkMemoryEfficiency") {
     useJUnitPlatform()
     include("**/MemoryEfficiencyTest*")
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
     // Increase heap size for memory efficiency tests
@@ -127,7 +127,7 @@ tasks.register<Test>("benchmarkAll") {
     useJUnitPlatform()
     include("**/benchmark/**/*Test*", "**/MemoryEfficiencyTest*")
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
     // Increase heap size for all benchmarks
@@ -191,7 +191,7 @@ dependencies {
     implementation("io.netty:netty-transport-classes-epoll:4.2.4.Final")
     implementation("io.netty:netty-transport-native-unix-common:4.2.4.Final")
     implementation("org.apache.httpcomponents.client5:httpclient5:5.5") // CVE-2025-27820修正
-    implementation("ch.qos.logback:logback-core:1.5.13") // CVE-2024-12798, CVE-2024-12801修正
+    implementation("ch.qos.logback:logback-core:1.5.18") // CVE-2024-12798, CVE-2024-12801修正
     implementation("io.projectreactor.netty:reactor-netty-http:1.2.8") // Latest version compatible with Netty 4.1.123.Final
     implementation("org.springframework:spring-web:6.2.8") // CVE-2025-41234修正
     implementation("org.springframework:spring-context:6.2.10") // CVE-2025-22233修正
@@ -210,13 +210,13 @@ dependencies {
     implementation("com.google.guava:guava:33.4.8-jre")
     
     // JSON processing with Jackson
-    implementation("com.fasterxml.jackson.core:jackson-core:2.19.2")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.19.2")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
     
     // Database support
     implementation("com.zaxxer:HikariCP:7.0.2")
-    testImplementation("com.h2database:h2:2.2.224")
+    testImplementation("com.h2database:h2:2.3.232")
     
     // Spring Boot Test
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -248,7 +248,7 @@ tasks.test {
     
     // テスト実行時の詳細ログを表示
     testLogging {
-        events("passed", "skipped", "failed")
+        events("skipped", "failed")
         showStandardStreams = true
     }
     
@@ -300,7 +300,7 @@ tasks.named("spotlessCheck") {
 
 // PMD configuration for code smell detection
 pmd {
-    isConsoleOutput = true
+    isConsoleOutput = false
     toolVersion = "7.16.0"
     rulesMinimumPriority = 5
     ruleSets = listOf(
@@ -364,6 +364,10 @@ tasks.named("check") {
 allprojects {
     group = "com.streamConverter"
     version = "1.2.0"
+
+    tasks.withType<Test>().configureEach {
+        systemProperty("skipNetworkTests", System.getProperty("skipNetworkTests", "true"))
+    }
 }
 
 tasks.register("buildAll") {

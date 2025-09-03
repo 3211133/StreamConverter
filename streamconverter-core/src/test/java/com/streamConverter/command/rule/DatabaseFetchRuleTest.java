@@ -21,6 +21,7 @@ import org.mockito.Mockito;
  *
  * <p>このクラスは、DatabaseFetchRuleクラスの機能をテストします。 データベース接続はモック化されています。
  */
+@SuppressWarnings({"PMD.CloseResource", "spotbugs:OBL_UNSATISFIED_OBLIGATION"})
 public class DatabaseFetchRuleTest {
 
   private Connection mockConnection;
@@ -29,6 +30,7 @@ public class DatabaseFetchRuleTest {
   private ResultSetMetaData mockMetaData;
 
   @BeforeEach
+  @SuppressWarnings("PMD.CloseResource") // Mock objects don't need resource management
   public void setUp() throws SQLException {
     // モックオブジェクトの作成
     mockConnection = mock(Connection.class);
@@ -49,6 +51,7 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("単一の結果を返すクエリのテスト")
+  @SuppressWarnings("PMD.CloseResource") // Mock connection handled by test framework
   public void testApplyWithSingleResult() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -80,6 +83,7 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("結果が空の場合のテスト")
+  @SuppressWarnings("PMD.CloseResource") // Mock connection handled by test framework
   public void testApplyWithEmptyResult() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -108,6 +112,7 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("複数列の結果を返すクエリのテスト")
+  @SuppressWarnings("PMD.CloseResource") // Mock connection handled by test framework
   public void testApplyWithMultipleColumns() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -139,6 +144,7 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("複数行の結果を返すクエリのテスト")
+  @SuppressWarnings("PMD.CloseResource") // Mock connection handled by test framework
   public void testApplyWithMultipleRows() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -170,6 +176,7 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("SQLエラーが発生した場合のテスト")
+  @SuppressWarnings("PMD.CloseResource") // Mock connection handled by test framework
   public void testApplyWithSQLException() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";
@@ -202,6 +209,7 @@ public class DatabaseFetchRuleTest {
 
   @Test
   @DisplayName("NULL値を返すクエリのテスト")
+  @SuppressWarnings("PMD.CloseResource") // Mock connection handled by test framework
   public void testApplyWithNullResult() throws SQLException {
     // テスト用のデータ
     String databaseUrl = "jdbc:mock:db";

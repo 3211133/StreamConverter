@@ -7,7 +7,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -27,46 +27,46 @@ import java.util.List;
  */
 public class JsonNavigateCommand extends AbstractStreamCommand {
 
-  private final JSONPath jsonPath;
+  private final TreePath treePath;
   private final IRule rule;
   private final ObjectMapper objectMapper;
 
   /**
-   * Constructor for JSON navigation with typed JSONPath selector and transformation rule.
+   * Constructor for JSON navigation with TreePath selector and transformation rule.
    *
-   * @param jsonPath the typed JSONPath to select data
+   * @param treePath the TreePath to select data
    * @param rule the transformation rule to apply to selected elements
-   * @throws IllegalArgumentException if jsonPath or rule is null
+   * @throws IllegalArgumentException if treePath or rule is null
    */
-  public JsonNavigateCommand(JSONPath jsonPath, IRule rule) {
-    if (jsonPath == null) {
-      throw new IllegalArgumentException("JSONPath cannot be null");
+  public JsonNavigateCommand(TreePath treePath, IRule rule) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
     }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    this.jsonPath = jsonPath;
+    this.treePath = treePath;
     this.rule = rule;
     this.objectMapper = new ObjectMapper();
   }
 
   /**
-   * Factory method for creating a JSON navigation command with typed JSONPath and rule.
+   * Factory method for creating a JSON navigation command with TreePath and rule.
    *
-   * @param jsonPath the typed JSONPath to select data
+   * @param treePath the TreePath to select data
    * @param rule the transformation rule to apply to selected elements
    * @return a JsonNavigateCommand that transforms the specified path with the given rule
    * @throws IllegalArgumentException if rule is null
    */
-  public static JsonNavigateCommand create(JSONPath jsonPath, IRule rule) {
-    return new JsonNavigateCommand(jsonPath, rule);
+  public static JsonNavigateCommand create(TreePath treePath, IRule rule) {
+    return new JsonNavigateCommand(treePath, rule);
   }
 
   @Override
   protected String getCommandDetails() {
     return String.format(
-        "JsonNavigateCommand(jsonPath='%s', rule='%s')",
-        jsonPath.toString(), rule.getClass().getSimpleName());
+        "JsonNavigateCommand(treePath='%s', rule='%s')",
+        treePath.toString(), rule.getClass().getSimpleName());
   }
 
   @Override
@@ -158,7 +158,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Simple path matching for streaming JSON processing */
   private boolean isMatchingPath(List<String> currentPath) {
-    return jsonPath.matches(currentPath);
+    return treePath.matches(currentPath);
   }
 
   /** Handle JSON parsing exceptions */

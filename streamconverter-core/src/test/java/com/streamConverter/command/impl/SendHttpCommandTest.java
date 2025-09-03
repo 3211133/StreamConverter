@@ -440,10 +440,7 @@ class SendHttpCommandTest {
 
       // 並列処理検証結果の確認
       ParallelProcessingResult result = inputStream.getParallelProcessingResult();
-      if (result == null) {
-        fail("並列処理検証結果を取得できませんでした");
-        return;
-      }
+      assertNotNull(result, "並列処理検証結果を取得できませんでした");
 
       System.out.println("=== 並列処理検証結果 ===");
       System.out.printf(

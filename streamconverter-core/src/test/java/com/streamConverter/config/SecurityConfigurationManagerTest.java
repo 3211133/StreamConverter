@@ -34,7 +34,7 @@ class SecurityConfigurationManagerTest {
         securityConfig.isXmlDoctypeDeclarationsDisabled(), "デフォルトでXMLドキュメントタイプ宣言は無効化されている必要があります");
     assertFalse(securityConfig.isLoadExternalDtdDisabled(), "デフォルトで外部DTD読み込みは許可されている必要があります");
 
-    // XPath Security Settings
+    // TreePath Security Settings
     assertTrue(securityConfig.isXPathValidationEnabled(), "デフォルトでXPath検証は有効化されている必要があります");
     assertTrue(securityConfig.isXPathStrictModeEnabled(), "デフォルトでXPath厳格モードは有効化されている必要があります");
 

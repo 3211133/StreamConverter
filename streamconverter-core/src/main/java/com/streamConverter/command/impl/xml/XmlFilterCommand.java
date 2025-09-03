@@ -1,7 +1,7 @@
 package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.path.XPath;
+import com.streamConverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -22,47 +22,47 @@ import javax.xml.stream.events.XMLEvent;
 /**
  * XML Filter Command Class
  *
- * <p>This class implements pure data extraction from XML using XPath expressions. Unlike
+ * <p>This class implements pure data extraction from XML using TreePath expressions. Unlike
  * XmlNavigateCommand which applies transformations, XmlFilterCommand only extracts/filters elements
  * based on specified paths without any modifications.
  *
- * <p>Features: - Extract specific elements using XPath expressions - Preserve exact XML structure
- * of extracted elements - Memory-efficient streaming processing - Support for complex path
- * expressions including nested elements and attributes
+ * <p>Features: - Extract specific elements using TreePath expressions - Preserve exact XML
+ * structure of extracted elements - Memory-efficient streaming processing - Support for complex
+ * path expressions including nested elements and attributes
  */
 public class XmlFilterCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlFilterCommand.class.getName());
 
-  private final XPath xpath;
+  private final TreePath xpath;
 
   // Deprecated fields for backward compatibility
   @Deprecated private final String legacyXpath;
 
   /**
-   * Constructor for XML filtering with XPath selector.
+   * Constructor for XML filtering with TreePath selector.
    *
-   * @param xpath the XPath expression to extract elements (e.g., "users/user/name")
+   * @param xpath the TreePath expression to extract elements (e.g., "users/user/name")
    * @throws IllegalArgumentException if xpath is null or empty
-   * @deprecated Use {@link #XmlFilterCommand(XPath)} instead
+   * @deprecated Use {@link #XmlFilterCommand(TreePath)} instead
    */
   @Deprecated
   public XmlFilterCommand(String xpath) {
     if (xpath == null || xpath.trim().isEmpty()) {
-      throw new IllegalArgumentException("XPath cannot be null or empty");
+      throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
     this.legacyXpath = xpath.trim();
-    this.xpath = new XPath(xpath.trim());
+    this.xpath = TreePath.fromXmlPath(xpath.trim());
   }
 
   /**
-   * Constructor for XML filtering with typed XPath selector.
+   * Constructor for XML filtering with typed TreePath selector.
    *
-   * @param xpath the typed XPath to extract elements
+   * @param xpath the typed TreePath to extract elements
    * @throws IllegalArgumentException if xpath is null
    */
-  public XmlFilterCommand(XPath xpath) {
+  public XmlFilterCommand(TreePath xpath) {
     if (xpath == null) {
-      throw new IllegalArgumentException("XPath cannot be null");
+      throw new IllegalArgumentException("TreePath cannot be null");
     }
     this.xpath = xpath;
     this.legacyXpath = xpath.toString();

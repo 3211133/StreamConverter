@@ -101,7 +101,7 @@ public class SecurityConfigurationManager {
   }
 
   // ===========================================
-  // XPath Security Settings
+  // TreePath Security Settings
   // ===========================================
 
   /**
@@ -311,7 +311,7 @@ public class SecurityConfigurationManager {
           "Security Configuration Manager initialized for profile: {}", activeProfile);
       securityLogger.info("Production environment: {}", isProductionEnvironment());
       securityLogger.info("XML external entities disabled: {}", isXmlExternalEntitiesDisabled());
-      securityLogger.info("XPath validation enabled: {}", isXPathValidationEnabled());
+      securityLogger.info("TreePath validation enabled: {}", isXPathValidationEnabled());
       securityLogger.info(
           "Path traversal prevention enabled: {}", isPathTraversalPreventionEnabled());
       securityLogger.info("Audit logging enabled: {}", isAuditEnabled());

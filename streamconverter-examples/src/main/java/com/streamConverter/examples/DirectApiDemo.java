@@ -8,8 +8,7 @@ import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.JSONPath;
-import com.streamConverter.path.XPath;
+import com.streamConverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -99,7 +98,7 @@ public class DirectApiDemo {
 
     // JSONパス抽出
     IStreamCommand jsonCommand =
-        new JsonNavigateCommand(new JSONPath("$.user.name"), new PassThroughRule());
+        new JsonNavigateCommand(new TreePath("$.user.name"), new PassThroughRule());
     StreamConverter converter = new StreamConverter(new IStreamCommand[] {jsonCommand});
 
     String result = processString(converter, jsonData);
@@ -126,7 +125,8 @@ public class DirectApiDemo {
         """;
 
     // XML要素抽出
-    IStreamCommand xmlCommand = new XmlNavigateCommand(new XPath("//name"), new PassThroughRule());
+    IStreamCommand xmlCommand =
+        new XmlNavigateCommand(new TreePath("//name"), new PassThroughRule());
     StreamConverter converter = new StreamConverter(new IStreamCommand[] {xmlCommand});
 
     String result = processString(converter, xmlData);
@@ -149,7 +149,7 @@ public class DirectApiDemo {
     // 複合パイプライン: CSV -> JSON抽出
     IStreamCommand[] commands = {
       new CsvNavigateCommand(new CSVPath("data"), new PassThroughRule()),
-      new JsonNavigateCommand(new JSONPath("$.message"), new PassThroughRule())
+      new JsonNavigateCommand(new TreePath("$.message"), new PassThroughRule())
     };
 
     StreamConverter converter = new StreamConverter(commands);

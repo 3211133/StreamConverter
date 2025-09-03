@@ -94,7 +94,7 @@ class TreePathTest {
 
   @Test
   void testValidationErrors() {
-    assertThrows(IllegalArgumentException.class, () -> new TreePath(null));
+    assertThrows(IllegalArgumentException.class, () -> new TreePath((String) null));
     assertThrows(IllegalArgumentException.class, () -> new TreePath(""));
     assertThrows(IllegalArgumentException.class, () -> new TreePath("   "));
   }

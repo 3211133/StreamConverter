@@ -7,7 +7,7 @@ import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -78,7 +78,7 @@ public class StreamProcessingController {
     return inputData
         .collectList()
         .map(this::combineDataBuffers)
-        .map(data -> processWithStreamConverter(data, JsonNavigateCommand.create(new JSONPath(jsonPath), new PassThroughRule())))
+        .map(data -> processWithStreamConverter(data, JsonNavigateCommand.create(new TreePath(jsonPath), new PassThroughRule())))
         .map(result -> ResponseEntity.ok(createDataBufferFlux(result)))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
@@ -189,7 +189,7 @@ public class StreamProcessingController {
       commands[i] =
           switch (commandType.toLowerCase()) {
             case "csv" -> CsvNavigateCommand.create(new CSVPath(parameter), new PassThroughRule());
-            case "json" -> JsonNavigateCommand.create(new JSONPath(parameter), new PassThroughRule());
+            case "json" -> JsonNavigateCommand.create(new TreePath(parameter), new PassThroughRule());
             case "process" -> new SampleStreamCommand(parameter);
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
           };

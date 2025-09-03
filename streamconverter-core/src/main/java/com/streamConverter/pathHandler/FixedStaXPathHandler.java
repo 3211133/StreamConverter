@@ -58,7 +58,7 @@ public class FixedStaXPathHandler implements IStaXPathHandler {
           "xpath must not contain empty segments after normalization: " + xpath);
     }
 
-    log.debug("Normalized XPath: {} -> {}", xpath, normalizedPath);
+    log.debug("Normalized TreePath: {} -> {}", xpath, normalizedPath);
   }
 
   /**

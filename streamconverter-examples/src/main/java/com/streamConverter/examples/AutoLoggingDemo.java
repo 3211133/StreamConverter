@@ -8,7 +8,7 @@ import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -83,7 +83,7 @@ public class AutoLoggingDemo {
 
     // LoggingDecoratorでラップして詳細ログ出力
     IStreamCommand originalCommand =
-        JsonNavigateCommand.create(new JSONPath("name"), new PassThroughRule());
+        JsonNavigateCommand.create(new TreePath("name"), new PassThroughRule());
     IStreamCommand detailedCommand = new LoggingDecorator(originalCommand);
 
     String result = processData(jsonData, detailedCommand);
@@ -115,7 +115,7 @@ public class AutoLoggingDemo {
     // 直接生成 + LoggingDecoratorで手動ログ機能付き
     IStreamCommand baseCommand =
         new XmlNavigateCommand(
-            new com.streamConverter.path.XPath("users/user/name"), new PassThroughRule());
+            new com.streamConverter.path.TreePath("users/user/name"), new PassThroughRule());
     IStreamCommand factoryCommand = new LoggingDecorator(baseCommand);
 
     String result = processData(xmlData, factoryCommand);
@@ -155,7 +155,7 @@ public class AutoLoggingDemo {
       // 詳細ログ付きでコマンドを作成
       IStreamCommand baseCommand =
           new XmlNavigateCommand(
-              new com.streamConverter.path.XPath("invalid/path"), new PassThroughRule());
+              new com.streamConverter.path.TreePath("invalid/path"), new PassThroughRule());
       IStreamCommand xmlCommand = new LoggingDecorator(baseCommand);
       processData(invalidXml, xmlCommand);
 

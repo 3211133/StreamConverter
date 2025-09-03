@@ -11,8 +11,7 @@ import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.JSONPath;
-import com.streamConverter.path.XPath;
+import com.streamConverter.path.TreePath;
 import com.streamConverter.test.PlatformAdaptiveTestUtils;
 import java.io.*;
 import java.nio.file.Files;
@@ -381,7 +380,7 @@ class LargeDataBenchmark {
     StreamConverter converter =
         new StreamConverter(
             new IStreamCommand[] {
-              JsonNavigateCommand.create(new JSONPath("/orders"), new PassThroughRule()),
+              JsonNavigateCommand.create(new TreePath("/orders"), new PassThroughRule()),
               new SampleStreamCommand("stage1"),
               new SampleStreamCommand("stage2"),
               new SampleStreamCommand("stage3")
@@ -483,7 +482,7 @@ class LargeDataBenchmark {
       StreamConverter converter =
           new StreamConverter(
               new IStreamCommand[] {
-                XmlNavigateCommand.create(new XPath("/orders"), new PassThroughRule()),
+                XmlNavigateCommand.create(new TreePath("/orders"), new PassThroughRule()),
                 new SampleStreamCommand("transform1"),
                 new SampleStreamCommand("transform2"),
                 new SampleStreamCommand("validate")
@@ -798,9 +797,9 @@ class LargeDataBenchmark {
   private IStreamCommand createFormatSpecificCommand(String format) {
     switch (format.toUpperCase()) {
       case "XML":
-        return XmlNavigateCommand.create(new XPath("/orders"), new PassThroughRule());
+        return XmlNavigateCommand.create(new TreePath("/orders"), new PassThroughRule());
       case "JSON":
-        return JsonNavigateCommand.create(new JSONPath("/orders"), new PassThroughRule());
+        return JsonNavigateCommand.create(new TreePath("/orders"), new PassThroughRule());
       case "CSV":
         return CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule());
       default:

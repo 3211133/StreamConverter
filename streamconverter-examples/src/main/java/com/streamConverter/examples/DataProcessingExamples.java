@@ -8,8 +8,7 @@ import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.JSONPath;
-import com.streamConverter.path.XPath;
+import com.streamConverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -119,16 +118,16 @@ public class DataProcessingExamples {
     // Extract status for monitoring
     logger.info("📊 Extract API status:");
     processData(
-        apiResponse, JsonNavigateCommand.create(new JSONPath("status"), new PassThroughRule()));
+        apiResponse, JsonNavigateCommand.create(new TreePath("status"), new PassThroughRule()));
 
     // Extract user data for processing
     logger.info("\n👤 Extract user data:");
     processData(
-        apiResponse, JsonNavigateCommand.create(new JSONPath("data"), new PassThroughRule()));
+        apiResponse, JsonNavigateCommand.create(new TreePath("data"), new PassThroughRule()));
 
     // Format entire response for logging (using root selector)
     logger.info("\n📝 Format entire response:");
-    processData(apiResponse, JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()));
+    processData(apiResponse, JsonNavigateCommand.create(new TreePath("$"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }
@@ -162,19 +161,19 @@ public class DataProcessingExamples {
     logger.info("🗄️ Extract database configuration:");
     processData(
         configXml,
-        XmlNavigateCommand.create(new XPath("configuration/database"), new PassThroughRule()));
+        XmlNavigateCommand.create(new TreePath("configuration/database"), new PassThroughRule()));
 
     // Extract server configuration
     logger.info("\n🖥️ Extract server configuration:");
     processData(
         configXml,
-        XmlNavigateCommand.create(new XPath("configuration/server"), new PassThroughRule()));
+        XmlNavigateCommand.create(new TreePath("configuration/server"), new PassThroughRule()));
 
     // Extract logging configuration
     logger.info("\n📊 Extract logging configuration:");
     processData(
         configXml,
-        XmlNavigateCommand.create(new XPath("configuration/logging"), new PassThroughRule()));
+        XmlNavigateCommand.create(new TreePath("configuration/logging"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }

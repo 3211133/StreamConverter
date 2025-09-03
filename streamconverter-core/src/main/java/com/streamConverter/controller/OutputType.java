@@ -35,8 +35,8 @@ public enum OutputType {
   /** Pass-through CSV processing */
   CSV("CSV", "Pass-through CSV processing"),
 
-  /** Extract JSON property using JSONPath */
-  JSON_PROPERTY("JSON_PROPERTY", "Extract JSON property using JSONPath"),
+  /** Extract JSON property using TreePath */
+  JSON_PROPERTY("JSON_PROPERTY", "Extract JSON property using TreePath"),
 
   /** Extract and validate JSON property */
   VALIDATED_JSON_PROPERTY("VALIDATED_JSON_PROPERTY", "Extract and validate JSON property"),

@@ -8,8 +8,7 @@ import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.JSONPath;
-import com.streamConverter.path.XPath;
+import com.streamConverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -83,7 +82,7 @@ public class QuickStart {
 
     // Extract name property
     IStreamCommand jsonCommand =
-        JsonNavigateCommand.create(new JSONPath("name"), new PassThroughRule());
+        JsonNavigateCommand.create(new TreePath("name"), new PassThroughRule());
     String result = processData(jsonData, jsonCommand);
 
     log.info("Input JSON:");
@@ -110,7 +109,7 @@ public class QuickStart {
 
     // Extract name element
     IStreamCommand xmlCommand =
-        XmlNavigateCommand.create(new XPath("person/name"), new PassThroughRule());
+        XmlNavigateCommand.create(new TreePath("person/name"), new PassThroughRule());
     String result = processData(xmlData, xmlCommand);
 
     log.info("Input XML:");

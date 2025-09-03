@@ -9,7 +9,7 @@ import com.streamConverter.command.rule.impl.casing.SnakeToCamelCaseRule;
 import com.streamConverter.command.rule.impl.composite.ChainRule;
 import com.streamConverter.command.rule.impl.string.LowerCaseRule;
 import com.streamConverter.command.rule.impl.string.TrimRule;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
@@ -28,7 +28,7 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"userName\": \"john_doe\", \"firstName\": \"John\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.create(new JSONPath("$.userName"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new TreePath("$.userName"), CamelToSnakeCaseRule.create());
 
     String result = executeCommand(command, inputJson);
     // JsonNavigateCommand preserves structure and transforms the matching field value
@@ -43,7 +43,7 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"user_name\": \"john_doe\", \"first_name\": \"John\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.create(new JSONPath("$.user_name"), SnakeToCamelCaseRule.create());
+        JsonNavigateCommand.create(new TreePath("$.user_name"), SnakeToCamelCaseRule.create());
 
     String result = executeCommand(command, inputJson);
     // Structure preserved, user_name field value transformed
@@ -59,7 +59,7 @@ class TransformationRuleIntegrationTest {
 
     IStreamCommand command =
         JsonNavigateCommand.create(
-            new JSONPath("$.user_name"), SnakeToCamelCaseRule.createPascalCase());
+            new TreePath("$.user_name"), SnakeToCamelCaseRule.createPascalCase());
 
     String result = executeCommand(command, inputJson);
     // Structure preserved, value transformed to PascalCase
@@ -78,7 +78,7 @@ class TransformationRuleIntegrationTest {
             .addRule(new LowerCaseRule())
             .build();
 
-    IStreamCommand command = JsonNavigateCommand.create(new JSONPath("$.fieldName"), chainRule);
+    IStreamCommand command = JsonNavigateCommand.create(new TreePath("$.fieldName"), chainRule);
 
     String result = executeCommand(command, inputJson);
     // Structure preserved, chain transformation applied to field value
@@ -97,7 +97,7 @@ class TransformationRuleIntegrationTest {
             new TrimRule(),
             CamelToSnakeCaseRule.builder().handleAcronyms(true).preserveUnderscores(false).build());
 
-    IStreamCommand command = JsonNavigateCommand.create(new JSONPath("$.userAccountID"), chainRule);
+    IStreamCommand command = JsonNavigateCommand.create(new TreePath("$.userAccountID"), chainRule);
 
     String result = executeCommand(command, inputJson);
     // Structure preserved, complex transformation applied to field value
@@ -114,7 +114,7 @@ class TransformationRuleIntegrationTest {
     ChainRule roundTrip =
         ChainRule.of(CamelToSnakeCaseRule.create(), SnakeToCamelCaseRule.create());
 
-    IStreamCommand command = JsonNavigateCommand.create(new JSONPath("$.original"), roundTrip);
+    IStreamCommand command = JsonNavigateCommand.create(new TreePath("$.original"), roundTrip);
 
     String result = executeCommand(command, inputJson);
     // Structure preserved, round trip transformation applied
@@ -128,7 +128,7 @@ class TransformationRuleIntegrationTest {
 
     // Process firstName field
     IStreamCommand command1 =
-        JsonNavigateCommand.create(new JSONPath("$.firstName"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new TreePath("$.firstName"), CamelToSnakeCaseRule.create());
     String result1 = executeCommand(command1, inputJson);
     // Structure preserved, firstName value transformed
     assertTrue(result1.contains("\"firstName\":\"john\""), "Should transform firstName value");
@@ -136,7 +136,7 @@ class TransformationRuleIntegrationTest {
 
     // Process lastName field
     IStreamCommand command2 =
-        JsonNavigateCommand.create(new JSONPath("$.lastName"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new TreePath("$.lastName"), CamelToSnakeCaseRule.create());
     String result2 = executeCommand(command2, inputJson);
     // Structure preserved, lastName value transformed
     assertTrue(result2.contains("\"lastName\":\"doe\""), "Should transform lastName value");
@@ -148,7 +148,7 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"field\": null}";
 
     IStreamCommand command =
-        JsonNavigateCommand.create(new JSONPath("$.field"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new TreePath("$.field"), CamelToSnakeCaseRule.create());
 
     // Should handle null gracefully and preserve structure
     String result = executeCommand(command, inputJson);
@@ -160,7 +160,7 @@ class TransformationRuleIntegrationTest {
     String inputJson = "{\"existing\": \"value\"}";
 
     IStreamCommand command =
-        JsonNavigateCommand.create(new JSONPath("$.nonExistent"), CamelToSnakeCaseRule.create());
+        JsonNavigateCommand.create(new TreePath("$.nonExistent"), CamelToSnakeCaseRule.create());
 
     String result = executeCommand(command, inputJson);
     // Non-existent path should preserve original structure unchanged

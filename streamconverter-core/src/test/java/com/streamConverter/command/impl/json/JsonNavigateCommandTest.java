@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
@@ -25,7 +25,7 @@ class JsonNavigateCommandTest {
   @BeforeEach
   void setUp() {
     // Use a specific JSONPath instead of createForAll
-    command = JsonNavigateCommand.create(new JSONPath("$.test"), new PassThroughRule());
+    command = JsonNavigateCommand.create(new TreePath("$.test"), new PassThroughRule());
   }
 
   @Test

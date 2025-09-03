@@ -3,7 +3,7 @@ package com.streamConverter.command.impl.json;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -17,11 +17,11 @@ import java.util.Arrays;
 /**
  * JSON Filter Command Class
  *
- * <p>This class implements pure data extraction from JSON using JSONPath expressions. Unlike
+ * <p>This class implements pure data extraction from JSON using TreePath expressions. Unlike
  * JsonNavigateCommand which applies transformations, JsonFilterCommand only extracts/filters data
  * based on specified paths without any modifications.
  *
- * <p>Features: - Extract specific elements using JSONPath expressions - Preserve exact data types
+ * <p>Features: - Extract specific elements using TreePath expressions - Preserve exact data types
  * and structure of extracted elements - Memory-efficient processing for large JSON files - Support
  * for simple path expressions
  */
@@ -30,38 +30,38 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming
   private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer
 
-  private final JSONPath jsonPath;
+  private final TreePath jsonPath;
   private final ObjectMapper objectMapper;
 
   // Deprecated fields for backward compatibility
   @Deprecated private final String legacyJsonPath;
 
   /**
-   * Constructor for JSON filtering with JSONPath selector.
+   * Constructor for JSON filtering with TreePath selector.
    *
-   * @param jsonPath the JSONPath expression to extract data (e.g., "$.users", "$.name")
+   * @param jsonPath the TreePath expression to extract data (e.g., "$.users", "$.name")
    * @throws IllegalArgumentException if jsonPath is null or empty
-   * @deprecated Use {@link #JsonFilterCommand(JSONPath)} instead
+   * @deprecated Use {@link #JsonFilterCommand(TreePath)} instead
    */
   @Deprecated
   public JsonFilterCommand(String jsonPath) {
     if (jsonPath == null || jsonPath.trim().isEmpty()) {
-      throw new IllegalArgumentException("JSONPath cannot be null or empty");
+      throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
     this.legacyJsonPath = jsonPath.trim();
-    this.jsonPath = new JSONPath(jsonPath.trim());
+    this.jsonPath = new TreePath(jsonPath.trim());
     this.objectMapper = new ObjectMapper();
   }
 
   /**
-   * Constructor for JSON filtering with typed JSONPath selector.
+   * Constructor for JSON filtering with typed TreePath selector.
    *
-   * @param jsonPath the typed JSONPath to extract data
+   * @param jsonPath the typed TreePath to extract data
    * @throws IllegalArgumentException if jsonPath is null
    */
-  public JsonFilterCommand(JSONPath jsonPath) {
+  public JsonFilterCommand(TreePath jsonPath) {
     if (jsonPath == null) {
-      throw new IllegalArgumentException("JSONPath cannot be null");
+      throw new IllegalArgumentException("TreePath cannot be null");
     }
     this.jsonPath = jsonPath;
     this.legacyJsonPath = jsonPath.toString();
@@ -90,7 +90,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       }
 
       try {
-        // Apply simple JSONPath-like extraction using lightweight parsing
+        // Apply simple TreePath-like extraction using lightweight parsing
         String result = extractJsonValue(jsonContent, jsonPath.toString());
         writer.write(result);
         writer.flush();
@@ -132,10 +132,10 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Extract JSON value using simple JSONPath-like expressions
+   * Extract JSON value using simple TreePath-like expressions
    *
    * @param jsonContent the JSON content string
-   * @param path the JSONPath expression (simplified)
+   * @param path the TreePath expression (simplified)
    * @return extracted value as JSON string
    */
   private String extractJsonValue(String jsonContent, String path) {
@@ -270,7 +270,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * Fallback method for simple string-based extraction when JSON parsing fails
    *
    * @param jsonContent the JSON content string
-   * @param path the JSONPath expression
+   * @param path the TreePath expression
    * @return extracted value as JSON string or original content
    */
   private String extractSimplePropertyFallback(String jsonContent, String path) {

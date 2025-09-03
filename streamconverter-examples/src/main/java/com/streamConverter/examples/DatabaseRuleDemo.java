@@ -6,7 +6,7 @@ import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.rule.DatabaseFetchRule;
 import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.JSONPath;
+import com.streamConverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.sql.Connection;
@@ -171,7 +171,7 @@ public class DatabaseRuleDemo {
 
     // JsonNavigateCommandの作成
     JsonNavigateCommand command =
-        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);
+        new JsonNavigateCommand(new TreePath("$.customerId"), customerRule);
 
     // 変換前のJSON
     String inputJson =
@@ -245,7 +245,7 @@ public class DatabaseRuleDemo {
 
     // JsonNavigateCommandの作成
     JsonNavigateCommand command =
-        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);
+        new JsonNavigateCommand(new TreePath("$.customerId"), customerRule);
 
     // 複数の注文を含むJSON
     String inputJson =
@@ -297,8 +297,8 @@ public class DatabaseRuleDemo {
 
     // 複数段階の変換を組み合わせる
     JsonNavigateCommand customerCommand =
-        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);
-    JsonNavigateCommand deptCommand = new JsonNavigateCommand(new JSONPath("$.deptCode"), deptRule);
+        new JsonNavigateCommand(new TreePath("$.customerId"), customerRule);
+    JsonNavigateCommand deptCommand = new JsonNavigateCommand(new TreePath("$.deptCode"), deptRule);
 
     // StreamConverterで複数のコマンドを組み合わせ
     StreamConverter converter =
@@ -340,7 +340,7 @@ public class DatabaseRuleDemo {
 
     // JsonNavigateCommandの作成
     JsonNavigateCommand command =
-        new JsonNavigateCommand(new JSONPath("$.customerId"), customerRule);
+        new JsonNavigateCommand(new TreePath("$.customerId"), customerRule);
 
     // 存在しない顧客IDを含むJSON
     String inputJson =

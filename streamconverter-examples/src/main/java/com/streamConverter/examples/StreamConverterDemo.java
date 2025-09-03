@@ -8,8 +8,7 @@ import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;
 import com.streamConverter.command.rule.PassThroughRule;
 import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.JSONPath;
-import com.streamConverter.path.XPath;
+import com.streamConverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,7 +21,7 @@ import org.slf4j.LoggerFactory;
  * Comprehensive demo application for StreamConverter.
  *
  * <p>This demo showcases various features of the StreamConverter including: - CSV navigation and
- * column selection - JSON navigation with JSONPath-like expressions - XML navigation with XPath
+ * column selection - JSON navigation with TreePath-like expressions - XML navigation with TreePath
  * expressions - Command chaining and pipeline processing
  */
 public class StreamConverterDemo {
@@ -98,15 +97,15 @@ public class StreamConverterDemo {
 
     // Demo 2a: Extract specific property
     logger.info("1. Extract 'total' property:");
-    runDemo(jsonData, JsonNavigateCommand.create(new JSONPath("total"), new PassThroughRule()));
+    runDemo(jsonData, JsonNavigateCommand.create(new TreePath("total"), new PassThroughRule()));
 
     // Demo 2b: Navigate nested properties
     logger.info("\n2. Navigate to users array:");
-    runDemo(jsonData, JsonNavigateCommand.create(new JSONPath("users"), new PassThroughRule()));
+    runDemo(jsonData, JsonNavigateCommand.create(new TreePath("users"), new PassThroughRule()));
 
     // Demo 2c: Format root JSON
     logger.info("\n3. Format root JSON:");
-    runDemo(jsonData, JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()));
+    runDemo(jsonData, JsonNavigateCommand.create(new TreePath("$"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -135,15 +134,15 @@ public class StreamConverterDemo {
     // Demo 3a: Extract specific elements
     logger.info("1. Extract all 'name' elements:");
     runDemo(
-        xmlData, XmlNavigateCommand.create(new XPath("users/user/name"), new PassThroughRule()));
+        xmlData, XmlNavigateCommand.create(new TreePath("users/user/name"), new PassThroughRule()));
 
     // Demo 3b: Extract user elements
     logger.info("\n2. Extract all 'user' elements:");
-    runDemo(xmlData, XmlNavigateCommand.create(new XPath("users/user"), new PassThroughRule()));
+    runDemo(xmlData, XmlNavigateCommand.create(new TreePath("users/user"), new PassThroughRule()));
 
     // Demo 3c: Process root XML
     logger.info("\n3. Process root XML:");
-    runDemo(xmlData, XmlNavigateCommand.create(new XPath("//users"), new PassThroughRule()));
+    runDemo(xmlData, XmlNavigateCommand.create(new TreePath("//users"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(50) + "\n");
   }
@@ -160,7 +159,7 @@ public class StreamConverterDemo {
     // Demo 4: Chain JSON formatting with sample processing
     logger.info("1. JSON formatting → Sample processing:");
     IStreamCommand[] pipeline = {
-      JsonNavigateCommand.create(new JSONPath("$"), new PassThroughRule()), // Format JSON
+      JsonNavigateCommand.create(new TreePath("$"), new PassThroughRule()), // Format JSON
       new SampleStreamCommand("formatter") // Add processing info
     };
 

@@ -69,7 +69,7 @@ class OutputTypeTest {
   @DisplayName("Should return correct description")
   void testGetDescription() {
     assertEquals("Extract specific CSV column data", OutputType.CSV_COLUMN.getDescription());
-    assertEquals("Extract JSON property using JSONPath", OutputType.JSON_PROPERTY.getDescription());
+    assertEquals("Extract JSON property using TreePath", OutputType.JSON_PROPERTY.getDescription());
     assertEquals(
         "Extract and validate JSON property", OutputType.VALIDATED_JSON_PROPERTY.getDescription());
     assertEquals("Format JSON for readability", OutputType.JSON_FORMATTED.getDescription());

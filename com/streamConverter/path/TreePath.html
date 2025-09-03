@@ -45,15 +45,15 @@ loadScripts(document, 'script');</script>
 <div>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
-<li><a href="#nested-class-summary">Nested</a>&nbsp;|&nbsp;</li>
+<li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li>Constr&nbsp;|&nbsp;</li>
+<li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
 </div>
@@ -73,48 +73,36 @@ loadScripts(document, 'script');</script>
 <h1 title="Class TreePath" class="title">Class TreePath</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="AbstractPath.html" title="class in com.streamConverter.path">com.streamConverter.path.AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;
+<div class="inheritance"><a href="AbstractPath.html" title="class in com.streamConverter.path">com.streamConverter.path.AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;
 <div class="inheritance">com.streamConverter.path.TreePath</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</code></dd>
+<dd><code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-24">TreePath</a></span>
-<span class="extends-implements">extends <a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</span></div>
-<div class="block">Unified path class for tree structure data.
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-15">TreePath</a></span>
+<span class="extends-implements">extends <a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</span></div>
+<div class="block">Simplified tree path class for hierarchical path matching.
 
- <p>This class provides unified handling of JSON and XML path expressions with bidirectional
- conversion capabilities. Internally maintains hierarchical segment representation and converts to
- specific formats as needed.
-
- <p>Supported formats: - JSON format: "$.user.profile.name", "$.items[0].title" - XML format:
- "user/profile/name", "items/item[0]/title"
-
- <p>Internal representation example: - Segments: ["user", "profile", "name"] - Array index
- information: profile→none, name→none</div>
+ <p>This class provides simple path matching against List&lt;String&gt; hierarchical paths. It
+ supports both JSON-style ("$.user.name") and XML-style ("user/name") path formats.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- ======== NESTED CLASS SUMMARY ======== -->
+<!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <li>
-<section class="nested-class-summary" id="nested-class-summary">
-<h2>Nested Class Summary</h2>
-<div class="caption"><span>Nested Classes</span></div>
-<div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier and Type</div>
-<div class="table-header col-second">Class</div>
+<section class="constructor-summary" id="constructor-summary">
+<h2>Constructor Summary</h2>
+<div class="caption"><span>Constructors</span></div>
+<div class="summary-table two-column-summary">
+<div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>static enum&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="TreePath.PathFormat.html" class="type-name-link" title="enum class in com.streamConverter.path">TreePath.PathFormat</a></code></div>
-<div class="col-last even-row-color">&nbsp;</div>
-<div class="col-first odd-row-color"><code>static class&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="TreePath.PathSegment.html" class="type-name-link" title="class in com.streamConverter.path">TreePath.PathSegment</a></code></div>
-<div class="col-last odd-row-color">
-<div class="block">Class representing a path segment</div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.lang.String)" class="member-name-link">TreePath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;pathExpression)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Creates TreePath from path string (auto-detects JSON or XML format)</div>
 </div>
 </div>
 </section>
@@ -130,34 +118,13 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#child(java.lang.String)" class="member-name-link">child</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;childElementName)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">子パスを作成</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#childWithArray(java.lang.String,int)" class="member-name-link">childWithArray</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;childElementName,
- int&nbsp;arrayIndex)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">配列アクセス付き子パスを作成</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#childWithWildcard(java.lang.String)" class="member-name-link">childWithWildcard</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;childElementName)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">ワイルドカード配列アクセス付き子パスを作成</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromJsonPath(java.lang.String)" class="member-name-link">fromJsonPath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates TreePath from JSON format path</div>
-</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromSegments(java.util.List)" class="member-name-link">fromSegments</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="TreePath.PathSegment.html" title="class in com.streamConverter.path">TreePath.PathSegment</a>&gt;&nbsp;segments)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromJsonPath(java.lang.String)" class="member-name-link">fromJsonPath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates TreePath from segment list</div>
+<div class="block">Creates TreePath from JSON format path</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromXmlPath(java.lang.String)" class="member-name-link">fromXmlPath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xmlPath)</code></div>
@@ -165,54 +132,19 @@ loadScripts(document, 'script');</script>
 <div class="block">Creates TreePath from XML format path</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getDepth()" class="member-name-link">getDepth</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">パスの深度を取得</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="TreePath.PathSegment.html" title="class in com.streamConverter.path">TreePath.PathSegment</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSegments()" class="member-name-link">getSegments</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">パスセグメントのリストを取得</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="TreePath.PathFormat.html" title="enum class in com.streamConverter.path">TreePath.PathFormat</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSourceFormat()" class="member-name-link">getSourceFormat</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">元の形式を取得</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#isDescendantOf(com.streamConverter.path.TreePath)" class="member-name-link">isDescendantOf</a><wbr>(<a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a>&nbsp;ancestor)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">指定したTreePathの子パスかどうか判定</div>
-</div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#matches(java.lang.Object)" class="member-name-link">matches</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;context)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#matches(java.util.List)" class="member-name-link">matches</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">指定されたコンテキストがこのパスにマッチするか判定</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toJsonPath()" class="member-name-link">toJsonPath</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">JSON形式パスとして出力</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toOriginalFormat()" class="member-name-link">toOriginalFormat</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">元の形式でパスを出力</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toXmlPath()" class="member-name-link">toXmlPath</a>()</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validateAndNormalize(java.lang.String)" class="member-name-link">validateAndNormalize</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawPath)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">XML形式パスとして出力</div>
-</div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validateAndNormalize(java.lang.String)" class="member-name-link">validateAndNormalize</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawPath)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">パス文字列の検証と正規化</div>
 </div>
 </div>
@@ -230,6 +162,25 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
+<!-- ========= CONSTRUCTOR DETAIL ======== -->
+<li>
+<section class="constructor-details" id="constructor-detail">
+<h2>Constructor Details</h2>
+<ul class="member-list">
+<li>
+<section class="detail" id="&lt;init&gt;(java.lang.String)">
+<h3>TreePath</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-28">TreePath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;pathExpression)</span></div>
+<div class="block">Creates TreePath from path string (auto-detects JSON or XML format)</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>pathExpression</code> - Path expression (e.g., "$.user.name" or "user/name")</dd>
+</dl>
+</section>
+</li>
+</ul>
+</section>
+</li>
 <!-- ============ METHOD DETAIL ========== -->
 <li>
 <section class="method-details" id="method-detail">
@@ -238,11 +189,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="fromJsonPath(java.lang.String)">
 <h3>fromJsonPath</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-105">fromJsonPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-40">fromJsonPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
 <div class="block">Creates TreePath from JSON format path</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>jsonPath</code> - JSON format path (e.g., "$.user.name", "$.items[0].title")</dd>
+<dd><code>jsonPath</code> - JSON format path (e.g., "$.user.name", "$.items.title")</dd>
 <dt>Returns:</dt>
 <dd>TreePath instance</dd>
 </dl>
@@ -251,24 +202,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="fromXmlPath(java.lang.String)">
 <h3>fromXmlPath</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-115">fromXmlPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xmlPath)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-50">fromXmlPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xmlPath)</span></div>
 <div class="block">Creates TreePath from XML format path</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>xmlPath</code> - XML format path (e.g., "user/name", "items/item[0]/title")</dd>
-<dt>Returns:</dt>
-<dd>TreePath instance</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="fromSegments(java.util.List)">
-<h3>fromSegments</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-125">fromSegments</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="TreePath.PathSegment.html" title="class in com.streamConverter.path">TreePath.PathSegment</a>&gt;&nbsp;segments)</span></div>
-<div class="block">Creates TreePath from segment list</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>segments</code> - List of path segments</dd>
+<dd><code>xmlPath</code> - XML format path (e.g., "user/name", "items/title")</dd>
 <dt>Returns:</dt>
 <dd>TreePath instance</dd>
 </dl>
@@ -277,155 +215,35 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="validateAndNormalize(java.lang.String)">
 <h3>validateAndNormalize</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-165">validateAndNormalize</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawPath)</span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-56">validateAndNormalize</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawPath)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">AbstractPath</a></code></span></div>
 <div class="block">パス文字列の検証と正規化</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">validateAndNormalize</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&gt;</code></dd>
+<dd><code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">validateAndNormalize</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</code></dd>
 <dt>Parameters:</dt>
 <dd><code>rawPath</code> - 生のパス文字列</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="matches(java.lang.Object)">
+<section class="detail" id="matches(java.util.List)">
 <h3>matches</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-172">matches</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;context)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-63">matches</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="IPath.html#matches(T)">IPath</a></code></span></div>
 <div class="block">指定されたコンテキストがこのパスにマッチするか判定</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>context</code> - 判定対象のコンテキスト</dd>
+<dd><code>currentPath</code> - 判定対象のコンテキスト</dd>
 <dt>Returns:</dt>
 <dd>マッチする場合true</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="toJsonPath()">
-<h3>toJsonPath</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-224">toJsonPath</a></span>()</div>
-<div class="block">JSON形式パスとして出力</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>JSON形式のパス文字列 (例: "$.user.name")</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="toXmlPath()">
-<h3>toXmlPath</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-233">toXmlPath</a></span>()</div>
-<div class="block">XML形式パスとして出力</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>XML形式のパス文字列 (例: "user/name")</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="toOriginalFormat()">
-<h3>toOriginalFormat</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-242">toOriginalFormat</a></span>()</div>
-<div class="block">元の形式でパスを出力</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>元の形式のパス文字列</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getSegments()">
-<h3>getSegments</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="TreePath.PathSegment.html" title="class in com.streamConverter.path">TreePath.PathSegment</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-258">getSegments</a></span>()</div>
-<div class="block">パスセグメントのリストを取得</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>パスセグメントの不変リスト</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getSourceFormat()">
-<h3>getSourceFormat</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="TreePath.PathFormat.html" title="enum class in com.streamConverter.path">TreePath.PathFormat</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-267">getSourceFormat</a></span>()</div>
-<div class="block">元の形式を取得</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>元のパス形式</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getDepth()">
-<h3>getDepth</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-487">getDepth</a></span>()</div>
-<div class="block">パスの深度を取得</div>
-<dl class="notes">
-<dt>Returns:</dt>
-<dd>パスの階層数</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="isDescendantOf(com.streamConverter.path.TreePath)">
-<h3>isDescendantOf</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-497">isDescendantOf</a></span><wbr><span class="parameters">(<a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a>&nbsp;ancestor)</span></div>
-<div class="block">指定したTreePathの子パスかどうか判定</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>ancestor</code> - 祖先となるパス</dd>
-<dt>Returns:</dt>
-<dd>子パスの場合true</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="child(java.lang.String)">
-<h3>child</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-517">child</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;childElementName)</span></div>
-<div class="block">子パスを作成</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>childElementName</code> - 子要素名</dd>
-<dt>Returns:</dt>
-<dd>子パスを表すTreePath</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="childWithArray(java.lang.String,int)">
-<h3>childWithArray</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-530">childWithArray</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;childElementName,
- int&nbsp;arrayIndex)</span></div>
-<div class="block">配列アクセス付き子パスを作成</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>childElementName</code> - 子要素名</dd>
-<dd><code>arrayIndex</code> - 配列インデックス</dd>
-<dt>Returns:</dt>
-<dd>配列アクセス付き子パスを表すTreePath</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="childWithWildcard(java.lang.String)">
-<h3>childWithWildcard</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-542">childWithWildcard</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;childElementName)</span></div>
-<div class="block">ワイルドカード配列アクセス付き子パスを作成</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>childElementName</code> - 子要素名</dd>
-<dt>Returns:</dt>
-<dd>ワイルドカード配列アクセス付き子パスを表すTreePath</dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="toString()">
 <h3>toString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-548">toString</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-103">toString</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
@@ -435,7 +253,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="equals(java.lang.Object)">
 <h3>equals</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-553">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-108">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
@@ -445,7 +263,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="hashCode()">
 <h3>hashCode</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-561">hashCode</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-116">hashCode</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>

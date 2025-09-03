@@ -5,7 +5,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.regex.Pattern;
 
 /**
  * Simplified tree path class for hierarchical path matching.
@@ -18,10 +17,6 @@ public class TreePath extends AbstractPath<List<String>> {
   // Internal hierarchical representation as simple string list
   private final List<List<String>> pathSegmentsList;
   private final String originalPath;
-
-  // XML element name pattern for validation
-  private static final Pattern XML_ELEMENT_NAME_PATTERN =
-      Pattern.compile("^[a-zA-Z_][a-zA-Z0-9._-]*$");
 
   // === Constructors ===
 
@@ -107,22 +102,17 @@ public class TreePath extends AbstractPath<List<String>> {
       throw new IllegalArgumentException("Path expression cannot be empty");
     }
 
-    // Handle JSON format (starts with "$")
+    // Parse as JSON-style path if starts with "$"
     if (trimmed.startsWith("$")) {
       return parseJsonPathToSegments(trimmed);
     }
 
-    // Handle XML format (contains "/" or validate as XML element name)
+    // Parse as slash-separated path if contains "/"
     if (trimmed.contains("/")) {
       return parseXmlPathToSegments(trimmed);
     }
 
-    // Validate as single XML element name
-    if (XML_ELEMENT_NAME_PATTERN.matcher(trimmed).matches()) {
-      return List.of(trimmed);
-    }
-
-    // Default: treat as single segment (for backward compatibility)
+    // Single segment path
     return List.of(trimmed);
   }
 
@@ -174,13 +164,6 @@ public class TreePath extends AbstractPath<List<String>> {
           segments.add(normalizedPath.substring(start, i));
         }
         start = i + 1;
-      }
-    }
-
-    // Validate XML element names
-    for (String segment : segments) {
-      if (!XML_ELEMENT_NAME_PATTERN.matcher(segment).matches()) {
-        throw new IllegalArgumentException("Invalid XML element name: " + segment);
       }
     }
 

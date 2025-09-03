@@ -51,7 +51,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
     this.legacyXpath = xpath.trim();
-    this.xpath = new TreePath(xpath.trim());
+    this.xpath = TreePath.fromXml(xpath.trim());
   }
 
   /**
@@ -102,7 +102,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
           currentPath.add(elementName);
 
           // Check if this element matches our target path
-          if (xpath.matches(currentPath) && !isCapturing) {
+          if (xpath.match(currentPath) && !isCapturing) {
             isCapturing = true;
             captureDepth = currentDepth;
             elementWriter = new StringWriter();

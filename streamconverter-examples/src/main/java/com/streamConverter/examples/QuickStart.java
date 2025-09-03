@@ -82,7 +82,7 @@ public class QuickStart {
 
     // Extract name property
     IStreamCommand jsonCommand =
-        JsonNavigateCommand.create(new TreePath("name"), new PassThroughRule());
+        JsonNavigateCommand.create(TreePath.fromXml("name"), new PassThroughRule());
     String result = processData(jsonData, jsonCommand);
 
     log.info("Input JSON:");
@@ -109,7 +109,7 @@ public class QuickStart {
 
     // Extract name element
     IStreamCommand xmlCommand =
-        XmlNavigateCommand.create(new TreePath("person/name"), new PassThroughRule());
+        XmlNavigateCommand.create(TreePath.fromXml("person/name"), new PassThroughRule());
     String result = processData(xmlData, xmlCommand);
 
     log.info("Input XML:");

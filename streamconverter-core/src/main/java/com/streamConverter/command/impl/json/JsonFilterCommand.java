@@ -49,7 +49,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
     this.legacyJsonPath = jsonPath.trim();
-    this.jsonPath = new TreePath(jsonPath.trim());
+    this.jsonPath = TreePath.fromJson(jsonPath.trim());
     this.objectMapper = new ObjectMapper();
   }
 

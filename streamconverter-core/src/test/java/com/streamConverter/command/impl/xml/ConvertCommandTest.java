@@ -29,7 +29,7 @@ public class ConvertCommandTest {
         """;
 
     TestRule rule = TestRule.contentTransformRule(); // replaces "original" with "transformed"
-    ConvertCommand command = new ConvertCommand(rule, new TreePath("root/target"));
+    ConvertCommand command = new ConvertCommand(rule, TreePath.fromXml("root/target"));
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(inputXml.getBytes(StandardCharsets.UTF_8));
@@ -62,7 +62,7 @@ public class ConvertCommandTest {
         """;
 
     TestRule rule = TestRule.upperCaseRule(); // replaces "test" with "TEST"
-    ConvertCommand command = new ConvertCommand(rule, new TreePath("document/section/value"));
+    ConvertCommand command = new ConvertCommand(rule, TreePath.fromXml("document/section/value"));
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(inputXml.getBytes(StandardCharsets.UTF_8));
@@ -83,7 +83,7 @@ public class ConvertCommandTest {
 
     assertThrows(
         NullPointerException.class,
-        () -> new ConvertCommand(null, new TreePath("valid/path")),
+        () -> new ConvertCommand(null, TreePath.fromXml("valid/path")),
         "Should throw exception for null rule");
 
     assertThrows(
@@ -98,7 +98,7 @@ public class ConvertCommandTest {
     String inputXml = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root></root>";
 
     TestRule rule = TestRule.contentTransformRule();
-    ConvertCommand command = new ConvertCommand(rule, new TreePath("root/nonexistent"));
+    ConvertCommand command = new ConvertCommand(rule, TreePath.fromXml("root/nonexistent"));
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(inputXml.getBytes(StandardCharsets.UTF_8));
@@ -116,7 +116,7 @@ public class ConvertCommandTest {
     String invalidXml = "<invalid><unclosed>";
 
     TestRule rule = TestRule.contentTransformRule();
-    ConvertCommand command = new ConvertCommand(rule, new TreePath("invalid/element"));
+    ConvertCommand command = new ConvertCommand(rule, TreePath.fromXml("invalid/element"));
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(invalidXml.getBytes(StandardCharsets.UTF_8));
@@ -146,7 +146,7 @@ public class ConvertCommandTest {
     xmlBuilder.append("</document>");
 
     TestRule rule = TestRule.upperCaseRule();
-    ConvertCommand command = new ConvertCommand(rule, new TreePath("document/item"));
+    ConvertCommand command = new ConvertCommand(rule, TreePath.fromXml("document/item"));
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(xmlBuilder.toString().getBytes(StandardCharsets.UTF_8));
@@ -182,7 +182,8 @@ public class ConvertCommandTest {
     String xmlData = xmlBuilder.toString();
 
     TestRule rule = TestRule.contentTransformRule(); // replaces "original" with "transformed"
-    ConvertCommand command = new ConvertCommand(rule, new TreePath("catalog/product/description"));
+    ConvertCommand command =
+        new ConvertCommand(rule, TreePath.fromXml("catalog/product/description"));
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
@@ -244,7 +245,7 @@ public class ConvertCommandTest {
 
     TestRule rule = TestRule.contentTransformRule(); // replaces "original" with "transformed"
     ConvertCommand command =
-        new ConvertCommand(rule, new TreePath("library/book/content/chapter/text"));
+        new ConvertCommand(rule, TreePath.fromXml("library/book/content/chapter/text"));
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));

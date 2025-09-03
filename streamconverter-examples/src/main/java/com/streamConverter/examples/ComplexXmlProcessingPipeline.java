@@ -97,14 +97,14 @@ public class ComplexXmlProcessingPipeline {
     System.out.println("\n🔍 Step 1: Extract user ID for DB lookup");
     IStreamCommand extractUserId =
         XmlNavigateCommand.create(
-            TreePath.fromXmlPath("request/body/user/userId"), new PassThroughRule());
+            TreePath.fromXml("request/body/user/userId"), new PassThroughRule());
     processStep(incomingXml, extractUserId, "User ID extraction");
 
     // Step 2: Extract session ID for validation
     System.out.println("\n🔍 Step 2: Extract session ID for validation");
     IStreamCommand extractSessionId =
         XmlNavigateCommand.create(
-            TreePath.fromXmlPath("request/body/user/sessionId"), new PassThroughRule());
+            TreePath.fromXml("request/body/user/sessionId"), new PassThroughRule());
     processStep(incomingXml, extractSessionId, "Session ID extraction");
 
     System.out.println("\n" + "=".repeat(60) + "\n");
@@ -176,7 +176,7 @@ public class ComplexXmlProcessingPipeline {
     try {
       IStreamCommand xmlProcessor =
           XmlNavigateCommand.create(
-              TreePath.fromXmlPath("request/header/requestId"), new PassThroughRule());
+              TreePath.fromXml("request/header/requestId"), new PassThroughRule());
       processStep(invalidXml, xmlProcessor, "Error handling test");
     } catch (Exception e) {
       System.out.println("❌ Expected error caught: " + e.getMessage());
@@ -195,7 +195,7 @@ public class ComplexXmlProcessingPipeline {
 
       processStep(
           recoveredXml,
-          XmlNavigateCommand.create(TreePath.fromXmlPath("error"), new PassThroughRule()),
+          XmlNavigateCommand.create(TreePath.fromXml("error"), new PassThroughRule()),
           "Recovery processing");
     }
 
@@ -263,7 +263,7 @@ public class ComplexXmlProcessingPipeline {
     return new IStreamCommand[] {
       // Step 1: Extract user ID from incoming XML
       XmlNavigateCommand.create(
-          TreePath.fromXmlPath("request/body/user/userId"), new PassThroughRule()),
+          TreePath.fromXml("request/body/user/userId"), new PassThroughRule()),
 
       // Step 2: Database lookup (simulated with sample processing)
       new SampleStreamCommand("database-lookup-simulator"),
@@ -272,7 +272,7 @@ public class ComplexXmlProcessingPipeline {
       new SendHttpCommand("https://api.backend.example.com/user/profile"),
 
       // Step 4: Process returned XML
-      XmlNavigateCommand.create(TreePath.fromXmlPath("response/data"), new PassThroughRule())
+      XmlNavigateCommand.create(TreePath.fromXml("response/data"), new PassThroughRule())
     };
   }
 
@@ -354,7 +354,7 @@ public class ComplexXmlProcessingPipeline {
       // Simulate processing pipeline
       IStreamCommand[] pipeline = {
         XmlNavigateCommand.create(
-            TreePath.fromXmlPath("request/body/user/userId"), new PassThroughRule())
+            TreePath.fromXml("request/body/user/userId"), new PassThroughRule())
       };
 
       StreamConverter converter = new StreamConverter(pipeline);

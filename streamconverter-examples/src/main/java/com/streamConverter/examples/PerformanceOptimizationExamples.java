@@ -100,14 +100,14 @@ public class PerformanceOptimizationExamples {
     long startTime = System.currentTimeMillis();
     logger.info("🔄 Single command processing...");
     processDataWithTiming(
-        jsonData, JsonNavigateCommand.create(TreePath.fromJsonPath("$"), new PassThroughRule()));
+        jsonData, JsonNavigateCommand.create(TreePath.fromJson("$"), new PassThroughRule()));
     long singleTime = System.currentTimeMillis() - startTime;
 
     // Pipeline processing (demonstrates concurrent execution)
     startTime = System.currentTimeMillis();
     logger.info("\n🔄 Pipeline processing (concurrent)...");
     IStreamCommand[] pipeline = {
-      JsonNavigateCommand.create(TreePath.fromJsonPath("$"), new PassThroughRule()),
+      JsonNavigateCommand.create(TreePath.fromJson("$"), new PassThroughRule()),
       new SampleStreamCommand("stage1"),
       new SampleStreamCommand("stage2")
     };

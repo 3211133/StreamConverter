@@ -45,8 +45,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
     if (jsonPath == null || jsonPath.trim().isEmpty()) {
       throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
-    jsonPath.trim();
-    this.jsonPath = TreePath.fromJsonPath(jsonPath.trim());
+    this.jsonPath = TreePath.fromJson(jsonPath.trim());
     this.objectMapper = new ObjectMapper();
   }
 

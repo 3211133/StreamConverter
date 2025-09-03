@@ -158,19 +158,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Simple path matching for streaming JSON processing */
   private boolean isMatchingPath(List<String> currentPath) {
-    if (currentPath.isEmpty()) {
-      return false;
-    }
-
-    // For simple paths like "$.propertyName", match last element
-    if (currentPath.size() == 1) {
-      com.fasterxml.jackson.databind.node.ObjectNode testNode = objectMapper.createObjectNode();
-      testNode.put(currentPath.get(0), "test");
-      boolean matches = jsonPath.matches(testNode);
-      return matches;
-    }
-
-    return false;
+    return jsonPath.matches(currentPath);
   }
 
   /** Handle JSON parsing exceptions */

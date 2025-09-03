@@ -1,6 +1,5 @@
 package com.streamConverter.path;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -11,10 +10,13 @@ import java.util.List;
  * <p>JSON要素選択のパス一致判定のみに特化したシンプルな設計
  *
  * <p>複数のJSONパスをOR条件で判定する機能を提供
+ *
+ * <p>List&lt;String&gt;ベースのフルパス階層比較により、ネストされたJSONパスを正確に処理
  */
-public class JSONPath extends AbstractPath<JsonNode> {
+public class JSONPath extends AbstractPath<List<String>> {
 
-  private final List<String> paths;
+  private final List<List<String>> pathSegmentsList;
+  private final String originalPath;
 
   /**
    * 単一パスでJSONPathを作成
@@ -24,7 +26,8 @@ public class JSONPath extends AbstractPath<JsonNode> {
    */
   public JSONPath(String path) {
     super(path);
-    this.paths = Collections.singletonList(normalizeJsonPath(path));
+    this.originalPath = path;
+    this.pathSegmentsList = Collections.singletonList(parseJsonPath(path));
   }
 
   /**
@@ -38,11 +41,12 @@ public class JSONPath extends AbstractPath<JsonNode> {
     if (pathList == null || pathList.isEmpty()) {
       throw new IllegalArgumentException("Path list cannot be null or empty");
     }
-    List<String> temp = new ArrayList<>();
+    this.originalPath = String.join(",", pathList);
+    List<List<String>> temp = new ArrayList<>();
     for (String path : pathList) {
-      temp.add(normalizeJsonPath(path));
+      temp.add(parseJsonPath(path));
     }
-    this.paths = Collections.unmodifiableList(temp);
+    this.pathSegmentsList = Collections.unmodifiableList(temp);
   }
 
   @Override
@@ -53,14 +57,14 @@ public class JSONPath extends AbstractPath<JsonNode> {
   }
 
   @Override
-  public boolean matches(JsonNode context) {
-    if (context == null) {
+  public boolean matches(List<String> currentPath) {
+    if (currentPath == null) {
       return false;
     }
 
     // OR条件：いずれかのパスがマッチすればtrue
-    for (String path : paths) {
-      if (matchesSinglePath(path, context)) {
+    for (List<String> pathSegments : pathSegmentsList) {
+      if (matchesPathSegments(pathSegments, currentPath)) {
         return true;
       }
     }
@@ -70,42 +74,35 @@ public class JSONPath extends AbstractPath<JsonNode> {
   /**
    * マッチするすべてのパスを取得（Don't Ask Tell準拠）
    *
-   * @param context JSON context
+   * @param currentPath 現在のパス階層
    * @return マッチしたパスのリスト
    */
-  public List<String> findMatchingPaths(JsonNode context) {
-    List<String> matchingPaths = new ArrayList<>();
-    if (context == null) {
+  public List<List<String>> findMatchingPaths(List<String> currentPath) {
+    List<List<String>> matchingPaths = new ArrayList<>();
+    if (currentPath == null || currentPath.isEmpty()) {
       return matchingPaths;
     }
 
-    for (String path : paths) {
-      if (matchesSinglePath(path, context)) {
-        matchingPaths.add(path);
+    for (List<String> pathSegments : pathSegmentsList) {
+      if (matchesPathSegments(pathSegments, currentPath)) {
+        matchingPaths.add(pathSegments);
       }
     }
     return matchingPaths;
   }
 
-  /** 単一パスの一致判定 */
-  private boolean matchesSinglePath(String path, JsonNode context) {
-    // Root path check
-    if ("$".equals(path)) {
-      return true;
+  /** パスセグメントの一致判定 */
+  private boolean matchesPathSegments(List<String> pathSegments, List<String> currentPath) {
+    if (pathSegments == null || pathSegments.isEmpty()) {
+      return currentPath == null || currentPath.isEmpty();
     }
 
-    // Simple property access: $.property
-    if (path.startsWith("$.") && !path.contains("[") && path.indexOf(".", 2) == -1) {
-      String propertyName = path.substring(2);
-      return context.has(propertyName);
-    }
-
-    // For complex paths, basic implementation
-    return false;
+    // 完全一致判定
+    return pathSegments.equals(currentPath);
   }
 
-  /** JSONPathの正規化 */
-  private String normalizeJsonPath(String rawPath) {
+  /** JSONPathをパスセグメントリストに変換 */
+  private List<String> parseJsonPath(String rawPath) {
     if (rawPath == null) {
       throw new IllegalArgumentException("Path cannot be null");
     }
@@ -120,15 +117,31 @@ public class JSONPath extends AbstractPath<JsonNode> {
       trimmed = "$." + trimmed;
     }
 
-    return trimmed;
+    // Root pathの場合は空リストを返す
+    if ("$".equals(trimmed)) {
+      return new ArrayList<>();
+    }
+
+    // $.を除去してドット区切りでパース
+    if (trimmed.startsWith("$.")) {
+      trimmed = trimmed.substring(2);
+    }
+
+    List<String> segments = new ArrayList<>();
+    if (!trimmed.isEmpty()) {
+      String[] parts = trimmed.split("\\.");
+      for (String part : parts) {
+        if (!part.trim().isEmpty()) {
+          segments.add(part.trim());
+        }
+      }
+    }
+
+    return segments;
   }
 
   @Override
   public String toString() {
-    if (paths.size() == 1) {
-      return paths.get(0);
-    } else {
-      return String.join(",", paths);
-    }
+    return originalPath;
   }
 }

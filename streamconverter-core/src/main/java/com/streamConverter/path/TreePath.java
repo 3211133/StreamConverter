@@ -98,26 +98,6 @@ public class TreePath extends AbstractPath<List<String>> {
     return false;
   }
 
-  /**
-   * Get all matching paths (Don't Ask Tell principle)
-   *
-   * @param currentPath current path hierarchy
-   * @return list of matched path segments
-   */
-  public List<List<String>> findMatchingPaths(List<String> currentPath) {
-    List<List<String>> matchingPaths = new ArrayList<>();
-    if (currentPath == null) {
-      return matchingPaths;
-    }
-
-    for (List<String> pathSegments : pathSegmentsList) {
-      if (pathSegments.equals(currentPath)) {
-        matchingPaths.add(pathSegments);
-      }
-    }
-    return matchingPaths;
-  }
-
   // === Internal Implementation ===
 
   private List<String> parsePathToSegments(String pathExpression) {

@@ -380,7 +380,7 @@ class LargeDataBenchmark {
     StreamConverter converter =
         new StreamConverter(
             new IStreamCommand[] {
-              JsonNavigateCommand.create(TreePath.fromJsonPath("/orders"), new PassThroughRule()),
+              JsonNavigateCommand.create(new TreePath("/orders"), new PassThroughRule()),
               new SampleStreamCommand("stage1"),
               new SampleStreamCommand("stage2"),
               new SampleStreamCommand("stage3")
@@ -482,7 +482,7 @@ class LargeDataBenchmark {
       StreamConverter converter =
           new StreamConverter(
               new IStreamCommand[] {
-                XmlNavigateCommand.create(TreePath.fromXmlPath("/orders"), new PassThroughRule()),
+                XmlNavigateCommand.create(new TreePath("/orders"), new PassThroughRule()),
                 new SampleStreamCommand("transform1"),
                 new SampleStreamCommand("transform2"),
                 new SampleStreamCommand("validate")
@@ -797,9 +797,9 @@ class LargeDataBenchmark {
   private IStreamCommand createFormatSpecificCommand(String format) {
     switch (format.toUpperCase()) {
       case "XML":
-        return XmlNavigateCommand.create(TreePath.fromXmlPath("/orders"), new PassThroughRule());
+        return XmlNavigateCommand.create(new TreePath("/orders"), new PassThroughRule());
       case "JSON":
-        return JsonNavigateCommand.create(TreePath.fromJsonPath("/orders"), new PassThroughRule());
+        return JsonNavigateCommand.create(new TreePath("/orders"), new PassThroughRule());
       case "CSV":
         return CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule());
       default:

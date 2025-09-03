@@ -21,11 +21,11 @@ public class TreePath extends AbstractPath<List<String>> {
   // === Constructors ===
 
   /**
-   * Private constructor for internal use by factory methods
+   * Creates TreePath from path expression
    *
-   * @param pathExpression Path expression
+   * @param pathExpression Path expression (JSON or XML format)
    */
-  private TreePath(String pathExpression) {
+  public TreePath(String pathExpression) {
     super(pathExpression);
     this.originalPath = pathExpression;
     this.pathSegmentsList = Collections.singletonList(parsePathToSegments(pathExpression));
@@ -47,26 +47,6 @@ public class TreePath extends AbstractPath<List<String>> {
       temp.add(parsePathToSegments(path));
     }
     this.pathSegmentsList = Collections.unmodifiableList(temp);
-  }
-
-  /**
-   * Creates TreePath from JSON format path
-   *
-   * @param jsonPath JSON format path (e.g., "$.user.name", "$.items.title")
-   * @return TreePath instance
-   */
-  public static TreePath fromJsonPath(String jsonPath) {
-    return new TreePath(jsonPath);
-  }
-
-  /**
-   * Creates TreePath from XML format path
-   *
-   * @param xmlPath XML format path (e.g., "user/name", "items/title")
-   * @return TreePath instance
-   */
-  public static TreePath fromXmlPath(String xmlPath) {
-    return new TreePath(xmlPath);
   }
 
   // === AbstractPath Implementation ===

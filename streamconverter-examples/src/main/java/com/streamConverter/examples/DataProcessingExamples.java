@@ -118,19 +118,16 @@ public class DataProcessingExamples {
     // Extract status for monitoring
     logger.info("📊 Extract API status:");
     processData(
-        apiResponse,
-        JsonNavigateCommand.create(TreePath.fromJsonPath("status"), new PassThroughRule()));
+        apiResponse, JsonNavigateCommand.create(new TreePath("status"), new PassThroughRule()));
 
     // Extract user data for processing
     logger.info("\n👤 Extract user data:");
     processData(
-        apiResponse,
-        JsonNavigateCommand.create(TreePath.fromJsonPath("data"), new PassThroughRule()));
+        apiResponse, JsonNavigateCommand.create(new TreePath("data"), new PassThroughRule()));
 
     // Format entire response for logging (using root selector)
     logger.info("\n📝 Format entire response:");
-    processData(
-        apiResponse, JsonNavigateCommand.create(TreePath.fromJsonPath("$"), new PassThroughRule()));
+    processData(apiResponse, JsonNavigateCommand.create(new TreePath("$"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }
@@ -164,22 +161,19 @@ public class DataProcessingExamples {
     logger.info("🗄️ Extract database configuration:");
     processData(
         configXml,
-        XmlNavigateCommand.create(
-            TreePath.fromXmlPath("configuration/database"), new PassThroughRule()));
+        XmlNavigateCommand.create(new TreePath("configuration/database"), new PassThroughRule()));
 
     // Extract server configuration
     logger.info("\n🖥️ Extract server configuration:");
     processData(
         configXml,
-        XmlNavigateCommand.create(
-            TreePath.fromXmlPath("configuration/server"), new PassThroughRule()));
+        XmlNavigateCommand.create(new TreePath("configuration/server"), new PassThroughRule()));
 
     // Extract logging configuration
     logger.info("\n📊 Extract logging configuration:");
     processData(
         configXml,
-        XmlNavigateCommand.create(
-            TreePath.fromXmlPath("configuration/logging"), new PassThroughRule()));
+        XmlNavigateCommand.create(new TreePath("configuration/logging"), new PassThroughRule()));
 
     logger.info("\n" + "=".repeat(60) + "\n");
   }

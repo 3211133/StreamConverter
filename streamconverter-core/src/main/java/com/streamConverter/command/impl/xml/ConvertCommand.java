@@ -44,7 +44,7 @@ public class ConvertCommand extends AbstractStreamCommand {
     Objects.requireNonNull(path, "path must not be null");
     this.rule = rule;
 
-    this.treePath = TreePath.fromXmlPath(path);
+    this.treePath = new TreePath(path);
   }
 
   /**

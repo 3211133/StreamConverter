@@ -25,7 +25,7 @@ class JsonNavigateCommandTest {
   @BeforeEach
   void setUp() {
     // Use a specific JSONPath instead of createForAll
-    command = JsonNavigateCommand.create(TreePath.fromJsonPath("$.test"), new PassThroughRule());
+    command = JsonNavigateCommand.create(new TreePath("$.test"), new PassThroughRule());
   }
 
   @Test

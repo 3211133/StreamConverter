@@ -9,7 +9,7 @@ class TreePathTest {
 
   @Test
   void testJsonPathParsing() {
-    TreePath path = TreePath.fromJsonPath("$.user.name");
+    TreePath path = new TreePath("$.user.name");
     assertEquals("$.user.name", path.toString());
 
     List<String> expectedPath = List.of("user", "name");
@@ -18,7 +18,7 @@ class TreePathTest {
 
   @Test
   void testXmlPathParsing() {
-    TreePath path = TreePath.fromXmlPath("user/profile/name");
+    TreePath path = new TreePath("user/profile/name");
     assertEquals("user/profile/name", path.toString());
 
     List<String> expectedPath = List.of("user", "profile", "name");
@@ -27,7 +27,7 @@ class TreePathTest {
 
   @Test
   void testSingleSegmentPath() {
-    TreePath path = TreePath.fromXmlPath("user");
+    TreePath path = new TreePath("user");
     assertEquals("user", path.toString());
 
     List<String> expectedPath = List.of("user");
@@ -36,7 +36,7 @@ class TreePathTest {
 
   @Test
   void testRootJsonPath() {
-    TreePath path = TreePath.fromJsonPath("$.");
+    TreePath path = new TreePath("$.");
     assertEquals("$.", path.toString());
 
     List<String> emptyPath = List.of();
@@ -45,7 +45,7 @@ class TreePathTest {
 
   @Test
   void testRootXmlPath() {
-    TreePath path = TreePath.fromXmlPath("/");
+    TreePath path = new TreePath("/");
     assertEquals("/", path.toString());
 
     List<String> emptyPath = List.of();
@@ -54,8 +54,8 @@ class TreePathTest {
 
   @Test
   void testPathMatching() {
-    TreePath jsonPath = TreePath.fromJsonPath("$.user.profile.name");
-    TreePath xmlPath = TreePath.fromXmlPath("user/profile/name");
+    TreePath jsonPath = new TreePath("$.user.profile.name");
+    TreePath xmlPath = new TreePath("user/profile/name");
 
     List<String> targetPath = List.of("user", "profile", "name");
     List<String> differentPath = List.of("user", "profile", "email");
@@ -74,15 +74,15 @@ class TreePathTest {
 
   @Test
   void testNullHandling() {
-    TreePath path = TreePath.fromJsonPath("$.user.name");
+    TreePath path = new TreePath("$.user.name");
     assertFalse(path.matches(null));
   }
 
   @Test
   void testEqualsAndHashCode() {
-    TreePath jsonPath = TreePath.fromJsonPath("$.user.name");
-    TreePath xmlPath = TreePath.fromXmlPath("user/name");
-    TreePath differentPath = TreePath.fromJsonPath("$.user.age");
+    TreePath jsonPath = new TreePath("$.user.name");
+    TreePath xmlPath = new TreePath("user/name");
+    TreePath differentPath = new TreePath("$.user.age");
 
     // Paths with same segments should be equal
     assertEquals(jsonPath, xmlPath);
@@ -94,32 +94,32 @@ class TreePathTest {
 
   @Test
   void testValidationErrors() {
-    assertThrows(IllegalArgumentException.class, () -> TreePath.fromJsonPath(null));
-    assertThrows(IllegalArgumentException.class, () -> TreePath.fromJsonPath(""));
-    assertThrows(IllegalArgumentException.class, () -> TreePath.fromJsonPath("   "));
+    assertThrows(IllegalArgumentException.class, () -> new TreePath((String) null));
+    assertThrows(IllegalArgumentException.class, () -> new TreePath(""));
+    assertThrows(IllegalArgumentException.class, () -> new TreePath("   "));
   }
 
   @Test
   void testComplexPaths() {
     // Test path with leading/trailing slashes
-    TreePath xmlPath = TreePath.fromXmlPath("/user/profile/name/");
+    TreePath xmlPath = new TreePath("/user/profile/name/");
     List<String> expectedPath = List.of("user", "profile", "name");
     assertTrue(xmlPath.matches(expectedPath));
 
     // Test multiple slashes normalization
-    TreePath multiSlashPath = TreePath.fromXmlPath("//user///profile//name//");
+    TreePath multiSlashPath = new TreePath("//user///profile//name//");
     assertTrue(multiSlashPath.matches(expectedPath));
   }
 
   @Test
   void testToString() {
-    TreePath path = TreePath.fromJsonPath("$.user.profile.name");
+    TreePath path = new TreePath("$.user.profile.name");
     assertEquals("$.user.profile.name", path.toString());
   }
 
   @Test
   void testFromJsonPath() {
-    TreePath path = TreePath.fromJsonPath("$.user.profile.name");
+    TreePath path = new TreePath("$.user.profile.name");
     assertEquals("$.user.profile.name", path.toString());
 
     List<String> expectedPath = List.of("user", "profile", "name");
@@ -128,7 +128,7 @@ class TreePathTest {
 
   @Test
   void testFromXmlPath() {
-    TreePath path = TreePath.fromXmlPath("user/profile/name");
+    TreePath path = new TreePath("user/profile/name");
     assertEquals("user/profile/name", path.toString());
 
     List<String> expectedPath = List.of("user", "profile", "name");
@@ -137,10 +137,10 @@ class TreePathTest {
 
   @Test
   void testFactoryMethodsEquivalent() {
-    TreePath jsonPath = TreePath.fromJsonPath("$.user.name");
-    TreePath xmlPath = TreePath.fromXmlPath("user/name");
-    TreePath directJsonPath = TreePath.fromJsonPath("$.user.name");
-    TreePath directXmlPath = TreePath.fromXmlPath("user/name");
+    TreePath jsonPath = new TreePath("$.user.name");
+    TreePath xmlPath = new TreePath("user/name");
+    TreePath directJsonPath = new TreePath("$.user.name");
+    TreePath directXmlPath = new TreePath("user/name");
 
     // All should match the same hierarchical path
     List<String> expectedPath = List.of("user", "name");

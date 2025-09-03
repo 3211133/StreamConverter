@@ -108,7 +108,7 @@ public class SendHttpCommandDemo {
 
     // JSON変換 → HTTP送信のパイプライン
     JsonNavigateCommand jsonCommand =
-        JsonNavigateCommand.create(TreePath.fromJsonPath("$.message"), new PassThroughRule());
+        JsonNavigateCommand.create(new TreePath("$.message"), new PassThroughRule());
     SendHttpCommand httpCommand = new SendHttpCommand("https://httpbin.org/post");
 
     String originalJson =

@@ -164,32 +164,6 @@ public class AutoLoggingDemo {
     log.info("");
   }
 
-  /** パフォーマンステスト用の大量データ処理 */
-  private static void demonstratePerformanceLogging() throws IOException {
-    log.info("⚡ Demo 6: Performance Logging");
-    log.info("==============================");
-
-    // 大量データを生成
-    StringBuilder largeData = new StringBuilder();
-    largeData.append("name,age,city\n");
-
-    for (int i = 1; i <= 10000; i++) {
-      largeData.append(String.format("User%d,%d,City%d\n", i, 20 + (i % 50), i % 100));
-    }
-
-    // 詳細ログ付きでコマンドを作成
-    IStreamCommand baseCommand = new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule());
-    IStreamCommand command = new LoggingDecorator(baseCommand);
-
-    long startTime = System.currentTimeMillis();
-    String result = processData(largeData.toString(), command);
-    long duration = System.currentTimeMillis() - startTime;
-
-    log.info("Large data processing completed in {} ms", duration);
-    log.info("Result lines: {}", result.split("\n").length);
-    log.info("");
-  }
-
   /** データ処理のヘルパーメソッド（単一コマンド） */
   private static String processData(String inputData, IStreamCommand command) throws IOException {
     return processData(inputData, new IStreamCommand[] {command});

@@ -265,13 +265,12 @@ public class PerformanceAnalyzer {
     final double throughput;
     final long peakMemoryUsage;
     final double successRate;
-    final Instant timestamp;
 
     PerformanceRecord(String testName, List<CommandResult> results, long totalDataSize) {
       this.testName = testName;
       this.results = new ArrayList<>(results);
       this.totalDataSize = totalDataSize;
-      this.timestamp = Instant.now();
+      Instant.now();
 
       // 統計計算
       this.totalExecutionTime =

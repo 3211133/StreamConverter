@@ -181,29 +181,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     return value;
   }
 
-  // This method is now deprecated as CSVPath handles index resolution
-  @Deprecated
-  private int findColumnIndex(String[] headers, String selector) {
-    // Try to find by column name
-    for (int i = 0; i < headers.length; i++) {
-      if (headers[i].trim().equalsIgnoreCase(selector.trim())) {
-        return i;
-      }
-    }
-
-    // Try to parse as column index
-    try {
-      int index = Integer.parseInt(selector);
-      if (index >= 0 && index < headers.length) {
-        return index;
-      }
-    } catch (NumberFormatException e) {
-      // Not a number, ignore
-    }
-
-    return -1;
-  }
-
   /** Resolve column index using CSVPath matches() method */
   private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
     // Use matches() method to check each column

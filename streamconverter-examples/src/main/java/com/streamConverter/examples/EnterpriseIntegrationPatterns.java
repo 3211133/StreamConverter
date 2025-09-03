@@ -97,7 +97,7 @@ public class EnterpriseIntegrationPatterns {
 
     // Translation pipeline: Extract key fields and transform
     IStreamCommand[] translationPipeline = {
-      XmlNavigateCommand.create(new TreePath("LegacyOrder/OrderID"), new PassThroughRule()),
+      XmlNavigateCommand.create(TreePath.fromXmlPath("LegacyOrder/OrderID"), new PassThroughRule()),
       new SampleStreamCommand("order-translator"),
       new SampleStreamCommand("format-modernizer")
     };
@@ -148,7 +148,7 @@ public class EnterpriseIntegrationPatterns {
 
       // Route based on message type
       IStreamCommand[] routingPipeline = {
-        XmlNavigateCommand.create(new TreePath("Message/Type"), new PassThroughRule()),
+        XmlNavigateCommand.create(TreePath.fromXmlPath("Message/Type"), new PassThroughRule()),
         new SampleStreamCommand("content-router-" + (i + 1))
       };
 
@@ -193,7 +193,7 @@ public class EnterpriseIntegrationPatterns {
                   // Simulate processing with each supplier
                   IStreamCommand[] supplierPipeline = {
                     XmlNavigateCommand.create(
-                        new TreePath("PriceRequest/ProductID"), new PassThroughRule()),
+                        TreePath.fromXmlPath("PriceRequest/ProductID"), new PassThroughRule()),
                     new SampleStreamCommand("supplier-" + supplier),
                     new SampleStreamCommand("price-calculator-" + supplierIndex)
                   };
@@ -249,7 +249,7 @@ public class EnterpriseIntegrationPatterns {
 
                 IStreamCommand[] requestPipeline = {
                   XmlNavigateCommand.create(
-                      new TreePath("ServiceRequest/UserID"), new PassThroughRule()),
+                      TreePath.fromXmlPath("ServiceRequest/UserID"), new PassThroughRule()),
                   new SampleStreamCommand("user-validator"),
                   new SampleStreamCommand("response-formatter")
                 };
@@ -317,7 +317,8 @@ public class EnterpriseIntegrationPatterns {
         logger.info("\n🚨 Processing ERROR message " + (i + 1) + ":");
 
         IStreamCommand[] filterPipeline = {
-          XmlNavigateCommand.create(new TreePath("LogEntry/Message"), new PassThroughRule()),
+          XmlNavigateCommand.create(
+              TreePath.fromXmlPath("LogEntry/Message"), new PassThroughRule()),
           new SampleStreamCommand("error-processor"),
           new SampleStreamCommand("alert-sender")
         };
@@ -363,7 +364,7 @@ public class EnterpriseIntegrationPatterns {
 
       try {
         IStreamCommand[] processingPipeline = {
-          XmlNavigateCommand.create(new TreePath("Message/Type"), new PassThroughRule()),
+          XmlNavigateCommand.create(TreePath.fromXmlPath("Message/Type"), new PassThroughRule()),
           new SampleStreamCommand("message-processor")
         };
 

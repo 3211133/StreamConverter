@@ -23,7 +23,7 @@ class XmlNavigateCommandTest {
   @BeforeEach
   void setUp() {
     // Use a specific XPath that exists in the test XML data
-    command = XmlNavigateCommand.create(new TreePath("title"), new PassThroughRule());
+    command = XmlNavigateCommand.create(TreePath.fromXmlPath("title"), new PassThroughRule());
   }
 
   @Test

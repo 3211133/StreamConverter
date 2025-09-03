@@ -171,7 +171,7 @@ public class DatabaseRuleDemo {
 
     // JsonNavigateCommandの作成
     JsonNavigateCommand command =
-        new JsonNavigateCommand(new TreePath("$.customerId"), customerRule);
+        new JsonNavigateCommand(TreePath.fromJsonPath("$.customerId"), customerRule);
 
     // 変換前のJSON
     String inputJson =
@@ -245,7 +245,7 @@ public class DatabaseRuleDemo {
 
     // JsonNavigateCommandの作成
     JsonNavigateCommand command =
-        new JsonNavigateCommand(new TreePath("$.customerId"), customerRule);
+        new JsonNavigateCommand(TreePath.fromJsonPath("$.customerId"), customerRule);
 
     // 複数の注文を含むJSON
     String inputJson =
@@ -297,8 +297,9 @@ public class DatabaseRuleDemo {
 
     // 複数段階の変換を組み合わせる
     JsonNavigateCommand customerCommand =
-        new JsonNavigateCommand(new TreePath("$.customerId"), customerRule);
-    JsonNavigateCommand deptCommand = new JsonNavigateCommand(new TreePath("$.deptCode"), deptRule);
+        new JsonNavigateCommand(TreePath.fromJsonPath("$.customerId"), customerRule);
+    JsonNavigateCommand deptCommand =
+        new JsonNavigateCommand(TreePath.fromJsonPath("$.deptCode"), deptRule);
 
     // StreamConverterで複数のコマンドを組み合わせ
     StreamConverter converter =
@@ -340,7 +341,7 @@ public class DatabaseRuleDemo {
 
     // JsonNavigateCommandの作成
     JsonNavigateCommand command =
-        new JsonNavigateCommand(new TreePath("$.customerId"), customerRule);
+        new JsonNavigateCommand(TreePath.fromJsonPath("$.customerId"), customerRule);
 
     // 存在しない顧客IDを含むJSON
     String inputJson =

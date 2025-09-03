@@ -51,7 +51,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
     this.legacyXpath = xpath.trim();
-    this.xpath = new TreePath(xpath.trim());
+    this.xpath = TreePath.fromXmlPath(xpath.trim());
   }
 
   /**

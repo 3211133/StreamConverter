@@ -73,23 +73,25 @@ loadScripts(document, 'script');</script>
 <h1 title="Class JSONPath" class="title">Class JSONPath</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="AbstractPath.html" title="class in com.streamConverter.path">com.streamConverter.path.AbstractPath</a>&lt;com.fasterxml.jackson.databind.JsonNode&gt;
+<div class="inheritance"><a href="AbstractPath.html" title="class in com.streamConverter.path">com.streamConverter.path.AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;
 <div class="inheritance">com.streamConverter.path.JSONPath</div>
 </div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;com.fasterxml.jackson.databind.JsonNode&gt;</code></dd>
+<dd><code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-15">JSONPath</a></span>
-<span class="extends-implements">extends <a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;com.fasterxml.jackson.databind.JsonNode&gt;</span></div>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-16">JSONPath</a></span>
+<span class="extends-implements">extends <a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</span></div>
 <div class="block">最小限のJSONPath実装
 
  <p>JSON要素選択のパス一致判定のみに特化したシンプルな設計
 
- <p>複数のJSONパスをOR条件で判定する機能を提供</div>
+ <p>複数のJSONパスをOR条件で判定する機能を提供
+
+ <p>List&lt;String&gt;ベースのフルパス階層比較により、ネストされたJSONパスを正確に処理</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -123,13 +125,13 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findMatchingPaths(com.fasterxml.jackson.databind.JsonNode)" class="member-name-link">findMatchingPaths</a><wbr>(com.fasterxml.jackson.databind.JsonNode&nbsp;context)</code></div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#findMatchingPaths(java.util.List)" class="member-name-link">findMatchingPaths</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">マッチするすべてのパスを取得（Don't Ask Tell準拠）</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#matches(com.fasterxml.jackson.databind.JsonNode)" class="member-name-link">matches</a><wbr>(com.fasterxml.jackson.databind.JsonNode&nbsp;context)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#matches(java.util.List)" class="member-name-link">matches</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">指定されたコンテキストがこのパスにマッチするか判定</div>
 </div>
@@ -164,7 +166,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String)">
 <h3>JSONPath</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-25">JSONPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;path)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-27">JSONPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;path)</span></div>
 <div class="block">単一パスでJSONPathを作成</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -177,7 +179,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;(java.util.List)">
 <h3>JSONPath</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-36">JSONPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;pathList)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-39">JSONPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;pathList)</span></div>
 <div class="block">複数パスでJSONPathを作成（OR条件）</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -198,39 +200,39 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="validateAndNormalize(java.lang.String)">
 <h3>validateAndNormalize</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-48">validateAndNormalize</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawPath)</span></div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-52">validateAndNormalize</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawPath)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">AbstractPath</a></code></span></div>
 <div class="block">パス文字列の検証と正規化</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">validateAndNormalize</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;com.fasterxml.jackson.databind.JsonNode&gt;</code></dd>
+<dd><code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">validateAndNormalize</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</code></dd>
 <dt>Parameters:</dt>
 <dd><code>rawPath</code> - 生のパス文字列</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="matches(com.fasterxml.jackson.databind.JsonNode)">
+<section class="detail" id="matches(java.util.List)">
 <h3>matches</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-55">matches</a></span><wbr><span class="parameters">(com.fasterxml.jackson.databind.JsonNode&nbsp;context)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-59">matches</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="IPath.html#matches(T)">IPath</a></code></span></div>
 <div class="block">指定されたコンテキストがこのパスにマッチするか判定</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>context</code> - 判定対象のコンテキスト</dd>
+<dd><code>currentPath</code> - 判定対象のコンテキスト</dd>
 <dt>Returns:</dt>
 <dd>マッチする場合true</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="findMatchingPaths(com.fasterxml.jackson.databind.JsonNode)">
+<section class="detail" id="findMatchingPaths(java.util.List)">
 <h3>findMatchingPaths</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-76">findMatchingPaths</a></span><wbr><span class="parameters">(com.fasterxml.jackson.databind.JsonNode&nbsp;context)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-80">findMatchingPaths</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</span></div>
 <div class="block">マッチするすべてのパスを取得（Don't Ask Tell準拠）</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>context</code> - JSON context</dd>
+<dd><code>currentPath</code> - 現在のパス階層</dd>
 <dt>Returns:</dt>
 <dd>マッチしたパスのリスト</dd>
 </dl>
@@ -239,7 +241,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="toString()">
 <h3>toString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-126">toString</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/JSONPath.html#line-143">toString</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>

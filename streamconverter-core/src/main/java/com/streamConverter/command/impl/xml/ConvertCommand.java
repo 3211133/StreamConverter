@@ -3,8 +3,7 @@ package com.streamConverter.command.impl.xml;
 import com.streamConverter.StreamProcessingException;
 import com.streamConverter.command.AbstractStreamCommand;
 import com.streamConverter.command.rule.IRule;
-import com.streamConverter.pathHandler.FixedStaXPathHandler;
-import com.streamConverter.pathHandler.IStaXPathHandler;
+import com.streamConverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,7 +30,7 @@ public class ConvertCommand extends AbstractStreamCommand {
 
   private static final Logger logger = LoggerFactory.getLogger(ConvertCommand.class);
   private IRule rule;
-  private IStaXPathHandler pathHandler;
+  private TreePath treePath;
 
   /**
    * デフォルトコンストラクタ
@@ -45,7 +44,7 @@ public class ConvertCommand extends AbstractStreamCommand {
     Objects.requireNonNull(path, "path must not be null");
     this.rule = rule;
 
-    this.pathHandler = new FixedStaXPathHandler(path);
+    this.treePath = TreePath.fromXmlPath(path);
   }
 
   /**
@@ -86,7 +85,7 @@ public class ConvertCommand extends AbstractStreamCommand {
               break;
             // 変換対象の箇所なら変換処理を実行する
             case XMLEvent.CHARACTERS:
-              if (this.pathHandler.isTarget(currentDirectory)) {
+              if (this.treePath.matches(currentDirectory)) {
                 String transformedData = rule.apply(event.asCharacters().getData());
                 event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);
               }

@@ -36,15 +36,14 @@ public class ConvertCommand extends AbstractStreamCommand {
    * デフォルトコンストラクタ
    *
    * @param rule 変換ルール
-   * @param path 変換対象のXPath
+   * @param treePath 変換対象のTreePath
    */
-  public ConvertCommand(IRule rule, String path) {
+  public ConvertCommand(IRule rule, TreePath treePath) {
     super();
     Objects.requireNonNull(rule, "rule must not be null");
-    Objects.requireNonNull(path, "path must not be null");
+    Objects.requireNonNull(treePath, "treePath must not be null");
     this.rule = rule;
-
-    this.treePath = new TreePath(path);
+    this.treePath = treePath;
   }
 
   /**

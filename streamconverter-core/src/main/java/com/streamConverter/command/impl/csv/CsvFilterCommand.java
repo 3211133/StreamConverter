@@ -31,10 +31,6 @@ public class CsvFilterCommand extends AbstractStreamCommand {
   private final CSVPath combinedSelector;
   private final boolean hasHeader;
 
-  // Deprecated fields for backward compatibility
-  @Deprecated private final List<CSVPath> columnSelectors;
-  @Deprecated private final List<String> legacyColumnSelectors;
-
   /**
    * Constructor for CSV filtering with single column selector.
    *
@@ -49,8 +45,8 @@ public class CsvFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("Column selector cannot be null or empty");
     }
     this.combinedSelector = new CSVPath(columnSelector.trim());
-    this.legacyColumnSelectors = Arrays.asList(columnSelector.trim());
-    this.columnSelectors = Arrays.asList(this.combinedSelector); // For backward compatibility
+    Arrays.asList(columnSelector.trim());
+    Arrays.asList(this.combinedSelector);
     this.hasHeader = hasHeader;
   }
 
@@ -66,8 +62,8 @@ public class CsvFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("Column selector cannot be null");
     }
     this.combinedSelector = columnSelector;
-    this.columnSelectors = Arrays.asList(columnSelector); // For backward compatibility
-    this.legacyColumnSelectors = Arrays.asList(columnSelector.toString());
+    Arrays.asList(columnSelector);
+    Arrays.asList(columnSelector.toString());
     this.hasHeader = hasHeader;
   }
 
@@ -85,11 +81,8 @@ public class CsvFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("Column selectors cannot be null or empty");
     }
     this.combinedSelector = new CSVPath(columnSelectors); // Use multi-selector constructor
-    this.legacyColumnSelectors = new ArrayList<>(columnSelectors);
-    this.columnSelectors =
-        columnSelectors.stream()
-            .map(CSVPath::new)
-            .collect(Collectors.toList()); // For backward compatibility
+    new ArrayList<>(columnSelectors);
+    columnSelectors.stream().map(CSVPath::new).collect(Collectors.toList());
     this.hasHeader = hasHeader;
   }
 
@@ -108,8 +101,7 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     List<String> selectorStrings =
         columnSelectors.stream().map(CSVPath::toString).collect(Collectors.toList());
     this.combinedSelector = new CSVPath(selectorStrings);
-    this.columnSelectors = new ArrayList<>(columnSelectors); // For backward compatibility
-    this.legacyColumnSelectors = selectorStrings;
+    new ArrayList<>(columnSelectors);
     this.hasHeader = hasHeader;
   }
 

@@ -101,7 +101,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     while ((token = parser.nextToken()) != null) {
       switch (token) {
         case FIELD_NAME:
-          String fieldName = parser.getCurrentName();
+          String fieldName = parser.currentName();
 
           // Reset path for new field at current level
           if (!currentPath.isEmpty() && currentPath.size() > 1) {

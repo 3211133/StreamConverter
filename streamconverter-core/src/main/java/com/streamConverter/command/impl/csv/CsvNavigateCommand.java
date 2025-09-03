@@ -25,9 +25,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
   private final IRule rule;
   private int columnIndex = -1;
 
-  // Deprecated fields for backward compatibility
-  @Deprecated private final String legacyColumnSelector;
-
   /**
    * Constructor for CSV navigation with column selector and transformation rule.
    *
@@ -44,7 +41,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    this.legacyColumnSelector = columnSelector;
     this.columnSelector = new CSVPath(columnSelector);
     this.rule = rule;
   }
@@ -64,7 +60,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("Rule cannot be null");
     }
     this.columnSelector = columnSelector;
-    this.legacyColumnSelector = columnSelector.toString();
+    columnSelector.toString();
     this.rule = rule;
   }
 

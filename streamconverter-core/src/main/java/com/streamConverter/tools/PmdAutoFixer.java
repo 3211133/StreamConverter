@@ -151,8 +151,6 @@ public class PmdAutoFixer {
     for (Map.Entry<String, List<PmdViolation>> entry : byFile.entrySet()) {
       try {
         String content = Files.readString(Paths.get(entry.getKey()));
-        String originalContent = content;
-
         // Simple pattern-based fixing for method parameters
         // This is a basic implementation - could be enhanced with proper Java parsing
         Pattern methodParamPattern = Pattern.compile("(\\([^)]*?)\\b(\\w+\\s+)(\\w+)\\s*([,)])");
@@ -367,16 +365,10 @@ public class PmdAutoFixer {
   private static class PmdViolation {
     final String fileName;
     final String rule;
-    final int beginLine;
-    final int endLine;
-    final String message;
 
     PmdViolation(String fileName, String rule, int beginLine, int endLine, String message) {
       this.fileName = fileName;
       this.rule = rule;
-      this.beginLine = beginLine;
-      this.endLine = endLine;
-      this.message = message;
     }
   }
 }

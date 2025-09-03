@@ -111,7 +111,7 @@
 <span class="source-line-no">098</span><span id="line-98"></span>
 <span class="source-line-no">099</span><span id="line-99">    // JSONパス抽出</span>
 <span class="source-line-no">100</span><span id="line-100">    IStreamCommand jsonCommand =</span>
-<span class="source-line-no">101</span><span id="line-101">        new JsonNavigateCommand(TreePath.fromJsonPath("$.user.name"), new PassThroughRule());</span>
+<span class="source-line-no">101</span><span id="line-101">        new JsonNavigateCommand(TreePath.fromJson("$.user.name"), new PassThroughRule());</span>
 <span class="source-line-no">102</span><span id="line-102">    StreamConverter converter = new StreamConverter(new IStreamCommand[] {jsonCommand});</span>
 <span class="source-line-no">103</span><span id="line-103"></span>
 <span class="source-line-no">104</span><span id="line-104">    String result = processString(converter, jsonData);</span>
@@ -139,7 +139,7 @@
 <span class="source-line-no">126</span><span id="line-126"></span>
 <span class="source-line-no">127</span><span id="line-127">    // XML要素抽出</span>
 <span class="source-line-no">128</span><span id="line-128">    IStreamCommand xmlCommand =</span>
-<span class="source-line-no">129</span><span id="line-129">        new XmlNavigateCommand(TreePath.fromXmlPath("//name"), new PassThroughRule());</span>
+<span class="source-line-no">129</span><span id="line-129">        new XmlNavigateCommand(TreePath.fromXml("//name"), new PassThroughRule());</span>
 <span class="source-line-no">130</span><span id="line-130">    StreamConverter converter = new StreamConverter(new IStreamCommand[] {xmlCommand});</span>
 <span class="source-line-no">131</span><span id="line-131"></span>
 <span class="source-line-no">132</span><span id="line-132">    String result = processString(converter, xmlData);</span>
@@ -162,7 +162,7 @@
 <span class="source-line-no">149</span><span id="line-149">    // 複合パイプライン: CSV -&gt; JSON抽出</span>
 <span class="source-line-no">150</span><span id="line-150">    IStreamCommand[] commands = {</span>
 <span class="source-line-no">151</span><span id="line-151">      new CsvNavigateCommand(new CSVPath("data"), new PassThroughRule()),</span>
-<span class="source-line-no">152</span><span id="line-152">      new JsonNavigateCommand(TreePath.fromJsonPath("$.message"), new PassThroughRule())</span>
+<span class="source-line-no">152</span><span id="line-152">      new JsonNavigateCommand(TreePath.fromJson("$.message"), new PassThroughRule())</span>
 <span class="source-line-no">153</span><span id="line-153">    };</span>
 <span class="source-line-no">154</span><span id="line-154"></span>
 <span class="source-line-no">155</span><span id="line-155">    StreamConverter converter = new StreamConverter(commands);</span>

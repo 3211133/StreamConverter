@@ -128,7 +128,7 @@
 <span class="source-line-no">115</span><span id="line-115">        String elementName = event.asStartElement().getName().getLocalPart();</span>
 <span class="source-line-no">116</span><span id="line-116">        currentPath.add(elementName);</span>
 <span class="source-line-no">117</span><span id="line-117"></span>
-<span class="source-line-no">118</span><span id="line-118">        if (treePath.matches(currentPath)) {</span>
+<span class="source-line-no">118</span><span id="line-118">        if (treePath.match(currentPath)) {</span>
 <span class="source-line-no">119</span><span id="line-119">          inTargetElement = true;</span>
 <span class="source-line-no">120</span><span id="line-120">          targetDepth = currentPath.size();</span>
 <span class="source-line-no">121</span><span id="line-121">          eventWriter.add(event);</span>

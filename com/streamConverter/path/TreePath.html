@@ -47,13 +47,13 @@ loadScripts(document, 'script');</script>
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
 </div>
@@ -73,40 +73,20 @@ loadScripts(document, 'script');</script>
 <h1 title="Class TreePath" class="title">Class TreePath</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="AbstractPath.html" title="class in com.streamConverter.path">com.streamConverter.path.AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;
 <div class="inheritance">com.streamConverter.path.TreePath</div>
 </div>
-</div>
 <section class="class-description" id="class-description">
-<dl class="notes">
-<dt>All Implemented Interfaces:</dt>
-<dd><code><a href="IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</code></dd>
-</dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-15">TreePath</a></span>
-<span class="extends-implements">extends <a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</span></div>
-<div class="block">Simplified tree path class for hierarchical path matching.
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-14">TreePath</a></span>
+<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
+<div class="block">Represents a hierarchical path for tree-like data structures (JSON, XML).
 
- <p>This class provides simple path matching against List&lt;String&gt; hierarchical paths. It
- supports both JSON-style ("$.user.name") and XML-style ("user/name") path formats.</div>
+ <p>This class handles parsing and matching of path expressions in both JSON-style ("$.user.name")
+ and XML-style ("user/name") formats. It converts path expressions into hierarchical segments for
+ efficient matching during data processing.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-<li>
-<section class="constructor-summary" id="constructor-summary">
-<h2>Constructor Summary</h2>
-<div class="caption"><span>Constructors</span></div>
-<div class="summary-table two-column-summary">
-<div class="table-header col-first">Constructor</div>
-<div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(java.util.List)" class="member-name-link">TreePath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;pathList)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Creates TreePath from multiple paths (OR condition)</div>
-</div>
-</div>
-</section>
-</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -122,37 +102,31 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#equals(java.lang.Object)" class="member-name-link">equals</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromJsonPath(java.lang.String)" class="member-name-link">fromJsonPath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromJson(java.lang.String)" class="member-name-link">fromJson</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates TreePath from JSON format path</div>
+<div class="block">Creates a TreePath from a JSON path expression.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromXmlPath(java.lang.String)" class="member-name-link">fromXmlPath</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xmlPath)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#fromXml(java.lang.String)" class="member-name-link">fromXml</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xmlPath)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">Creates TreePath from XML format path</div>
+<div class="block">Creates a TreePath from an XML path expression.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#matches(java.util.List)" class="member-name-link">matches</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#match(java.util.List)" class="member-name-link">match</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">指定されたコンテキストがこのパスにマッチするか判定</div>
+<div class="block">Checks if current path matches the target path segments</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#validateAndNormalize(java.lang.String)" class="member-name-link">validateAndNormalize</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawPath)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">パス文字列の検証と正規化</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Returns the original path expression.</div>
 </div>
 </div>
 </div>
 </div>
-<div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.streamConverter.path.AbstractPath">Methods inherited from class&nbsp;com.streamConverter.path.<a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a></h3>
-<code><a href="AbstractPath.html#isNullOrEmpty(java.lang.String)">isNullOrEmpty</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
@@ -162,98 +136,71 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<li>
-<section class="constructor-details" id="constructor-detail">
-<h2>Constructor Details</h2>
-<ul class="member-list">
-<li>
-<section class="detail" id="&lt;init&gt;(java.util.List)">
-<h3>TreePath</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-39">TreePath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;pathList)</span></div>
-<div class="block">Creates TreePath from multiple paths (OR condition)</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>pathList</code> - List of path expressions</dd>
-</dl>
-</section>
-</li>
-</ul>
-</section>
-</li>
 <!-- ============ METHOD DETAIL ========== -->
 <li>
 <section class="method-details" id="method-detail">
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="fromJsonPath(java.lang.String)">
-<h3>fromJsonPath</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-58">fromJsonPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
-<div class="block">Creates TreePath from JSON format path</div>
+<section class="detail" id="fromXml(java.lang.String)">
+<h3>fromXml</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-32">fromXml</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xmlPath)</span></div>
+<div class="block">Creates a TreePath from an XML path expression.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>jsonPath</code> - JSON format path (e.g., "$.user.name", "$.items.title")</dd>
+<dd><code>xmlPath</code> - the XML path expression (e.g., "user/name")</dd>
 <dt>Returns:</dt>
 <dd>TreePath instance</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if xmlPath is null or invalid</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="fromXmlPath(java.lang.String)">
-<h3>fromXmlPath</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-68">fromXmlPath</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xmlPath)</span></div>
-<div class="block">Creates TreePath from XML format path</div>
+<section class="detail" id="fromJson(java.lang.String)">
+<h3>fromJson</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamConverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-48">fromJson</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
+<div class="block">Creates a TreePath from a JSON path expression.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>xmlPath</code> - XML format path (e.g., "user/name", "items/title")</dd>
+<dd><code>jsonPath</code> - the JSON path expression (e.g., "$.user.name")</dd>
 <dt>Returns:</dt>
 <dd>TreePath instance</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if jsonPath is null or invalid</dd>
 </dl>
 </section>
 </li>
 <li>
-<section class="detail" id="validateAndNormalize(java.lang.String)">
-<h3>validateAndNormalize</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-74">validateAndNormalize</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;rawPath)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">AbstractPath</a></code></span></div>
-<div class="block">パス文字列の検証と正規化</div>
-<dl class="notes">
-<dt>Specified by:</dt>
-<dd><code><a href="AbstractPath.html#validateAndNormalize(java.lang.String)">validateAndNormalize</a></code>&nbsp;in class&nbsp;<code><a href="AbstractPath.html" title="class in com.streamConverter.path">AbstractPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</code></dd>
-<dt>Parameters:</dt>
-<dd><code>rawPath</code> - 生のパス文字列</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="matches(java.util.List)">
-<h3>matches</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-81">matches</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</span></div>
-<div class="block"><span class="descfrm-type-label">Description copied from interface:&nbsp;<code><a href="IPath.html#matches(T)">IPath</a></code></span></div>
-<div class="block">指定されたコンテキストがこのパスにマッチするか判定</div>
+<section class="detail" id="match(java.util.List)">
+<h3>match</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-63">match</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</span></div>
+<div class="block">Checks if current path matches the target path segments</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>currentPath</code> - 判定対象のコンテキスト</dd>
+<dd><code>currentPath</code> - current path segments to match against</dd>
 <dt>Returns:</dt>
-<dd>マッチする場合true</dd>
+<dd>true if paths match exactly</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="toString()">
 <h3>toString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-200">toString</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-75">toString</a></span>()</div>
+<div class="block">Returns the original path expression.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
+<dt>Returns:</dt>
+<dd>the original path expression</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="equals(java.lang.Object)">
 <h3>equals</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-205">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-80">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
@@ -263,7 +210,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="hashCode()">
 <h3>hashCode</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-213">hashCode</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamConverter/path/TreePath.html#line-88">hashCode</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>

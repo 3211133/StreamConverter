@@ -96,7 +96,7 @@
 <span class="source-line-no">083</span><span id="line-83"></span>
 <span class="source-line-no">084</span><span id="line-84">    // LoggingDecoratorでラップして詳細ログ出力</span>
 <span class="source-line-no">085</span><span id="line-85">    IStreamCommand originalCommand =</span>
-<span class="source-line-no">086</span><span id="line-86">        JsonNavigateCommand.create(TreePath.fromJsonPath("name"), new PassThroughRule());</span>
+<span class="source-line-no">086</span><span id="line-86">        JsonNavigateCommand.create(TreePath.fromXml("name"), new PassThroughRule());</span>
 <span class="source-line-no">087</span><span id="line-87">    IStreamCommand detailedCommand = new LoggingDecorator(originalCommand);</span>
 <span class="source-line-no">088</span><span id="line-88"></span>
 <span class="source-line-no">089</span><span id="line-89">    String result = processData(jsonData, detailedCommand);</span>
@@ -127,7 +127,7 @@
 <span class="source-line-no">114</span><span id="line-114"></span>
 <span class="source-line-no">115</span><span id="line-115">    // 直接生成 + LoggingDecoratorで手動ログ機能付き</span>
 <span class="source-line-no">116</span><span id="line-116">    IStreamCommand baseCommand =</span>
-<span class="source-line-no">117</span><span id="line-117">        new XmlNavigateCommand(TreePath.fromXmlPath("users/user/name"), new PassThroughRule());</span>
+<span class="source-line-no">117</span><span id="line-117">        new XmlNavigateCommand(TreePath.fromXml("users/user/name"), new PassThroughRule());</span>
 <span class="source-line-no">118</span><span id="line-118">    IStreamCommand factoryCommand = new LoggingDecorator(baseCommand);</span>
 <span class="source-line-no">119</span><span id="line-119"></span>
 <span class="source-line-no">120</span><span id="line-120">    String result = processData(xmlData, factoryCommand);</span>
@@ -166,7 +166,7 @@
 <span class="source-line-no">153</span><span id="line-153"></span>
 <span class="source-line-no">154</span><span id="line-154">      // 詳細ログ付きでコマンドを作成</span>
 <span class="source-line-no">155</span><span id="line-155">      IStreamCommand baseCommand =</span>
-<span class="source-line-no">156</span><span id="line-156">          new XmlNavigateCommand(TreePath.fromXmlPath("invalid/path"), new PassThroughRule());</span>
+<span class="source-line-no">156</span><span id="line-156">          new XmlNavigateCommand(TreePath.fromXml("invalid/path"), new PassThroughRule());</span>
 <span class="source-line-no">157</span><span id="line-157">      IStreamCommand xmlCommand = new LoggingDecorator(baseCommand);</span>
 <span class="source-line-no">158</span><span id="line-158">      processData(invalidXml, xmlCommand);</span>
 <span class="source-line-no">159</span><span id="line-159"></span>

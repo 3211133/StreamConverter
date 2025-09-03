@@ -121,7 +121,7 @@
 <span class="source-line-no">108</span><span id="line-108"></span>
 <span class="source-line-no">109</span><span id="line-109">    // JSON変換 → HTTP送信のパイプライン</span>
 <span class="source-line-no">110</span><span id="line-110">    JsonNavigateCommand jsonCommand =</span>
-<span class="source-line-no">111</span><span id="line-111">        JsonNavigateCommand.create(TreePath.fromJsonPath("$.message"), new PassThroughRule());</span>
+<span class="source-line-no">111</span><span id="line-111">        JsonNavigateCommand.create(TreePath.fromJson("$.message"), new PassThroughRule());</span>
 <span class="source-line-no">112</span><span id="line-112">    SendHttpCommand httpCommand = new SendHttpCommand("https://httpbin.org/post");</span>
 <span class="source-line-no">113</span><span id="line-113"></span>
 <span class="source-line-no">114</span><span id="line-114">    String originalJson =</span>

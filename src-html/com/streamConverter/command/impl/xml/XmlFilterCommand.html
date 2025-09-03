@@ -64,7 +64,7 @@
 <span class="source-line-no">051</span><span id="line-51">      throw new IllegalArgumentException("TreePath cannot be null or empty");</span>
 <span class="source-line-no">052</span><span id="line-52">    }</span>
 <span class="source-line-no">053</span><span id="line-53">    this.legacyXpath = xpath.trim();</span>
-<span class="source-line-no">054</span><span id="line-54">    this.xpath = TreePath.fromXmlPath(xpath.trim());</span>
+<span class="source-line-no">054</span><span id="line-54">    this.xpath = TreePath.fromXml(xpath.trim());</span>
 <span class="source-line-no">055</span><span id="line-55">  }</span>
 <span class="source-line-no">056</span><span id="line-56"></span>
 <span class="source-line-no">057</span><span id="line-57">  /**</span>
@@ -115,7 +115,7 @@
 <span class="source-line-no">102</span><span id="line-102">          currentPath.add(elementName);</span>
 <span class="source-line-no">103</span><span id="line-103"></span>
 <span class="source-line-no">104</span><span id="line-104">          // Check if this element matches our target path</span>
-<span class="source-line-no">105</span><span id="line-105">          if (xpath.matches(currentPath) &amp;&amp; !isCapturing) {</span>
+<span class="source-line-no">105</span><span id="line-105">          if (xpath.match(currentPath) &amp;&amp; !isCapturing) {</span>
 <span class="source-line-no">106</span><span id="line-106">            isCapturing = true;</span>
 <span class="source-line-no">107</span><span id="line-107">            captureDepth = currentDepth;</span>
 <span class="source-line-no">108</span><span id="line-108">            elementWriter = new StringWriter();</span>

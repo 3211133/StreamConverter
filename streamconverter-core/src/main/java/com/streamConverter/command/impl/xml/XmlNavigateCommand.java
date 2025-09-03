@@ -175,29 +175,6 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     String process(XMLEvent event, String data);
   }
 
-  private void processXmlEvents(
-      XMLEventReader eventReader, XMLEventWriter eventWriter, CharacterDataProcessor processor)
-      throws XMLStreamException {
-    while (eventReader.hasNext()) {
-      XMLEvent event = eventReader.nextEvent();
-
-      if (event.isCharacters()) {
-        String originalData = event.asCharacters().getData();
-        String transformedData = processor.process(event, originalData);
-
-        if (!originalData.equals(transformedData)) {
-          XMLEvent transformedEvent = EVENT_FACTORY.createCharacters(transformedData);
-          eventWriter.add(transformedEvent);
-        } else {
-          eventWriter.add(event);
-        }
-      } else {
-        eventWriter.add(event);
-      }
-    }
-    eventWriter.flush();
-  }
-
   private void closeResources(XMLEventReader eventReader, XMLEventWriter eventWriter) {
     if (eventReader != null) {
       try {

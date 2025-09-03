@@ -82,7 +82,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     // Convert TreePath to CSVPath - assume simple column name
     String columnName = treePath.toString();
     this.columnSelector = new CSVPath(columnName);
-    this.legacyColumnSelector = columnName;
     this.rule = rule;
   }
 

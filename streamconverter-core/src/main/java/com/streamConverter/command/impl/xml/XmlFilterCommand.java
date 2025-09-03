@@ -35,9 +35,6 @@ public class XmlFilterCommand extends AbstractStreamCommand {
 
   private final TreePath xpath;
 
-  // Deprecated fields for backward compatibility
-  @Deprecated private final String legacyXpath;
-
   /**
    * Constructor for XML filtering with TreePath selector.
    *
@@ -50,7 +47,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
     if (xpath == null || xpath.trim().isEmpty()) {
       throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
-    this.legacyXpath = xpath.trim();
+    xpath.trim();
     this.xpath = TreePath.fromXml(xpath.trim());
   }
 
@@ -65,7 +62,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
     this.xpath = xpath;
-    this.legacyXpath = xpath.toString();
+    xpath.toString();
   }
 
   @Override

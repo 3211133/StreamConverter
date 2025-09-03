@@ -26,9 +26,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
   private final IRule rule;
   private int columnIndex = -1;
 
-  // Deprecated fields for backward compatibility
-  @Deprecated private final String legacyColumnSelector;
-
   /**
    * Constructor for CSV navigation with column selector and transformation rule.
    *
@@ -45,7 +42,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    this.legacyColumnSelector = columnSelector;
     this.columnSelector = new CSVPath(columnSelector);
     this.rule = rule;
   }
@@ -65,7 +61,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("Rule cannot be null");
     }
     this.columnSelector = columnSelector;
-    this.legacyColumnSelector = columnSelector.toString();
+    columnSelector.toString();
     this.rule = rule;
   }
 
@@ -86,7 +82,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     // Convert TreePath to CSVPath - assume simple column name
     String columnName = treePath.toString();
     this.columnSelector = new CSVPath(columnName);
-    this.legacyColumnSelector = columnName;
     this.rule = rule;
   }
 
@@ -205,29 +200,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     }
 
     return value;
-  }
-
-  // This method is now deprecated as CSVPath handles index resolution
-  @Deprecated
-  private int findColumnIndex(String[] headers, String selector) {
-    // Try to find by column name
-    for (int i = 0; i < headers.length; i++) {
-      if (headers[i].trim().equalsIgnoreCase(selector.trim())) {
-        return i;
-      }
-    }
-
-    // Try to parse as column index
-    try {
-      int index = Integer.parseInt(selector);
-      if (index >= 0 && index < headers.length) {
-        return index;
-      }
-    } catch (NumberFormatException e) {
-      // Not a number, ignore
-    }
-
-    return -1;
   }
 
   /** Resolve column index using CSVPath matches() method */

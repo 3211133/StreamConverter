@@ -539,10 +539,6 @@ class SendHttpCommandTest {
       }
     }
 
-    public double getProgressPercentage() {
-      return (double) bytesRead / totalSizeInBytes * 100.0;
-    }
-
     public ParallelProcessingResult getParallelProcessingResult() {
       return result != null ? result : new ParallelProcessingResult(0, 0, bytesRead);
     }

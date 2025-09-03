@@ -30,7 +30,7 @@ public class CsvValidateCommandTest {
   @DisplayName("Constructor with null required columns throws exception")
   void testConstructorWithNullRequiredColumns() {
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> new CsvValidateCommand(null));
+        assertThrows(IllegalArgumentException.class, () -> new CsvValidateCommand((String[]) null));
     assertEquals("Required columns cannot be null", exception.getMessage());
   }
 

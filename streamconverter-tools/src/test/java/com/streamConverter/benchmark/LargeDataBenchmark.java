@@ -53,9 +53,6 @@ class LargeDataBenchmark {
   private static final long TARGET_5GB = 5L * 1024 * 1024 * 1024; // 5GB
   private static final long TARGET_2GB = 2L * 1024 * 1024 * 1024; // 2GB
   private static final long TARGET_1GB = 1024 * 1024 * 1024; // 1GB
-  private static final double TARGET_MEMORY_MB = 50.0; // 50MB
-  private static final double TARGET_THROUGHPUT_MBPS = 100.0; // 100MB/s
-
   // ベンチマーク設定（PerformanceAnalyzer approach）
   private static final int[] DATA_SIZES = {
     1 * 1024 * 1024, // 1MB

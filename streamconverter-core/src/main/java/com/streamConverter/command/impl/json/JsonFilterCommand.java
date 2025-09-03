@@ -33,9 +33,6 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   private final TreePath jsonPath;
   private final ObjectMapper objectMapper;
 
-  // Deprecated fields for backward compatibility
-  @Deprecated private final String legacyJsonPath;
-
   /**
    * Constructor for JSON filtering with TreePath selector.
    *
@@ -48,7 +45,6 @@ public class JsonFilterCommand extends AbstractStreamCommand {
     if (jsonPath == null || jsonPath.trim().isEmpty()) {
       throw new IllegalArgumentException("TreePath cannot be null or empty");
     }
-    this.legacyJsonPath = jsonPath.trim();
     this.jsonPath = TreePath.fromJson(jsonPath.trim());
     this.objectMapper = new ObjectMapper();
   }
@@ -64,7 +60,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
     this.jsonPath = jsonPath;
-    this.legacyJsonPath = jsonPath.toString();
+    jsonPath.toString();
     this.objectMapper = new ObjectMapper();
   }
 

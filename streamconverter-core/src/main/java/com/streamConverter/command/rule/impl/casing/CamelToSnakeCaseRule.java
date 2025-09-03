@@ -1,7 +1,6 @@
 package com.streamConverter.command.rule.impl.casing;
 
 import com.streamConverter.command.rule.IRule;
-import java.util.regex.Pattern;
 
 /**
  * Transforms camelCase strings to snake_case format.
@@ -28,16 +27,6 @@ import java.util.regex.Pattern;
  * @since 1.0
  */
 public class CamelToSnakeCaseRule implements IRule {
-
-  /** Pattern to match camelCase transitions (lowercase followed by uppercase) */
-  private static final Pattern CAMEL_CASE_PATTERN = Pattern.compile("([a-z])([A-Z])");
-
-  /** Pattern to match multiple consecutive uppercase letters before lowercase */
-  private static final Pattern CONSECUTIVE_UPPERCASE_PATTERN =
-      Pattern.compile("([A-Z])([A-Z][a-z])");
-
-  /** Pattern to match sequences of uppercase letters */
-  private static final Pattern UPPERCASE_SEQUENCE_PATTERN = Pattern.compile("([A-Z]+)([A-Z][a-z])");
 
   /** Whether to preserve leading/trailing underscores */
   private final boolean preserveUnderscores;

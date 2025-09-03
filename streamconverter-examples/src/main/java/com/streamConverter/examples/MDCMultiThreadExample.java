@@ -171,8 +171,6 @@ public class MDCMultiThreadExample {
             logger.info("Child thread started - checking MDC inheritance");
 
             String inheritedTestCase = MDC.get("testCase");
-            String inheritedParentContext = MDC.get("parentContext");
-
             if (inheritedTestCase != null) {
               logger.warn("UNEXPECTED: Child thread inherited MDC value: {}", inheritedTestCase);
             } else {
@@ -237,8 +235,6 @@ public class MDCMultiThreadExample {
       public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
         // 現在のMDC状態を確認
         String requestId = MDC.get("requestId");
-        String contextId = MDC.get("contextId");
-
         // ステージ固有の情報を追加
         MDC.put("pipelineStage", stageName);
         MDC.put("stageThreadName", Thread.currentThread().getName());

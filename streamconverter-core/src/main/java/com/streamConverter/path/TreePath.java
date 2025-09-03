@@ -89,7 +89,7 @@ public class TreePath extends AbstractPath<List<String>> {
       return false;
     }
 
-    // OR条件：いずれかのパスがマッチすればtrue
+    // OR condition: return true if any path matches
     for (List<String> pathSegments : pathSegmentsList) {
       if (pathSegments.equals(currentPath)) {
         return true;
@@ -99,10 +99,10 @@ public class TreePath extends AbstractPath<List<String>> {
   }
 
   /**
-   * マッチするすべてのパスを取得（Don't Ask Tell準拠）
+   * Get all matching paths (Don't Ask Tell principle)
    *
-   * @param currentPath 現在のパス階層
-   * @return マッチしたパスセグメントのリスト
+   * @param currentPath current path hierarchy
+   * @return list of matched path segments
    */
   public List<List<String>> findMatchingPaths(List<String> currentPath) {
     List<List<String>> matchingPaths = new ArrayList<>();

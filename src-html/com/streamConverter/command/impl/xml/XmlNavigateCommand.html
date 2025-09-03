@@ -188,46 +188,23 @@
 <span class="source-line-no">175</span><span id="line-175">    String process(XMLEvent event, String data);</span>
 <span class="source-line-no">176</span><span id="line-176">  }</span>
 <span class="source-line-no">177</span><span id="line-177"></span>
-<span class="source-line-no">178</span><span id="line-178">  private void processXmlEvents(</span>
-<span class="source-line-no">179</span><span id="line-179">      XMLEventReader eventReader, XMLEventWriter eventWriter, CharacterDataProcessor processor)</span>
-<span class="source-line-no">180</span><span id="line-180">      throws XMLStreamException {</span>
-<span class="source-line-no">181</span><span id="line-181">    while (eventReader.hasNext()) {</span>
-<span class="source-line-no">182</span><span id="line-182">      XMLEvent event = eventReader.nextEvent();</span>
-<span class="source-line-no">183</span><span id="line-183"></span>
-<span class="source-line-no">184</span><span id="line-184">      if (event.isCharacters()) {</span>
-<span class="source-line-no">185</span><span id="line-185">        String originalData = event.asCharacters().getData();</span>
-<span class="source-line-no">186</span><span id="line-186">        String transformedData = processor.process(event, originalData);</span>
-<span class="source-line-no">187</span><span id="line-187"></span>
-<span class="source-line-no">188</span><span id="line-188">        if (!originalData.equals(transformedData)) {</span>
-<span class="source-line-no">189</span><span id="line-189">          XMLEvent transformedEvent = EVENT_FACTORY.createCharacters(transformedData);</span>
-<span class="source-line-no">190</span><span id="line-190">          eventWriter.add(transformedEvent);</span>
-<span class="source-line-no">191</span><span id="line-191">        } else {</span>
-<span class="source-line-no">192</span><span id="line-192">          eventWriter.add(event);</span>
-<span class="source-line-no">193</span><span id="line-193">        }</span>
-<span class="source-line-no">194</span><span id="line-194">      } else {</span>
-<span class="source-line-no">195</span><span id="line-195">        eventWriter.add(event);</span>
-<span class="source-line-no">196</span><span id="line-196">      }</span>
-<span class="source-line-no">197</span><span id="line-197">    }</span>
-<span class="source-line-no">198</span><span id="line-198">    eventWriter.flush();</span>
-<span class="source-line-no">199</span><span id="line-199">  }</span>
-<span class="source-line-no">200</span><span id="line-200"></span>
-<span class="source-line-no">201</span><span id="line-201">  private void closeResources(XMLEventReader eventReader, XMLEventWriter eventWriter) {</span>
-<span class="source-line-no">202</span><span id="line-202">    if (eventReader != null) {</span>
-<span class="source-line-no">203</span><span id="line-203">      try {</span>
-<span class="source-line-no">204</span><span id="line-204">        eventReader.close();</span>
-<span class="source-line-no">205</span><span id="line-205">      } catch (XMLStreamException e) {</span>
-<span class="source-line-no">206</span><span id="line-206">        LOGGER.warning("Failed to close XMLEventReader: " + e.getMessage());</span>
-<span class="source-line-no">207</span><span id="line-207">      }</span>
-<span class="source-line-no">208</span><span id="line-208">    }</span>
-<span class="source-line-no">209</span><span id="line-209">    if (eventWriter != null) {</span>
-<span class="source-line-no">210</span><span id="line-210">      try {</span>
-<span class="source-line-no">211</span><span id="line-211">        eventWriter.close();</span>
-<span class="source-line-no">212</span><span id="line-212">      } catch (XMLStreamException e) {</span>
-<span class="source-line-no">213</span><span id="line-213">        LOGGER.warning("Failed to close XMLEventWriter: " + e.getMessage());</span>
-<span class="source-line-no">214</span><span id="line-214">      }</span>
-<span class="source-line-no">215</span><span id="line-215">    }</span>
-<span class="source-line-no">216</span><span id="line-216">  }</span>
-<span class="source-line-no">217</span><span id="line-217">}</span>
+<span class="source-line-no">178</span><span id="line-178">  private void closeResources(XMLEventReader eventReader, XMLEventWriter eventWriter) {</span>
+<span class="source-line-no">179</span><span id="line-179">    if (eventReader != null) {</span>
+<span class="source-line-no">180</span><span id="line-180">      try {</span>
+<span class="source-line-no">181</span><span id="line-181">        eventReader.close();</span>
+<span class="source-line-no">182</span><span id="line-182">      } catch (XMLStreamException e) {</span>
+<span class="source-line-no">183</span><span id="line-183">        LOGGER.warning("Failed to close XMLEventReader: " + e.getMessage());</span>
+<span class="source-line-no">184</span><span id="line-184">      }</span>
+<span class="source-line-no">185</span><span id="line-185">    }</span>
+<span class="source-line-no">186</span><span id="line-186">    if (eventWriter != null) {</span>
+<span class="source-line-no">187</span><span id="line-187">      try {</span>
+<span class="source-line-no">188</span><span id="line-188">        eventWriter.close();</span>
+<span class="source-line-no">189</span><span id="line-189">      } catch (XMLStreamException e) {</span>
+<span class="source-line-no">190</span><span id="line-190">        LOGGER.warning("Failed to close XMLEventWriter: " + e.getMessage());</span>
+<span class="source-line-no">191</span><span id="line-191">      }</span>
+<span class="source-line-no">192</span><span id="line-192">    }</span>
+<span class="source-line-no">193</span><span id="line-193">  }</span>
+<span class="source-line-no">194</span><span id="line-194">}</span>
 
 
 

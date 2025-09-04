@@ -6,6 +6,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamConverter.command.impl.csv.CsvFilterCommand;
 import com.streamConverter.command.impl.json.JsonFilterCommand;
 import com.streamConverter.command.impl.xml.XmlFilterCommand;
+import com.streamConverter.path.CSVPath;
+import com.streamConverter.path.TreePath;
 import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
@@ -29,7 +31,7 @@ class FilterCommandBasicTest {
     String jsonInput = "{\"name\":\"田中太郎\",\"age\":30,\"city\":\"東京\"}";
 
     // Create command to extract "name" property
-    JsonFilterCommand command = new JsonFilterCommand("$.name");
+    JsonFilterCommand command = new JsonFilterCommand(TreePath.fromJson("$.name"));
 
     // Execute
     ByteArrayInputStream input =
@@ -48,7 +50,7 @@ class FilterCommandBasicTest {
     String jsonInput = "{\"userId\":\"1001\",\"amount\":120000}";
 
     // Create command to extract entire JSON (root path)
-    JsonFilterCommand command = new JsonFilterCommand("$");
+    JsonFilterCommand command = new JsonFilterCommand(TreePath.fromJson("$"));
 
     // Execute
     ByteArrayInputStream input =
@@ -67,7 +69,7 @@ class FilterCommandBasicTest {
     String csvInput = createTestData("name,age,city", "田中太郎,30,東京", "佐藤花子,25,大阪");
 
     // Create command to extract "name" column
-    CsvFilterCommand command = new CsvFilterCommand("name");
+    CsvFilterCommand command = CsvFilterCommand.create(new CSVPath("name"));
 
     // Execute
     ByteArrayInputStream input =
@@ -87,7 +89,8 @@ class FilterCommandBasicTest {
     String csvInput = createTestData("name,age,city,country", "田中太郎,30,東京,日本", "佐藤花子,25,大阪,日本");
 
     // Create command to extract "name" and "city" columns
-    CsvFilterCommand command = new CsvFilterCommand(Arrays.asList("name", "city"));
+    CsvFilterCommand command =
+        CsvFilterCommand.create(new CSVPath(Arrays.asList("name", "city")), true);
 
     // Execute
     ByteArrayInputStream input =
@@ -108,7 +111,7 @@ class FilterCommandBasicTest {
         "<?xml version=\"1.0\"?><users><user><name>田中太郎</name><age>30</age></user></users>";
 
     // Create command to extract "name" elements
-    XmlFilterCommand command = new XmlFilterCommand("users/user/name");
+    XmlFilterCommand command = new XmlFilterCommand(TreePath.fromXml("users/user/name"));
 
     // Execute
     ByteArrayInputStream input =
@@ -128,7 +131,7 @@ class FilterCommandBasicTest {
     String jsonInput = "{\"name\":\"田中太郎\",\"age\":30}";
 
     // Create command to extract non-existent property
-    JsonFilterCommand command = new JsonFilterCommand("$.nonexistent");
+    JsonFilterCommand command = new JsonFilterCommand(TreePath.fromJson("$.nonexistent"));
 
     // Execute
     ByteArrayInputStream input =
@@ -147,7 +150,7 @@ class FilterCommandBasicTest {
     String csvInput = createTestData("田中太郎,30,東京", "佐藤花子,25,大阪");
 
     // Create command to extract first column (index 0) without header
-    CsvFilterCommand command = new CsvFilterCommand("0", false);
+    CsvFilterCommand command = CsvFilterCommand.create(new CSVPath("0"), false);
 
     // Execute
     ByteArrayInputStream input =
@@ -178,7 +181,7 @@ class FilterCommandBasicTest {
 
     String jsonData = jsonBuilder.toString();
 
-    JsonFilterCommand command = new JsonFilterCommand("$[*].name");
+    JsonFilterCommand command = new JsonFilterCommand(TreePath.fromJson("$[*].name"));
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
@@ -218,7 +221,8 @@ class FilterCommandBasicTest {
     }
     String csvData = csvBuilder.toString();
 
-    CsvFilterCommand command = new CsvFilterCommand(Arrays.asList("name", "department"));
+    CsvFilterCommand command =
+        CsvFilterCommand.create(new CSVPath(Arrays.asList("name", "department")), true);
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
@@ -268,7 +272,7 @@ class FilterCommandBasicTest {
 
     String xmlData = xmlBuilder.toString();
 
-    XmlFilterCommand command = new XmlFilterCommand("records/record/name");
+    XmlFilterCommand command = new XmlFilterCommand(TreePath.fromXml("records/record/name"));
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
@@ -313,7 +317,8 @@ class FilterCommandBasicTest {
 
     String jsonData = jsonBuilder.toString();
 
-    JsonFilterCommand command = new JsonFilterCommand("$.users[*].profile.department");
+    JsonFilterCommand command =
+        new JsonFilterCommand(TreePath.fromJson("$.users[*].profile.department"));
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(jsonData.getBytes(StandardCharsets.UTF_8));

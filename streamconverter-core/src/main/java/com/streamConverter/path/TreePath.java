@@ -11,7 +11,7 @@ import java.util.List;
  * and XML-style ("user/name") formats. It converts path expressions into hierarchical segments for
  * efficient matching during data processing.
  */
-public class TreePath {
+public class TreePath implements IPath<List<String>> {
 
   private final List<String> segments;
   private final String originalPath;
@@ -60,7 +60,7 @@ public class TreePath {
    * @param currentPath current path segments to match against
    * @return true if paths match exactly
    */
-  public boolean match(List<String> currentPath) {
+  public boolean matches(List<String> currentPath) {
     if (currentPath == null) {
       return false;
     }

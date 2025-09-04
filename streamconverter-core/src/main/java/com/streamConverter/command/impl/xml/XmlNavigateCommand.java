@@ -115,7 +115,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         String elementName = event.asStartElement().getName().getLocalPart();
         currentPath.add(elementName);
 
-        if (treePath.match(currentPath)) {
+        if (treePath.matches(currentPath)) {
           inTargetElement = true;
           targetDepth = currentPath.size();
           eventWriter.add(event);

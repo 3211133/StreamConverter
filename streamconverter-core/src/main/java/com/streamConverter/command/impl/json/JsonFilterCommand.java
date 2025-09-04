@@ -3,7 +3,7 @@ package com.streamConverter.command.impl.json;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.path.TreePath;
+import com.streamConverter.path.IPath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +13,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * JSON Filter Command Class
@@ -30,24 +31,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming
   private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer
 
-  private final TreePath jsonPath;
+  private final IPath<List<String>> jsonPath;
   private final ObjectMapper objectMapper;
-
-  /**
-   * Constructor for JSON filtering with TreePath selector.
-   *
-   * @param jsonPath the TreePath expression to extract data (e.g., "$.users", "$.name")
-   * @throws IllegalArgumentException if jsonPath is null or empty
-   * @deprecated Use {@link #JsonFilterCommand(TreePath)} instead
-   */
-  @Deprecated
-  public JsonFilterCommand(String jsonPath) {
-    if (jsonPath == null || jsonPath.trim().isEmpty()) {
-      throw new IllegalArgumentException("TreePath cannot be null or empty");
-    }
-    this.jsonPath = TreePath.fromJson(jsonPath.trim());
-    this.objectMapper = new ObjectMapper();
-  }
 
   /**
    * Constructor for JSON filtering with typed TreePath selector.
@@ -55,7 +40,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @param jsonPath the typed TreePath to extract data
    * @throws IllegalArgumentException if jsonPath is null
    */
-  public JsonFilterCommand(TreePath jsonPath) {
+  public JsonFilterCommand(IPath<List<String>> jsonPath) {
     if (jsonPath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }

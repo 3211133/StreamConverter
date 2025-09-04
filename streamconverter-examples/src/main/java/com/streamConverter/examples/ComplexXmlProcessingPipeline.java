@@ -12,7 +12,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -50,9 +49,6 @@ public class ComplexXmlProcessingPipeline {
 
       // Example 3: Error handling and recovery
       demonstrateErrorHandling();
-
-      // Example 4: Performance optimization
-      demonstratePerformanceOptimization();
 
     } catch (Exception e) {
       logger.error("Pipeline demonstration failed: {}", e.getMessage(), e);
@@ -202,62 +198,6 @@ public class ComplexXmlProcessingPipeline {
     System.out.println("\n" + "=".repeat(60) + "\n");
   }
 
-  /** Demonstrates performance optimization techniques */
-  private static void demonstratePerformanceOptimization() throws IOException {
-    System.out.println("⚡ Performance Optimization");
-    System.out.println("============================");
-
-    // Generate multiple requests for concurrent processing
-    String[] requests = generateMultipleRequests();
-
-    System.out.println("🔄 Processing " + requests.length + " requests concurrently...");
-
-    long startTime = System.currentTimeMillis();
-
-    // Process requests concurrently
-    CompletableFuture<String>[] futures = new CompletableFuture[requests.length];
-
-    for (int i = 0; i < requests.length; i++) {
-      final String request = requests[i];
-      final int requestId = i + 1;
-
-      futures[i] =
-          CompletableFuture.supplyAsync(
-              () -> {
-                try {
-                  return processRequestConcurrently(request, requestId);
-                } catch (Exception e) {
-                  return "Error processing request " + requestId + ": " + e.getMessage();
-                }
-              },
-              executor);
-    }
-
-    // Wait for all requests to complete
-    CompletableFuture.allOf(futures).join();
-
-    long totalTime = System.currentTimeMillis() - startTime;
-
-    System.out.println("✅ All requests processed!");
-    System.out.println("⏱️ Total time: " + totalTime + " ms");
-    System.out.println("📊 Average time per request: " + (totalTime / requests.length) + " ms");
-    System.out.println(
-        "🚀 Throughput: " + (requests.length * 1000.0 / totalTime) + " requests/second");
-
-    // Show some results
-    System.out.println("\n📋 Sample results:");
-    for (int i = 0; i < Math.min(3, futures.length); i++) {
-      System.out.println(
-          "Request "
-              + (i + 1)
-              + " result: "
-              + futures[i].join().substring(0, Math.min(100, futures[i].join().length()))
-              + "...");
-    }
-
-    System.out.println("\n" + "=".repeat(60) + "\n");
-  }
-
   /** Creates a comprehensive processing pipeline */
   private static IStreamCommand[] createFullProcessingPipeline() {
     return new IStreamCommand[] {
@@ -309,62 +249,6 @@ public class ComplexXmlProcessingPipeline {
     xml.append("</request>");
 
     return xml.toString();
-  }
-
-  /** Generates multiple requests for concurrent processing */
-  private static String[] generateMultipleRequests() {
-    String[] requests = new String[50];
-
-    for (int i = 0; i < requests.length; i++) {
-      requests[i] =
-          String.format(
-              """
-          <?xml version="1.0" encoding="UTF-8"?>
-          <request>
-            <header>
-              <requestId>REQ_%03d</requestId>
-              <timestamp>2023-07-15T10:30:00Z</timestamp>
-              <source>load-test</source>
-            </header>
-            <body>
-              <user>
-                <userId>USR_%03d</userId>
-                <sessionId>SES_%03d</sessionId>
-                <action>getProfile</action>
-              </user>
-              <parameters>
-                <param name="format">xml</param>
-              </parameters>
-            </body>
-          </request>
-          """,
-              i + 1, i + 1, i + 1);
-    }
-
-    return requests;
-  }
-
-  /** Processes a single request concurrently */
-  private static String processRequestConcurrently(String request, int requestId)
-      throws IOException {
-    try (InputStream inputStream =
-            new ByteArrayInputStream(request.getBytes(StandardCharsets.UTF_8));
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-
-      // Simulate processing pipeline
-      IStreamCommand[] pipeline = {
-        XmlNavigateCommand.create(
-            TreePath.fromXml("request/body/user/userId"), new PassThroughRule())
-      };
-
-      StreamConverter converter = new StreamConverter(pipeline);
-      converter.run(inputStream, outputStream);
-
-      return "Request "
-          + requestId
-          + " processed: "
-          + outputStream.toString(StandardCharsets.UTF_8);
-    }
   }
 
   /** Helper method to process a single step and show results */

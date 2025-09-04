@@ -13,7 +13,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.stream.Collectors;
 
 /**
  * CSV Filter Command Class
@@ -32,25 +31,6 @@ public class CsvFilterCommand extends AbstractStreamCommand {
   private final boolean hasHeader;
 
   /**
-   * Constructor for CSV filtering with single column selector.
-   *
-   * @param columnSelector the column name or index to extract (e.g., "name", "2")
-   * @param hasHeader whether the CSV has a header row
-   * @throws IllegalArgumentException if columnSelector is null or empty
-   * @deprecated Use {@link #CsvFilterCommand(CSVPath, boolean)} instead
-   */
-  @Deprecated
-  public CsvFilterCommand(String columnSelector, boolean hasHeader) {
-    if (columnSelector == null || columnSelector.trim().isEmpty()) {
-      throw new IllegalArgumentException("Column selector cannot be null or empty");
-    }
-    this.combinedSelector = new CSVPath(columnSelector.trim());
-    Arrays.asList(columnSelector.trim());
-    Arrays.asList(this.combinedSelector);
-    this.hasHeader = hasHeader;
-  }
-
-  /**
    * Constructor for CSV filtering with single typed column selector.
    *
    * @param columnSelector the typed CSVPath to extract
@@ -65,67 +45,6 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     Arrays.asList(columnSelector);
     Arrays.asList(columnSelector.toString());
     this.hasHeader = hasHeader;
-  }
-
-  /**
-   * Constructor for CSV filtering with multiple column selectors.
-   *
-   * @param columnSelectors list of column names or indices to extract
-   * @param hasHeader whether the CSV has a header row
-   * @throws IllegalArgumentException if columnSelectors is null or empty
-   * @deprecated Use {@link #CsvFilterCommand(List, boolean)} with CSVPath list instead
-   */
-  @Deprecated
-  public CsvFilterCommand(List<String> columnSelectors, boolean hasHeader) {
-    if (columnSelectors == null || columnSelectors.isEmpty()) {
-      throw new IllegalArgumentException("Column selectors cannot be null or empty");
-    }
-    this.combinedSelector = new CSVPath(columnSelectors); // Use multi-selector constructor
-    new ArrayList<>(columnSelectors);
-    columnSelectors.stream().map(CSVPath::new).collect(Collectors.toList());
-    this.hasHeader = hasHeader;
-  }
-
-  /**
-   * Private constructor for internal use with typed column selectors.
-   *
-   * @param columnSelectors list of typed CSVPaths to extract
-   * @param hasHeader whether the CSV has a header row
-   * @param internal marker parameter to distinguish from deprecated constructor
-   */
-  private CsvFilterCommand(List<CSVPath> columnSelectors, boolean hasHeader, boolean internal) {
-    if (columnSelectors == null || columnSelectors.isEmpty()) {
-      throw new IllegalArgumentException("Column selectors cannot be null or empty");
-    }
-    // Combine multiple CSVPath objects into one with multiple selectors
-    List<String> selectorStrings =
-        columnSelectors.stream().map(CSVPath::toString).collect(Collectors.toList());
-    this.combinedSelector = new CSVPath(selectorStrings);
-    new ArrayList<>(columnSelectors);
-    this.hasHeader = hasHeader;
-  }
-
-  /**
-   * Factory method for CSV filtering with multiple typed column selectors.
-   *
-   * @param columnSelectors list of typed CSVPaths to extract
-   * @param hasHeader whether the CSV has a header row
-   * @return a CsvFilterCommand instance
-   * @throws IllegalArgumentException if columnSelectors is null or empty
-   */
-  public static CsvFilterCommand create(List<CSVPath> columnSelectors, boolean hasHeader) {
-    return new CsvFilterCommand(columnSelectors, hasHeader, true);
-  }
-
-  /**
-   * Constructor for CSV filtering with single column selector (assumes header exists).
-   *
-   * @param columnSelector the column name or index to extract
-   * @deprecated Use {@link #create(CSVPath)} instead
-   */
-  @Deprecated
-  public CsvFilterCommand(String columnSelector) {
-    this(columnSelector, true);
   }
 
   /**
@@ -146,18 +65,7 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @return a CsvFilterCommand instance
    */
   public static CsvFilterCommand create(CSVPath columnSelector, boolean hasHeader) {
-    return create(Arrays.asList(columnSelector), hasHeader);
-  }
-
-  /**
-   * Constructor for CSV filtering with multiple column selectors (assumes header exists).
-   *
-   * @param columnSelectors list of column names or indices to extract
-   * @deprecated Use constructor with List&lt;CSVPath&gt; instead
-   */
-  @Deprecated
-  public CsvFilterCommand(List<String> columnSelectors) {
-    this(columnSelectors, true);
+    return new CsvFilterCommand(columnSelector, hasHeader);
   }
 
   @Override

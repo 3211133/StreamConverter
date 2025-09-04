@@ -158,7 +158,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Simple path matching for streaming JSON processing */
   private boolean isMatchingPath(List<String> currentPath) {
-    return treePath.match(currentPath);
+    return treePath.matches(currentPath);
   }
 
   /** Handle JSON parsing exceptions */

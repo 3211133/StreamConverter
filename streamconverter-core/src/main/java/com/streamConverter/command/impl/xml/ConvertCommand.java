@@ -84,7 +84,7 @@ public class ConvertCommand extends AbstractStreamCommand {
               break;
             // 変換対象の箇所なら変換処理を実行する
             case XMLEvent.CHARACTERS:
-              if (this.treePath.match(currentDirectory)) {
+              if (this.treePath.matches(currentDirectory)) {
                 String transformedData = rule.apply(event.asCharacters().getData());
                 event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);
               }

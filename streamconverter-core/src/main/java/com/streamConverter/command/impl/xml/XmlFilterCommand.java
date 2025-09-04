@@ -1,7 +1,7 @@
 package com.streamConverter.command.impl.xml;
 
 import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.path.TreePath;
+import com.streamConverter.path.IPath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,23 +33,7 @@ import javax.xml.stream.events.XMLEvent;
 public class XmlFilterCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = Logger.getLogger(XmlFilterCommand.class.getName());
 
-  private final TreePath xpath;
-
-  /**
-   * Constructor for XML filtering with TreePath selector.
-   *
-   * @param xpath the TreePath expression to extract elements (e.g., "users/user/name")
-   * @throws IllegalArgumentException if xpath is null or empty
-   * @deprecated Use {@link #XmlFilterCommand(TreePath)} instead
-   */
-  @Deprecated
-  public XmlFilterCommand(String xpath) {
-    if (xpath == null || xpath.trim().isEmpty()) {
-      throw new IllegalArgumentException("TreePath cannot be null or empty");
-    }
-    xpath.trim();
-    this.xpath = TreePath.fromXml(xpath.trim());
-  }
+  private final IPath<List<String>> xpath;
 
   /**
    * Constructor for XML filtering with typed TreePath selector.
@@ -57,7 +41,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
    * @param xpath the typed TreePath to extract elements
    * @throws IllegalArgumentException if xpath is null
    */
-  public XmlFilterCommand(TreePath xpath) {
+  public XmlFilterCommand(IPath<List<String>> xpath) {
     if (xpath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
@@ -99,7 +83,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
           currentPath.add(elementName);
 
           // Check if this element matches our target path
-          if (xpath.match(currentPath) && !isCapturing) {
+          if (xpath.matches(currentPath) && !isCapturing) {
             isCapturing = true;
             captureDepth = currentDepth;
             elementWriter = new StringWriter();

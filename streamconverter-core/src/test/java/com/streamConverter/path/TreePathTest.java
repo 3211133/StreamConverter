@@ -13,7 +13,7 @@ class TreePathTest {
     assertEquals("$.user.name", path.toString());
 
     List<String> expectedPath = List.of("user", "name");
-    assertTrue(path.match(expectedPath));
+    assertTrue(path.matches(expectedPath));
   }
 
   @Test
@@ -22,7 +22,7 @@ class TreePathTest {
     assertEquals("user/profile/name", path.toString());
 
     List<String> expectedPath = List.of("user", "profile", "name");
-    assertTrue(path.match(expectedPath));
+    assertTrue(path.matches(expectedPath));
   }
 
   @Test
@@ -31,7 +31,7 @@ class TreePathTest {
     assertEquals("user", path.toString());
 
     List<String> expectedPath = List.of("user");
-    assertTrue(path.match(expectedPath));
+    assertTrue(path.matches(expectedPath));
   }
 
   @Test
@@ -40,7 +40,7 @@ class TreePathTest {
     assertEquals("$.", path.toString());
 
     List<String> emptyPath = List.of();
-    assertTrue(path.match(emptyPath));
+    assertTrue(path.matches(emptyPath));
   }
 
   @Test
@@ -49,7 +49,7 @@ class TreePathTest {
     assertEquals("/", path.toString());
 
     List<String> emptyPath = List.of();
-    assertTrue(path.match(emptyPath));
+    assertTrue(path.matches(emptyPath));
   }
 
   @Test
@@ -62,20 +62,20 @@ class TreePathTest {
     List<String> shortPath = List.of("user", "profile");
 
     // Both JSON and XML paths should match the same hierarchical path
-    assertTrue(jsonPath.match(targetPath));
-    assertTrue(xmlPath.match(targetPath));
+    assertTrue(jsonPath.matches(targetPath));
+    assertTrue(xmlPath.matches(targetPath));
 
-    assertFalse(jsonPath.match(differentPath));
-    assertFalse(xmlPath.match(differentPath));
+    assertFalse(jsonPath.matches(differentPath));
+    assertFalse(xmlPath.matches(differentPath));
 
-    assertFalse(jsonPath.match(shortPath));
-    assertFalse(xmlPath.match(shortPath));
+    assertFalse(jsonPath.matches(shortPath));
+    assertFalse(xmlPath.matches(shortPath));
   }
 
   @Test
   void testNullHandling() {
     TreePath path = TreePath.fromJson("$.user.name");
-    assertFalse(path.match(null));
+    assertFalse(path.matches(null));
   }
 
   @Test
@@ -107,11 +107,11 @@ class TreePathTest {
     // Test path with leading/trailing slashes
     TreePath xmlPath = TreePath.fromXml("/user/profile/name/");
     List<String> expectedPath = List.of("user", "profile", "name");
-    assertTrue(xmlPath.match(expectedPath));
+    assertTrue(xmlPath.matches(expectedPath));
 
     // Test multiple slashes normalization
     TreePath multiSlashPath = TreePath.fromXml("//user///profile//name//");
-    assertTrue(multiSlashPath.match(expectedPath));
+    assertTrue(multiSlashPath.matches(expectedPath));
   }
 
   @Test
@@ -126,7 +126,7 @@ class TreePathTest {
     assertEquals("$.user.profile.name", path.toString());
 
     List<String> expectedPath = List.of("user", "profile", "name");
-    assertTrue(path.match(expectedPath));
+    assertTrue(path.matches(expectedPath));
   }
 
   @Test
@@ -135,7 +135,7 @@ class TreePathTest {
     assertEquals("user/profile/name", path.toString());
 
     List<String> expectedPath = List.of("user", "profile", "name");
-    assertTrue(path.match(expectedPath));
+    assertTrue(path.matches(expectedPath));
   }
 
   @Test
@@ -147,10 +147,10 @@ class TreePathTest {
 
     // All should match the same hierarchical path
     List<String> expectedPath = List.of("user", "name");
-    assertTrue(jsonPath.match(expectedPath));
-    assertTrue(xmlPath.match(expectedPath));
-    assertTrue(directJsonPath.match(expectedPath));
-    assertTrue(directXmlPath.match(expectedPath));
+    assertTrue(jsonPath.matches(expectedPath));
+    assertTrue(xmlPath.matches(expectedPath));
+    assertTrue(directJsonPath.matches(expectedPath));
+    assertTrue(directXmlPath.matches(expectedPath));
 
     // Factory methods should be equivalent to direct construction
     assertEquals(jsonPath, directJsonPath);

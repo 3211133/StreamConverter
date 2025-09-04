@@ -24,7 +24,7 @@
 <span class="source-line-no">011</span><span id="line-11"> * and XML-style ("user/name") formats. It converts path expressions into hierarchical segments for</span>
 <span class="source-line-no">012</span><span id="line-12"> * efficient matching during data processing.</span>
 <span class="source-line-no">013</span><span id="line-13"> */</span>
-<span class="source-line-no">014</span><span id="line-14">public class TreePath {</span>
+<span class="source-line-no">014</span><span id="line-14">public class TreePath implements IPath&lt;List&lt;String&gt;&gt; {</span>
 <span class="source-line-no">015</span><span id="line-15"></span>
 <span class="source-line-no">016</span><span id="line-16">  private final List&lt;String&gt; segments;</span>
 <span class="source-line-no">017</span><span id="line-17">  private final String originalPath;</span>
@@ -73,7 +73,7 @@
 <span class="source-line-no">060</span><span id="line-60">   * @param currentPath current path segments to match against</span>
 <span class="source-line-no">061</span><span id="line-61">   * @return true if paths match exactly</span>
 <span class="source-line-no">062</span><span id="line-62">   */</span>
-<span class="source-line-no">063</span><span id="line-63">  public boolean match(List&lt;String&gt; currentPath) {</span>
+<span class="source-line-no">063</span><span id="line-63">  public boolean matches(List&lt;String&gt; currentPath) {</span>
 <span class="source-line-no">064</span><span id="line-64">    if (currentPath == null) {</span>
 <span class="source-line-no">065</span><span id="line-65">      return false;</span>
 <span class="source-line-no">066</span><span id="line-66">    }</span>

@@ -83,7 +83,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="../../IStreamCommand.html" title="interface in com.streamConverter.command">IStreamCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonFilterCommand.html#line-28">JsonFilterCommand</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonFilterCommand.html#line-29">JsonFilterCommand</a></span>
 <span class="extends-implements">extends <a href="../../AbstractStreamCommand.html" title="class in com.streamConverter.command">AbstractStreamCommand</a></span></div>
 <div class="block">JSON Filter Command Class
 
@@ -105,15 +105,9 @@ loadScripts(document, 'script');</script>
 <div class="summary-table two-column-summary">
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.streamConverter.path.TreePath)" class="member-name-link">JsonFilterCommand</a><wbr>(<a href="../../../path/TreePath.html" title="class in com.streamConverter.path">TreePath</a>&nbsp;jsonPath)</code></div>
+<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.streamConverter.path.IPath)" class="member-name-link">JsonFilterCommand</a><wbr>(<a href="../../../path/IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;&nbsp;jsonPath)</code></div>
 <div class="col-last even-row-color">
 <div class="block">Constructor for JSON filtering with typed TreePath selector.</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String)" class="member-name-link">JsonFilterCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</code></div>
-<div class="col-last odd-row-color">
-<div class="block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.TreePath)"><code>JsonFilterCommand(TreePath)</code></a> instead</div>
-</div>
 </div>
 </div>
 </section>
@@ -164,26 +158,9 @@ loadScripts(document, 'script');</script>
 <h2>Constructor Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="&lt;init&gt;(java.lang.String)">
+<section class="detail" id="&lt;init&gt;(com.streamConverter.path.IPath)">
 <h3>JsonFilterCommand</h3>
-<div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>
-</span><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonFilterCommand.html#line-43">JsonFilterCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
-<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
-<div class="deprecation-comment">Use <a href="#%3Cinit%3E(com.streamConverter.path.TreePath)"><code>JsonFilterCommand(TreePath)</code></a> instead</div>
-</div>
-<div class="block">Constructor for JSON filtering with TreePath selector.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>jsonPath</code> - the TreePath expression to extract data (e.g., "$.users", "$.name")</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if jsonPath is null or empty</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="&lt;init&gt;(com.streamConverter.path.TreePath)">
-<h3>JsonFilterCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonFilterCommand.html#line-58">JsonFilterCommand</a></span><wbr><span class="parameters">(<a href="../../../path/TreePath.html" title="class in com.streamConverter.path">TreePath</a>&nbsp;jsonPath)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonFilterCommand.html#line-43">JsonFilterCommand</a></span><wbr><span class="parameters">(<a href="../../../path/IPath.html" title="interface in com.streamConverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;&nbsp;jsonPath)</span></div>
 <div class="block">Constructor for JSON filtering with typed TreePath selector.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -204,7 +181,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getCommandDetails()">
 <h3>getCommandDetails</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonFilterCommand.html#line-67">getCommandDetails</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonFilterCommand.html#line-52">getCommandDetails</a></span>()</div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#getCommandDetails()">AbstractStreamCommand</a></code></span></div>
 <div class="block">コマンドの詳細情報を取得します。
 
@@ -220,7 +197,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="executeInternal(java.io.InputStream,java.io.OutputStream)">
 <h3>executeInternal</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonFilterCommand.html#line-72">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamConverter/command/impl/json/JsonFilterCommand.html#line-57">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/17/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block"><span class="descfrm-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#executeInternal(java.io.InputStream,java.io.OutputStream)">AbstractStreamCommand</a></code></span></div>

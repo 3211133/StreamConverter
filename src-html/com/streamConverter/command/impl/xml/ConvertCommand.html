@@ -97,7 +97,7 @@
 <span class="source-line-no">084</span><span id="line-84">              break;</span>
 <span class="source-line-no">085</span><span id="line-85">            // 変換対象の箇所なら変換処理を実行する</span>
 <span class="source-line-no">086</span><span id="line-86">            case XMLEvent.CHARACTERS:</span>
-<span class="source-line-no">087</span><span id="line-87">              if (this.treePath.match(currentDirectory)) {</span>
+<span class="source-line-no">087</span><span id="line-87">              if (this.treePath.matches(currentDirectory)) {</span>
 <span class="source-line-no">088</span><span id="line-88">                String transformedData = rule.apply(event.asCharacters().getData());</span>
 <span class="source-line-no">089</span><span id="line-89">                event = XMLEventFactory.newDefaultFactory().createCharacters(transformedData);</span>
 <span class="source-line-no">090</span><span id="line-90">              }</span>

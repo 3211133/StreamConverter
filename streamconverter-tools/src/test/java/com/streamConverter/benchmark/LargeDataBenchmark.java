@@ -5,7 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamConverter.*;
 import com.streamConverter.command.IStreamCommand;
 import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.charaCode.CharacterConvertCommand;
+import com.streamConverter.command.impl.charcode.CharacterConvertCommand;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
 import com.streamConverter.command.impl.json.JsonNavigateCommand;
 import com.streamConverter.command.impl.xml.XmlNavigateCommand;

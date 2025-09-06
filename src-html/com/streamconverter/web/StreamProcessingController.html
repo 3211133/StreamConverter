@@ -13,205 +13,206 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamconverter.web;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">import com.streamConverter.StreamConverter;</span>
-<span class="source-line-no">004</span><span id="line-4">import com.streamConverter.command.IStreamCommand;</span>
-<span class="source-line-no">005</span><span id="line-5">import com.streamConverter.command.impl.SampleStreamCommand;</span>
-<span class="source-line-no">006</span><span id="line-6">import com.streamConverter.command.impl.csv.CsvNavigateCommand;</span>
-<span class="source-line-no">007</span><span id="line-7">import com.streamConverter.command.impl.json.JsonNavigateCommand;</span>
-<span class="source-line-no">008</span><span id="line-8">import com.streamConverter.command.rule.PassThroughRule;</span>
-<span class="source-line-no">009</span><span id="line-9">import com.streamConverter.path.CSVPath;</span>
-<span class="source-line-no">010</span><span id="line-10">import com.streamConverter.path.TreePath;</span>
-<span class="source-line-no">011</span><span id="line-11"></span>
-<span class="source-line-no">012</span><span id="line-12">import java.io.ByteArrayInputStream;</span>
-<span class="source-line-no">013</span><span id="line-13">import java.io.ByteArrayOutputStream;</span>
-<span class="source-line-no">014</span><span id="line-14">import java.io.IOException;</span>
-<span class="source-line-no">015</span><span id="line-15">import java.util.List;</span>
-<span class="source-line-no">016</span><span id="line-16">import org.slf4j.Logger;</span>
-<span class="source-line-no">017</span><span id="line-17">import org.slf4j.LoggerFactory;</span>
-<span class="source-line-no">018</span><span id="line-18">import org.springframework.core.io.buffer.DataBuffer;</span>
-<span class="source-line-no">019</span><span id="line-19">import org.springframework.core.io.buffer.DefaultDataBufferFactory;</span>
-<span class="source-line-no">020</span><span id="line-20">import org.springframework.http.HttpStatus;</span>
-<span class="source-line-no">021</span><span id="line-21">import org.springframework.http.MediaType;</span>
-<span class="source-line-no">022</span><span id="line-22">import org.springframework.http.ResponseEntity;</span>
-<span class="source-line-no">023</span><span id="line-23">import org.springframework.web.bind.annotation.*;</span>
-<span class="source-line-no">024</span><span id="line-24">import reactor.core.publisher.Flux;</span>
-<span class="source-line-no">025</span><span id="line-25">import reactor.core.publisher.Mono;</span>
-<span class="source-line-no">026</span><span id="line-26"></span>
-<span class="source-line-no">027</span><span id="line-27">/**</span>
-<span class="source-line-no">028</span><span id="line-28"> * Web API controller for StreamConverter processing.</span>
-<span class="source-line-no">029</span><span id="line-29"> *</span>
-<span class="source-line-no">030</span><span id="line-30"> * &lt;p&gt;Provides REST endpoints to process data streams using existing StreamConverter functionality.</span>
-<span class="source-line-no">031</span><span id="line-31"> */</span>
-<span class="source-line-no">032</span><span id="line-32">@RestController</span>
-<span class="source-line-no">033</span><span id="line-33">@RequestMapping("/api/v1/stream")</span>
-<span class="source-line-no">034</span><span id="line-34">public class StreamProcessingController {</span>
-<span class="source-line-no">035</span><span id="line-35"></span>
-<span class="source-line-no">036</span><span id="line-36">  private static final Logger log = LoggerFactory.getLogger(StreamProcessingController.class);</span>
-<span class="source-line-no">037</span><span id="line-37"></span>
-<span class="source-line-no">038</span><span id="line-38">  /**</span>
-<span class="source-line-no">039</span><span id="line-39">   * Process data stream with CSV extraction.</span>
-<span class="source-line-no">040</span><span id="line-40">   *</span>
-<span class="source-line-no">041</span><span id="line-41">   * @param inputData binary input data</span>
-<span class="source-line-no">042</span><span id="line-42">   * @param columnName CSV column name to extract</span>
-<span class="source-line-no">043</span><span id="line-43">   * @return processed data as binary stream</span>
-<span class="source-line-no">044</span><span id="line-44">   */</span>
-<span class="source-line-no">045</span><span id="line-45">  @PostMapping(</span>
-<span class="source-line-no">046</span><span id="line-46">      value = "/csv/extract",</span>
-<span class="source-line-no">047</span><span id="line-47">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
-<span class="source-line-no">048</span><span id="line-48">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
-<span class="source-line-no">049</span><span id="line-49">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processCsvExtraction(</span>
-<span class="source-line-no">050</span><span id="line-50">      @RequestBody Flux&lt;DataBuffer&gt; inputData, @RequestParam String columnName) {</span>
-<span class="source-line-no">051</span><span id="line-51"></span>
-<span class="source-line-no">052</span><span id="line-52">    log.info("Processing CSV extraction for column: {}", columnName);</span>
-<span class="source-line-no">053</span><span id="line-53"></span>
-<span class="source-line-no">054</span><span id="line-54">    return inputData</span>
-<span class="source-line-no">055</span><span id="line-55">        .collectList()</span>
-<span class="source-line-no">056</span><span id="line-56">        .map(this::combineDataBuffers)</span>
-<span class="source-line-no">057</span><span id="line-57">        .map(data -&gt; processWithStreamConverter(data, CsvNavigateCommand.create(new CSVPath(columnName), new PassThroughRule())))</span>
-<span class="source-line-no">058</span><span id="line-58">        .map(result -&gt; ResponseEntity.ok(createDataBufferFlux(result)))</span>
-<span class="source-line-no">059</span><span id="line-59">        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
-<span class="source-line-no">060</span><span id="line-60">  }</span>
-<span class="source-line-no">061</span><span id="line-61"></span>
-<span class="source-line-no">062</span><span id="line-62">  /**</span>
-<span class="source-line-no">063</span><span id="line-63">   * Process data stream with JSON path extraction.</span>
-<span class="source-line-no">064</span><span id="line-64">   *</span>
-<span class="source-line-no">065</span><span id="line-65">   * @param inputData binary input data</span>
-<span class="source-line-no">066</span><span id="line-66">   * @param jsonPath JSON path expression</span>
-<span class="source-line-no">067</span><span id="line-67">   * @return processed data as binary stream</span>
-<span class="source-line-no">068</span><span id="line-68">   */</span>
-<span class="source-line-no">069</span><span id="line-69">  @PostMapping(</span>
-<span class="source-line-no">070</span><span id="line-70">      value = "/json/extract",</span>
-<span class="source-line-no">071</span><span id="line-71">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
-<span class="source-line-no">072</span><span id="line-72">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
-<span class="source-line-no">073</span><span id="line-73">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processJsonExtraction(</span>
-<span class="source-line-no">074</span><span id="line-74">      @RequestBody Flux&lt;DataBuffer&gt; inputData, @RequestParam String jsonPath) {</span>
-<span class="source-line-no">075</span><span id="line-75"></span>
-<span class="source-line-no">076</span><span id="line-76">    log.info("Processing JSON extraction for path: {}", jsonPath);</span>
-<span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">    return inputData</span>
-<span class="source-line-no">079</span><span id="line-79">        .collectList()</span>
-<span class="source-line-no">080</span><span id="line-80">        .map(this::combineDataBuffers)</span>
-<span class="source-line-no">081</span><span id="line-81">        .map(data -&gt; processWithStreamConverter(data, JsonNavigateCommand.create(TreePath.fromJson(jsonPath), new PassThroughRule())))</span>
-<span class="source-line-no">082</span><span id="line-82">        .map(result -&gt; ResponseEntity.ok(createDataBufferFlux(result)))</span>
-<span class="source-line-no">083</span><span id="line-83">        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
-<span class="source-line-no">084</span><span id="line-84">  }</span>
-<span class="source-line-no">085</span><span id="line-85"></span>
-<span class="source-line-no">086</span><span id="line-86">  /**</span>
-<span class="source-line-no">087</span><span id="line-87">   * Process data stream with custom command pipeline.</span>
-<span class="source-line-no">088</span><span id="line-88">   *</span>
-<span class="source-line-no">089</span><span id="line-89">   * @param inputData binary input data</span>
-<span class="source-line-no">090</span><span id="line-90">   * @param pipelineConfig pipeline configuration header</span>
-<span class="source-line-no">091</span><span id="line-91">   * @return processed data as binary stream</span>
-<span class="source-line-no">092</span><span id="line-92">   */</span>
-<span class="source-line-no">093</span><span id="line-93">  @PostMapping(</span>
-<span class="source-line-no">094</span><span id="line-94">      value = "/process",</span>
-<span class="source-line-no">095</span><span id="line-95">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
-<span class="source-line-no">096</span><span id="line-96">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
-<span class="source-line-no">097</span><span id="line-97">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processWithPipeline(</span>
-<span class="source-line-no">098</span><span id="line-98">      @RequestBody Flux&lt;DataBuffer&gt; inputData,</span>
-<span class="source-line-no">099</span><span id="line-99">      @RequestHeader("X-Pipeline-Config") String pipelineConfig) {</span>
-<span class="source-line-no">100</span><span id="line-100"></span>
-<span class="source-line-no">101</span><span id="line-101">    log.info("Processing with pipeline config: {}", pipelineConfig);</span>
-<span class="source-line-no">102</span><span id="line-102"></span>
-<span class="source-line-no">103</span><span id="line-103">    return inputData</span>
-<span class="source-line-no">104</span><span id="line-104">        .collectList()</span>
-<span class="source-line-no">105</span><span id="line-105">        .map(this::combineDataBuffers)</span>
-<span class="source-line-no">106</span><span id="line-106">        .map(data -&gt; processWithStreamConverter(data, buildPipelineFromConfig(pipelineConfig)))</span>
-<span class="source-line-no">107</span><span id="line-107">        .map(result -&gt; ResponseEntity.ok(createDataBufferFlux(result)))</span>
-<span class="source-line-no">108</span><span id="line-108">        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
-<span class="source-line-no">109</span><span id="line-109">  }</span>
-<span class="source-line-no">110</span><span id="line-110"></span>
-<span class="source-line-no">111</span><span id="line-111">  /**</span>
-<span class="source-line-no">112</span><span id="line-112">   * Health check endpoint.</span>
-<span class="source-line-no">113</span><span id="line-113">   *</span>
-<span class="source-line-no">114</span><span id="line-114">   * @return simple health status</span>
-<span class="source-line-no">115</span><span id="line-115">   */</span>
-<span class="source-line-no">116</span><span id="line-116">  @GetMapping("/health")</span>
-<span class="source-line-no">117</span><span id="line-117">  public Mono&lt;ResponseEntity&lt;String&gt;&gt; health() {</span>
-<span class="source-line-no">118</span><span id="line-118">    return Mono.just(ResponseEntity.ok("StreamConverter Web API is running"));</span>
-<span class="source-line-no">119</span><span id="line-119">  }</span>
-<span class="source-line-no">120</span><span id="line-120"></span>
-<span class="source-line-no">121</span><span id="line-121">  /**</span>
-<span class="source-line-no">122</span><span id="line-122">   * Combines multiple DataBuffer objects into a single byte array.</span>
-<span class="source-line-no">123</span><span id="line-123">   *</span>
-<span class="source-line-no">124</span><span id="line-124">   * @param dataBuffers list of data buffers</span>
-<span class="source-line-no">125</span><span id="line-125">   * @return combined byte array</span>
-<span class="source-line-no">126</span><span id="line-126">   */</span>
-<span class="source-line-no">127</span><span id="line-127">  private byte[] combineDataBuffers(List&lt;DataBuffer&gt; dataBuffers) {</span>
-<span class="source-line-no">128</span><span id="line-128">    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="source-line-no">129</span><span id="line-129">      for (DataBuffer buffer : dataBuffers) {</span>
-<span class="source-line-no">130</span><span id="line-130">        byte[] bytes = new byte[buffer.readableByteCount()];</span>
-<span class="source-line-no">131</span><span id="line-131">        buffer.read(bytes);</span>
-<span class="source-line-no">132</span><span id="line-132">        outputStream.write(bytes);</span>
-<span class="source-line-no">133</span><span id="line-133">      }</span>
-<span class="source-line-no">134</span><span id="line-134">      return outputStream.toByteArray();</span>
-<span class="source-line-no">135</span><span id="line-135">    } catch (IOException e) {</span>
-<span class="source-line-no">136</span><span id="line-136">      log.error("Error combining data buffers", e);</span>
-<span class="source-line-no">137</span><span id="line-137">      throw new RuntimeException("Failed to combine input data", e);</span>
-<span class="source-line-no">138</span><span id="line-138">    }</span>
-<span class="source-line-no">139</span><span id="line-139">  }</span>
-<span class="source-line-no">140</span><span id="line-140"></span>
-<span class="source-line-no">141</span><span id="line-141">  /**</span>
-<span class="source-line-no">142</span><span id="line-142">   * Processes data using StreamConverter with given commands.</span>
-<span class="source-line-no">143</span><span id="line-143">   *</span>
-<span class="source-line-no">144</span><span id="line-144">   * @param inputData input byte array</span>
-<span class="source-line-no">145</span><span id="line-145">   * @param commands stream commands to execute</span>
-<span class="source-line-no">146</span><span id="line-146">   * @return processed output byte array</span>
-<span class="source-line-no">147</span><span id="line-147">   */</span>
-<span class="source-line-no">148</span><span id="line-148">  private byte[] processWithStreamConverter(byte[] inputData, IStreamCommand... commands) {</span>
-<span class="source-line-no">149</span><span id="line-149">    try (ByteArrayInputStream inputStream = new ByteArrayInputStream(inputData);</span>
-<span class="source-line-no">150</span><span id="line-150">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
-<span class="source-line-no">151</span><span id="line-151"></span>
-<span class="source-line-no">152</span><span id="line-152">      StreamConverter converter = StreamConverter.create(commands);</span>
-<span class="source-line-no">153</span><span id="line-153">      converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">154</span><span id="line-154"></span>
-<span class="source-line-no">155</span><span id="line-155">      return outputStream.toByteArray();</span>
-<span class="source-line-no">156</span><span id="line-156"></span>
-<span class="source-line-no">157</span><span id="line-157">    } catch (IOException e) {</span>
-<span class="source-line-no">158</span><span id="line-158">      log.error("Error processing with StreamConverter", e);</span>
-<span class="source-line-no">159</span><span id="line-159">      throw new RuntimeException("Stream processing failed", e);</span>
-<span class="source-line-no">160</span><span id="line-160">    }</span>
-<span class="source-line-no">161</span><span id="line-161">  }</span>
-<span class="source-line-no">162</span><span id="line-162"></span>
-<span class="source-line-no">163</span><span id="line-163">  /**</span>
-<span class="source-line-no">164</span><span id="line-164">   * Creates a Flux of DataBuffer from byte array.</span>
-<span class="source-line-no">165</span><span id="line-165">   *</span>
-<span class="source-line-no">166</span><span id="line-166">   * @param data byte array to convert</span>
-<span class="source-line-no">167</span><span id="line-167">   * @return Flux of DataBuffer</span>
-<span class="source-line-no">168</span><span id="line-168">   */</span>
-<span class="source-line-no">169</span><span id="line-169">  private Flux&lt;DataBuffer&gt; createDataBufferFlux(byte[] data) {</span>
-<span class="source-line-no">170</span><span id="line-170">    DataBuffer buffer = new DefaultDataBufferFactory().wrap(data);</span>
-<span class="source-line-no">171</span><span id="line-171">    return Flux.just(buffer);</span>
-<span class="source-line-no">172</span><span id="line-172">  }</span>
-<span class="source-line-no">173</span><span id="line-173"></span>
-<span class="source-line-no">174</span><span id="line-174">  /**</span>
-<span class="source-line-no">175</span><span id="line-175">   * Builds a pipeline from configuration string.</span>
-<span class="source-line-no">176</span><span id="line-176">   *</span>
-<span class="source-line-no">177</span><span id="line-177">   * @param config pipeline configuration (e.g., "csv:name,json:$.result,process:validator")</span>
-<span class="source-line-no">178</span><span id="line-178">   * @return array of stream commands</span>
-<span class="source-line-no">179</span><span id="line-179">   */</span>
-<span class="source-line-no">180</span><span id="line-180">  private IStreamCommand[] buildPipelineFromConfig(String config) {</span>
-<span class="source-line-no">181</span><span id="line-181">    String[] commandConfigs = config.split(",");</span>
-<span class="source-line-no">182</span><span id="line-182">    IStreamCommand[] commands = new IStreamCommand[commandConfigs.length];</span>
-<span class="source-line-no">183</span><span id="line-183"></span>
-<span class="source-line-no">184</span><span id="line-184">    for (int i = 0; i &lt; commandConfigs.length; i++) {</span>
-<span class="source-line-no">185</span><span id="line-185">      String[] parts = commandConfigs[i].split(":", 2);</span>
-<span class="source-line-no">186</span><span id="line-186">      String commandType = parts[0].trim();</span>
-<span class="source-line-no">187</span><span id="line-187">      String parameter = parts.length &gt; 1 ? parts[1].trim() : "";</span>
-<span class="source-line-no">188</span><span id="line-188"></span>
-<span class="source-line-no">189</span><span id="line-189">      commands[i] =</span>
-<span class="source-line-no">190</span><span id="line-190">          switch (commandType.toLowerCase()) {</span>
-<span class="source-line-no">191</span><span id="line-191">            case "csv" -&gt; CsvNavigateCommand.create(new CSVPath(parameter), new PassThroughRule());</span>
-<span class="source-line-no">192</span><span id="line-192">            case "json" -&gt; JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());</span>
-<span class="source-line-no">193</span><span id="line-193">            case "process" -&gt; new SampleStreamCommand(parameter);</span>
-<span class="source-line-no">194</span><span id="line-194">            default -&gt; throw new IllegalArgumentException("Unknown command type: " + commandType);</span>
-<span class="source-line-no">195</span><span id="line-195">          };</span>
-<span class="source-line-no">196</span><span id="line-196">    }</span>
-<span class="source-line-no">197</span><span id="line-197"></span>
-<span class="source-line-no">198</span><span id="line-198">    log.info("Built pipeline with {} commands", commands.length);</span>
-<span class="source-line-no">199</span><span id="line-199">    return commands;</span>
-<span class="source-line-no">200</span><span id="line-200">  }</span>
-<span class="source-line-no">201</span><span id="line-201">}</span>
+<span class="source-line-no">003</span><span id="line-3">import java.io.ByteArrayInputStream;</span>
+<span class="source-line-no">004</span><span id="line-4">import java.io.ByteArrayOutputStream;</span>
+<span class="source-line-no">005</span><span id="line-5">import java.io.IOException;</span>
+<span class="source-line-no">006</span><span id="line-6">import java.util.List;</span>
+<span class="source-line-no">007</span><span id="line-7">import org.slf4j.Logger;</span>
+<span class="source-line-no">008</span><span id="line-8">import org.slf4j.LoggerFactory;</span>
+<span class="source-line-no">009</span><span id="line-9">import org.springframework.core.io.buffer.DataBuffer;</span>
+<span class="source-line-no">010</span><span id="line-10">import org.springframework.core.io.buffer.DefaultDataBufferFactory;</span>
+<span class="source-line-no">011</span><span id="line-11">import org.springframework.http.HttpStatus;</span>
+<span class="source-line-no">012</span><span id="line-12">import org.springframework.http.MediaType;</span>
+<span class="source-line-no">013</span><span id="line-13">import org.springframework.http.ResponseEntity;</span>
+<span class="source-line-no">014</span><span id="line-14">import org.springframework.web.bind.annotation.*;</span>
+<span class="source-line-no">015</span><span id="line-15"></span>
+<span class="source-line-no">016</span><span id="line-16">import com.streamconverter.StreamConverter;</span>
+<span class="source-line-no">017</span><span id="line-17">import com.streamconverter.command.IStreamCommand;</span>
+<span class="source-line-no">018</span><span id="line-18">import com.streamconverter.command.impl.SampleStreamCommand;</span>
+<span class="source-line-no">019</span><span id="line-19">import com.streamconverter.command.impl.csv.CsvNavigateCommand;</span>
+<span class="source-line-no">020</span><span id="line-20">import com.streamconverter.command.impl.json.JsonNavigateCommand;</span>
+<span class="source-line-no">021</span><span id="line-21">import com.streamconverter.command.rule.PassThroughRule;</span>
+<span class="source-line-no">022</span><span id="line-22">import com.streamconverter.path.CSVPath;</span>
+<span class="source-line-no">023</span><span id="line-23">import com.streamconverter.path.TreePath;</span>
+<span class="source-line-no">024</span><span id="line-24"></span>
+<span class="source-line-no">025</span><span id="line-25">import reactor.core.publisher.Flux;</span>
+<span class="source-line-no">026</span><span id="line-26">import reactor.core.publisher.Mono;</span>
+<span class="source-line-no">027</span><span id="line-27"></span>
+<span class="source-line-no">028</span><span id="line-28">/**</span>
+<span class="source-line-no">029</span><span id="line-29"> * Web API controller for StreamConverter processing.</span>
+<span class="source-line-no">030</span><span id="line-30"> *</span>
+<span class="source-line-no">031</span><span id="line-31"> * &lt;p&gt;Provides REST endpoints to process data streams using existing StreamConverter functionality.</span>
+<span class="source-line-no">032</span><span id="line-32"> */</span>
+<span class="source-line-no">033</span><span id="line-33">@RestController</span>
+<span class="source-line-no">034</span><span id="line-34">@RequestMapping("/api/v1/stream")</span>
+<span class="source-line-no">035</span><span id="line-35">public class StreamProcessingController {</span>
+<span class="source-line-no">036</span><span id="line-36"></span>
+<span class="source-line-no">037</span><span id="line-37">  private static final Logger log = LoggerFactory.getLogger(StreamProcessingController.class);</span>
+<span class="source-line-no">038</span><span id="line-38"></span>
+<span class="source-line-no">039</span><span id="line-39">  /**</span>
+<span class="source-line-no">040</span><span id="line-40">   * Process data stream with CSV extraction.</span>
+<span class="source-line-no">041</span><span id="line-41">   *</span>
+<span class="source-line-no">042</span><span id="line-42">   * @param inputData binary input data</span>
+<span class="source-line-no">043</span><span id="line-43">   * @param columnName CSV column name to extract</span>
+<span class="source-line-no">044</span><span id="line-44">   * @return processed data as binary stream</span>
+<span class="source-line-no">045</span><span id="line-45">   */</span>
+<span class="source-line-no">046</span><span id="line-46">  @PostMapping(</span>
+<span class="source-line-no">047</span><span id="line-47">      value = "/csv/extract",</span>
+<span class="source-line-no">048</span><span id="line-48">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
+<span class="source-line-no">049</span><span id="line-49">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
+<span class="source-line-no">050</span><span id="line-50">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processCsvExtraction(</span>
+<span class="source-line-no">051</span><span id="line-51">      @RequestBody Flux&lt;DataBuffer&gt; inputData, @RequestParam String columnName) {</span>
+<span class="source-line-no">052</span><span id="line-52"></span>
+<span class="source-line-no">053</span><span id="line-53">    log.info("Processing CSV extraction for column: {}", columnName);</span>
+<span class="source-line-no">054</span><span id="line-54"></span>
+<span class="source-line-no">055</span><span id="line-55">    return inputData</span>
+<span class="source-line-no">056</span><span id="line-56">        .collectList()</span>
+<span class="source-line-no">057</span><span id="line-57">        .map(this::combineDataBuffers)</span>
+<span class="source-line-no">058</span><span id="line-58">        .map(data -&gt; processWithStreamConverter(data, CsvNavigateCommand.create(new CSVPath(columnName), new PassThroughRule())))</span>
+<span class="source-line-no">059</span><span id="line-59">        .map(result -&gt; ResponseEntity.ok(createDataBufferFlux(result)))</span>
+<span class="source-line-no">060</span><span id="line-60">        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
+<span class="source-line-no">061</span><span id="line-61">  }</span>
+<span class="source-line-no">062</span><span id="line-62"></span>
+<span class="source-line-no">063</span><span id="line-63">  /**</span>
+<span class="source-line-no">064</span><span id="line-64">   * Process data stream with JSON path extraction.</span>
+<span class="source-line-no">065</span><span id="line-65">   *</span>
+<span class="source-line-no">066</span><span id="line-66">   * @param inputData binary input data</span>
+<span class="source-line-no">067</span><span id="line-67">   * @param jsonPath JSON path expression</span>
+<span class="source-line-no">068</span><span id="line-68">   * @return processed data as binary stream</span>
+<span class="source-line-no">069</span><span id="line-69">   */</span>
+<span class="source-line-no">070</span><span id="line-70">  @PostMapping(</span>
+<span class="source-line-no">071</span><span id="line-71">      value = "/json/extract",</span>
+<span class="source-line-no">072</span><span id="line-72">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
+<span class="source-line-no">073</span><span id="line-73">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
+<span class="source-line-no">074</span><span id="line-74">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processJsonExtraction(</span>
+<span class="source-line-no">075</span><span id="line-75">      @RequestBody Flux&lt;DataBuffer&gt; inputData, @RequestParam String jsonPath) {</span>
+<span class="source-line-no">076</span><span id="line-76"></span>
+<span class="source-line-no">077</span><span id="line-77">    log.info("Processing JSON extraction for path: {}", jsonPath);</span>
+<span class="source-line-no">078</span><span id="line-78"></span>
+<span class="source-line-no">079</span><span id="line-79">    return inputData</span>
+<span class="source-line-no">080</span><span id="line-80">        .collectList()</span>
+<span class="source-line-no">081</span><span id="line-81">        .map(this::combineDataBuffers)</span>
+<span class="source-line-no">082</span><span id="line-82">        .map(data -&gt; processWithStreamConverter(data, JsonNavigateCommand.create(TreePath.fromJson(jsonPath), new PassThroughRule())))</span>
+<span class="source-line-no">083</span><span id="line-83">        .map(result -&gt; ResponseEntity.ok(createDataBufferFlux(result)))</span>
+<span class="source-line-no">084</span><span id="line-84">        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
+<span class="source-line-no">085</span><span id="line-85">  }</span>
+<span class="source-line-no">086</span><span id="line-86"></span>
+<span class="source-line-no">087</span><span id="line-87">  /**</span>
+<span class="source-line-no">088</span><span id="line-88">   * Process data stream with custom command pipeline.</span>
+<span class="source-line-no">089</span><span id="line-89">   *</span>
+<span class="source-line-no">090</span><span id="line-90">   * @param inputData binary input data</span>
+<span class="source-line-no">091</span><span id="line-91">   * @param pipelineConfig pipeline configuration header</span>
+<span class="source-line-no">092</span><span id="line-92">   * @return processed data as binary stream</span>
+<span class="source-line-no">093</span><span id="line-93">   */</span>
+<span class="source-line-no">094</span><span id="line-94">  @PostMapping(</span>
+<span class="source-line-no">095</span><span id="line-95">      value = "/process",</span>
+<span class="source-line-no">096</span><span id="line-96">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
+<span class="source-line-no">097</span><span id="line-97">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
+<span class="source-line-no">098</span><span id="line-98">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processWithPipeline(</span>
+<span class="source-line-no">099</span><span id="line-99">      @RequestBody Flux&lt;DataBuffer&gt; inputData,</span>
+<span class="source-line-no">100</span><span id="line-100">      @RequestHeader("X-Pipeline-Config") String pipelineConfig) {</span>
+<span class="source-line-no">101</span><span id="line-101"></span>
+<span class="source-line-no">102</span><span id="line-102">    log.info("Processing with pipeline config: {}", pipelineConfig);</span>
+<span class="source-line-no">103</span><span id="line-103"></span>
+<span class="source-line-no">104</span><span id="line-104">    return inputData</span>
+<span class="source-line-no">105</span><span id="line-105">        .collectList()</span>
+<span class="source-line-no">106</span><span id="line-106">        .map(this::combineDataBuffers)</span>
+<span class="source-line-no">107</span><span id="line-107">        .map(data -&gt; processWithStreamConverter(data, buildPipelineFromConfig(pipelineConfig)))</span>
+<span class="source-line-no">108</span><span id="line-108">        .map(result -&gt; ResponseEntity.ok(createDataBufferFlux(result)))</span>
+<span class="source-line-no">109</span><span id="line-109">        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
+<span class="source-line-no">110</span><span id="line-110">  }</span>
+<span class="source-line-no">111</span><span id="line-111"></span>
+<span class="source-line-no">112</span><span id="line-112">  /**</span>
+<span class="source-line-no">113</span><span id="line-113">   * Health check endpoint.</span>
+<span class="source-line-no">114</span><span id="line-114">   *</span>
+<span class="source-line-no">115</span><span id="line-115">   * @return simple health status</span>
+<span class="source-line-no">116</span><span id="line-116">   */</span>
+<span class="source-line-no">117</span><span id="line-117">  @GetMapping("/health")</span>
+<span class="source-line-no">118</span><span id="line-118">  public Mono&lt;ResponseEntity&lt;String&gt;&gt; health() {</span>
+<span class="source-line-no">119</span><span id="line-119">    return Mono.just(ResponseEntity.ok("StreamConverter Web API is running"));</span>
+<span class="source-line-no">120</span><span id="line-120">  }</span>
+<span class="source-line-no">121</span><span id="line-121"></span>
+<span class="source-line-no">122</span><span id="line-122">  /**</span>
+<span class="source-line-no">123</span><span id="line-123">   * Combines multiple DataBuffer objects into a single byte array.</span>
+<span class="source-line-no">124</span><span id="line-124">   *</span>
+<span class="source-line-no">125</span><span id="line-125">   * @param dataBuffers list of data buffers</span>
+<span class="source-line-no">126</span><span id="line-126">   * @return combined byte array</span>
+<span class="source-line-no">127</span><span id="line-127">   */</span>
+<span class="source-line-no">128</span><span id="line-128">  private byte[] combineDataBuffers(List&lt;DataBuffer&gt; dataBuffers) {</span>
+<span class="source-line-no">129</span><span id="line-129">    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="source-line-no">130</span><span id="line-130">      for (DataBuffer buffer : dataBuffers) {</span>
+<span class="source-line-no">131</span><span id="line-131">        byte[] bytes = new byte[buffer.readableByteCount()];</span>
+<span class="source-line-no">132</span><span id="line-132">        buffer.read(bytes);</span>
+<span class="source-line-no">133</span><span id="line-133">        outputStream.write(bytes);</span>
+<span class="source-line-no">134</span><span id="line-134">      }</span>
+<span class="source-line-no">135</span><span id="line-135">      return outputStream.toByteArray();</span>
+<span class="source-line-no">136</span><span id="line-136">    } catch (IOException e) {</span>
+<span class="source-line-no">137</span><span id="line-137">      log.error("Error combining data buffers", e);</span>
+<span class="source-line-no">138</span><span id="line-138">      throw new RuntimeException("Failed to combine input data", e);</span>
+<span class="source-line-no">139</span><span id="line-139">    }</span>
+<span class="source-line-no">140</span><span id="line-140">  }</span>
+<span class="source-line-no">141</span><span id="line-141"></span>
+<span class="source-line-no">142</span><span id="line-142">  /**</span>
+<span class="source-line-no">143</span><span id="line-143">   * Processes data using StreamConverter with given commands.</span>
+<span class="source-line-no">144</span><span id="line-144">   *</span>
+<span class="source-line-no">145</span><span id="line-145">   * @param inputData input byte array</span>
+<span class="source-line-no">146</span><span id="line-146">   * @param commands stream commands to execute</span>
+<span class="source-line-no">147</span><span id="line-147">   * @return processed output byte array</span>
+<span class="source-line-no">148</span><span id="line-148">   */</span>
+<span class="source-line-no">149</span><span id="line-149">  private byte[] processWithStreamConverter(byte[] inputData, IStreamCommand... commands) {</span>
+<span class="source-line-no">150</span><span id="line-150">    try (ByteArrayInputStream inputStream = new ByteArrayInputStream(inputData);</span>
+<span class="source-line-no">151</span><span id="line-151">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
+<span class="source-line-no">152</span><span id="line-152"></span>
+<span class="source-line-no">153</span><span id="line-153">      StreamConverter converter = StreamConverter.create(commands);</span>
+<span class="source-line-no">154</span><span id="line-154">      converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">155</span><span id="line-155"></span>
+<span class="source-line-no">156</span><span id="line-156">      return outputStream.toByteArray();</span>
+<span class="source-line-no">157</span><span id="line-157"></span>
+<span class="source-line-no">158</span><span id="line-158">    } catch (IOException e) {</span>
+<span class="source-line-no">159</span><span id="line-159">      log.error("Error processing with StreamConverter", e);</span>
+<span class="source-line-no">160</span><span id="line-160">      throw new RuntimeException("Stream processing failed", e);</span>
+<span class="source-line-no">161</span><span id="line-161">    }</span>
+<span class="source-line-no">162</span><span id="line-162">  }</span>
+<span class="source-line-no">163</span><span id="line-163"></span>
+<span class="source-line-no">164</span><span id="line-164">  /**</span>
+<span class="source-line-no">165</span><span id="line-165">   * Creates a Flux of DataBuffer from byte array.</span>
+<span class="source-line-no">166</span><span id="line-166">   *</span>
+<span class="source-line-no">167</span><span id="line-167">   * @param data byte array to convert</span>
+<span class="source-line-no">168</span><span id="line-168">   * @return Flux of DataBuffer</span>
+<span class="source-line-no">169</span><span id="line-169">   */</span>
+<span class="source-line-no">170</span><span id="line-170">  private Flux&lt;DataBuffer&gt; createDataBufferFlux(byte[] data) {</span>
+<span class="source-line-no">171</span><span id="line-171">    DataBuffer buffer = new DefaultDataBufferFactory().wrap(data);</span>
+<span class="source-line-no">172</span><span id="line-172">    return Flux.just(buffer);</span>
+<span class="source-line-no">173</span><span id="line-173">  }</span>
+<span class="source-line-no">174</span><span id="line-174"></span>
+<span class="source-line-no">175</span><span id="line-175">  /**</span>
+<span class="source-line-no">176</span><span id="line-176">   * Builds a pipeline from configuration string.</span>
+<span class="source-line-no">177</span><span id="line-177">   *</span>
+<span class="source-line-no">178</span><span id="line-178">   * @param config pipeline configuration (e.g., "csv:name,json:$.result,process:validator")</span>
+<span class="source-line-no">179</span><span id="line-179">   * @return array of stream commands</span>
+<span class="source-line-no">180</span><span id="line-180">   */</span>
+<span class="source-line-no">181</span><span id="line-181">  private IStreamCommand[] buildPipelineFromConfig(String config) {</span>
+<span class="source-line-no">182</span><span id="line-182">    String[] commandConfigs = config.split(",");</span>
+<span class="source-line-no">183</span><span id="line-183">    IStreamCommand[] commands = new IStreamCommand[commandConfigs.length];</span>
+<span class="source-line-no">184</span><span id="line-184"></span>
+<span class="source-line-no">185</span><span id="line-185">    for (int i = 0; i &lt; commandConfigs.length; i++) {</span>
+<span class="source-line-no">186</span><span id="line-186">      String[] parts = commandConfigs[i].split(":", 2);</span>
+<span class="source-line-no">187</span><span id="line-187">      String commandType = parts[0].trim();</span>
+<span class="source-line-no">188</span><span id="line-188">      String parameter = parts.length &gt; 1 ? parts[1].trim() : "";</span>
+<span class="source-line-no">189</span><span id="line-189"></span>
+<span class="source-line-no">190</span><span id="line-190">      commands[i] =</span>
+<span class="source-line-no">191</span><span id="line-191">          switch (commandType.toLowerCase()) {</span>
+<span class="source-line-no">192</span><span id="line-192">            case "csv" -&gt; CsvNavigateCommand.create(new CSVPath(parameter), new PassThroughRule());</span>
+<span class="source-line-no">193</span><span id="line-193">            case "json" -&gt; JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());</span>
+<span class="source-line-no">194</span><span id="line-194">            case "process" -&gt; new SampleStreamCommand(parameter);</span>
+<span class="source-line-no">195</span><span id="line-195">            default -&gt; throw new IllegalArgumentException("Unknown command type: " + commandType);</span>
+<span class="source-line-no">196</span><span id="line-196">          };</span>
+<span class="source-line-no">197</span><span id="line-197">    }</span>
+<span class="source-line-no">198</span><span id="line-198"></span>
+<span class="source-line-no">199</span><span id="line-199">    log.info("Built pipeline with {} commands", commands.length);</span>
+<span class="source-line-no">200</span><span id="line-200">    return commands;</span>
+<span class="source-line-no">201</span><span id="line-201">  }</span>
+<span class="source-line-no">202</span><span id="line-202">}</span>
 
 
 

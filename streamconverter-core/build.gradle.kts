@@ -31,77 +31,51 @@ repositories {
 }
 
 dependencies {
-    // Import Spring Boot BOM to align Spring/Reactor/Logback/Hikari versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.5"))
-
+    
     // Reactive HTTP Client (needed for SendHttpCommand)
-    implementation("org.springframework:spring-webflux")
-    implementation("org.springframework:spring-context")
-    implementation("io.projectreactor.netty:reactor-netty-http")
-    // Explicit Netty overrides retained for security/compat compatibility
+    implementation("org.springframework:spring-webflux:6.2.10")
+    implementation("org.springframework:spring-context:6.2.10")
+    implementation("io.projectreactor.netty:reactor-netty-http:1.2.8")
     implementation("io.netty:netty-handler:4.2.4.Final")
     implementation("io.netty:netty-common:4.2.4.Final")
-
-    // Logging (version via BOM)
-    implementation("ch.qos.logback:logback-core")
-    implementation("ch.qos.logback:logback-classic")
-
+    
+    // Logging
+    implementation("ch.qos.logback:logback-core:1.5.18") // CVE-2024-12798, CVE-2024-12801修正
+    implementation("ch.qos.logback:logback-classic:1.5.18")
+    
     // メインの依存関係
-    implementation("org.apache.commons:commons-lang3:3.18.0")
+    implementation("org.apache.commons:commons-lang3:3.18.0") // Already fixed CVE-2025-48924
     implementation("commons-io:commons-io:2.20.0")
-
+    
     // JSON Schema validation
     implementation("com.networknt:json-schema-validator:1.5.8")
-
+    
     // JsonSurfer for streaming JSON processing
     implementation("com.github.jsurfer:jsurfer-jackson:1.6.5")
-
+    
     // CSV validation support
     implementation("com.opencsv:opencsv:5.12.0")
-
+    
     // IP address validation
     implementation("com.google.guava:guava:33.4.8-jre")
-
-    // Database support (version via BOM)
-    implementation("com.zaxxer:HikariCP")
+    
+    // Database support
+    implementation("com.zaxxer:HikariCP:7.0.2")
     testImplementation("com.h2database:h2:2.3.232")
+    
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:5.13.4"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
-
+    
     // Mockito の依存関係（テスト用）
     testImplementation("org.mockito:mockito-core:5.19.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
-
+    
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.1")
-
-    // Enforce security-pinned versions and avoid Netty mix with BOM (constraints override BOM)
-    constraints {
-        // Logback CVE-patched versions
-        implementation("ch.qos.logback:logback-core:1.5.18")
-        implementation("ch.qos.logback:logback-classic:1.5.18")
-
-        // Full Netty alignment to 4.2.4.Final to avoid mixing transitive 4.1.x
-        implementation("io.netty:netty-buffer:4.2.4.Final")
-        implementation("io.netty:netty-transport:4.2.4.Final")
-        implementation("io.netty:netty-transport-native-epoll:4.2.4.Final")
-        implementation("io.netty:netty-codec:4.2.4.Final")
-        implementation("io.netty:netty-codec-http:4.2.4.Final")
-        implementation("io.netty:netty-codec-http2:4.2.4.Final")
-        implementation("io.netty:netty-codec-dns:4.2.4.Final")
-        implementation("io.netty:netty-codec-socks:4.2.4.Final")
-        implementation("io.netty:netty-handler-proxy:4.2.4.Final")
-        implementation("io.netty:netty-resolver:4.2.4.Final")
-        implementation("io.netty:netty-resolver-dns:4.2.4.Final")
-        implementation("io.netty:netty-resolver-dns-classes-macos:4.2.4.Final")
-        implementation("io.netty:netty-resolver-dns-native-macos:4.2.4.Final")
-        implementation("io.netty:netty-transport-classes-epoll:4.2.4.Final")
-        implementation("io.netty:netty-transport-native-unix-common:4.2.4.Final")
-    }
 }
 
 // Spotless configuration for code formatting

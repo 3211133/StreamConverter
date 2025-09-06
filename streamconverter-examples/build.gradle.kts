@@ -48,46 +48,31 @@ tasks.register<JavaExec>("runQuickStart") {
     mainClass.set("com.streamconverter.examples.QuickStart")
 }
 
-tasks.register<JavaExec>("runDemo") {
-    group = "application"
-    description = "Run StreamConverter demo"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.StreamConverterDemo")
-}
-
-tasks.register<JavaExec>("runDataProcessing") {
-    group = "application"
-    description = "Run DataProcessing examples"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.DataProcessingExamples")
-}
-
-tasks.register<JavaExec>("runAutoLoggingDemo") {
-    group = "application"
-    description = "Run Auto Logging Demo"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.AutoLoggingDemo")
-}
-
 tasks.register<JavaExec>("runMDC") {
     group = "application"
     description = "Run MDC Multi-Thread Example"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.MDCMultiThreadExample")
+    mainClass.set("com.streamconverter.examples.StreamConverterMDCDemo")
 }
 
-tasks.register<JavaExec>("runContextDemo") {
+// Optional helpers for specific examples (kept minimal)
+tasks.register<JavaExec>("runComplexPipeline") {
     group = "application"
-    description = "Run Context Propagation Demo"
+    description = "Run Complex Pipeline Example"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.ContextPropagationDemo")
+    mainClass.set("com.streamconverter.examples.ComplexPipelineExample")
 }
-
-tasks.register<JavaExec>("runDirectApiDemo") {
+tasks.register<JavaExec>("runValidationExample") {
     group = "application"
-    description = "Run Direct API Demo"
+    description = "Run Validation Example"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.DirectApiDemo")
+    mainClass.set("com.streamconverter.examples.ValidationExample")
+}
+tasks.register<JavaExec>("runDatabaseRuleDemo") {
+    group = "application"
+    description = "Run Database Rule Demo"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamconverter.examples.DatabaseRuleDemo")
 }
 
 // Spotless configuration for code formatting

@@ -11,6 +11,7 @@ import com.streamconverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -164,7 +165,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   /** Handle JSON parsing exceptions */
   private void handleJsonParseException(OutputStream outputStream, Exception e) throws IOException {
     String errorMessage = String.format("JSON parsing error: %s", e.getMessage());
-    outputStream.write(errorMessage.getBytes());
+    outputStream.write(errorMessage.getBytes(StandardCharsets.UTF_8));
     outputStream.flush();
   }
 }

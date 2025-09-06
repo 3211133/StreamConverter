@@ -93,9 +93,9 @@
 <span class="source-line-no">080</span><span id="line-80"></span>
 <span class="source-line-no">081</span><span id="line-81">    String jsonData = "{\"name\":\"John\",\"age\":30,\"city\":\"NYC\"}";</span>
 <span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">    // Extract name property</span>
+<span class="source-line-no">083</span><span id="line-83">    // Extract name property (JSONPath style)</span>
 <span class="source-line-no">084</span><span id="line-84">    IStreamCommand jsonCommand =</span>
-<span class="source-line-no">085</span><span id="line-85">        JsonNavigateCommand.create(TreePath.fromXml("name"), new PassThroughRule());</span>
+<span class="source-line-no">085</span><span id="line-85">        JsonNavigateCommand.create(TreePath.fromJson("$.name"), new PassThroughRule());</span>
 <span class="source-line-no">086</span><span id="line-86">    String result = processData(jsonData, jsonCommand);</span>
 <span class="source-line-no">087</span><span id="line-87"></span>
 <span class="source-line-no">088</span><span id="line-88">    log.info("Input JSON:");</span>

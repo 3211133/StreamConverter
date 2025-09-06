@@ -1,4 +1,4 @@
-package com.streamConverter.command.rule.impl.casing;
+package com.streamconverter.command.rule.impl.casing;
 
 import static org.junit.jupiter.api.Assertions.*;
 

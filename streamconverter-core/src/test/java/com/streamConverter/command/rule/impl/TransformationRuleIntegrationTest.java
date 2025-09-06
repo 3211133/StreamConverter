@@ -1,15 +1,15 @@
-package com.streamConverter.command.rule.impl;
+package com.streamconverter.command.rule.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.json.JsonNavigateCommand;
-import com.streamConverter.command.rule.impl.casing.CamelToSnakeCaseRule;
-import com.streamConverter.command.rule.impl.casing.SnakeToCamelCaseRule;
-import com.streamConverter.command.rule.impl.composite.ChainRule;
-import com.streamConverter.command.rule.impl.string.LowerCaseRule;
-import com.streamConverter.command.rule.impl.string.TrimRule;
-import com.streamConverter.path.TreePath;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.rule.impl.casing.CamelToSnakeCaseRule;
+import com.streamconverter.command.rule.impl.casing.SnakeToCamelCaseRule;
+import com.streamconverter.command.rule.impl.composite.ChainRule;
+import com.streamconverter.command.rule.impl.string.LowerCaseRule;
+import com.streamconverter.command.rule.impl.string.TrimRule;
+import com.streamconverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;

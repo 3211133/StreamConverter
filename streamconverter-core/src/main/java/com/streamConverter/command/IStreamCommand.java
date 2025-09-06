@@ -1,6 +1,6 @@
-package com.streamConverter.command;
+package com.streamconverter.command;
 
-import com.streamConverter.context.ExecutionContext;
+import com.streamconverter.context.ExecutionContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

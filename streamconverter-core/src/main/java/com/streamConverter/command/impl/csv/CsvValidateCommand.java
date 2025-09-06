@@ -1,9 +1,9 @@
-package com.streamConverter.command.impl.csv;
+package com.streamconverter.command.impl.csv;
 
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvException;
-import com.streamConverter.StreamProcessingException;
-import com.streamConverter.command.ConsumerCommand;
+import com.streamconverter.StreamProcessingException;
+import com.streamconverter.command.ConsumerCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

@@ -2,7 +2,7 @@ package com.streamconverter.command.impl.analysis;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.SerializationFeature;
-import com.streamConverter.command.AbstractStreamCommand;
+import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.impl.analysis.PmdXmlToMarkdownCommand.PmdViolation;
 import java.io.IOException;
 import java.io.InputStream;

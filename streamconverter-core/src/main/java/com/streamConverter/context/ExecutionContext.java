@@ -1,4 +1,4 @@
-package com.streamConverter.context;
+package com.streamconverter.context;
 
 import java.time.Instant;
 import java.util.Collections;

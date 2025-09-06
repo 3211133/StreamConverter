@@ -1,9 +1,9 @@
-package com.streamConverter.command.impl.json;
+package com.streamconverter.command.impl.json;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.StreamProcessingException;
-import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
+import com.streamconverter.StreamProcessingException;
+import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;

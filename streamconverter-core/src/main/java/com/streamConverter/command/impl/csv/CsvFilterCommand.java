@@ -1,7 +1,7 @@
-package com.streamConverter.command.impl.csv;
+package com.streamconverter.command.impl.csv;
 
-import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.path.CSVPath;
+import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.path.CSVPath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

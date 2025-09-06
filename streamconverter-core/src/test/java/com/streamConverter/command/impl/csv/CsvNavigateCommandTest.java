@@ -1,14 +1,14 @@
-package com.streamConverter.command.impl.csv;
+package com.streamconverter.command.impl.csv;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.path.CSVPath;
-import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
-import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
-import com.streamConverter.test.TestUtils;
+import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.test.StreamingTestUtils.MonitoringOutputStream;
+import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
+import com.streamconverter.test.TestUtils;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

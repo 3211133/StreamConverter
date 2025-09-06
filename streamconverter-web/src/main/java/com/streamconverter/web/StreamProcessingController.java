@@ -1,14 +1,5 @@
 package com.streamconverter.web;
 
-import com.streamConverter.StreamConverter;
-import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.csv.CsvNavigateCommand;
-import com.streamConverter.command.impl.json.JsonNavigateCommand;
-import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.TreePath;
-
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -21,6 +12,16 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.SampleStreamCommand;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.TreePath;
+
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 

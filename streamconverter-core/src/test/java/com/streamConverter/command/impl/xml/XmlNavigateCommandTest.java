@@ -1,11 +1,11 @@
-package com.streamConverter.command.impl.xml;
+package com.streamconverter.command.impl.xml;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 
-import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.path.TreePath;
+import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

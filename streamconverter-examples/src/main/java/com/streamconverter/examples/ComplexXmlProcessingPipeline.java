@@ -1,12 +1,12 @@
 package com.streamconverter.examples;
 
-import com.streamConverter.StreamConverter;
-import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.SendHttpCommand;
-import com.streamConverter.command.impl.xml.XmlNavigateCommand;
-import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.path.TreePath;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.SampleStreamCommand;
+import com.streamconverter.command.impl.SendHttpCommand;
+import com.streamconverter.command.impl.xml.XmlNavigateCommand;
+import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

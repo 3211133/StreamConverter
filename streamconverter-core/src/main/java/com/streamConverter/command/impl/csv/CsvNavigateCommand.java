@@ -1,9 +1,9 @@
-package com.streamConverter.command.impl.csv;
+package com.streamconverter.command.impl.csv;
 
-import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.command.rule.IRule;
-import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.TreePath;
+import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.rule.IRule;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.TreePath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

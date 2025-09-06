@@ -1,4 +1,4 @@
-package com.streamConverter.command.impl.json;
+package com.streamconverter.command.impl.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,8 +6,8 @@ import com.networknt.schema.JsonSchema;
 import com.networknt.schema.JsonSchemaFactory;
 import com.networknt.schema.SpecVersion;
 import com.networknt.schema.ValidationMessage;
-import com.streamConverter.StreamProcessingException;
-import com.streamConverter.command.ConsumerCommand;
+import com.streamconverter.StreamProcessingException;
+import com.streamconverter.command.ConsumerCommand;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;

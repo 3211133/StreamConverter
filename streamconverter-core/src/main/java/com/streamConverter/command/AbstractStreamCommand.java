@@ -1,7 +1,7 @@
-package com.streamConverter.command;
+package com.streamconverter.command;
 
-import com.streamConverter.util.MeasuredInputStream;
-import com.streamConverter.util.MeasuredOutputStream;
+import com.streamconverter.util.MeasuredInputStream;
+import com.streamconverter.util.MeasuredOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

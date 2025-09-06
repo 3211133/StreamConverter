@@ -1,6 +1,6 @@
-package com.streamConverter.security;
+package com.streamconverter.security;
 
-import com.streamConverter.config.SecurityConfigurationManager;
+import com.streamconverter.config.SecurityConfigurationManager;
 import java.io.InputStream;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;

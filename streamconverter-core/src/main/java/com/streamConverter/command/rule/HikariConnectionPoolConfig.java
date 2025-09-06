@@ -1,4 +1,4 @@
-package com.streamConverter.command.rule;
+package com.streamconverter.command.rule;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;

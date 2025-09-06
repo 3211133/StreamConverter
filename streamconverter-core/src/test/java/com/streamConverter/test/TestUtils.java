@@ -1,4 +1,4 @@
-package com.streamConverter.test;
+package com.streamconverter.test;
 
 import java.util.Arrays;
 

@@ -136,7 +136,7 @@ tasks.test {
 
 // Main class configuration - DatabaseInspector as default
 application {
-    mainClass.set("com.streamConverter.tools.DatabaseInspector")
+    mainClass.set("com.streamconverter.tools.DatabaseInspector")
 }
 
 // spotlessCheck タスクを無効化

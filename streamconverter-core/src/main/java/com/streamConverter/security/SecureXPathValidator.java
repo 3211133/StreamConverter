@@ -1,6 +1,6 @@
-package com.streamConverter.security;
+package com.streamconverter.security;
 
-import com.streamConverter.config.SecurityConfigurationManager;
+import com.streamconverter.config.SecurityConfigurationManager;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

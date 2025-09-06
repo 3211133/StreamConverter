@@ -1,4 +1,4 @@
-package com.streamConverter.path;
+package com.streamconverter.path;
 
 import java.util.ArrayList;
 import java.util.Collections;

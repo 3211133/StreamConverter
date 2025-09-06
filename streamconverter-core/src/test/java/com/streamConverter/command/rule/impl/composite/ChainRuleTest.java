@@ -1,11 +1,11 @@
-package com.streamConverter.command.rule.impl.composite;
+package com.streamconverter.command.rule.impl.composite;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.command.rule.IRule;
-import com.streamConverter.command.rule.impl.casing.CamelToSnakeCaseRule;
-import com.streamConverter.command.rule.impl.string.LowerCaseRule;
-import com.streamConverter.command.rule.impl.string.TrimRule;
+import com.streamconverter.command.rule.IRule;
+import com.streamconverter.command.rule.impl.casing.CamelToSnakeCaseRule;
+import com.streamconverter.command.rule.impl.string.LowerCaseRule;
+import com.streamconverter.command.rule.impl.string.TrimRule;
 import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 

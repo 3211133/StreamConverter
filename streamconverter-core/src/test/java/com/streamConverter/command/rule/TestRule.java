@@ -1,4 +1,4 @@
-package com.streamConverter.command.rule;
+package com.streamconverter.command.rule;
 
 import java.util.Objects;
 

@@ -1,12 +1,12 @@
-package com.streamConverter.integration;
+package com.streamconverter.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.command.impl.csv.CsvNavigateCommand;
-import com.streamConverter.command.impl.json.JsonNavigateCommand;
-import com.streamConverter.command.rule.DatabaseFetchRule;
-import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.TreePath;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.rule.DatabaseFetchRule;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

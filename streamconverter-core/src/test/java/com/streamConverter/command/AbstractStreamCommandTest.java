@@ -1,4 +1,4 @@
-package com.streamConverter.command;
+package com.streamconverter.command;
 
 import static org.junit.jupiter.api.Assertions.*;
 

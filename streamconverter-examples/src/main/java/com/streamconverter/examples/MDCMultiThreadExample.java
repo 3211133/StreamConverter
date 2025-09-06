@@ -1,7 +1,7 @@
 package com.streamconverter.examples;
 
-import com.streamConverter.StreamConverter;
-import com.streamConverter.command.IStreamCommand;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.IStreamCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

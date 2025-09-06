@@ -173,23 +173,23 @@ dependencies {
     implementation("net.minidev:json-smart:2.6.0") // CVE-2024-57699修正
     
     // Complete Netty version alignment to fix isExplicitNoPreferDirect() compatibility issue
-    implementation("io.netty:netty-handler:4.2.4.Final") // CVE-2025-24970修正
-    implementation("io.netty:netty-common:4.2.4.Final") // CVE-2025-25193修正
-    implementation("io.netty:netty-buffer:4.2.4.Final") 
-    implementation("io.netty:netty-transport:4.2.4.Final")
-    implementation("io.netty:netty-transport-native-epoll:4.2.4.Final")
-    implementation("io.netty:netty-codec-http:4.2.4.Final")
-    implementation("io.netty:netty-resolver:4.2.4.Final")
-    implementation("io.netty:netty-codec:4.2.4.Final")
-    implementation("io.netty:netty-codec-dns:4.2.4.Final")
-    implementation("io.netty:netty-codec-http2:4.2.4.Final")
-    implementation("io.netty:netty-codec-socks:4.2.4.Final")
-    implementation("io.netty:netty-handler-proxy:4.2.4.Final")
-    implementation("io.netty:netty-resolver-dns:4.2.4.Final")
-    implementation("io.netty:netty-resolver-dns-classes-macos:4.2.4.Final")
-    implementation("io.netty:netty-resolver-dns-native-macos:4.2.4.Final")
-    implementation("io.netty:netty-transport-classes-epoll:4.2.4.Final")
-    implementation("io.netty:netty-transport-native-unix-common:4.2.4.Final")
+    implementation("io.netty:netty-handler:4.2.5.Final") // CVE-2025-24970修正
+    implementation("io.netty:netty-common:4.2.5.Final") // CVE-2025-25193修正
+    implementation("io.netty:netty-buffer:4.2.5.Final") 
+    implementation("io.netty:netty-transport:4.2.5.Final")
+    implementation("io.netty:netty-transport-native-epoll:4.2.5.Final")
+    implementation("io.netty:netty-codec-http:4.2.5.Final")
+    implementation("io.netty:netty-resolver:4.2.5.Final")
+    implementation("io.netty:netty-codec:4.2.5.Final")
+    implementation("io.netty:netty-codec-dns:4.2.5.Final")
+    implementation("io.netty:netty-codec-http2:4.2.5.Final")
+    implementation("io.netty:netty-codec-socks:4.2.5.Final")
+    implementation("io.netty:netty-handler-proxy:4.2.5.Final")
+    implementation("io.netty:netty-resolver-dns:4.2.5.Final")
+    implementation("io.netty:netty-resolver-dns-classes-macos:4.2.5.Final")
+    implementation("io.netty:netty-resolver-dns-native-macos:4.2.5.Final")
+    implementation("io.netty:netty-transport-classes-epoll:4.2.5.Final")
+    implementation("io.netty:netty-transport-native-unix-common:4.2.5.Final")
     implementation("org.apache.httpcomponents.client5:httpclient5:5.5") // CVE-2025-27820修正
     implementation("ch.qos.logback:logback-core:1.5.18") // CVE-2024-12798, CVE-2024-12801修正
     implementation("io.projectreactor.netty:reactor-netty-http:1.2.8") // Latest version compatible with Netty 4.1.123.Final

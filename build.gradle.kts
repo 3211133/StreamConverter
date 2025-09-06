@@ -97,7 +97,7 @@ spotless {
 }
 
 application {
-    mainClass.set(project.findProperty("mainClass")?.toString() ?: "com.streamConverter.Main")
+    mainClass.set(project.findProperty("mainClass")?.toString() ?: "com.streamconverter.Main")
 }
 
 java {
@@ -154,15 +154,15 @@ tasks.jacocoTestReport {
 
 // PITレポートの設定
 tasks.pitest {
-    targetClasses.set(listOf("com.streamConverter.*")) // テスト対象のクラスを指定
+    targetClasses.set(listOf("com.streamconverter.*")) // テスト対象のクラスを指定
     outputFormats.set(listOf("HTML")) // 出力形式を指定
     // タイムアウト設定を追加
     timeoutConstInMillis.set(10000) // 10秒でタイムアウト
     timeoutFactor.set(BigDecimal("1.5")) // 1.5倍のマージン
     // 対象クラスを絞り込んでパフォーマンスを向上
     excludedClasses.set(listOf(
-        "com.streamConverter.examples.*", // サンプルコードを除外
-        "com.streamConverter.demo.*"      // デモコードを除外
+        "com.streamconverter.examples.*", // サンプルコードを除外
+        "com.streamconverter.demo.*"      // デモコードを除外
     ))
     // テスト後にレポートを生成
     // dependsOn(tasks.test)
@@ -244,7 +244,7 @@ tasks.named("check") {
 
 // Root project configuration for multi-module build
 allprojects {
-    group = "com.streamConverter"
+    group = "com.streamconverter"
     version = "1.2.0"
 
     tasks.withType<Test>().configureEach {

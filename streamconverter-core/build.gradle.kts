@@ -142,15 +142,15 @@ tasks.jacocoTestReport {
 
 // PITレポートの設定
 tasks.pitest {
-    targetClasses.set(listOf("com.streamConverter.*")) // テスト対象のクラスを指定
+    targetClasses.set(listOf("com.streamconverter.*")) // テスト対象のクラスを指定
     outputFormats.set(listOf("HTML")) // 出力形式を指定
     // タイムアウト設定を追加
     timeoutConstInMillis.set(10000) // 10秒でタイムアウト
     timeoutFactor.set(BigDecimal("1.5")) // 1.5倍のマージン
     // 対象クラスを絞り込んでパフォーマンスを向上
     excludedClasses.set(listOf(
-        "com.streamConverter.examples.*", // サンプルコードを除外
-        "com.streamConverter.demo.*"      // デモコードを除外
+        "com.streamconverter.examples.*", // サンプルコードを除外
+        "com.streamconverter.demo.*"      // デモコードを除外
     ))
 }
 
@@ -228,7 +228,7 @@ tasks.register("convertPmdReport", JavaExec::class) {
     
     dependsOn(tasks.compileJava, tasks.pmdMain)
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.analysis.PmdReportConverter")
+    mainClass.set("com.streamconverter.analysis.PmdReportConverter")
     
     // PMD XMLレポートのパスを引数として渡す
     args("build/reports/pmd/main.xml", "build/reports/pmd/converted")
@@ -250,8 +250,8 @@ tasks.register("analyzeTestFailures", JavaExec::class) {
     
     dependsOn(tasks.compileJava)
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.test.TestFailureAnalyzer")
-    
+    mainClass.set("com.streamconverter.test.TestFailureAnalyzer")
+
     // テスト結果ディレクトリをパラメータとして渡す
     args("build/test-results/test")
     
@@ -268,8 +268,8 @@ tasks.register("testPmdConverter", JavaExec::class) {
     
     dependsOn(tasks.compileJava, tasks.pmdMain)
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.test.PmdConverterTest")
-    
+    mainClass.set("com.streamconverter.test.PmdConverterTest")
+
     // PMD実行後にのみ実行されるよう条件付きで設定
     onlyIf {
         file("build/reports/pmd/main.xml").exists()

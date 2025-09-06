@@ -78,6 +78,30 @@ dependencies {
 
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.1")
+
+    // Enforce security-pinned versions and avoid Netty mix with BOM (constraints override BOM)
+    constraints {
+        // Logback CVE-patched versions
+        implementation("ch.qos.logback:logback-core:1.5.18")
+        implementation("ch.qos.logback:logback-classic:1.5.18")
+
+        // Full Netty alignment to 4.2.4.Final to avoid mixing transitive 4.1.x
+        implementation("io.netty:netty-buffer:4.2.4.Final")
+        implementation("io.netty:netty-transport:4.2.4.Final")
+        implementation("io.netty:netty-transport-native-epoll:4.2.4.Final")
+        implementation("io.netty:netty-codec:4.2.4.Final")
+        implementation("io.netty:netty-codec-http:4.2.4.Final")
+        implementation("io.netty:netty-codec-http2:4.2.4.Final")
+        implementation("io.netty:netty-codec-dns:4.2.4.Final")
+        implementation("io.netty:netty-codec-socks:4.2.4.Final")
+        implementation("io.netty:netty-handler-proxy:4.2.4.Final")
+        implementation("io.netty:netty-resolver:4.2.4.Final")
+        implementation("io.netty:netty-resolver-dns:4.2.4.Final")
+        implementation("io.netty:netty-resolver-dns-classes-macos:4.2.4.Final")
+        implementation("io.netty:netty-resolver-dns-native-macos:4.2.4.Final")
+        implementation("io.netty:netty-transport-classes-epoll:4.2.4.Final")
+        implementation("io.netty:netty-transport-native-unix-common:4.2.4.Final")
+    }
 }
 
 // Spotless configuration for code formatting

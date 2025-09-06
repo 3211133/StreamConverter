@@ -45,49 +45,49 @@ tasks.register<JavaExec>("runQuickStart") {
     group = "application"
     description = "Run QuickStart example"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.QuickStart")
+    mainClass.set("com.streamconverter.examples.QuickStart")
 }
 
 tasks.register<JavaExec>("runDemo") {
     group = "application"
     description = "Run StreamConverter demo"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.StreamConverterDemo")
+    mainClass.set("com.streamconverter.examples.StreamConverterDemo")
 }
 
 tasks.register<JavaExec>("runDataProcessing") {
     group = "application"
     description = "Run DataProcessing examples"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.DataProcessingExamples")
+    mainClass.set("com.streamconverter.examples.DataProcessingExamples")
 }
 
 tasks.register<JavaExec>("runAutoLoggingDemo") {
     group = "application"
     description = "Run Auto Logging Demo"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.AutoLoggingDemo")
+    mainClass.set("com.streamconverter.examples.AutoLoggingDemo")
 }
 
 tasks.register<JavaExec>("runMDC") {
     group = "application"
     description = "Run MDC Multi-Thread Example"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.MDCMultiThreadExample")
+    mainClass.set("com.streamconverter.examples.MDCMultiThreadExample")
 }
 
 tasks.register<JavaExec>("runContextDemo") {
     group = "application"
     description = "Run Context Propagation Demo"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.ContextPropagationDemo")
+    mainClass.set("com.streamconverter.examples.ContextPropagationDemo")
 }
 
 tasks.register<JavaExec>("runDirectApiDemo") {
     group = "application"
     description = "Run Direct API Demo"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.DirectApiDemo")
+    mainClass.set("com.streamconverter.examples.DirectApiDemo")
 }
 
 // Spotless configuration for code formatting
@@ -115,7 +115,7 @@ tasks.test {
 
 // Main class configuration for default application task
 application {
-    mainClass.set("com.streamConverter.examples.QuickStart")
+    mainClass.set("com.streamconverter.examples.QuickStart")
 }
 
 // spotlessCheck タスクを無効化

@@ -1,4 +1,4 @@
-package com.streamConverter.command.impl.charaCode;
+package com.streamConverter.command.impl.charcode;
 
 import com.streamConverter.command.AbstractStreamCommand;
 import java.io.IOException;

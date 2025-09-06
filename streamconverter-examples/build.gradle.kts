@@ -52,7 +52,7 @@ tasks.register<JavaExec>("runDemo") {
     group = "application"
     description = "Run StreamConverter demo"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.demo.StreamConverterDemo")
+    mainClass.set("com.streamConverter.examples.StreamConverterDemo")
 }
 
 tasks.register<JavaExec>("runDataProcessing") {

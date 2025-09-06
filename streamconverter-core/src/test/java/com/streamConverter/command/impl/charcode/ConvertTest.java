@@ -1,4 +1,4 @@
-package com.streamConverter.command.impl.charaCode;
+package com.streamConverter.command.impl.charcode;
 
 import static org.junit.jupiter.api.Assertions.*;
 

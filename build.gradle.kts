@@ -22,59 +22,7 @@ plugins {
 }
 
 // Main class configuration
-application {
-    mainClass.set("com.streamConverter.Main")
-}
-
-// Custom tasks for running examples
-tasks.register<JavaExec>("runQuickStart") {
-    group = "application"
-    description = "Run QuickStart example"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.QuickStart")
-}
-
-tasks.register<JavaExec>("runDemo") {
-    group = "application"
-    description = "Run StreamConverter demo"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.demo.StreamConverterDemo")
-}
-
-tasks.register<JavaExec>("runDataProcessing") {
-    group = "application"
-    description = "Run DataProcessing examples"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.DataProcessingExamples")
-}
-
-tasks.register<JavaExec>("runAutoLoggingDemo") {
-    group = "application"
-    description = "Run Auto Logging Demo"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.AutoLoggingDemo")
-}
-
-tasks.register<JavaExec>("runMDC") {
-    group = "application"
-    description = "Run MDC Multi-Thread Example"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.MDCMultiThreadExample")
-}
-
-tasks.register<JavaExec>("runContextDemo") {
-    group = "application"
-    description = "Run Context Propagation Demo"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.ContextPropagationDemo")
-}
-
-tasks.register<JavaExec>("runDirectApiDemo") {
-    group = "application"
-    description = "Run Direct API Demo"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamConverter.examples.DirectApiDemo")
-}
+// Example run tasks are defined in :streamconverter-examples
 
 // Benchmark tasks
 tasks.register<Test>("benchmarkLargeData") {
@@ -165,73 +113,7 @@ repositories {
     mavenCentral()
 }
 
-dependencies {
-    // Spring Boot WebFlux
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
-    
-    // セキュリティ脆弱性修正のための強制バージョン指定
-    implementation("net.minidev:json-smart:2.6.0") // CVE-2024-57699修正
-    
-    // Complete Netty version alignment to fix isExplicitNoPreferDirect() compatibility issue
-    implementation("io.netty:netty-handler:4.2.4.Final") // CVE-2025-24970修正
-    implementation("io.netty:netty-common:4.2.4.Final") // CVE-2025-25193修正
-    implementation("io.netty:netty-buffer:4.2.4.Final") 
-    implementation("io.netty:netty-transport:4.2.4.Final")
-    implementation("io.netty:netty-transport-native-epoll:4.2.4.Final")
-    implementation("io.netty:netty-codec-http:4.2.4.Final")
-    implementation("io.netty:netty-resolver:4.2.4.Final")
-    implementation("io.netty:netty-codec:4.2.4.Final")
-    implementation("io.netty:netty-codec-dns:4.2.4.Final")
-    implementation("io.netty:netty-codec-http2:4.2.4.Final")
-    implementation("io.netty:netty-codec-socks:4.2.4.Final")
-    implementation("io.netty:netty-handler-proxy:4.2.4.Final")
-    implementation("io.netty:netty-resolver-dns:4.2.4.Final")
-    implementation("io.netty:netty-resolver-dns-classes-macos:4.2.4.Final")
-    implementation("io.netty:netty-resolver-dns-native-macos:4.2.4.Final")
-    implementation("io.netty:netty-transport-classes-epoll:4.2.4.Final")
-    implementation("io.netty:netty-transport-native-unix-common:4.2.4.Final")
-    implementation("org.apache.httpcomponents.client5:httpclient5:5.5") // CVE-2025-27820修正
-    implementation("ch.qos.logback:logback-core:1.5.18") // CVE-2024-12798, CVE-2024-12801修正
-    implementation("io.projectreactor.netty:reactor-netty-http:1.2.8") // Latest version compatible with Netty 4.1.123.Final
-    implementation("org.springframework:spring-web:6.2.8") // CVE-2025-41234修正
-    implementation("org.springframework:spring-context:6.2.10") // CVE-2025-22233修正
-    
-    // メインの依存関係
-    implementation("org.apache.commons:commons-lang3:3.18.0")
-    implementation("commons-io:commons-io:2.20.0")
-    
-    // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:1.5.8")
-    
-    // CSV validation support
-    implementation("com.opencsv:opencsv:5.12.0")
-    
-    // IP address validation
-    implementation("com.google.guava:guava:33.4.8-jre")
-    
-    // JSON processing with Jackson
-    implementation("com.fasterxml.jackson.core:jackson-core:2.20.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.0")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.18.2")
-    
-    // Database support
-    implementation("com.zaxxer:HikariCP:7.0.2")
-    testImplementation("com.h2database:h2:2.3.232")
-    
-    // Spring Boot Test
-    testImplementation("org.springframework.boot:spring-boot-starter-test")
-    testImplementation("io.projectreactor:reactor-test")
-
-    // JUnit 5 の依存関係（テスト用）
-	testImplementation(platform("org.junit:junit-bom:5.13.4"))
-	testImplementation("org.junit.jupiter:junit-jupiter")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-    testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
-    
-    // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.19.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
-}
+// Root project has no direct runtime sources; keep dependencies in subprojects
 
 tasks.test {
     // JUnit 5 を使うための設定
@@ -290,7 +172,7 @@ tasks.pitest {
 tasks.javadoc {
     options.encoding = "UTF-8"
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-    setDestinationDir(file("docs/javadoc"))
+    setDestinationDir(file("build/docs/javadoc"))
 }
 
 // spotlessCheck タスクを無効化

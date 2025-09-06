@@ -80,9 +80,9 @@ public class QuickStart {
 
     String jsonData = "{\"name\":\"John\",\"age\":30,\"city\":\"NYC\"}";
 
-    // Extract name property
+    // Extract name property (JSONPath style)
     IStreamCommand jsonCommand =
-        JsonNavigateCommand.create(TreePath.fromXml("name"), new PassThroughRule());
+        JsonNavigateCommand.create(TreePath.fromJson("$.name"), new PassThroughRule());
     String result = processData(jsonData, jsonCommand);
 
     log.info("Input JSON:");

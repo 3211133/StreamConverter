@@ -143,10 +143,12 @@ for (CommandResult result : results) {
 ./gradlew spotlessApply
 
 # サンプル実行
-./gradlew runQuickStart
-./gradlew runAutoLoggingDemo
-./gradlew runContextDemo
-./gradlew runMDC
+./gradlew runQuickStart      # 基本のCSV/JSON/XML + パイプラインの最短例
+./gradlew runMDC             # MDC/コンテキスト伝播の代表例
+# optional
+./gradlew runComplexPipeline # 複合パイプライン（ネットワーク非依存の流れを擬似）
+./gradlew runValidationExample # バリデーション系の使い方
+./gradlew runDatabaseRuleDemo  # H2を使ったDBルール適用例
 ```
 
 ## 開発ガイドライン

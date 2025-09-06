@@ -1,6 +1,6 @@
-package com.streamConverter.command.impl.charcode;
+package com.streamconverter.command.impl.charcode;
 
-import com.streamConverter.command.AbstractStreamCommand;
+import com.streamconverter.command.AbstractStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;

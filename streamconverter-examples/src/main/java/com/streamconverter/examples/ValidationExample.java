@@ -1,8 +1,8 @@
 package com.streamconverter.examples;
 
-import com.streamConverter.StreamConverter;
-import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.csv.CsvValidateCommand;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.impl.SampleStreamCommand;
+import com.streamconverter.command.impl.csv.CsvValidateCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

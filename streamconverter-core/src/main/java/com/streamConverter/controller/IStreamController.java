@@ -1,6 +1,6 @@
-package com.streamConverter.controller;
+package com.streamconverter.controller;
 
-import com.streamConverter.CommandResult;
+import com.streamconverter.CommandResult;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

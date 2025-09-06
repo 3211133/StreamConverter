@@ -1,6 +1,6 @@
 package com.streamconverter.command.impl.analysis;
 
-import com.streamConverter.command.AbstractStreamCommand;
+import com.streamconverter.command.AbstractStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

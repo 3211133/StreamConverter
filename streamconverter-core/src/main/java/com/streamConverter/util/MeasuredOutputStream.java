@@ -1,4 +1,4 @@
-package com.streamConverter.util;
+package com.streamconverter.util;
 
 import java.io.IOException;
 import java.io.OutputStream;

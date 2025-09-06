@@ -1,9 +1,9 @@
-package com.streamConverter.command.impl.xml;
+package com.streamconverter.command.impl.xml;
 
-import com.streamConverter.StreamProcessingException;
-import com.streamConverter.command.ConsumerCommand;
-import com.streamConverter.config.SecurityConfigurationManager;
-import com.streamConverter.security.SecureXmlConfiguration;
+import com.streamconverter.StreamProcessingException;
+import com.streamconverter.command.ConsumerCommand;
+import com.streamconverter.config.SecurityConfigurationManager;
+import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;

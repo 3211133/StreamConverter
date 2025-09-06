@@ -1,4 +1,4 @@
-package com.streamConverter.command;
+package com.streamconverter.command;
 
 /**
  * コマンド設定クラス

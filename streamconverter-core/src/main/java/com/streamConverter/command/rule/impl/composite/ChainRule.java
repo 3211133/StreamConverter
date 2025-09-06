@@ -1,6 +1,6 @@
-package com.streamConverter.command.rule.impl.composite;
+package com.streamconverter.command.rule.impl.composite;
 
-import com.streamConverter.command.rule.IRule;
+import com.streamconverter.command.rule.IRule;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;

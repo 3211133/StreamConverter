@@ -1,9 +1,9 @@
-package com.streamConverter.controller;
+package com.streamconverter.controller;
 
-import com.streamConverter.CommandResult;
-import com.streamConverter.StreamConverter;
-import com.streamConverter.command.CommandConfig;
-import com.streamConverter.command.IStreamCommand;
+import com.streamconverter.CommandResult;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.CommandConfig;
+import com.streamconverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

@@ -1,4 +1,4 @@
-package com.streamConverter.config;
+package com.streamconverter.config;
 
 import java.io.IOException;
 import java.io.InputStream;

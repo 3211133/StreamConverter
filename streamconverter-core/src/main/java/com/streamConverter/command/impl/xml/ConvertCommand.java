@@ -1,9 +1,9 @@
-package com.streamConverter.command.impl.xml;
+package com.streamconverter.command.impl.xml;
 
-import com.streamConverter.StreamProcessingException;
-import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.command.rule.IRule;
-import com.streamConverter.path.TreePath;
+import com.streamconverter.StreamProcessingException;
+import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.rule.IRule;
+import com.streamconverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

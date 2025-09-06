@@ -2,9 +2,9 @@ package com.streamconverter.benchmark;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.*;
-import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.SampleStreamCommand;
+import com.streamconverter.*;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.SampleStreamCommand;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.*;

@@ -1,6 +1,6 @@
-package com.streamConverter.command.rule.impl.casing;
+package com.streamconverter.command.rule.impl.casing;
 
-import com.streamConverter.command.rule.IRule;
+import com.streamconverter.command.rule.IRule;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 

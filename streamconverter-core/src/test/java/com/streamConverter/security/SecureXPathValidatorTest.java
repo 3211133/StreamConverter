@@ -1,4 +1,4 @@
-package com.streamConverter.security;
+package com.streamconverter.security;
 
 import static org.junit.jupiter.api.Assertions.*;
 

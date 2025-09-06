@@ -1,9 +1,9 @@
-package com.streamConverter;
+package com.streamconverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.SendHttpCommand;
+import com.streamconverter.command.impl.SampleStreamCommand;
+import com.streamconverter.command.impl.SendHttpCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

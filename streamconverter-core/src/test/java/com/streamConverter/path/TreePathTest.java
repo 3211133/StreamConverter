@@ -1,4 +1,4 @@
-package com.streamConverter.path;
+package com.streamconverter.path;
 
 import static org.junit.jupiter.api.Assertions.*;
 

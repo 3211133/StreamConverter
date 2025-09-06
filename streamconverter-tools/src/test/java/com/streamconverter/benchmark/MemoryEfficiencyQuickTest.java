@@ -1,8 +1,8 @@
 package com.streamconverter.benchmark;
 
-import com.streamConverter.*;
-import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.charcode.CharacterConvertCommand;
+import com.streamconverter.*;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
 import java.io.*;
 import java.util.*;
 import org.junit.jupiter.api.*;

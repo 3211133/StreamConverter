@@ -1,4 +1,4 @@
-package com.streamConverter.validation;
+package com.streamconverter.validation;
 
 import static org.junit.jupiter.api.Assertions.*;
 

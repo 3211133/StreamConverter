@@ -1,15 +1,15 @@
-package com.streamConverter.command.impl;
+package com.streamconverter.command.impl;
 
-import static com.streamConverter.test.TestUtils.createTestData;
+import static com.streamconverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.command.impl.csv.CsvFilterCommand;
-import com.streamConverter.command.impl.json.JsonFilterCommand;
-import com.streamConverter.command.impl.xml.XmlFilterCommand;
-import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.TreePath;
-import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
-import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
+import com.streamconverter.command.impl.csv.CsvFilterCommand;
+import com.streamconverter.command.impl.json.JsonFilterCommand;
+import com.streamconverter.command.impl.xml.XmlFilterCommand;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.TreePath;
+import com.streamconverter.test.StreamingTestUtils.MonitoringOutputStream;
+import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

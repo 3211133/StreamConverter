@@ -1,4 +1,4 @@
-package com.streamConverter;
+package com.streamconverter;
 
 /**
  * Custom exception for stream processing errors.

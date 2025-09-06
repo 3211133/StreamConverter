@@ -1,4 +1,4 @@
-package com.streamConverter.path;
+package com.streamconverter.path;
 
 /**
  * 最小限のPath基底クラス

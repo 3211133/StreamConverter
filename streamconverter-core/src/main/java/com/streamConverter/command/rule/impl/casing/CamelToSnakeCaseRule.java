@@ -1,6 +1,6 @@
-package com.streamConverter.command.rule.impl.casing;
+package com.streamconverter.command.rule.impl.casing;
 
-import com.streamConverter.command.rule.IRule;
+import com.streamconverter.command.rule.IRule;
 
 /**
  * Transforms camelCase strings to snake_case format.

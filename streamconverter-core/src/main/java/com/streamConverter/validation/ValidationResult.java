@@ -1,4 +1,4 @@
-package com.streamConverter.validation;
+package com.streamconverter.validation;
 
 import java.time.Instant;
 import java.util.ArrayList;

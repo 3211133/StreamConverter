@@ -1,9 +1,9 @@
-package com.streamConverter.command.impl.xml;
+package com.streamconverter.command.impl.xml;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
-import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
+import com.streamconverter.test.StreamingTestUtils.MonitoringOutputStream;
+import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -89,7 +89,7 @@ class ValidateTest {
 
       // StreamProcessingExceptionが発生することを期待
       assertThrows(
-          com.streamConverter.StreamProcessingException.class,
+          com.streamconverter.StreamProcessingException.class,
           () -> {
             command.execute(inputStream, outputStream);
           });
@@ -144,7 +144,7 @@ class ValidateTest {
     // 存在しないスキーマファイルでのコンストラクタテスト（セキュリティ強化により、コンストラクタで例外が発生）
     // StreamProcessingExceptionが発生することを期待（存在しないスキーマファイル）
     assertThrows(
-        com.streamConverter.StreamProcessingException.class,
+        com.streamconverter.StreamProcessingException.class,
         () -> {
           new ValidateCommand("non-existent-schema.xsd");
         });
@@ -161,7 +161,7 @@ class ValidateTest {
 
       // StreamProcessingExceptionが発生することを期待（空のXMLは無効）
       assertThrows(
-          com.streamConverter.StreamProcessingException.class,
+          com.streamconverter.StreamProcessingException.class,
           () -> {
             command.execute(inputStream, outputStream);
           });

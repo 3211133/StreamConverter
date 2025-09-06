@@ -2,16 +2,16 @@ package com.streamconverter.benchmark;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.*;
-import com.streamConverter.command.IStreamCommand;
-import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.charcode.CharacterConvertCommand;
-import com.streamConverter.command.impl.csv.CsvNavigateCommand;
-import com.streamConverter.command.impl.json.JsonNavigateCommand;
-import com.streamConverter.command.impl.xml.XmlNavigateCommand;
-import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.path.CSVPath;
-import com.streamConverter.path.TreePath;
+import com.streamconverter.*;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.SampleStreamCommand;
+import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.impl.xml.XmlNavigateCommand;
+import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.TreePath;
 import com.streamconverter.test.PlatformAdaptiveTestUtils;
 import java.io.*;
 import java.nio.file.Files;

@@ -1,9 +1,9 @@
-package com.streamConverter.command.impl;
+package com.streamconverter.command.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamConverter.test.StreamingTestUtils.MonitoringOutputStream;
-import com.streamConverter.test.StreamingTestUtils.TrackingInputStream;
+import com.streamconverter.test.StreamingTestUtils.MonitoringOutputStream;
+import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

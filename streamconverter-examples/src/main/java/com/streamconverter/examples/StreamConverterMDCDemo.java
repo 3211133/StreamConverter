@@ -1,12 +1,12 @@
 package com.streamconverter.examples;
 
-import com.streamConverter.CommandResult;
-import com.streamConverter.StreamConverter;
-import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.csv.CsvNavigateCommand;
-import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.context.ExecutionContext;
-import com.streamConverter.path.CSVPath;
+import com.streamconverter.CommandResult;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.impl.SampleStreamCommand;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.context.ExecutionContext;
+import com.streamconverter.path.CSVPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;

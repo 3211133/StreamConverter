@@ -1,4 +1,4 @@
-package com.streamConverter.tools;
+package com.streamconverter.tools;
 
 import java.io.IOException;
 import java.nio.file.Files;

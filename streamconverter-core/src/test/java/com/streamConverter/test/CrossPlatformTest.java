@@ -1,6 +1,6 @@
-package com.streamConverter.test;
+package com.streamconverter.test;
 
-import static com.streamConverter.test.TestUtils.*;
+import static com.streamconverter.test.TestUtils.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;

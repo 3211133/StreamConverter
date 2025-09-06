@@ -1,7 +1,7 @@
-package com.streamConverter.command.impl.xml;
+package com.streamconverter.command.impl.xml;
 
-import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.path.IPath;
+import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.path.IPath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

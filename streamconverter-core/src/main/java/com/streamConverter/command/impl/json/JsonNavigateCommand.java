@@ -1,13 +1,13 @@
-package com.streamConverter.command.impl.json;
+package com.streamconverter.command.impl.json;
 
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.command.rule.IRule;
-import com.streamConverter.path.TreePath;
+import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.rule.IRule;
+import com.streamconverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;

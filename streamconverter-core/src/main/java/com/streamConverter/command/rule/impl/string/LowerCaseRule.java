@@ -1,6 +1,6 @@
-package com.streamConverter.command.rule.impl.string;
+package com.streamconverter.command.rule.impl.string;
 
-import com.streamConverter.command.rule.IRule;
+import com.streamconverter.command.rule.IRule;
 import java.util.Locale;
 
 /**

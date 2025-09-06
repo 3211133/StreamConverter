@@ -1,7 +1,6 @@
 package com.streamconverter.controller;
 
-import com.streamConverter.command.CommandConfig;
-import com.streamConverter.controller.AbstractStreamController;
+import com.streamconverter.command.CommandConfig;
 import com.streamconverter.command.impl.analysis.PmdXmlToCsvCommand;
 import com.streamconverter.command.impl.analysis.PmdXmlToJsonCommand;
 import com.streamconverter.command.impl.analysis.PmdXmlToMarkdownCommand;

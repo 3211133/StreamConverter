@@ -1,9 +1,9 @@
-package com.streamConverter.command.impl.json;
+package com.streamconverter.command.impl.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.streamConverter.command.AbstractStreamCommand;
-import com.streamConverter.path.IPath;
+import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.path.IPath;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;

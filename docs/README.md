@@ -2,6 +2,8 @@
 
 Welcome to the StreamConverter documentation. This project provides efficient stream processing with a simplified, direct instantiation architecture.
 
+See the [handbook](handbook/README.md) for concise What / Why / How guides.
+
 ## 🚀 Quick Start
 
 ### Basic Usage
@@ -25,10 +27,10 @@ StreamConverter converter = new StreamConverter(new IStreamCommand[]{loggedComma
 ## 📚 Documentation Structure
 
 ### Core Documentation
-- **[ARCHITECTURE.md](ARCHITECTURE.md)** - Current simplified architecture
+- **[handbook/architecture.md](handbook/architecture.md)** - Architecture overview (What/Why/How)
 - **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)** - Visual diagrams and class relationships
-- **[WEB_API.md](WEB_API.md)** - REST API documentation
-- **[AUTO_LOGGING.md](AUTO_LOGGING.md)** - Logging capabilities and usage
+- **[handbook/web-api.md](handbook/web-api.md)** - REST API documentation (What/Why/How)
+- **[handbook/logging.md](handbook/logging.md)** - Logging capabilities (What/Why/How)
 
 ### Development Guides
 - **[guides/PRE_COMMIT_SETUP.md](guides/PRE_COMMIT_SETUP.md)** - Setting up development environment

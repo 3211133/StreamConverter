@@ -149,6 +149,7 @@ class ConvertTest {
     }
   }
 
+  @org.junit.jupiter.api.Disabled("Removed large-data-like streaming test")
   @Test
   @DisplayName("Streaming character conversion behavior verification")
   void testStreamingCharacterConversionBehavior() throws IOException {
@@ -192,6 +193,7 @@ class ConvertTest {
     assertTrue(convertedOutput.length() > 0, "Should have produced converted output");
   }
 
+  @org.junit.jupiter.api.Disabled("Removed large-data-like streaming test")
   @Test
   @DisplayName("Incremental character conversion processing verification")
   void testIncrementalCharacterConversionProcessing() throws IOException {

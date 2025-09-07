@@ -27,8 +27,7 @@ import org.slf4j.LoggerFactory;
  * APIを使用してメモリ効率を最大化しています。
  *
  * <p><strong>完全ストリーミング処理について:</strong><br>
- * 真のストリーミング処理が必要な場合は{@link JsonStreamingValidateCommand}の使用を検討してください。
- * JsonSurferによる完全ストリーミング検証で、任意サイズのデータを一定メモリで処理できます。
+ * JSON Schemaの完全ストリーミング検証が必要な場合は、JsonSurferなどのイベントベース解析との 組み合わせによる実装を検討してください。
  *
  * <p>使用例:
  *

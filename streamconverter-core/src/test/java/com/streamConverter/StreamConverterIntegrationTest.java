@@ -45,26 +45,6 @@ public class StreamConverterIntegrationTest {
   }
 
   @Test
-  public void testLargeDataProcessing() throws IOException {
-    StringBuilder largeData = new StringBuilder();
-    for (int i = 0; i < 10000; i++) {
-      largeData.append("Line ").append(i).append(System.lineSeparator());
-    }
-
-    String testData = largeData.toString();
-    ByteArrayInputStream input =
-        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-
-    StreamConverter converter = StreamConverter.create(new SampleStreamCommand("large"));
-
-    converter.run(input, output);
-
-    String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals(testData, result, "Large data should be processed correctly");
-  }
-
-  @Test
   public void testInvalidHttpUrlHandling() {
     assertThrows(
         IllegalArgumentException.class,

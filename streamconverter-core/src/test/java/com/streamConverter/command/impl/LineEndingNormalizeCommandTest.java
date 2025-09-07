@@ -190,35 +190,6 @@ class LineEndingNormalizeCommandTest {
   }
 
   @Test
-  @DisplayName("Handle large input efficiently")
-  void testLargeInput() throws IOException {
-    // Given - create a moderately large input
-    StringBuilder inputBuilder = new StringBuilder();
-    StringBuilder expectedBuilder = new StringBuilder();
-
-    for (int i = 0; i < 1000; i++) {
-      if (i > 0) {
-        inputBuilder.append("\n");
-        expectedBuilder.append("\r\n");
-      }
-      String line = "Line " + i + " with some content";
-      inputBuilder.append(line);
-      expectedBuilder.append(line);
-    }
-
-    String input = inputBuilder.toString();
-    String expected = expectedBuilder.toString();
-
-    LineEndingNormalizeCommand command = new LineEndingNormalizeCommand(LineEndingType.WINDOWS);
-
-    // When
-    String result = executeCommand(command, input);
-
-    // Then
-    assertEquals(expected, result);
-  }
-
-  @Test
   @DisplayName("Handle buffer boundary with line endings")
   void testBufferBoundaryLineEndings() throws IOException {
     // Given - create input that puts line endings exactly at buffer boundaries

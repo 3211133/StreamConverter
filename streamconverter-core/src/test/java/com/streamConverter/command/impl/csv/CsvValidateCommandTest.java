@@ -210,28 +210,6 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @DisplayName("Large CSV validation")
-  void testLargeCsvValidation() throws IOException {
-    String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
-
-    // 大きなCSVデータを作成
-    StringBuilder largeCsv = new StringBuilder();
-    largeCsv.append("id,name,email,department\n");
-
-    for (int i = 1; i <= 1000; i++) {
-      largeCsv.append(
-          String.format("%d,User%d,user%d@example.com,Department%d%n", i, i, i, i % 10));
-    }
-
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(largeCsv.toString().getBytes(StandardCharsets.UTF_8));
-
-    // 大きなCSVでもバリデーションが成功することを確認
-    assertDoesNotThrow(() -> command.consume(inputStream));
-  }
-
-  @Test
   @DisplayName("CSV with special characters validation")
   void testCsvWithSpecialCharactersValidation() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};

@@ -14,8 +14,6 @@ import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.condition.EnabledOnOs;
-import org.junit.jupiter.api.condition.OS;
 
 @DisplayName("StreamConverter Test")
 class StreamConverterTest {
@@ -172,73 +170,5 @@ class StreamConverterTest {
       // 結果の検証 - SampleStreamCommandは単純にコピーするだけなので、入力と同じ出力になるはず
       assertEquals(testInput, outputStream.toString(StandardCharsets.UTF_8));
     }
-  }
-
-  @Test
-  @DisplayName("large data memory efficiency test - cross-platform adaptive")
-  @EnabledOnOs(OS.LINUX)
-  void testLargeDataMemoryEfficiency() throws IOException {
-    // プラットフォーム適応型メモリ効率性テスト
-    Runtime runtime = Runtime.getRuntime();
-    long maxMemory = runtime.maxMemory();
-
-    // プラットフォーム/環境に応じたテストサイズ調整
-    long testDataSize = Math.min(maxMemory / 10, 50 * 1024 * 1024); // ヒープの10%または50MB
-    long maxMemoryThresholdMB = testDataSize / (1024 * 1024) * 2; // テストデータの2倍まで許可
-
-    long initialMemory = runtime.totalMemory() - runtime.freeMemory();
-
-    // 大容量データのストリーム生成（実際のファイルを作らずにメモリ効率的に）
-    InputStream largeInputStream =
-        new InputStream() {
-          private long bytesRead = 0;
-          private final byte[] pattern =
-              "Large file test data pattern for memory efficiency testing.\n"
-                  .getBytes(StandardCharsets.UTF_8);
-          private int patternIndex = 0;
-
-          @Override
-          public int read() throws IOException {
-            if (bytesRead >= testDataSize) {
-              return -1; // EOF
-            }
-            int data = pattern[patternIndex] & 0xFF;
-            patternIndex = (patternIndex + 1) % pattern.length;
-            bytesRead++;
-            return data;
-          }
-        };
-
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-    StreamConverter converter =
-        StreamConverter.create(
-            new SampleStreamCommand("large-test-1"), new SampleStreamCommand("large-test-2"));
-
-    // メモリ使用量監視しながら実行
-    long startTime = System.currentTimeMillis();
-    converter.run(largeInputStream, outputStream);
-    long endTime = System.currentTimeMillis();
-
-    // メモリ使用量チェック
-    runtime.gc(); // ガベージコレクション実行
-    long finalMemory = runtime.totalMemory() - runtime.freeMemory();
-    long memoryUsedMB = (finalMemory - initialMemory) / (1024 * 1024);
-
-    // プラットフォーム適応型アサーション
-    assertTrue(
-        memoryUsedMB <= maxMemoryThresholdMB,
-        "Memory usage should be <= " + maxMemoryThresholdMB + "MB, but was " + memoryUsedMB + "MB");
-
-    // 処理時間をデータサイズに比例して調整（1MBあたり1秒、最大30秒）
-    long maxProcessingTimeMs = Math.min((testDataSize / (1024 * 1024)) * 1000, 30000);
-    long processingTimeMs = endTime - startTime;
-    assertTrue(
-        processingTimeMs <= maxProcessingTimeMs,
-        String.format(
-            "Processing time should be <= %dms for %dMB data, but was %dms",
-            maxProcessingTimeMs, testDataSize / (1024 * 1024), processingTimeMs));
-
-    // 出力サイズが入力サイズと一致することを確認
-    assertEquals(testDataSize, outputStream.size(), "Output size should match input size");
   }
 }

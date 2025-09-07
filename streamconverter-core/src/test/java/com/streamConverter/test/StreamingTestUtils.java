@@ -131,4 +131,110 @@ public class StreamingTestUtils {
       }
     }
   }
+
+  /**
+   * Functional interface to run code under test with provided streams that may throw IOException.
+   */
+  @FunctionalInterface
+  public interface IOStreamConsumer {
+    void accept(java.io.InputStream in, java.io.OutputStream out) throws java.io.IOException;
+  }
+
+  /**
+   * InputStream that triggers an assertion once half of the input has been read, ensuring that
+   * output has already been produced by that time. Also fails fast if readAllBytes() is invoked to
+   * discourage non-streaming implementations in code under test.
+   */
+  public static class HalfwayAssertingInputStream extends ByteArrayInputStream {
+    private final MonitoringOutputStream monitoringOutput;
+    private final int totalBytes;
+    private int bytesRead = 0;
+    private boolean halfwayAsserted = false;
+
+    public HalfwayAssertingInputStream(byte[] data, MonitoringOutputStream monitoringOutput) {
+      super(data);
+      this.monitoringOutput = monitoringOutput;
+      this.totalBytes = data.length;
+    }
+
+    @Override
+    public synchronized int read() {
+      int r = super.read();
+      if (r != -1) {
+        bytesRead++;
+        maybeAssertAtHalfway();
+      }
+      return r;
+    }
+
+    @Override
+    public synchronized int read(byte[] b, int off, int len) {
+      int n = super.read(b, off, len);
+      if (n > 0) {
+        bytesRead += n;
+        maybeAssertAtHalfway();
+      }
+      return n;
+    }
+
+    @Override
+    public byte[] readAllBytes() {
+      throw new AssertionError(
+          "readAllBytes() must not be used in streaming tests (use incremental reads)");
+    }
+
+    private void maybeAssertAtHalfway() {
+      if (!halfwayAsserted && totalBytes > 0 && bytesRead >= totalBytes / 2) {
+        halfwayAsserted = true;
+        org.junit.jupiter.api.Assertions.assertTrue(
+            monitoringOutput.size() > 0, "OutputStream should have emitted data by halfway point");
+      }
+    }
+
+    public boolean isHalfwayAsserted() {
+      return halfwayAsserted;
+    }
+  }
+
+  /**
+   * Convenience runner: wires {@link HalfwayAssertingInputStream} and {@link
+   * MonitoringOutputStream} and executes the provided consumer. Asserts that output is emitted by
+   * halfway point and returns the final output content for optional further checks.
+   */
+  public static String runWithHalfwayAssertion(byte[] data, IOStreamConsumer runner)
+      throws java.io.IOException {
+    MonitoringOutputStream out = new MonitoringOutputStream();
+    HalfwayAssertingInputStream in = new HalfwayAssertingInputStream(data, out);
+    runner.accept(in, out);
+    // Ensure the stream processing actually progressed to (or beyond) halfway for non-trivial data
+    if (data.length > 0) {
+      org.junit.jupiter.api.Assertions.assertTrue(
+          in.isHalfwayAsserted(), "Halfway assertion should have been triggered during reading");
+    }
+    return out.getContent();
+  }
+
+  /**
+   * Convenience runner: uses {@link TrackingInputStream} and {@link MonitoringOutputStream}, then
+   * asserts that some output was written before the input was fully consumed. This is a slightly
+   * relaxed streaming assertion suitable for commands that may buffer modestly but still stream
+   * output progressively.
+   */
+  public static String runWithStreamingAssertion(byte[] data, IOStreamConsumer runner)
+      throws java.io.IOException {
+    TrackingInputStream in = new TrackingInputStream(data);
+    MonitoringOutputStream out = new MonitoringOutputStream();
+    runner.accept(in, out);
+    org.junit.jupiter.api.Assertions.assertTrue(out.hasWriteOccurred(), "Output should be written");
+    // If input had any bytes, ensure first write occurred before input fully consumed
+    if (data.length > 0) {
+      org.junit.jupiter.api.Assertions.assertTrue(
+          out.getFirstWriteTime() > 0 && in.getFullyReadTime() > 0,
+          "Should capture timing for write and input consumption");
+      org.junit.jupiter.api.Assertions.assertTrue(
+          out.getFirstWriteTime() <= in.getFullyReadTime(),
+          "First output should occur before or by the time input is fully read");
+    }
+    return out.getContent();
+  }
 }

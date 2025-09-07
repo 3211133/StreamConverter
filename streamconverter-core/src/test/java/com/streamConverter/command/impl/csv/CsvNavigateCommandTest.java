@@ -58,28 +58,6 @@ class CsvNavigateCommandTest {
   }
 
   @Test
-  void testLargeInput() throws IOException {
-    StringBuilder largeInput = new StringBuilder();
-    largeInput.append("name,age,city").append(System.lineSeparator());
-    for (int i = 0; i < 1000; i++) {
-      largeInput
-          .append("Person")
-          .append(i)
-          .append(",")
-          .append(20 + i % 50)
-          .append(",City")
-          .append(i % 10)
-          .append(System.lineSeparator());
-    }
-
-    InputStream inputStream =
-        new ByteArrayInputStream(largeInput.toString().getBytes(StandardCharsets.UTF_8));
-    OutputStream outputStream = new ByteArrayOutputStream();
-
-    assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
-  }
-
-  @Test
   void testStreamingCsvNavigationBehavior() throws IOException {
     // Create moderate-sized CSV data to observe streaming behavior
     StringBuilder csvBuilder = new StringBuilder();

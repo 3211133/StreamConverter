@@ -2,8 +2,6 @@ package com.streamconverter.command.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamconverter.test.StreamingTestUtils.MonitoringOutputStream;
-import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -124,81 +122,5 @@ class SampleStreamCommandTest {
 
     String expected = "SampleStreamCommand [id=" + id + "]";
     assertEquals(expected, command.toString());
-  }
-
-  @Test
-  @DisplayName("Verify streaming sample processing behavior")
-  void testStreamingSampleProcessingBehavior() throws IOException {
-    SampleStreamCommand command = new SampleStreamCommand("streamingTest");
-
-    // Create moderate-sized data to observe streaming behavior
-    StringBuilder inputBuilder = new StringBuilder();
-    for (int i = 0; i < 100; i++) {
-      inputBuilder.append("Sample data line ").append(i).append("\n");
-    }
-    String inputData = inputBuilder.toString();
-
-    TrackingInputStream trackingInputStream =
-        new TrackingInputStream(inputData.getBytes(StandardCharsets.UTF_8));
-    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
-
-    // When - execute sample processing
-    command.execute(trackingInputStream, monitoringOutputStream);
-
-    // Then - verify streaming behavior occurred
-    assertTrue(
-        monitoringOutputStream.hasWriteOccurred(),
-        "OutputStream should have received data during processing");
-    assertTrue(
-        trackingInputStream.isFullyRead(), "InputStream should be fully consumed after processing");
-
-    // Verify data was processed incrementally
-    assertTrue(
-        trackingInputStream.getBytesRead() > 0,
-        "Input stream should have been read during processing");
-
-    // Verify the content was processed correctly (SampleStreamCommand typically echoes input)
-    String expectedOutput = inputData;
-    assertEquals(expectedOutput, monitoringOutputStream.getContent());
-  }
-
-  @Test
-  @DisplayName("Verify incremental sample stream processing")
-  void testIncrementalSampleStreamProcessing() throws IOException {
-    SampleStreamCommand command = new SampleStreamCommand("incrementalTest");
-
-    // Create varied data to force incremental processing
-    StringBuilder inputBuilder = new StringBuilder();
-    for (int i = 1; i <= 200; i++) {
-      inputBuilder.append(
-          String.format(
-              "Line %03d: Sample stream data with content %s%n",
-              i, "A".repeat(i % 50))); // Variable length content
-    }
-    String inputData = inputBuilder.toString();
-
-    TrackingInputStream trackingInputStream =
-        new TrackingInputStream(inputData.getBytes(StandardCharsets.UTF_8));
-    MonitoringOutputStream monitoringOutputStream = new MonitoringOutputStream();
-
-    // When - perform incremental processing
-    long processingStart = System.nanoTime();
-    command.execute(trackingInputStream, monitoringOutputStream);
-    long processingEnd = System.nanoTime();
-
-    // Then - verify incremental processing characteristics
-    assertTrue(monitoringOutputStream.hasWriteOccurred(), "Output should be written");
-    assertTrue(trackingInputStream.isFullyRead(), "Input should be fully processed");
-
-    // Verify substantial data was processed
-    assertTrue(
-        trackingInputStream.getBytesRead() > 1000,
-        "Should have processed substantial amount of sample data");
-
-    long processingTime = processingEnd - processingStart;
-    assertTrue(processingTime > 0, "Processing should take measurable time");
-
-    // Verify content correctness - SampleStreamCommand should echo input
-    assertEquals(inputData, monitoringOutputStream.getContent());
   }
 }

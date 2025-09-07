@@ -34,13 +34,6 @@ dependencies {
     // Import Spring Boot BOM to align Spring/Reactor/Logback/Hikari versions
     implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.5"))
 
-    // Reactive HTTP Client (needed for SendHttpCommand)
-    implementation("org.springframework:spring-webflux")
-    implementation("org.springframework:spring-context")
-    implementation("io.projectreactor.netty:reactor-netty-http")
-    // Explicit Netty overrides retained for security/compat compatibility
-    implementation("io.netty:netty-handler:4.2.4.Final")
-    implementation("io.netty:netty-common:4.2.4.Final")
 
     // Logging (version via BOM)
     implementation("ch.qos.logback:logback-core")
@@ -59,8 +52,6 @@ dependencies {
     // CSV validation support
     implementation("com.opencsv:opencsv:5.12.0")
 
-    // IP address validation
-    implementation("com.google.guava:guava:33.4.8-jre")
 
     // Database support (version via BOM)
     implementation("com.zaxxer:HikariCP")

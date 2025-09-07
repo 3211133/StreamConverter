@@ -22,6 +22,8 @@ repositories {
 dependencies {
     // Core module dependency
     implementation(project(":streamconverter-core"))
+    // Web module dependency for SendHttpCommand
+    implementation(project(":streamconverter-web"))
     
     // SLF4J logging (needed by examples)
     implementation("org.slf4j:slf4j-api")

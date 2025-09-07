@@ -3,7 +3,6 @@ package com.streamConverter;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamConverter.command.impl.SampleStreamCommand;
-import com.streamConverter.command.impl.SendHttpCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -62,34 +61,5 @@ public class StreamConverterIntegrationTest {
 
     String result = output.toString(StandardCharsets.UTF_8);
     assertEquals(testData, result, "Large data should be processed correctly");
-  }
-
-  @Test
-  public void testInvalidHttpUrlHandling() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> new SendHttpCommand("invalid-url"),
-        "Invalid URL should throw IllegalArgumentException");
-
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> new SendHttpCommand("ftp://example.com"),
-        "Non-HTTP protocol should throw IllegalArgumentException");
-
-    assertThrows(
-        NullPointerException.class,
-        () -> new SendHttpCommand(null),
-        "Null URL should throw NullPointerException");
-  }
-
-  @Test
-  public void testValidHttpUrlCreation() {
-    assertDoesNotThrow(
-        () -> new SendHttpCommand("https://httpbin.org/post"),
-        "Valid HTTPS URL should not throw exception");
-
-    assertDoesNotThrow(
-        () -> new SendHttpCommand("http://httpbin.org/post"),
-        "Valid HTTP URL should not throw exception");
   }
 }

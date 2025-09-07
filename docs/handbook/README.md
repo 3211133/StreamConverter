@@ -13,6 +13,9 @@ Welcome to the StreamConverter handbook. This guide provides an overview of the 
 ### Integrations
 - [Web API](web-api.md) – exposing StreamConverter over HTTP
 
+### Team Practices
+- [Asynchronous Communication](communication.md) – encourage comments and MR discussions
+
 ---
 
 Looking for more? See the [documentation index](../README.md).

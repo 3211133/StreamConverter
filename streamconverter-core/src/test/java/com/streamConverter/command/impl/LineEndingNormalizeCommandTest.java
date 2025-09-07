@@ -368,4 +368,19 @@ class LineEndingNormalizeCommandTest {
 
     return outputStream.toString(StandardCharsets.UTF_8);
   }
+
+  @org.junit.jupiter.api.Disabled(
+      "LineEndingNormalizeCommand emits at end; relaxed streaming assertion not applicable")
+  @Test
+  @DisplayName("Streaming helper: relaxed streaming assertion for line endings")
+  void testStreamingHelperRelaxed() throws IOException {
+    LineEndingNormalizeCommand command = new LineEndingNormalizeCommand(LineEndingType.WINDOWS);
+    String input = String.join("\n", java.util.Arrays.asList("a", "b", "c", "d", "e", "f"));
+
+    String out =
+        com.streamconverter.test.StreamingTestUtils.runWithStreamingAssertion(
+            input.getBytes(StandardCharsets.UTF_8), command::execute);
+
+    assertEquals(input.replace("\n", "\r\n"), out);
+  }
 }

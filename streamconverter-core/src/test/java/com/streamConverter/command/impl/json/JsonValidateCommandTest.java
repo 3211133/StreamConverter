@@ -123,6 +123,23 @@ public class JsonValidateCommandTest {
   }
 
   @Test
+  @DisplayName("Streaming helper: relaxed assertion for JSON validate")
+  void testStreamingHelperHalfwayJsonValidate() throws IOException {
+    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+
+    String json =
+        """
+        {"name":"Alice","age":42,"email":"alice@example.com"}
+        """;
+
+    String out =
+        com.streamconverter.test.StreamingTestUtils.runWithStreamingAssertion(
+            json.getBytes(StandardCharsets.UTF_8), command::execute);
+
+    assertEquals(json, out);
+  }
+
+  @Test
   @DisplayName("Invalid JSON validation fails with detailed error")
   void testInvalidJsonValidationFailure() throws IOException {
     JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());

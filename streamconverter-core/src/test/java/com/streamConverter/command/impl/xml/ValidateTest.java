@@ -165,4 +165,23 @@ class ValidateTest {
           });
     }
   }
+
+  @Test
+  @DisplayName("Streaming helper: relaxed assertion for XML validate")
+  void testStreamingHelperHalfwayXmlValidate() throws IOException {
+    ValidateCommand command = new ValidateCommand(schemaPath);
+
+    // Use the same valid XML from test resources to match schema
+    String xml;
+    try (InputStream is = getClass().getClassLoader().getResourceAsStream("valid-test.xml")) {
+      assertNotNull(is, "valid-test.xml not found");
+      xml = new String(is.readAllBytes(), StandardCharsets.UTF_8);
+    }
+
+    String out =
+        com.streamconverter.test.StreamingTestUtils.runWithStreamingAssertion(
+            xml.getBytes(StandardCharsets.UTF_8), command::execute);
+
+    assertEquals(xml, out);
+  }
 }

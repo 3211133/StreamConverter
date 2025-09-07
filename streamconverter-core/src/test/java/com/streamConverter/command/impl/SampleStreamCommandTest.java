@@ -123,4 +123,15 @@ class SampleStreamCommandTest {
     String expected = "SampleStreamCommand [id=" + id + "]";
     assertEquals(expected, command.toString());
   }
+
+  @Test
+  @DisplayName("Streaming helper: relaxed assertion for SampleStreamCommand")
+  void testStreamingHelperSample() throws IOException {
+    SampleStreamCommand command = new SampleStreamCommand("halfway");
+    String input = "L1\nL2\nL3\nL4\n";
+    String out =
+        com.streamconverter.test.StreamingTestUtils.runWithStreamingAssertion(
+            input.getBytes(StandardCharsets.UTF_8), command::execute);
+    assertEquals(input, out);
+  }
 }

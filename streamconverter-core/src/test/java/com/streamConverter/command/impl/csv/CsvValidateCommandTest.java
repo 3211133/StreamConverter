@@ -190,6 +190,21 @@ public class CsvValidateCommandTest {
   }
 
   @Test
+  @DisplayName("Streaming helper: relaxed assertion for CSV validate")
+  void testStreamingHelperHalfwayCsvValidate() throws IOException {
+    String[] requiredColumns = {"id", "name"};
+    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+
+    String csv = "id,name\n1,Alice\n2,Bob\n";
+
+    String out =
+        com.streamconverter.test.StreamingTestUtils.runWithStreamingAssertion(
+            csv.getBytes(StandardCharsets.UTF_8), command::execute);
+
+    assertEquals(csv, out);
+  }
+
+  @Test
   @DisplayName("CSV without header validation with hasHeader=false")
   void testCsvWithoutHeaderValidation() throws IOException {
     String[] requiredColumns = {}; // ヘッダーなしの場合は必須カラムなし

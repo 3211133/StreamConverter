@@ -4,8 +4,8 @@ Thank you for your interest in contributing to StreamConverter! This document ou
 
 ## Workflow
 
-- 変更や提案はまず Issue または Merge Request を起点にしてください。
-- 議論や決定事項はそれらのコメントやディスカッションに残し、履歴を追跡可能にします。
+- Please start any changes or proposals by opening an Issue or a Merge Request.
+- Leave discussions and decisions in the comments or discussion threads to keep a traceable history.
 
 ## Commit Message Guidelines
 

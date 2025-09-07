@@ -14,6 +14,7 @@ It allows remote systems to process streams without embedding the library, enabl
 ## See also
 - [Architecture](architecture.md)
 - [Logging](logging.md)
+- [Validation](validation.md)
 - [Handbook index](README.md)
 
 Further endpoint examples are in the [original Web API guide](../WEB_API.md).

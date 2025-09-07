@@ -9,6 +9,7 @@ Welcome to the StreamConverter handbook. This guide provides an overview of the 
 
 ### Features
 - [Logging](logging.md) – built‑in auto‑logging support
+- [Validation](validation.md) – verify CSV/JSON/XML inputs
 
 ### Integrations
 - [Web API](web-api.md) – exposing StreamConverter over HTTP

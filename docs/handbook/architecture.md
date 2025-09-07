@@ -14,6 +14,7 @@ This approach removes factory complexity, avoids reflection overhead and keeps d
 ## See also
 - [Logging](logging.md)
 - [Web API](web-api.md)
+- [Validation](validation.md)
 - [Handbook index](README.md)
 
 For full details, refer to the [original architecture document](../ARCHITECTURE.md).

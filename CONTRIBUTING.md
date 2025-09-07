@@ -2,6 +2,11 @@
 
 Thank you for your interest in contributing to StreamConverter! This document outlines the guidelines for contributing to this project.
 
+## Workflow
+
+- Please start any changes or proposals by opening an Issue or a Merge Request.
+- Leave discussions and decisions in the comments or discussion threads to keep a traceable history.
+
 ## Commit Message Guidelines
 
 We follow the [Conventional Commits](https://www.conventionalcommits.org/) specification for our commit messages. This leads to more readable messages that are easy to follow when looking through the project history.

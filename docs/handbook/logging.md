@@ -14,6 +14,7 @@ Detailed logs help troubleshoot large stream operations and give insight into ti
 ## See also
 - [Architecture](architecture.md)
 - [Web API](web-api.md)
+- [Validation](validation.md)
 - [Handbook index](README.md)
 
 More examples are available in the [original auto‑logging guide](../AUTO_LOGGING.md).

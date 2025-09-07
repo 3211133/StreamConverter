@@ -31,6 +31,7 @@ StreamConverter converter = new StreamConverter(new IStreamCommand[]{loggedComma
 - **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)** - Visual diagrams and class relationships
 - **[handbook/web-api.md](handbook/web-api.md)** - REST API documentation (What/Why/How)
 - **[handbook/logging.md](handbook/logging.md)** - Logging capabilities (What/Why/How)
+- **[handbook/validation.md](handbook/validation.md)** - Input validation commands (What/Why/How)
 
 ### Development Guides
 - **[guides/PRE_COMMIT_SETUP.md](guides/PRE_COMMIT_SETUP.md)** - Setting up development environment

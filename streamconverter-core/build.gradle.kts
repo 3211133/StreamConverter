@@ -39,8 +39,8 @@ dependencies {
     implementation("org.springframework:spring-context")
     implementation("io.projectreactor.netty:reactor-netty-http")
     // Explicit Netty overrides retained for security/compat compatibility
-    implementation("io.netty:netty-handler:4.2.4.Final")
-    implementation("io.netty:netty-common:4.2.4.Final")
+    implementation("io.netty:netty-handler:4.2.5.Final")
+    implementation("io.netty:netty-common:4.2.5.Final")
 
     // Logging (version via BOM)
     implementation("ch.qos.logback:logback-core")

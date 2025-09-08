@@ -153,6 +153,7 @@ for (CommandResult result : results) {
 
 ## 🔧 開発環境セットアップ
 
+> **MCP (Model Context Protocol)** は、開発環境でコード補完やエラー検出などの高度なIDE機能を提供するためのプロトコルです。
 ### MCP (Model Context Protocol) サポート（オプション）
 
 このプロジェクトはMCPをサポートしており、Java Language Server (JDTLS) を使用してコード補完、エラー検出、リファクタリングなどの機能を提供します。**MCPは開発効率を向上させる便利なツールですが、プロジェクトのビルドや実行には必須ではありません。**

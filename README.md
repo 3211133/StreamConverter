@@ -172,7 +172,8 @@ for (CommandResult result : results) {
 2. `/opt/jdtls` ディレクトリを作成して展開:
    ```bash
    sudo mkdir -p /opt/jdtls
-   sudo tar -xzf jdt-language-server-*.tar.gz -C /opt/jdtls
+   # ダウンロードしたファイル名に合わせて、jdt-language-server-*.tar.gz を置き換えてください
+   sudo tar -xzf jdt-language-server-<version>.tar.gz -C /opt/jdtls
    sudo chmod +x /opt/jdtls/bin/jdtls
    ```
 

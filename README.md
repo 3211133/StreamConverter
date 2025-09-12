@@ -185,6 +185,7 @@ sudo ln -sf $(brew --prefix jdtls)/libexec /opt/jdtls
 ```
 
 **Ubuntu/Debian パッケージマネージャ:**
+> **注意**: `jdtls` の snap パッケージは公式にメンテナンスされていない場合があります。インストール前に [Snapcraft](https://snapcraft.io/jdtls) でパッケージの提供元と最新情報を確認してください。
 ```bash
 # snapパッケージ（利用可能な場合）
 sudo snap install jdtls --classic

@@ -153,6 +153,80 @@ for (CommandResult result : results) {
 ./gradlew runDatabaseRuleDemo  # H2を使ったDBルール適用例
 ```
 
+## 🔧 開発環境セットアップ
+
+> **MCP (Model Context Protocol)** は、開発環境でコード補完やエラー検出などの高度なIDE機能を提供するためのプロトコルです。
+### MCP (Model Context Protocol) サポート（オプション）
+
+このプロジェクトはMCPをサポートしており、Java Language Server (JDTLS) を使用してコード補完、エラー検出、リファクタリングなどの機能を提供します。**MCPは開発効率を向上させる便利なツールですが、プロジェクトのビルドや実行には必須ではありません。**
+
+#### 必要なシステム要件
+
+- **Java**: 17 以上（プロジェクトの要件と同じ）
+- **JDTLS**: Eclipse Java Language Server
+
+#### JDTLS インストール方法
+
+> **注意**: MCPサポートはオプション機能です。開発に必須ではありませんが、IDE機能（自動補完、エラー検出等）を利用したい場合に有用です。
+
+**手動インストール（推奨）:**
+1. [Eclipse JDT Language Server リリースページ](https://github.com/eclipse-jdtls/eclipse.jdt.ls/releases) から最新版をダウンロード
+2. `/opt/jdtls` ディレクトリを作成して展開:
+   ```bash
+   sudo mkdir -p /opt/jdtls
+   # ダウンロードしたファイル名に合わせて、jdt-language-server-*.tar.gz を置き換えてください
+   sudo tar -xzf jdt-language-server-<version>.tar.gz -C /opt/jdtls
+   sudo chmod +x /opt/jdtls/bin/jdtls
+   ```
+
+**macOS (Homebrew):**
+```bash
+brew install jdtls
+# シンボリックリンクを作成
+sudo ln -sf $(brew --prefix jdtls)/libexec /opt/jdtls
+```
+
+**Ubuntu/Debian パッケージマネージャ:**
+> **注意**: `jdtls` の snap パッケージは公式にメンテナンスされていない場合があります。インストール前に [Snapcraft](https://snapcraft.io/jdtls) でパッケージの提供元と最新情報を確認してください。
+```bash
+# snapパッケージ（利用可能な場合）
+sudo snap install jdtls --classic
+
+# または直接インストール
+sudo apt update && sudo apt install openjdk-17-jdk
+# その後手動インストール方法を実行
+```
+
+#### MCP サーバー起動
+
+```bash
+# MCP サーバーを起動（バックグラウンド実行）
+./.lsmcp/jdtls.sh &
+
+# プロジェクトをビルドしてJDTLSが解析できるようにする
+./gradlew build -q
+```
+
+#### トラブルシューティング
+
+**JDTLS が見つからない場合:**
+```bash
+# インストール確認
+ls -la /opt/jdtls/bin/jdtls
+
+# Java バージョン確認（17+ が必要）
+java -version
+
+# 権限確認
+sudo chmod +x /opt/jdtls/bin/jdtls
+```
+
+**メモリ不足の場合:**
+JDTLSの設定（`.lsmcp/jdtls.sh`）でヒープサイズを調整できます：
+```bash
+--jvm-arg=-Xmx2G  # デフォルトは1G
+```
+
 ## 開発ガイドライン
 
 ### コミットルール

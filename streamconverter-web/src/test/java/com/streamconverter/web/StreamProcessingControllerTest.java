@@ -16,8 +16,6 @@ import reactor.core.publisher.Flux;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @DisplayName("StreamProcessingController Web API Test")
-@org.junit.jupiter.api.Disabled(
-    "Partial fix: WebTestClient Netty compatibility resolved, but endpoint implementation needs debugging (500 Internal Server Error)")
 class StreamProcessingControllerTest {
 
   @Autowired private WebTestClient webTestClient;
@@ -93,7 +91,7 @@ class StreamProcessingControllerTest {
 
     webTestClient
         .post()
-        .uri("/api/v1/stream/json/extract?jsonPath=name")
+        .uri("/api/v1/stream/json/extract?jsonPath=$.name")
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(Flux.just(dataBuffer), DataBuffer.class)
         .exchange()

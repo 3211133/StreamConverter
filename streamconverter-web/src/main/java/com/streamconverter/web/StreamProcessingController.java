@@ -1,13 +1,14 @@
 package com.streamconverter.web;
 
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.util.List;
+import java.io.InputStream;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
+import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -52,11 +53,14 @@ public class StreamProcessingController {
 
     log.info("Processing CSV extraction for column: {}", columnName);
 
-    return inputData
-        .collectList()
-        .map(this::combineDataBuffers)
-        .map(data -> processWithStreamConverter(data, CsvNavigateCommand.create(new CSVPath(columnName), new PassThroughRule())))
-        .map(result -> ResponseEntity.ok(createDataBufferFlux(result)))
+    return Mono
+        .fromCallable(
+            () ->
+                ResponseEntity.ok(
+                    processWithStreamConverter(
+                        inputData,
+                        CsvNavigateCommand.create(
+                            new CSVPath(columnName), new PassThroughRule()))))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 
@@ -76,11 +80,14 @@ public class StreamProcessingController {
 
     log.info("Processing JSON extraction for path: {}", jsonPath);
 
-    return inputData
-        .collectList()
-        .map(this::combineDataBuffers)
-        .map(data -> processWithStreamConverter(data, JsonNavigateCommand.create(TreePath.fromJson(jsonPath), new PassThroughRule())))
-        .map(result -> ResponseEntity.ok(createDataBufferFlux(result)))
+    return Mono
+        .fromCallable(
+            () ->
+                ResponseEntity.ok(
+                    processWithStreamConverter(
+                        inputData,
+                        JsonNavigateCommand.create(
+                            TreePath.fromJson(jsonPath), new PassThroughRule()))))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 
@@ -101,11 +108,12 @@ public class StreamProcessingController {
 
     log.info("Processing with pipeline config: {}", pipelineConfig);
 
-    return inputData
-        .collectList()
-        .map(this::combineDataBuffers)
-        .map(data -> processWithStreamConverter(data, buildPipelineFromConfig(pipelineConfig)))
-        .map(result -> ResponseEntity.ok(createDataBufferFlux(result)))
+    return Mono
+        .fromCallable(
+            () ->
+                ResponseEntity.ok(
+                    processWithStreamConverter(
+                        inputData, buildPipelineFromConfig(pipelineConfig))))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 
@@ -120,56 +128,31 @@ public class StreamProcessingController {
   }
 
   /**
-   * Combines multiple DataBuffer objects into a single byte array.
+   * Processes data using StreamConverter with given commands in a streaming fashion.
    *
-   * @param dataBuffers list of data buffers
-   * @return combined byte array
-   */
-  private byte[] combineDataBuffers(List<DataBuffer> dataBuffers) {
-    try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-      for (DataBuffer buffer : dataBuffers) {
-        byte[] bytes = new byte[buffer.readableByteCount()];
-        buffer.read(bytes);
-        outputStream.write(bytes);
-      }
-      return outputStream.toByteArray();
-    } catch (IOException e) {
-      log.error("Error combining data buffers", e);
-      throw new RuntimeException("Failed to combine input data", e);
-    }
-  }
-
-  /**
-   * Processes data using StreamConverter with given commands.
-   *
-   * @param inputData input byte array
+   * @param inputData reactive stream of input data buffers
    * @param commands stream commands to execute
-   * @return processed output byte array
+   * @return processed output as Flux of DataBuffer
    */
-  private byte[] processWithStreamConverter(byte[] inputData, IStreamCommand... commands) {
-    try (ByteArrayInputStream inputStream = new ByteArrayInputStream(inputData);
-        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-
-      StreamConverter converter = StreamConverter.create(commands);
-      converter.run(inputStream, outputStream);
-
-      return outputStream.toByteArray();
-
-    } catch (IOException e) {
-      log.error("Error processing with StreamConverter", e);
-      throw new RuntimeException("Stream processing failed", e);
-    }
-  }
-
-  /**
-   * Creates a Flux of DataBuffer from byte array.
-   *
-   * @param data byte array to convert
-   * @return Flux of DataBuffer
-   */
-  private Flux<DataBuffer> createDataBufferFlux(byte[] data) {
-    DataBuffer buffer = new DefaultDataBufferFactory().wrap(data);
-    return Flux.just(buffer);
+  private Flux<DataBuffer> processWithStreamConverter(
+      Flux<DataBuffer> inputData, IStreamCommand... commands) {
+    DefaultDataBufferFactory bufferFactory = new DefaultDataBufferFactory();
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    return Flux
+        .from(
+            DataBufferUtils.outputStreamPublisher(
+                outputStream -> {
+                  try (InputStream inputStream =
+                      DataBufferUtils.subscriberInputStream(inputData, 4096)) {
+                    StreamConverter converter = StreamConverter.create(commands);
+                    converter.run(inputStream, outputStream);
+                  } catch (IOException e) {
+                    throw new RuntimeException("Stream processing failed", e);
+                  }
+                },
+                bufferFactory,
+                executor))
+        .doFinally(signalType -> executor.shutdown());
   }
 
   /**

@@ -133,8 +133,10 @@ class SendHttpCommandTest {
 
   @Test
   @DisplayName("httpbin.orgを使った実際のHTTP通信テスト")
-  @org.junit.jupiter.api.Disabled(
-      "Persistent Netty 4.1.123.Final compatibility issue: isExplicitNoPreferDirect() method not found despite complete version alignment")
+  @DisabledIfSystemProperty(
+      named = "skipNetworkTests",
+      matches = "true",
+      disabledReason = "Network-dependent test disabled")
   void testActualHttpRequest() {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 
@@ -208,8 +210,10 @@ class SendHttpCommandTest {
 
   @Test
   @DisplayName("存在しないホストでIOExceptionがスローされる")
-  @org.junit.jupiter.api.Disabled(
-      "Network-dependent test causing Netty compatibility issues after security updates")
+  @DisabledIfSystemProperty(
+      named = "skipNetworkTests",
+      matches = "true",
+      disabledReason = "Network-dependent test disabled")
   void testNonExistentHost() {
     SendHttpCommand command = new SendHttpCommand("https://this-domain-does-not-exist-12345.com");
     ByteArrayInputStream inputStream =
@@ -224,8 +228,10 @@ class SendHttpCommandTest {
 
   @Test
   @DisplayName("Large data streaming processing test with memory-efficient approach")
-  @org.junit.jupiter.api.Disabled(
-      "Network-dependent test causing Netty compatibility issues after security updates")
+  @DisabledIfSystemProperty(
+      named = "skipNetworkTests",
+      matches = "true",
+      disabledReason = "Network-dependent test disabled")
   void testLargeDataStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 
@@ -301,8 +307,10 @@ class SendHttpCommandTest {
 
   @Test
   @DisplayName("Memory-efficient streaming processing validation test with small data")
-  @org.junit.jupiter.api.Disabled(
-      "Network-dependent test causing Netty compatibility issues after security updates")
+  @DisabledIfSystemProperty(
+      named = "skipNetworkTests",
+      matches = "true",
+      disabledReason = "Network-dependent test disabled")
   void testMemoryEfficientStreamingProcessing() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 
@@ -371,8 +379,10 @@ class SendHttpCommandTest {
 
   @Test
   @DisplayName("Streaming processing blocking behavior verification test")
-  @org.junit.jupiter.api.Disabled(
-      "Network-dependent test causing Netty compatibility issues after security updates")
+  @DisabledIfSystemProperty(
+      named = "skipNetworkTests",
+      matches = "true",
+      disabledReason = "Network-dependent test disabled")
   void testStreamingBlockingBehavior() throws IOException {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
 

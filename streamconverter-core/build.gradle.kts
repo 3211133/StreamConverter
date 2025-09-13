@@ -4,7 +4,7 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
-    id("com.github.spotbugs") version "6.2.6"
+    id("com.github.spotbugs") version "6.3.0"
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
 }
@@ -39,8 +39,8 @@ dependencies {
     implementation("org.springframework:spring-context")
     implementation("io.projectreactor.netty:reactor-netty-http")
     // Explicit Netty overrides retained for security/compat compatibility
-    implementation("io.netty:netty-handler:4.2.4.Final")
-    implementation("io.netty:netty-common:4.2.4.Final")
+    implementation("io.netty:netty-handler:4.2.5.Final")
+    implementation("io.netty:netty-common:4.2.5.Final")
 
     // Logging (version via BOM)
     implementation("ch.qos.logback:logback-core")

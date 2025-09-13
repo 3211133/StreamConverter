@@ -4,6 +4,8 @@
 
 大容量ファイルのストリーム処理を効率的に行うためのJavaライブラリです。メモリ使用量を抑えながら、複数の処理を連結するパイプライン型アーキテクチャを提供します。
 
+> このプロジェクトでは、ドキュメントを真実のソース (Single Source of Truth) として扱います。仕様や運用手順は docs/ 配下を参照してください。
+
 ## ✨ 主要機能
 
 ### 🔄 パイプライン処理
@@ -153,6 +155,7 @@ for (CommandResult result : results) {
 
 ## 🔧 開発環境セットアップ
 
+> **MCP (Model Context Protocol)** は、開発環境でコード補完やエラー検出などの高度なIDE機能を提供するためのプロトコルです。
 ### MCP (Model Context Protocol) サポート（オプション）
 
 このプロジェクトはMCPをサポートしており、Java Language Server (JDTLS) を使用してコード補完、エラー検出、リファクタリングなどの機能を提供します。**MCPは開発効率を向上させる便利なツールですが、プロジェクトのビルドや実行には必須ではありません。**
@@ -171,7 +174,8 @@ for (CommandResult result : results) {
 2. `/opt/jdtls` ディレクトリを作成して展開:
    ```bash
    sudo mkdir -p /opt/jdtls
-   sudo tar -xzf jdt-language-server-*.tar.gz -C /opt/jdtls
+   # ダウンロードしたファイル名に合わせて、jdt-language-server-*.tar.gz を置き換えてください
+   sudo tar -xzf jdt-language-server-<version>.tar.gz -C /opt/jdtls
    sudo chmod +x /opt/jdtls/bin/jdtls
    ```
 
@@ -183,6 +187,7 @@ sudo ln -sf $(brew --prefix jdtls)/libexec /opt/jdtls
 ```
 
 **Ubuntu/Debian パッケージマネージャ:**
+> **注意**: `jdtls` の snap パッケージは公式にメンテナンスされていない場合があります。インストール前に [Snapcraft](https://snapcraft.io/jdtls) でパッケージの提供元と最新情報を確認してください。
 ```bash
 # snapパッケージ（利用可能な場合）
 sudo snap install jdtls --classic

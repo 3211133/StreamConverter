@@ -163,8 +163,8 @@ new CharacterConvertCommand("UTF-8", "Shift_JIS")
 
 **HTTP接続エラー**
 ```java
-// タイムアウト設定付きHTTPコマンド
-new SendHttpCommand("http://api.example.com", 30000) // 30秒タイムアウト
+// 基本的なHTTPコマンド（デフォルトで30秒タイムアウト）
+new SendHttpCommand("http://api.example.com")
 ```
 
 ## サポート

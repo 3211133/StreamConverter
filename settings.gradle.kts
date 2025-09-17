@@ -8,6 +8,29 @@
 
 rootProject.name = "StreamConverter"
 
+// Disable parallel execution when running inside environments that expect sequential configuration evaluation.
+val disableParallelEnvFlags =
+    listOf("GRADLE_BUILD_SERVER", "CI", "GITHUB_ACTIONS")
+        .mapNotNull { key ->
+            System.getenv(key)?.takeIf { value ->
+                value.equals("true", ignoreCase = true) || value == "1"
+            }?.let { key }
+        }
+
+if (disableParallelEnvFlags.isNotEmpty()) {
+    val propertyName = "org.gradle.parallel"
+    val propertyAlreadyFalse =
+        System.getProperty(propertyName)?.equals("false", ignoreCase = true) == true
+    if (!propertyAlreadyFalse) {
+        System.setProperty(propertyName, "false")
+        println(
+            "Gradle parallel project execution disabled due to " +
+                disableParallelEnvFlags.joinToString() +
+                " environment flag(s)."
+        )
+    }
+}
+
 pluginManagement {
     repositories {
         gradlePluginPortal()

@@ -116,6 +116,26 @@ performance.timeout.command-execution=300000    # 5分
 performance.timeout.file-processing=600000      # 10分
 ```
 
+### Gradle 並列ビルド設定
+
+- 既定では `org.gradle.parallel` を無効（false）に戻し、Gradle Build Server や VS Code の Gradle インポートで発生していた断続的な失敗を防いでいます。
+- 並列ビルドを再度有効にすると、構成フェーズの副作用を持つプラグインやビルドスクリプトが競合し、IDE での同期失敗やテスト結果の取りこぼしが発生するリスクがあります。必要な場面でのみ有効化してください。
+
+#### VS Code で並列実行を再度有効にする
+
+1. コマンドパレット（`Ctrl`+`Shift`+`P`）で「Preferences: Open Settings (JSON)」を開きます。
+2. 以下の設定を追記し、Gradle インポート時に `-Dorg.gradle.parallel=true` を付与します。
+
+   ```jsonc
+   {
+     "java.import.gradle.arguments": [
+       "-Dorg.gradle.parallel=true"
+     ]
+   }
+   ```
+
+3. プロジェクトを再インポートし、並列実行で問題がないことを確認します。問題が再発した場合は設定を削除して既定値（false）に戻してください。
+
 ## 📈 ログ・監査設定
 
 ### セキュリティログ設定

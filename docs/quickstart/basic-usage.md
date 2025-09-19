@@ -12,8 +12,8 @@
 ### 1. シンプルなCSVデータ抽出
 
 ```java
-import com.streamConverter.StreamConverter;
-import com.streamConverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 
 // CSVファイルから特定の列を抽出
 IStreamCommand[] pipeline = {
@@ -27,7 +27,7 @@ converter.run(inputStream, outputStream);
 ### 2. JSON データの変換
 
 ```java
-import com.streamConverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.impl.json.JsonNavigateCommand;
 
 // JSONから特定のパスの値を抽出
 IStreamCommand[] pipeline = {
@@ -57,7 +57,7 @@ List<CommandResult> results = converter.run(inputStream, outputStream);
 ### 実行追跡とログ連携
 
 ```java
-import com.streamConverter.context.ExecutionContext;
+import com.streamconverter.context.ExecutionContext;
 
 // 実行コンテキストを作成
 ExecutionContext context = ExecutionContext.builder()
@@ -98,9 +98,9 @@ for (CommandResult result : results) {
 
 ### サンプルコードの場所
 
-- `streamconverter-examples/src/main/java/com/streamConverter/examples/QuickStart.java`
-- `streamconverter-examples/src/main/java/com/streamConverter/examples/AutoLoggingDemo.java`
-- `streamconverter-examples/src/main/java/com/streamConverter/examples/ContextPropagationDemo.java`
+- `streamconverter-examples/src/main/java/com/streamconverter/examples/QuickStart.java`
+- `streamconverter-examples/src/main/java/com/streamconverter/examples/AutoLoggingDemo.java`
+- `streamconverter-examples/src/main/java/com/streamconverter/examples/ContextPropagationDemo.java`
 
 ## 利用可能なコマンド概要
 
@@ -164,7 +164,8 @@ new CharacterConvertCommand("UTF-8", "Shift_JIS")
 **HTTP接続エラー**
 ```java
 // タイムアウト設定付きHTTPコマンド
-new SendHttpCommand("http://api.example.com", 30000) // 30秒タイムアウト
+SendHttpCommand cmd = new SendHttpCommand("http://api.example.com"); // 基本的な使い方
+cmd.setTimeout(30000); // 30秒タイムアウト
 ```
 
 ## サポート

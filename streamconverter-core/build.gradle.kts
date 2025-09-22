@@ -73,8 +73,8 @@ dependencies {
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
 
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.19.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
+    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
 
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.1")

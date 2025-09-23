@@ -14,7 +14,7 @@ plugins {
     id("jacoco")
     id("application")
     id("pmd")
-    id("com.github.spotbugs") version "6.4.1"
+    id("com.github.spotbugs") version "6.4.2"
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
     id("org.springframework.boot") version "3.5.5"
@@ -102,8 +102,13 @@ application {
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        // Automatically detect available Java 21 installations
+    }
 }
 
 tasks.withType<JavaCompile> {
@@ -269,20 +274,29 @@ tasks.register("testAll") {
 tasks.register<Javadoc>("javadocAll") {
     group = "documentation"
     description = "Generate unified Javadoc for all modules"
-    
+
     // Aggregate source from all modules
     val allSourceSets = subprojects.map { it.extensions.getByType<SourceSetContainer>().main.get().allJava }
     source(allSourceSets)
-    
-    // Aggregate classpath from all modules
-    val allClasspaths = subprojects.map { it.extensions.getByType<SourceSetContainer>().main.get().compileClasspath }
+
+    // Set dependencies to ensure subprojects are built first
+    dependsOn(subprojects.map { "${it.path}:classes" })
+
+    // Use Provider API for lazy configuration resolution
+    val allClasspaths = provider {
+        subprojects.flatMap { subproject ->
+            subproject.configurations.getByName("compileClasspath").files +
+            subproject.tasks.named("jar", Jar::class.java).get().outputs.files.files
+        }
+    }
+
     classpath = files(allClasspaths)
-    
+
     // Configure for unified output
     options.encoding = "UTF-8"
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     setDestinationDir(file("build/docs/javadoc"))
-    
+
     // Javadoc options for better presentation
     if (options is StandardJavadocDocletOptions) {
         (options as StandardJavadocDocletOptions).apply {
@@ -296,7 +310,7 @@ tasks.register<Javadoc>("javadocAll") {
             addStringOption("Xdoclint:none", "-quiet")
         }
     }
-    
+
     doLast {
         println("✅ Unified Javadoc generated:")
         println("   📖 Location: build/docs/javadoc/index.html")

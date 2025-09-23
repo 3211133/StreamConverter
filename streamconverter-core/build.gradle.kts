@@ -4,14 +4,19 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
-    id("com.github.spotbugs") version "6.4.1"
+    id("com.github.spotbugs") version "6.4.2"
     id("com.diffplug.spotless") version "7.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        // Automatically detect available Java 21 installations
+    }
 }
 
 tasks.withType<JavaCompile> {
@@ -158,7 +163,7 @@ tasks.pitest {
 tasks.javadoc {
     options.encoding = "UTF-8"
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-    setDestinationDir(file("$buildDir/docs/javadoc"))
+    setDestinationDir(layout.buildDirectory.dir("docs/javadoc").get().asFile)
 }
 
 // spotlessCheck タスクを無効化

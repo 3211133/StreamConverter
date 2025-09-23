@@ -1,8 +1,20 @@
 # StreamConverter Documentation
 
-Welcome to the StreamConverter documentation. This project provides efficient stream processing with a simplified, direct instantiation architecture.
+Welcome to the StreamConverter documentation hub. This page provides quick navigation to key documentation areas.
 
-See the [handbook](handbook/README.md) for concise What / Why / How guides.
+> **📚 完全なドキュメント索引**: [INDEX.md](INDEX.md) で対象者別・分類別のすべてのドキュメントを確認できます。
+
+## 🚀 新規ユーザー向け
+
+- **[クイックスタート](quickstart/basic-usage.md)** - 基本的な使用方法（最初に読む）
+- **[ハンドブック](handbook/README.md)** - 機能別のWhat/Why/Howガイド
+- **[Docker化ガイド](deployment/docker.md)** - 環境一貫性の確保
+
+## 🛠️ 開発者向け
+
+- **[システムアーキテクチャ](ARCHITECTURE.md)** - 設計思想と4層アーキテクチャ
+- **[開発ガイド](guides/)** - 開発環境セットアップとワークフロー
+- **[テスト戦略](reference/TESTING.md)** - 包括的なテスト実行方法
 
 ## 🚀 Quick Start
 

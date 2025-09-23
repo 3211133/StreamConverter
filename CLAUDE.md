@@ -176,13 +176,23 @@ List<CommandResult> results = converter.run(inputStream, outputStream);
 
 ## Available Documentation
 
-The project includes comprehensive documentation in the `docs/` directory:
-- **[docs/TESTING.md](docs/TESTING.md)** - Test strategy and benchmark execution
+The project follows a structured documentation approach with clear hierarchy:
+
+### Core Documentation
+- **[docs/INDEX.md](docs/INDEX.md)** - Comprehensive documentation index and navigation
+- **[docs/quickstart/basic-usage.md](docs/quickstart/basic-usage.md)** - Basic usage guide for beginners
 - **[docs/ARCHITECTURE.md](docs/ARCHITECTURE.md)** - System architecture and design patterns
-- **[docs/AUTO_LOGGING.md](docs/AUTO_LOGGING.md)** - MDC and context propagation details
-- **[docs/SECURITY_ANALYSIS.md](docs/SECURITY_ANALYSIS.md)** - Security measures and analysis
-- **[docs/BENCHMARK_IMPLEMENTATION.md](docs/BENCHMARK_IMPLEMENTATION.md)** - Performance measurement details
+- **[docs/handbook/](docs/handbook/)** - Concise What/Why/How guides for key features
+
+### Development & Operations
+- **[docs/deployment/docker.md](docs/deployment/docker.md)** - Docker containerization guide
+- **[docs/reference/TESTING.md](docs/reference/TESTING.md)** - Test strategy and benchmark execution
+- **[docs/reference/SECURITY_ANALYSIS.md](docs/reference/SECURITY_ANALYSIS.md)** - Security measures and analysis
+- **[docs/guides/BENCHMARK_IMPLEMENTATION.md](docs/guides/BENCHMARK_IMPLEMENTATION.md)** - Performance measurement details
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** - Development contribution guidelines
+
+### Navigation
+Always start with the **[Documentation Index](docs/INDEX.md)** for comprehensive navigation and organization by topic, audience, and document type.
 
 ## Workflow Guidelines
 

@@ -273,20 +273,29 @@ tasks.register("testAll") {
 tasks.register<Javadoc>("javadocAll") {
     group = "documentation"
     description = "Generate unified Javadoc for all modules"
-    
+
     // Aggregate source from all modules
     val allSourceSets = subprojects.map { it.extensions.getByType<SourceSetContainer>().main.get().allJava }
     source(allSourceSets)
-    
-    // Aggregate classpath from all modules
-    val allClasspaths = subprojects.map { it.extensions.getByType<SourceSetContainer>().main.get().compileClasspath }
+
+    // Set dependencies to ensure subprojects are built first
+    dependsOn(subprojects.map { "${it.path}:classes" })
+
+    // Use Provider API for lazy configuration resolution
+    val allClasspaths = provider {
+        subprojects.flatMap { subproject ->
+            subproject.configurations.getByName("compileClasspath").files +
+            subproject.tasks.named("jar", Jar::class.java).get().outputs.files.files
+        }
+    }
+
     classpath = files(allClasspaths)
-    
+
     // Configure for unified output
     options.encoding = "UTF-8"
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
     setDestinationDir(file("build/docs/javadoc"))
-    
+
     // Javadoc options for better presentation
     if (options is StandardJavadocDocletOptions) {
         (options as StandardJavadocDocletOptions).apply {
@@ -300,10 +309,11 @@ tasks.register<Javadoc>("javadocAll") {
             addStringOption("Xdoclint:none", "-quiet")
         }
     }
-    
+
     doLast {
         println("✅ Unified Javadoc generated:")
         println("   📖 Location: build/docs/javadoc/index.html")
         println("   🚀 Ready for GitHub Actions deployment")
     }
 }
+

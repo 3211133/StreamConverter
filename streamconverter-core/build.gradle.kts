@@ -60,7 +60,7 @@ dependencies {
     implementation("com.opencsv:opencsv:5.12.0")
 
     // IP address validation
-    implementation("com.google.guava:guava:33.4.8-jre")
+    implementation("com.google.guava:guava:33.5.0-jre")
 
     // Database support (version via BOM)
     implementation("com.zaxxer:HikariCP")

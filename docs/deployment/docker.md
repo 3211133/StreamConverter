@@ -206,8 +206,15 @@ docker compose up -d
 # ポート使用状況確認
 netstat -tulpn | grep :8080
 
-# 別ポートで起動
-docker compose up -d -p 8081:8080
+# docker-compose.override.yml でポートを上書き
+cat <<'EOF' > docker-compose.override.yml
+services:
+  streamconverter-web:
+    ports:
+      - "8081:8080"
+EOF
+
+docker compose up -d
 ```
 
 #### データベース接続エラー

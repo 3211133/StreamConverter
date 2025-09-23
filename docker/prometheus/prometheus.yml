@@ -10,7 +10,8 @@ scrape_configs:
   # StreamConverter application metrics
   - job_name: 'streamconverter'
     static_configs:
-      - targets: ['streamconverter-web:8080']
+      # Use environment variables or Docker Compose interpolation to adjust service address
+      - targets: ['${STREAMCONVERTER_SERVICE:-streamconverter-web}:${STREAMCONVERTER_PORT:-8080}']
     metrics_path: '/actuator/prometheus'
     scrape_interval: 30s
     scrape_timeout: 10s

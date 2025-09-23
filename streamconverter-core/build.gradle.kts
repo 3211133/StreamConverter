@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
     // Import Spring Boot BOM to align Spring/Reactor/Logback/Hikari versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.5"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
 
     // Reactive HTTP Client (needed for SendHttpCommand)
     implementation("org.springframework:spring-webflux")
@@ -65,7 +65,7 @@ dependencies {
     implementation("com.opencsv:opencsv:5.12.0")
 
     // IP address validation
-    implementation("com.google.guava:guava:33.4.8-jre")
+    implementation("com.google.guava:guava:33.5.0-jre")
 
     // Database support (version via BOM)
     implementation("com.zaxxer:HikariCP")
@@ -78,8 +78,8 @@ dependencies {
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
 
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.19.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
+    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
 
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.1")

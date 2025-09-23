@@ -7,7 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 StreamConverter is a Java library for efficient stream processing of large files with memory-constrained pipeline architecture. It implements a command pattern for flexible data processing pipelines with concurrent execution capabilities.
 
 **Version**: 1.2.0  
-**Java Version**: 17  
+**Java Version**: 21  
 **Build System**: Gradle with Kotlin DSL  
 **Architecture**: Multi-module project with 4-layer design
 

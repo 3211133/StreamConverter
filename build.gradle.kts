@@ -19,7 +19,6 @@ plugins {
     id("info.solidsoft.pitest") version "1.19.0-rc.1"
     id("org.springframework.boot") version "3.5.5"
     id("io.spring.dependency-management") version "1.1.7"
-    id("com.google.cloud.tools.jib") version "3.4.4"
 }
 
 // Main class configuration
@@ -318,100 +317,3 @@ tasks.register<Javadoc>("javadocAll") {
     }
 }
 
-// Docker container build tasks
-tasks.register("dockerBuild") {
-    group = "docker"
-    description = "Build Docker images for all services"
-
-    doLast {
-        exec {
-            commandLine("docker", "build", "-t", "streamconverter/web:${project.version}", "--target", "production", ".")
-        }
-        exec {
-            commandLine("docker", "build", "-t", "streamconverter/dev:${project.version}", "--target", "development", ".")
-        }
-        println("✅ Docker images built:")
-        println("   🐳 streamconverter/web:${project.version}")
-        println("   🔧 streamconverter/dev:${project.version}")
-    }
-}
-
-tasks.register("dockerRun") {
-    group = "docker"
-    description = "Run StreamConverter with Docker Compose"
-
-    doLast {
-        exec {
-            commandLine("docker", "compose", "up", "-d")
-        }
-        println("✅ StreamConverter services started:")
-        println("   🌐 Web API: http://localhost:8080")
-        println("   📊 Health: http://localhost:8080/actuator/health")
-    }
-}
-
-tasks.register("dockerStop") {
-    group = "docker"
-    description = "Stop all Docker Compose services"
-
-    doLast {
-        exec {
-            commandLine("docker", "compose", "down")
-        }
-        println("⏹️ StreamConverter services stopped")
-    }
-}
-
-tasks.register("dockerClean") {
-    group = "docker"
-    description = "Clean Docker images and containers"
-
-    doLast {
-        exec {
-            commandLine("docker", "compose", "down", "-v", "--rmi", "all")
-        }
-        println("🧹 Docker resources cleaned")
-    }
-}
-
-tasks.register("dockerDev") {
-    group = "docker"
-    description = "Start development environment with Docker Compose"
-
-    doLast {
-        exec {
-            commandLine("docker", "compose", "--profile", "development", "up", "-d")
-        }
-        println("✅ Development environment started:")
-        println("   🔧 Dev API: http://localhost:8081")
-        println("   🐛 Debug port: 5005")
-    }
-}
-
-tasks.register("dockerProd") {
-    group = "docker"
-    description = "Start production environment with Docker Compose"
-
-    doLast {
-        exec {
-            commandLine("docker", "compose", "--profile", "production", "up", "-d")
-        }
-        println("✅ Production environment started:")
-        println("   🌐 Web API: http://localhost:80")
-        println("   📊 Health: http://localhost:80/actuator/health")
-    }
-}
-
-tasks.register("dockerMonitor") {
-    group = "docker"
-    description = "Start monitoring stack with Docker Compose"
-
-    doLast {
-        exec {
-            commandLine("docker", "compose", "--profile", "monitoring", "up", "-d")
-        }
-        println("✅ Monitoring stack started:")
-        println("   📈 Prometheus: http://localhost:9090")
-        println("   📊 Grafana: http://localhost:3000 (admin/admin123)")
-    }
-}

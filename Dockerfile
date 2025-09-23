@@ -1,8 +1,8 @@
 # Multi-stage Docker build for StreamConverter
 # Ensures consistent build environment across all platforms
 
-# Build stage - Use OpenJDK 17 with Gradle
-FROM openjdk:17-jdk-slim AS builder
+# Build stage - Use OpenJDK 21 with Gradle
+FROM openjdk:21-jdk-slim AS builder
 
 LABEL maintainer="StreamConverter Team"
 LABEL description="Build stage for StreamConverter Java library"
@@ -43,7 +43,7 @@ COPY spotbugs-exclude.xml ./
 RUN ./gradlew --no-daemon clean build -x test
 
 # Production stage - Lightweight JRE
-FROM openjdk:17-jre-alpine AS production
+FROM openjdk:21-jre-alpine AS production
 
 LABEL maintainer="StreamConverter Team"
 LABEL description="Production StreamConverter Web API"

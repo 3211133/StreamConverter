@@ -33,7 +33,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic")
     
     // H2 database for examples that use databases
-    implementation("com.h2database:h2:2.3.232")
+    implementation("com.h2database:h2:2.4.240")
     
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:5.13.4"))

@@ -52,7 +52,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic")
 
     // メインの依存関係
-    implementation("org.apache.commons:commons-lang3:3.18.0")
+    implementation("org.apache.commons:commons-lang3:3.19.0")
     implementation("commons-io:commons-io:2.20.0")
 
     // JSON Schema validation

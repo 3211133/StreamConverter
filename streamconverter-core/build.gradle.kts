@@ -69,7 +69,7 @@ dependencies {
 
     // Database support (version via BOM)
     implementation("com.zaxxer:HikariCP")
-    testImplementation("com.h2database:h2:2.3.232")
+    testImplementation("com.h2database:h2:2.4.240")
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:5.13.4"))

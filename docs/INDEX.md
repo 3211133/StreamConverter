@@ -1,0 +1,49 @@
+# StreamConverter Documentation Index
+
+この索引はドキュメントの全体像を把握するためのナビゲーションです。目的に応じて以下のカテゴリから参照してください。
+
+## 🚀 Getting Started
+- **[../README.md](../README.md)**: リポジトリ概要と最新のハイライト
+- **[quickstart/basic-usage.md](quickstart/basic-usage.md)**: 最初のパイプライン実装
+- **[handbook/README.md](handbook/README.md)**: What / Why / How 形式の機能ガイド
+
+## 🧱 Architecture
+- **[ARCHITECTURE.md](ARCHITECTURE.md)**: 4 層アーキテクチャと設計原則
+- **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)**: UML / クラス関係図
+- **[handbook/architecture.md](handbook/architecture.md)**: パイプライン内部の詳細
+- **[reports/CONTEXT_PROPAGATION_ARCHITECTURE.md](reports/CONTEXT_PROPAGATION_ARCHITECTURE.md)**: コンテキスト伝播の背景調査
+
+## 🧰 Features
+- **[handbook/logging.md](handbook/logging.md)**: 自動ログ・MDC 連携
+- **[handbook/validation.md](handbook/validation.md)**: 入力検証
+- **[handbook/web-api.md](handbook/web-api.md)**: Web API の操作方法
+- **[AUTO_LOGGING.md](AUTO_LOGGING.md)**: ログ装飾の詳細
+- **[features/VALIDATION.md](features/VALIDATION.md)** / **[features/RULES_CATALOG.md](features/RULES_CATALOG.md)**: コマンドとルールの仕様
+
+## 🛠️ Development Workflow
+- **[guides/PRE_COMMIT_SETUP.md](guides/PRE_COMMIT_SETUP.md)**: 開発環境の準備
+- **[development/CONFIGURATION.md](development/CONFIGURATION.md)**: IDE & MCP 設定
+- **[development/INTEGRATION_EXAMPLES.md](development/INTEGRATION_EXAMPLES.md)**: 連携サンプル
+- **[development/commit-commands-summary.md](development/commit-commands-summary.md)**: よく使う Gradle / Git コマンド
+- **[scripts/create-issues.sh](../scripts/create-issues.sh)**: 自動化スクリプト
+
+## 🧪 Quality & Testing
+- **[reference/TESTING.md](reference/TESTING.md)**: テスト戦略と実行方法
+- **[reference/TEST_INVENTORY.md](reference/TEST_INVENTORY.md)**: テストケース一覧
+- **[reference/MEMORY_EFFICIENCY_TEST_STRATEGY.md](reference/MEMORY_EFFICIENCY_TEST_STRATEGY.md)**: 大容量データ検証
+- **[reference/CROSS_PLATFORM_TEST_CONSIDERATIONS.md](reference/CROSS_PLATFORM_TEST_CONSIDERATIONS.md)**: マルチプラットフォーム対応
+- **[reference/JAVADOC_MANAGEMENT.md](reference/JAVADOC_MANAGEMENT.md)**: API ドキュメント生成
+
+## 🔐 Security & Operations
+- **[reference/SECURITY_ANALYSIS.md](reference/SECURITY_ANALYSIS.md)**: セキュリティレビュー
+- **[WEB_API.md](WEB_API.md)**: API 公開時の注意事項
+- **[logging-rules.md](logging-rules.md)**: ログ運用ポリシー
+
+## 📊 Reports & Research
+- **[reports/MDC_ANALYSIS_REPORT.md](reports/MDC_ANALYSIS_REPORT.md)**: MDC 分析
+- **[docs/development/TESTING_OLD.md](development/TESTING_OLD.md)**: 旧テスト手法
+
+## 🗂️ Archive
+- **[archived/](archived/)**: 旧アーキテクチャや破棄済み設計資料
+
+> この一覧に載っていない場合は `docs/` 以下を直接検索してください (`rg` や IDE の検索機能が便利です)。

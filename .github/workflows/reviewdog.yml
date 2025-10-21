@@ -21,6 +21,7 @@ jobs:
 
       - name: Run Checkstyle
         run: ./gradlew check
+        continue-on-error: true
 
       - name: Setup reviewdog
         uses: reviewdog/action-setup@v1

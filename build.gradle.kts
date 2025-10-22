@@ -231,7 +231,7 @@ tasks.spotbugsMain {
     reports.create("sarif") {
         required.set(true) 
         // layout.buildDirectory を使うと安全
-        outputLocation.set(layout.buildDirectory.file("reports/spotbugs/main.sarif").get().asFile)
+        outputLocation.set(layout.buildDirectory.file("../reports/spotbugs/main.sarif").get().asFile)
 
     }
 }

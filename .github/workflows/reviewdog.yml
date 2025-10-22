@@ -21,7 +21,7 @@ jobs:
       - name: Grant permission for gradlew
         run: chmod +x ./gradlew
       - name: Run spotBugsMain
-        run: ./gradlew spotBugsMain
+        run: ./gradlew clean spotBugsMain
       - name: Set up reviewdog
         uses: reviewdog/action-setup@v1
         with:

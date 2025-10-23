@@ -192,7 +192,6 @@ tasks.pmdMain {
     reports {
         xml.required.set(true)
         html.required.set(true)
-        sarif.required.set(true)
     }
     exclude("**/examples/**", "**/demo/**")
 }

@@ -215,6 +215,10 @@ tasks.spotbugsMain {
         required.set(true)
         outputLocation.set(file("build/reports/spotbugs/main.xml"))
     }
+    reports.create("sarif") {
+        required.set(true) 
+        outputLocation.set(file("build/reports/spotbugs/main.sarif"))
+    }
 }
 
 tasks.spotbugsTest {

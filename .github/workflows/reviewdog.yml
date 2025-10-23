@@ -26,9 +26,11 @@ jobs:
         uses: reviewdog/action-setup@v1
         with:
           reviewdog_version: v0.17.2
+      - name: Debug SpotBugs output
+        run: find . -type d -name "spotbugs" && ls ./streamconverter-core/build/reports/spotbugs/
       - name: Run reviewdog
         env:
           REVIEWDOG_GITHUB_API_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: >
-          cat ./build/reports/spotbugs/main.sarif 
+          cat ./streamconverter-core/build/reports/spotbugs/main.sarif 
           | reviewdog -f sarif -reporter=github-pr-check -name run-reviewdog -tee

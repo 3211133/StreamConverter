@@ -13,7 +13,6 @@ import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
@@ -63,6 +62,7 @@ public class StreamConverter {
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
   private ExecutionContext defaultContext;
+  private ThreadingStrategy threadingStrategy = ThreadingStrategy.virtualThreadPerTask();
 
   /**
    * Constructs a StreamConverter with the specified array of commands.
@@ -155,14 +155,49 @@ public class StreamConverter {
   }
 
   /**
+   * Creates a StreamConverter with a custom threading strategy and specified commands.
+   *
+   * @param strategy the threading strategy to use for executor creation
+   * @param commands the array of commands to be executed in sequence
+   * @return a new StreamConverter instance with the provided strategy
+   */
+  public static StreamConverter create(ThreadingStrategy strategy, IStreamCommand... commands) {
+    StreamConverter converter = new StreamConverter(commands);
+    converter.threadingStrategy = ThreadingStrategy.requireNonNull(strategy);
+    return converter;
+  }
+
+  /**
+   * Creates a StreamConverter with a custom threading strategy and command list.
+   *
+   * @param strategy the threading strategy to use for executor creation
+   * @param commands the list of commands to be executed in sequence
+   * @return a new StreamConverter instance with the provided strategy
+   */
+  public static StreamConverter create(ThreadingStrategy strategy, List<IStreamCommand> commands) {
+    StreamConverter converter = new StreamConverter(commands);
+    converter.threadingStrategy = ThreadingStrategy.requireNonNull(strategy);
+    return converter;
+  }
+
+  /**
+   * Overrides the threading strategy used for executor creation.
+   *
+   * @param strategy the threading strategy to use
+   * @return the current StreamConverter instance for fluent configuration
+   */
+  public StreamConverter withThreadingStrategy(ThreadingStrategy strategy) {
+    this.threadingStrategy = ThreadingStrategy.requireNonNull(strategy);
+    return this;
+  }
+
+  /**
    * Creates an optimal executor service based on available system resources and command count.
    *
    * @return an optimally configured ExecutorService
    */
   private ExecutorService createOptimalExecutor() {
-    int availableCores = Runtime.getRuntime().availableProcessors();
-    int optimalSize = Math.min(this.commands.size(), Math.max(2, availableCores));
-    return Executors.newFixedThreadPool(optimalSize);
+    return threadingStrategy.createExecutor(this.commands.size());
   }
 
   /**

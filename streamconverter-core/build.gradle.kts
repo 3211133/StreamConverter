@@ -195,6 +195,7 @@ tasks.pmdMain {
     }
     exclude("**/examples/**", "**/demo/**")
 }
+
 // SpotBugs configuration for bug pattern detection
 spotbugs {
     toolVersion.set("4.8.6")
@@ -213,6 +214,10 @@ tasks.spotbugsMain {
     reports.create("xml") {
         required.set(true)
         outputLocation.set(file("build/reports/spotbugs/main.xml"))
+    }
+    reports.create("sarif") {
+        required.set(true) 
+        outputLocation.set(file("build/reports/spotbugs/main.sarif"))
     }
 }
 

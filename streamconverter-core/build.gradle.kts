@@ -195,7 +195,30 @@ tasks.pmdMain {
     }
     exclude("**/examples/**", "**/demo/**")
 }
+// SpotBugs configuration for bug pattern detection
+spotbugs {
+    toolVersion.set("4.8.6")
+    effort.set(com.github.spotbugs.snom.Effort.MAX)
+    reportLevel.set(com.github.spotbugs.snom.Confidence.MEDIUM)
+    excludeFilter.set(file("../spotbugs-exclude.xml"))
+}
 
+// SpotBugs task configuration
+tasks.spotbugsMain {
+    ignoreFailures = true // SpotBugs違反があってもビルドを継続
+    reports.create("html") {
+        required.set(true)
+        outputLocation.set(file("build/reports/spotbugs/main.html"))
+    }
+    reports.create("xml") {
+        required.set(true)
+        outputLocation.set(file("build/reports/spotbugs/main.xml"))
+    }
+}
+
+tasks.spotbugsTest {
+    ignoreFailures = true // SpotBugs違反があってもビルドを継続
+}
 
 // check タスクの実行時に spotlessApply を依存タスクとして実行する
 tasks.named("check") {

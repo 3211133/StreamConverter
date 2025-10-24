@@ -161,8 +161,7 @@ public class StreamConverter {
    * @return an optimally configured ExecutorService
    */
   private ExecutorService createOptimalExecutor() {
-    ThreadFactory threadFactory =
-        Thread.ofVirtual().name("stream-converter-", 0).factory();
+    ThreadFactory threadFactory = Thread.ofVirtual().name("stream-converter-", 0).factory();
     return Executors.newThreadPerTaskExecutor(threadFactory);
   }
 

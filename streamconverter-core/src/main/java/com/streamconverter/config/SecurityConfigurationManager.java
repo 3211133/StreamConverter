@@ -23,6 +23,7 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.0
  */
+@Deprecated
 public class SecurityConfigurationManager {
 
   private static final Logger logger = LoggerFactory.getLogger(SecurityConfigurationManager.class);

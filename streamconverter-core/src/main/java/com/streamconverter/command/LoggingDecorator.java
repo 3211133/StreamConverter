@@ -69,7 +69,7 @@ public class LoggingDecorator implements IStreamCommand {
 
     // スレッド情報
     Thread currentThread = Thread.currentThread();
-    log.debug("Executing on thread: {} (ID: {})", currentThread.getName(), currentThread.getId());
+    log.debug("Executing on thread: {} (ID: {})", currentThread.getName(), System.identityHashCode(currentThread));
 
     // システムリソース情報
     Runtime runtime = Runtime.getRuntime();

@@ -2,7 +2,6 @@ package com.streamconverter.command.impl.xml;
 
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.ConsumerCommand;
-import com.streamconverter.config.SecurityConfigurationManager;
 import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,9 +31,6 @@ public class ValidateCommand extends ConsumerCommand {
   private static final Logger logger = LoggerFactory.getLogger(ValidateCommand.class);
   private static final Logger securityLogger =
       LoggerFactory.getLogger("com.streamConverter.security");
-
-  private static final SecurityConfigurationManager securityConfig =
-      SecurityConfigurationManager.getInstance();
 
   /** スキーマファイルのベースディレクトリ（セキュリティのため固定） */
   private static final Path SCHEMA_BASE_PATH = Paths.get("schemas");
@@ -71,12 +67,6 @@ public class ValidateCommand extends ConsumerCommand {
   private String validateAndNormalizeSchemaPath(String inputPath) {
     String trimmedPath = inputPath.trim();
 
-    // セキュリティ設定でパストラバーサル防止が無効な場合は基本検証のみ
-    if (!securityConfig.isPathTraversalPreventionEnabled()) {
-      logger.debug("Path traversal prevention is disabled");
-      return trimmedPath;
-    }
-
     // テスト環境での絶対パスを許可（テストリソースディレクトリのみ）
     if (trimmedPath.startsWith("/") || trimmedPath.contains(":")) {
       // パス区切り文字を正規化して検証（Windows/Unix対応）
@@ -94,30 +84,24 @@ public class ValidateCommand extends ConsumerCommand {
     }
 
     // 親ディレクトリ参照の検証
-    if (!securityConfig.isParentReferencesAllowed()) {
-      if (trimmedPath.contains("..") || trimmedPath.contains("./") || trimmedPath.contains(".\\")) {
-        securityLogger.warn("Path traversal attempt detected: {}", trimmedPath);
-        throw new SecurityException(
-            "Schema path contains potentially dangerous patterns: " + trimmedPath);
-      }
+    if (trimmedPath.contains("..") || trimmedPath.contains("./") || trimmedPath.contains(".\\")) {
+      securityLogger.warn("Path traversal attempt detected: {}", trimmedPath);
+      throw new SecurityException(
+          "Schema path contains potentially dangerous patterns: " + trimmedPath);
     }
 
     // ワークスペース制限が有効な場合の追加検証
-    if (securityConfig.isFileAccessRestrictedToWorkspace()) {
-      // ベースパスからの相対パスとして解決
-      Path resolvedPath = SCHEMA_BASE_PATH.resolve(trimmedPath).normalize();
+    // ベースパスからの相対パスとして解決
+    Path resolvedPath = SCHEMA_BASE_PATH.resolve(trimmedPath).normalize();
 
-      // ベースディレクトリ外へのアクセスを防止
-      if (!resolvedPath.startsWith(SCHEMA_BASE_PATH)) {
-        securityLogger.warn("Workspace access violation detected: {}", trimmedPath);
-        throw new SecurityException(
-            "Schema path attempts to access outside base directory: " + trimmedPath);
-      }
-
-      return resolvedPath.toString();
+    // ベースディレクトリ外へのアクセスを防止
+    if (!resolvedPath.startsWith(SCHEMA_BASE_PATH)) {
+      securityLogger.warn("Workspace access violation detected: {}", trimmedPath);
+      throw new SecurityException(
+          "Schema path attempts to access outside base directory: " + trimmedPath);
     }
 
-    return trimmedPath;
+    return resolvedPath.toString();
   }
 
   /**

@@ -1,6 +1,5 @@
 package com.streamconverter.security;
 
-import com.streamconverter.config.SecurityConfigurationManager;
 import java.io.InputStream;
 import javax.xml.XMLConstants;
 import javax.xml.parsers.DocumentBuilder;
@@ -35,9 +34,6 @@ public class SecureXmlConfiguration {
   private static final Logger securityLogger =
       LoggerFactory.getLogger("com.streamConverter.security");
 
-  private static final SecurityConfigurationManager securityConfig =
-      SecurityConfigurationManager.getInstance();
-
   private SecureXmlConfiguration() {
     // ユーティリティクラスのため、インスタンス化を禁止
   }
@@ -53,36 +49,22 @@ public class SecureXmlConfiguration {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
     // XXE攻撃防止設定
-    if (securityConfig.isXmlDoctypeDeclarationsDisabled()) {
-      try {
-        // DOCTYPE宣言を無効化
-        factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-        securityLogger.debug("DOCTYPE declarations disabled");
-      } catch (ParserConfigurationException e) {
-        logger.warn("Failed to disable DOCTYPE declarations", e);
-      }
+    try {
+      // DOCTYPE宣言を無効化
+      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+      securityLogger.debug("DOCTYPE declarations disabled");
+    } catch (ParserConfigurationException e) {
+      logger.warn("Failed to disable DOCTYPE declarations", e);
     }
 
-    if (securityConfig.isXmlExternalEntitiesDisabled()) {
-      try {
-        // 外部一般エンティティを無効化
-        factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-        // 外部パラメータエンティティを無効化
-        factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-        securityLogger.debug("External entities disabled");
-      } catch (ParserConfigurationException e) {
-        logger.warn("Failed to disable external entities", e);
-      }
-    }
-
-    if (securityConfig.isLoadExternalDtdDisabled()) {
-      try {
-        // 外部DTDの読み込みを無効化
-        factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
-        securityLogger.debug("External DTD loading disabled");
-      } catch (ParserConfigurationException e) {
-        logger.warn("Failed to disable external DTD loading", e);
-      }
+    try {
+      // 外部一般エンティティを無効化
+      factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+      // 外部パラメータエンティティを無効化
+      factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+      securityLogger.debug("External entities disabled");
+    } catch (ParserConfigurationException e) {
+      logger.warn("Failed to disable external entities", e);
     }
 
     // 追加のセキュリティ設定
@@ -116,11 +98,9 @@ public class SecureXmlConfiguration {
   public static XMLInputFactory createSecureXMLInputFactory() {
     XMLInputFactory factory = XMLInputFactory.newInstance();
 
-    if (securityConfig.isXmlExternalEntitiesDisabled()) {
-      // 外部エンティティの処理を無効化
-      factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-      factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
-    }
+    // 外部エンティティの処理を無効化
+    factory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
+    factory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
 
     // 追加のセキュリティ設定
     factory.setProperty(XMLInputFactory.IS_REPLACING_ENTITY_REFERENCES, false);
@@ -206,22 +186,6 @@ public class SecureXmlConfiguration {
 
     securityLogger.debug("Secure DocumentBuilder created for InputStream processing");
     return builder;
-  }
-
-  /** セキュリティ設定の現在の状態をログに出力します */
-  public static void logSecurityStatus() {
-    if (securityConfig.isSecurityLoggingEnabled()) {
-      securityLogger.info("=== XML Security Configuration Status ===");
-      securityLogger.info(
-          "XML External Entities Disabled: {}", securityConfig.isXmlExternalEntitiesDisabled());
-      securityLogger.info(
-          "XML DOCTYPE Declarations Disabled: {}",
-          securityConfig.isXmlDoctypeDeclarationsDisabled());
-      securityLogger.info(
-          "External DTD Loading Disabled: {}", securityConfig.isLoadExternalDtdDisabled());
-      securityLogger.info("Production Environment: {}", securityConfig.isProductionEnvironment());
-      securityLogger.info("========================================");
-    }
   }
 }
 

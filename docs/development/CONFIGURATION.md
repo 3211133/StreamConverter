@@ -216,8 +216,8 @@ dependencies {
     // CSV処理
     implementation("com.opencsv:opencsv:5.12.0")
     
-    // JSON Schema Validation
-    implementation("com.networknt:json-schema-validator:1.5.8")
+    // JSON Schema Validation (2.x introduces SchemaRegistry/Error APIs)
+    implementation("com.networknt:json-schema-validator:2.0.0")
     
     // ユーティリティ
     implementation("com.google.guava:guava:33.4.0-jre")
@@ -233,6 +233,7 @@ dependencies {
 
 2. **互換性テスト**
    - メジャーバージョン更新前の包括的テスト
+   - `json-schema-validator` 2.x では `SchemaRegistry`/`Error` API に移行したため、1.x からのアップグレード時はコンパイルエラー（"symbol not found"）が発生しないか確認してください。
 
 3. **パフォーマンス検証**
    - 更新後のベンチマーク実行

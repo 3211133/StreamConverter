@@ -82,7 +82,7 @@
 <span class="source-line-no">069</span><span id="line-69"></span>
 <span class="source-line-no">070</span><span id="line-70">    // スレッド情報</span>
 <span class="source-line-no">071</span><span id="line-71">    Thread currentThread = Thread.currentThread();</span>
-<span class="source-line-no">072</span><span id="line-72">    log.debug("Executing on thread: {} (ID: {})", currentThread.getName(), currentThread.getId());</span>
+<span class="source-line-no">072</span><span id="line-72">    log.debug("Executing on thread: {} (ID: {})", currentThread.getName(), System.identityHashCode(currentThread));</span>
 <span class="source-line-no">073</span><span id="line-73"></span>
 <span class="source-line-no">074</span><span id="line-74">    // システムリソース情報</span>
 <span class="source-line-no">075</span><span id="line-75">    Runtime runtime = Runtime.getRuntime();</span>

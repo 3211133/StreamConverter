@@ -12,7 +12,6 @@ com.streamconverter.command.rule
 com.streamconverter.command.rule.impl.casing
 com.streamconverter.command.rule.impl.composite
 com.streamconverter.command.rule.impl.string
-com.streamconverter.config
 com.streamconverter.context
 com.streamconverter.controller
 com.streamconverter.examples

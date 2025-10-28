@@ -1,6 +1,5 @@
 package com.streamconverter.security;
 
-import com.streamconverter.config.SecurityConfigurationManager;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -24,12 +23,8 @@ import org.slf4j.LoggerFactory;
  */
 public class SecureXPathValidator {
 
-  private static final Logger logger = LoggerFactory.getLogger(SecureXPathValidator.class);
   private static final Logger securityLogger =
       LoggerFactory.getLogger("com.streamConverter.security");
-
-  private static final SecurityConfigurationManager securityConfig =
-      SecurityConfigurationManager.getInstance();
 
   // XPathインジェクション攻撃パターン（エスケープクォートも含む）
   private static final Pattern XPATH_INJECTION_PATTERN =
@@ -69,12 +64,6 @@ public class SecureXPathValidator {
       throw new IllegalArgumentException("TreePath expression cannot be null or empty");
     }
 
-    // XPath検証が無効な場合はスキップ
-    if (!securityConfig.isXPathValidationEnabled()) {
-      logger.debug("TreePath validation is disabled");
-      return;
-    }
-
     String trimmedXpath = xpath.trim();
 
     // 基本的なインジェクションパターンチェック
@@ -90,9 +79,7 @@ public class SecureXPathValidator {
     validateSqlLikeInjection(trimmedXpath);
 
     // 厳格モードでの追加検証
-    if (securityConfig.isXPathStrictModeEnabled()) {
-      validateStrictMode(trimmedXpath);
-    }
+    validateStrictMode(trimmedXpath);
 
     securityLogger.debug("TreePath validation passed: {}", sanitizeForLogging(trimmedXpath));
   }
@@ -266,18 +253,5 @@ public class SecureXPathValidator {
     sanitized = sanitized.replaceAll("[\\p{Cntrl}\\p{Cc}\\p{Cf}\\p{Co}\\p{Cn}]", "");
 
     return sanitized;
-  }
-
-  /** セキュリティ設定の現在の状態をログに出力します */
-  public static void logSecurityStatus() {
-    if (securityConfig.isSecurityLoggingEnabled()) {
-      securityLogger.info("=== TreePath Security Configuration Status ===");
-      securityLogger.info(
-          "TreePath Validation Enabled: {}", securityConfig.isXPathValidationEnabled());
-      securityLogger.info(
-          "TreePath Strict Mode Enabled: {}", securityConfig.isXPathStrictModeEnabled());
-      securityLogger.info("Production Environment: {}", securityConfig.isProductionEnvironment());
-      securityLogger.info("===========================================");
-    }
   }
 }

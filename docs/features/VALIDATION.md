@@ -217,7 +217,7 @@ CsvValidateCommand customValidator = new CsvValidateCommand(
 // JSONカスタムバリデーション（独自フォーマット）
 JsonValidateCommand customJsonValidator = new JsonValidateCommand(
     "custom-schema.json",
-    JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
+    SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
 );
 ```
 

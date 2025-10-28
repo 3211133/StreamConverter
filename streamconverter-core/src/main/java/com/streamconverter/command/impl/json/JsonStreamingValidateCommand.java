@@ -2,17 +2,17 @@ package com.streamconverter.command.impl.json;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.ConsumerCommand;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.jsfr.json.JsonSurfer;
@@ -60,9 +60,9 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
 
   private final String schemaPath;
   private final ObjectMapper objectMapper;
-  private final JsonSchemaFactory schemaFactory;
+  private final SchemaRegistry schemaRegistry;
   private final JsonSurfer surfer;
-  private volatile JsonSchema cachedSchema;
+  private volatile Schema cachedSchema;
 
   /**
    * コンストラクタ
@@ -72,9 +72,16 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
    * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
    */
   public JsonStreamingValidateCommand(String schemaPath) {
+    this(schemaPath, SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7));
+  }
+
+  public JsonStreamingValidateCommand(String schemaPath, SchemaRegistry schemaRegistry) {
     this.schemaPath = validateSchemaPath(schemaPath);
+    if (schemaRegistry == null) {
+      throw new IllegalArgumentException("Schema registry cannot be null");
+    }
+    this.schemaRegistry = schemaRegistry;
     this.objectMapper = new ObjectMapper();
-    this.schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
     this.surfer = JsonSurferJackson.INSTANCE;
 
     // パフォーマンス改善: 遅延読み込みによりコンストラクタでのI/O操作を回避
@@ -219,7 +226,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
   }
 
   /** JSONスキーマを遅延読み込み（スレッドセーフ） */
-  private JsonSchema loadSchema() throws StreamProcessingException {
+  private Schema loadSchema() throws StreamProcessingException {
     if (cachedSchema != null) {
       return cachedSchema;
     }
@@ -253,7 +260,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
               "Failed to load JSON schema: Schema file is empty: " + schemaPath);
         }
 
-        cachedSchema = schemaFactory.getSchema(schemaNode);
+        cachedSchema = schemaRegistry.getSchema(schemaNode);
         return cachedSchema;
 
       } catch (StreamProcessingException e) {
@@ -267,27 +274,31 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
   /** JSON Schema検証を実行 */
   private void performSchemaValidation(InputStream inputStream) throws StreamProcessingException {
     try {
-      JsonSchema schema = loadSchema();
+      Schema schema = loadSchema();
       JsonNode jsonNode = objectMapper.readTree(inputStream);
 
       if (jsonNode == null) {
         throw new StreamProcessingException("Failed to parse JSON for schema validation");
       }
 
-      Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
+      List<Error> validationErrors = schema.validate(jsonNode);
 
-      if (!validationMessages.isEmpty()) {
+      if (!validationErrors.isEmpty()) {
         StringBuilder errorBuilder = new StringBuilder();
         errorBuilder
             .append("JSON schema validation failed with ")
-            .append(validationMessages.size())
+            .append(validationErrors.size())
             .append(" validation errors:");
 
         int errorCount = 0;
-        for (ValidationMessage message : validationMessages) {
+        for (Error error : validationErrors) {
           errorBuilder.append("\n  ").append(++errorCount).append(". ");
-          errorBuilder.append("Path: ").append(message.getInstanceLocation());
-          errorBuilder.append(" - ").append(message.getMessage());
+          String instanceLocation =
+              error.getInstanceLocation() == null
+                  ? "(unknown location)"
+                  : error.getInstanceLocation().toString();
+          errorBuilder.append("Path: ").append(instanceLocation);
+          errorBuilder.append(" - ").append(error.getMessage());
         }
 
         throw new StreamProcessingException(errorBuilder.toString());

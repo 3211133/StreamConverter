@@ -34,7 +34,7 @@ import org.slf4j.LoggerFactory;
  * <p>使用例:
  *
  * <pre>
- * JsonValidateCommand validator = new JsonValidateCommand("schema/user.json");
+ * JsonValidateCommand validator = JsonValidateCommand.create("schema/user.json");
  * validator.consume(jsonInputStream);
  * </pre>
  */
@@ -49,26 +49,31 @@ public class JsonValidateCommand extends ConsumerCommand {
   private final SchemaRegistry schemaRegistry;
 
   /**
-   * コンストラクタ
+   * JsonValidateCommandのファクトリメソッド。
    *
    * @param schemaPath JSONスキーマファイルのパス
+   * @return 検証済みのスキーマパスに基づくJsonValidateCommand
    * @throws IllegalArgumentException スキーマパスがnullまたは空の場合
    */
-  public JsonValidateCommand(String schemaPath) {
-    this(schemaPath, DEFAULT_SCHEMA_REGISTRY);
+  public static JsonValidateCommand create(String schemaPath) {
+    return create(schemaPath, DEFAULT_SCHEMA_REGISTRY);
   }
 
-  public JsonValidateCommand(String schemaPath, SchemaRegistry schemaRegistry) {
-    this.schemaPath = validateSchemaPath(schemaPath);
-    if (schemaRegistry == null) {
-      throw new IllegalArgumentException("Schema registry cannot be null");
-    }
+  public static JsonValidateCommand create(String schemaPath, SchemaRegistry schemaRegistry) {
+    String validatedSchemaPath = validateSchemaPath(schemaPath);
+    SchemaRegistry validatedRegistry =
+        Objects.requireNonNull(schemaRegistry, "Schema registry cannot be null");
+    return new JsonValidateCommand(validatedSchemaPath, validatedRegistry);
+  }
+
+  private JsonValidateCommand(String schemaPath, SchemaRegistry schemaRegistry) {
+    this.schemaPath = schemaPath;
     this.schemaRegistry = schemaRegistry;
     this.objectMapper = new ObjectMapper();
   }
 
   /** スキーマパスの検証 */
-  private String validateSchemaPath(String path) {
+  private static String validateSchemaPath(String path) {
     if (path == null) {
       throw new IllegalArgumentException("Schema path cannot be null");
     }

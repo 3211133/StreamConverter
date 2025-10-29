@@ -72,7 +72,7 @@ public class JsonValidateCommandTest {
   void testConstructorWithValidSchemaPath() {
     assertDoesNotThrow(
         () -> {
-          JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+          JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
           assertNotNull(command);
         });
   }
@@ -81,7 +81,7 @@ public class JsonValidateCommandTest {
   @DisplayName("Constructor with null schema path throws exception")
   void testConstructorWithNullSchemaPath() {
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> new JsonValidateCommand(null));
+        assertThrows(IllegalArgumentException.class, () -> JsonValidateCommand.create(null));
     assertEquals("Schema path cannot be null", exception.getMessage());
   }
 
@@ -89,7 +89,7 @@ public class JsonValidateCommandTest {
   @DisplayName("Constructor with empty schema path throws exception")
   void testConstructorWithEmptySchemaPath() {
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> new JsonValidateCommand(""));
+        assertThrows(IllegalArgumentException.class, () -> JsonValidateCommand.create(""));
     assertEquals("Schema path cannot be empty", exception.getMessage());
   }
 
@@ -97,14 +97,14 @@ public class JsonValidateCommandTest {
   @DisplayName("Constructor with whitespace-only schema path throws exception")
   void testConstructorWithWhitespaceSchemaPath() {
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> new JsonValidateCommand("   "));
+        assertThrows(IllegalArgumentException.class, () -> JsonValidateCommand.create("   "));
     assertEquals("Schema path cannot be empty", exception.getMessage());
   }
 
   @Test
   @DisplayName("Valid JSON validation succeeds")
   void testValidJsonValidationSuccess() throws IOException {
-    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
 
     String validJson =
         """
@@ -125,7 +125,7 @@ public class JsonValidateCommandTest {
   @Test
   @DisplayName("Invalid JSON validation fails with detailed error")
   void testInvalidJsonValidationFailure() throws IOException {
-    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
 
     String invalidJson =
         """
@@ -150,7 +150,7 @@ public class JsonValidateCommandTest {
   @Test
   @DisplayName("Missing required fields validation fails")
   void testMissingRequiredFieldsValidationFailure() throws IOException {
-    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
 
     String jsonMissingRequired =
         """
@@ -176,7 +176,7 @@ public class JsonValidateCommandTest {
   @Test
   @DisplayName("Malformed JSON input throws exception")
   void testMalformedJsonInput() throws IOException {
-    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
 
     String malformedJson =
         """
@@ -199,7 +199,7 @@ public class JsonValidateCommandTest {
   @Test
   @DisplayName("Empty JSON input throws exception")
   void testEmptyJsonInput() throws IOException {
-    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
@@ -215,7 +215,7 @@ public class JsonValidateCommandTest {
   void testNonExistentSchemaFile() {
     String nonExistentPath = tempDir.resolve("non-existent-schema.json").toString();
 
-    JsonValidateCommand command = new JsonValidateCommand(nonExistentPath);
+    JsonValidateCommand command = JsonValidateCommand.create(nonExistentPath);
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8));
 
@@ -230,13 +230,13 @@ public class JsonValidateCommandTest {
   void testInvalidSchemaFile() {
     // 無効なキーワードを含むスキーマファイルは警告が出るが、例外はスローされない
     // （networknt JSON Schema ライブラリの仕様）
-    assertDoesNotThrow(() -> new JsonValidateCommand(invalidSchemaFile.toString()));
+    assertDoesNotThrow(() -> JsonValidateCommand.create(invalidSchemaFile.toString()));
   }
 
   @Test
   @DisplayName("Large JSON document validation")
   void testLargeJsonDocumentValidation() throws IOException {
-    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
 
     // 大きなJSONドキュメントを作成（多数のプロパティを持つ）
     StringBuilder largeJson = new StringBuilder();
@@ -257,7 +257,7 @@ public class JsonValidateCommandTest {
   @Test
   @DisplayName("Null input stream throws exception")
   void testNullInputStream() throws IOException {
-    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
 
     NullPointerException exception =
         assertThrows(NullPointerException.class, () -> command.consume(null));
@@ -300,7 +300,7 @@ public class JsonValidateCommandTest {
     Path complexSchemaFile = tempDir.resolve("complex-schema.json");
     Files.writeString(complexSchemaFile, complexSchema, StandardCharsets.UTF_8);
 
-    JsonValidateCommand command = new JsonValidateCommand(complexSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(complexSchemaFile.toString());
 
     String validComplexJson =
         """
@@ -324,7 +324,7 @@ public class JsonValidateCommandTest {
   @Test
   @DisplayName("JSON with special characters validation")
   void testJsonWithSpecialCharactersValidation() throws IOException {
-    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
 
     String jsonWithSpecialChars =
         """
@@ -345,7 +345,7 @@ public class JsonValidateCommandTest {
   @Test
   @DisplayName("Verify streaming JSON validation behavior")
   void testStreamingJsonValidationBehavior() throws IOException {
-    JsonValidateCommand command = new JsonValidateCommand(validSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(validSchemaFile.toString());
 
     // Create a single valid JSON object for schema validation
     String singleJsonObject =
@@ -417,7 +417,7 @@ public class JsonValidateCommandTest {
     Path complexSchemaFile = tempDir.resolve("complex-schema.json");
     Files.writeString(complexSchemaFile, complexSchema, StandardCharsets.UTF_8);
 
-    JsonValidateCommand command = new JsonValidateCommand(complexSchemaFile.toString());
+    JsonValidateCommand command = JsonValidateCommand.create(complexSchemaFile.toString());
 
     // Create complex JSON data that matches the schema
     String complexJsonData =

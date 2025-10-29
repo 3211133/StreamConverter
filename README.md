@@ -1,7 +1,7 @@
 # StreamConverter
 
 **Version**: 1.2.0 | [📚 ドキュメント索引](docs/INDEX.md) | [🚀 クイックスタート](docs/quickstart/basic-usage.md) | [🔗 API Documentation](https://3211133.github.io/StreamConverter/)
-
+<!--別にバージョンは指定していない。最新は0.0.0であり、バージョントリガーが未規定。aiが勝手に上げている -->
 大容量ファイルのストリーム処理を効率的に行うためのJavaライブラリです。メモリ使用量を抑えながら、複数の処理を連結するパイプライン型アーキテクチャを提供します。
 
 > **ドキュメント優先**: このプロジェクトでは、ドキュメントを真実のソース (Single Source of Truth) として扱います。詳細は [📚 ドキュメント索引](docs/INDEX.md) を参照してください。
@@ -18,9 +18,10 @@
 - **パフォーマンス測定**: 実行時間とメモリ使用量の自動追跡
 - **エラー追跡**: 詳細なスタックトレースと実行コンテキスト
 - **コンテキスト伝播**: マルチスレッド環境でのMDCコンテキスト管理
+<!-- 出来てないところがある。MDCは要修正 -->
 
 ### 🔧 豊富なコマンド
-- **データ抽出**: CSV、JSON、XMLからの値抽出
+- **データ変換**: CSV、JSON、XMLの特定のタグの中身を変換
 - **形式変換**: 文字エンコーディング、XML変換
 - **通信**: HTTP API呼び出し
 - **バリデーション**: XMLスキーマ検証
@@ -28,7 +29,7 @@
 ## 🚀 クイックスタート
 
 ### 基本的な使用方法
-
+<!-- 引数など現状とずれているものがある。NavigateCommandは抽出ではないし。 -->
 ```java
 import com.streamConverter.StreamConverter;
 import com.streamConverter.command.impl.csv.CsvNavigateCommand;
@@ -47,7 +48,7 @@ converter.run(inputStream, outputStream);
 ```
 
 ### コンテキスト対応処理（MDC連携）
-
+<!-- コンテクストを予め注入するような処理がやりたい訳じゃない。 -->
 ```java
 import com.streamConverter.StreamConverter;
 import com.streamConverter.context.ExecutionContext;
@@ -83,9 +84,10 @@ for (CommandResult result : results) {
 - **ログ相関**: requestIdによるログの関連付け
 - **パフォーマンス測定**: 各コマンドの実行時間とリソース使用量
 - **エラー追跡**: 実行コンテキスト付きエラー情報
+<!-- MDCはスレッドローカルな処理だが、スレッドをまたいでしまうので共有する必要があるが出来ていない -->
 
 ## 📋 利用可能なコマンド
-
+<!-- 引数にルールオブジェクトがないなどのズレがある -->
 | カテゴリ | コマンド | 用途 | 使用例 |
 |----------|----------|------|--------|
 | **データ変換** | `csv.CsvNavigateCommand` | CSV 特定列の変換 | `new CsvNavigateCommand("name")` |
@@ -121,12 +123,12 @@ for (CommandResult result : results) {
 
 詳細な使用例は以下のサンプルコードを参照してください：
 
-- **[QuickStart.java](streamconverter-examples/src/main/java/com/streamConverter/examples/QuickStart.java)** - 基本的な使用方法
-- **[AutoLoggingDemo.java](streamconverter-examples/src/main/java/com/streamConverter/examples/AutoLoggingDemo.java)** - ログ機能のデモ
-- **[ContextPropagationDemo.java](streamconverter-examples/src/main/java/com/streamConverter/examples/ContextPropagationDemo.java)** - コンテキスト伝播のデモ
-- **[MDCMultiThreadExample.java](streamconverter-examples/src/main/java/com/streamConverter/examples/MDCMultiThreadExample.java)** - MDCマルチスレッド検証
-- **[DataProcessingExamples.java](streamconverter-examples/src/main/java/com/streamConverter/examples/DataProcessingExamples.java)** - 実用的な処理例
-- **[EnterpriseIntegrationPatterns.java](streamconverter-examples/src/main/java/com/streamConverter/examples/EnterpriseIntegrationPatterns.java)** - エンタープライズパターン
+- **[QuickStart.java](streamconverter-examples/src/main/java/com/streamconverter/examples/QuickStart.java)** - 基本的な使用方法
+- **[AutoLoggingDemo.java](streamconverter-examples/src/main/java/com/streamconverter/examples/AutoLoggingDemo.java)** - ログ機能のデモ
+- **[ContextPropagationDemo.java](streamconverter-examples/src/main/java/com/streamconverter/examples/ContextPropagationDemo.java)** - コンテキスト伝播のデモ
+- **[MDCMultiThreadExample.java](streamconverter-examples/src/main/java/com/streamconverter/examples/MDCMultiThreadExample.java)** - MDCマルチスレッド検証
+- **[DataProcessingExamples.java](streamconverter-examples/src/main/java/com/streamconverter/examples/DataProcessingExamples.java)** - 実用的な処理例
+- **[EnterpriseIntegrationPatterns.java](streamconverter-examples/src/main/java/com/streamconverter/examples/EnterpriseIntegrationPatterns.java)** - エンタープライズパターン
 
 ## 🛠️ ビルドと実行
 
@@ -144,6 +146,7 @@ for (CommandResult result : results) {
 ```
 
 ### Docker環境
+<!-- dockerは未対応です -->
 ```bash
 # Docker イメージビルド
 ./gradlew dockerBuild
@@ -177,12 +180,12 @@ for (CommandResult result : results) {
 このプロジェクトはMCPをサポートしており、Java Language Server (JDTLS) を使用してコード補完、エラー検出、リファクタリングなどの機能を提供します。**MCPは開発効率を向上させる便利なツールですが、プロジェクトのビルドや実行には必須ではありません。**
 
 #### 必要なシステム要件
-
+<!-- pj要件は21 -->
 - **Java**: 17 以上（プロジェクトの要件と同じ）
 - **JDTLS**: Eclipse Java Language Server
 
 #### JDTLS インストール方法
-
+<!-- jdtlsの話は本質的な説明じゃないから除けたい -->
 > **注意**: MCPサポートはオプション機能です。開発に必須ではありませんが、IDE機能（自動補完、エラー検出等）を利用したい場合に有用です。
 
 **手動インストール（推奨）:**

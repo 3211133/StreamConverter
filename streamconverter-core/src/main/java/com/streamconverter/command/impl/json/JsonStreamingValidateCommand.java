@@ -79,10 +79,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
 
   public JsonStreamingValidateCommand(String schemaPath, SchemaRegistry schemaRegistry) {
     this.schemaPath = validateSchemaPath(schemaPath);
-    if (schemaRegistry == null) {
-      throw new IllegalArgumentException("Schema registry cannot be null");
-    }
-    this.schemaRegistry = schemaRegistry;
+    this.schemaRegistry = Objects.requireNonNull(schemaRegistry,"Schema registry cannot be null");
     this.objectMapper = new ObjectMapper();
     this.surfer = JsonSurferJackson.INSTANCE;
 

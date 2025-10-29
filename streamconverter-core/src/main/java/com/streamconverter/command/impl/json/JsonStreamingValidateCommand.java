@@ -51,7 +51,8 @@ import org.slf4j.LoggerFactory;
  * <p>使用例:
  *
  * <pre>
- * JsonStreamingValidateCommand validator = new JsonStreamingValidateCommand("schema/user.json");
+ * JsonStreamingValidateCommand validator =
+ *     JsonStreamingValidateCommand.create("schema/user.json");
  * validator.consume(jsonInputStream);
  * </pre>
  */
@@ -68,18 +69,36 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
   private volatile Schema cachedSchema;
 
   /**
-   * コンストラクタ
+   * JsonStreamingValidateCommandのファクトリメソッド。
    *
    * @param schemaPath JSONスキーマファイルのパス
+   * @return 検証済みのスキーマパスに基づくJsonStreamingValidateCommand
    * @throws IllegalArgumentException スキーマパスがnullまたは空の場合
    */
-  public JsonStreamingValidateCommand(String schemaPath) {
-    this(schemaPath, DEFAULT_SCHEMA_REGISTRY);
+  public static JsonStreamingValidateCommand create(String schemaPath) {
+    return create(schemaPath, DEFAULT_SCHEMA_REGISTRY);
   }
 
-  public JsonStreamingValidateCommand(String schemaPath, SchemaRegistry schemaRegistry) {
-    this.schemaPath = validateSchemaPath(schemaPath);
-    this.schemaRegistry = Objects.requireNonNull(schemaRegistry,"Schema registry cannot be null");
+  /**
+   * カスタムSchemaRegistryを指定してJsonStreamingValidateCommandを生成します。
+   *
+   * @param schemaPath JSONスキーマファイルのパス
+   * @param schemaRegistry 使用するSchemaRegistry
+   * @return JsonStreamingValidateCommandのインスタンス
+   * @throws IllegalArgumentException スキーマパスがnullまたは空の場合
+   * @throws NullPointerException スキーマレジストリがnullの場合
+   */
+  public static JsonStreamingValidateCommand create(
+      String schemaPath, SchemaRegistry schemaRegistry) {
+    String validatedSchemaPath = validateSchemaPath(schemaPath);
+    SchemaRegistry validatedRegistry =
+        Objects.requireNonNull(schemaRegistry, "Schema registry cannot be null");
+    return new JsonStreamingValidateCommand(validatedSchemaPath, validatedRegistry);
+  }
+
+  private JsonStreamingValidateCommand(String schemaPath, SchemaRegistry schemaRegistry) {
+    this.schemaPath = schemaPath;
+    this.schemaRegistry = schemaRegistry;
     this.objectMapper = new ObjectMapper();
     this.surfer = JsonSurferJackson.INSTANCE;
 
@@ -88,7 +107,7 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
   }
 
   /** スキーマパスの検証 */
-  private String validateSchemaPath(String path) {
+  private static String validateSchemaPath(String path) {
     if (path == null) {
       throw new IllegalArgumentException("Schema path cannot be null");
     }

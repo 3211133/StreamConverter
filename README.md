@@ -100,7 +100,7 @@ for (CommandResult result : results) {
 | **通信** | `SendHttpCommand` | HTTP リクエスト | `new SendHttpCommand("http://api.example.com")` |
 | **検証** | `csv.CsvValidateCommand` | CSV 構造検証 | `new CsvValidateCommand(requiredColumns)` |
 | | `json.JsonValidateCommand` | JSON スキーマ検証 | `JsonValidateCommand.create("schema.json")` |
-| | `json.JsonStreamingValidateCommand` | JSON ストリーミング検証 | `new JsonStreamingValidateCommand("schema.json")` |
+| | `json.JsonStreamingValidateCommand` | JSON ストリーミング検証 | `JsonStreamingValidateCommand.create("schema.json")` |
 | | `xml.ValidateCommand` | XML スキーマ検証 | `new ValidateCommand("schema.xsd")` |
 
 ## 📖 ドキュメント

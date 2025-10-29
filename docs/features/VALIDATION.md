@@ -73,7 +73,7 @@ try {
 import com.streamConverter.command.impl.json.JsonValidateCommand;
 
 // JSON Schemaファイルを指定
-JsonValidateCommand validator = new JsonValidateCommand("user-schema.json");
+JsonValidateCommand validator = JsonValidateCommand.create("user-schema.json");
 
 // 使用例
 IStreamCommand[] pipeline = {
@@ -215,9 +215,9 @@ CsvValidateCommand customValidator = new CsvValidateCommand(
 );
 
 // JSONカスタムバリデーション（独自フォーマット）
-JsonValidateCommand customJsonValidator = new JsonValidateCommand(
+JsonValidateCommand customJsonValidator = JsonValidateCommand.create(
     "custom-schema.json",
-    JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7)
+    SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_2020_12)
 );
 ```
 
@@ -293,7 +293,7 @@ public void testCsvValidation_ValidData() {
 public void testJsonValidation_InvalidData() {
     // 無効なJSONデータでテスト
     String invalidJson = "{\\"name\\": \\"\\", \\"email\\": \\"invalid-email\\"}";
-    JsonValidateCommand validator = new JsonValidateCommand("user-schema.json");
+    JsonValidateCommand validator = JsonValidateCommand.create("user-schema.json");
     
     // バリデーションエラーの発生を確認
     assertThrows(StreamProcessingException.class, () -> {

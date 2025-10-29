@@ -58,6 +58,9 @@ import org.slf4j.LoggerFactory;
 public class JsonStreamingValidateCommand extends ConsumerCommand {
   private static final Logger logger = LoggerFactory.getLogger(JsonStreamingValidateCommand.class);
 
+  private static final SchemaRegistry DEFAULT_SCHEMA_REGISTRY =
+      SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+
   private final String schemaPath;
   private final ObjectMapper objectMapper;
   private final SchemaRegistry schemaRegistry;
@@ -69,10 +72,9 @@ public class JsonStreamingValidateCommand extends ConsumerCommand {
    *
    * @param schemaPath JSONスキーマファイルのパス
    * @throws IllegalArgumentException スキーマパスがnullまたは空の場合
-   * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
    */
   public JsonStreamingValidateCommand(String schemaPath) {
-    this(schemaPath, SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7));
+    this(schemaPath, DEFAULT_SCHEMA_REGISTRY);
   }
 
   public JsonStreamingValidateCommand(String schemaPath, SchemaRegistry schemaRegistry) {

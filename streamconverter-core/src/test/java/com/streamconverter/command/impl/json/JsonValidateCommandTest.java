@@ -215,9 +215,12 @@ public class JsonValidateCommandTest {
   void testNonExistentSchemaFile() {
     String nonExistentPath = tempDir.resolve("non-existent-schema.json").toString();
 
+    JsonValidateCommand command = new JsonValidateCommand(nonExistentPath);
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream("{}".getBytes(StandardCharsets.UTF_8));
+
     StreamProcessingException exception =
-        assertThrows(
-            StreamProcessingException.class, () -> new JsonValidateCommand(nonExistentPath));
+        assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
 
     assertTrue(exception.getMessage().contains("Failed to load JSON schema"));
   }

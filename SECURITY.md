@@ -6,9 +6,9 @@ The following versions of StreamConverter are currently supported with security 
 
 | Version | Supported          | Notes                    |
 | ------- | ------------------ | ------------------------ |
-| 0.0.0   | :white_check_mark: | Current development      |
+| 1.0.x   | :white_check_mark: | Current development      |
 
-**Note**: This project is currently in development (0.0.0). Production releases will follow semantic versioning.
+**Note**: This project is currently in development (1.0.0-SNAPSHOT). Production releases will follow semantic versioning.
 
 ## Reporting a Vulnerability
 

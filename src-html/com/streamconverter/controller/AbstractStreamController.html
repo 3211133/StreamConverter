@@ -32,7 +32,7 @@
 <span class="source-line-no">019</span><span id="line-19"> * &lt;p&gt;This class provides common functionality for controllers including:</span>
 <span class="source-line-no">020</span><span id="line-20"> *</span>
 <span class="source-line-no">021</span><span id="line-21"> * &lt;ul&gt;</span>
-<span class="source-line-no">022</span><span id="line-22"> *   &lt;li&gt;Command configuration and creation using CommandFactory</span>
+<span class="source-line-no">022</span><span id="line-22"> *   &lt;li&gt;Command configuration and creation using direct instantiation</span>
 <span class="source-line-no">023</span><span id="line-23"> *   &lt;li&gt;StreamConverter lifecycle management</span>
 <span class="source-line-no">024</span><span id="line-24"> *   &lt;li&gt;Error handling and logging</span>
 <span class="source-line-no">025</span><span id="line-25"> *   &lt;li&gt;Input/output validation</span>
@@ -183,8 +183,8 @@
 <span class="source-line-no">170</span><span id="line-170">   * Configures the command pipeline for this controller.</span>
 <span class="source-line-no">171</span><span id="line-171">   *</span>
 <span class="source-line-no">172</span><span id="line-172">   * &lt;p&gt;Subclasses must implement this method to define their specific processing pipeline. The</span>
-<span class="source-line-no">173</span><span id="line-173">   * returned CommandConfig array will be used to create the actual command objects using</span>
-<span class="source-line-no">174</span><span id="line-174">   * EnhancedCommandFactory.</span>
+<span class="source-line-no">173</span><span id="line-173">   * returned CommandConfig array will be used to create the actual command objects using direct</span>
+<span class="source-line-no">174</span><span id="line-174">   * instantiation via reflection.</span>
 <span class="source-line-no">175</span><span id="line-175">   *</span>
 <span class="source-line-no">176</span><span id="line-176">   * &lt;p&gt;Example implementation:</span>
 <span class="source-line-no">177</span><span id="line-177">   *</span>

@@ -257,8 +257,8 @@ loadScripts(document, 'script');</script>
 <div class="block">Configures the command pipeline for this controller.
 
  <p>Subclasses must implement this method to define their specific processing pipeline. The
- returned CommandConfig array will be used to create the actual command objects using
- EnhancedCommandFactory.
+ returned CommandConfig array will be used to create the actual command objects using direct
+ instantiation via reflection.
 
  <p>Example implementation:
 

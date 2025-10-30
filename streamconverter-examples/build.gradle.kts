@@ -1,14 +1,19 @@
 plugins {
     id("java")
     id("application")
-    id("com.diffplug.spotless") version "7.2.1"
-    id("org.springframework.boot") version "3.5.5"
+    id("com.diffplug.spotless") version "8.0.0"
+    id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        // Automatically detect available Java 21 installations
+    }
 }
 
 tasks.withType<JavaCompile> {
@@ -28,16 +33,16 @@ dependencies {
     implementation("ch.qos.logback:logback-classic")
     
     // H2 database for examples that use databases
-    implementation("com.h2database:h2:2.3.232")
+    implementation("com.h2database:h2:2.4.240")
     
     // JUnit 5 の依存関係（テスト用）
-    testImplementation(platform("org.junit:junit-bom:5.13.4"))
+    testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.19.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
+    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
 }
 
 // Custom tasks for running examples

@@ -3,17 +3,18 @@ package com.streamconverter.command.impl.json;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.networknt.schema.JsonSchema;
-import com.networknt.schema.JsonSchemaFactory;
-import com.networknt.schema.SpecVersion;
-import com.networknt.schema.ValidationMessage;
+import com.networknt.schema.Error;
+import com.networknt.schema.Schema;
+import com.networknt.schema.SchemaRegistry;
+import com.networknt.schema.SpecificationVersion;
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.ConsumerCommand;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.List;
 import java.util.Objects;
-import java.util.Set;
+import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,39 +34,46 @@ import org.slf4j.LoggerFactory;
  * <p>使用例:
  *
  * <pre>
- * JsonValidateCommand validator = new JsonValidateCommand("schema/user.json");
+ * JsonValidateCommand validator = JsonValidateCommand.create("schema/user.json");
  * validator.consume(jsonInputStream);
  * </pre>
  */
 public class JsonValidateCommand extends ConsumerCommand {
   private static final Logger logger = LoggerFactory.getLogger(JsonValidateCommand.class);
 
+  private static final SchemaRegistry DEFAULT_SCHEMA_REGISTRY =
+      SchemaRegistry.withDefaultDialect(SpecificationVersion.DRAFT_7);
+
   private final String schemaPath;
   private final ObjectMapper objectMapper;
-  private final JsonSchemaFactory schemaFactory;
+  private final SchemaRegistry schemaRegistry;
 
   /**
-   * コンストラクタ
+   * JsonValidateCommandのファクトリメソッド。
    *
    * @param schemaPath JSONスキーマファイルのパス
+   * @return 検証済みのスキーマパスに基づくJsonValidateCommand
    * @throws IllegalArgumentException スキーマパスがnullまたは空の場合
-   * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
    */
-  public JsonValidateCommand(String schemaPath) {
-    this.schemaPath = validateSchemaPath(schemaPath);
-    this.objectMapper = new ObjectMapper();
-    this.schemaFactory = JsonSchemaFactory.getInstance(SpecVersion.VersionFlag.V7);
+  public static JsonValidateCommand create(String schemaPath) {
+    return create(schemaPath, DEFAULT_SCHEMA_REGISTRY);
+  }
 
-    // コンストラクタでスキーマファイルの妥当性を検証
-    try {
-      loadSchema();
-    } catch (StreamProcessingException e) {
-      throw e;
-    }
+  public static JsonValidateCommand create(String schemaPath, SchemaRegistry schemaRegistry) {
+    String validatedSchemaPath = validateSchemaPath(schemaPath);
+    SchemaRegistry validatedRegistry =
+        Objects.requireNonNull(schemaRegistry, "Schema registry cannot be null");
+    return new JsonValidateCommand(validatedSchemaPath, validatedRegistry);
+  }
+
+  private JsonValidateCommand(String schemaPath, SchemaRegistry schemaRegistry) {
+    this.schemaPath = schemaPath;
+    this.schemaRegistry = schemaRegistry;
+    this.objectMapper = new ObjectMapper();
   }
 
   /** スキーマパスの検証 */
-  private String validateSchemaPath(String path) {
+  private static String validateSchemaPath(String path) {
     if (path == null) {
       throw new IllegalArgumentException("Schema path cannot be null");
     }
@@ -91,7 +99,7 @@ public class JsonValidateCommand extends ConsumerCommand {
 
     try {
       // スキーマファイルの読み込み
-      JsonSchema schema = loadSchema();
+      Schema schema = loadSchema();
 
       // JSONデータのストリーミング解析 - 任意サイズのデータに対応
       // 注意: JSON Schema検証では全体構造の検証が必要なため、完全なストリーミング処理は技術的に困難
@@ -115,12 +123,12 @@ public class JsonValidateCommand extends ConsumerCommand {
       }
 
       // バリデーション実行
-      Set<ValidationMessage> validationMessages = schema.validate(jsonNode);
+      List<Error> validationErrors = schema.validate(jsonNode);
 
-      if (validationMessages.isEmpty()) {
+      if (validationErrors.isEmpty()) {
         logger.info("JSON validation completed successfully");
       } else {
-        handleValidationErrors(validationMessages);
+        handleValidationErrors(validationErrors);
       }
 
     } catch (StreamProcessingException e) {
@@ -136,7 +144,7 @@ public class JsonValidateCommand extends ConsumerCommand {
   }
 
   /** JSONスキーマを読み込み */
-  private JsonSchema loadSchema() throws StreamProcessingException {
+  private Schema loadSchema() throws StreamProcessingException {
     try {
       File schemaFile = new File(schemaPath);
       if (!schemaFile.exists()) {
@@ -162,7 +170,7 @@ public class JsonValidateCommand extends ConsumerCommand {
             "Failed to load JSON schema: Schema file is empty: " + schemaPath);
       }
 
-      return schemaFactory.getSchema(schemaNode);
+      return schemaRegistry.getSchema(schemaNode);
 
     } catch (StreamProcessingException e) {
       throw e;
@@ -172,24 +180,28 @@ public class JsonValidateCommand extends ConsumerCommand {
   }
 
   /** バリデーションエラーの処理 */
-  private void handleValidationErrors(Set<ValidationMessage> validationMessages) {
+  private void handleValidationErrors(List<Error> validationErrors) {
     StringBuilder errorBuilder = new StringBuilder();
     errorBuilder
         .append("JSON validation failed with ")
-        .append(validationMessages.size())
+        .append(validationErrors.size())
         .append(" validation errors:");
 
     int errorCount = 0;
-    for (ValidationMessage message : validationMessages) {
+    for (Error error : validationErrors) {
       errorBuilder.append("\n  ").append(++errorCount).append(". ");
-      errorBuilder.append("Path: ").append(message.getInstanceLocation());
-      errorBuilder.append(" - ").append(message.getMessage());
+      String instanceLocation =
+          Optional.ofNullable(error.getInstanceLocation())
+              .map(Object::toString)
+              .orElse("(unknown location)");
+      errorBuilder.append("Path: ").append(instanceLocation);
+      errorBuilder.append(" - ").append(error.getMessage());
 
       // ログに詳細を出力
       logger.error(
           "JSON validation error - Path: {}, Message: {}",
-          message.getInstanceLocation(),
-          message.getMessage());
+          instanceLocation,
+          error.getMessage());
     }
 
     String errorMessage = errorBuilder.toString();

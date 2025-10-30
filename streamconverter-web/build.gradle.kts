@@ -1,14 +1,19 @@
 plugins {
     id("java")
-    id("org.springframework.boot") version "3.5.5"
+    id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
 description = "StreamConverter Web API module - Example implementation"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        // Automatically detect available Java 21 installations
+    }
 }
 
 repositories {

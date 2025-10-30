@@ -4,14 +4,19 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
-    id("com.github.spotbugs") version "6.4.1"
-    id("com.diffplug.spotless") version "7.2.1"
-    id("info.solidsoft.pitest") version "1.19.0-rc.1"
+    id("com.github.spotbugs") version "6.4.4"
+    id("com.diffplug.spotless") version "8.0.0"
+    id("info.solidsoft.pitest") version "1.19.0-rc.2"
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+        // Automatically detect available Java 21 installations
+    }
 }
 
 tasks.withType<JavaCompile> {
@@ -32,26 +37,26 @@ repositories {
 
 dependencies {
     // Import Spring Boot BOM to align Spring/Reactor/Logback/Hikari versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.5"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.7"))
 
     // Reactive HTTP Client (needed for SendHttpCommand)
     implementation("org.springframework:spring-webflux")
     implementation("org.springframework:spring-context")
     implementation("io.projectreactor.netty:reactor-netty-http")
     // Explicit Netty overrides retained for security/compat compatibility
-    implementation("io.netty:netty-handler:4.2.6.Final")
-    implementation("io.netty:netty-common:4.2.6.Final")
+    implementation("io.netty:netty-handler:4.2.7.Final")
+    implementation("io.netty:netty-common:4.2.7.Final")
 
     // Logging (version via BOM)
     implementation("ch.qos.logback:logback-core")
     implementation("ch.qos.logback:logback-classic")
 
     // メインの依存関係
-    implementation("org.apache.commons:commons-lang3:3.18.0")
+    implementation("org.apache.commons:commons-lang3:3.19.0")
     implementation("commons-io:commons-io:2.20.0")
 
     // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:1.5.9")
+    implementation("com.networknt:json-schema-validator:2.0.0")
 
     // JsonSurfer for streaming JSON processing
     implementation("com.github.jsurfer:jsurfer-jackson:1.6.5")
@@ -60,21 +65,21 @@ dependencies {
     implementation("com.opencsv:opencsv:5.12.0")
 
     // IP address validation
-    implementation("com.google.guava:guava:33.4.8-jre")
+    implementation("com.google.guava:guava:33.5.0-jre")
 
     // Database support (version via BOM)
     implementation("com.zaxxer:HikariCP")
-    testImplementation("com.h2database:h2:2.3.232")
+    testImplementation("com.h2database:h2:2.4.240")
 
     // JUnit 5 の依存関係（テスト用）
-    testImplementation(platform("org.junit:junit-bom:5.13.4"))
+    testImplementation(platform("org.junit:junit-bom:6.0.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
 
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.19.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.19.0")
+    testImplementation("org.mockito:mockito-core:5.20.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
 
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.1")
@@ -158,7 +163,7 @@ tasks.pitest {
 tasks.javadoc {
     options.encoding = "UTF-8"
     options.memberLevel = org.gradle.external.javadoc.JavadocMemberLevel.PROTECTED
-    setDestinationDir(file("$buildDir/docs/javadoc"))
+    setDestinationDir(layout.buildDirectory.dir("docs/javadoc").get().asFile)
 }
 
 // spotlessCheck タスクを無効化
@@ -209,6 +214,10 @@ tasks.spotbugsMain {
     reports.create("xml") {
         required.set(true)
         outputLocation.set(file("build/reports/spotbugs/main.xml"))
+    }
+    reports.create("sarif") {
+        required.set(true) 
+        outputLocation.set(file("build/reports/spotbugs/main.sarif"))
     }
 }
 

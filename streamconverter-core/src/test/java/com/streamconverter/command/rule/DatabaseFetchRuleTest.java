@@ -30,7 +30,10 @@ public class DatabaseFetchRuleTest {
   private ResultSetMetaData mockMetaData;
 
   @BeforeEach
-  @SuppressWarnings("PMD.CloseResource") // Mock objects don't need resource management
+  @SuppressWarnings({
+    "PMD.CloseResource",
+    "spotbugs:OBL_UNSATISFIED_OBLIGATION"
+  }) // Mock objects don't need resource management
   public void setUp() throws SQLException {
     // モックオブジェクトの作成
     mockConnection = mock(Connection.class);

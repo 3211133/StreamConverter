@@ -196,7 +196,7 @@ public class AdvancedStreamController {
                 // バリデーションコマンドを動的作成
                 IStreamCommand validator = switch (dataType.toLowerCase()) {
                     case "csv" -> new CsvValidateCommand(parseValidationRules(validationRules));
-                    case "json" -> new JsonValidateCommand(validationRules);
+                    case "json" -> JsonValidateCommand.create(validationRules);
                     case "xml" -> new ValidateCommand(validationRules);
                     default -> throw new IllegalArgumentException("Unsupported data type: " + dataType);
                 };

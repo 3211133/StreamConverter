@@ -14,6 +14,7 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
@@ -160,9 +161,8 @@ public class StreamConverter {
    * @return an optimally configured ExecutorService
    */
   private ExecutorService createOptimalExecutor() {
-    int availableCores = Runtime.getRuntime().availableProcessors();
-    int optimalSize = Math.min(this.commands.size(), Math.max(2, availableCores));
-    return Executors.newFixedThreadPool(optimalSize);
+    ThreadFactory threadFactory = Thread.ofVirtual().name("stream-converter-", 0).factory();
+    return Executors.newThreadPerTaskExecutor(threadFactory);
   }
 
   /**

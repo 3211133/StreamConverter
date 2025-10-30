@@ -43,6 +43,8 @@ converter.run(inputStream, outputStream);
 ## 3. コンテキストとメトリクス
 
 ```java
+import java.util.List;
+
 import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;

@@ -4,9 +4,9 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
-    id("com.github.spotbugs") version "6.4.2"
+    id("com.github.spotbugs") version "6.4.4"
     id("com.diffplug.spotless") version "8.0.0"
-    id("info.solidsoft.pitest") version "1.19.0-rc.1"
+    id("info.solidsoft.pitest") version "1.19.0-rc.2"
 }
 
 java {
@@ -37,15 +37,15 @@ repositories {
 
 dependencies {
     // Import Spring Boot BOM to align Spring/Reactor/Logback/Hikari versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.6"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:3.5.7"))
 
     // Reactive HTTP Client (needed for SendHttpCommand)
     implementation("org.springframework:spring-webflux")
     implementation("org.springframework:spring-context")
     implementation("io.projectreactor.netty:reactor-netty-http")
     // Explicit Netty overrides retained for security/compat compatibility
-    implementation("io.netty:netty-handler:4.2.6.Final")
-    implementation("io.netty:netty-common:4.2.6.Final")
+    implementation("io.netty:netty-handler:4.2.7.Final")
+    implementation("io.netty:netty-common:4.2.7.Final")
 
     // Logging (version via BOM)
     implementation("ch.qos.logback:logback-core")
@@ -56,7 +56,7 @@ dependencies {
     implementation("commons-io:commons-io:2.20.0")
 
     // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:1.5.9")
+    implementation("com.networknt:json-schema-validator:2.0.0")
 
     // JsonSurfer for streaming JSON processing
     implementation("com.github.jsurfer:jsurfer-jackson:1.6.5")
@@ -214,6 +214,10 @@ tasks.spotbugsMain {
     reports.create("xml") {
         required.set(true)
         outputLocation.set(file("build/reports/spotbugs/main.xml"))
+    }
+    reports.create("sarif") {
+        required.set(true) 
+        outputLocation.set(file("build/reports/spotbugs/main.sarif"))
     }
 }
 

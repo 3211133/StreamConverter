@@ -1,6 +1,6 @@
 # StreamConverter
 
-**Version**: 1.2.0 &nbsp;|&nbsp; Java 21 &nbsp;|&nbsp; [📚 ドキュメント索引](docs/INDEX.md) &nbsp;|&nbsp; [📖 ドキュメントハブ](docs/README.md) &nbsp;|&nbsp; [🔗 API Javadoc](https://3211133.github.io/StreamConverter/)
+**Version**: 0.0.0（開発中） &nbsp;|&nbsp; Java 21 &nbsp;|&nbsp; [📚 ドキュメント索引](docs/INDEX.md) &nbsp;|&nbsp; [📖 ドキュメントハブ](docs/README.md) &nbsp;|&nbsp; [🔗 API Javadoc](https://3211133.github.io/StreamConverter/)
 
 大容量ファイルをストリームで処理するための Java ライブラリ/ツールキットです。パイプライン化された `IStreamCommand` を組み合わせて、
 文字コード変換・CSV/JSON/XML ナビゲーション・HTTP 連携・バリデーションなどをメモリ効率良く実行できます。
@@ -147,3 +147,10 @@ results.forEach(result ->
 ## 📄 ライセンス
 
 本プロジェクトはリポジトリ内の [LICENSE](LICENSE) に従います。
+- **[GitHub Issues](https://github.com/3211133/StreamConverter/issues)** - バグ報告・機能要求
+- **[セキュリティポリシー](SECURITY.md)** - 脆弱性報告
+- **[ドキュメントハブ](docs/README.md)** - 詳細な技術情報
+
+---
+
+**StreamConverter v0.0.0** - 効率的なストリーム処理ライブラリ（開発中）

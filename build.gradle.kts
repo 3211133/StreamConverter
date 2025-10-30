@@ -14,10 +14,10 @@ plugins {
     id("jacoco")
     id("application")
     id("pmd")
-    id("com.github.spotbugs") version "6.4.2"
+    id("com.github.spotbugs") version "6.4.4"
     id("com.diffplug.spotless") version "8.0.0"
-    id("info.solidsoft.pitest") version "1.19.0-rc.1"
-    id("org.springframework.boot") version "3.5.6"
+    id("info.solidsoft.pitest") version "1.19.0-rc.2"
+    id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -250,7 +250,7 @@ tasks.named("check") {
 // Root project configuration for multi-module build
 allprojects {
     group = "com.streamconverter"
-    version = "1.2.0"
+    version = "0.0.0"
 
     tasks.withType<Test>().configureEach {
         systemProperty("skipNetworkTests", System.getProperty("skipNetworkTests", "true"))

@@ -52,6 +52,8 @@ converter.run(inputStream, outputStream);
 
 ### 2. 実行コンテキストと結果メトリクス
 ```java
+import java.util.List;
+
 import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;

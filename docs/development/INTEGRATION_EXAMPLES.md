@@ -176,10 +176,20 @@ public class StreamConverterWebClient {
 
 #### 動的バリデーション統合
 
+動的バリデーション統合では、実行時に受け取ったパラメータに基づいて、適切なバリデーションルールやスキーマを動的にロードして適用します。これにより、事前定義された固定ルールではなく、リクエストごとに異なるバリデーション要件に対応できます。
+
+以下の例では、データタイプとバリデーションルールをリクエストパラメータとして受け取り、対応するバリデーションコマンドを動的に作成します：
+
 ```java
 @RestController
 @RequestMapping("/api/v1/advanced")
 public class AdvancedStreamController {
+
+    @Autowired
+    private SchemaRepository schemaRepository;  // スキーマを管理するリポジトリ
+    
+    @Autowired
+    private ValidationRuleLoader ruleLoader;  // ルールを動的にロードするローダー
 
     @PostMapping("/process-with-validation")
     public Mono<ResponseEntity<Flux<DataBuffer>>> processWithValidation(
@@ -191,11 +201,23 @@ public class AdvancedStreamController {
             .collectList()
             .map(this::combineDataBuffers)
             .map(data -> {
-                // バリデーションコマンドを動的作成
+                // 動的にバリデーションルールをロードしてコマンドを作成
                 IStreamCommand validator = switch (dataType.toLowerCase()) {
-                    case "csv" -> new CsvValidateCommand(parseValidationRules(validationRules));
-                    case "json" -> JsonValidateCommand.create(validationRules);
-                    case "xml" -> new ValidateCommand(validationRules);
+                    case "csv" -> {
+                        // CSVスキーマを動的にロード
+                        CsvSchema schema = schemaRepository.loadCsvSchema(validationRules);
+                        yield new CsvValidateCommand(schema);
+                    }
+                    case "json" -> {
+                        // JSONスキーマをリポジトリから取得
+                        String jsonSchema = schemaRepository.loadJsonSchema(validationRules);
+                        yield JsonValidateCommand.create(jsonSchema);
+                    }
+                    case "xml" -> {
+                        // XMLスキーマ（XSD）を動的にロード
+                        String xsdSchema = schemaRepository.loadXmlSchema(validationRules);
+                        yield new ValidateCommand(xsdSchema);
+                    }
                     default -> throw new IllegalArgumentException("Unsupported data type: " + dataType);
                 };
 
@@ -203,6 +225,25 @@ public class AdvancedStreamController {
             })
             .map(result -> ResponseEntity.ok(createDataBufferFlux(result)))
             .onErrorReturn(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+    }
+    
+    // スキーマリポジトリの実装例
+    @Component
+    public static class SchemaRepository {
+        public CsvSchema loadCsvSchema(String schemaId) {
+            // データベースやファイルシステムから動的にロード
+            return ruleLoader.loadCsvSchemaFromStorage(schemaId);
+        }
+        
+        public String loadJsonSchema(String schemaId) {
+            // 外部ストレージから動的にロード
+            return ruleLoader.loadJsonSchemaFromStorage(schemaId);
+        }
+        
+        public String loadXmlSchema(String schemaId) {
+            // XSDスキーマを動的にロード
+            return ruleLoader.loadXmlSchemaFromStorage(schemaId);
+        }
     }
 }
 ```

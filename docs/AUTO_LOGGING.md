@@ -4,13 +4,12 @@ StreamConverterは包括的な自動ログ出力機能を提供し、大容量�
 
 ## 概要
 
-自動ログ機能は以下の3層アプローチで実装されています：
+自動ログ機能は以下の2層アプローチで実装されています：
 
 1. **Level 1**: `AbstractStreamCommand` - 基本的な実行ログ（実行時間、メモリ、データサイズ測定）
 2. **Level 2**: `LoggingDecorator` - カスタムコマンド向けログ追加（デコレーターパターン）
-3. **Level 3**: `CommandFactory` - 統一的な生成管理とログ重複回避（ファクトリーパターン）
 
-**重要**: AbstractStreamCommandを継承するコマンドは自動的にログ機能を持つため、LoggingDecoratorによる重複ラップは行われません。
+**重要**: AbstractStreamCommandを継承するコマンドは自動的にログ機能を持つため、LoggingDecoratorによる重複ラップは不要です。
 
 ## 基本的な使用方法
 
@@ -30,29 +29,25 @@ IStreamCommand loggedCommand = new LoggingDecorator(csvCommand);
 StreamConverter converter = StreamConverter.create(loggedCommand);
 ```
 
-### CommandFactoryを使用した自動ログ設定
+### 複数コマンドのパイプライン作成例
 
 ```java
-import com.streamConverter.command.CommandFactory;
+import com.streamConverter.command.LoggingDecorator;
 import com.streamConverter.command.impl.CsvNavigateCommand;
+import com.streamConverter.command.impl.SendHttpCommand;
+import com.streamConverter.command.impl.json.JsonNavigateCommand;
 
-// ファクトリーでコマンド作成（自動的にログ機能が追加される）
-IStreamCommand command = CommandFactory.createWithLogging(
-    CsvNavigateCommand.class, "productName"
-);
+// 各コマンドを作成
+IStreamCommand csvCommand = new CsvNavigateCommand("productName");
+IStreamCommand httpCommand = new SendHttpCommand("http://api.example.com");
+IStreamCommand jsonCommand = new JsonNavigateCommand("$.result");
 
-// 複数コマンドのパイプライン作成例
-IStreamCommand csvCommand = CommandFactory.createWithLogging(
-    CsvNavigateCommand.class, "productName"
-);
-IStreamCommand httpCommand = CommandFactory.createWithLogging(
-    SendHttpCommand.class, "http://api.example.com"
-);
-IStreamCommand jsonCommand = CommandFactory.createWithLogging(
-    JsonNavigateCommand.class, "$.result"
-);
+// 必要に応じてログ機能を追加
+IStreamCommand loggedCsvCommand = new LoggingDecorator(csvCommand);
+IStreamCommand loggedHttpCommand = new LoggingDecorator(httpCommand);
+IStreamCommand loggedJsonCommand = new LoggingDecorator(jsonCommand);
 
-IStreamCommand[] pipeline = {csvCommand, httpCommand, jsonCommand};
+IStreamCommand[] pipeline = {loggedCsvCommand, loggedHttpCommand, loggedJsonCommand};
 StreamConverter converter = StreamConverter.create(pipeline);
 ```
 
@@ -102,21 +97,7 @@ ERROR [AbstractStreamCommand] Command execution failed: SendHttpCommand (1523ms,
 java.net.SocketTimeoutException: Connect timed out
 ```
 
-## CommandFactoryの高度な使用方法
-
-### ログ重複回避の仕組み
-
-```java
-// AbstractStreamCommand継承クラス → ログ機能あり（重複回避）
-IStreamCommand csvCmd = CommandFactory.createWithLogging(CsvNavigateCommand.class, "fieldName");
-// → 直接インスタンス生成、LoggingDecoratorでラップしない
-
-// カスタムIStreamCommand実装 → LoggingDecoratorで自動ラップ
-IStreamCommand customCmd = CommandFactory.createWithLogging(MyCustomCommand.class);
-// → LoggingDecorator でラップして返す
-```
-
-### ExecutionContext対応のログ機能
+## ExecutionContext対応のログ機能
 
 ```java
 // ExecutionContext作成
@@ -127,8 +108,8 @@ ExecutionContext context = ExecutionContext.builder()
 
 // コンテキスト付きStreamConverter作成
 IStreamCommand[] commands = {
-    CommandFactory.createWithLogging(CsvNavigateCommand.class, "productName"),
-    CommandFactory.createWithLogging(SendHttpCommand.class, "http://api.example.com")
+    new CsvNavigateCommand("productName"),
+    new SendHttpCommand("http://api.example.com")
 };
 
 StreamConverter converter = StreamConverter.createWithContext(context, commands);
@@ -226,17 +207,19 @@ CommandConfig largeFileConfig = new CommandConfig()
 ### 3. パイプライン全体のログ統合
 
 ```java
-CommandConfig config = new CommandConfig()
-    .enableLogging(true)
-    .setLogLevel("INFO");
+// ExecutionContext作成でログ統合を実現
+ExecutionContext context = ExecutionContext.builder()
+    .globalContext("environment", "production")
+    .globalContext("pipeline", "csv-http-json")
+    .build();
 
 IStreamCommand[] pipeline = {
-    CommandFactory.createCsvNavigateCommand("input", config),
-    CommandFactory.createSendHttpCommand("http://api.example.com", config),
-    CommandFactory.createJsonNavigateCommand("$.result", config)
+    new CsvNavigateCommand("input"),
+    new SendHttpCommand("http://api.example.com"),
+    new JsonNavigateCommand("$.result")
 };
 
-StreamConverter converter = StreamConverter.create(pipeline);
+StreamConverter converter = StreamConverter.createWithContext(context, pipeline);
 ```
 
 ## トラブルシューティング

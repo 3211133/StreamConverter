@@ -8,8 +8,8 @@ Detailed logs help troubleshoot large stream operations and give insight into ti
 
 ## How
 1. Wrap any command in a `LoggingDecorator` to enable logs.
-2. Use `CommandFactory.createWithLogging` for automatic decorator application.
-3. Configure log levels through `CommandConfig` or logging frameworks.
+2. Commands extending `AbstractStreamCommand` have automatic logging.
+3. Configure log levels through logging frameworks (e.g., logback).
 
 ## See also
 - [Architecture](architecture.md)

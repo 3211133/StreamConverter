@@ -1,6 +1,9 @@
 # StreamConverter Documentation
 
-このディレクトリは StreamConverter の公式ドキュメント集です。対象者別の一覧は [INDEX.md](INDEX.md) にまとまっています。
+> 📖 **このガイドについて**: 新規ユーザー向けのクイックナビゲーションです。
+> 完全なドキュメント一覧（カテゴリ別の網羅的なリファレンス）は [INDEX.md](INDEX.md) を参照してください。
+
+このディレクトリは StreamConverter の公式ドキュメント集です。以下は対象者別の主要ドキュメントへのリンクです。
 
 ## 🚀 新規ユーザー / 評価担当者
 - **[quickstart/basic-usage.md](quickstart/basic-usage.md)**: 初めて使う場合のハンズオン

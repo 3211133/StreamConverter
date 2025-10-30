@@ -1,5 +1,9 @@
 # StreamConverter WebAPI化 & 機能拡張ロードマップ
 
+> **📦 ARCHIVED**: このロードマップは2025-10-30にアーカイブされました。
+> プロジェクトはより柔軟な開発スタイルに移行し、ROADMAPベースの計画管理を終了しました。
+> 現在の開発フォーカスや進捗はGitHub IssuesとMilestonesを参照してください。
+
 ## 概要
 StreamConverterをWebAPIとして機能させ、スキーマバリデーションとMDCログ機能を追加する開発計画
 

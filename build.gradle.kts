@@ -250,7 +250,7 @@ tasks.named("check") {
 // Root project configuration for multi-module build
 allprojects {
     group = "com.streamconverter"
-    version = "1.2.0"
+    version = "0.0.0"
 
     tasks.withType<Test>().configureEach {
         systemProperty("skipNetworkTests", System.getProperty("skipNetworkTests", "true"))

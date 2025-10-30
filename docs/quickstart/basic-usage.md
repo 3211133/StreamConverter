@@ -1,41 +1,74 @@
 # StreamConverter クイックスタート
 
-このガイドでは、StreamConverterの基本的な使用方法を説明します。
+このガイドでは、StreamConverter の基本的な使用方法を紹介します。
 
 ## 前提条件
 
 - Java 21 以上
-- Gradle 8.0 以上（プロジェクトに含まれています）
+- Gradle 8 以上（プロジェクト同梱のラッパーを使用）
 
-## 基本的な使用例
-
-### 1. シンプルなCSVデータ抽出
+## 1. CSV データの加工
 
 ```java
 import com.streamconverter.StreamConverter;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.rule.impl.string.TrimRule;
+import com.streamconverter.path.CSVPath;
 
-// CSVファイルから特定の列を抽出
-IStreamCommand[] pipeline = {
-    new CsvNavigateCommand("name")  // "name"列を抽出
+IStreamCommand[] commands = {
+    CsvNavigateCommand.create(new CSVPath("email"), new TrimRule())
 };
 
-StreamConverter converter = StreamConverter.create(pipeline);
+StreamConverter converter = StreamConverter.create(commands);
 converter.run(inputStream, outputStream);
 ```
 
-### 2. JSON データの変換
+## 2. JSON パスの変換
 
 ```java
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.rule.impl.string.LowerCaseRule;
+import com.streamconverter.path.TreePath;
 
-// JSONから特定のパスの値を抽出
-IStreamCommand[] pipeline = {
-    new JsonNavigateCommand("$.user.email")  // JSONPathで値を抽出
-};
+StreamConverter converter = StreamConverter.create(
+    JsonNavigateCommand.create(TreePath.fromJson("$.user.name"), new LowerCaseRule())
+);
 
-StreamConverter converter = StreamConverter.create(pipeline);
 converter.run(inputStream, outputStream);
 ```
 
-詳細な使用方法については [README.md](../../README.md) を参照してください。
+## 3. コンテキストとメトリクス
+
+```java
+import java.util.List;
+
+import com.streamconverter.CommandResult;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.rule.impl.composite.ChainRule;
+import com.streamconverter.command.rule.impl.string.TrimRule;
+import com.streamconverter.command.rule.impl.string.LowerCaseRule;
+import com.streamconverter.context.ExecutionContext;
+import com.streamconverter.path.CSVPath;
+
+ExecutionContext context = ExecutionContext.builder()
+    .globalContext("jobId", "daily-import")
+    .userContext("operator", "batch-service")
+    .build();
+
+StreamConverter converter = StreamConverter.createWithContext(
+    context,
+    CsvNavigateCommand.create(
+        new CSVPath("name"),
+        new ChainRule(new TrimRule(), new LowerCaseRule()))
+);
+
+List<CommandResult> results = converter.run(inputStream, outputStream);
+results.forEach(result ->
+    LOG.info("{} -> {} ms", result.getCommandName(), result.getExecutionTimeMillis()));
+```
+
+より多くの例は [streamconverter-examples](../../streamconverter-examples/src/main/java/com/streamconverter/examples/) を参照してください。

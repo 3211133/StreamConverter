@@ -1,24 +1,24 @@
 # Version Management
 
 ## Current Version
-- **Version**: 1.2.0
-- **Status**: Active Development
-- **Java**: 17+
+- **Version**: 0.0.0 (in development)
+- **Status**: Pre-release Development
+- **Java**: 21+
 - **Gradle**: 8.13
 
 ## Supported Versions
 
 | Version | Support Status | Security Updates | End of Life |
 |---------|----------------|------------------|-------------|
-| 1.2.x   | ✅ Active      | ✅ Yes           | TBD         |
-| 1.1.x   | 🔄 Maintenance | ✅ Yes           | 2025-12-31  |
-| 1.0.x   | ❌ EOL         | ❌ No            | 2025-06-30  |
+| 0.0.0   | 🔄 Development | N/A              | TBD         |
+
+*Note: Project is currently in pre-release development. First stable release (1.0.0) is planned.*
 
 ## Version History
 
-### 1.2.0 (Current)
+### 0.0.0 (Current - In Development)
 - ExecutionContext and MDC integration for multi-threaded traceability
-- Enhanced CommandFactory with logging duplication avoidance
+- Direct instantiation pattern (Factory Pattern removed)
 - Reorganized command packages (csv/, json/, xml/ separation)
 - Comprehensive auto-logging infrastructure
 - Performance benchmarking tools (streamconverter-tools module)

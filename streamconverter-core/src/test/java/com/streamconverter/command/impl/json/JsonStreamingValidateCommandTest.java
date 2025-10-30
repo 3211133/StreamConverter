@@ -59,7 +59,8 @@ public class JsonStreamingValidateCommandTest {
   @DisplayName("Factory method rejects null schema path")
   void testFactoryWithNullSchemaPath() {
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> JsonStreamingValidateCommand.create(null));
+        assertThrows(
+            IllegalArgumentException.class, () -> JsonStreamingValidateCommand.create(null));
     assertEquals("Schema path cannot be null", exception.getMessage());
   }
 
@@ -101,4 +102,3 @@ public class JsonStreamingValidateCommandTest {
     assertNotNull(command);
   }
 }
-

@@ -199,9 +199,7 @@ public class JsonValidateCommand extends ConsumerCommand {
 
       // ログに詳細を出力
       logger.error(
-          "JSON validation error - Path: {}, Message: {}",
-          instanceLocation,
-          error.getMessage());
+          "JSON validation error - Path: {}, Message: {}", instanceLocation, error.getMessage());
     }
 
     String errorMessage = errorBuilder.toString();

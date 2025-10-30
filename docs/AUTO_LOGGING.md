@@ -251,6 +251,6 @@ StreamConverter converter = StreamConverter.createWithContext(context, pipeline)
 
 ## 関連ドキュメント
 
-- [Command Architecture](COMMAND_ARCHITECTURE.md) - コマンドパターンの詳細
-- [Testing Strategy](TESTING.md) - パフォーマンス最適化とベンチマーク
-- [Documentation Index](README.md) - その他のドキュメント
+- [Command Architecture](archived/COMMAND_ARCHITECTURE.md) - コマンドパターンの詳細
+- [Testing Strategy](reference/TESTING.md) - パフォーマンス最適化とベンチマーク
+- [Documentation Index](INDEX.md) - その他のドキュメント

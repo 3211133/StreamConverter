@@ -174,21 +174,19 @@ public class StreamConverterWebClient {
 
 ### 4. 高度な統合パターン
 
-#### カスタムコマンドファクトリとの統合
+#### 動的バリデーション統合
 
 ```java
 @RestController
 @RequestMapping("/api/v1/advanced")
 public class AdvancedStreamController {
-    
-    private final EnhancedCommandFactory commandFactory;
-    
+
     @PostMapping("/process-with-validation")
     public Mono<ResponseEntity<Flux<DataBuffer>>> processWithValidation(
         @RequestBody Flux<DataBuffer> inputData,
         @RequestParam String dataType,
         @RequestParam String validationRules) {
-        
+
         return inputData
             .collectList()
             .map(this::combineDataBuffers)
@@ -200,7 +198,7 @@ public class AdvancedStreamController {
                     case "xml" -> new ValidateCommand(validationRules);
                     default -> throw new IllegalArgumentException("Unsupported data type: " + dataType);
                 };
-                
+
                 return processWithStreamConverter(data, validator);
             })
             .map(result -> ResponseEntity.ok(createDataBufferFlux(result)))

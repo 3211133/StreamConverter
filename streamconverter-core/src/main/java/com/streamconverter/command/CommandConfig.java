@@ -3,7 +3,7 @@ package com.streamconverter.command;
 /**
  * コマンド設定クラス
  *
- * <p>CommandFactoryで使用するコマンドの設定情報を保持します。 コマンドクラスとコンストラクタ引数を含みます。
+ * <p>コマンドパイプライン構築時に使用するコマンドの設定情報を保持します。 コマンドクラスとコンストラクタ引数を含みます。
  */
 public class CommandConfig {
   private final Class<? extends IStreamCommand> commandClass;

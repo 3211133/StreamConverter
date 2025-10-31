@@ -1,5 +1,10 @@
 # StreamConverter テスト戦略とガイド
 
+## このドキュメントの基礎資料
+このドキュメントは以下の資料を基に作成されています：
+- [MEMORY_EFFICIENCY_TEST_STRATEGY.md](MEMORY_EFFICIENCY_TEST_STRATEGY.md) - メモリ効率テスト戦略
+- [CROSS_PLATFORM_TEST_CONSIDERATIONS.md](CROSS_PLATFORM_TEST_CONSIDERATIONS.md) - クロスプラットフォームテスト考慮事項
+
 このドキュメントでは、StreamConverterプロジェクトの包括的なテスト戦略、実行方法、カバレッジ測定について説明します。
 
 ## 🎯 テスト戦略

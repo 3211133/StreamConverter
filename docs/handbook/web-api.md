@@ -1,5 +1,9 @@
 # Web API
 
+## このドキュメントの基礎資料
+このドキュメントは以下の資料を基に作成されています：
+- [WEB_API.md](../WEB_API.md) - Web API の詳細仕様とエンドポイント
+
 ## What
 The Web API exposes StreamConverter capabilities over HTTP using Spring Boot.
 

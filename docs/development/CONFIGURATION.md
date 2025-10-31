@@ -413,9 +413,9 @@ public class StreamConverterProperties {
 
 ## 📚 関連ドキュメント
 
-- **[セキュリティ分析](../security/SECURITY_ANALYSIS.md)** - セキュリティ設定の詳細
-- **[アーキテクチャ](../architecture/ARCHITECTURE.md)** - システム全体構成
-- **[テスト戦略](TESTING.md)** - テスト設定とベストプラクティス
+- **[セキュリティ分析](../reference/SECURITY_ANALYSIS.md)** - セキュリティ設定の詳細
+- **[アーキテクチャ](../ARCHITECTURE.md)** - システム全体構成
+- **[テスト戦略](../reference/TESTING.md)** - テスト設定とベストプラクティス
 - **[バリデーション機能](../features/VALIDATION.md)** - バリデーション設定
 
 ## 🔄 更新履歴

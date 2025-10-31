@@ -305,9 +305,9 @@ public void testJsonValidation_InvalidData() {
 
 ## 📚 関連ドキュメント
 
-- **[セキュリティ分析](../security/SECURITY_ANALYSIS.md)** - セキュリティ保護の詳細
-- **[コマンドアーキテクチャ](../architecture/COMMAND_ARCHITECTURE.md)** - コマンドパターンの設計
-- **[テスト戦略](../development/TESTING.md)** - テスト実装ガイド
+- **[セキュリティ分析](../reference/SECURITY_ANALYSIS.md)** - セキュリティ保護の詳細
+- **[コマンドアーキテクチャ](../archived/COMMAND_ARCHITECTURE.md)** - コマンドパターンの設計
+- **[テスト戦略](../reference/TESTING.md)** - テスト実装ガイド
 
 ## 🔄 更新履歴
 

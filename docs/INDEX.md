@@ -20,11 +20,14 @@
 - **[handbook/logging.md](handbook/logging.md)**: 自動ログ・MDC 連携
 - **[handbook/validation.md](handbook/validation.md)**: 入力検証
 - **[handbook/web-api.md](handbook/web-api.md)**: Web API の操作方法
+- **[handbook/communication.md](handbook/communication.md)**: 非同期コミュニケーション指針
 - **[AUTO_LOGGING.md](AUTO_LOGGING.md)**: ログ装飾の詳細
 - **[features/VALIDATION.md](features/VALIDATION.md)** / **[features/RULES_CATALOG.md](features/RULES_CATALOG.md)**: コマンドとルールの仕様
 
 ## 🛠️ Development Workflow
 - **[guides/PRE_COMMIT_SETUP.md](guides/PRE_COMMIT_SETUP.md)**: 開発環境の準備
+- **[guides/BRANCH_STRATEGY.md](guides/BRANCH_STRATEGY.md)**: ブランチ戦略・運用ガイドライン
+- **[guides/BENCHMARK_IMPLEMENTATION.md](guides/BENCHMARK_IMPLEMENTATION.md)**: ベンチマーク実装詳細
 - **[development/CONFIGURATION.md](development/CONFIGURATION.md)**: IDE & MCP 設定
 - **[development/INTEGRATION_EXAMPLES.md](development/INTEGRATION_EXAMPLES.md)**: 連携サンプル
 - **[development/commit-commands-summary.md](development/commit-commands-summary.md)**: よく使う Gradle / Git コマンド
@@ -39,6 +42,7 @@
 
 ## 🔐 Security & Operations
 - **[reference/SECURITY_ANALYSIS.md](reference/SECURITY_ANALYSIS.md)**: セキュリティレビュー
+- **[reference/VERSION_MANAGEMENT.md](reference/VERSION_MANAGEMENT.md)**: バージョン管理・リリース方針
 - **[WEB_API.md](WEB_API.md)**: API 公開時の注意事項
 - **[logging-rules.md](logging-rules.md)**: ログ運用ポリシー
 

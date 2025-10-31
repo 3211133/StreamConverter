@@ -475,7 +475,7 @@ void testBenchmarkConsistency()          // 性能一貫性テスト
 
 - [Memory Efficiency Test Strategy](MEMORY_EFFICIENCY_TEST_STRATEGY.md) - メモリ効率化テストの包括的な設計書
 - [Cross-Platform Test Considerations](CROSS_PLATFORM_TEST_CONSIDERATIONS.md) - クロスプラットフォームテストの考慮事項
-- [Command Architecture](COMMAND_ARCHITECTURE.md) - コマンドパターンとテストアーキテクチャ
-- [Auto-Logging](AUTO_LOGGING.md) - ログ機能とテスト環境での活用
-- [Benchmark Implementation](BENCHMARK_IMPLEMENTATION.md) - ベンチマーク実装詳細
-- [Documentation Index](README.md) - その他のドキュメント
+- [Command Architecture](../archived/COMMAND_ARCHITECTURE.md) - コマンドパターンとテストアーキテクチャ
+- [Auto-Logging](../AUTO_LOGGING.md) - ログ機能とテスト環境での活用
+- [Benchmark Implementation](../guides/BENCHMARK_IMPLEMENTATION.md) - ベンチマーク実装詳細
+- [Documentation Index](../INDEX.md) - その他のドキュメント

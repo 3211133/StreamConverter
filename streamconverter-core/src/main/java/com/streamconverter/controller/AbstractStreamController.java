@@ -19,7 +19,7 @@ import org.slf4j.LoggerFactory;
  * <p>This class provides common functionality for controllers including:
  *
  * <ul>
- *   <li>Command configuration and creation using CommandFactory
+ *   <li>Command configuration and creation using direct instantiation
  *   <li>StreamConverter lifecycle management
  *   <li>Error handling and logging
  *   <li>Input/output validation
@@ -170,8 +170,8 @@ public abstract class AbstractStreamController implements IStreamController {
    * Configures the command pipeline for this controller.
    *
    * <p>Subclasses must implement this method to define their specific processing pipeline. The
-   * returned CommandConfig array will be used to create the actual command objects using
-   * EnhancedCommandFactory.
+   * returned CommandConfig array will be used to create the actual command objects using direct
+   * instantiation via reflection.
    *
    * <p>Example implementation:
    *

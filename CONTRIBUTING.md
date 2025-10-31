@@ -88,6 +88,35 @@ This project uses [Spotless](https://github.com/diffplug/spotless) with Google J
 
 This will automatically format your code according to the project's style guidelines.
 
+## Documentation Language Policy
+
+This project adopts a **Japanese-first documentation strategy** with the following guidelines:
+
+### Primary Language: Japanese (日本語)
+- All user-facing documentation should be written in Japanese
+- This includes: README.md, guides, tutorials, API documentation, and feature descriptions
+
+### Exceptions: English for AI/Tool Integration
+- AI assistant configuration files (e.g., CLAUDE.md) may be written in English
+- Tool integration documentation targeting international developer tools may be in English
+- Technical specifications intended for automated processing may be in English
+
+### Internationalization (i18n)
+- Future internationalization will be handled through machine translation
+- We do not currently maintain parallel English documentation
+- Contributors are not required to provide translations
+- Community-contributed translations are welcome but not required
+
+### Contributing Documentation
+When contributing documentation:
+1. **New documentation**: Write in Japanese unless it falls under the exceptions above
+2. **Existing documentation**: Follow the language of the existing document
+3. **Code comments**: English or Japanese is acceptable
+4. **Commit messages**: Follow Conventional Commits in English (as per standard practice)
+
+### Rationale
+This policy reflects the project's primary user base and development team composition while keeping maintenance costs manageable. Machine translation technology has advanced sufficiently to provide adequate internationalization when needed.
+
 ## Pull Request Process
 
 1. Ensure your code follows the style guidelines of this project

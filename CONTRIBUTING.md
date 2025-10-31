@@ -88,6 +88,42 @@ This project uses [Spotless](https://github.com/diffplug/spotless) with Google J
 
 This will automatically format your code according to the project's style guidelines.
 
+## Documentation Language Policy
+
+This project adopts a **Japanese-first documentation strategy** with the following guidelines:
+
+### Primary Language: Japanese (日本語)
+- "User-facing documentation" includes (but is not limited to): README.md, usage guides, tutorials, API documentation, and feature descriptions
+- It does **not** include developer-oriented files such as CONTRIBUTING.md, changelogs, or internal technical notes unless otherwise specified
+
+### Exceptions: English for AI/Tool Integration
+- AI assistant configuration files (e.g., CLAUDE.md) may be written in English
+- Tool integration documentation targeting international developer tools may be in English
+- Technical specifications intended for automated processing may be in English
+
+### Internationalization (i18n)
+- Future internationalization will be handled through machine translation
+- We do not currently maintain parallel English documentation
+- Contributors are not required to provide translations
+- Community-contributed translations are welcome but not required
+
+#### Machine Translation Implementation Details
+- **Process**: Machine translation will be performed manually by project maintainers as needed (e.g., for major releases or significant documentation updates). There is currently no automated translation pipeline.
+- **Responsibility**: The project maintainers are responsible for initiating and reviewing machine translations. Contributors may suggest or request translations, but are not obligated to provide them.
+- **Triggers**: Translations may be generated when there is significant demand from the community, upon major documentation changes, or when requested by contributors or users.
+- **Community Involvement**: Community-contributed translations (manual or via machine translation) are welcome. If you wish to contribute a translation, please open an Issue or Pull Request for discussion and review.
+- **Review**: All translations, whether machine-generated or community-contributed, will be reviewed by maintainers for accuracy and clarity before being merged.
+
+### Contributing Documentation
+When contributing documentation:
+1. **New documentation**: Write in Japanese unless it falls under the exceptions above
+2. **Existing documentation**: Follow the language of the existing document
+3. **Code comments**: English or Japanese is acceptable
+4. **Commit messages**: Follow Conventional Commits in English (as per standard practice)
+
+### Rationale
+This policy reflects the project's primary user base and development team composition while keeping maintenance costs manageable. Machine translation technology has advanced sufficiently to provide adequate internationalization when needed.
+
 ## Pull Request Process
 
 1. Ensure your code follows the style guidelines of this project

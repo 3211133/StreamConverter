@@ -1,5 +1,9 @@
 # バリデーション機能ガイド
 
+## このドキュメントの基礎資料
+このドキュメントは以下の資料を基に作成されています：
+- [handbook/validation.md](../handbook/validation.md) - バリデーションの概要とコンセプト
+
 詳しい概要は[Validation ハンドブック](../handbook/validation.md)の What / Why / How セクションを参照してください。
 
 ## 📋 概要

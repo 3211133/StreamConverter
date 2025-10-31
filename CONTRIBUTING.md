@@ -93,8 +93,8 @@ This will automatically format your code according to the project's style guidel
 This project adopts a **Japanese-first documentation strategy** with the following guidelines:
 
 ### Primary Language: Japanese (日本語)
-- All user-facing documentation should be written in Japanese
-- This includes: README.md, guides, tutorials, API documentation, and feature descriptions
+- "User-facing documentation" includes (but is not limited to): README.md, usage guides, tutorials, API documentation, and feature descriptions
+- It does **not** include developer-oriented files such as CONTRIBUTING.md, changelogs, or internal technical notes unless otherwise specified
 
 ### Exceptions: English for AI/Tool Integration
 - AI assistant configuration files (e.g., CLAUDE.md) may be written in English
@@ -106,6 +106,13 @@ This project adopts a **Japanese-first documentation strategy** with the followi
 - We do not currently maintain parallel English documentation
 - Contributors are not required to provide translations
 - Community-contributed translations are welcome but not required
+
+#### Machine Translation Implementation Details
+- **Process**: Machine translation will be performed manually by project maintainers as needed (e.g., for major releases or significant documentation updates). There is currently no automated translation pipeline.
+- **Responsibility**: The project maintainers are responsible for initiating and reviewing machine translations. Contributors may suggest or request translations, but are not obligated to provide them.
+- **Triggers**: Translations may be generated when there is significant demand from the community, upon major documentation changes, or when requested by contributors or users.
+- **Community Involvement**: Community-contributed translations (manual or via machine translation) are welcome. If you wish to contribute a translation, please open an Issue or Pull Request for discussion and review.
+- **Review**: All translations, whether machine-generated or community-contributed, will be reviewed by maintainers for accuracy and clarity before being merged.
 
 ### Contributing Documentation
 When contributing documentation:

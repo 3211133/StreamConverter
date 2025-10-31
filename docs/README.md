@@ -3,37 +3,43 @@
 > 📖 **このガイドについて**: 新規ユーザー向けのクイックナビゲーションです。
 > 完全なドキュメント一覧（カテゴリ別の網羅的なリファレンス）は [INDEX.md](INDEX.md) を参照してください。
 
-このディレクトリは StreamConverter の公式ドキュメント集です。以下は対象者別の主要ドキュメントへのリンクです。
+StreamConverter を初めて使う方は、以下の順番で読み進めることをおすすめします。
 
-## 🚀 新規ユーザー / 評価担当者
-- **[quickstart/basic-usage.md](quickstart/basic-usage.md)**: 初めて使う場合のハンズオン
-- **[handbook/README.md](handbook/README.md)**: 機能ごとの What / Why / How ガイド
-- **[handbook/web-api.md](handbook/web-api.md)**: Spring Boot Web API の利用方法
+---
 
-## 🏗️ アーキテクチャ
-- **[ARCHITECTURE.md](ARCHITECTURE.md)**: 4 層構成と設計思想
-- **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)**: クラス/シーケンス図
-- **[handbook/architecture.md](handbook/architecture.md)**: パイプライン/コマンドの詳細
+## 🚀 まず読むべきドキュメント（3つ）
 
-## 🧰 機能ガイド
-- **[handbook/logging.md](handbook/logging.md)**: MDC 連携と CommandResult メトリクス
-- **[handbook/validation.md](handbook/validation.md)**: CSV/JSON/XML バリデーション
-- **[AUTO_LOGGING.md](AUTO_LOGGING.md)**: 自動ログ装飾の仕組み
-- **[features/VALIDATION.md](features/VALIDATION.md)**, **[features/RULES_CATALOG.md](features/RULES_CATALOG.md)**: コマンド/ルールの詳細
+1. **[quickstart/basic-usage.md](quickstart/basic-usage.md)** - 最初のパイプライン実装（5分で動かす）
+2. **[ARCHITECTURE.md](ARCHITECTURE.md)** - 4層アーキテクチャの全体像を理解する
+3. **[handbook/README.md](handbook/README.md)** - 機能カタログ（What / Why / How）
 
-## 🛠️ 開発・運用
-- **[guides/PRE_COMMIT_SETUP.md](guides/PRE_COMMIT_SETUP.md)**: 開発環境セットアップ
-- **[development/CONFIGURATION.md](development/CONFIGURATION.md)**: IDE/MCP 設定と Tips
-- **[development/INTEGRATION_EXAMPLES.md](development/INTEGRATION_EXAMPLES.md)**: 他システム連携サンプル
-- **[reference/TESTING.md](reference/TESTING.md)**: テスト戦略とレポートの場所
-- **[reference/VERSION_MANAGEMENT.md](reference/VERSION_MANAGEMENT.md)**: バージョン・リリース方針
+この3つを読めば、StreamConverter の基本的な使い方と設計思想が理解できます。
 
-## 📊 レポート & ナレッジ
-- **[reports/MDC_ANALYSIS_REPORT.md](reports/MDC_ANALYSIS_REPORT.md)**: MDC 伝播の検証結果
-- **[reports/CONTEXT_PROPAGATION_ARCHITECTURE.md](reports/CONTEXT_PROPAGATION_ARCHITECTURE.md)**: 実運用向けのアーキ考察
-- **[reference/SECURITY_ANALYSIS.md](reference/SECURITY_ANALYSIS.md)**: セキュリティレビュー
+---
 
-## 🗂️ アーカイブ
-- **[archived/](archived/)**: 旧ファクトリパターン実装などの履歴資料
+## 🎯 目的別ガイド
 
-> 目的の情報が見つからない場合は、まず [INDEX.md](INDEX.md) を検索してから関連ドキュメントを参照してください。
+### パイプラインを作りたい
+→ **[handbook/architecture.md](handbook/architecture.md)** - コマンドの組み合わせ方とデータフロー
+
+### Web API として使いたい
+→ **[handbook/web-api.md](handbook/web-api.md)** - Spring Boot 統合と REST エンドポイント
+
+### 開発に参加したい
+→ **[guides/PRE_COMMIT_SETUP.md](guides/PRE_COMMIT_SETUP.md)** - 開発環境のセットアップ
+→ **[../CONTRIBUTING.md](../CONTRIBUTING.md)** - コントリビューションガイドライン
+
+### バリデーション機能を使いたい
+→ **[handbook/validation.md](handbook/validation.md)** - CSV/JSON/XML のスキーマ検証
+
+### ログ・トレーシングを設定したい
+→ **[handbook/logging.md](handbook/logging.md)** - MDC 連携と自動ログ
+
+---
+
+## 📚 さらに詳しく知りたい場合
+
+- **全ドキュメント一覧**: [INDEX.md](INDEX.md) から目的のドキュメントを検索
+- **API リファレンス**: [Javadoc](https://3211133.github.io/StreamConverter/)
+- **セキュリティ**: [reference/SECURITY_ANALYSIS.md](reference/SECURITY_ANALYSIS.md)
+- **テスト戦略**: [reference/TESTING.md](reference/TESTING.md)

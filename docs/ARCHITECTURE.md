@@ -1,5 +1,7 @@
 # StreamConverter Architecture
 
+> 💡 **クイック概要**: まず [Architecture Handbook](handbook/architecture.md) で What/Why/How を理解することをお勧めします。
+
 This document describes the simplified StreamConverter architecture after factory pattern elimination:
 
 **External Systems → Direct Instantiation → StreamConverter → Commands**

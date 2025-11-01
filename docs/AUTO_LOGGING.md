@@ -1,5 +1,7 @@
 # Auto-Logging Infrastructure
 
+> 💡 **クイック概要**: まず [Logging Handbook](handbook/logging.md) で What/Why/How を理解することをお勧めします。
+
 StreamConverterは包括的な自動ログ出力機能を提供し、大容量ファイル処理時のトラブルシューティングとモニタリングを支援します。
 
 ## 概要

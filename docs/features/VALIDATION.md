@@ -1,6 +1,6 @@
 # バリデーション機能ガイド
 
-詳しい概要は[Validation ハンドブック](../handbook/validation.md)の What / Why / How セクションを参照してください。
+> 💡 **クイック概要**: まず [Validation Handbook](../handbook/validation.md) で What/Why/How を理解することをお勧めします。
 
 ## 📋 概要
 

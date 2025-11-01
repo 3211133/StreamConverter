@@ -1,5 +1,7 @@
 # StreamConverter Web API
 
+> 💡 **クイック概要**: まず [Web API Handbook](handbook/web-api.md) で What/Why/How を理解することをお勧めします。
+
 StreamConverterの既存機能をWebAPIとして提供するRESTfulサービスです。
 
 ## 🚀 起動方法

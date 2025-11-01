@@ -99,21 +99,22 @@ java.net.SocketTimeoutException: Connect timed out
 
 ## ExecutionContext対応のログ機能
 
+ExecutionContextの基本的な使用方法は [Basic Usage - Context and Metrics](quickstart/basic-usage.md#3-context-and-metrics) を参照してください。
+
+以下は、ExecutionContextとロギング機能を組み合わせた例です：
+
 ```java
-// ExecutionContext作成
+// ExecutionContext作成（詳細は上記リンク参照）
 ExecutionContext context = ExecutionContext.builder()
     .globalContext("requestId", "REQ-12345")
     .globalContext("userId", "user789")
     .build();
 
-// コンテキスト付きStreamConverter作成
-IStreamCommand[] commands = {
-    new CsvNavigateCommand("productName"),
-    new SendHttpCommand("http://api.example.com")
-};
-
+// ロギングが自動的に有効化される
 StreamConverter converter = StreamConverter.createWithContext(context, commands);
 List<CommandResult> results = converter.run(inputStream, outputStream);
+
+// ログにはrequestIdとuserIdが自動的に含まれる
 ```
 
 ### MDCコンテキスト伝播の確認

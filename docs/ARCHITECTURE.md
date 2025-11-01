@@ -45,11 +45,11 @@ This simplified architecture removes factory complexity while maintaining all fu
 
 ### 1. Direct Command Instantiation
 
+Commands are created directly with explicit parameters. For detailed examples, see [Command Examples](reference/COMMAND_EXAMPLES.md).
+
 ```java
-// Create commands directly with explicit parameters
-IStreamCommand csvCommand = new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule());
-IStreamCommand jsonCommand = new JsonNavigateCommand(new JSONPath("user.name"), new PassThroughRule());
-IStreamCommand xmlCommand = new XmlNavigateCommand(new XPath("//user/name"), new PassThroughRule());
+// Example: CSV command
+IStreamCommand csvCommand = new CsvNavigateCommand("name");
 ```
 
 **Benefits**:

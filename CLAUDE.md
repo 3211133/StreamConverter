@@ -12,73 +12,6 @@ StreamConverter is a Java library for efficient stream processing of large files
 - `streamconverter-examples` - Usage examples and demos
 - `streamconverter-tools` - Development tools and utilities
 
-## Essential Commands
-
-### Build and Test
-```bash
-# Build all modules
-./gradlew build
-
-# Run all tests (excludes benchmarks)
-./gradlew test
-
-# Run specific module tests
-./gradlew :streamconverter-core:test
-
-# Run individual test class
-./gradlew :streamconverter-core:test --tests "*SendHttpCommandTest*"
-
-# Run individual test method
-./gradlew :streamconverter-core:test --tests "*.SendHttpCommandTest.testValidHttpsUrlCreation"
-
-# Run with network tests (normally skipped)
-./gradlew test -DskipNetworkTests=false
-```
-
-### Benchmarks and Performance
-```bash
-# Run all benchmarks (requires more memory)
-./gradlew benchmarkAll
-
-# Run large data benchmarks (5GB tests) - requires 3GB heap
-./gradlew benchmarkLargeData
-
-# Run memory efficiency benchmarks
-./gradlew benchmarkMemoryEfficiency
-
-# Run benchmark infrastructure tests
-./gradlew benchmarkInfrastructure
-```
-
-**Memory Requirements:**
-- Large data benchmarks: `-Xmx3g -Xms1g` (automatically configured)
-- Memory efficiency tests: `-Xms1g -Xmx2g` (automatically configured)
-- Regular tests: `-Xmx1g -Xms512m` (automatically configured)
-
-### Code Quality
-```bash
-# Apply code formatting
-./gradlew spotlessApply
-
-# Run static analysis (PMD + SpotBugs)
-./gradlew check
-
-# Generate unified Javadoc for all modules
-./gradlew javadocAll
-```
-
-### Examples
-```bash
-# Run basic usage examples
-./gradlew runQuickStart
-./gradlew runAutoLoggingDemo
-./gradlew runContextDemo
-./gradlew runMDC
-./gradlew runDataProcessing
-./gradlew runDirectApiDemo
-./gradlew runDemo
-```
-
 ## Detailed AI Assistant Guides
 
 For detailed architectural information, code examples, and implementation guidelines, refer to:
@@ -116,8 +49,6 @@ Always start with the **[Documentation Index](docs/INDEX.md)** for comprehensive
 ## Development Notes
 
 ### Code Style
-- Google Java Format applied automatically via Spotless
-- UTF-8 encoding enforced
 - Javadoc required for public APIs
 - No unused imports or trailing whitespace
 
@@ -128,11 +59,8 @@ Always start with the **[Documentation Index](docs/INDEX.md)** for comprehensive
 
 ### Multi-Module Considerations
 - Cross-module dependencies managed via Gradle composite builds
-- Unified Javadoc generation across all modules with `./gradlew javadocAll`
-- Consistent versioning strategy (currently 1.2.0)
 - Module-specific test execution patterns
 - Security vulnerability management with explicit version overrides
-- Gradle Kotlin DSL used throughout for type-safe configuration
 
 ### Security Focus
 - Proactive security vulnerability patching with explicit dependency versions

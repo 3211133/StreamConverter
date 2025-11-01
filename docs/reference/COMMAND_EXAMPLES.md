@@ -4,7 +4,7 @@ StreamConverter で使用できるコマンドの基本的な使用例を示し�
 
 ## CSV Commands
 
-### CsvNavigateCommand - CSV列抽出
+### CsvNavigateCommand - CSV列変換
 
 ```java
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
@@ -15,7 +15,7 @@ import com.streamconverter.StreamConverter;
 import com.streamconverter.CommandResult;
 import java.util.List;
 
-// 特定の列を抽出
+// 特定の列に変換ルールを適用（CSV構造全体を保持）
 IStreamCommand csvCommand = new CsvNavigateCommand(
     new CSVPath("productName"),
     new PassThroughRule()
@@ -25,13 +25,13 @@ StreamConverter converter = StreamConverter.create(new IStreamCommand[]{csvComma
 List<CommandResult> results = converter.run(inputStream, outputStream);
 ```
 
-### CsvFilterCommand - CSV行フィルタ
+### CsvFilterCommand - CSV列抽出
 
 ```java
 import com.streamconverter.command.impl.csv.CsvFilterCommand;
 import com.streamconverter.path.CSVPath;
 
-// 特定の列のみ抽出（ヘッダーありと仮定）
+// 特定の列のみ抽出（指定した列だけを出力、ヘッダーありと仮定）
 IStreamCommand filterCommand = CsvFilterCommand.create(new CSVPath("price"));
 
 // ヘッダーの有無を明示的に指定
@@ -56,14 +56,14 @@ IStreamCommand validateCommand2 = new CsvValidateCommand(
 
 ## JSON Commands
 
-### JsonNavigateCommand - JSON要素抽出
+### JsonNavigateCommand - JSON要素変換
 
 ```java
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.path.TreePath;
 import com.streamconverter.command.rule.PassThroughRule;
 
-// JSONPathで要素を抽出
+// 特定の要素に変換ルールを適用（JSON構造全体を保持）
 IStreamCommand jsonCommand = new JsonNavigateCommand(
     new TreePath("user", "name"),
     new PassThroughRule()
@@ -72,13 +72,13 @@ IStreamCommand jsonCommand = new JsonNavigateCommand(
 StreamConverter converter = StreamConverter.create(new IStreamCommand[]{jsonCommand});
 ```
 
-### JsonFilterCommand - JSON要素フィルタ
+### JsonFilterCommand - JSON要素抽出
 
 ```java
 import com.streamconverter.command.impl.json.JsonFilterCommand;
 import com.streamconverter.path.TreePath;
 
-// TreePathを使用してJSON要素を抽出
+// TreePathを使用してJSON要素を抽出（指定した要素のみを出力）
 IStreamCommand filterCommand = new JsonFilterCommand(
     new TreePath("items", "0", "price")
 );
@@ -95,27 +95,27 @@ IStreamCommand validateCommand = JsonValidateCommand.create("schemas/user-schema
 
 ## XML Commands
 
-### XmlNavigateCommand - XML要素抽出
+### XmlNavigateCommand - XML要素変換
 
 ```java
 import com.streamconverter.command.impl.xml.XmlNavigateCommand;
 import com.streamconverter.path.TreePath;
 import com.streamconverter.command.rule.PassThroughRule;
 
-// TreePathでXML要素を抽出
+// 特定の要素に変換ルールを適用（XML構造全体を保持）
 IStreamCommand xmlCommand = new XmlNavigateCommand(
     new TreePath("root", "user", "name"),
     new PassThroughRule()
 );
 ```
 
-### XmlFilterCommand - XML要素フィルタ
+### XmlFilterCommand - XML要素抽出
 
 ```java
 import com.streamconverter.command.impl.xml.XmlFilterCommand;
 import com.streamconverter.path.TreePath;
 
-// TreePathを使用してXML要素を抽出
+// TreePathを使用してXML要素を抽出（指定した要素のみを出力）
 IStreamCommand filterCommand = new XmlFilterCommand(
     new TreePath("root", "item")
 );

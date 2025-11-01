@@ -49,7 +49,10 @@ Commands are created directly with explicit parameters. For detailed examples, s
 
 ```java
 // Example: CSV command
-IStreamCommand csvCommand = new CsvNavigateCommand("name");
+IStreamCommand csvCommand = new CsvNavigateCommand(
+    new CSVPath("name"),
+    new PassThroughRule()
+);
 ```
 
 **Benefits**:

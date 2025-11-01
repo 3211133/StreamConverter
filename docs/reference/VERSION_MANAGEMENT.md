@@ -57,12 +57,19 @@ For security issues, please refer to [SECURITY.md](../SECURITY.md).
 ## Compatibility
 
 ### Java Compatibility
-- **Minimum**: Java 17
-- **Tested**: Java 17, 21
-- **Recommended**: Java 21 LTS
+- **Required**: Java 21 or later
+- **Tested**: Java 21 LTS
+- **Build Configuration**: All modules use `JavaLanguageVersion.of(21)`
+
+**Why Java 21?**
+- Modern language features (Virtual Threads, Pattern Matching, Records)
+- LTS version with long-term support
+- Consistent toolchain across all modules
+
+**Note**: Java 17 is NOT supported. The project requires Java 21 as the minimum version.
 
 ### Dependencies
-See [build.gradle.kts](../build.gradle.kts) for current dependency versions.
+See [build.gradle.kts](../../build.gradle.kts) for current dependency versions.
 
 ## 関連ドキュメント
 

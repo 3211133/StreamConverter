@@ -431,12 +431,12 @@ void testBenchmarkConsistency()          // 性能一貫性テスト
 ## テスト実行環境の要件
 
 ### 最小要件
-- Java 17以上
+- Java: See [VERSION_MANAGEMENT.md - Java Compatibility](VERSION_MANAGEMENT.md#java-compatibility)
 - ヒープメモリ: 512MB以上
 - 利用可能ディスク容量: 100MB以上
 
 ### 推奨要件
-- Java 17以上
+- Java: See [VERSION_MANAGEMENT.md - Java Compatibility](VERSION_MANAGEMENT.md#java-compatibility)
 - ヒープメモリ: 1GB以上 (`-Xmx1g`)
 - 利用可能ディスク容量: 500MB以上
 - ネットワーク接続（HTTPテスト用）

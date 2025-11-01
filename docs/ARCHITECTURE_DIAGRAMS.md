@@ -1,5 +1,9 @@
 # StreamConverter Architecture Diagrams
 
+## このドキュメントの基礎資料
+このドキュメントは以下の資料を基に作成されています：
+- [ARCHITECTURE.md](ARCHITECTURE.md) - アーキテクチャ設計の詳細説明
+
 This document provides visual representations of the StreamConverter architecture after factory pattern elimination.
 
 ## Overview Architecture

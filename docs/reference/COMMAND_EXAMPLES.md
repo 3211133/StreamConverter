@@ -7,10 +7,19 @@ StreamConverter で使用できるコマンドの基本的な使用例を示し�
 ### CsvNavigateCommand - CSV列抽出
 
 ```java
-import com.streamConverter.command.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.CommandResult;
+import java.util.List;
 
 // 特定の列を抽出
-IStreamCommand csvCommand = new CsvNavigateCommand("productName");
+IStreamCommand csvCommand = new CsvNavigateCommand(
+    new CSVPath("productName"),
+    new PassThroughRule()
+);
 
 StreamConverter converter = StreamConverter.create(new IStreamCommand[]{csvCommand});
 List<CommandResult> results = converter.run(inputStream, outputStream);
@@ -19,22 +28,29 @@ List<CommandResult> results = converter.run(inputStream, outputStream);
 ### CsvFilterCommand - CSV行フィルタ
 
 ```java
-import com.streamConverter.command.csv.CsvFilterCommand;
+import com.streamconverter.command.impl.csv.CsvFilterCommand;
+import com.streamconverter.path.CSVPath;
 
-// 条件に一致する行のみ抽出
-IStreamCommand filterCommand = new CsvFilterCommand("price", value -> {
-    return Integer.parseInt(value) > 1000;
-});
+// 特定の列のみ抽出（ヘッダーありと仮定）
+IStreamCommand filterCommand = CsvFilterCommand.create(new CSVPath("price"));
+
+// ヘッダーの有無を明示的に指定
+IStreamCommand filterCommand2 = new CsvFilterCommand(new CSVPath("name"), true);
 ```
 
 ### CsvValidateCommand - CSV検証
 
 ```java
-import com.streamConverter.command.csv.CsvValidateCommand;
+import com.streamconverter.command.impl.csv.CsvValidateCommand;
 
-// CSVファイルの構造を検証
-IStreamCommand validateCommand = new CsvValidateCommand(
-    Arrays.asList("id", "name", "price")  // 期待される列
+// CSVファイルの構造を検証（必須カラムを指定）
+IStreamCommand validateCommand = new CsvValidateCommand("id", "name", "price");
+
+// 詳細設定を指定
+IStreamCommand validateCommand2 = new CsvValidateCommand(
+    true,  // hasHeader
+    10,    // maxErrorsToReport
+    "id", "name", "price"  // requiredColumns
 );
 ```
 
@@ -43,10 +59,15 @@ IStreamCommand validateCommand = new CsvValidateCommand(
 ### JsonNavigateCommand - JSON要素抽出
 
 ```java
-import com.streamConverter.command.json.JsonNavigateCommand;
+import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.path.TreePath;
+import com.streamconverter.command.rule.PassThroughRule;
 
 // JSONPathで要素を抽出
-IStreamCommand jsonCommand = new JsonNavigateCommand("$.user.name");
+IStreamCommand jsonCommand = new JsonNavigateCommand(
+    new TreePath("user", "name"),
+    new PassThroughRule()
+);
 
 StreamConverter converter = StreamConverter.create(new IStreamCommand[]{jsonCommand});
 ```
@@ -54,21 +75,22 @@ StreamConverter converter = StreamConverter.create(new IStreamCommand[]{jsonComm
 ### JsonFilterCommand - JSON要素フィルタ
 
 ```java
-import com.streamConverter.command.json.JsonFilterCommand;
+import com.streamconverter.command.impl.json.JsonFilterCommand;
+import com.streamconverter.path.TreePath;
 
-// 条件に一致するJSON要素のみ抽出
-IStreamCommand filterCommand = new JsonFilterCommand("$.items[*]", item -> {
-    return item.get("price").asInt() > 1000;
-});
+// TreePathを使用してJSON要素を抽出
+IStreamCommand filterCommand = new JsonFilterCommand(
+    new TreePath("items", "0", "price")
+);
 ```
 
 ### JsonValidateCommand - JSON Schema検証
 
 ```java
-import com.streamConverter.command.json.JsonValidateCommand;
+import com.streamconverter.command.impl.json.JsonValidateCommand;
 
-// JSONスキーマで検証
-IStreamCommand validateCommand = new JsonValidateCommand(schemaInputStream);
+// JSONスキーマで検証（静的ファクトリメソッドを使用）
+IStreamCommand validateCommand = JsonValidateCommand.create("schemas/user-schema.json");
 ```
 
 ## XML Commands
@@ -76,30 +98,36 @@ IStreamCommand validateCommand = new JsonValidateCommand(schemaInputStream);
 ### XmlNavigateCommand - XML要素抽出
 
 ```java
-import com.streamConverter.command.xml.XmlNavigateCommand;
+import com.streamconverter.command.impl.xml.XmlNavigateCommand;
+import com.streamconverter.path.TreePath;
+import com.streamconverter.command.rule.PassThroughRule;
 
-// XPathで要素を抽出
-IStreamCommand xmlCommand = new XmlNavigateCommand("/root/user/name");
+// TreePathでXML要素を抽出
+IStreamCommand xmlCommand = new XmlNavigateCommand(
+    new TreePath("root", "user", "name"),
+    new PassThroughRule()
+);
 ```
 
 ### XmlFilterCommand - XML要素フィルタ
 
 ```java
-import com.streamConverter.command.xml.XmlFilterCommand;
+import com.streamconverter.command.impl.xml.XmlFilterCommand;
+import com.streamconverter.path.TreePath;
 
-// 条件に一致するXML要素のみ抽出
-IStreamCommand filterCommand = new XmlFilterCommand("/root/item", element -> {
-    return Integer.parseInt(element.getAttribute("price")) > 1000;
-});
+// TreePathを使用してXML要素を抽出
+IStreamCommand filterCommand = new XmlFilterCommand(
+    new TreePath("root", "item")
+);
 ```
 
 ### ValidateCommand - XML検証
 
 ```java
-import com.streamConverter.command.xml.ValidateCommand;
+import com.streamconverter.command.impl.xml.ValidateCommand;
 
-// XMLスキーマで検証
-IStreamCommand validateCommand = new ValidateCommand(xsdInputStream);
+// XMLスキーマで検証（スキーマパスを指定）
+IStreamCommand validateCommand = new ValidateCommand("schemas/document.xsd");
 ```
 
 ## HTTP Communication
@@ -107,16 +135,21 @@ IStreamCommand validateCommand = new ValidateCommand(xsdInputStream);
 ### SendHttpCommand - HTTP リクエスト送信
 
 ```java
-import com.streamConverter.command.communication.SendHttpCommand;
+import com.streamconverter.command.impl.SendHttpCommand;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.TreePath;
+import com.streamconverter.command.rule.PassThroughRule;
 
 // HTTP POSTリクエストを送信
 IStreamCommand httpCommand = new SendHttpCommand("https://api.example.com/process");
 
 // パイプライン例: CSV → HTTP API → JSON
 IStreamCommand[] pipeline = {
-    new CsvNavigateCommand("productName"),
+    new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule()),
     new SendHttpCommand("https://api.example.com/lookup"),
-    new JsonNavigateCommand("$.result")
+    new JsonNavigateCommand(new TreePath("result"), new PassThroughRule())
 };
 ```
 
@@ -125,22 +158,26 @@ IStreamCommand[] pipeline = {
 ### CharacterConvertCommand - 文字コード変換
 
 ```java
-import com.streamConverter.command.CharacterConvertCommand;
+import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
 
-// Shift_JIS から UTF-8 に変換
-IStreamCommand convertCommand = new CharacterConvertCommand(
-    Charset.forName("Shift_JIS"),
-    Charset.forName("UTF-8")
-);
+// Shift_JIS から UTF-8 に変換（String パラメータを使用）
+IStreamCommand convertCommand = new CharacterConvertCommand("Shift_JIS", "UTF-8");
 ```
 
 ### LineEndingNormalizeCommand - 改行コード正規化
 
 ```java
-import com.streamConverter.command.LineEndingNormalizeCommand;
+import com.streamconverter.command.impl.LineEndingNormalizeCommand;
+import com.streamconverter.command.impl.LineEndingNormalizeCommand.LineEndingType;
 
-// 改行コードをLFに統一
-IStreamCommand normalizeCommand = new LineEndingNormalizeCommand("\n");
+// 改行コードをLFに統一（列挙型を使用）
+IStreamCommand normalizeCommand = new LineEndingNormalizeCommand(LineEndingType.UNIX);
+
+// Windowsスタイル (CRLF)
+IStreamCommand windowsCommand = new LineEndingNormalizeCommand(LineEndingType.WINDOWS);
+
+// システムデフォルト
+IStreamCommand systemCommand = new LineEndingNormalizeCommand(LineEndingType.SYSTEM_DEFAULT);
 ```
 
 ## Pipeline Patterns
@@ -148,10 +185,21 @@ IStreamCommand normalizeCommand = new LineEndingNormalizeCommand("\n");
 ### 単純なパイプライン
 
 ```java
+import com.streamconverter.StreamConverter;
+import com.streamconverter.CommandResult;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.command.rule.PassThroughRule;
+import java.util.List;
+import java.io.InputStream;
+import java.io.OutputStream;
+
 // CSV → 変換 → 出力
 IStreamCommand[] pipeline = {
-    new CsvNavigateCommand("name"),
-    new CharacterConvertCommand(Charset.forName("Shift_JIS"), StandardCharsets.UTF_8)
+    new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()),
+    new CharacterConvertCommand("Shift_JIS", "UTF-8")
 };
 
 StreamConverter converter = StreamConverter.create(pipeline);
@@ -163,6 +211,11 @@ List<CommandResult> results = converter.run(inputStream, outputStream);
 ExecutionContext の詳細な使用方法は [Basic Usage - Context and Metrics](../quickstart/basic-usage.md#3-context-and-metrics) を参照してください。
 
 ```java
+import com.streamconverter.ExecutionContext;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.CommandResult;
+import java.util.List;
+
 // コンテキスト作成
 ExecutionContext context = ExecutionContext.builder()
     .globalContext("requestId", "REQ-12345")
@@ -177,12 +230,24 @@ List<CommandResult> results = converter.run(inputStream, outputStream);
 ### 複雑なパイプライン例
 
 ```java
+import com.streamconverter.ExecutionContext;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.SendHttpCommand;
+import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.impl.json.JsonValidateCommand;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.TreePath;
+import com.streamconverter.command.rule.PassThroughRule;
+import java.util.UUID;
+
 // CSV → HTTP API → JSON → 検証 → 出力
 IStreamCommand[] complexPipeline = {
-    new CsvNavigateCommand("productId"),
+    new CsvNavigateCommand(new CSVPath("productId"), new PassThroughRule()),
     new SendHttpCommand("https://api.example.com/products"),
-    new JsonNavigateCommand("$.product.details"),
-    new JsonValidateCommand(schemaInputStream)
+    new JsonNavigateCommand(new TreePath("product", "details"), new PassThroughRule()),
+    JsonValidateCommand.create("schemas/product-schema.json")
 };
 
 ExecutionContext context = ExecutionContext.builder()
@@ -197,6 +262,9 @@ StreamConverter converter = StreamConverter.createWithContext(context, complexPi
 ### CommandResult を使用した結果確認
 
 ```java
+import com.streamconverter.CommandResult;
+import java.util.List;
+
 List<CommandResult> results = converter.run(inputStream, outputStream);
 
 for (CommandResult result : results) {
@@ -213,6 +281,16 @@ for (CommandResult result : results) {
 ### try-with-resources パターン
 
 ```java
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
+import java.io.IOException;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.CommandResult;
+import com.streamconverter.command.IStreamCommand;
+import java.util.List;
+
 try (InputStream input = new FileInputStream("input.csv");
      OutputStream output = new FileOutputStream("output.txt")) {
 

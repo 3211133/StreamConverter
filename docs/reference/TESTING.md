@@ -110,33 +110,30 @@ src/test/resources/
 
 ## 🚀 テスト実行方法
 
-### 基本的なテスト実行
+詳細なコマンドリファレンスは [COMMAND_REFERENCE.md](COMMAND_REFERENCE.md) を参照してください。
 
-> ベンチマーク系テストはデフォルトでスキップされます。必要に応じて後述の benchmark タスクを実行してください。
+### クイックリファレンス
 
 ```bash
 # 全テストの実行
 ./gradlew test
 
-# 特定のテストクラスの実行
-./gradlew test --tests "com.streamConverter.StreamConverterTest"
+# ベンチマークテスト
+./gradlew benchmarkAll
 
-# 特定のテストメソッドの実行
-./gradlew test --tests "com.streamConverter.StreamConverterTest.testRunWithValidStreams"
-
-# パッケージ単位でのテスト実行
-./gradlew test --tests "com.streamConverter.command.*"
+# 詳細なオプションは COMMAND_REFERENCE.md を参照
 ```
 
-### 専門的なテスト実行
+### StreamConverter 固有のテスト設定
+
+- ベンチマーク系テストはデフォルトでスキップされます
+- ネットワークテストは `-DskipNetworkTests=false` で有効化
+- テストはJUnit 5を使用
+- カバレッジはJaCoCoで測定
+
+### テストタイプ別の実行
 
 ```bash
-# ベンチマークテスト
-./gradlew benchmarkAll                    # 全ベンチマークテスト
-./gradlew benchmarkLargeData             # 大容量データテスト
-./gradlew benchmarkMemoryEfficiency     # メモリ効率テスト
-./gradlew benchmarkInfrastructure        # ベンチマーク基盤テスト
-
 # 統合テスト（タグベース）
 ./gradlew test --tests "*IntegrationTest"
 

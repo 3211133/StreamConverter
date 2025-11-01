@@ -46,6 +46,12 @@
 - **[WEB_API.md](WEB_API.md)**: API 公開時の注意事項
 - **[logging-rules.md](logging-rules.md)**: ログ運用ポリシー
 
+## 🤖 AI Assistant Guides
+- **[../CLAUDE.md](../CLAUDE.md)**: Claude Code 向けメインガイド（コマンド、ワークフロー）
+- **[reference/CLAUDE_ARCHITECTURE.md](reference/CLAUDE_ARCHITECTURE.md)**: アーキテクチャパターンとコマンドタイプ
+- **[reference/CLAUDE_EXAMPLES.md](reference/CLAUDE_EXAMPLES.md)**: コード例と使用パターン
+- **[reference/CLAUDE_IMPLEMENTATION.md](reference/CLAUDE_IMPLEMENTATION.md)**: ストリーム処理制約とセキュリティ
+
 ## 📊 Reports & Research
 - **[reports/MDC_ANALYSIS_REPORT.md](reports/MDC_ANALYSIS_REPORT.md)**: MDC 分析
 - **[docs/development/TESTING_OLD.md](development/TESTING_OLD.md)**: 旧テスト手法

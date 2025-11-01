@@ -86,7 +86,7 @@ StreamConverter converter = StreamConverter.createWithContext(context, pipeline)
 - Do not read the entire InputStream at once
 - It has been verified that Spring WebClient performs sequential, not parallel, processing
 - Memory efficiency tests may be unreliable due to the effects of GC timing
-- Do not use `@SuppressWarning` annotation
+- Do not use `@SuppressWarnings` annotation
 
 ## Related Documentation
 

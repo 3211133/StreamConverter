@@ -2,6 +2,8 @@
 
 **Version**: 0.0.0（開発中） &nbsp;|&nbsp; Java 21 &nbsp;|&nbsp; [📚 完全なドキュメント一覧](docs/INDEX.md) &nbsp;|&nbsp; [📖 クイックスタート](docs/README.md) &nbsp;|&nbsp; [🔗 API Javadoc](https://3211133.github.io/StreamConverter/)
 
+> 💡 **Version Info**: Authoritative version is defined in [build.gradle.kts](build.gradle.kts) (search for `version = "`). The version displayed above is for visibility and requires manual update when releasing. See [VERSION_MANAGEMENT.md](docs/reference/VERSION_MANAGEMENT.md) for version history and policy.
+
 大容量ファイルをストリームで処理するための Java ライブラリ/ツールキットです。パイプライン化された `IStreamCommand` を組み合わせて、
 文字コード変換・CSV/JSON/XML ナビゲーション・HTTP 連携・バリデーションなどをメモリ効率良く実行できます。
 

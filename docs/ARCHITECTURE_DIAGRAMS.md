@@ -4,7 +4,7 @@
 このドキュメントは以下の資料を基に作成されています：
 - [ARCHITECTURE.md](ARCHITECTURE.md) - アーキテクチャ設計の詳細説明
 
-This document provides visual representations of the StreamConverter architecture after factory pattern elimination.
+Visual representations of the StreamConverter architecture. For textual explanations and design principles, refer to [ARCHITECTURE.md](ARCHITECTURE.md).
 
 ## Overview Architecture
 
@@ -320,14 +320,8 @@ StreamConverter converter = new StreamConverter(pipeline);
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
 
-## Conclusion
+## Summary
 
-The simplified architecture demonstrates:
+Visual representation of the simplified architecture after factory pattern elimination.
 
-1. **Reduced Complexity**: 99.4% reduction in factory-related code
-2. **Improved Performance**: No reflection overhead, 60% memory reduction
-3. **Better Maintainability**: Clear dependencies and execution paths  
-4. **Enhanced Debuggability**: Direct instantiation makes debugging easier
-5. **Preserved Functionality**: All features maintained with simpler implementation
-
-The diagrams show how removing factory patterns leads to a cleaner, more understandable architecture while maintaining all core functionality.
+For detailed architectural explanations, design principles, and implementation rationale, see [ARCHITECTURE.md](ARCHITECTURE.md).

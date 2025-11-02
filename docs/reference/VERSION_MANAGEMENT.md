@@ -1,10 +1,14 @@
 # Version Management
 
 ## Current Version
-- **Version**: 0.0.0 (in development)
+
+For the current version, see [build.gradle.kts](../../build.gradle.kts) (search for `version = "`).
+
 - **Status**: Pre-release Development
 - **Java**: 21+
 - **Gradle**: 8.13
+
+> 💡 **Note**: The authoritative version number is defined in `build.gradle.kts`. Documentation references this file to avoid version inconsistencies.
 
 ## Supported Versions
 

@@ -2,6 +2,8 @@
 
 StreamConverter で使用できるコマンドの基本的な使用例を示します。
 
+> ✅ **検証済みコード**: このドキュメントのコード例は [BasicUsageExamples.java](../../streamconverter-examples/src/main/java/com/streamconverter/examples/docs/BasicUsageExamples.java) で実際にコンパイル・実行可能な形で管理されています。
+
 ## CSV Commands
 
 ### CsvNavigateCommand - CSV列変換

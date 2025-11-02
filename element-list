@@ -15,6 +15,7 @@ com.streamconverter.command.rule.impl.string
 com.streamconverter.context
 com.streamconverter.controller
 com.streamconverter.examples
+com.streamconverter.examples.docs
 com.streamconverter.path
 com.streamconverter.security
 com.streamconverter.tools

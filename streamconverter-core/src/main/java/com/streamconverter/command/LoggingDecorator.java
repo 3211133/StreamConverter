@@ -19,7 +19,15 @@ import org.slf4j.LoggerFactory;
  * IStreamCommand loggedCommand = new LoggingDecorator(originalCommand);
  * loggedCommand.execute(inputStream, outputStream);
  * </pre>
+ *
+ * @deprecated As of version 0.0.0, this class is redundant because {@link AbstractStreamCommand}
+ *     now provides comprehensive automatic logging including execution time, data sizes, memory
+ *     usage, and performance warnings. All standard commands extend AbstractStreamCommand and
+ *     already have these logging capabilities built-in. This decorator is no longer necessary and
+ *     will be removed in a future version. If you need custom logging behavior, consider overriding
+ *     {@link AbstractStreamCommand#getCommandDetails()} in your command implementation instead.
  */
+@Deprecated
 public class LoggingDecorator implements IStreamCommand {
   private final IStreamCommand delegate;
   private final Logger log;

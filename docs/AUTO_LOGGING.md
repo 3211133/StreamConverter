@@ -2,8 +2,7 @@
 
 ## このドキュメントの基礎資料
 このドキュメントは以下の実装を基に作成されています：
-- [AbstractStreamCommand.java](../streamconverter-core/src/main/java/com/streamconverter/command/AbstractStreamCommand.java) - 基本的な実行ログ機能の実装
-- [LoggingDecorator.java](../streamconverter-core/src/main/java/com/streamconverter/command/LoggingDecorator.java) - デコレーターパターンによるログ追加機能の実装
+- [AbstractStreamCommand.java](../streamconverter-core/src/main/java/com/streamconverter/command/AbstractStreamCommand.java) - 自動ログ機能の実装
 
 > 💡 **クイック概要**: まず [Logging Handbook](handbook/logging.md) で What/Why/How を理解することをお勧めします。
 
@@ -11,51 +10,58 @@ StreamConverterは包括的な自動ログ出力機能を提供し、大容量�
 
 ## 概要
 
-自動ログ機能は以下の2層アプローチで実装されています：
+すべての標準コマンドは `AbstractStreamCommand` を継承しており、以下のログ機能が自動的に提供されます：
 
-1. **Level 1**: `AbstractStreamCommand` - 基本的な実行ログ（実行時間、メモリ、データサイズ測定）
-2. **Level 2**: `LoggingDecorator` - カスタムコマンド向けログ追加（デコレーターパターン）
+- **実行時間測定**: コマンドの開始から終了までの時間
+- **データサイズ測定**: 入力・出力バイト数
+- **メモリ使用量測定**: コマンド実行前後のメモリ差分
+- **パフォーマンス警告**: 5秒以上の実行時に自動警告
+- **実際のクラス名表示**: 各コマンドが自身のクラス名でログ出力
+- **MDC対応**: ExecutionContextと連携したコンテキスト情報の自動伝播
+- **ソースロケーション情報**: メソッド名と行番号の自動出力（logback設定による）
 
-**重要**: AbstractStreamCommandを継承するコマンドは自動的にログ機能を持つため、LoggingDecoratorによる重複ラップは不要です。
+> ⚠️ **非推奨**: `LoggingDecorator` クラスは現在非推奨です。AbstractStreamCommandが包括的なログ機能を提供するため、LoggingDecoratorは不要になりました。既存のコードでLoggingDecoratorを使用している場合は、単純に削除してください。すべての標準コマンドは自動的にログ出力されます。
 
 ## 基本的な使用方法
 
-### LoggingDecoratorを使用した手動ログ追加
+### 単一コマンドの実行（自動ログ）
 
 ```java
-import com.streamConverter.command.LoggingDecorator;
-import com.streamConverter.command.impl.CsvNavigateCommand;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.command.rule.PassThroughRule;
 
-// 基本コマンドを作成
-IStreamCommand csvCommand = new CsvNavigateCommand("productName");
+// コマンドを作成するだけでログ機能は自動的に有効
+IStreamCommand csvCommand = new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule());
 
-// ログ機能を追加
-IStreamCommand loggedCommand = new LoggingDecorator(csvCommand);
-
-// StreamConverterで使用
-StreamConverter converter = StreamConverter.create(loggedCommand);
+// StreamConverterで使用（ログは自動出力）
+StreamConverter converter = StreamConverter.create(csvCommand);
+List<CommandResult> results = converter.run(inputStream, outputStream);
 ```
 
-### 複数コマンドのパイプライン作成例
+### 複数コマンドのパイプライン作成例（自動ログ）
 
 ```java
-import com.streamConverter.command.LoggingDecorator;
-import com.streamConverter.command.impl.CsvNavigateCommand;
-import com.streamConverter.command.impl.SendHttpCommand;
-import com.streamConverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.SendHttpCommand;
+import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.TreePath;
+import com.streamconverter.command.rule.PassThroughRule;
 
-// 各コマンドを作成
-IStreamCommand csvCommand = new CsvNavigateCommand("productName");
+// 各コマンドを作成（ログ機能は自動的に含まれる）
+IStreamCommand csvCommand = new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule());
 IStreamCommand httpCommand = new SendHttpCommand("http://api.example.com");
-IStreamCommand jsonCommand = new JsonNavigateCommand("$.result");
+IStreamCommand jsonCommand = new JsonNavigateCommand(TreePath.fromJson("$.result"), new PassThroughRule());
 
-// 必要に応じてログ機能を追加
-IStreamCommand loggedCsvCommand = new LoggingDecorator(csvCommand);
-IStreamCommand loggedHttpCommand = new LoggingDecorator(httpCommand);
-IStreamCommand loggedJsonCommand = new LoggingDecorator(jsonCommand);
-
-IStreamCommand[] pipeline = {loggedCsvCommand, loggedHttpCommand, loggedJsonCommand};
+// パイプラインを作成（各コマンドが自動的にログ出力）
+IStreamCommand[] pipeline = {csvCommand, httpCommand, jsonCommand};
 StreamConverter converter = StreamConverter.create(pipeline);
+List<CommandResult> results = converter.run(inputStream, outputStream);
 ```
 
 ## 出力されるログ情報
@@ -76,32 +82,36 @@ StreamConverter converter = StreamConverter.create(pipeline);
 
 ## 実際のログ出力例
 
-### AbstractStreamCommandベースのコマンド（自動ログ）
+### 単一コマンドの実行（自動ログ）
 
 ```
-INFO  [AbstractStreamCommand] Starting command execution: CsvNavigateCommand
-DEBUG [AbstractStreamCommand] Command details: CsvNavigateCommand{field=productName}
-INFO  [AbstractStreamCommand] Command execution completed: CsvNavigateCommand (7ms, input: 1234567bytes, output: 89012bytes, memory: 2MB)
+2025-11-02 10:09:27.100 INFO  c.s.command.impl.csv.CsvNavigateCommand.execute:50 [execId:EXEC-123, seq:1] - Starting command execution: CsvNavigateCommand
+2025-11-02 10:09:27.102 INFO  c.s.command.impl.csv.CsvNavigateCommand.execute:74 [execId:EXEC-123, seq:1] - Command execution completed: CsvNavigateCommand (2ms, input: 1234567bytes, output: 89012bytes, memory: 2MB)
 ```
+
+ログの各要素の説明：
+- `c.s.command.impl.csv.CsvNavigateCommand` - 実際のコマンドクラス名（短縮表示）
+- `.execute:50` - メソッド名と行番号（ソースロケーション情報）
+- `[execId:EXEC-123, seq:1]` - MDCコンテキスト情報（実行IDとシーケンス番号）
 
 ### ExecutionContext付きマルチスレッド実行
 
 ```
-INFO  [StreamConverter] Starting StreamConverter with 3 commands (executionId: exec-20250824-123456)
-INFO  [StreamConverter] Setting up command 1 of 3: CsvNavigateCommand (sequence: 1)
-INFO  [StreamConverter] Setting up command 2 of 3: SendHttpCommand (sequence: 2)  
-INFO  [StreamConverter] Setting up command 3 of 3: JsonNavigateCommand (sequence: 3)
-INFO  [StreamConverter] Completed command: CsvNavigateCommand (sequence: 1)
-INFO  [StreamConverter] Completed command: SendHttpCommand (sequence: 2)
-INFO  [StreamConverter] Completed command: JsonNavigateCommand (sequence: 3)
-INFO  [StreamConverter] All commands completed successfully (executionId: exec-20250824-123456)
+2025-11-02 10:09:27.063 INFO  com.streamconverter.StreamConverter.run:204 [execId:EXEC-45916851, seq:0] - Starting StreamConverter with 3 commands (executionId: EXEC-45916851)
+2025-11-02 10:09:27.099 INFO  com.streamconverter.StreamConverter.lambda$executeMultipleCommandsWithMDC$0:256 [execId:EXEC-45916851, seq:1] - Setting up command 1 of 3: CsvNavigateCommand (sequence: 1)
+2025-11-02 10:09:27.100 INFO  c.s.command.impl.csv.CsvNavigateCommand.execute:50 [execId:EXEC-45916851, seq:1] - Starting command execution: CsvNavigateCommand
+2025-11-02 10:09:27.102 INFO  c.s.command.impl.csv.CsvNavigateCommand.execute:74 [execId:EXEC-45916851, seq:1] - Command execution completed: CsvNavigateCommand (2ms, input: 98890bytes, output: 98890bytes, memory: 1MB)
+2025-11-02 10:09:27.103 INFO  com.streamconverter.StreamConverter.lambda$executeMultipleCommandsWithMDC$0:280 [execId:EXEC-45916851, seq:1] - Completed command: CsvNavigateCommand (sequence: 1)
+2025-11-02 10:09:27.105 INFO  com.streamconverter.StreamConverter.executeMultipleCommandsWithMDC:349 [execId:EXEC-45916851, seq:0] - All commands completed successfully (executionId: EXEC-45916851)
 ```
 
 ### エラー発生時のログ
 
 ```
-ERROR [AbstractStreamCommand] Command execution failed: SendHttpCommand (1523ms, input: 89012bytes, output: 0bytes, memory: 3MB) - Connection timeout
+2025-11-02 10:09:27.150 ERROR c.s.command.impl.SendHttpCommand.execute:92 [execId:EXEC-123, seq:2] - Command execution failed: SendHttpCommand (1523ms, input: 89012bytes, output: 0bytes, memory: 3MB) - Connection timeout
 java.net.SocketTimeoutException: Connect timed out
+    at com.streamconverter.command.impl.SendHttpCommand.executeInternal(SendHttpCommand.java:145)
+    ...
 ```
 
 ## ExecutionContext対応のログ機能
@@ -126,14 +136,21 @@ List<CommandResult> results = converter.run(inputStream, outputStream);
 
 ### MDCコンテキスト伝播の確認
 
-```java
-// logback-spring.xml での MDC 設定確認
-// pattern: "%d{yyyy-MM-dd HH:mm:ss} [%thread] %-5level [%X{executionId}] [%X{stage}] %logger{36} - %msg%n"
+MDC（Mapped Diagnostic Context）により、以下の情報が自動的にログに含まれます：
 
-// 実行すると以下のような MDC 情報付きログが出力される：
-// 2025-08-24 12:34:56 [pool-1-thread-1] INFO  [exec-20250824-123456] [CsvNavigateCommand-1] StreamConverter - Processing CSV field: productName
+- `executionId` - StreamConverter実行ごとの一意ID
+- `commandSequence` - パイプライン内でのコマンド実行順序
+- `stage` - 実行ステージ名（setStage()で設定した場合）
+- `threadName` - 実行スレッド名
+- `startTime` - 実行開始時刻
+- カスタムコンテキスト - ExecutionContext.builder().globalContext()で追加した任意のキー・バリュー
 
+logback設定例：
+```xml
+<pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36}.%method:%line [execId:%X{executionId:-}, seq:%X{commandSequence:-}, stage:%X{stage:-}] - %msg%n</pattern>
 ```
+
+これにより、マルチスレッド環境でも各ログ行がどの実行に属するか追跡可能です。
 
 ## パフォーマンス考慮事項
 
@@ -160,18 +177,39 @@ CommandConfig config = new CommandConfig()
 
 ```xml
 <configuration>
-    <appender name="STREAM_CONVERTER" class="ch.qos.logback.core.FileAppender">
-        <file>logs/streamconverter.log</file>
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+            <!-- ソースロケーション情報（%method:%line）とMDC情報（%X{...}）を含む推奨パターン -->
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36}.%method:%line [execId:%X{executionId:-}, seq:%X{commandSequence:-}, stage:%X{stage:-}] - %msg%n</pattern>
         </encoder>
     </appender>
-    
-    <logger name="com.streamConverter" level="INFO" additivity="false">
-        <appender-ref ref="STREAM_CONVERTER" />
+
+    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <file>logs/streamconverter.log</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>logs/streamconverter.%d{yyyy-MM-dd}.%i.log</fileNamePattern>
+            <maxHistory>30</maxHistory>
+            <maxFileSize>10MB</maxFileSize>
+            <totalSizeCap>1GB</totalSizeCap>
+        </rollingPolicy>
+        <encoder>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36}.%method:%line [execId:%X{executionId:-}, seq:%X{commandSequence:-}, stage:%X{stage:-}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <logger name="com.streamconverter" level="INFO" additivity="false">
+        <appender-ref ref="STDOUT" />
+        <appender-ref ref="FILE" />
     </logger>
 </configuration>
 ```
+
+パターンの各要素：
+- `%method:%line` - メソッド名と行番号（ソースロケーション情報）
+- `%X{executionId:-}` - ExecutionContextの実行ID（MDC）
+- `%X{commandSequence:-}` - コマンド実行順序（MDC）
+- `%X{stage:-}` - 実行ステージ名（MDC）
+- `:-` - MDC値が設定されていない場合のデフォルト値（空文字列）
 
 ### プログラムでのロガー設定
 

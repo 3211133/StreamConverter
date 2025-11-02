@@ -6,10 +6,10 @@
     <springProfile name="!prod">
         <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
             <encoder>
-                <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} [%X{requestId:-}] [%X{extractedValue:-}] [%X{command:-}] - %msg%n</pattern>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36}.%method:%line [execId:%X{executionId:-}, reqId:%X{requestId:-}, seq:%X{commandSequence:-}, stage:%X{stage:-}, thread:%X{threadName:-}] - %msg%n</pattern>
             </encoder>
         </appender>
-        
+
         <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/streamconverter.log</file>
             <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
@@ -19,7 +19,7 @@
                 <totalSizeCap>100MB</totalSizeCap>
             </rollingPolicy>
             <encoder>
-                <pattern>%date %-5level %logger{36} [%X{requestId:-}] [%X{extractedValue:-}] [%X{command:-}] - %msg%n</pattern>
+                <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36}.%method:%line [execId:%X{executionId:-}, reqId:%X{requestId:-}, seq:%X{commandSequence:-}, stage:%X{stage:-}, thread:%X{threadName:-}] - %msg%n</pattern>
             </encoder>
         </appender>
         
@@ -41,10 +41,10 @@
                 <totalSizeCap>2GB</totalSizeCap>
             </rollingPolicy>
             <encoder>
-                <pattern>%date %-5level %logger{36} [%X{requestId:-}] [%X{extractedValue:-}] [%X{command:-}] - %msg%n</pattern>
+                <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} [execId:%X{executionId:-}, reqId:%X{requestId:-}, seq:%X{commandSequence:-}, stage:%X{stage:-}] - %msg%n</pattern>
             </encoder>
         </appender>
-        
+
         <!-- Security Events Log -->
         <appender name="SECURITY" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/security.log</file>
@@ -55,10 +55,10 @@
                 <totalSizeCap>500MB</totalSizeCap>
             </rollingPolicy>
             <encoder>
-                <pattern>%date %-5level %logger{36} [%X{requestId:-}] [SECURITY] - %msg%n</pattern>
+                <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} [execId:%X{executionId:-}, reqId:%X{requestId:-}] [SECURITY] - %msg%n</pattern>
             </encoder>
         </appender>
-        
+
         <!-- Audit Events Log -->
         <appender name="AUDIT" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/audit.log</file>
@@ -69,10 +69,10 @@
                 <totalSizeCap>1GB</totalSizeCap>
             </rollingPolicy>
             <encoder>
-                <pattern>%date %-5level %logger{36} [%X{requestId:-}] [AUDIT] - %msg%n</pattern>
+                <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} [execId:%X{executionId:-}, reqId:%X{requestId:-}] [AUDIT] - %msg%n</pattern>
             </encoder>
         </appender>
-        
+
         <!-- Performance Monitoring Log -->
         <appender name="PERFORMANCE" class="ch.qos.logback.core.rolling.RollingFileAppender">
             <file>logs/performance.log</file>
@@ -83,17 +83,17 @@
                 <totalSizeCap>500MB</totalSizeCap>
             </rollingPolicy>
             <encoder>
-                <pattern>%date %-5level %logger{36} [%X{requestId:-}] [PERFORMANCE] - %msg%n</pattern>
+                <pattern>%date{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} [execId:%X{executionId:-}, reqId:%X{requestId:-}] [PERFORMANCE] - %msg%n</pattern>
             </encoder>
         </appender>
-        
+
         <!-- Error-only Console Output for Production -->
         <appender name="CONSOLE_ERROR" class="ch.qos.logback.core.ConsoleAppender">
             <filter class="ch.qos.logback.classic.filter.ThresholdFilter">
                 <level>ERROR</level>
             </filter>
             <encoder>
-                <pattern>%d{yyyy-MM-dd HH:mm:ss} %-5level %logger{36} - %msg%n</pattern>
+                <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36} [execId:%X{executionId:-}, reqId:%X{requestId:-}] - %msg%n</pattern>
             </encoder>
         </appender>
         

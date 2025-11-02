@@ -15,15 +15,18 @@ import org.slf4j.LoggerFactory;
  * to output streams.
  */
 public abstract class AbstractStreamCommand implements IStreamCommand {
-  private static final Logger log = LoggerFactory.getLogger(AbstractStreamCommand.class);
+  /** Logger instance for this command. Uses the actual subclass name for better traceability. */
+  protected final Logger log;
 
   /**
    * Default constructor.
    *
-   * <p>Initializes the command with default settings.
+   * <p>Initializes the command with default settings and creates a logger using the actual command
+   * class name.
    */
   public AbstractStreamCommand() {
     super();
+    this.log = LoggerFactory.getLogger(getClass());
   }
 
   /**

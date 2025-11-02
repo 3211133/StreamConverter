@@ -82,16 +82,29 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">Supported line ending types for normalization.</div>
 </dd>
+<dt><a href="../com/streamconverter/command/AbstractStreamCommand.html#log" class="member-name-link">log</a> - Variable in class com.streamconverter.command.<a href="../com/streamconverter/command/AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></dt>
+<dd>
+<div class="block">Logger instance for this command.</div>
+</dd>
 <dt><a href="../com/streamconverter/command/LoggingDecorator.html" class="type-name-link" title="class in com.streamconverter.command">LoggingDecorator</a> - Class in <a href="../com/streamconverter/command/package-summary.html">com.streamconverter.command</a></dt>
 <dd>
-<div class="block">IStreamCommandのログ出力デコレーター</div>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span>
+<div class="deprecation-comment">As of version 0.0.0, this class is redundant because <a href="../com/streamconverter/command/AbstractStreamCommand.html" title="class in com.streamconverter.command"><code>AbstractStreamCommand</code></a>
+     now provides comprehensive automatic logging including execution time, data sizes, memory
+     usage, and performance warnings. All standard commands extend AbstractStreamCommand and
+     already have these logging capabilities built-in. This decorator is no longer necessary and
+     will be removed in a future version. If you need custom logging behavior, consider overriding
+     <a href="../com/streamconverter/command/AbstractStreamCommand.html#getCommandDetails()"><code>AbstractStreamCommand.getCommandDetails()</code></a> in your command implementation instead.</div>
+</div>
 </dd>
 <dt><a href="../com/streamconverter/command/LoggingDecorator.html#%3Cinit%3E(com.streamconverter.command.IStreamCommand)" class="member-name-link">LoggingDecorator(IStreamCommand)</a> - Constructor for class com.streamconverter.command.<a href="../com/streamconverter/command/LoggingDecorator.html" title="class in com.streamconverter.command">LoggingDecorator</a></dt>
 <dd>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
 <div class="block">コンストラクタ</div>
 </dd>
 <dt><a href="../com/streamconverter/command/LoggingDecorator.html#%3Cinit%3E(com.streamconverter.command.IStreamCommand,java.lang.String)" class="member-name-link">LoggingDecorator(IStreamCommand, String)</a> - Constructor for class com.streamconverter.command.<a href="../com/streamconverter/command/LoggingDecorator.html" title="class in com.streamconverter.command">LoggingDecorator</a></dt>
 <dd>
+<div class="deprecation-block"><span class="deprecated-label">Deprecated.</span></div>
 <div class="block">カスタムログ名を指定するコンストラクタ</div>
 </dd>
 <dt><a href="../com/streamconverter/command/rule/impl/string/LowerCaseRule.html" class="type-name-link" title="class in com.streamconverter.command.rule.impl.string">LowerCaseRule</a> - Class in <a href="../com/streamconverter/command/rule/impl/string/package-summary.html">com.streamconverter.command.rule.impl.string</a></dt>

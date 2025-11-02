@@ -1,5 +1,9 @@
 # StreamConverter Web API
 
+## このドキュメントの基礎資料
+このドキュメントは以下の実装を基に作成されています：
+- [StreamProcessingController.java](../streamconverter-web/src/main/java/com/streamconverter/web/StreamProcessingController.java) - REST APIエンドポイントの実装
+
 > 💡 **クイック概要**: まず [Web API Handbook](handbook/web-api.md) で What/Why/How を理解することをお勧めします。
 
 StreamConverterの既存機能をWebAPIとして提供するRESTfulサービスです。

@@ -1,5 +1,12 @@
 # StreamConverter 統合パターンと実装例
 
+## このドキュメントの基礎資料
+このドキュメントは以下の資料および実装を基に作成されています：
+- [ARCHITECTURE.md](../ARCHITECTURE.md) - アーキテクチャ設計と設計原則
+- [handbook/web-api.md](../handbook/web-api.md) - Web API概要
+- [StreamProcessingController.java](../../streamconverter-web/src/main/java/com/streamconverter/web/StreamProcessingController.java) - Spring Boot統合の実装
+- Spring Boot / Quarkus / Vert.x の公式ドキュメント
+
 > 意図と実行タイミングについて
 >
 > - 目的: ここに掲載する例は、コマンド/ルールの組み合わせや入出力の流れを理解するための学習・動作確認用です。性能比較や厳密な仕様検証は目的にしていません。

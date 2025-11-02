@@ -1,5 +1,10 @@
 # Auto-Logging Infrastructure
 
+## このドキュメントの基礎資料
+このドキュメントは以下の実装を基に作成されています：
+- [AbstractStreamCommand.java](../streamconverter-core/src/main/java/com/streamconverter/command/AbstractStreamCommand.java) - 基本的な実行ログ機能の実装
+- [LoggingDecorator.java](../streamconverter-core/src/main/java/com/streamconverter/command/LoggingDecorator.java) - デコレーターパターンによるログ追加機能の実装
+
 > 💡 **クイック概要**: まず [Logging Handbook](handbook/logging.md) で What/Why/How を理解することをお勧めします。
 
 StreamConverterは包括的な自動ログ出力機能を提供し、大容量ファイル処理時のトラブルシューティングとモニタリングを支援します。

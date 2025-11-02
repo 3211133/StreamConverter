@@ -1,5 +1,10 @@
 # Rules Catalog and Usage Examples
 
+## このドキュメントの基礎資料
+このドキュメントは以下の実装を基に作成されています：
+- [com.streamconverter.command.rule.impl](../../streamconverter-core/src/main/java/com/streamconverter/command/rule/impl/) - 変換ルールの実装
+- [IRule.java](../../streamconverter-core/src/main/java/com/streamconverter/command/rule/IRule.java) - ルールインターフェース
+
 This catalog lists currently implemented transformation rules in StreamConverter core and shows concise usage examples. It focuses on rules that are already available so teams can apply them consistently.
 
 ## Implemented Rules

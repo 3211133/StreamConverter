@@ -72,16 +72,9 @@ logging:
 
 **実装**: `StreamProcessingController.java:1`
 
-#### エンドポイント一覧
+利用可能なエンドポイントの詳細は [WEB_API.md](../WEB_API.md#-api-エンドポイント) を参照してください。
 
-| エンドポイント | メソッド | 説明 | 実装行 |
-|---------------|---------|------|-------|
-| `/api/v1/stream/health` | GET | ヘルスチェック | `112-115` |
-| `/api/v1/stream/csv/extract` | POST | CSV列抽出 | `41-56` |
-| `/api/v1/stream/json/extract` | POST | JSONパス抽出 | `65-80` |
-| `/api/v1/stream/process` | POST | パイプライン処理 | `89-105` |
-
-#### CSV列抽出エンドポイント
+#### CSV列抽出エンドポイント実装例
 
 ```java
 @PostMapping(

@@ -354,42 +354,74 @@
 - testCustomRule: カスタムルールテスト
 
 ### CamelToSnakeCaseRuleTest
-（ファイル未読のため詳細は不明）
+- testDefaultConfiguration: デフォルト設定でのCamel→Snake変換基本動作検証
+- testBasicConversions: 11ケースのパラメータ化入力で変換結果を総合検証
+- testNullAndEmptyInputs: null／空文字入力時の挙動確認
+- testPreserveUnderscores: アンダースコア保持オプション有効時の動作検証
+- testCleanUpUnderscores: アンダースコア整理オプション有効時の変換確認
+- testAcronymHandling: 略語ハンドリング有効時の大文字連続処理検証
+- testNoAcronymHandling: 略語ハンドリング無効時の変換結果確認
+- testBuilderConfiguration: ビルダー設定の組み合わせ適用確認
+- testToString: toString出力に設定内容が含まれることの検証
+- testEdgeCases: 数値・特殊文字・既存snake_case入力の境界検証
 
 ### DatabaseRuleIntegrationTest
-（ファイル未読のため詳細は不明）
+- testJsonUserIdToNameConversion: JSON内ユーザーIDをDB値へ置換する統合動作検証
+- testCsvProductCodeToNameConversion: CSV商品コードをDBの商品名へ置換する統合テスト
+- testNonExistentIdHandling: 存在しないID時に空文字へ置換される失敗パス検証
+- testMultipleRecordBatchProcessing: 複数レコード配列をバッチ処理し部署名へ変換する検証
+- testNumericDataProcessing: 数値列（価格）取得時の置換処理と残存値確認
 
 ---
 
 ## streamconverter-web
 
 ### StreamProcessingControllerTest
-（ファイル未読のため詳細は不明）
+- testHealthEndpoint: /api/v1/stream/healthの疎通とステータスメッセージ確認
+- testCsvExtractionEndpoint: CSV抽出APIが列保持したまま結果を返すことの検証
+- testJsonExtractionEndpoint: JSON抽出APIがJSON構造を保ちつつレスポンス返却する確認
+- testPipelineProcessingEndpoint: パイプライン構成ヘッダー指定時のストリーム処理整合性検証
+- testInvalidPipelineConfiguration: 不正パイプライン指定で5xxエラーとなることの確認
 
 ---
 
 ## streamconverter-tools
 
 ### BenchmarkInfrastructureTest
-（ファイル未読のため詳細は不明）
+- testResourceMonitorBasicOperation: ResourceMonitorの開始・終了計測と使用量取得検証
+- testXmlDataGeneration: XML大規模データ生成のサイズ・構造・タグ整合性チェック
+- testJsonDataGeneration: JSON大規模データ生成のサイズ変動とorders配列存在確認
+- testCsvDataGeneration: CSV生成時のサイズ範囲とヘッダー・行数検証
+- testResourceUsage5GB50MBTarget: ResourceUsageの目標判定ロジック（5GB/50MB）評価
+- testIntegratedSmallDataProcessing: 監視＋コピー処理統合フローのリソース計測確認
+- testPerformanceAnalyzerBasicFunctionality: PerformanceAnalyzer記録・レポート生成検証
+- testMultipleRecordsAndStatistics: 複数記録時の統計値とレポート内容検証
+- testSmallScaleBenchmark: 2段構成パイプラインの小規模メモリ使用量検証
+- testBenchmarkConsistency: （Disabled）同一ベンチを複数回実行した揺らぎ評価
 
 ### LargeDataGeneratorDebugTest
-（ファイル未読のため詳細は不明）
+- debugXmlSizeDiscrepancy: XML生成のファイル／ストリーム差異と構造解析ログ出力
+- debugJsonSizeDiscrepancy: JSON生成のサイズ乖離調査と構造・整形式検証
+- debugCsvSizeDiscrepancy: CSV生成のサイズ差分計測とレコード構造解析
 
 ### MemoryEfficiencyQuickTest
-（ファイル未読のため詳細は不明）
+- testCharacterConversionMemoryEfficiency: 文字コード変換パイプラインの環境適応型メモリ制約検証（Linux限定）
 
 ### QuickSmokeTest
-（ファイル未読のため詳細は不明）
+- testBasicPipelineOperation: 小規模データでの単段パイプライン実行結果確認
+- testMultiStagePipeline: 3段パイプラインの実行成否と出力有無検証
+- testErrorHandling: エラールートでも例外発生しない実行確認
 
 ### MemoryEfficiencyTest
-（ファイル未読のため詳細は不明）
+- testAdaptiveMemoryEfficiency: 3段パイプライン大容量処理でのメモリ50%制約検証（Linux）
+- testSingleCommandOptimalPath: 単一コマンド時のメモリ20%制約検証（Linux）
+- testParallelProcessingNoStack: 大容量並列処理での30%制約とスループット測定（Linux）
 
 ### PmdConverterTest
-（ファイル未読のため詳細は不明）
+- main（手動テスト）: PMD XMLレポートをMarkdown/CSV/JSONへ変換し各出力結果をログ確認
 
 ### DatabaseInspectorTest
-（ファイル未読のため詳細は不明）
+- testInspectorInitialization: DatabaseInspector初期化処理が例外なく完了することの確認
 
 ---
 

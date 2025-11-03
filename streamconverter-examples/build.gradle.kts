@@ -36,7 +36,7 @@ dependencies {
     implementation("com.h2database:h2:2.4.240")
     
     // JUnit 5 の依存関係（テスト用）
-    testImplementation(platform("org.junit:junit-bom:6.0.0"))
+    testImplementation(platform("org.junit:junit-bom:6.0.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     

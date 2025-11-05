@@ -10,13 +10,12 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 /**
  * 複数コマンドを束にした複雑なパイプライン処理の例
  *
- * <p>以下のような処理フローを実装します： 1. バリデータコマンド（入力データ検証） 2. MDC設定コマンド（ログコンテキスト設定） 3. DB変換コマンド（データベース変換処理） 4.
- * 通信コマンド（外部API呼び出し） 5. バリデータコマンド（レスポンス検証） 6. DB逆変換コマンド（逆変換処理）
+ * <p>以下のような処理フローを実装します： 1. バリデータコマンド（入力データ検証） 2. DB変換コマンド（データベース変換処理） 3. 通信コマンド（外部API呼び出し） 4.
+ * バリデータコマンド（レスポンス検証） 5. DB逆変換コマンド（逆変換処理）
  */
 public class ComplexPipelineExample {
   private static final Logger logger = LoggerFactory.getLogger(ComplexPipelineExample.class);
@@ -56,19 +55,16 @@ public class ComplexPipelineExample {
       // 1. 入力バリデータコマンド
       createInputValidator(),
 
-      // 2. MDC設定コマンド（ログコンテキスト）
-      createMdcSetupCommand(),
-
-      // 3. DB変換コマンド（データベース変換処理）
+      // 2. DB変換コマンド（データベース変換処理）
       createDbTransformCommand(),
 
-      // 4. 通信コマンド（外部API呼び出し）
+      // 3. 通信コマンド（外部API呼び出し）
       createCommunicationCommand(),
 
-      // 5. レスポンスバリデータコマンド
+      // 4. レスポンスバリデータコマンド
       createResponseValidator(),
 
-      // 6. DB逆変換コマンド
+      // 5. DB逆変換コマンド
       createDbReverseTransformCommand()
     };
 
@@ -105,31 +101,6 @@ public class ComplexPipelineExample {
     return new CsvValidateCommand(requiredColumns);
   }
 
-  /** MDC設定コマンドを作成 */
-  private static IStreamCommand createMdcSetupCommand() {
-    logger.info("📝 Creating MDC setup command");
-
-    return new IStreamCommand() {
-      @Override
-      public void execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)
-          throws IOException {
-        logger.info("Setting up MDC context");
-
-        // MDCにコンテキスト情報を設定
-        MDC.put("requestId", "REQ-" + System.currentTimeMillis());
-        MDC.put("pipelineStage", "mdc-setup");
-        MDC.put("processType", "complex-pipeline");
-
-        logger.info("MDC context configured successfully");
-
-        // データをそのまま次のコマンドに渡す
-        inputStream.transferTo(outputStream);
-
-        logger.info("MDC setup command completed");
-      }
-    };
-  }
-
   /** DB変換コマンドを作成 */
   private static IStreamCommand createDbTransformCommand() {
     logger.info("🔄 Creating DB transform command");
@@ -138,7 +109,6 @@ public class ComplexPipelineExample {
       @Override
       public void executeInternal(
           java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
-        MDC.put("pipelineStage", "db-transform");
         logger.info("Executing database transformation");
 
         // 実際のDB変換処理をシミュレート
@@ -157,7 +127,6 @@ public class ComplexPipelineExample {
       @Override
       public void executeInternal(
           java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
-        MDC.put("pipelineStage", "communication");
         logger.info("Executing external API communication");
 
         // 実際のHTTP通信をシミュレート
@@ -177,7 +146,6 @@ public class ComplexPipelineExample {
       @Override
       public void executeInternal(
           java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
-        MDC.put("pipelineStage", "response-validation");
         logger.info("Validating API response");
 
         // レスポンスバリデーション処理をシミュレート
@@ -196,17 +164,12 @@ public class ComplexPipelineExample {
       @Override
       public void executeInternal(
           java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
-        MDC.put("pipelineStage", "db-reverse-transform");
         logger.info("Executing database reverse transformation");
 
         // DB逆変換処理をシミュレート
         super.executeInternal(inputStream, outputStream);
 
         logger.info("Database reverse transformation completed");
-
-        // MDCクリーンアップ
-        MDC.clear();
-        logger.info("MDC context cleared");
       }
     };
   }

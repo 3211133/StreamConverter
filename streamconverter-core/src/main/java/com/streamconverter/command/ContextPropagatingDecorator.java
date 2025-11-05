@@ -65,10 +65,6 @@ public class ContextPropagatingDecorator implements IStreamCommand {
       // ExecutionContextをMDCに適用
       context.applyToMDCWithStage(stageName);
 
-      // コンテキスト情報をユーザーコンテキストに保存（必要に応じて）
-      context.setUserContext("currentCommand", commandName);
-      context.setUserContext("currentSequence", String.valueOf(sequence));
-
       logger.info("Starting command execution: {} (sequence: {})", commandName, sequence);
 
       // ラップしたコマンドの実行
@@ -96,10 +92,6 @@ public class ContextPropagatingDecorator implements IStreamCommand {
     } finally {
       // MDCの復元（必要に応じて）
       restoreMDCContext(previousExecutionId, previousStage);
-
-      // ユーザーコンテキストのクリーンアップ
-      context.setUserContext("currentCommand", null);
-      context.setUserContext("currentSequence", null);
     }
   }
 

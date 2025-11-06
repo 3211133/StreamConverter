@@ -51,7 +51,8 @@ public class MdcSetupRule implements IRule {
   /**
    * 抽出された値を共有コンテキストに設定します
    *
-   * <p>このメソッドは値を変更せずそのまま返しますが、副作用として ExecutionContextの共有コンテキストに値を設定します。
+   * <p>このメソッドは値を変更せずそのまま返しますが、副作用として ExecutionContextの共有コンテキストに値を設定します。 MDCへの同期はLogback
+   * TurboFilterが自動的に行うため、呼び出し側は同期を意識する必要がありません。
    *
    * @param extractedValue 抽出された値（nullの場合は共有コンテキストから削除）
    * @return 入力値をそのまま返す

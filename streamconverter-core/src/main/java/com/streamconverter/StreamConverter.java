@@ -265,8 +265,8 @@ public class StreamConverter {
                   java.time.Instant startInstant = java.time.Instant.now();
 
                   try {
-                    // コマンド実行（MDCは自動的に利用可能）
-                    command.execute(commandInput, commandOutput);
+                    // コマンド実行（ExecutionContext付きで実行してMDC同期を有効化）
+                    command.execute(commandInput, commandOutput, context);
 
                     // 中間の PipedOutputStream は実行完了後にクローズする必要がある
                     if (commandOutput instanceof PipedOutputStream) {

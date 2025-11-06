@@ -485,78 +485,87 @@ class ExecutionContextTest {
   }
 
   @Test
-  void testSharedContextDirtyFlagOptimization() {
+  void testSharedContextAlwaysSyncsToMDC() {
+    // In multi-threaded environments, shared context must always sync to MDC
+    // because each thread has its own MDC
     ExecutionContext context = ExecutionContext.create();
 
-    // 初回: 共有コンテキスト未設定 → MDCにも反映されない
+    // Initial: no shared context set → nothing in MDC
     context.applyToMDC();
     assertNull(MDC.get("userId"));
 
-    // 値を設定
+    // Set value
     context.setSharedContext("userId", "USER123");
 
-    // 2回目: 変更があったのでMDCに反映される
+    // 2nd call: changed, so reflected in MDC
     context.applyToMDC();
     assertEquals("USER123", MDC.get("userId"));
 
-    // MDCをクリアして、3回目の呼び出しをテスト
+    // Clear MDC and test 3rd call
     MDC.remove("userId");
     assertNull(MDC.get("userId"));
 
-    // 3回目: 共有コンテキストに変更なし
-    // → Dirty Flagがfalseなので再度MDCに書き込まれない
+    // 3rd call: shared context has no changes, but MUST still sync to MDC
+    // (for multi-threaded environment where each thread needs its own MDC copy)
     context.applyToMDC();
 
-    // 最適化により、共有コンテキストの再適用はスキップされる
-    // （他のコンテキストは毎回適用されるが、共有コンテキストはスキップ）
-    assertNull(MDC.get("userId"));
+    // Should always sync to MDC, even without changes
+    assertEquals(
+        "USER123",
+        MDC.get("userId"),
+        "Shared context should always sync to MDC in multi-threaded environment");
   }
 
   @Test
-  void testSharedContextDirtyFlagResetsOnChange() {
+  void testSharedContextSyncsAfterChanges() {
     ExecutionContext context = ExecutionContext.create();
 
-    // 初期値設定
+    // Set initial value
     context.setSharedContext("status", "initial");
     context.applyToMDC();
     assertEquals("initial", MDC.get("status"));
 
-    // MDCクリア
+    // Clear MDC
     MDC.clear();
 
-    // 値を変更せずにapplyToMDC()を複数回呼ぶ
+    // Call applyToMDC() multiple times without value changes
+    // Shared context should sync every time in multi-threaded environment
     context.applyToMDC();
-    context.applyToMDC();
-    context.applyToMDC();
+    assertEquals("initial", MDC.get("status"), "Should sync on 1st call");
+    MDC.clear();
 
-    // Dirty Flagによりスキップされるため、MDCに再適用されない
-    assertNull(MDC.get("status"));
+    context.applyToMDC();
+    assertEquals("initial", MDC.get("status"), "Should sync on 2nd call");
+    MDC.clear();
 
-    // 値を変更
+    context.applyToMDC();
+    assertEquals("initial", MDC.get("status"), "Should sync on 3rd call");
+
+    // Change value
     context.setSharedContext("status", "updated");
 
-    // 変更があったので再度MDCに反映される
+    // Should reflect new value in MDC
     context.applyToMDC();
     assertEquals("updated", MDC.get("status"));
   }
 
   @Test
-  void testSharedContextDirtyFlagWithMultipleChanges() {
+  void testSharedContextWithMultipleChanges() {
     ExecutionContext context = ExecutionContext.create();
 
-    // 複数回の変更と適用を繰り返す
+    // Multiple changes and applications
     for (int i = 0; i < 10; i++) {
-      // 値を設定（Dirty Flag ON）
+      // Set value
       context.setSharedContext("counter", String.valueOf(i));
 
-      // MDCに適用（Dirty Flag OFF）
+      // Apply to MDC
       context.applyToMDC();
       assertEquals(String.valueOf(i), MDC.get("counter"));
 
-      // 変更なしで再度適用（スキップされる）
+      // Apply again without changes - should still sync in multi-threaded environment
       MDC.remove("counter");
       context.applyToMDC();
-      assertNull(MDC.get("counter")); // 再適用されない
+      assertEquals(String.valueOf(i), MDC.get("counter"), "Should re-sync even without changes");
     }
   }
 }

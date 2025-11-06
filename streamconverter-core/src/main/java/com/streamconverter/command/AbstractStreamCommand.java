@@ -1,5 +1,6 @@
 package com.streamconverter.command;
 
+import com.streamconverter.context.ExecutionContextHolder;
 import com.streamconverter.util.MeasuredInputStream;
 import com.streamconverter.util.MeasuredOutputStream;
 import java.io.IOException;
@@ -27,6 +28,34 @@ public abstract class AbstractStreamCommand implements IStreamCommand {
   public AbstractStreamCommand() {
     super();
     this.log = LoggerFactory.getLogger(getClass());
+  }
+
+  /**
+   * Executes the command with ExecutionContext support.
+   *
+   * <p>This override ensures that MDC is synchronized with the latest shared context values before
+   * logging, enabling cross-thread MDC propagation in parallel execution environments.
+   *
+   * @param inputStream The input stream to read data from.
+   * @param outputStream The output stream to write data to.
+   * @param context The execution context for traceability and logging enhancement.
+   * @throws IOException If an I/O error occurs during the execution of the command.
+   */
+  @Override
+  public final void execute(
+      InputStream inputStream,
+      OutputStream outputStream,
+      com.streamconverter.context.ExecutionContext context)
+      throws IOException {
+    // Store context in ThreadLocal for TurboFilter to access on every log output
+    try {
+      ExecutionContextHolder.set(context);
+      // Delegate to the basic execute method
+      execute(inputStream, outputStream);
+    } finally {
+      // Clean up ThreadLocal to prevent memory leaks
+      ExecutionContextHolder.clear();
+    }
   }
 
   /**

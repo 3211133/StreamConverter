@@ -216,11 +216,9 @@ public class ExecutionContext {
     // ユーザーコンテキストをMDCに設定
     userContext.forEach(MDC::put);
 
-    // 共有コンテキストをMDCに設定（Dirty Flag最適化）
-    // 変更があった場合のみ実行される
-    if (sharedContextDirty.compareAndSet(true, false)) {
-      sharedContext.forEach(MDC::put);
-    }
+    // 共有コンテキストをMDCに設定
+    // マルチスレッド環境では各スレッドが独自のMDCを持つため、常に同期が必要
+    sharedContext.forEach(MDC::put);
   }
 
   /**

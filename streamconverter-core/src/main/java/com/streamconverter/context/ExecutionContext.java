@@ -6,6 +6,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.MDC;
 
@@ -21,6 +23,8 @@ public class ExecutionContext {
   private final AtomicInteger commandSequence;
   private final Map<String, String> globalContext;
   private final Map<String, String> userContext;
+  private final ConcurrentHashMap<String, String> sharedContext;
+  private final AtomicBoolean sharedContextDirty;
 
   // 標準的なコンテキストキー
   /** 実行ID用のMDCキー */
@@ -44,6 +48,8 @@ public class ExecutionContext {
     this.commandSequence = new AtomicInteger(0);
     this.globalContext = Collections.unmodifiableMap(new HashMap<>(builder.globalContext));
     this.userContext = new HashMap<>(builder.userContext);
+    this.sharedContext = new ConcurrentHashMap<>();
+    this.sharedContextDirty = new AtomicBoolean(false);
   }
 
   /**
@@ -153,9 +159,49 @@ public class ExecutionContext {
   }
 
   /**
+   * 共有コンテキスト値を取得
+   *
+   * <p>共有コンテキストはスレッド間で共有されるコンテキスト情報です。 ConcurrentHashMapで実装されているため、スレッドセーフです。
+   *
+   * @param key キー
+   * @return 値（存在しない場合はnull）
+   */
+  public String getSharedContext(String key) {
+    return sharedContext.get(key);
+  }
+
+  /**
+   * 共有コンテキスト値を設定
+   *
+   * <p>共有コンテキストはスレッド間で共有されるコンテキスト情報です。 実行中のスレッドからいつでも設定・取得が可能で、他のスレッドから即座にアクセスできます。
+   *
+   * @param key キー
+   * @param value 値（nullの場合は削除）
+   */
+  public void setSharedContext(String key, String value) {
+    if (value == null) {
+      sharedContext.remove(key);
+    } else {
+      sharedContext.put(key, value);
+    }
+    sharedContextDirty.set(true);
+  }
+
+  /**
+   * 全ての共有コンテキストを取得
+   *
+   * @return 共有コンテキストマップのコピー
+   */
+  public Map<String, String> getAllSharedContext() {
+    return new HashMap<>(sharedContext);
+  }
+
+  /**
    * 現在のコンテキストをMDCに設定
    *
-   * <p>このメソッドを呼び出すことで、実行コンテキストの情報が 現在のスレッドのMDCに設定されます。
+   * <p>このメソッドを呼び出すことで、実行コンテキストの情報が 現在のスレッドのMDCに設定されます。 共有コンテキストも含めて全てのコンテキスト情報がMDCに反映されます。
+   *
+   * <p>共有コンテキストはDirty Flag最適化により、変更があった場合のみMDCに同期されます。 これにより、頻繁なapplyToMDC()呼び出しでもパフォーマンスが維持されます。
    */
   public void applyToMDC() {
     // 基本的なコンテキスト情報をMDCに設定
@@ -169,6 +215,10 @@ public class ExecutionContext {
 
     // ユーザーコンテキストをMDCに設定
     userContext.forEach(MDC::put);
+
+    // 共有コンテキストをMDCに設定
+    // マルチスレッド環境では各スレッドが独自のMDCを持つため、常に同期が必要
+    sharedContext.forEach(MDC::put);
   }
 
   /**

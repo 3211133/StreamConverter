@@ -52,8 +52,8 @@ public class ExecutionContextHolder {
     holder.remove();
   }
 
-  // Private constructor to prevent instantiation
+  /** Private constructor to prevent instantiation. */
   private ExecutionContextHolder() {
-    throw new UnsupportedOperationException("Utility class");
+    // Utility class - no instantiation allowed
   }
 }

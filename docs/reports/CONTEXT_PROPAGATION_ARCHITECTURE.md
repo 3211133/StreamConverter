@@ -13,6 +13,7 @@ StreamConverterのマルチスレッド環境でユニークな識別子発行�
 - ユニークな実行ID生成（`EXEC-{UUID}-{timestamp}`形式）
 - コマンドシーケンス番号の自動管理
 - グローバルコンテキスト（読み取り専用）とユーザーコンテキスト（可変）の分離
+- **共有コンテキスト（スレッド間で共有、2025年1月追加）**
 - MDCへの自動適用機能
 
 ```java
@@ -21,6 +22,10 @@ ExecutionContext context = ExecutionContext.builder()
     .globalContext("userId", "user789")
     .userContext("businessUnit", "finance")
     .build();
+
+// 共有コンテキスト（スレッド間で共有される値）
+context.setSharedContext("userId", "USER12345");
+context.setSharedContext("sessionId", "SESSION-XYZ");
 ```
 
 ### 2. IStreamCommand（統合されたコンテキスト対応インターフェース）
@@ -82,6 +87,63 @@ StreamConverter converter = StreamConverter.createWithContext(
 );
 ```
 
+### 5. ExecutionContextHolder（ThreadLocalコンテキスト保持、2025年1月追加）
+**役割**: ThreadLocal経由でExecutionContextを保持し、TurboFilterからアクセス可能にする
+
+**特徴**:
+- 静的ThreadLocalによるスレッド固有のコンテキスト保存
+- AbstractStreamCommandが自動的に設定/クリア
+- メモリリーク防止のための明示的なクリーンアップ
+
+```java
+// AbstractStreamCommandが自動的に呼び出す
+ExecutionContextHolder.set(context);
+try {
+    execute(inputStream, outputStream);
+} finally {
+    ExecutionContextHolder.clear();
+}
+```
+
+### 6. ExecutionContextTurboFilter（自動MDC同期、2025年1月追加）
+**役割**: ログ出力の都度、ExecutionContextの共有コンテキストをMDCに自動同期
+
+**特徴**:
+- Logbackのログイベント処理前に自動実行
+- 共有コンテキストの全キーをMDCに同期
+- 変更がある場合のみMDC操作を実行（パフォーマンス最適化）
+- 削除されたキーの自動クリーンアップ
+
+```xml
+<!-- logback.xml -->
+<configuration>
+    <turboFilter class="com.streamconverter.logging.ExecutionContextTurboFilter"/>
+
+    <appender name="CONSOLE" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- userIdなどが自動的にMDCから取得される -->
+            <pattern>%d{HH:mm:ss.SSS} [userId:%X{userId:-}] - %msg%n</pattern>
+        </encoder>
+    </appender>
+</configuration>
+```
+
+### 7. MdcSetupRule（MDC値抽出ルール、2025年1月追加）
+**役割**: XMLやJSONから抽出した値を共有コンテキストに設定
+
+**特徴**:
+- IRule実装による宣言的な値設定
+- ExecutionContextの共有コンテキストへの自動保存
+- TurboFilterと組み合わせて自動MDC同期
+
+```java
+// XMLからuserIdを抽出してMDCに設定
+XmlNavigateCommand extractUserId = new XmlNavigateCommand(
+    TreePath.fromXml("request/userId"),
+    new MdcSetupRule(context, "userId")
+);
+```
+
 ## コンテキスト伝播フロー
 
 ### 1. 初期化フェーズ
@@ -91,24 +153,83 @@ StreamConverter converter = StreamConverter.createWithContext(
 3. 既存コマンドの自動デコレート
 ```
 
-### 2. 実行フェーズ
+### 2. 実行フェーズ（2025年1月更新）
 ```
 1. パイプライン開始時にMDCにコンテキスト適用
-2. 各コマンドにExecutionContextのコピーを渡す
-3. コマンド実行前にMDC設定（sequence番号更新）
+2. 各コマンドにExecutionContextを渡す
+3. AbstractStreamCommandがExecutionContextHolderに設定
 4. コマンド実行
-5. コマンド実行後にコンテキスト情報更新
+   - ログ出力時にTurboFilterが自動的にMDC同期
+   - 共有コンテキストの値がMDCに反映される
+5. AbstractStreamCommandがExecutionContextHolderをクリア
+6. コマンド実行後にコンテキスト情報更新
 ```
 
-### 3. 並列実行での対応
+**TurboFilterによる自動同期の詳細**:
+```
+ログ出力 → TurboFilter.decide() → ExecutionContextHolder.get()
+         → 共有コンテキスト取得 → MDC値と比較
+         → 変更がある場合のみMDC.put() → ログ処理続行
+```
+
+### 3. 並列実行での対応（2025年1月更新）
 ```
 - 各スレッドが独立したExecutionContextコピーを持つ
 - 同一executionIdでコンテキストを共有
 - スレッド固有のsequence番号とthread名をMDCに設定
 - ユーザーコンテキストの変更は各スレッドで独立
+- **共有コンテキストは全スレッドで共有（ConcurrentHashMap使用）**
+- **各スレッドのThreadLocalに同じExecutionContextが設定される**
+- **TurboFilterが各スレッドで独立してMDCに同期**
+```
+
+**マルチスレッドでの共有コンテキストの動作**:
+```
+Thread 1: XmlNavigateCommand実行
+  → userId抽出 → 共有コンテキストに設定
+  → ログ出力時にTurboFilterがMDCに同期
+
+Thread 2: XmlDebugCommand実行（並行）
+  → 共有コンテキストからuserId取得可能
+  → ログ出力時にTurboFilterがMDCに同期
+  → Thread 1が設定したuserIdがログに出力される
 ```
 
 ## 実装例
+
+### 自動MDC同期を使った実装（2025年1月推奨）
+```java
+// ExecutionContext作成
+ExecutionContext context = ExecutionContext.create();
+
+// XMLからuserIdを抽出してMDCに自動設定
+XmlNavigateCommand extractUserId = new XmlNavigateCommand(
+    TreePath.fromXml("request/userId"),
+    new MdcSetupRule(context, "userId")
+);
+
+// JSONからsessionIdを抽出してMDCに自動設定
+JsonNavigateCommand extractSessionId = new JsonNavigateCommand(
+    TreePath.fromJson("$.sessionId"),
+    new MdcSetupRule(context, "sessionId")
+);
+
+// 後続のコマンドは自動的にMDCでuserIdとsessionIdを参照可能
+SampleStreamCommand processor = new SampleStreamCommand("processor");
+
+// パイプライン実行
+StreamConverter.createWithContext(context,
+    extractUserId, extractSessionId, processor)
+    .run(inputStream, outputStream);
+
+// 全てのログに [userId:USER12345] [sessionId:SESSION-XYZ] が自動出力
+```
+
+**ポイント**:
+- `MdcSetupRule`で値を抽出すると共有コンテキストに保存
+- `ExecutionContextTurboFilter`がログ出力の都度MDCに自動同期
+- 下流のコマンドはMDCを一切意識する必要がない
+- マルチスレッドでも正しく動作
 
 ### カスタムコンテキスト対応コマンド
 ```java

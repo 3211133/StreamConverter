@@ -17,7 +17,7 @@ StreamConverterは包括的な自動ログ出力機能を提供し、大容量�
 - **メモリ使用量測定**: コマンド実行前後のメモリ差分
 - **パフォーマンス警告**: 5秒以上の実行時に自動警告
 - **実際のクラス名表示**: 各コマンドが自身のクラス名でログ出力
-- **MDC対応**: ExecutionContextと連携したコンテキスト情報の自動伝播
+- **MDC自動同期**: ExecutionContextの共有コンテキストがログ出力時に自動的にMDCに同期（2025年1月追加、TurboFilter使用）
 - **ソースロケーション情報**: メソッド名と行番号の自動出力（logback設定による）
 
 > ⚠️ **非推奨**: `LoggingDecorator` クラスは現在非推奨です。AbstractStreamCommandが包括的なログ機能を提供するため、LoggingDecoratorは不要になりました。既存のコードでLoggingDecoratorを使用している場合は、単純に削除してください。すべての標準コマンドは自動的にログ出力されます。
@@ -267,6 +267,46 @@ IStreamCommand[] pipeline = {
 
 StreamConverter converter = StreamConverter.createWithContext(context, pipeline);
 ```
+
+### 4. MDC自動同期（2025年1月追加）
+
+ExecutionContextの共有コンテキストは、ログ出力時に自動的にMDCに同期されます。
+
+```java
+// ExecutionContext作成
+ExecutionContext context = ExecutionContext.create();
+
+// XMLからuserIdを抽出してMDCに自動設定
+XmlNavigateCommand extractUserId = new XmlNavigateCommand(
+    TreePath.fromXml("request/userId"),
+    new MdcSetupRule(context, "userId")
+);
+
+// 後続のコマンドは自動的にMDCでuserIdを参照可能
+SampleStreamCommand processor = new SampleStreamCommand("processor");
+
+// パイプライン実行
+StreamConverter.createWithContext(context, extractUserId, processor)
+    .run(inputStream, outputStream);
+```
+
+**動作の仕組み**:
+1. `MdcSetupRule`が抽出した値を`ExecutionContext`の共有コンテキストに保存
+2. `AbstractStreamCommand`が`ExecutionContextHolder`にコンテキストを設定
+3. ログ出力時に`ExecutionContextTurboFilter`が共有コンテキストをMDCに自動同期
+4. logback.xmlのパターン`[userId:%X{userId:-}]`が正しく展開される
+
+**ログ出力例**:
+```
+2025-01-06 14:00:01.123 INFO  [execId:EXEC-123, seq:1, userId:USER12345] - Starting command execution: XmlNavigateCommand
+2025-01-06 14:00:01.125 INFO  [execId:EXEC-123, seq:2, userId:USER12345] - Starting command execution: SampleStreamCommand
+2025-01-06 14:00:01.127 INFO  [execId:EXEC-123, seq:2, userId:USER12345] - Processing data for user
+```
+
+**利点**:
+- アプリケーションコードがMDCを意識する必要がない
+- マルチスレッド環境でも自動的に伝播
+- パフォーマンス最適化（変更がある場合のみMDC操作）
 
 ## トラブルシューティング
 

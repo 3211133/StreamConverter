@@ -16,6 +16,7 @@ com.streamconverter.context
 com.streamconverter.controller
 com.streamconverter.examples
 com.streamconverter.examples.docs
+com.streamconverter.logging
 com.streamconverter.path
 com.streamconverter.security
 com.streamconverter.tools

@@ -99,7 +99,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="impl/charcode/CharacterConvertCommand.html" title="class in com.streamconverter.command.impl.charcode">CharacterConvertCommand</a></code>, <code><a href="ConsumerCommand.html" title="class in com.streamconverter.command">ConsumerCommand</a></code>, <code><a href="impl/xml/ConvertCommand.html" title="class in com.streamconverter.command.impl.xml">ConvertCommand</a></code>, <code><a href="impl/csv/CsvFilterCommand.html" title="class in com.streamconverter.command.impl.csv">CsvFilterCommand</a></code>, <code><a href="impl/csv/CsvNavigateCommand.html" title="class in com.streamconverter.command.impl.csv">CsvNavigateCommand</a></code>, <code><a href="impl/json/JsonFilterCommand.html" title="class in com.streamconverter.command.impl.json">JsonFilterCommand</a></code>, <code><a href="impl/json/JsonNavigateCommand.html" title="class in com.streamconverter.command.impl.json">JsonNavigateCommand</a></code>, <code><a href="impl/LineEndingNormalizeCommand.html" title="class in com.streamconverter.command.impl">LineEndingNormalizeCommand</a></code>, <code><a href="impl/analysis/PmdXmlToCsvCommand.html" title="class in com.streamconverter.command.impl.analysis">PmdXmlToCsvCommand</a></code>, <code><a href="impl/analysis/PmdXmlToJsonCommand.html" title="class in com.streamconverter.command.impl.analysis">PmdXmlToJsonCommand</a></code>, <code><a href="impl/analysis/PmdXmlToMarkdownCommand.html" title="class in com.streamconverter.command.impl.analysis">PmdXmlToMarkdownCommand</a></code>, <code><a href="impl/SampleStreamCommand.html" title="class in com.streamconverter.command.impl">SampleStreamCommand</a></code>, <code><a href="impl/SendHttpCommand.html" title="class in com.streamconverter.command.impl">SendHttpCommand</a></code>, <code><a href="impl/xml/XmlFilterCommand.html" title="class in com.streamconverter.command.impl.xml">XmlFilterCommand</a></code>, <code><a href="impl/xml/XmlNavigateCommand.html" title="class in com.streamconverter.command.impl.xml">XmlNavigateCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-17">AbstractStreamCommand</a></span>
+<div class="type-signature"><span class="modifiers">public abstract class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-18">AbstractStreamCommand</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span></div>
 <div class="block">Abstract class for stream commands.
@@ -158,15 +158,22 @@ implements <a href="IStreamCommand.html" title="interface in com.streamconverter
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#executeInternal(java.io.InputStream,java.io.OutputStream)" class="member-name-link">executeInternal</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>final void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute(java.io.InputStream,java.io.OutputStream,com.streamconverter.context.ExecutionContext)" class="member-name-link">execute</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
+ <a href="../context/ExecutionContext.html" title="class in com.streamconverter.context">ExecutionContext</a>&nbsp;context)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">Executes the command with ExecutionContext support.</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>protected abstract void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#executeInternal(java.io.InputStream,java.io.OutputStream)" class="member-name-link">executeInternal</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Abstract method to be implemented by subclasses for executing the command.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCommandDetails()" class="member-name-link">getCommandDetails</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCommandDetails()" class="member-name-link">getCommandDetails</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">コマンドの詳細情報を取得します。</div>
 </div>
 </div>
@@ -175,9 +182,6 @@ implements <a href="IStreamCommand.html" title="interface in com.streamconverter
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
-<div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.streamconverter.command.IStreamCommand">Methods inherited from interface&nbsp;com.streamconverter.command.<a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></h3>
-<code><a href="IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream,com.streamconverter.context.ExecutionContext)">execute</a></code></div>
 </section>
 </li>
 </ul>
@@ -192,7 +196,7 @@ implements <a href="IStreamCommand.html" title="interface in com.streamconverter
 <li>
 <section class="detail" id="log">
 <h3>log</h3>
-<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type">org.slf4j.Logger</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-19">log</a></span></div>
+<div class="member-signature"><span class="modifiers">protected final</span>&nbsp;<span class="return-type">org.slf4j.Logger</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-20">log</a></span></div>
 <div class="block">Logger instance for this command. Uses the actual subclass name for better traceability.</div>
 </section>
 </li>
@@ -207,7 +211,7 @@ implements <a href="IStreamCommand.html" title="interface in com.streamconverter
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>AbstractStreamCommand</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-27">AbstractStreamCommand</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-28">AbstractStreamCommand</a></span>()</div>
 <div class="block">Default constructor.
 
  <p>Initializes the command with default settings and creates a logger using the actual command
@@ -223,9 +227,32 @@ implements <a href="IStreamCommand.html" title="interface in com.streamconverter
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
+<section class="detail" id="execute(java.io.InputStream,java.io.OutputStream,com.streamconverter.context.ExecutionContext)">
+<h3>execute</h3>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-44">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
+ <a href="../context/ExecutionContext.html" title="class in com.streamconverter.context">ExecutionContext</a>&nbsp;context)</span>
+                   throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
+<div class="block">Executes the command with ExecutionContext support.
+
+ <p>This override ensures that MDC is synchronized with the latest shared context values before
+ logging, enabling cross-thread MDC propagation in parallel execution environments.</div>
+<dl class="notes">
+<dt>Specified by:</dt>
+<dd><code><a href="IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream,com.streamconverter.context.ExecutionContext)">execute</a></code>&nbsp;in interface&nbsp;<code><a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></dd>
+<dt>Parameters:</dt>
+<dd><code>inputStream</code> - The input stream to read data from.</dd>
+<dd><code>outputStream</code> - The output stream to write data to.</dd>
+<dd><code>context</code> - The execution context for traceability and logging enhancement.</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - If an I/O error occurs during the execution of the command.</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-42">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-71">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                    throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.
@@ -246,7 +273,7 @@ implements <a href="IStreamCommand.html" title="interface in com.streamconverter
 <li>
 <section class="detail" id="executeInternal(java.io.InputStream,java.io.OutputStream)">
 <h3>executeInternal</h3>
-<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-121">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">protected abstract</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-150">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                                  throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">Abstract method to be implemented by subclasses for executing the command.</div>
@@ -262,7 +289,7 @@ implements <a href="IStreamCommand.html" title="interface in com.streamconverter
 <li>
 <section class="detail" id="getCommandDetails()">
 <h3>getCommandDetails</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-131">getCommandDetails</a></span>()</div>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/AbstractStreamCommand.html#line-160">getCommandDetails</a></span>()</div>
 <div class="block">コマンドの詳細情報を取得します。
 
  <p>サブクラスでオーバーライドして、コマンド固有の設定や状態を返すことができます。 この情報はデバッグログに出力され、問題の診断に役立ちます。</div>

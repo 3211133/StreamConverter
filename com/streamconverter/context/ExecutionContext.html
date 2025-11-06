@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-17">ExecutionContext</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-19">ExecutionContext</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">実行コンテキストを管理するクラス
 
@@ -198,29 +198,39 @@ loadScripts(document, 'script');</script>
 <div class="block">全てのグローバルコンテキストを取得</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAllUserContext()" class="member-name-link">getAllUserContext</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAllSharedContext()" class="member-name-link">getAllSharedContext</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">全ての共有コンテキストを取得</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getAllUserContext()" class="member-name-link">getAllUserContext</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">全てのユーザーコンテキストを取得</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCurrentCommandSequence()" class="member-name-link">getCurrentCommandSequence</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCurrentCommandSequence()" class="member-name-link">getCurrentCommandSequence</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">現在のコマンドシーケンス番号を取得</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getExecutionId()" class="member-name-link">getExecutionId</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getExecutionId()" class="member-name-link">getExecutionId</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">実行ID（一意識別子）を取得</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGlobalContext(java.lang.String)" class="member-name-link">getGlobalContext</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getGlobalContext(java.lang.String)" class="member-name-link">getGlobalContext</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">グローバルコンテキスト値を取得</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getNextCommandSequence()" class="member-name-link">getNextCommandSequence</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>int</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getNextCommandSequence()" class="member-name-link">getNextCommandSequence</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">次のコマンドシーケンス番号を取得（自動インクリメント）</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getSharedContext(java.lang.String)" class="member-name-link">getSharedContext</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">共有コンテキスト値を取得</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getStartTime()" class="member-name-link">getStartTime</a>()</code></div>
@@ -236,14 +246,20 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#hashCode()" class="member-name-link">hashCode</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUserContext(java.lang.String,java.lang.String)" class="member-name-link">setUserContext</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setSharedContext(java.lang.String,java.lang.String)" class="member-name-link">setSharedContext</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">共有コンテキスト値を設定</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setUserContext(java.lang.String,java.lang.String)" class="member-name-link">setUserContext</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">ユーザーコンテキスト値を設定</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
 </div>
 </div>
 </div>
@@ -264,7 +280,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="EXECUTION_ID_KEY">
 <h3>EXECUTION_ID_KEY</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-27">EXECUTION_ID_KEY</a></span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-31">EXECUTION_ID_KEY</a></span></div>
 <div class="block">実行ID用のMDCキー</div>
 <dl class="notes">
 <dt>See Also:</dt>
@@ -279,7 +295,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="START_TIME_KEY">
 <h3>START_TIME_KEY</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-30">START_TIME_KEY</a></span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-34">START_TIME_KEY</a></span></div>
 <div class="block">開始時刻用のMDCキー</div>
 <dl class="notes">
 <dt>See Also:</dt>
@@ -294,7 +310,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="COMMAND_SEQUENCE_KEY">
 <h3>COMMAND_SEQUENCE_KEY</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-33">COMMAND_SEQUENCE_KEY</a></span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-37">COMMAND_SEQUENCE_KEY</a></span></div>
 <div class="block">コマンドシーケンス用のMDCキー</div>
 <dl class="notes">
 <dt>See Also:</dt>
@@ -309,7 +325,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="THREAD_NAME_KEY">
 <h3>THREAD_NAME_KEY</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-36">THREAD_NAME_KEY</a></span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-40">THREAD_NAME_KEY</a></span></div>
 <div class="block">スレッド名用のMDCキー</div>
 <dl class="notes">
 <dt>See Also:</dt>
@@ -324,7 +340,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="STAGE_KEY">
 <h3>STAGE_KEY</h3>
-<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-39">STAGE_KEY</a></span></div>
+<div class="member-signature"><span class="modifiers">public static final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-43">STAGE_KEY</a></span></div>
 <div class="block">ステージ用のMDCキー</div>
 <dl class="notes">
 <dt>See Also:</dt>
@@ -347,7 +363,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="create()">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ExecutionContext.html" title="class in com.streamconverter.context">ExecutionContext</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-54">create</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ExecutionContext.html" title="class in com.streamconverter.context">ExecutionContext</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-60">create</a></span>()</div>
 <div class="block">新しい実行コンテキストを生成</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -358,7 +374,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="builder()">
 <h3>builder</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ExecutionContext.Builder.html" title="class in com.streamconverter.context">ExecutionContext.Builder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-63">builder</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="ExecutionContext.Builder.html" title="class in com.streamconverter.context">ExecutionContext.Builder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-69">builder</a></span>()</div>
 <div class="block">カスタム設定でExecutionContextを作成するためのビルダーを取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -369,7 +385,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getExecutionId()">
 <h3>getExecutionId</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-72">getExecutionId</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-78">getExecutionId</a></span>()</div>
 <div class="block">実行ID（一意識別子）を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -380,7 +396,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getStartTime()">
 <h3>getStartTime</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-81">getStartTime</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Instant.html" title="class or interface in java.time" class="external-link">Instant</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-87">getStartTime</a></span>()</div>
 <div class="block">実行開始時刻を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -391,7 +407,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getNextCommandSequence()">
 <h3>getNextCommandSequence</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-90">getNextCommandSequence</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-96">getNextCommandSequence</a></span>()</div>
 <div class="block">次のコマンドシーケンス番号を取得（自動インクリメント）</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -402,7 +418,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getCurrentCommandSequence()">
 <h3>getCurrentCommandSequence</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-99">getCurrentCommandSequence</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-105">getCurrentCommandSequence</a></span>()</div>
 <div class="block">現在のコマンドシーケンス番号を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -413,7 +429,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getGlobalContext(java.lang.String)">
 <h3>getGlobalContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-109">getGlobalContext</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-115">getGlobalContext</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
 <div class="block">グローバルコンテキスト値を取得</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -426,7 +442,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getAllGlobalContext()">
 <h3>getAllGlobalContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-118">getAllGlobalContext</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-124">getAllGlobalContext</a></span>()</div>
 <div class="block">全てのグローバルコンテキストを取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -437,7 +453,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getUserContext(java.lang.String)">
 <h3>getUserContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-128">getUserContext</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-134">getUserContext</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
 <div class="block">ユーザーコンテキスト値を取得</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -450,7 +466,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="setUserContext(java.lang.String,java.lang.String)">
 <h3>setUserContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-138">setUserContext</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-144">setUserContext</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</span></div>
 <div class="block">ユーザーコンテキスト値を設定</div>
 <dl class="notes">
@@ -463,7 +479,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getAllUserContext()">
 <h3>getAllUserContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-151">getAllUserContext</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-157">getAllUserContext</a></span>()</div>
 <div class="block">全てのユーザーコンテキストを取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -472,18 +488,61 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="getSharedContext(java.lang.String)">
+<h3>getSharedContext</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-169">getSharedContext</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="block">共有コンテキスト値を取得
+
+ <p>共有コンテキストはスレッド間で共有されるコンテキスト情報です。 ConcurrentHashMapで実装されているため、スレッドセーフです。</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>key</code> - キー</dd>
+<dt>Returns:</dt>
+<dd>値（存在しない場合はnull）</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="setSharedContext(java.lang.String,java.lang.String)">
+<h3>setSharedContext</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-181">setSharedContext</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
+ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</span></div>
+<div class="block">共有コンテキスト値を設定
+
+ <p>共有コンテキストはスレッド間で共有されるコンテキスト情報です。 実行中のスレッドからいつでも設定・取得が可能で、他のスレッドから即座にアクセスできます。</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>key</code> - キー</dd>
+<dd><code>value</code> - 値（nullの場合は削除）</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getAllSharedContext()">
+<h3>getAllSharedContext</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-195">getAllSharedContext</a></span>()</div>
+<div class="block">全ての共有コンテキストを取得</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>共有コンテキストマップのコピー</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="applyToMDC()">
 <h3>applyToMDC</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-160">applyToMDC</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-206">applyToMDC</a></span>()</div>
 <div class="block">現在のコンテキストをMDCに設定
 
- <p>このメソッドを呼び出すことで、実行コンテキストの情報が 現在のスレッドのMDCに設定されます。</div>
+ <p>このメソッドを呼び出すことで、実行コンテキストの情報が 現在のスレッドのMDCに設定されます。 共有コンテキストも含めて全てのコンテキスト情報がMDCに反映されます。
+
+ <p>共有コンテキストはDirty Flag最適化により、変更があった場合のみMDCに同期されます。 これにより、頻繁なapplyToMDC()呼び出しでもパフォーマンスが維持されます。</div>
 </section>
 </li>
 <li>
 <section class="detail" id="applyToMDCWithStage(java.lang.String)">
 <h3>applyToMDCWithStage</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-179">applyToMDCWithStage</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stageName)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-229">applyToMDCWithStage</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;stageName)</span></div>
 <div class="block">特定のステージでのMDC設定</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -494,7 +553,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="copy()">
 <h3>copy</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ExecutionContext.html" title="class in com.streamconverter.context">ExecutionContext</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-189">copy</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="ExecutionContext.html" title="class in com.streamconverter.context">ExecutionContext</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-239">copy</a></span>()</div>
 <div class="block">コンテキストのコピーを作成 ユーザーコンテキストは複製されますが、グローバルコンテキストは共有されます。 コピー時はコマンドシーケンスは0にリセットされます。</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -505,7 +564,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="toString()">
 <h3>toString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-308">toString</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-358">toString</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
@@ -515,7 +574,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="equals(java.lang.Object)">
 <h3>equals</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-315">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-365">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
@@ -525,7 +584,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="hashCode()">
 <h3>hashCode</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-323">hashCode</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/ExecutionContext.html#line-373">hashCode</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>

@@ -278,8 +278,8 @@
 <span class="source-line-no">265</span><span id="line-265">                  java.time.Instant startInstant = java.time.Instant.now();</span>
 <span class="source-line-no">266</span><span id="line-266"></span>
 <span class="source-line-no">267</span><span id="line-267">                  try {</span>
-<span class="source-line-no">268</span><span id="line-268">                    // コマンド実行（MDCは自動的に利用可能）</span>
-<span class="source-line-no">269</span><span id="line-269">                    command.execute(commandInput, commandOutput);</span>
+<span class="source-line-no">268</span><span id="line-268">                    // コマンド実行（ExecutionContext付きで実行してMDC同期を有効化）</span>
+<span class="source-line-no">269</span><span id="line-269">                    command.execute(commandInput, commandOutput, context);</span>
 <span class="source-line-no">270</span><span id="line-270"></span>
 <span class="source-line-no">271</span><span id="line-271">                    // 中間の PipedOutputStream は実行完了後にクローズする必要がある</span>
 <span class="source-line-no">272</span><span id="line-272">                    if (commandOutput instanceof PipedOutputStream) {</span>

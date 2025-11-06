@@ -71,6 +71,7 @@ loadScripts(document, 'script');</script>
 <li><a href="com/streamconverter/controller/package-tree.html">com.streamconverter.controller</a>, </li>
 <li><a href="com/streamconverter/examples/package-tree.html">com.streamconverter.examples</a>, </li>
 <li><a href="com/streamconverter/examples/docs/package-tree.html">com.streamconverter.examples.docs</a>, </li>
+<li><a href="com/streamconverter/logging/package-tree.html">com.streamconverter.logging</a>, </li>
 <li><a href="com/streamconverter/path/package-tree.html">com.streamconverter.path</a>, </li>
 <li><a href="com/streamconverter/security/package-tree.html">com.streamconverter.security</a>, </li>
 <li><a href="com/streamconverter/tools/package-tree.html">com.streamconverter.tools</a>, </li>
@@ -130,6 +131,15 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.streamconverter.<a href="com/streamconverter/CommandResult.html" class="type-name-link" title="class in com.streamconverter">CommandResult</a></li>
 <li class="circle">com.streamconverter.<a href="com/streamconverter/CommandResult.Builder.html" class="type-name-link" title="class in com.streamconverter">CommandResult.Builder</a></li>
 <li class="circle">com.streamconverter.examples.<a href="com/streamconverter/examples/ComplexPipelineExample.html" class="type-name-link" title="class in com.streamconverter.examples">ComplexPipelineExample</a></li>
+<li class="circle">ch.qos.logback.core.spi.ContextAwareBase (implements ch.qos.logback.core.spi.ContextAware)
+<ul>
+<li class="circle">ch.qos.logback.classic.turbo.TurboFilter (implements ch.qos.logback.core.spi.LifeCycle)
+<ul>
+<li class="circle">com.streamconverter.logging.<a href="com/streamconverter/logging/ExecutionContextTurboFilter.html" class="type-name-link" title="class in com.streamconverter.logging">ExecutionContextTurboFilter</a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="circle">com.streamconverter.command.<a href="com/streamconverter/command/ContextPropagatingDecorator.html" class="type-name-link" title="class in com.streamconverter.command">ContextPropagatingDecorator</a> (implements com.streamconverter.command.<a href="com/streamconverter/command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>)</li>
 <li class="circle">com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/DatabaseConnectionPool.html" class="type-name-link" title="class in com.streamconverter.command.rule">DatabaseConnectionPool</a></li>
 <li class="circle">com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/DatabaseFetchRule.html" class="type-name-link" title="class in com.streamconverter.command.rule">DatabaseFetchRule</a> (implements com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>)</li>
@@ -137,6 +147,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.streamconverter.examples.<a href="com/streamconverter/examples/DatabaseRuleDemo.html" class="type-name-link" title="class in com.streamconverter.examples">DatabaseRuleDemo</a></li>
 <li class="circle">com.streamconverter.context.<a href="com/streamconverter/context/ExecutionContext.html" class="type-name-link" title="class in com.streamconverter.context">ExecutionContext</a></li>
 <li class="circle">com.streamconverter.context.<a href="com/streamconverter/context/ExecutionContext.Builder.html" class="type-name-link" title="class in com.streamconverter.context">ExecutionContext.Builder</a></li>
+<li class="circle">com.streamconverter.context.<a href="com/streamconverter/context/ExecutionContextHolder.html" class="type-name-link" title="class in com.streamconverter.context">ExecutionContextHolder</a></li>
 <li class="circle">com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/HikariConnectionPoolConfig.html" class="type-name-link" title="class in com.streamconverter.command.rule">HikariConnectionPoolConfig</a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a>)</li>
 <li class="circle">java.io.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" class="type-name-link external-link" title="class or interface in java.io">InputStream</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>)
 <ul>
@@ -147,6 +158,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.streamconverter.command.<a href="com/streamconverter/command/LoggingDecorator.html" class="type-name-link" title="class in com.streamconverter.command">LoggingDecorator</a> (implements com.streamconverter.command.<a href="com/streamconverter/command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>)</li>
 <li class="circle">com.streamconverter.command.rule.impl.string.<a href="com/streamconverter/command/rule/impl/string/LowerCaseRule.html" class="type-name-link" title="class in com.streamconverter.command.rule.impl.string">LowerCaseRule</a> (implements com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>)</li>
 <li class="circle">com.streamconverter.<a href="com/streamconverter/Main.html" class="type-name-link" title="class in com.streamconverter">Main</a></li>
+<li class="circle">com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/MdcSetupRule.html" class="type-name-link" title="class in com.streamconverter.command.rule">MdcSetupRule</a> (implements com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>)</li>
 <li class="circle">java.io.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" class="type-name-link external-link" title="class or interface in java.io">OutputStream</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>, java.io.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/Flushable.html" title="class or interface in java.io" class="external-link">Flushable</a>)
 <ul>
 <li class="circle">com.streamconverter.util.<a href="com/streamconverter/util/MeasuredOutputStream.html" class="type-name-link" title="class in com.streamconverter.util">MeasuredOutputStream</a></li>

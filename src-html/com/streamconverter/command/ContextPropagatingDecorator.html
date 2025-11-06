@@ -78,84 +78,76 @@
 <span class="source-line-no">065</span><span id="line-65">      // ExecutionContextをMDCに適用</span>
 <span class="source-line-no">066</span><span id="line-66">      context.applyToMDCWithStage(stageName);</span>
 <span class="source-line-no">067</span><span id="line-67"></span>
-<span class="source-line-no">068</span><span id="line-68">      // コンテキスト情報をユーザーコンテキストに保存（必要に応じて）</span>
-<span class="source-line-no">069</span><span id="line-69">      context.setUserContext("currentCommand", commandName);</span>
-<span class="source-line-no">070</span><span id="line-70">      context.setUserContext("currentSequence", String.valueOf(sequence));</span>
-<span class="source-line-no">071</span><span id="line-71"></span>
-<span class="source-line-no">072</span><span id="line-72">      logger.info("Starting command execution: {} (sequence: {})", commandName, sequence);</span>
+<span class="source-line-no">068</span><span id="line-68">      logger.info("Starting command execution: {} (sequence: {})", commandName, sequence);</span>
+<span class="source-line-no">069</span><span id="line-69"></span>
+<span class="source-line-no">070</span><span id="line-70">      // ラップしたコマンドの実行</span>
+<span class="source-line-no">071</span><span id="line-71">      // 統合されたIStreamCommandインターフェースを使用</span>
+<span class="source-line-no">072</span><span id="line-72">      wrappedCommand.execute(inputStream, outputStream, context);</span>
 <span class="source-line-no">073</span><span id="line-73"></span>
-<span class="source-line-no">074</span><span id="line-74">      // ラップしたコマンドの実行</span>
-<span class="source-line-no">075</span><span id="line-75">      // 統合されたIStreamCommandインターフェースを使用</span>
-<span class="source-line-no">076</span><span id="line-76">      wrappedCommand.execute(inputStream, outputStream, context);</span>
-<span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">      logger.info("Completed command execution: {} (sequence: {})", commandName, sequence);</span>
-<span class="source-line-no">079</span><span id="line-79"></span>
-<span class="source-line-no">080</span><span id="line-80">    } catch (IOException e) {</span>
-<span class="source-line-no">081</span><span id="line-81">      logger.error(</span>
-<span class="source-line-no">082</span><span id="line-82">          "Command execution failed: {} (sequence: {}) - {}",</span>
-<span class="source-line-no">083</span><span id="line-83">          commandName,</span>
-<span class="source-line-no">084</span><span id="line-84">          sequence,</span>
-<span class="source-line-no">085</span><span id="line-85">          e.getMessage(),</span>
-<span class="source-line-no">086</span><span id="line-86">          e);</span>
-<span class="source-line-no">087</span><span id="line-87">      throw e;</span>
-<span class="source-line-no">088</span><span id="line-88">    } catch (Exception e) {</span>
-<span class="source-line-no">089</span><span id="line-89">      logger.error(</span>
-<span class="source-line-no">090</span><span id="line-90">          "Unexpected error in command execution: {} (sequence: {}) - {}",</span>
-<span class="source-line-no">091</span><span id="line-91">          commandName,</span>
-<span class="source-line-no">092</span><span id="line-92">          sequence,</span>
-<span class="source-line-no">093</span><span id="line-93">          e.getMessage(),</span>
-<span class="source-line-no">094</span><span id="line-94">          e);</span>
-<span class="source-line-no">095</span><span id="line-95">      throw new IOException("Command execution failed: " + commandName, e);</span>
-<span class="source-line-no">096</span><span id="line-96">    } finally {</span>
-<span class="source-line-no">097</span><span id="line-97">      // MDCの復元（必要に応じて）</span>
-<span class="source-line-no">098</span><span id="line-98">      restoreMDCContext(previousExecutionId, previousStage);</span>
-<span class="source-line-no">099</span><span id="line-99"></span>
-<span class="source-line-no">100</span><span id="line-100">      // ユーザーコンテキストのクリーンアップ</span>
-<span class="source-line-no">101</span><span id="line-101">      context.setUserContext("currentCommand", null);</span>
-<span class="source-line-no">102</span><span id="line-102">      context.setUserContext("currentSequence", null);</span>
-<span class="source-line-no">103</span><span id="line-103">    }</span>
-<span class="source-line-no">104</span><span id="line-104">  }</span>
+<span class="source-line-no">074</span><span id="line-74">      logger.info("Completed command execution: {} (sequence: {})", commandName, sequence);</span>
+<span class="source-line-no">075</span><span id="line-75"></span>
+<span class="source-line-no">076</span><span id="line-76">    } catch (IOException e) {</span>
+<span class="source-line-no">077</span><span id="line-77">      logger.error(</span>
+<span class="source-line-no">078</span><span id="line-78">          "Command execution failed: {} (sequence: {}) - {}",</span>
+<span class="source-line-no">079</span><span id="line-79">          commandName,</span>
+<span class="source-line-no">080</span><span id="line-80">          sequence,</span>
+<span class="source-line-no">081</span><span id="line-81">          e.getMessage(),</span>
+<span class="source-line-no">082</span><span id="line-82">          e);</span>
+<span class="source-line-no">083</span><span id="line-83">      throw e;</span>
+<span class="source-line-no">084</span><span id="line-84">    } catch (Exception e) {</span>
+<span class="source-line-no">085</span><span id="line-85">      logger.error(</span>
+<span class="source-line-no">086</span><span id="line-86">          "Unexpected error in command execution: {} (sequence: {}) - {}",</span>
+<span class="source-line-no">087</span><span id="line-87">          commandName,</span>
+<span class="source-line-no">088</span><span id="line-88">          sequence,</span>
+<span class="source-line-no">089</span><span id="line-89">          e.getMessage(),</span>
+<span class="source-line-no">090</span><span id="line-90">          e);</span>
+<span class="source-line-no">091</span><span id="line-91">      throw new IOException("Command execution failed: " + commandName, e);</span>
+<span class="source-line-no">092</span><span id="line-92">    } finally {</span>
+<span class="source-line-no">093</span><span id="line-93">      // MDCの復元（必要に応じて）</span>
+<span class="source-line-no">094</span><span id="line-94">      restoreMDCContext(previousExecutionId, previousStage);</span>
+<span class="source-line-no">095</span><span id="line-95">    }</span>
+<span class="source-line-no">096</span><span id="line-96">  }</span>
+<span class="source-line-no">097</span><span id="line-97"></span>
+<span class="source-line-no">098</span><span id="line-98">  /** MDCコンテキストを復元 */</span>
+<span class="source-line-no">099</span><span id="line-99">  private void restoreMDCContext(String previousExecutionId, String previousStage) {</span>
+<span class="source-line-no">100</span><span id="line-100">    if (previousExecutionId != null) {</span>
+<span class="source-line-no">101</span><span id="line-101">      MDC.put(ExecutionContext.EXECUTION_ID_KEY, previousExecutionId);</span>
+<span class="source-line-no">102</span><span id="line-102">    } else {</span>
+<span class="source-line-no">103</span><span id="line-103">      MDC.remove(ExecutionContext.EXECUTION_ID_KEY);</span>
+<span class="source-line-no">104</span><span id="line-104">    }</span>
 <span class="source-line-no">105</span><span id="line-105"></span>
-<span class="source-line-no">106</span><span id="line-106">  /** MDCコンテキストを復元 */</span>
-<span class="source-line-no">107</span><span id="line-107">  private void restoreMDCContext(String previousExecutionId, String previousStage) {</span>
-<span class="source-line-no">108</span><span id="line-108">    if (previousExecutionId != null) {</span>
-<span class="source-line-no">109</span><span id="line-109">      MDC.put(ExecutionContext.EXECUTION_ID_KEY, previousExecutionId);</span>
-<span class="source-line-no">110</span><span id="line-110">    } else {</span>
-<span class="source-line-no">111</span><span id="line-111">      MDC.remove(ExecutionContext.EXECUTION_ID_KEY);</span>
-<span class="source-line-no">112</span><span id="line-112">    }</span>
-<span class="source-line-no">113</span><span id="line-113"></span>
-<span class="source-line-no">114</span><span id="line-114">    if (previousStage != null) {</span>
-<span class="source-line-no">115</span><span id="line-115">      MDC.put(ExecutionContext.STAGE_KEY, previousStage);</span>
-<span class="source-line-no">116</span><span id="line-116">    } else {</span>
-<span class="source-line-no">117</span><span id="line-117">      MDC.remove(ExecutionContext.STAGE_KEY);</span>
-<span class="source-line-no">118</span><span id="line-118">    }</span>
-<span class="source-line-no">119</span><span id="line-119">  }</span>
-<span class="source-line-no">120</span><span id="line-120"></span>
-<span class="source-line-no">121</span><span id="line-121">  /**</span>
-<span class="source-line-no">122</span><span id="line-122">   * ラップされたコマンドを取得</span>
-<span class="source-line-no">123</span><span id="line-123">   *</span>
-<span class="source-line-no">124</span><span id="line-124">   * @return ラップされたコマンド</span>
-<span class="source-line-no">125</span><span id="line-125">   */</span>
-<span class="source-line-no">126</span><span id="line-126">  public IStreamCommand getWrappedCommand() {</span>
-<span class="source-line-no">127</span><span id="line-127">    return wrappedCommand;</span>
-<span class="source-line-no">128</span><span id="line-128">  }</span>
-<span class="source-line-no">129</span><span id="line-129"></span>
-<span class="source-line-no">130</span><span id="line-130">  /**</span>
-<span class="source-line-no">131</span><span id="line-131">   * コマンド名を取得</span>
-<span class="source-line-no">132</span><span id="line-132">   *</span>
-<span class="source-line-no">133</span><span id="line-133">   * @return コマンド名</span>
-<span class="source-line-no">134</span><span id="line-134">   */</span>
-<span class="source-line-no">135</span><span id="line-135">  public String getCommandName() {</span>
-<span class="source-line-no">136</span><span id="line-136">    return commandName;</span>
-<span class="source-line-no">137</span><span id="line-137">  }</span>
-<span class="source-line-no">138</span><span id="line-138"></span>
-<span class="source-line-no">139</span><span id="line-139">  @Override</span>
-<span class="source-line-no">140</span><span id="line-140">  public String toString() {</span>
-<span class="source-line-no">141</span><span id="line-141">    return String.format(</span>
-<span class="source-line-no">142</span><span id="line-142">        "ContextPropagatingDecorator{commandName='%s', wrappedCommand=%s}",</span>
-<span class="source-line-no">143</span><span id="line-143">        commandName, wrappedCommand.getClass().getSimpleName());</span>
-<span class="source-line-no">144</span><span id="line-144">  }</span>
-<span class="source-line-no">145</span><span id="line-145">}</span>
+<span class="source-line-no">106</span><span id="line-106">    if (previousStage != null) {</span>
+<span class="source-line-no">107</span><span id="line-107">      MDC.put(ExecutionContext.STAGE_KEY, previousStage);</span>
+<span class="source-line-no">108</span><span id="line-108">    } else {</span>
+<span class="source-line-no">109</span><span id="line-109">      MDC.remove(ExecutionContext.STAGE_KEY);</span>
+<span class="source-line-no">110</span><span id="line-110">    }</span>
+<span class="source-line-no">111</span><span id="line-111">  }</span>
+<span class="source-line-no">112</span><span id="line-112"></span>
+<span class="source-line-no">113</span><span id="line-113">  /**</span>
+<span class="source-line-no">114</span><span id="line-114">   * ラップされたコマンドを取得</span>
+<span class="source-line-no">115</span><span id="line-115">   *</span>
+<span class="source-line-no">116</span><span id="line-116">   * @return ラップされたコマンド</span>
+<span class="source-line-no">117</span><span id="line-117">   */</span>
+<span class="source-line-no">118</span><span id="line-118">  public IStreamCommand getWrappedCommand() {</span>
+<span class="source-line-no">119</span><span id="line-119">    return wrappedCommand;</span>
+<span class="source-line-no">120</span><span id="line-120">  }</span>
+<span class="source-line-no">121</span><span id="line-121"></span>
+<span class="source-line-no">122</span><span id="line-122">  /**</span>
+<span class="source-line-no">123</span><span id="line-123">   * コマンド名を取得</span>
+<span class="source-line-no">124</span><span id="line-124">   *</span>
+<span class="source-line-no">125</span><span id="line-125">   * @return コマンド名</span>
+<span class="source-line-no">126</span><span id="line-126">   */</span>
+<span class="source-line-no">127</span><span id="line-127">  public String getCommandName() {</span>
+<span class="source-line-no">128</span><span id="line-128">    return commandName;</span>
+<span class="source-line-no">129</span><span id="line-129">  }</span>
+<span class="source-line-no">130</span><span id="line-130"></span>
+<span class="source-line-no">131</span><span id="line-131">  @Override</span>
+<span class="source-line-no">132</span><span id="line-132">  public String toString() {</span>
+<span class="source-line-no">133</span><span id="line-133">    return String.format(</span>
+<span class="source-line-no">134</span><span id="line-134">        "ContextPropagatingDecorator{commandName='%s', wrappedCommand=%s}",</span>
+<span class="source-line-no">135</span><span id="line-135">        commandName, wrappedCommand.getClass().getSimpleName());</span>
+<span class="source-line-no">136</span><span id="line-136">  }</span>
+<span class="source-line-no">137</span><span id="line-137">}</span>
 
 
 

@@ -178,12 +178,6 @@ sequenceDiagram
 │  System         │───▶│ Factory         │───▶│  Pipeline       │───▶│  Implementation │
 │                 │    │ (615 lines)     │    │                 │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │
-                                ▼
-                       ┌─────────────────┐
-                       │ ControllerFactory│
-                       │ (485 lines)     │
-                       └─────────────────┘
 ```
 
 ### After: Direct Instantiation (Current)
@@ -262,12 +256,11 @@ sequenceDiagram
 Component                    Before    After    Reduction
 ─────────────────────────────────────────────────────────
 EnhancedCommandFactory         615        0      -615
-ControllerFactory              485        0      -485
 StreamBuilder APIs             506        0      -506
 Factory Tests                  400        0      -400
 Documentation                   89       12       -77
 ─────────────────────────────────────────────────────────
-Total                       2,095       12    -2,083 (99.4%)
+Total                       1,610       12    -1,598 (99.3%)
 ```
 
 ### Cyclomatic Complexity

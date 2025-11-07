@@ -186,12 +186,11 @@ List<CommandResult> results = converter.run(xmlInputStream, outputStream);
 │                    Factory Pattern Complexity                  │
 ├─────────────────────────────────────────────────────────────────┤
 │  EnhancedCommandFactory:  [████████████████████████████████████] 615 lines │
-│  ControllerFactory:       [████████████████████████████████████] 485 lines │
-│  StreamBuilder APIs:      [███████████████████████████████]      506 lines │
+│  StreamBuilder APIs:      [██████████████████████████████]       506 lines │
 │  Factory Tests:           [████████████████████████]            400 lines │
 │  Configuration:           [██████████]                           89 lines  │
 ├─────────────────────────────────────────────────────────────────┤
-│  Total Code:              [████████████████████████████████████] 2,095 lines│
+│  Total Code:              [████████████████████████████████]     1,610 lines│
 │  Reflection Calls:        23 methods                            │
 │  Cyclomatic Complexity:   24.5 average                          │
 └─────────────────────────────────────────────────────────────────┘

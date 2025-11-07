@@ -91,12 +91,37 @@ loadScripts(document, 'script');</script>
 <dt>All Known Implementing Classes:</dt>
 <dd><code><a href="impl/casing/CamelToSnakeCaseRule.html" title="class in com.streamconverter.command.rule.impl.casing">CamelToSnakeCaseRule</a></code>, <code><a href="impl/composite/ChainRule.html" title="class in com.streamconverter.command.rule.impl.composite">ChainRule</a></code>, <code><a href="DatabaseFetchRule.html" title="class in com.streamconverter.command.rule">DatabaseFetchRule</a></code>, <code><a href="impl/string/LowerCaseRule.html" title="class in com.streamconverter.command.rule.impl.string">LowerCaseRule</a></code>, <code><a href="MdcSetupRule.html" title="class in com.streamconverter.command.rule">MdcSetupRule</a></code>, <code><a href="PassThroughRule.html" title="class in com.streamconverter.command.rule">PassThroughRule</a></code>, <code><a href="PooledDatabaseFetchRule.html" title="class in com.streamconverter.command.rule">PooledDatabaseFetchRule</a></code>, <code><a href="impl/casing/SnakeToCamelCaseRule.html" title="class in com.streamconverter.command.rule.impl.casing">SnakeToCamelCaseRule</a></code>, <code><a href="impl/string/TrimRule.html" title="class in com.streamconverter.command.rule.impl.string">TrimRule</a></code></dd>
 </dl>
+<dl class="notes">
+<dt>Functional Interface:</dt>
+<dd>This is a functional interface and can therefore be used as the assignment target for a lambda expression or method reference.</dd>
+</dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-9">IRule</a></span></div>
+<div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/FunctionalInterface.html" title="class or interface in java.lang" class="external-link">@FunctionalInterface</a>
+</span><span class="modifiers">public interface </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-29">IRule</a></span></div>
 <div class="block">ルールインターフェース
 
  <p>このインターフェースは、ストリーム変換のルールを定義するためのものです。 具体的なルールはこのインターフェースを実装するクラスで定義されます。
- ルールは、ストリーム変換の際に適用される条件や処理を定義します。</div>
+ ルールは、ストリーム変換の際に適用される条件や処理を定義します。
+
+ <p>このインターフェースは関数型インターフェースです。ラムダ式やメソッド参照で実装できます。
+
+ <p>使用例:
+
+ <pre><code>
+ // 単純な変換ルール
+ IRule upperCaseRule = input -&gt; input.toUpperCase();
+ IRule trimRule = String::trim;
+
+ // 複合ルール（トリムして大文字に変換）
+ IRule trimAndUpperCase = input -&gt; input.trim().toUpperCase();
+
+ // StreamConverterコマンドでの使用例
+ IRule dataCleaningRule = input -&gt; input.trim().replaceAll("\\s+", " ");
+ JsonNavigateCommand command = JsonNavigateCommand.create(
+     TreePath.fromJson("$.user.name"),
+     dataCleaningRule
+ );
+ </code></pre></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -133,7 +158,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="apply(java.lang.String)">
 <h3>apply</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-20">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-41">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span></div>
 <div class="block">ルールの適用を実行します。
 
  <p>このメソッドは、ストリーム変換の際にルールを適用するために使用されます。 具体的なルールの実装は、このメソッドをオーバーライドして定義します。

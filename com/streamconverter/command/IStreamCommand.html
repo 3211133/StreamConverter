@@ -91,8 +91,13 @@ loadScripts(document, 'script');</script>
 <dt>All Known Implementing Classes:</dt>
 <dd><code><a href="AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></code>, <code><a href="impl/charcode/CharacterConvertCommand.html" title="class in com.streamconverter.command.impl.charcode">CharacterConvertCommand</a></code>, <code><a href="ConsumerCommand.html" title="class in com.streamconverter.command">ConsumerCommand</a></code>, <code><a href="ContextPropagatingDecorator.html" title="class in com.streamconverter.command">ContextPropagatingDecorator</a></code>, <code><a href="impl/xml/ConvertCommand.html" title="class in com.streamconverter.command.impl.xml">ConvertCommand</a></code>, <code><a href="impl/csv/CsvFilterCommand.html" title="class in com.streamconverter.command.impl.csv">CsvFilterCommand</a></code>, <code><a href="impl/csv/CsvNavigateCommand.html" title="class in com.streamconverter.command.impl.csv">CsvNavigateCommand</a></code>, <code><a href="impl/csv/CsvValidateCommand.html" title="class in com.streamconverter.command.impl.csv">CsvValidateCommand</a></code>, <code><a href="impl/json/JsonFilterCommand.html" title="class in com.streamconverter.command.impl.json">JsonFilterCommand</a></code>, <code><a href="impl/json/JsonNavigateCommand.html" title="class in com.streamconverter.command.impl.json">JsonNavigateCommand</a></code>, <code><a href="impl/json/JsonStreamingValidateCommand.html" title="class in com.streamconverter.command.impl.json">JsonStreamingValidateCommand</a></code>, <code><a href="impl/json/JsonValidateCommand.html" title="class in com.streamconverter.command.impl.json">JsonValidateCommand</a></code>, <code><a href="impl/LineEndingNormalizeCommand.html" title="class in com.streamconverter.command.impl">LineEndingNormalizeCommand</a></code>, <code><a href="LoggingDecorator.html" title="class in com.streamconverter.command">LoggingDecorator</a></code>, <code><a href="impl/analysis/PmdXmlToCsvCommand.html" title="class in com.streamconverter.command.impl.analysis">PmdXmlToCsvCommand</a></code>, <code><a href="impl/analysis/PmdXmlToJsonCommand.html" title="class in com.streamconverter.command.impl.analysis">PmdXmlToJsonCommand</a></code>, <code><a href="impl/analysis/PmdXmlToMarkdownCommand.html" title="class in com.streamconverter.command.impl.analysis">PmdXmlToMarkdownCommand</a></code>, <code><a href="impl/SampleStreamCommand.html" title="class in com.streamconverter.command.impl">SampleStreamCommand</a></code>, <code><a href="impl/SendHttpCommand.html" title="class in com.streamconverter.command.impl">SendHttpCommand</a></code>, <code><a href="impl/xml/ValidateCommand.html" title="class in com.streamconverter.command.impl.xml">ValidateCommand</a></code>, <code><a href="impl/xml/XmlFilterCommand.html" title="class in com.streamconverter.command.impl.xml">XmlFilterCommand</a></code>, <code><a href="impl/xml/XmlNavigateCommand.html" title="class in com.streamconverter.command.impl.xml">XmlNavigateCommand</a></code></dd>
 </dl>
+<dl class="notes">
+<dt>Functional Interface:</dt>
+<dd>This is a functional interface and can therefore be used as the assignment target for a lambda expression or method reference.</dd>
+</dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-22">IStreamCommand</a></span></div>
+<div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/FunctionalInterface.html" title="class or interface in java.lang" class="external-link">@FunctionalInterface</a>
+</span><span class="modifiers">public interface </span><span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-45">IStreamCommand</a></span></div>
 <div class="block">Unified interface for stream commands with optional execution context support.
 
  <p>This interface defines methods for executing commands on input streams and writing results to
@@ -104,7 +109,30 @@ loadScripts(document, 'script');</script>
  <ul>
    <li>Basic commands: Implement only the 2-parameter execute method
    <li>Context-aware commands: Override the 3-parameter execute method for enhanced functionality
- </ul></div>
+ </ul>
+
+ <p>This is a functional interface and can be implemented using lambda expressions or method
+ references for simple stream processing operations.
+
+ <p>Usage examples:
+
+ <pre><code>
+ // Simple copy operation (IOException is propagated from execute method signature)
+ IStreamCommand copyCommand = (in, out) -&gt; in.transferTo(out);
+
+ // Buffered stream processing with custom logic
+ IStreamCommand bufferCommand = (in, out) -&gt; {
+     byte[] buffer = new byte[8192];
+     int len;
+     while ((len = in.read(buffer)) != -1) {
+         out.write(buffer, 0, len);
+     }
+ };
+
+ // Using in StreamConverter pipeline
+ StreamConverter converter = StreamConverter.create(copyCommand);
+ converter.run(inputStream, outputStream);
+ </code></pre></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -149,7 +177,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream,com.streamconverter.context.ExecutionContext)">
 <h3>execute</h3>
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-35">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-59">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
  <a href="../context/ExecutionContext.html" title="class in com.streamconverter.context">ExecutionContext</a>&nbsp;context)</span>
               throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
@@ -170,7 +198,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
-<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-52">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-76">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
       throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.

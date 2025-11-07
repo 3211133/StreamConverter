@@ -95,13 +95,27 @@ loadScripts(document, 'script');</script>
 <dt>All Known Implementing Classes:</dt>
 <dd><code><a href="AbstractPath.html" title="class in com.streamconverter.path">AbstractPath</a></code>, <code><a href="CSVPath.html" title="class in com.streamconverter.path">CSVPath</a></code>, <code><a href="TreePath.html" title="class in com.streamconverter.path">TreePath</a></code></dd>
 </dl>
+<dl class="notes">
+<dt>Functional Interface:</dt>
+<dd>This is a functional interface and can therefore be used as the assignment target for a lambda expression or method reference.</dd>
+</dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public interface </span><span class="element-name"><a href="../../../src-html/com/streamconverter/path/IPath.html#line-12">IPath</a>&lt;T&gt;</span></div>
+<div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/FunctionalInterface.html" title="class or interface in java.lang" class="external-link">@FunctionalInterface</a>
+</span><span class="modifiers">public interface </span><span class="element-name"><a href="../../../src-html/com/streamconverter/path/IPath.html#line-21">IPath</a>&lt;T&gt;</span></div>
 <div class="block">最小限のPathインターフェース
 
  <p>このインターフェースは、StreamConverterで使用される様々な種類のパスセレクタ （TreePath、TreePath、CSVパス）の統一的な契約を提供します。
 
- <p>Don't Ask, Tell原則に従い、パス一致判定のみに特化した設計です。</div>
+ <p>Don't Ask, Tell原則に従い、パス一致判定のみに特化した設計です。
+
+ <p>このインターフェースは関数型インターフェースです。ラムダ式やメソッド参照で実装できます。
+
+ <p>使用例:
+
+ <pre><code>
+ IPath&lt;JsonNode&gt; rootPath = node -&gt; node.isRoot();
+ IPath&lt;Integer&gt; evenColumnPath = col -&gt; col % 2 == 0;
+ </code></pre></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -138,7 +152,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="matches(T)">
 <h3 id="matches(java.lang.Object)">matches</h3>
-<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/IPath.html#line-20">matches</a></span><wbr><span class="parameters">(<a href="IPath.html" title="type parameter in IPath">T</a>&nbsp;context)</span></div>
+<div class="member-signature"><span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/IPath.html#line-30">matches</a></span><wbr><span class="parameters">(<a href="IPath.html" title="type parameter in IPath">T</a>&nbsp;context)</span></div>
 <div class="block">指定されたコンテキストがこのパスにマッチするか判定</div>
 <dl class="notes">
 <dt>Parameters:</dt>

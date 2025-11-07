@@ -11,8 +11,19 @@ package com.streamconverter.command.rule;
  * <p>使用例:
  *
  * <pre>{@code
+ * // 単純な変換ルール
  * IRule upperCaseRule = input -> input.toUpperCase();
  * IRule trimRule = String::trim;
+ *
+ * // 複合ルール（トリムして大文字に変換）
+ * IRule trimAndUpperCase = input -> input.trim().toUpperCase();
+ *
+ * // StreamConverterコマンドでの使用例
+ * IRule dataCleaningRule = input -> input.trim().replaceAll("\\s+", " ");
+ * JsonNavigateCommand command = JsonNavigateCommand.create(
+ *     TreePath.fromJson("$.user.name"),
+ *     dataCleaningRule
+ * );
  * }</pre>
  */
 @FunctionalInterface

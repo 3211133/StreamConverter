@@ -25,7 +25,10 @@ import java.io.OutputStream;
  * <p>Usage examples:
  *
  * <pre>{@code
+ * // Simple copy operation (IOException is propagated from execute method signature)
  * IStreamCommand copyCommand = (in, out) -> in.transferTo(out);
+ *
+ * // Buffered stream processing with custom logic
  * IStreamCommand bufferCommand = (in, out) -> {
  *     byte[] buffer = new byte[8192];
  *     int len;
@@ -33,6 +36,10 @@ import java.io.OutputStream;
  *         out.write(buffer, 0, len);
  *     }
  * };
+ *
+ * // Using in StreamConverter pipeline
+ * StreamConverter converter = StreamConverter.create(copyCommand);
+ * converter.run(inputStream, outputStream);
  * }</pre>
  */
 @FunctionalInterface

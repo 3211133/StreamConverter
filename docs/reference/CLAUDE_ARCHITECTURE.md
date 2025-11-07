@@ -6,10 +6,9 @@
 
 This document provides detailed architectural information for AI assistants working with the StreamConverter codebase.
 
-## 4-Layer Architecture
+## 3-Layer Architecture
 
 ```
-Controller Layer    → CsvProcessingController, JsonProcessingController
 Core Layer         → StreamConverter, ExecutionContext, CommandResult
 Command Layer      → IStreamCommand implementations, AbstractStreamCommand
 Foundation Layer   → Path handlers, utilities, security components

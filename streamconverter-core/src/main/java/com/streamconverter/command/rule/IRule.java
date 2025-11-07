@@ -5,7 +5,17 @@ package com.streamconverter.command.rule;
  *
  * <p>このインターフェースは、ストリーム変換のルールを定義するためのものです。 具体的なルールはこのインターフェースを実装するクラスで定義されます。
  * ルールは、ストリーム変換の際に適用される条件や処理を定義します。
+ *
+ * <p>このインターフェースは関数型インターフェースです。ラムダ式やメソッド参照で実装できます。
+ *
+ * <p>使用例:
+ *
+ * <pre>{@code
+ * IRule upperCaseRule = input -> input.toUpperCase();
+ * IRule trimRule = String::trim;
+ * }</pre>
  */
+@FunctionalInterface
 public interface IRule {
 
   /**

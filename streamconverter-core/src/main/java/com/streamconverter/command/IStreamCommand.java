@@ -18,7 +18,24 @@ import java.io.OutputStream;
  *   <li>Basic commands: Implement only the 2-parameter execute method
  *   <li>Context-aware commands: Override the 3-parameter execute method for enhanced functionality
  * </ul>
+ *
+ * <p>This is a functional interface and can be implemented using lambda expressions or method
+ * references for simple stream processing operations.
+ *
+ * <p>Usage examples:
+ *
+ * <pre>{@code
+ * IStreamCommand copyCommand = (in, out) -> in.transferTo(out);
+ * IStreamCommand bufferCommand = (in, out) -> {
+ *     byte[] buffer = new byte[8192];
+ *     int len;
+ *     while ((len = in.read(buffer)) != -1) {
+ *         out.write(buffer, 0, len);
+ *     }
+ * };
+ * }</pre>
  */
+@FunctionalInterface
 public interface IStreamCommand {
 
   /**

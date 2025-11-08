@@ -22,9 +22,6 @@ IStreamCommand csvCommand = new CsvNavigateCommand(
     new CSVPath("productName"),
     new PassThroughRule()
 );
-
-StreamConverter converter = StreamConverter.create(new IStreamCommand[]{csvCommand});
-List<CommandResult> results = converter.run(inputStream, outputStream);
 ```
 
 ### CsvFilterCommand - CSV列抽出
@@ -70,8 +67,6 @@ IStreamCommand jsonCommand = new JsonNavigateCommand(
     new TreePath("user", "name"),
     new PassThroughRule()
 );
-
-StreamConverter converter = StreamConverter.create(new IStreamCommand[]{jsonCommand});
 ```
 
 ### JsonFilterCommand - JSON要素抽出

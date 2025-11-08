@@ -35,16 +35,16 @@ public class QuickStart {
     log.info("========================================\n");
 
     try {
-      // Example 1: CSV column extraction
+      // Example 1: CSV pipeline
       csvExample();
 
-      // Example 2: JSON property extraction
+      // Example 2: JSON pipeline
       jsonExample();
 
-      // Example 3: XML element extraction
+      // Example 3: XML pipeline
       xmlExample();
 
-      // Example 4: Command pipeline
+      // Example 4: Multi-step pipeline
       pipelineExample();
 
       log.info("✅ All examples completed successfully!");
@@ -54,48 +54,52 @@ public class QuickStart {
     }
   }
 
-  /** Example 1: CSV column extraction */
+  /** Example 1: CSV pipeline */
   private static void csvExample() throws IOException {
-    log.info("📊 CSV Example");
-    log.info("===============");
+    log.info("📊 CSV Pipeline Example");
+    log.info("========================");
 
     String csvData = "name,age,city\nJohn,30,NYC\nJane,25,LA\n";
 
-    // Extract name column
-    IStreamCommand csvCommand =
-        CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule());
-    String result = processData(csvData, csvCommand);
+    // Create pipeline: Extract name column + Process
+    IStreamCommand[] pipeline = {
+      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),
+      new SampleStreamCommand("csv-processor")
+    };
+    String result = processData(csvData, pipeline);
 
     log.info("Input CSV:");
     log.info(csvData);
-    log.info("Extracted 'name' column:");
+    log.info("Pipeline result (name extraction + processing):");
     log.info(result);
     log.info("");
   }
 
-  /** Example 2: JSON property extraction */
+  /** Example 2: JSON pipeline */
   private static void jsonExample() throws IOException {
-    log.info("🔍 JSON Example");
-    log.info("================");
+    log.info("🔍 JSON Pipeline Example");
+    log.info("=========================");
 
     String jsonData = "{\"name\":\"John\",\"age\":30,\"city\":\"NYC\"}";
 
-    // Extract name property (JSONPath style)
-    IStreamCommand jsonCommand =
-        JsonNavigateCommand.create(TreePath.fromJson("$.name"), new PassThroughRule());
-    String result = processData(jsonData, jsonCommand);
+    // Create pipeline: Extract name property + Process
+    IStreamCommand[] pipeline = {
+      JsonNavigateCommand.create(TreePath.fromJson("$.name"), new PassThroughRule()),
+      new SampleStreamCommand("json-processor")
+    };
+    String result = processData(jsonData, pipeline);
 
     log.info("Input JSON:");
     log.info(jsonData);
-    log.info("Extracted 'name' property:");
+    log.info("Pipeline result (name extraction + processing):");
     log.info(result);
     log.info("");
   }
 
-  /** Example 3: XML element extraction */
+  /** Example 3: XML pipeline */
   private static void xmlExample() throws IOException {
-    log.info("🌲 XML Example");
-    log.info("===============");
+    log.info("🌲 XML Pipeline Example");
+    log.info("========================");
 
     String xmlData =
         """
@@ -107,22 +111,24 @@ public class QuickStart {
         </person>
         """;
 
-    // Extract name element
-    IStreamCommand xmlCommand =
-        XmlNavigateCommand.create(TreePath.fromXml("person/name"), new PassThroughRule());
-    String result = processData(xmlData, xmlCommand);
+    // Create pipeline: Extract name element + Process
+    IStreamCommand[] pipeline = {
+      XmlNavigateCommand.create(TreePath.fromXml("person/name"), new PassThroughRule()),
+      new SampleStreamCommand("xml-processor")
+    };
+    String result = processData(xmlData, pipeline);
 
     log.info("Input XML:");
     log.info(xmlData);
-    log.info("Extracted 'name' element:");
+    log.info("Pipeline result (name extraction + processing):");
     log.info(result);
     log.info("");
   }
 
-  /** Example 4: Command pipeline */
+  /** Example 4: Multi-step pipeline */
   private static void pipelineExample() throws IOException {
-    log.info("🔗 Pipeline Example");
-    log.info("====================");
+    log.info("🔗 Multi-Step Pipeline Example");
+    log.info("================================");
 
     String csvData = "id,name,status\n1,John,active\n2,Jane,inactive\n";
 
@@ -139,11 +145,6 @@ public class QuickStart {
     log.info("Pipeline result (name extraction + processing):");
     log.info(result);
     log.info("");
-  }
-
-  /** Helper method to process data with a single command */
-  private static String processData(String inputData, IStreamCommand command) throws IOException {
-    return processData(inputData, new IStreamCommand[] {command});
   }
 
   /** Helper method to process data with command pipeline */

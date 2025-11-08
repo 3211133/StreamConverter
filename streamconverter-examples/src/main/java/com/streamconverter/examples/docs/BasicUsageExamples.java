@@ -5,6 +5,7 @@ import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.LineEndingNormalizeCommand;
 import com.streamconverter.command.impl.LineEndingNormalizeCommand.LineEndingType;
+import com.streamconverter.command.impl.SampleStreamCommand;
 import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
 import com.streamconverter.command.impl.csv.CsvFilterCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
@@ -32,21 +33,20 @@ import java.util.List;
 public class BasicUsageExamples {
 
   // [START csv-navigate-basic]
-  /**
-   * Basic CSV navigation example - applies transformation rule to specific column. Preserves entire
-   * CSV structure.
-   */
+  /** CSV navigation pipeline example - applies transformation and processes. */
   public void csvNavigateBasic() throws Exception {
     // Sample CSV data
     String csvData = "id,productName,price\n" + "1,Apple,100\n" + "2,Banana,50\n";
     InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
     OutputStream outputStream = new ByteArrayOutputStream();
 
-    // Create command to process 'productName' column
-    IStreamCommand csvCommand =
-        new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule());
+    // Create pipeline: navigate CSV + process
+    IStreamCommand[] pipeline = {
+      new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule()),
+      new SampleStreamCommand("csv-processor")
+    };
 
-    StreamConverter converter = StreamConverter.create(new IStreamCommand[] {csvCommand});
+    StreamConverter converter = StreamConverter.create(pipeline);
     List<CommandResult> results = converter.run(inputStream, outputStream);
 
     // Verify execution
@@ -59,19 +59,18 @@ public class BasicUsageExamples {
   // [END csv-navigate-basic]
 
   // [START csv-filter-basic]
-  /**
-   * CSV filter example - extracts only specified columns. Outputs only selected columns, removes
-   * others.
-   */
+  /** CSV filter pipeline example - extracts columns and processes. */
   public void csvFilterBasic() throws Exception {
     String csvData = "id,name,price\n" + "1,Apple,100\n" + "2,Banana,50\n";
     InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
     OutputStream outputStream = new ByteArrayOutputStream();
 
-    // Extract only 'price' column (assumes header exists)
-    IStreamCommand filterCommand = CsvFilterCommand.create(new CSVPath("price"));
+    // Create pipeline: filter CSV + process
+    IStreamCommand[] pipeline = {
+      CsvFilterCommand.create(new CSVPath("price")), new SampleStreamCommand("filter-processor")
+    };
 
-    StreamConverter converter = StreamConverter.create(new IStreamCommand[] {filterCommand});
+    StreamConverter converter = StreamConverter.create(pipeline);
     List<CommandResult> results = converter.run(inputStream, outputStream);
 
     boolean success = results.stream().allMatch(CommandResult::isSuccess);
@@ -83,20 +82,19 @@ public class BasicUsageExamples {
   // [END csv-filter-basic]
 
   // [START json-navigate-basic]
-  /**
-   * JSON navigation example - applies transformation rule to specific elements. Preserves entire
-   * JSON structure.
-   */
+  /** JSON navigation pipeline example - applies transformation and processes. */
   public void jsonNavigateBasic() throws Exception {
     String jsonData = "{\"user\": {\"name\": \"John\", \"age\": 30}}";
     InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
     OutputStream outputStream = new ByteArrayOutputStream();
 
-    // Process 'user.name' element
-    IStreamCommand jsonCommand =
-        new JsonNavigateCommand(TreePath.fromJson("$.user.name"), new PassThroughRule());
+    // Create pipeline: navigate JSON + process
+    IStreamCommand[] pipeline = {
+      new JsonNavigateCommand(TreePath.fromJson("$.user.name"), new PassThroughRule()),
+      new SampleStreamCommand("json-processor")
+    };
 
-    StreamConverter converter = StreamConverter.create(new IStreamCommand[] {jsonCommand});
+    StreamConverter converter = StreamConverter.create(pipeline);
     List<CommandResult> results = converter.run(inputStream, outputStream);
 
     boolean success = results.stream().allMatch(CommandResult::isSuccess);
@@ -108,20 +106,19 @@ public class BasicUsageExamples {
   // [END json-navigate-basic]
 
   // [START xml-navigate-basic]
-  /**
-   * XML navigation example - applies transformation rule to specific elements. Preserves entire XML
-   * structure.
-   */
+  /** XML navigation pipeline example - applies transformation and processes. */
   public void xmlNavigateBasic() throws Exception {
     String xmlData = "<?xml version=\"1.0\"?><root><user><name>John</name></user></root>";
     InputStream inputStream = new ByteArrayInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
     OutputStream outputStream = new ByteArrayOutputStream();
 
-    // Process 'root/user/name' element
-    IStreamCommand xmlCommand =
-        new XmlNavigateCommand(TreePath.fromXml("root/user/name"), new PassThroughRule());
+    // Create pipeline: navigate XML + process
+    IStreamCommand[] pipeline = {
+      new XmlNavigateCommand(TreePath.fromXml("root/user/name"), new PassThroughRule()),
+      new SampleStreamCommand("xml-processor")
+    };
 
-    StreamConverter converter = StreamConverter.create(new IStreamCommand[] {xmlCommand});
+    StreamConverter converter = StreamConverter.create(pipeline);
     List<CommandResult> results = converter.run(inputStream, outputStream);
 
     boolean success = results.stream().allMatch(CommandResult::isSuccess);
@@ -133,16 +130,19 @@ public class BasicUsageExamples {
   // [END xml-navigate-basic]
 
   // [START character-convert-basic]
-  /** Character encoding conversion example. Converts from Shift_JIS to UTF-8. */
+  /** Character encoding conversion pipeline example. */
   public void characterConvertBasic() throws Exception {
     String data = "Hello World";
     InputStream inputStream = new ByteArrayInputStream(data.getBytes("Shift_JIS"));
     OutputStream outputStream = new ByteArrayOutputStream();
 
-    // Convert from Shift_JIS to UTF-8
-    IStreamCommand convertCommand = new CharacterConvertCommand("Shift_JIS", "UTF-8");
+    // Create pipeline: convert encoding + process
+    IStreamCommand[] pipeline = {
+      new CharacterConvertCommand("Shift_JIS", "UTF-8"),
+      new SampleStreamCommand("encoding-processor")
+    };
 
-    StreamConverter converter = StreamConverter.create(new IStreamCommand[] {convertCommand});
+    StreamConverter converter = StreamConverter.create(pipeline);
     List<CommandResult> results = converter.run(inputStream, outputStream);
 
     boolean success = results.stream().allMatch(CommandResult::isSuccess);
@@ -154,16 +154,18 @@ public class BasicUsageExamples {
   // [END character-convert-basic]
 
   // [START line-ending-normalize-basic]
-  /** Line ending normalization example. Normalizes line endings to Unix format (LF). */
+  /** Line ending normalization pipeline example. */
   public void lineEndingNormalizeBasic() throws Exception {
     String data = "Line 1\r\nLine 2\rLine 3\n";
     InputStream inputStream = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
     OutputStream outputStream = new ByteArrayOutputStream();
 
-    // Normalize to Unix line endings (LF)
-    IStreamCommand normalizeCommand = new LineEndingNormalizeCommand(LineEndingType.UNIX);
+    // Create pipeline: normalize line endings + process
+    IStreamCommand[] pipeline = {
+      new LineEndingNormalizeCommand(LineEndingType.UNIX), new SampleStreamCommand("line-processor")
+    };
 
-    StreamConverter converter = StreamConverter.create(new IStreamCommand[] {normalizeCommand});
+    StreamConverter converter = StreamConverter.create(pipeline);
     List<CommandResult> results = converter.run(inputStream, outputStream);
 
     boolean success = results.stream().allMatch(CommandResult::isSuccess);
@@ -199,15 +201,19 @@ public class BasicUsageExamples {
   // [END pipeline-simple]
 
   // [START error-handling-basic]
-  /** Error handling example using CommandResult. */
+  /** Error handling pipeline example using CommandResult. */
   public void errorHandlingBasic() throws Exception {
     String csvData = "id,name\n1,Apple\n";
     InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
     OutputStream outputStream = new ByteArrayOutputStream();
 
-    IStreamCommand csvCommand = new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule());
+    // Create pipeline for error handling demonstration
+    IStreamCommand[] pipeline = {
+      new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()),
+      new SampleStreamCommand("error-handler")
+    };
 
-    StreamConverter converter = StreamConverter.create(new IStreamCommand[] {csvCommand});
+    StreamConverter converter = StreamConverter.create(pipeline);
     List<CommandResult> results = converter.run(inputStream, outputStream);
 
     // Check results

@@ -24,24 +24,7 @@ StreamConverterは包括的な自動ログ出力機能を提供し、大容量�
 
 ## 基本的な使用方法
 
-### 単一コマンドの実行（自動ログ）
-
-```java
-import com.streamconverter.StreamConverter;
-import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
-import com.streamconverter.path.CSVPath;
-import com.streamconverter.command.rule.PassThroughRule;
-
-// コマンドを作成するだけでログ機能は自動的に有効
-IStreamCommand csvCommand = new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule());
-
-// StreamConverterで使用（ログは自動出力）
-StreamConverter converter = StreamConverter.create(csvCommand);
-List<CommandResult> results = converter.run(inputStream, outputStream);
-```
-
-### 複数コマンドのパイプライン作成例（自動ログ）
+### パイプライン作成例（自動ログ）
 
 ```java
 import com.streamconverter.StreamConverter;
@@ -81,18 +64,6 @@ List<CommandResult> results = converter.run(inputStream, outputStream);
 - **設定情報**: コマンド固有の設定値
 
 ## 実際のログ出力例
-
-### 単一コマンドの実行（自動ログ）
-
-```
-2025-11-02 10:09:27.100 INFO  c.s.command.impl.csv.CsvNavigateCommand.execute:50 [execId:EXEC-123, seq:1] - Starting command execution: CsvNavigateCommand
-2025-11-02 10:09:27.102 INFO  c.s.command.impl.csv.CsvNavigateCommand.execute:74 [execId:EXEC-123, seq:1] - Command execution completed: CsvNavigateCommand (2ms, input: 1234567bytes, output: 89012bytes, memory: 2MB)
-```
-
-ログの各要素の説明：
-- `c.s.command.impl.csv.CsvNavigateCommand` - 実際のコマンドクラス名（短縮表示）
-- `.execute:50` - メソッド名と行番号（ソースロケーション情報）
-- `[execId:EXEC-123, seq:1]` - MDCコンテキスト情報（実行IDとシーケンス番号）
 
 ### ExecutionContext付きマルチスレッド実行
 

@@ -36,23 +36,7 @@ Java 21 &nbsp;|&nbsp; [📚 完全なドキュメント一覧](docs/INDEX.md) &n
 
 ## 🚀 クイックスタート
 
-### 1. CSV 列を加工する最小構成
-```java
-import com.streamconverter.StreamConverter;
-import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
-import com.streamconverter.command.rule.impl.string.LowerCaseRule;
-import com.streamconverter.path.CSVPath;
-
-IStreamCommand[] pipeline = {
-    CsvNavigateCommand.create(new CSVPath("name"), new LowerCaseRule())
-};
-
-StreamConverter converter = StreamConverter.create(pipeline);
-converter.run(inputStream, outputStream);
-```
-
-### 2. 実行コンテキストと結果メトリクス
+### パイプライン処理の例
 ```java
 import java.util.List;
 

@@ -9,6 +9,7 @@ import com.networknt.schema.SchemaRegistry;
 import com.networknt.schema.SpecificationVersion;
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.ConsumerCommand;
+import com.streamconverter.security.SecurePathValidator;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
@@ -81,6 +82,14 @@ public class JsonValidateCommand extends ConsumerCommand {
     if (trimmedPath.isEmpty()) {
       throw new IllegalArgumentException("Schema path cannot be empty");
     }
+
+    // Path traversal protection
+    try {
+      SecurePathValidator.validatePath(trimmedPath);
+    } catch (SecurityException e) {
+      throw new IllegalArgumentException("Invalid schema path: " + e.getMessage(), e);
+    }
+
     return trimmedPath;
   }
 

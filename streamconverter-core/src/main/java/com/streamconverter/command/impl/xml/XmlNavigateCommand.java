@@ -3,6 +3,7 @@ package com.streamconverter.command.impl.xml;
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.TreePath;
+import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -149,7 +150,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
 
   // Common factory methods and utilities
   private XMLEventReader createXMLEventReader(InputStream inputStream) throws XMLStreamException {
-    XMLInputFactory inputFactory = XMLInputFactory.newInstance();
+    XMLInputFactory inputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();
     XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);
     if (!reader.hasNext()) {
       throw new XMLStreamException("Empty XML input");

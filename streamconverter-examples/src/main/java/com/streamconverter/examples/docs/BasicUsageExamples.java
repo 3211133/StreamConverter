@@ -33,7 +33,11 @@ import java.util.List;
 public class BasicUsageExamples {
 
   // [START csv-navigate-basic]
-  /** CSV navigation pipeline example - applies transformation and processes. */
+  /**
+   * CSV navigation pipeline example - demonstrates pipeline structure with CSV column navigation.
+   * Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual
+   * processing).
+   */
   public void csvNavigateBasic() throws Exception {
     // Sample CSV data
     String csvData = "id,productName,price\n" + "1,Apple,100\n" + "2,Banana,50\n";
@@ -59,7 +63,10 @@ public class BasicUsageExamples {
   // [END csv-navigate-basic]
 
   // [START csv-filter-basic]
-  /** CSV filter pipeline example - extracts columns and processes. */
+  /**
+   * CSV filter pipeline example - demonstrates column extraction in a pipeline. Note:
+   * SampleStreamCommand is a placeholder for actual processing logic.
+   */
   public void csvFilterBasic() throws Exception {
     String csvData = "id,name,price\n" + "1,Apple,100\n" + "2,Banana,50\n";
     InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
@@ -82,7 +89,11 @@ public class BasicUsageExamples {
   // [END csv-filter-basic]
 
   // [START json-navigate-basic]
-  /** JSON navigation pipeline example - applies transformation and processes. */
+  /**
+   * JSON navigation pipeline example - demonstrates pipeline structure with JSON path navigation.
+   * Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual
+   * processing).
+   */
   public void jsonNavigateBasic() throws Exception {
     String jsonData = "{\"user\": {\"name\": \"John\", \"age\": 30}}";
     InputStream inputStream = new ByteArrayInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
@@ -106,7 +117,11 @@ public class BasicUsageExamples {
   // [END json-navigate-basic]
 
   // [START xml-navigate-basic]
-  /** XML navigation pipeline example - applies transformation and processes. */
+  /**
+   * XML navigation pipeline example - demonstrates pipeline structure with XML path navigation.
+   * Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual
+   * processing).
+   */
   public void xmlNavigateBasic() throws Exception {
     String xmlData = "<?xml version=\"1.0\"?><root><user><name>John</name></user></root>";
     InputStream inputStream = new ByteArrayInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
@@ -130,7 +145,10 @@ public class BasicUsageExamples {
   // [END xml-navigate-basic]
 
   // [START character-convert-basic]
-  /** Character encoding conversion pipeline example. */
+  /**
+   * Character encoding conversion pipeline example - demonstrates charset conversion in a pipeline.
+   * Note: SampleStreamCommand is a placeholder for actual processing logic.
+   */
   public void characterConvertBasic() throws Exception {
     String data = "Hello World";
     InputStream inputStream = new ByteArrayInputStream(data.getBytes("Shift_JIS"));
@@ -154,7 +172,10 @@ public class BasicUsageExamples {
   // [END character-convert-basic]
 
   // [START line-ending-normalize-basic]
-  /** Line ending normalization pipeline example. */
+  /**
+   * Line ending normalization pipeline example - demonstrates line ending conversion in a pipeline.
+   * Note: SampleStreamCommand is a placeholder for actual processing logic.
+   */
   public void lineEndingNormalizeBasic() throws Exception {
     String data = "Line 1\r\nLine 2\rLine 3\n";
     InputStream inputStream = new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));
@@ -201,7 +222,10 @@ public class BasicUsageExamples {
   // [END pipeline-simple]
 
   // [START error-handling-basic]
-  /** Error handling pipeline example using CommandResult. */
+  /**
+   * Error handling pipeline example - demonstrates CommandResult usage for error detection. Note:
+   * SampleStreamCommand is a placeholder for actual processing logic.
+   */
   public void errorHandlingBasic() throws Exception {
     String csvData = "id,name\n1,Apple\n";
     InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));

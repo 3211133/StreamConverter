@@ -62,6 +62,8 @@ public class QuickStart {
     String csvData = "name,age,city\nJohn,30,NYC\nJane,25,LA\n";
 
     // Create pipeline: Extract name column + Process
+    // Note: SampleStreamCommand is a placeholder for demonstration.
+    // In real applications, replace with actual processing commands.
     IStreamCommand[] pipeline = {
       CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),
       new SampleStreamCommand("csv-processor")
@@ -83,6 +85,8 @@ public class QuickStart {
     String jsonData = "{\"name\":\"John\",\"age\":30,\"city\":\"NYC\"}";
 
     // Create pipeline: Extract name property + Process
+    // Note: SampleStreamCommand is a placeholder for demonstration.
+    // In real applications, replace with actual processing commands.
     IStreamCommand[] pipeline = {
       JsonNavigateCommand.create(TreePath.fromJson("$.name"), new PassThroughRule()),
       new SampleStreamCommand("json-processor")
@@ -112,6 +116,8 @@ public class QuickStart {
         """;
 
     // Create pipeline: Extract name element + Process
+    // Note: SampleStreamCommand is a placeholder for demonstration.
+    // In real applications, replace with actual processing commands.
     IStreamCommand[] pipeline = {
       XmlNavigateCommand.create(TreePath.fromXml("person/name"), new PassThroughRule()),
       new SampleStreamCommand("xml-processor")

@@ -130,32 +130,32 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#characterConvertBasic()" class="member-name-link">characterConvertBasic</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Character encoding conversion pipeline example.</div>
+<div class="block">Character encoding conversion pipeline example - demonstrates charset conversion in a pipeline.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#csvFilterBasic()" class="member-name-link">csvFilterBasic</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">CSV filter pipeline example - extracts columns and processes.</div>
+<div class="block">CSV filter pipeline example - demonstrates column extraction in a pipeline.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#csvNavigateBasic()" class="member-name-link">csvNavigateBasic</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">CSV navigation pipeline example - applies transformation and processes.</div>
+<div class="block">CSV navigation pipeline example - demonstrates pipeline structure with CSV column navigation.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#errorHandlingBasic()" class="member-name-link">errorHandlingBasic</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Error handling pipeline example using CommandResult.</div>
+<div class="block">Error handling pipeline example - demonstrates CommandResult usage for error detection.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#jsonNavigateBasic()" class="member-name-link">jsonNavigateBasic</a>()</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">JSON navigation pipeline example - applies transformation and processes.</div>
+<div class="block">JSON navigation pipeline example - demonstrates pipeline structure with JSON path navigation.</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#lineEndingNormalizeBasic()" class="member-name-link">lineEndingNormalizeBasic</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Line ending normalization pipeline example.</div>
+<div class="block">Line ending normalization pipeline example - demonstrates line ending conversion in a pipeline.</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#simplePipeline()" class="member-name-link">simplePipeline</a>()</code></div>
@@ -165,7 +165,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#xmlNavigateBasic()" class="member-name-link">xmlNavigateBasic</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">XML navigation pipeline example - applies transformation and processes.</div>
+<div class="block">XML navigation pipeline example - demonstrates pipeline structure with XML path navigation.</div>
 </div>
 </div>
 </div>
@@ -201,9 +201,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="csvNavigateBasic()">
 <h3>csvNavigateBasic</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-37">csvNavigateBasic</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-41">csvNavigateBasic</a></span>()
                       throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">CSV navigation pipeline example - applies transformation and processes.</div>
+<div class="block">CSV navigation pipeline example - demonstrates pipeline structure with CSV column navigation.
+ Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual
+ processing).</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
@@ -213,9 +215,10 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="csvFilterBasic()">
 <h3>csvFilterBasic</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-63">csvFilterBasic</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-70">csvFilterBasic</a></span>()
                     throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">CSV filter pipeline example - extracts columns and processes.</div>
+<div class="block">CSV filter pipeline example - demonstrates column extraction in a pipeline. Note:
+ SampleStreamCommand is a placeholder for actual processing logic.</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
@@ -225,9 +228,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="jsonNavigateBasic()">
 <h3>jsonNavigateBasic</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-86">jsonNavigateBasic</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-97">jsonNavigateBasic</a></span>()
                        throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">JSON navigation pipeline example - applies transformation and processes.</div>
+<div class="block">JSON navigation pipeline example - demonstrates pipeline structure with JSON path navigation.
+ Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual
+ processing).</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
@@ -237,9 +242,11 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="xmlNavigateBasic()">
 <h3>xmlNavigateBasic</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-110">xmlNavigateBasic</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-125">xmlNavigateBasic</a></span>()
                       throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">XML navigation pipeline example - applies transformation and processes.</div>
+<div class="block">XML navigation pipeline example - demonstrates pipeline structure with XML path navigation.
+ Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual
+ processing).</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
@@ -249,9 +256,10 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="characterConvertBasic()">
 <h3>characterConvertBasic</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-134">characterConvertBasic</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-152">characterConvertBasic</a></span>()
                            throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">Character encoding conversion pipeline example.</div>
+<div class="block">Character encoding conversion pipeline example - demonstrates charset conversion in a pipeline.
+ Note: SampleStreamCommand is a placeholder for actual processing logic.</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
@@ -261,9 +269,10 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="lineEndingNormalizeBasic()">
 <h3>lineEndingNormalizeBasic</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-158">lineEndingNormalizeBasic</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-179">lineEndingNormalizeBasic</a></span>()
                               throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">Line ending normalization pipeline example.</div>
+<div class="block">Line ending normalization pipeline example - demonstrates line ending conversion in a pipeline.
+ Note: SampleStreamCommand is a placeholder for actual processing logic.</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>
@@ -273,7 +282,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="simplePipeline()">
 <h3>simplePipeline</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-181">simplePipeline</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-202">simplePipeline</a></span>()
                     throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
 <div class="block">Simple pipeline example - chaining multiple commands.</div>
 <dl class="notes">
@@ -285,9 +294,10 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="errorHandlingBasic()">
 <h3>errorHandlingBasic</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-205">errorHandlingBasic</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/examples/docs/BasicUsageExamples.html#line-229">errorHandlingBasic</a></span>()
                         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></span></div>
-<div class="block">Error handling pipeline example using CommandResult.</div>
+<div class="block">Error handling pipeline example - demonstrates CommandResult usage for error detection. Note:
+ SampleStreamCommand is a placeholder for actual processing logic.</div>
 <dl class="notes">
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" title="class or interface in java.lang" class="external-link">Exception</a></code></dd>

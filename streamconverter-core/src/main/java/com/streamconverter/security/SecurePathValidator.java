@@ -29,7 +29,7 @@ public class SecurePathValidator {
 
   private static final Logger logger = LoggerFactory.getLogger(SecurePathValidator.class);
   private static final Logger securityLogger =
-      LoggerFactory.getLogger("com.streamConverter.security");
+      LoggerFactory.getLogger("com.streamconverter.security");
 
   private SecurePathValidator() {
     // ユーティリティクラスのため、インスタンス化を禁止

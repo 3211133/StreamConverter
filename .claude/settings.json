@@ -11,14 +11,11 @@
       "Bash(gh pr view:*)",
       "Bash(git commit:*)",
       "Bash(gh pr checks:*)",
-      "WebFetch(domain:github.com)",
       "Bash(git push:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue list:*)",
       "Bash(gh issue:*)",
       "Bash(find:*)",
-      "Bash(sed:*)",
-      "Bash(grep:*)",
       "Bash(gh pr create:*)",
       "mcp__java-lsmcp__list_dir",
       "mcp__java-lsmcp__get_symbols_overview",
@@ -27,7 +24,6 @@
       "Bash(git fetch:*)",
       "Bash(gh pr list:*)",
       "Bash(gh pr edit:*)",
-      "Bash(../gradlew test:*)",
       "Bash(gh pr comment:*)",
       "Bash(gh pr diff:*)",
       "Bash(git reset:*)",
@@ -35,11 +31,12 @@
       "Bash(git diff:*)",
       "Bash(git log:*)",
       "Bash(git branch:*)",
-      "Bash(gh pr close:*)",
-      "Bash(git merge:*)",
-      "Bash(git rebase:*)"
+      "Bash(gh pr close:*)"
     ],
-    "deny": [],
+    "deny": [
+      "Bash(cd:*)",
+      "Bash(rm -rf:*)"
+    ],
     "ask": []
   },
   "hooks": {

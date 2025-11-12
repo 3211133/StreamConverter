@@ -1,4 +1,47 @@
 {
+  "permissions": {
+    "allow": [
+      "Bash(./gradlew:*)",
+      "mcp__java-lsmcp__get_project_overview",
+      "mcp__java-lsmcp__search_symbols",
+      "Bash(git pull:*)",
+      "Bash(git stash pop:*)",
+      "Bash(java:*)",
+      "Bash(git add:*)",
+      "Bash(gh pr view:*)",
+      "Bash(git commit:*)",
+      "Bash(gh pr checks:*)",
+      "WebFetch(domain:github.com)",
+      "Bash(git push:*)",
+      "Bash(gh issue create:*)",
+      "Bash(gh issue list:*)",
+      "Bash(gh issue:*)",
+      "Bash(find:*)",
+      "Bash(sed:*)",
+      "Bash(grep:*)",
+      "Bash(gh pr create:*)",
+      "mcp__java-lsmcp__list_dir",
+      "mcp__java-lsmcp__get_symbols_overview",
+      "Bash(gh api:*)",
+      "Bash(git checkout:*)",
+      "Bash(git fetch:*)",
+      "Bash(gh pr list:*)",
+      "Bash(gh pr edit:*)",
+      "Bash(../gradlew test:*)",
+      "Bash(gh pr comment:*)",
+      "Bash(gh pr diff:*)",
+      "Bash(git reset:*)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git branch:*)",
+      "Bash(gh pr close:*)",
+      "Bash(git merge:*)",
+      "Bash(git rebase:*)"
+    ],
+    "deny": [],
+    "ask": []
+  },
   "hooks": {
     "PostToolUse": [
       {

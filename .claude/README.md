@@ -190,6 +190,7 @@ export WEBHOOK_URL="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
 - **Git操作**: `git add`, `commit`, `push`, `pull`, `checkout`, `fetch`, `stash pop`
 - **Git情報**: `git status`, `diff`, `log`, `branch`, `reset`
 - **GitHub CLI**: `gh pr`, `gh issue`, `gh api`
+- **Codex CLI**: `codex`（コードレビュー統合用）
 - **その他**: `find`
 
 ### 拒否リスト

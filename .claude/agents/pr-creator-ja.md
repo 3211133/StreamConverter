@@ -1,6 +1,34 @@
 ---
 name: pr-creator-ja
-description: Use this agent when the user has completed a logical chunk of development work and needs to create a pull request to the develop branch with Japanese documentation and code review coordination. This includes scenarios where:\n\n<example>\nContext: User has just finished implementing a new feature for the StreamConverter project.\nuser: "新しいCSV処理機能を実装し終わりました"\nassistant: "実装完了を確認しました。pr-creator-jaエージェントを使用してプルリクエストを作成し、codexにレビューを依頼します"\n<commentary>\nThe user has completed development work, so use the pr-creator-ja agent to create a PR with Japanese documentation and coordinate code review.\n</commentary>\n</example>\n\n<example>\nContext: User has fixed a bug and wants to merge it to develop.\nuser: "バグ修正が完了したのでPRを作成してください"\nassistant: "pr-creator-jaエージェントを起動してプルリクエストを作成します"\n<commentary>\nUser explicitly requests PR creation, so launch the pr-creator-ja agent to handle branch creation, Japanese PR description, and code review coordination.\n</commentary>\n</example>\n\n<example>\nContext: Development session is ending and changes need to be submitted.\nuser: "今日の作業を終わりたいのでPRにしておいてください"\nassistant: "pr-creator-jaエージェントを使用してプルリクエストを作成し、レビュープロセスを開始します"\n<commentary>\nUser wants to wrap up work with a PR, so use pr-creator-ja to create the PR with proper Japanese documentation and initiate review.\n</commentary>\n</example>
+description: |
+  Use this agent when the user has completed a logical chunk of development work and needs to create a pull request to the develop branch with Japanese documentation and code review coordination. This includes scenarios where:
+
+  <example>
+  Context: User has just finished implementing a new feature for the StreamConverter project.
+  user: "新しいCSV処理機能を実装し終わりました"
+  assistant: "実装完了を確認しました。pr-creator-jaエージェントを使用してプルリクエストを作成し、codexにレビューを依頼します"
+  <commentary>
+  The user has completed development work, so use the pr-creator-ja agent to create a PR with Japanese documentation and coordinate code review.
+  </commentary>
+  </example>
+
+  <example>
+  Context: User has fixed a bug and wants to merge it to develop.
+  user: "バグ修正が完了したのでPRを作成してください"
+  assistant: "pr-creator-jaエージェントを起動してプルリクエストを作成します"
+  <commentary>
+  User explicitly requests PR creation, so launch the pr-creator-ja agent to handle branch creation, Japanese PR description, and code review coordination.
+  </commentary>
+  </example>
+
+  <example>
+  Context: Development session is ending and changes need to be submitted.
+  user: "今日の作業を終わりたいのでPRにしておいてください"
+  assistant: "pr-creator-jaエージェントを使用してプルリクエストを作成し、レビュープロセスを開始します"
+  <commentary>
+  User wants to wrap up work with a PR, so use pr-creator-ja to create the PR with proper Japanese documentation and initiate review.
+  </commentary>
+  </example>
 model: sonnet
 color: cyan
 ---

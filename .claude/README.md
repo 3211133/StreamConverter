@@ -22,12 +22,12 @@
 
 #### bashの場合 (`~/.bashrc` または `~/.bash_profile`)
 ```bash
-export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+export WEBHOOK_URL="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
 ```
 
 #### zshの場合 (`~/.zshrc`)
 ```zsh
-export SLACK_WEBHOOK_URL="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
+export WEBHOOK_URL="https://hooks.slack.com/services/YOUR/WEBHOOK/URL"
 ```
 
 設定後、ターミナルを再起動するか `source ~/.bashrc` を実行してください。

@@ -68,7 +68,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "if [ -n \"$SLACK_WEBHOOK_URL\" ]; then curl -X POST \"$SLACK_WEBHOOK_URL\" -H 'Content-Type: application/json' -d \"{\\\"text\\\":\\\"🤖 Claude Code Tool Use\\\\n*Tool:* $TOOL_NAME\\\\n*Description:* $TOOL_DESCRIPTION\\\\n*Command:* \\\\`$TOOL_PARAMS\\\\`\\\"}\"; fi"
+            "command": "if [ -n \"$WEBHOOK_URL\" ]; then curl -X POST \"$WEBHOOK_URL\" -H 'Content-Type: application/json' -d \"{\\\"text\\\":\\\"🤖 Claude Code Tool Use\\\\n*Tool:* $TOOL_NAME\\\\n*Description:* $TOOL_DESCRIPTION\\\\n*Command:* \\\\`$TOOL_PARAMS\\\\`\\\"}\"; fi"
           }
         ]
       },

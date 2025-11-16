@@ -2,6 +2,7 @@
   "permissions": {
     "allow": [
       "Bash(./gradlew:*)",
+      "Bash(codex:*)",
       "mcp__java-lsmcp__get_project_overview",
       "mcp__java-lsmcp__search_symbols",
       "Bash(git pull:*)",
@@ -63,6 +64,15 @@
       }
     ],
     "PreToolUse": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "if [ -n \"$WEBHOOK_URL\" ]; then curl -X POST \"$WEBHOOK_URL\" -H 'Content-Type: application/json' -d \"{\\\"text\\\":\\\"🤖 Claude Code Tool Use\\\\n*Tool:* $TOOL_NAME\\\\n*Description:* $TOOL_DESCRIPTION\\\\n*Command:* \\\\`$TOOL_PARAMS\\\\`\\\"}\"; fi"
+          }
+        ]
+      },
       {
         "matcher": "Bash(gh pr create *)",
         "hooks": [

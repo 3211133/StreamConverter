@@ -68,3 +68,4 @@ Always start with the **[Documentation Index](docs/INDEX.md)** for comprehensive
 - SQL injection protection in database operations
 - Input sanitization and URL scheme validation
 - Regular dependency updates for security fixes
+- Consult with Codex for security-related technical decisions as needed

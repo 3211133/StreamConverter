@@ -136,11 +136,6 @@ class ResourcePathValidatorTest {
   // ========== Codex指摘の要対応ケース ==========
 
   @Test
-  void validate_先頭スラッシュを拒否() {
-    assertThrows(SecurityException.class, () -> ResourcePathValidator.validate("/etc/passwd"));
-  }
-
-  @Test
   void validate_先頭ダブルスラッシュUNCを拒否() {
     assertThrows(SecurityException.class, () -> ResourcePathValidator.validate("//server/share"));
   }

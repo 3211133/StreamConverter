@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.nio.file.Paths;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.EnabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 class ResourcePathValidatorTest {
 
@@ -156,22 +158,36 @@ class ResourcePathValidatorTest {
         () -> ResourcePathValidator.validate("\\\\server\\share\\file.txt"));
   }
 
+  @EnabledOnOs({OS.LINUX, OS.MAC})
   @Test
-  void validate_ドライブレターはLinuxで相対パスとして扱われる() {
-    // Linux環境ではC:は単なるディレクトリ名として扱われresources配下に収まる
-    // Windows環境では絶対パスとして扱われるためCI/PRで動作確認が必要
+  void validate_ドライブレターはLinuxMacで相対パスとして扱われる() {
+    // Linux/Mac環境ではC:は単なるディレクトリ名として扱われresources配下に収まる
     String result = ResourcePathValidator.validate("C:/Windows/system32");
     assertTrue(result.contains("resources"));
-    // Windows CIでの検証が必要: SecurityExceptionが投げられるべき
   }
 
+  @EnabledOnOs(OS.WINDOWS)
   @Test
-  void validate_ドライブレターバックスラッシュもLinuxで相対パス() {
-    // Linux環境ではD:は単なるディレクトリ名として扱われresources配下に収まる
-    // Windows環境では絶対パスとして扱われるためCI/PRで動作確認が必要
+  void validate_ドライブレターはWindowsで絶対パスとして拒否される() {
+    // Windows環境ではC:は絶対パスとして扱われSecurityExceptionが投げられる
+    assertThrows(
+        SecurityException.class, () -> ResourcePathValidator.validate("C:/Windows/system32"));
+  }
+
+  @EnabledOnOs({OS.LINUX, OS.MAC})
+  @Test
+  void validate_ドライブレターバックスラッシュもLinuxMacで相対パス() {
+    // Linux/Mac環境ではD:は単なるディレクトリ名として扱われresources配下に収まる
     String result = ResourcePathValidator.validate("D:\\Program Files");
     assertTrue(result.contains("resources"));
-    // Windows CIでの検証が必要: SecurityExceptionが投げられるべき
+  }
+
+  @EnabledOnOs(OS.WINDOWS)
+  @Test
+  void validate_ドライブレターバックスラッシュはWindowsで拒否される() {
+    // Windows環境ではD:は絶対パスとして扱われSecurityExceptionが投げられる
+    assertThrows(
+        SecurityException.class, () -> ResourcePathValidator.validate("D:\\Program Files"));
   }
 
   @Test
@@ -208,13 +224,6 @@ class ResourcePathValidatorTest {
   }
 
   // ========== 環境依存または安全確認済みでDisabled ==========
-
-  @Disabled("Linux環境ではドライブレターが相対パスとして扱われる - 上記の明示的拒否テストで対応")
-  @Test
-  void validate_Windows環境でのドライブレター() {
-    assertThrows(
-        SecurityException.class, () -> ResourcePathValidator.validate("C:\\Windows\\system32"));
-  }
 
   @Disabled("URLエンコードは奇妙なファイル名になるが resources 配下に留まることを確認済み")
   @Test

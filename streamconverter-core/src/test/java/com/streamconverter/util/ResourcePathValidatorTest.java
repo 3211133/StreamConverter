@@ -30,6 +30,7 @@ class ResourcePathValidatorTest {
     assertThrows(SecurityException.class, () -> ResourcePathValidator.validate("../etc/passwd"));
   }
 
+  @EnabledOnOs(OS.WINDOWS)
   @Test
   void validate_パストラバーサル攻撃を防止_ドットドットバックスラッシュ() {
     assertThrows(
@@ -140,12 +141,14 @@ class ResourcePathValidatorTest {
     assertThrows(SecurityException.class, () -> ResourcePathValidator.validate("//server/share"));
   }
 
+  @EnabledOnOs(OS.WINDOWS)
   @Test
   void validate_先頭バックスラッシュを拒否() {
     assertThrows(
         SecurityException.class, () -> ResourcePathValidator.validate("\\Windows\\system32"));
   }
 
+  @EnabledOnOs(OS.WINDOWS)
   @Test
   void validate_UNCパスを拒否() {
     assertThrows(

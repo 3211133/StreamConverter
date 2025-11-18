@@ -38,20 +38,19 @@ public final class ResourcePathValidator {
       throw new IllegalArgumentException("Resource path cannot be empty");
     }
 
-    // 先頭のスラッシュ・バックスラッシュを拒否（絶対パス・UNCパス対策）
-    if (trimmed.startsWith("/") || trimmed.startsWith("\\")) {
-      throw new SecurityException("Absolute path is not allowed in resource directory: " + trimmed);
-    }
+    // Paths.get() がプラットフォーム固有の処理を実行
+    Path inputPath = Paths.get(trimmed);
 
-    // バックスラッシュをスラッシュに正規化（パストラバーサル攻撃の一貫検出）
-    // 先頭チェック後に実施することで、絶対パス検出を妨げない
-    String normalized = trimmed.replace("\\", "/");
+    // 絶対パスを拒否（ライブラリが判定）
+    if (inputPath.isAbsolute()) {
+      throw new SecurityException("Absolute path is not allowed: " + trimmed);
+    }
 
     // ベースパスを正規化
     Path basePath = Paths.get(RESOURCE_BASE).normalize();
 
     // リソースパスを解決して正規化
-    Path resolved = basePath.resolve(normalized).normalize();
+    Path resolved = basePath.resolve(inputPath).normalize();
 
     // ベースディレクトリ外へのアクセスを防止
     if (!resolved.startsWith(basePath)) {

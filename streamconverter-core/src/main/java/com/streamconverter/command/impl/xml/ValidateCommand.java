@@ -3,11 +3,10 @@ package com.streamconverter.command.impl.xml;
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.ConsumerCommand;
 import com.streamconverter.security.SecureXmlConfiguration;
+import com.streamconverter.util.ClasspathResourceValidator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Objects;
 import javax.xml.XMLConstants;
 import javax.xml.transform.stream.StreamSource;
@@ -32,9 +31,6 @@ public class ValidateCommand extends ConsumerCommand {
   private static final Logger securityLogger =
       LoggerFactory.getLogger("com.streamConverter.security");
 
-  /** スキーマファイルのベースディレクトリ（セキュリティのため固定） */
-  private static final Path SCHEMA_BASE_PATH = Paths.get("schemas");
-
   private final String schemaPath;
   private final Schema schema;
 
@@ -53,8 +49,9 @@ public class ValidateCommand extends ConsumerCommand {
       throw new IllegalArgumentException("Schema path cannot be empty");
     }
 
-    this.schemaPath = validateAndNormalizeSchemaPath(schemaPath);
-    this.schema = loadSchemaSecurely(this.schemaPath);
+    // Treat schemaPath as a classpath resource identifier (e.g., "schemas/test.xsd")
+    this.schemaPath = normalizeClasspathPath(schemaPath);
+    this.schema = loadSchemaFromClasspath(this.schemaPath);
   }
 
   /**
@@ -64,44 +61,13 @@ public class ValidateCommand extends ConsumerCommand {
    * @return 安全な正規化されたパス
    * @throws SecurityException 不正なパスが検出された場合
    */
-  private String validateAndNormalizeSchemaPath(String inputPath) {
-    String trimmedPath = inputPath.trim();
-
-    // テスト環境での絶対パスを許可（テストリソースディレクトリのみ）
-    if (trimmedPath.startsWith("/") || trimmedPath.contains(":")) {
-      // パス区切り文字を正規化して検証（Windows/Unix対応）
-      String normalizedPath = trimmedPath.replace("\\", "/");
-      // テストリソースパスの場合は許可
-      if (normalizedPath.contains("src/test/resources")
-          || normalizedPath.contains("build/resources/test")
-          || normalizedPath.contains("junit")) {
-        logger.debug("Test resource path allowed: {}", trimmedPath);
-        return trimmedPath;
-      }
-      securityLogger.warn("Potentially dangerous absolute path detected: {}", trimmedPath);
-      throw new SecurityException(
-          "Schema path contains potentially dangerous patterns: " + trimmedPath);
+  private String normalizeClasspathPath(String inputPath) {
+    String trimmed = inputPath.trim();
+    // Remove leading slash for ClassLoader compatibility
+    if (trimmed.startsWith("/")) {
+      trimmed = trimmed.substring(1);
     }
-
-    // 親ディレクトリ参照の検証
-    if (trimmedPath.contains("..") || trimmedPath.contains("./") || trimmedPath.contains(".\\")) {
-      securityLogger.warn("Path traversal attempt detected: {}", trimmedPath);
-      throw new SecurityException(
-          "Schema path contains potentially dangerous patterns: " + trimmedPath);
-    }
-
-    // ワークスペース制限が有効な場合の追加検証
-    // ベースパスからの相対パスとして解決
-    Path resolvedPath = SCHEMA_BASE_PATH.resolve(trimmedPath).normalize();
-
-    // ベースディレクトリ外へのアクセスを防止
-    if (!resolvedPath.startsWith(SCHEMA_BASE_PATH)) {
-      securityLogger.warn("Workspace access violation detected: {}", trimmedPath);
-      throw new SecurityException(
-          "Schema path attempts to access outside base directory: " + trimmedPath);
-    }
-
-    return resolvedPath.toString();
+    return trimmed;
   }
 
   /**
@@ -111,14 +77,13 @@ public class ValidateCommand extends ConsumerCommand {
    * @return ロードされたSchemaオブジェクト
    * @throws StreamProcessingException スキーマロードに失敗した場合
    */
-  private Schema loadSchemaSecurely(String validatedPath) {
+  private Schema loadSchemaFromClasspath(String validatedPath) {
     try {
       // セキュアなSchemaFactoryの作成（新しいセキュリティインフラを使用）
       SchemaFactory factory = SecureXmlConfiguration.createSecureSchemaFactory();
 
-      // ファイルからスキーマをロード
-      Path schemaFile = Paths.get(validatedPath);
-      URL schemaUrl = schemaFile.toUri().toURL();
+      // クラスパスからスキーマをロード（パストラバーサル不要・JAR対応）
+      URL schemaUrl = ClasspathResourceValidator.getResourceUrl(validatedPath);
 
       Schema loadedSchema = factory.newSchema(schemaUrl);
       logger.info("XML Schema loaded successfully from: {}", validatedPath);
@@ -126,7 +91,7 @@ public class ValidateCommand extends ConsumerCommand {
 
       return loadedSchema;
 
-    } catch (SAXException | IOException e) {
+    } catch (SAXException | RuntimeException e) {
       logger.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);
       securityLogger.error("Secure XML schema loading failed for: {}", validatedPath);
       throw new StreamProcessingException(

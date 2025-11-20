@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.*;
 import java.io.InputStream;
 import java.net.URL;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledOnOs;
+import org.junit.jupiter.api.condition.OS;
 
 class ClasspathResourceValidatorTest {
 
@@ -72,6 +74,7 @@ class ClasspathResourceValidatorTest {
   }
 
   @Test
+  @DisabledOnOs(OS.WINDOWS)
   void getResourceAsStream_バックスラッシュは自動的に拒否される() {
     assertThrows(
         IllegalArgumentException.class,

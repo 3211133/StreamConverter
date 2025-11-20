@@ -15,7 +15,6 @@
       "Bash(git push:*)",
       "Bash(gh issue create:*)",
       "Bash(gh issue list:*)",
-      "Bash(gh issue:*)",
       "Bash(find:*)",
       "Bash(gh pr create:*)",
       "mcp__java-lsmcp__list_dir",
@@ -36,7 +35,9 @@
     ],
     "deny": [
       "Bash(cd:*)",
-      "Bash(rm -rf:*)"
+      "Bash(rm -rf:*)",
+      "Bash(gh pr merge:*)",
+      "Bash(gh issues close:*)"
     ],
     "ask": []
   },

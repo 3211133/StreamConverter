@@ -51,7 +51,7 @@ public class StreamingTestUtils {
 
     @Override
     public byte[] readAllBytes() {
-      // Some commands like JsonValidateCommand use readAllBytes(), so we need to track this
+      // Some commands use readAllBytes(), so we need to track this
       byte[] result = super.readAllBytes();
       if (result.length > 0) {
         bytesRead += result.length;

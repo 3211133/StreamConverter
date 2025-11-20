@@ -21,32 +21,25 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * JsonSurferを使った完全ストリーミングJSON検証コマンド
+ * JsonSurfer事前検証とJSON Schema検証を組み合わせた2段階検証コマンド
  *
- * <p>このクラスは真のストリーミング処理でJSONを検証します。 従来のJSON Schema検証と組み合わせて、大容量データに対応しつつ詳細な検証を提供します。
+ * <p><strong>重要な実装上の注意:</strong><br>
+ * このクラスは入力ストリーム全体をメモリに読み込みます（{@code readAllBytes()}）。 「ストリーミング」という名前ですが、実際には全データをメモリバッファリングします。
  *
- * <p><strong>アプローチ:</strong><br>
- * 1. JsonSurferによる高速ストリーミング事前検証（構造・必須フィールド確認）<br>
- * 2. 事前検証通過時のみJSON Schema検証実行<br>
- * 3. 任意サイズのデータを一定メモリで処理
+ * <p><strong>検証アプローチ:</strong><br>
+ * 1. 入力ストリーム全体をバイト配列に読み込み（メモリバッファリング）<br>
+ * 2. JsonSurferによる事前検証（構造確認、特定フィールドチェック）<br>
+ * 3. JSON Schema検証（DOM構築が必要）
  *
- * <p><strong>ライブラリ選択理由:</strong><br>
- * JsonSurferを採用した理由：
+ * <p><strong>メモリ使用について:</strong><br>
+ * 全データをメモリに読み込むため、大容量ファイルを処理する場合は十分なヒープメモリが必要です。 {@link JsonValidateCommand}と同等のメモリを消費します。
  *
- * <ul>
- *   <li>✅ 完全ストリーミング処理（DOM構築なし）
- *   <li>✅ JsonPathサポートによる柔軟な検証ルール記述
- *   <li>✅ イベントドリブンでメモリ効率最大化
- *   <li>✅ Jackson統合で既存依存関係と整合
- * </ul>
+ * <p><strong>JsonValidateCommandとの違い:</strong><br>
+ * JsonSurferによる事前検証を追加で実行しますが、JSON Schema検証は両方で同じです。 事前検証は {@code id}、{@code name}
+ * フィールドのチェックに限定されており、 汎用的なスキーマには対応していません。
  *
- * <p><strong>他ライブラリを採用しなかった理由:</strong><br>
- *
- * <ul>
- *   <li><strong>StAXON:</strong> XML思考の強制、namespace問題、JSON型情報の欠如
- *   <li><strong>JSR 353:</strong> 低レベルAPI、JsonPathなし、ボイラープレート大量
- *   <li><strong>Gson JsonReader:</strong> プル解析のみ、状態管理必須、実装複雑化
- * </ul>
+ * <p><strong>技術的制約:</strong><br>
+ * JSON Schema検証は構造全体の検証が必要なため（例: 配列の要素数制約、相互参照）、 完全なストリーミング処理は技術的に不可能です。
  *
  * <p>使用例:
  *
@@ -55,6 +48,8 @@ import org.slf4j.LoggerFactory;
  *     JsonStreamingValidateCommand.create("schema/user.json");
  * validator.consume(jsonInputStream);
  * </pre>
+ *
+ * @see JsonValidateCommand より単純なJSON Schema検証（事前検証なし）
  */
 public class JsonStreamingValidateCommand extends ConsumerCommand {
   private static final Logger logger = LoggerFactory.getLogger(JsonStreamingValidateCommand.class);

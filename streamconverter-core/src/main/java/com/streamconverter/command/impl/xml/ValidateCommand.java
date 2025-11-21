@@ -37,11 +37,11 @@ public class ValidateCommand extends ConsumerCommand {
   /**
    * コンストラクタ
    *
-   * <p>XMLのスキーマを指定して、XMLのバリデーションを行います。 セキュリティのため、パストラバーサル攻撃を防止します。
+   * <p>クラスパスからXMLスキーマを読み込み、バリデーションコマンドを作成します。 セキュリティのため、パストラバーサル攻撃を防止します。
    *
-   * @param schemaPath XMLのスキーマファイルパス（schemas/ディレクトリからの相対パス）
+   * @param schemaPath クラスパスリソース識別子（例: "schemas/test.xsd", "test-schema.xsd"）
    * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
-   * @throws SecurityException 不正なパスが指定された場合
+   * @throws SecurityException 不正なパス（..を含む）が指定された場合
    */
   public ValidateCommand(String schemaPath) {
     Objects.requireNonNull(schemaPath, "Schema path cannot be null");
@@ -55,14 +55,24 @@ public class ValidateCommand extends ConsumerCommand {
   }
 
   /**
-   * スキーマパスを検証し、正規化します（パストラバーサル攻撃防止）
+   * クラスパスリソース識別子を正規化します
    *
-   * @param inputPath 入力されたスキーマパス
-   * @return 安全な正規化されたパス
-   * @throws SecurityException 不正なパスが検出された場合
+   * <p>パストラバーサル攻撃を防止するため、親ディレクトリ参照（..）を禁止します。 先頭のスラッシュはClassLoader互換性のため除去されます。
+   *
+   * @param inputPath 入力されたクラスパス識別子
+   * @return 正規化されたクラスパス識別子
+   * @throws SecurityException パストラバーサルパターンが検出された場合
    */
   private String normalizeClasspathPath(String inputPath) {
     String trimmed = inputPath.trim();
+
+    // パストラバーサル攻撃の防止
+    if (trimmed.contains("..")) {
+      securityLogger.warn("Path traversal attempt detected in classpath resource: {}", trimmed);
+      throw new SecurityException(
+          "Classpath resource path contains path traversal pattern: " + trimmed);
+    }
+
     // Remove leading slash for ClassLoader compatibility
     if (trimmed.startsWith("/")) {
       trimmed = trimmed.substring(1);
@@ -91,7 +101,7 @@ public class ValidateCommand extends ConsumerCommand {
 
       return loadedSchema;
 
-    } catch (SAXException | RuntimeException e) {
+    } catch (SAXException | IllegalArgumentException e) {
       logger.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);
       securityLogger.error("Secure XML schema loading failed for: {}", validatedPath);
       throw new StreamProcessingException(

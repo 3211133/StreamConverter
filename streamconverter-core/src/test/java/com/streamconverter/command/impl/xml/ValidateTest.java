@@ -138,6 +138,33 @@ class ValidateTest {
   }
 
   @Test
+  @DisplayName("セキュリティ：パストラバーサル攻撃の防止")
+  void testPathTraversalPrevention() {
+    // パストラバーサル攻撃（..を含むパス）でのコンストラクタテスト
+    // SecurityExceptionが発生することを期待
+    assertThrows(
+        SecurityException.class,
+        () -> {
+          new ValidateCommand("../secret-schema.xsd");
+        },
+        "Path traversal pattern (..) should be rejected");
+
+    assertThrows(
+        SecurityException.class,
+        () -> {
+          new ValidateCommand("schemas/../../etc/passwd");
+        },
+        "Path traversal pattern (..) should be rejected");
+
+    assertThrows(
+        SecurityException.class,
+        () -> {
+          new ValidateCommand("valid/../malicious.xsd");
+        },
+        "Path traversal pattern (..) should be rejected");
+  }
+
+  @Test
   @DisplayName("execute：空の入力ストリーム")
   void testExecuteWithEmptyInputStream() throws IOException {
     // 空の入力ストリームでのexecuteメソッドテスト

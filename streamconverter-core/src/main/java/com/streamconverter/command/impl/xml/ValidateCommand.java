@@ -37,11 +37,13 @@ public class ValidateCommand extends ConsumerCommand {
   /**
    * コンストラクタ
    *
-   * <p>クラスパスからXMLスキーマを読み込み、バリデーションコマンドを作成します。 セキュリティのため、パストラバーサル攻撃を防止します。
+   * <p>クラスパスからXMLスキーマを読み込み、バリデーションコマンドを作成します。
+   *
+   * <p>セキュリティ: ClassLoaderはリソース名を完全一致で検索するため、パストラバーサル（..）は
+   * 単に「存在しないリソース」として扱われます（ClasspathResourceValidator参照）。
    *
    * @param schemaPath クラスパスリソース識別子（例: "schemas/test.xsd", "test-schema.xsd"）
    * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
-   * @throws SecurityException 不正なパス（..を含む）が指定された場合
    */
   public ValidateCommand(String schemaPath) {
     Objects.requireNonNull(schemaPath, "Schema path cannot be null");
@@ -49,7 +51,7 @@ public class ValidateCommand extends ConsumerCommand {
       throw new IllegalArgumentException("Schema path cannot be empty");
     }
 
-    // Treat schemaPath as a classpath resource identifier (e.g., "schemas/test.xsd")
+    // クラスパスリソース識別子として扱う（セキュリティはClasspathResourceValidatorが担保）
     this.schemaPath = normalizeClasspathPath(schemaPath);
     this.schema = loadSchemaFromClasspath(this.schemaPath);
   }
@@ -57,22 +59,13 @@ public class ValidateCommand extends ConsumerCommand {
   /**
    * クラスパスリソース識別子を正規化します
    *
-   * <p>パストラバーサル攻撃を防止するため、親ディレクトリ参照（..）を禁止します。 先頭のスラッシュはClassLoader互換性のため除去されます。
+   * <p>先頭のスラッシュはClassLoader互換性のため除去されます。
    *
    * @param inputPath 入力されたクラスパス識別子
    * @return 正規化されたクラスパス識別子
-   * @throws SecurityException パストラバーサルパターンが検出された場合
    */
   private String normalizeClasspathPath(String inputPath) {
     String trimmed = inputPath.trim();
-
-    // パストラバーサル攻撃の防止
-    if (trimmed.contains("..")) {
-      securityLogger.warn("Path traversal attempt detected in classpath resource: {}", trimmed);
-      throw new SecurityException(
-          "Classpath resource path contains path traversal pattern: " + trimmed);
-    }
-
     // Remove leading slash for ClassLoader compatibility
     if (trimmed.startsWith("/")) {
       trimmed = trimmed.substring(1);

@@ -8,9 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Paths;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,22 +21,11 @@ class ValidateTest {
 
   @BeforeEach
   void setUp() throws IOException {
-    // Use classpath resource URLs for cross-platform compatibility
-    ClassLoader classLoader = getClass().getClassLoader();
-
-    // Get schema path from classpath - works across all platforms
-    URL schemaResource = classLoader.getResource("test-schema.xsd");
-    if (schemaResource == null) {
-      throw new IOException("test-schema.xsd not found in classpath");
-    }
-
-    try {
-      schemaPath = Paths.get(schemaResource.toURI()).toString();
-    } catch (Exception e) {
-      throw new IOException("Failed to resolve schema path", e);
-    }
+    // Use classpath identifier directly (no filesystem path resolution)
+    schemaPath = "test-schema.xsd";
 
     // Load XML content for tests
+    ClassLoader classLoader = getClass().getClassLoader();
     try (InputStream validXmlStream = classLoader.getResourceAsStream("valid-test.xml")) {
       if (validXmlStream == null) {
         throw new IOException("valid-test.xml not found in classpath");
@@ -141,13 +128,34 @@ class ValidateTest {
   @Test
   @DisplayName("execute異常系：存在しないスキーマファイル")
   void testExecuteWithNonExistentSchemaFile() throws IOException {
-    // 存在しないスキーマファイルでのコンストラクタテスト（セキュリティ強化により、コンストラクタで例外が発生）
-    // StreamProcessingExceptionが発生することを期待（存在しないスキーマファイル）
+    // クラスパスに存在しないスキーマ指定でのコンストラクタテスト
+    // StreamProcessingExceptionが発生することを期待
     assertThrows(
         com.streamconverter.StreamProcessingException.class,
         () -> {
           new ValidateCommand("non-existent-schema.xsd");
         });
+  }
+
+  @Test
+  @DisplayName("セキュリティ：パストラバーサルパターンは存在しないリソースとして扱われる")
+  void testPathTraversalTreatedAsNonExistent() {
+    // パストラバーサルパターン（..）を含むパスは、ClassLoaderが解決しないため
+    // 単に「存在しないリソース」としてStreamProcessingExceptionが発生する
+    // （ClasspathResourceValidatorのドキュメント参照）
+    assertThrows(
+        com.streamconverter.StreamProcessingException.class,
+        () -> {
+          new ValidateCommand("../secret-schema.xsd");
+        },
+        "Path with .. should be treated as non-existent resource");
+
+    assertThrows(
+        com.streamconverter.StreamProcessingException.class,
+        () -> {
+          new ValidateCommand("schemas/../../etc/passwd");
+        },
+        "Path with .. should be treated as non-existent resource");
   }
 
   @Test

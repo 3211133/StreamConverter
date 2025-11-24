@@ -39,8 +39,8 @@ public class ValidateCommand extends ConsumerCommand {
    *
    * <p>クラスパスからXMLスキーマを読み込み、バリデーションコマンドを作成します。
    *
-   * <p>セキュリティ: ClassLoaderはリソース名を完全一致で検索するため、パストラバーサル（..）は
-   * 単に「存在しないリソース」として扱われます（ClasspathResourceValidator参照）。
+   * <p>セキュリティ: ClassLoaderはクラスパス内でパス正規化を行います（例: "hoge/../fuga" → "fuga"）。
+   * ただし、クラスパス境界外へのアクセスは不可能です（"../etc/passwd" → リソース未発見）。
    *
    * @param schemaPath クラスパスリソース識別子（例: "schemas/test.xsd", "test-schema.xsd"）
    * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合

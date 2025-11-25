@@ -2,6 +2,7 @@ package com.streamconverter.command.impl.xml;
 
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.path.IPath;
+import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -59,9 +60,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
       throws IOException {
     try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
 
-      XMLInputFactory inputFactory = XMLInputFactory.newInstance();
-      inputFactory.setProperty(XMLInputFactory.IS_SUPPORTING_EXTERNAL_ENTITIES, false);
-      inputFactory.setProperty(XMLInputFactory.SUPPORT_DTD, false);
+      XMLInputFactory inputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();
 
       List<String> extractedElements = new ArrayList<>();
 

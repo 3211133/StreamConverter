@@ -4,6 +4,7 @@ import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.TreePath;
+import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -60,7 +61,7 @@ public class ConvertCommand extends AbstractStreamCommand {
     // StaXを使用したXML変換処理を実装する
     // ここでは、IRuleを使用して変換処理を行うことを想定しています。
     // 例: XMLを読み込み、IRuleを適用して変換し、出力ストリームに書き込む処理を実装する
-    XMLInputFactory xmlInputFactory = XMLInputFactory.newInstance();
+    XMLInputFactory xmlInputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();
     XMLOutputFactory xmlOutputFactory = XMLOutputFactory.newInstance();
 
     try {

@@ -55,8 +55,10 @@ You are about to help the user get their completed implementation reviewed by co
 5. **Consult with codex**
    Execute codex with the review request using the VERIFIED diff:
    ```bash
-   REVIEW_DIFF=$(mktemp /tmp/code-review-XXXXXX.diff)
-   REVIEW_MD=$(mktemp /tmp/code-review-XXXXXX.md)
+   # Use project-local tmp directory for better security
+   mkdir -p .claude/tmp
+   REVIEW_DIFF=$(mktemp .claude/tmp/code-review-XXXXXX.diff)
+   REVIEW_REQUEST=$(mktemp .claude/tmp/code-review-XXXXXX.md)
 
    # Use verified diff source based on review target
    # For uncommitted changes:
@@ -65,20 +67,11 @@ You are about to help the user get their completed implementation reviewed by co
    # OR for a specific commit:
    # git show <commit-hash> --no-color > "${REVIEW_DIFF}"
 
-   # Save review summary to temp file
-   cat > "${REVIEW_MD}" << 'SUMMARY'
-   [Your review summary here - include review target info]
-SUMMARY
+   # Build review request using heredoc (avoids command substitution issues)
+   cat > "${REVIEW_REQUEST}" << 'EOF'
+以下の実装内容についてコードレビューをお願いします。
 
-   codex exec "以下の実装内容についてコードレビューをお願いします。
-
-$(cat "${REVIEW_MD}")
-
-## 変更内容の差分:
-
-\`\`\`diff
-$(cat "${REVIEW_DIFF}")
-\`\`\`
+[Your review summary here - include review target info]
 
 特に以下の観点でレビューしてください：
 1. コードの品質と可読性
@@ -86,7 +79,22 @@ $(cat "${REVIEW_DIFF}")
 3. パフォーマンスへの影響
 4. セキュリティ上の懸念
 5. より良い実装方法の提案
-6. テストカバレッジの十分性"
+6. テストカバレッジの十分性
+
+## 変更内容の差分は別ファイルで提供します
+EOF
+
+   # Append diff to request (handles large diffs safely)
+   echo -e "\n## 変更内容の差分:\n" >> "${REVIEW_REQUEST}"
+   echo '```diff' >> "${REVIEW_REQUEST}"
+   cat "${REVIEW_DIFF}" >> "${REVIEW_REQUEST}"
+   echo '```' >> "${REVIEW_REQUEST}"
+
+   # Execute codex with the combined request
+   codex exec "$(cat "${REVIEW_REQUEST}")"
+
+   # Cleanup
+   rm -f "${REVIEW_DIFF}" "${REVIEW_REQUEST}"
    ```
 
 6. **Verify Review Results Against Current Code**
@@ -140,13 +148,17 @@ $(cat "${REVIEW_DIFF}")
   - Inform user which commit it matches (if found)
   - Ask for clarification on what to review
 - If temporary file creation fails, report the error clearly
-- Clean up temporary files after use or inform the user of their location
+- Temporary files are automatically cleaned up after the review
+- If cleanup fails, inform the user of the file locations
 
 ## Security Considerations
 
 **⚠️ Important**: Temporary files and diffs may contain sensitive information:
 - Code diffs may include proprietary implementation details, API keys, or credentials
 - Be cautious when working in shared environments
-- Consider cleaning up temporary files after review: `rm /tmp/code-review-*.{diff,md}`
-- Alternatively, use a project-specific directory like `.claude/tmp/` (add to `.gitignore`)
+- **Recommended**: Use project-specific directory `.claude/tmp/` (already in `.gitignore`)
+  - Avoids system-wide /tmp which may be shared
+  - Easier to audit and cleanup
+  - Better isolation for sensitive code
 - Review diff content before sharing with external code review services
+- Temporary files are automatically removed after review completion

@@ -120,9 +120,15 @@ tasks.test {
     }
     
     // テスト実行時の詳細ログを表示
+    // デバッグ時は -Dtest.verbose=true で詳細出力を有効化可能
+    val verboseTests = System.getProperty("test.verbose")?.toBoolean() ?: false
     testLogging {
         events("skipped", "failed")
-        showStandardStreams = true
+        showStandardStreams = verboseTests
+        showExceptions = verboseTests
+        showCauses = verboseTests
+        showStackTraces = verboseTests
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.SHORT
     }
     
     // CI環境での安定性を考慮した条件付きタスク実行

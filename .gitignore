@@ -55,4 +55,5 @@ temp/
 #Agentic Hooks
 .claude/hooks/
 .claude/logs/
+.claude/tmp/
 .claude/settings.local.json

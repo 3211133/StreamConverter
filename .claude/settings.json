@@ -30,14 +30,14 @@
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
-      "Bash(git branch:*)",
-      "Bash(gh pr close:*)"
+      "Bash(git branch:*)"
     ],
     "deny": [
       "Bash(cd:*)",
       "Bash(rm -rf:*)",
       "Bash(gh pr merge:*)",
-      "Bash(gh issues close:*)"
+      "Bash(gh issues close:*)",
+      "Bash(gh pr close:*)"
     ],
     "ask": []
   },

@@ -85,7 +85,7 @@ You are about to help the user get their completed implementation reviewed by co
 EOF
 
    # Append diff to request (handles large diffs safely)
-   echo -e "\n## 変更内容の差分:\n" >> "${REVIEW_REQUEST}"
+   printf "\n## 変更内容の差分:\n" >> "${REVIEW_REQUEST}"
    echo '```diff' >> "${REVIEW_REQUEST}"
    cat "${REVIEW_DIFF}" >> "${REVIEW_REQUEST}"
    echo '```' >> "${REVIEW_REQUEST}"

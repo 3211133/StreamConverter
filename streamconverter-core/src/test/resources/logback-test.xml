@@ -28,8 +28,14 @@
     </appender>
 
     <!-- Allow override via -Dlog.level.root=DEBUG etc. during test runs -->
-    <property name="ROOT_LEVEL" value="${log.level.root:-INFO}"/>
-    <property name="APP_LEVEL" value="${log.level.com.streamConverter:-INFO}"/>
+    <property name="ROOT_LEVEL" value="${log.level.root:-WARN}"/>
+    <property name="APP_LEVEL" value="${log.level.com.streamConverter:-WARN}"/>
+
+    <!-- Suppress noisy exception stack traces during tests -->
+    <logger name="javax.xml" level="OFF"/>
+    <logger name="org.xml.sax" level="OFF"/>
+    <logger name="java.xml" level="OFF"/>
+    <logger name="com.sun.org.apache.xerces" level="OFF"/>
 
     <logger name="com.streamConverter" level="${APP_LEVEL}"/>
 

@@ -122,7 +122,11 @@ tasks.test {
     // テスト実行時の詳細ログを表示
     testLogging {
         events("skipped", "failed")
-        showStandardStreams = true
+        showStandardStreams = false
+        showExceptions = false
+        showCauses = false
+        showStackTraces = false
+        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.SHORT
     }
     
     // CI環境での安定性を考慮した条件付きタスク実行

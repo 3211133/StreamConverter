@@ -37,7 +37,6 @@
       "Bash(cd:*)",
       "Bash(rm -rf:*)",
       "Bash(gh pr merge:*)",
-      "Bash(gh pr close:*)",
       "Bash(gh issues close:*)"
     ],
     "ask": []

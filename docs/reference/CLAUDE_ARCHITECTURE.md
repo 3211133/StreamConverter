@@ -20,7 +20,8 @@ Foundation Layer   → Path handlers, utilities, security components
 - **Pipeline Pattern**: Commands chained via `StreamConverter.create(commands[])`
 - **Factory Pattern**: `EnhancedCommandFactory` with configuration and caching
 - **Strategy Pattern**: `IRule` implementations for data transformation rules
-- **Decorator Pattern**: `LoggingDecorator`, `ContextPropagatingDecorator`
+- **Decorator Pattern**: `ContextPropagatingDecorator`
+- **Built-in Logging**: Automatic logging via `AbstractStreamCommand` base class
 
 ## Core Processing Flow
 

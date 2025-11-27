@@ -11,9 +11,9 @@ StreamConverter provides an auto‑logging system for monitoring command executi
 Detailed logs help troubleshoot large stream operations and give insight into timing, memory use and errors.
 
 ## How
-1. Wrap any command in a `LoggingDecorator` to enable logs.
-2. Commands extending `AbstractStreamCommand` have automatic logging.
-3. Configure log levels through logging frameworks (e.g., logback).
+1. All commands extending `AbstractStreamCommand` have automatic built-in logging.
+2. No additional wrapper or configuration needed - logging works out of the box.
+3. Configure log levels and output format through logging frameworks (e.g., logback).
 
 ## See also
 - [Architecture](architecture.md)

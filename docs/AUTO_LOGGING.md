@@ -20,7 +20,7 @@ StreamConverterは包括的な自動ログ出力機能を提供し、大容量�
 - **MDC自動同期**: ExecutionContextの共有コンテキストがログ出力時に自動的にMDCに同期（2025年1月追加、TurboFilter使用）
 - **ソースロケーション情報**: メソッド名と行番号の自動出力（logback設定による）
 
-> ⚠️ **非推奨**: `LoggingDecorator` クラスは現在非推奨です。AbstractStreamCommandが包括的なログ機能を提供するため、LoggingDecoratorは不要になりました。既存のコードでLoggingDecoratorを使用している場合は、単純に削除してください。すべての標準コマンドは自動的にログ出力されます。
+> ℹ️ **Note**: The `LoggingDecorator` class has been removed as AbstractStreamCommand provides comprehensive built-in logging. All standard commands automatically output logs with execution time, data sizes, memory usage, and performance warnings.
 
 ## 基本的な使用方法
 

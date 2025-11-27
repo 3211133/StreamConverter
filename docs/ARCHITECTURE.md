@@ -11,9 +11,9 @@ This document describes the simplified StreamConverter architecture after factor
 The StreamConverter provides a clean, direct approach to stream processing:
 
 - **Direct Instantiation** creates commands with explicit parameters
-- **StreamConverter** handles command orchestration and stream processing  
+- **StreamConverter** handles command orchestration and stream processing
 - **Commands** focus purely on stream transformation logic
-- **LoggingDecorator** provides optional logging functionality
+- **Automatic Logging** is built into all commands via AbstractStreamCommand
 
 This simplified architecture removes factory complexity while maintaining all functionality.
 
@@ -24,12 +24,10 @@ This simplified architecture removes factory complexity while maintaining all fu
 │  External       │    │  StreamConverter│    │  IStreamCommand │
 │  System         │───▶│  Pipeline       │───▶│  Implementation │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
-         │                       │                       ▲
-         │                       │              ┌─────────────────┐
-         │                       │              │ LoggingDecorator│
-         │                       │              │ (Optional)      │
-         │                       └─────────────▶│                 │
-         │                                      └─────────────────┘
+         │                                             │
+         │                                             │
+         │                                    (AbstractStreamCommand)
+         │                                      (Built-in Logging)
          │
          ▼
 ┌─────────────────────────────────────────────────────────────────┐
@@ -75,23 +73,22 @@ StreamConverter converter = new StreamConverter(pipeline);
 List<CommandResult> results = converter.run(inputStream, outputStream);
 ```
 
-### 3. Optional Logging with Decorator Pattern
+### 3. Automatic Logging
+
+All commands extending `AbstractStreamCommand` automatically include comprehensive logging:
 
 ```java
-// Add logging to any command
-IStreamCommand baseCommand = new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule());
-IStreamCommand loggedCommand = new LoggingDecorator(baseCommand);
+// All standard commands have built-in logging
+IStreamCommand csvCommand = new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule());
+StreamConverter converter = new StreamConverter(new IStreamCommand[]{csvCommand});
 
-// Use in pipeline
-StreamConverter converter = new StreamConverter(new IStreamCommand[]{loggedCommand});
+// Logs automatically include:
+// - Execution time, data sizes, memory usage
+// - Performance warnings for slow operations
+// - Error details with context
 ```
 
-**LoggingDecorator Features**:
-- Performance monitoring
-- Memory usage tracking  
-- Execution timing
-- Error details
-- Thread information
+See [AUTO_LOGGING.md](AUTO_LOGGING.md) for details on the automatic logging infrastructure.
 
 
 ## Architecture Benefits
@@ -117,11 +114,9 @@ List<CommandResult> results = converter.run(inputStream, outputStream);
 Add logging only where needed with minimal overhead:
 
 ```java
-// Basic command without logging
+// Commands automatically include comprehensive logging
 IStreamCommand command = new CsvNavigateCommand(new CSVPath("email"), new PassThroughRule());
-
-// Same command with detailed logging (just +1 line)
-IStreamCommand loggedCommand = new LoggingDecorator(command);
+// Logs: execution time, data sizes, memory usage, performance warnings
 ```
 
 ### 3. Multiple Integration Patterns
@@ -139,10 +134,10 @@ try (FileInputStream input = new FileInputStream("data.csv");
 
 **Pipeline Processing**:
 ```java
-// Multi-stage processing pipeline
+// Multi-stage processing pipeline (all commands auto-logged)
 IStreamCommand[] pipeline = {
     new CsvNavigateCommand(new CSVPath("data"), new PassThroughRule()),
-    new LoggingDecorator(new CharacterConvertCommand("UTF-8", "UTF-16")),
+    new CharacterConvertCommand("UTF-8", "UTF-16"),
     new LineEndingNormalizeCommand(LineEndingNormalizeCommand.LineEndingType.UNIX)
 };
 StreamConverter converter = new StreamConverter(pipeline);
@@ -160,19 +155,18 @@ List<CommandResult> results = converter.run(csvInputStream, outputStream);
 
 ### JSON Processing with Validation
 ```java
-// JSON property extraction with logging
+// JSON property extraction (auto-logged)
 IStreamCommand jsonCommand = new JsonNavigateCommand(new JSONPath("user.profile.name"), new PassThroughRule());
-IStreamCommand loggedCommand = new LoggingDecorator(jsonCommand);
-StreamConverter converter = new StreamConverter(new IStreamCommand[]{loggedCommand});
+StreamConverter converter = new StreamConverter(new IStreamCommand[]{jsonCommand});
 List<CommandResult> results = converter.run(jsonInputStream, outputStream);
 ```
 
 ### XML Processing Pipeline
 ```java
-// XML transformation pipeline
+// XML transformation pipeline (all commands auto-logged)
 IStreamCommand[] pipeline = {
     new XmlNavigateCommand(new XPath("//users/user/name"), new PassThroughRule()),
-    new LoggingDecorator(new CharacterConvertCommand("UTF-8", "UTF-16"))
+    new CharacterConvertCommand("UTF-8", "UTF-16")
 };
 StreamConverter converter = new StreamConverter(pipeline);
 List<CommandResult> results = converter.run(xmlInputStream, outputStream);
@@ -224,9 +218,7 @@ IStreamCommand csvCommand = new CsvNavigateCommand(
     new CSVPath("columnName"),    // Path specification
     new PassThroughRule()         // Transformation rule
 );
-
-// Optional logging wrapper
-IStreamCommand loggedCommand = new LoggingDecorator(csvCommand);
+// Logging is automatically included via AbstractStreamCommand
 ```
 
 ### Error Handling
@@ -284,7 +276,6 @@ Direct Instantiation (After):
 
 ### Utility Commands
 - **SampleStreamCommand**: Basic stream copying and processing
-- **LoggingDecorator**: Add logging to any command
 
 ## Path Specifications
 
@@ -321,7 +312,7 @@ The simplified StreamConverter architecture provides:
 - **Simplicity**: Direct instantiation eliminates factory complexity
 - **Performance**: No reflection overhead or hidden object creation
 - **Clarity**: Explicit parameters make dependencies clear
-- **Flexibility**: LoggingDecorator adds functionality without changing core code
+- **Built-in Features**: Automatic logging via AbstractStreamCommand
 - **Maintainability**: Less code to understand and maintain (2,500+ lines removed)
 
 This architecture demonstrates that simpler approaches often provide better results than complex design patterns.

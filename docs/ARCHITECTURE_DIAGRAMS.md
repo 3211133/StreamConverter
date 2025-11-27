@@ -51,14 +51,7 @@ classDiagram
         +XmlNavigateCommand(XPath, IRule)
         +processStream(InputStream, OutputStream)
     }
-    
-    class LoggingDecorator {
-        -IStreamCommand delegate
-        -Logger log
-        +LoggingDecorator(IStreamCommand)
-        +execute(InputStream, OutputStream)
-    }
-    
+
     class StreamConverter {
         -IStreamCommand[] commands
         -ExecutorService executor
@@ -67,12 +60,17 @@ classDiagram
     }
 
     IStreamCommand <|.. AbstractStreamCommand
-    IStreamCommand <|.. LoggingDecorator
     AbstractStreamCommand <|-- CsvNavigateCommand
-    AbstractStreamCommand <|-- JsonNavigateCommand  
+    AbstractStreamCommand <|-- JsonNavigateCommand
     AbstractStreamCommand <|-- XmlNavigateCommand
-    LoggingDecorator o-- IStreamCommand : delegates to
     StreamConverter o-- IStreamCommand : executes
+
+    note right of AbstractStreamCommand
+      Built-in logging:
+      - Execution time
+      - Memory usage
+      - Performance warnings
+    end note
 ```
 
 ## Path System Class Diagram
@@ -183,17 +181,17 @@ sequenceDiagram
 ### After: Direct Instantiation (Current)
 
 ```
-┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
-│  External       │    │  StreamConverter│    │  IStreamCommand │
-│  System         │───▶│  Pipeline       │───▶│  Implementation │
-│                 │    │                 │    │                 │
-└─────────────────┘    └─────────────────┘    └─────────────────┘
-                                │                       ▲
-                                │              ┌─────────────────┐
-                                │              │ LoggingDecorator│
-                                │              │ (Optional)      │
-                                └─────────────▶│                 │
-                                               └─────────────────┘
+┌─────────────────┐    ┌─────────────────┐    ┌─────────────────────┐
+│  External       │    │  StreamConverter│    │  IStreamCommand     │
+│  System         │───▶│  Pipeline       │───▶│  Implementation     │
+│                 │    │                 │    │ (AbstractStream     │
+│                 │    │                 │    │  Command base)      │
+└─────────────────┘    └─────────────────┘    └─────────────────────┘
+                                                        │
+                                                Built-in Logging:
+                                                - Execution time
+                                                - Memory usage
+                                                - Performance warnings
 ```
 
 ## Component Interaction Diagram
@@ -288,12 +286,10 @@ IStreamCommand command = new CsvNavigateCommand(
 
 ### Pipeline Creation
 ```java
-// Explicit Pipeline Definition
+// Explicit Pipeline Definition (all commands auto-logged)
 IStreamCommand[] pipeline = {
     new CsvNavigateCommand(new CSVPath("data"), new PassThroughRule()),
-    new LoggingDecorator(
-        new CharacterConvertCommand("UTF-8", "UTF-16")
-    ),
+    new CharacterConvertCommand("UTF-8", "UTF-16"),
     new LineEndingNormalizeCommand(LineEndingType.UNIX)
 };
 StreamConverter converter = new StreamConverter(pipeline);

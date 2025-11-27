@@ -54,29 +54,10 @@ public interface IStreamCommand {
 }
 ```
 
-### 3. ContextPropagatingDecorator（コンテキスト伝播デコレータ）
-**役割**: 既存コマンドをコンテキスト対応に変換
-
-**機能**:
-- 既存の`IStreamCommand`を自動的にラップ
-- MDCの設定・復元を自動化
-- コマンドシーケンス番号の管理
-- エラーハンドリングとログ出力
-
-```java
-// 既存コマンドを自動的にコンテキスト対応にラップ
-IStreamCommand legacyCommand = new SampleStreamCommand("processor");
-IStreamCommand contextCommand = new ContextPropagatingDecorator(legacyCommand);
-
-// 実際の使用では、StreamConverterが自動的に適用
-StreamConverter converter = StreamConverter.createWithContext(context, legacyCommand);
-```
-
-### 4. StreamConverter.createWithContext()（コンテキスト対応StreamConverter）
+### 3. StreamConverter.createWithContext()（コンテキスト対応StreamConverter）
 **役割**: ExecutionContextを使用したマルチスレッド実行管理
 
 **特徴**:
-- 既存コマンドの自動デコレート
 - マルチスレッド環境でのコンテキスト共有
 - 単一/複数コマンドの最適実行
 - リソース管理とエラーハンドリング
@@ -87,7 +68,7 @@ StreamConverter converter = StreamConverter.createWithContext(
 );
 ```
 
-### 5. ExecutionContextHolder（ThreadLocalコンテキスト保持、2025年1月追加）
+### 4. ExecutionContextHolder（ThreadLocalコンテキスト保持、2025年1月追加）
 **役割**: ThreadLocal経由でExecutionContextを保持し、TurboFilterからアクセス可能にする
 
 **特徴**:
@@ -105,7 +86,7 @@ try {
 }
 ```
 
-### 6. ExecutionContextTurboFilter（自動MDC同期、2025年1月追加）
+### 5. ExecutionContextTurboFilter（自動MDC同期、2025年1月追加）
 **役割**: ログ出力の都度、ExecutionContextの共有コンテキストをMDCに自動同期
 
 **特徴**:
@@ -128,7 +109,7 @@ try {
 </configuration>
 ```
 
-### 7. MdcSetupRule（MDC値抽出ルール、2025年1月追加）
+### 6. MdcSetupRule（MDC値抽出ルール、2025年1月追加）
 **役割**: XMLやJSONから抽出した値を共有コンテキストに設定
 
 **特徴**:
@@ -258,14 +239,14 @@ IContextAwareStreamCommand enrichmentCommand = new IContextAwareStreamCommand() 
 ```java
 // 既存コマンドとコンテキスト対応コマンドの混在
 IStreamCommand legacyValidator = new SampleStreamCommand("validator");
-IContextAwareStreamCommand contextProcessor = createCustomProcessor();
+IStreamCommand contextProcessor = createCustomProcessor();
 IStreamCommand legacyFormatter = new SampleStreamCommand("formatter");
 
 StreamConverter converter = StreamConverter.createWithContext(
     customContext,
-    legacyValidator,     // 自動的にContextPropagatingDecoratorでラップ
-    contextProcessor,    // そのまま使用
-    legacyFormatter      // 自動的にContextPropagatingDecoratorでラップ
+    legacyValidator,
+    contextProcessor,
+    legacyFormatter
 );
 ```
 
@@ -279,10 +260,10 @@ Starting StreamConverter with context with 3 commands (executionId: EXEC-c226aa5
 
 ### コマンド実行中
 ```
-2025-07-27 16:32:33 INFO ContextPropagatingDecorator [REQ-12345] [user789] [SampleStreamCommand-1] - 
-Starting command execution: SampleStreamCommand (sequence: 1)
+2025-07-27 16:32:33 INFO AbstractStreamCommand [REQ-12345] [user789] [SampleStreamCommand-1] -
+Starting command execution: SampleStreamCommand
 
-2025-07-27 16:32:34 INFO DataEnrichment [REQ-12345] [user789] [enrichment-2] - 
+2025-07-27 16:32:34 INFO DataEnrichment [REQ-12345] [user789] [enrichment-2] -
 Starting data enrichment for request: REQ-12345, user: user789, business unit: finance
 ```
 

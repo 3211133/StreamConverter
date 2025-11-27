@@ -30,36 +30,25 @@
       "Bash(git status:*)",
       "Bash(git diff:*)",
       "Bash(git log:*)",
-      "Bash(git branch:*)",
-      "Bash(gh pr close:*)"
+      "Bash(git branch:*)"
     ],
     "deny": [
       "Bash(cd:*)",
       "Bash(rm -rf:*)",
       "Bash(gh pr merge:*)",
-      "Bash(gh issues close:*)"
+      "Bash(gh issues close:*)",
+      "Bash(gh pr close:*)"
     ],
     "ask": []
   },
   "hooks": {
-    "PostToolUse": [
-      {
-        "matcher": "Write|Edit|MultiEdit",
-        "hooks": [
-          {
-            "type": "command",
-            "command": "./gradlew spotlessApply"
-          }
-        ]
-      }
-    ],
     "Stop": [
       {
         "matcher": "",
         "hooks": [
           {
             "type": "command",
-            "command": "{ ./gradlew test && exit 0; } || exit 2"
+            "command": "{ ./gradlew test -q && exit 0; } || exit 2"
           }
         ]
       }
@@ -79,10 +68,11 @@
         "hooks": [
           {
             "type": "command",
-            "command": "{ ./gradlew test && exit 0; } || exit 2"
+            "command": "{ ./gradlew test -q && exit 0; } || exit 2"
           }
         ]
       }
     ]
   }
 }
+

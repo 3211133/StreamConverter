@@ -91,8 +91,14 @@ class MdcSetupRuleCrossThreadTest {
       // データをそのまま通過（これにより前のコマンドの処理を待つ）
       input.transferTo(output);
 
-      // データ処理後にMDCからuserIdを取得
-      // （前のコマンドがMdcSetupRuleで設定した値が利用可能）
+      // ログ出力することでMDCTurboFilterがshared contextをMDCに同期
+      org.slf4j.Logger log = org.slf4j.LoggerFactory.getLogger(UserIdCapturingCommand.class);
+      if (log.isDebugEnabled()) {
+        log.debug("{}: Checking MDC for userId", name);
+      }
+
+      // ログ出力後、MDCからuserIdを取得
+      // （MDCTurboFilterがshared contextから同期済み）
       String userId = MDC.get("userId");
 
       if (userId != null) {

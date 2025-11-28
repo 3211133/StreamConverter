@@ -82,37 +82,16 @@ public class InheritableMDCAdapter implements MDCAdapter {
   /**
    * MDCから値を取得します
    *
-   * <p>スレッドローカルの値を優先し、存在しない場合は共有コンテキストを確認します。 これにより、MdcSetupRuleなどで他のスレッドが設定した値も自動的に利用可能になります。
-   *
    * @param key MDCキー
    * @return MDC値、存在しない場合はnull
    */
   @Override
   public String get(String key) {
-    // まずスレッドローカルの値を確認
     Map<String, String> map = inheritableThreadLocal.get();
-    String value = null;
-    if (map != null) {
-      value = map.get(key);
+    if (map == null) {
+      return null;
     }
-    // スレッドローカルに値がない場合のみ共有コンテキストを確認
-    // ただし、StreamConverter管理のキー（executionId, commandSequence, stage）は除外
-    if (value == null && !isStreamConverterManagedKey(key)) {
-      value = MDCContext.getShared().get(key);
-    }
-    return value;
-  }
-
-  /**
-   * StreamConverterが管理するMDCキーかどうかを判定します
-   *
-   * <p>これらのキーはスレッドローカルでのみ管理され、共有コンテキストからは取得しません。
-   *
-   * @param key MDCキー
-   * @return StreamConverter管理のキーの場合true
-   */
-  private boolean isStreamConverterManagedKey(String key) {
-    return "executionId".equals(key) || "commandSequence".equals(key) || "stage".equals(key);
+    return map.get(key);
   }
 
   /**

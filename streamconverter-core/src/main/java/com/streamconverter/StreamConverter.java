@@ -186,10 +186,20 @@ public class StreamConverter {
     String executionId = UUID.randomUUID().toString().substring(0, 8);
 
     try {
+      // MDCに実行IDを設定してログ出力
+      org.slf4j.MDC.put("executionId", executionId);
+      if (LOG.isInfoEnabled()) {
+        LOG.info(
+            "Starting StreamConverter with {} commands (executionId: {})",
+            commands.size(),
+            executionId);
+      }
+
       // PipedStreamで並行処理（MDC対応）
       return executeMultipleCommandsWithMDC(
           inputStream, outputStream, executionId, new AtomicInteger(0));
     } finally {
+      org.slf4j.MDC.clear();
       MDCContext.clearShared(); // 共有コンテキストをクリア
     }
   }

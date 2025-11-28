@@ -2,7 +2,9 @@
 <configuration>
     <!-- Test-only logging configuration for core module -->
 
-    <!-- TurboFilter to automatically sync ExecutionContext to MDC on every log event -->
+    <!-- TurboFilter to automatically sync MDCContext to MDC on every log event -->
+    <turboFilter class="com.streamconverter.logging.MDCTurboFilter"/>
+    <!-- Legacy ExecutionContextTurboFilter (kept for compatibility) -->
     <turboFilter class="com.streamconverter.logging.ExecutionContextTurboFilter"/>
 
     <!-- Console appender for immediate feedback in tests -->

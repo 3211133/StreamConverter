@@ -185,17 +185,6 @@ public class StreamConverter {
     // 実行IDの生成
     String executionId = UUID.randomUUID().toString().substring(0, 8);
 
-    // MDC値の設定（システム値を優先するため、ユーザー値を先に設定）
-    Map<String, String> mdcValues = new HashMap<>();
-    mdcValues.put("executionId", executionId);
-    mdcValues.put("startTime", java.time.Instant.now().toString());
-    if (defaultMdcValues != null) {
-      mdcValues.putAll(defaultMdcValues);
-    }
-
-    // パイプライン開始時にMDCコンテキストを設定
-    MDCContext.set(mdcValues);
-
     try {
       if (LOG.isInfoEnabled()) {
         LOG.info(
@@ -208,8 +197,7 @@ public class StreamConverter {
       return executeMultipleCommandsWithMDC(
           inputStream, outputStream, executionId, new AtomicInteger(0));
     } finally {
-      MDCContext.clear();
-      MDCContext.clearShared(); // 共有コンテキストもクリア
+      MDCContext.clearShared(); // 共有コンテキストをクリア
     }
   }
 

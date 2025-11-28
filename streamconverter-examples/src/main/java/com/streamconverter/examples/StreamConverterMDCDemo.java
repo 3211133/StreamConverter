@@ -5,6 +5,7 @@ import com.streamconverter.StreamConverter;
 import com.streamconverter.command.impl.SampleStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.logging.MDCInitializer;
 import com.streamconverter.path.CSVPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -13,11 +14,12 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * StreamConverterのMDC機能統合デモ
  *
- * <p>このデモでは、StreamConverterに統合されたMDC機能により、デフォルトでMDC同期が有効になることを示します。
+ * <p>このデモでは、InheritableMDCAdapterにより、親スレッドのMDC値が自動的にVirtual Threadに伝播することを示します。
  */
 public class StreamConverterMDCDemo {
   private static final Logger logger = LoggerFactory.getLogger(StreamConverterMDCDemo.class);
@@ -29,6 +31,9 @@ public class StreamConverterMDCDemo {
    * @throws IOException if file operations fail
    */
   public static void main(String[] args) throws IOException {
+    // InheritableMDCAdapterを初期化
+    MDCInitializer.initialize();
+
     logger.info("🚀 StreamConverter MDC Integration Demo");
 
     demonstrateAutomaticMDC();
@@ -65,21 +70,19 @@ public class StreamConverterMDCDemo {
   private static void demonstrateCustomContext() throws IOException {
     logger.info("🎯 Demo 2: Custom MDC Context");
 
-    // カスタムMDC値を作成
-    java.util.Map<String, String> mdcValues = new java.util.HashMap<>();
-    mdcValues.put("requestId", "REQ-DEMO-456");
-    mdcValues.put("userId", "demo-user");
-    mdcValues.put("sessionId", "session-789");
-    mdcValues.put("businessUnit", "development");
-    mdcValues.put("priority", "high");
+    // カスタムMDC値を設定
+    MDC.put("requestId", "REQ-DEMO-456");
+    MDC.put("userId", "demo-user");
+    MDC.put("sessionId", "session-789");
+    MDC.put("businessUnit", "development");
+    MDC.put("priority", "high");
 
     String testData = "transaction,amount,currency\n1,100.50,USD\n2,75.25,EUR\n";
 
-    // カスタムMDC値でコンバーター作成
+    // コンバーター作成（MDC値は自動的に伝播する）
     SampleStreamCommand enrichmentCommand = new SampleStreamCommand("enrichment");
     SampleStreamCommand auditCommand = new SampleStreamCommand("audit");
-    StreamConverter converter =
-        StreamConverter.createWithMDC(mdcValues, enrichmentCommand, auditCommand);
+    StreamConverter converter = StreamConverter.create(enrichmentCommand, auditCommand);
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
@@ -91,6 +94,9 @@ public class StreamConverterMDCDemo {
     String result = outputStream.toString(StandardCharsets.UTF_8);
     logger.info("Demo 2 completed. Results: {} commands", results.size());
     logger.info("Output length: {} characters\n", result.length());
+
+    // MDCをクリア
+    MDC.clear();
   }
 
   /** デモ3: 複数コマンドでのMDC同期 */

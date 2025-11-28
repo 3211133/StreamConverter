@@ -1,16 +1,13 @@
 package com.streamconverter;
 
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.logging.MDCContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
@@ -67,7 +64,6 @@ public class StreamConverter {
   private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
-  private Map<String, String> defaultMdcValues;
 
   /**
    * Constructs a StreamConverter with the specified array of commands.
@@ -124,42 +120,6 @@ public class StreamConverter {
   }
 
   /**
-   * Creates a StreamConverter with default MDC values and specified commands. All subsequent runs
-   * will use the provided MDC values for logging context.
-   *
-   * @param mdcValues the default MDC values to use for logging
-   * @param commands the array of commands to be executed in sequence
-   * @return a new StreamConverter instance
-   * @throws NullPointerException if mdcValues or commands is null
-   * @throws IllegalArgumentException if commands is empty
-   */
-  public static StreamConverter createWithMDC(
-      Map<String, String> mdcValues, IStreamCommand... commands) {
-    Objects.requireNonNull(mdcValues, "mdcValues cannot be null");
-    StreamConverter converter = new StreamConverter(commands);
-    converter.defaultMdcValues = new HashMap<>(mdcValues);
-    return converter;
-  }
-
-  /**
-   * Creates a StreamConverter with default MDC values and specified commands list. All subsequent
-   * runs will use the provided MDC values for logging context.
-   *
-   * @param mdcValues the default MDC values to use for logging
-   * @param commands the list of commands to be executed in sequence
-   * @return a new StreamConverter instance
-   * @throws NullPointerException if mdcValues or commands is null
-   * @throws IllegalArgumentException if commands is empty
-   */
-  public static StreamConverter createWithMDC(
-      Map<String, String> mdcValues, List<IStreamCommand> commands) {
-    Objects.requireNonNull(mdcValues, "mdcValues cannot be null");
-    StreamConverter converter = new StreamConverter(commands);
-    converter.defaultMdcValues = new HashMap<>(mdcValues);
-    return converter;
-  }
-
-  /**
    * Creates an optimal executor service based on available system resources and command count.
    *
    * @return an optimally configured ExecutorService
@@ -200,7 +160,6 @@ public class StreamConverter {
           inputStream, outputStream, executionId, new AtomicInteger(0));
     } finally {
       org.slf4j.MDC.clear();
-      MDCContext.clearShared(); // 共有コンテキストをクリア
     }
   }
 
@@ -247,15 +206,10 @@ public class StreamConverter {
                   int sequence = commandSequence.incrementAndGet();
                   String stageName = command.getClass().getSimpleName() + "-" + sequence;
 
-                  // MDCContextを設定（システム値を優先）
-                  Map<String, String> mdcValues = new HashMap<>();
-                  if (defaultMdcValues != null) {
-                    mdcValues.putAll(defaultMdcValues);
-                  }
-                  mdcValues.put("executionId", executionId);
-                  mdcValues.put("commandSequence", String.valueOf(sequence));
-                  mdcValues.put("stage", stageName);
-                  MDCContext.set(mdcValues);
+                  // MDCに値を設定（親スレッドのMDC値は自動的に継承されている）
+                  org.slf4j.MDC.put("executionId", executionId);
+                  org.slf4j.MDC.put("commandSequence", String.valueOf(sequence));
+                  org.slf4j.MDC.put("stage", stageName);
 
                   long startTime = System.currentTimeMillis();
                   java.time.Instant startInstant = java.time.Instant.now();
@@ -317,7 +271,7 @@ public class StreamConverter {
                         endInstant);
                   } finally {
                     // Clean up MDC for this thread
-                    MDCContext.clear();
+                    org.slf4j.MDC.clear();
                   }
                 });
 

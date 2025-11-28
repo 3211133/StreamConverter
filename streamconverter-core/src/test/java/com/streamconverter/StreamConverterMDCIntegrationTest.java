@@ -4,15 +4,30 @@ import static com.streamconverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.command.impl.SampleStreamCommand;
+import com.streamconverter.logging.MDCInitializer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.MDC;
 
 /** Integration test for StreamConverter with MDC functionality */
 class StreamConverterMDCIntegrationTest {
+
+  @BeforeEach
+  void setUp() {
+    MDCInitializer.initialize();
+    MDC.clear();
+  }
+
+  @AfterEach
+  void tearDown() {
+    MDC.clear();
+  }
 
   @Test
   void testAutomaticMDCGeneration() throws IOException {
@@ -40,13 +55,12 @@ class StreamConverterMDCIntegrationTest {
   @Test
   void testCustomExecutionContext() throws IOException {
     // カスタムMDC値を使用したテスト
-    java.util.Map<String, String> mdcValues = new java.util.HashMap<>();
-    mdcValues.put("requestId", "REQ-TEST-123");
-    mdcValues.put("userId", "testuser");
-    mdcValues.put("testScope", "integration");
+    MDC.put("requestId", "REQ-TEST-123");
+    MDC.put("userId", "testuser");
+    MDC.put("testScope", "integration");
 
     SampleStreamCommand command = new SampleStreamCommand("contextTest");
-    StreamConverter converter = StreamConverter.createWithMDC(mdcValues, command);
+    StreamConverter converter = StreamConverter.create(command);
 
     String testData = createTestData("custom,context,test", "a,b,c");
     ByteArrayInputStream inputStream =
@@ -92,12 +106,11 @@ class StreamConverterMDCIntegrationTest {
 
   @Test
   void testContextPersistenceInFactory() throws IOException {
-    // ファクトリメソッドで作成したMDC値が保持されることをテスト
-    java.util.Map<String, String> mdcValues = new java.util.HashMap<>();
-    mdcValues.put("persistenceTest", "factory");
+    // MDC値が複数回実行で保持されることをテスト
+    MDC.put("persistenceTest", "factory");
 
     SampleStreamCommand command = new SampleStreamCommand("persistenceTest");
-    StreamConverter converter = StreamConverter.createWithMDC(mdcValues, command);
+    StreamConverter converter = StreamConverter.create(command);
 
     // 複数回実行して同じコンテキストが使用されることを確認
     for (int i = 0; i < 3; i++) {

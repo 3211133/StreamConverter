@@ -203,6 +203,6 @@ public class MDCContext {
    * <p>このクラスは静的ユーティリティクラスであり、インスタンス化を禁止します。
    */
   private MDCContext() {
-    throw new AssertionError("Utility class should not be instantiated");
+    // Utility class - インスタンス化を防ぐためのprivateコンストラクタ
   }
 }

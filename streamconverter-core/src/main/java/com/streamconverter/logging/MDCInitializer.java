@@ -118,6 +118,6 @@ public class MDCInitializer {
    * <p>このクラスは静的ユーティリティクラスであり、インスタンス化を禁止します。
    */
   private MDCInitializer() {
-    throw new AssertionError("Utility class should not be instantiated");
+    // Utility class - インスタンス化を防ぐためのprivateコンストラクタ
   }
 }

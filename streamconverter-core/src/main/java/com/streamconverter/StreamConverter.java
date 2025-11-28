@@ -185,13 +185,13 @@ public class StreamConverter {
     // 実行IDの生成
     String executionId = UUID.randomUUID().toString().substring(0, 8);
 
-    // デフォルトMDC値があればそれを使用、なければ空のMapから開始
+    // MDC値の設定（システム値を優先するため、ユーザー値を先に設定）
     Map<String, String> mdcValues = new HashMap<>();
+    mdcValues.put("executionId", executionId);
+    mdcValues.put("startTime", java.time.Instant.now().toString());
     if (defaultMdcValues != null) {
       mdcValues.putAll(defaultMdcValues);
     }
-    mdcValues.put("executionId", executionId);
-    mdcValues.put("startTime", java.time.Instant.now().toString());
 
     // パイプライン開始時にMDCコンテキストを設定
     MDCContext.set(mdcValues);
@@ -209,6 +209,7 @@ public class StreamConverter {
           inputStream, outputStream, executionId, new AtomicInteger(0));
     } finally {
       MDCContext.clear();
+      MDCContext.clearShared(); // 共有コンテキストもクリア
     }
   }
 
@@ -255,14 +256,14 @@ public class StreamConverter {
                   int sequence = commandSequence.incrementAndGet();
                   String stageName = command.getClass().getSimpleName() + "-" + sequence;
 
-                  // MDCContextを設定
+                  // MDCContextを設定（システム値を優先）
                   Map<String, String> mdcValues = new HashMap<>();
-                  mdcValues.put("executionId", executionId);
-                  mdcValues.put("commandSequence", String.valueOf(sequence));
-                  mdcValues.put("stage", stageName);
                   if (defaultMdcValues != null) {
                     mdcValues.putAll(defaultMdcValues);
                   }
+                  mdcValues.put("executionId", executionId);
+                  mdcValues.put("commandSequence", String.valueOf(sequence));
+                  mdcValues.put("stage", stageName);
                   MDCContext.set(mdcValues);
 
                   long startTime = System.currentTimeMillis();

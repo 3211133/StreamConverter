@@ -3,12 +3,13 @@ package com.streamconverter.logging;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 /**
  * スレッド間MDC同期専用クラス
  *
  * <p>このクラスは、スレッド間でMDC値を共有するための軽量なThreadLocalコンテナです。
- * ExecutionContextTurboFilterと組み合わせて使用することで、ログ出力時に自動的にMDCに同期されます。
+ * MDCTurboFilterと組み合わせて使用することで、ログ出力時に自動的にMDCに同期されます。
  *
  * <p><b>設計思想:</b>
  *
@@ -59,6 +60,13 @@ public class MDCContext {
       ThreadLocal.withInitial(HashMap::new);
 
   /**
+   * スレッド間で共有されるMDC値のコンテナ
+   *
+   * <p>MdcSetupRuleなどで抽出した値を全スレッドで共有するために使用します。 マルチスレッド環境でも安全にアクセスできるようConcurrentHashMapを使用しています。
+   */
+  private static final Map<String, String> sharedContext = new ConcurrentHashMap<>();
+
+  /**
    * 現在のスレッドにMDC値を設定します
    *
    * <p>設定された値は、ログ出力時にMDCTurboFilterによって自動的にMDCに同期されます。
@@ -75,16 +83,16 @@ public class MDCContext {
   }
 
   /**
-   * 現在のスレッドのMDC値を取得します
+   * 現在のスレッドのMDC値を取得します（スレッド固有値と共有値の両方を含む）
    *
-   * <p>返されるMapは読み取り専用のコピーです。変更しても元のMDC値には影響しません。
+   * <p>返されるMapは読み取り専用のコピーです。変更しても元のMDC値には影響しません。 スレッド固有の値と共有コンテキストの値が両方含まれます。
    *
-   * @return 現在のスレッドのMDC値のコピー。設定されていない場合は空のMap。
+   * @return 現在のスレッドのMDC値のコピー。
    */
   public static Map<String, String> get() {
-    Map<String, String> current = holder.get();
-    // 読み取り専用のコピーを返す
-    return current == null ? Collections.emptyMap() : Collections.unmodifiableMap(current);
+    Map<String, String> result = new HashMap<>(sharedContext);
+    result.putAll(holder.get()); // スレッド固有の値が共有値を上書き
+    return Collections.unmodifiableMap(result);
   }
 
   /**
@@ -102,11 +110,6 @@ public class MDCContext {
     }
 
     Map<String, String> current = holder.get();
-    if (current == null) {
-      current = new HashMap<>();
-      holder.set(current);
-    }
-
     if (value == null) {
       current.remove(key);
     } else {
@@ -120,10 +123,45 @@ public class MDCContext {
    * @param key 削除するMDCキー
    */
   public static void remove(String key) {
-    Map<String, String> current = holder.get();
-    if (current != null) {
-      current.remove(key);
+    holder.get().remove(key);
+  }
+
+  /**
+   * 共有コンテキストに値を設定します（全スレッドで共有される）
+   *
+   * <p>この値はすべてのスレッドから参照可能です。MdcSetupRuleで抽出した値など、 マルチスレッド環境で共有したい値を設定するために使用します。
+   *
+   * @param key MDCキー
+   * @param value MDC値。nullの場合は該当キーを削除します。
+   * @throws NullPointerException keyがnullの場合
+   */
+  public static void putShared(String key, String value) {
+    if (key == null) {
+      throw new NullPointerException("MDC key cannot be null");
     }
+    if (value == null) {
+      sharedContext.remove(key);
+    } else {
+      sharedContext.put(key, value);
+    }
+  }
+
+  /**
+   * 共有コンテキストから値を削除します
+   *
+   * @param key 削除するMDCキー
+   */
+  public static void removeShared(String key) {
+    sharedContext.remove(key);
+  }
+
+  /**
+   * 共有コンテキストをクリアします（全スレッド共通の値をクリア）
+   *
+   * <p>パイプライン処理の終了時などに呼び出して、共有コンテキストをリセットします。
+   */
+  public static void clearShared() {
+    sharedContext.clear();
   }
 
   /**
@@ -132,6 +170,8 @@ public class MDCContext {
    * <p>ThreadLocalからMapを削除し、メモリリークを防止します。 スレッドプールを使用している場合、スレッドの処理完了時に必ず呼び出してください。
    *
    * <p><b>重要:</b> このメソッドを呼び忘れると、スレッドプール環境でメモリリークが発生する可能性があります。 try-finallyブロックで確実に呼び出すことを推奨します。
+   *
+   * <p><b>注意:</b> このメソッドはスレッド固有の値のみをクリアします。共有コンテキストはクリアされません。
    *
    * <pre>{@code
    * try {

@@ -41,20 +41,21 @@ public class MdcSetupRule implements IRule {
   }
 
   /**
-   * 抽出された値をMDCContextに設定します
+   * 抽出された値をMDCContextの共有コンテキストに設定します
    *
-   * <p>このメソッドは値を変更せずそのまま返しますが、副作用として MDCContextに値を設定します。 MDCへの同期はLogback
+   * <p>このメソッドは値を変更せずそのまま返しますが、副作用として MDCContextの共有コンテキストに値を設定します。
+   * 共有コンテキストに設定された値は、すべてのスレッドで共有され、マルチスレッド環境でも正しく伝播します。 MDCへの同期はLogback
    * TurboFilterが自動的に行うため、呼び出し側は同期を意識する必要がありません。
    *
-   * @param extractedValue 抽出された値（nullの場合はMDCから削除）
+   * @param extractedValue 抽出された値（nullの場合は共有コンテキストから削除）
    * @return 入力値をそのまま返す
    */
   @Override
   public String apply(String extractedValue) {
     if (extractedValue == null) {
-      MDCContext.remove(mdcKey);
+      MDCContext.removeShared(mdcKey);
     } else {
-      MDCContext.put(mdcKey, extractedValue);
+      MDCContext.putShared(mdcKey, extractedValue);
     }
     return extractedValue;
   }

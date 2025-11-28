@@ -15,12 +15,14 @@ class MdcSetupRuleTest {
   void setUp() {
     MDC.clear();
     MDCContext.clear();
+    MDCContext.clearShared();
   }
 
   @AfterEach
   void tearDown() {
     MDC.clear();
     MDCContext.clear();
+    MDCContext.clearShared();
   }
 
   @Test

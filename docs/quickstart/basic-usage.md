@@ -63,12 +63,14 @@ converter.run(inputStream, outputStream);
 2. 抽出したIDをHTTP APIに送信
 3. APIレスポンス（JSON）から `result` フィールドを抽出
 
-## 3. ExecutionContext とメトリクス取得
+## 3. MDCコンテキストとメトリクス取得
 
-実運用環境では、処理の追跡とメトリクス収集が重要です。ExecutionContextを使用してログトレースとパフォーマンス測定を行います。
+実運用環境では、処理の追跡とメトリクス収集が重要です。MDCコンテキストを使用してログトレースとパフォーマンス測定を行います。
 
 ```java
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
@@ -78,16 +80,14 @@ import com.streamconverter.command.impl.SendHttpCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.command.impl.json.JsonValidateCommand;
 import com.streamconverter.command.rule.PassThroughRule;
-import com.streamconverter.context.ExecutionContext;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
 
-// ExecutionContextを作成してトレーシング情報を設定
-ExecutionContext context = ExecutionContext.builder()
-    .globalContext("jobId", "daily-import")
-    .globalContext("environment", "production")
-    .userContext("operator", "batch-service")
-    .build();
+// MDCコンテキスト情報を設定
+Map<String, String> mdcValues = new HashMap<>();
+mdcValues.put("jobId", "daily-import");
+mdcValues.put("environment", "production");
+mdcValues.put("operator", "batch-service");
 
 // 4つのコマンドを組み合わせた高度なパイプライン
 IStreamCommand[] pipeline = {
@@ -97,8 +97,8 @@ IStreamCommand[] pipeline = {
     JsonValidateCommand.create("schemas/product-schema.json")
 };
 
-// ExecutionContext付きでパイプラインを実行
-StreamConverter converter = StreamConverter.createWithContext(context, pipeline);
+// MDCコンテキスト付きでパイプラインを実行
+StreamConverter converter = StreamConverter.createWithMDC(mdcValues, pipeline);
 List<CommandResult> results = converter.run(inputStream, outputStream);
 
 // 各コマンドの実行結果を確認
@@ -121,7 +121,7 @@ results.forEach(result -> {
 3. APIレスポンス（JSON）から `result` フィールドを抽出
 4. JSONスキーマで検証
 
-ExecutionContextにより、すべてのログに `jobId`, `environment`, `operator` の情報が自動的に付加され、マルチスレッド環境でも正確なトレーシングが可能になります。
+MDCコンテキストにより、すべてのログに `jobId`, `environment`, `operator` の情報が自動的に付加され、マルチスレッド環境でも正確なトレーシングが可能になります。
 
 ---
 

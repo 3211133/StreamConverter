@@ -2,35 +2,36 @@ package com.streamconverter.command.rule;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamconverter.context.ExecutionContext;
+import com.streamconverter.logging.MDCContext;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.slf4j.MDC;
 
-/** Tests for MdcSetupRule that sets extracted values to shared context. */
+/** Tests for MdcSetupRule that sets extracted values to MDCContext. */
 class MdcSetupRuleTest {
 
   @BeforeEach
   void setUp() {
     MDC.clear();
+    MDCContext.clear();
   }
 
   @AfterEach
   void tearDown() {
     MDC.clear();
+    MDCContext.clear();
   }
 
   @Test
-  void testMdcSetupRuleSetsValueToSharedContext() {
-    ExecutionContext context = ExecutionContext.create();
-    MdcSetupRule rule = new MdcSetupRule(context, "userId");
+  void testMdcSetupRuleSetsValueToMDCContext() {
+    MdcSetupRule rule = new MdcSetupRule("userId");
 
     // Ruleを適用
     String result = rule.apply("USER12345");
 
-    // 共有コンテキストに値が設定されていることを確認
-    assertEquals("USER12345", context.getSharedContext("userId"));
+    // MDCContextに値が設定されていることを確認
+    assertEquals("USER12345", MDCContext.get().get("userId"));
 
     // 返り値は変更されずそのまま返される
     assertEquals("USER12345", result);
@@ -38,8 +39,7 @@ class MdcSetupRuleTest {
 
   @Test
   void testMdcSetupRuleReturnsValueUnchanged() {
-    ExecutionContext context = ExecutionContext.create();
-    MdcSetupRule rule = new MdcSetupRule(context, "requestId");
+    MdcSetupRule rule = new MdcSetupRule("requestId");
 
     String input = "REQ-98765";
     String result = rule.apply(input);
@@ -50,14 +50,17 @@ class MdcSetupRuleTest {
 
   @Test
   void testMdcSetupRuleWithNullValue() {
-    ExecutionContext context = ExecutionContext.create();
-    MdcSetupRule rule = new MdcSetupRule(context, "optional");
+    MdcSetupRule rule = new MdcSetupRule("optional");
+
+    // 初期値を設定
+    rule.apply("initialValue");
+    assertEquals("initialValue", MDCContext.get().get("optional"));
 
     // null値を適用
     String result = rule.apply(null);
 
-    // 共有コンテキストからは削除される
-    assertNull(context.getSharedContext("optional"));
+    // MDCContextからは削除される
+    assertNull(MDCContext.get().get("optional"));
 
     // 返り値もnull
     assertNull(result);
@@ -65,73 +68,45 @@ class MdcSetupRuleTest {
 
   @Test
   void testMdcSetupRuleOverwritesValue() {
-    ExecutionContext context = ExecutionContext.create();
-    MdcSetupRule rule = new MdcSetupRule(context, "status");
+    MdcSetupRule rule = new MdcSetupRule("status");
 
     // 初回設定
     rule.apply("initial");
-    assertEquals("initial", context.getSharedContext("status"));
+    assertEquals("initial", MDCContext.get().get("status"));
 
     // 値を上書き
     rule.apply("updated");
-    assertEquals("updated", context.getSharedContext("status"));
+    assertEquals("updated", MDCContext.get().get("status"));
   }
 
   @Test
   void testMdcSetupRuleWithEmptyString() {
-    ExecutionContext context = ExecutionContext.create();
-    MdcSetupRule rule = new MdcSetupRule(context, "emptyField");
+    MdcSetupRule rule = new MdcSetupRule("emptyField");
 
     String result = rule.apply("");
 
     // 空文字列も設定される
-    assertEquals("", context.getSharedContext("emptyField"));
+    assertEquals("", MDCContext.get().get("emptyField"));
     assertEquals("", result);
   }
 
   @Test
   void testMdcSetupRuleConstructorValidation() {
-    ExecutionContext context = ExecutionContext.create();
-
-    // nullコンテキストは例外
-    assertThrows(NullPointerException.class, () -> new MdcSetupRule(null, "key"));
-
     // nullキーは例外
-    assertThrows(NullPointerException.class, () -> new MdcSetupRule(context, null));
-  }
-
-  @Test
-  void testMdcSetupRuleIntegrationWithApplyToMDC() {
-    ExecutionContext context = ExecutionContext.create();
-    MdcSetupRule rule = new MdcSetupRule(context, "userId");
-
-    // 値を設定
-    rule.apply("USER99999");
-
-    // applyToMDC()を呼ぶとMDCに反映される
-    context.applyToMDC();
-
-    // MDCに値が反映されている
-    assertEquals("USER99999", MDC.get("userId"));
+    assertThrows(NullPointerException.class, () -> new MdcSetupRule(null));
   }
 
   @Test
   void testMultipleMdcSetupRulesWithDifferentKeys() {
-    ExecutionContext context = ExecutionContext.create();
-    MdcSetupRule userIdRule = new MdcSetupRule(context, "userId");
-    MdcSetupRule requestIdRule = new MdcSetupRule(context, "requestId");
+    MdcSetupRule userIdRule = new MdcSetupRule("userId");
+    MdcSetupRule requestIdRule = new MdcSetupRule("requestId");
 
     // それぞれのRuleで値を設定
     userIdRule.apply("USER123");
     requestIdRule.apply("REQ-456");
 
-    // 両方とも共有コンテキストに設定されている
-    assertEquals("USER123", context.getSharedContext("userId"));
-    assertEquals("REQ-456", context.getSharedContext("requestId"));
-
-    // applyToMDC()で両方ともMDCに反映される
-    context.applyToMDC();
-    assertEquals("USER123", MDC.get("userId"));
-    assertEquals("REQ-456", MDC.get("requestId"));
+    // 両方ともMDCContextに設定されている
+    assertEquals("USER123", MDCContext.get().get("userId"));
+    assertEquals("REQ-456", MDCContext.get().get("requestId"));
   }
 }

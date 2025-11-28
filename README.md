@@ -13,7 +13,7 @@ Java 21 &nbsp;|&nbsp; [📚 完全なドキュメント一覧](docs/INDEX.md) &n
 
 | モジュール | 役割 |
 | --- | --- |
-| `streamconverter-core` | パイプラインエンジンとコマンド実装、`StreamConverter` / `ExecutionContext` / ルール API | 
+| `streamconverter-core` | パイプラインエンジンとコマンド実装、`StreamConverter` / `MDCContext` / ルール API | 
 | `streamconverter-web` | Spring Boot 製の REST API ラッパー。CSV/JSON 抽出や任意パイプライン実行エンドポイントを提供 | 
 | `streamconverter-examples` | サンプルコードと `runQuickStart` / `runMDC` などの実行タスク | 
 | `streamconverter-tools` | 実験・解析ユーティリティ（Gradle タスク経由で利用） |
@@ -26,7 +26,7 @@ Java 21 &nbsp;|&nbsp; [📚 完全なドキュメント一覧](docs/INDEX.md) &n
 
 ### 📊 観測性とコンテキスト伝播
 - `CommandResult` に各コマンドの成功可否・実行時間・入出力バイト数を集約。
-- `ExecutionContext` がリクエスト ID やユーザー情報を MDC に自動連携し、マルチスレッドでもログトレースを維持します。
+- `MDCContext` がリクエスト ID やユーザー情報を MDC に自動連携し、マルチスレッドでもログトレースを維持します。
 
 ### 🧰 コマンドカタログ
 - CSV/JSON/XML ナビゲーション、ラインエンディング正規化、文字コード変換、HTTP 送信、スキーマ検証などを同梱。
@@ -38,23 +38,23 @@ Java 21 &nbsp;|&nbsp; [📚 完全なドキュメント一覧](docs/INDEX.md) &n
 
 ### パイプライン処理の例
 ```java
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.command.impl.SendHttpCommand;
 import com.streamconverter.command.rule.PassThroughRule;
-import com.streamconverter.context.ExecutionContext;
 import com.streamconverter.path.TreePath;
 
-ExecutionContext context = ExecutionContext.builder()
-    .globalContext("requestId", "REQ-12345")
-    .userContext("operator", "batch-service")
-    .build();
+Map<String, String> mdcValues = new HashMap<>();
+mdcValues.put("requestId", "REQ-12345");
+mdcValues.put("operator", "batch-service");
 
-StreamConverter converter = StreamConverter.createWithContext(
-    context,
+StreamConverter converter = StreamConverter.createWithMDC(
+    mdcValues,
     JsonNavigateCommand.create(TreePath.fromJson("$.result"), new PassThroughRule()),
     new SendHttpCommand("https://api.example.com/ingest"));
 

@@ -4,8 +4,6 @@
 
     <!-- TurboFilter to automatically sync MDCContext to MDC on every log event -->
     <turboFilter class="com.streamconverter.logging.MDCTurboFilter"/>
-    <!-- Legacy ExecutionContextTurboFilter (kept for compatibility) -->
-    <turboFilter class="com.streamconverter.logging.ExecutionContextTurboFilter"/>
 
     <!-- Console appender for immediate feedback in tests -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">

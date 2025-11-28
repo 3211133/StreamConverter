@@ -5,7 +5,6 @@ import com.streamconverter.StreamConverter;
 import com.streamconverter.command.impl.SampleStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.rule.PassThroughRule;
-import com.streamconverter.context.ExecutionContext;
 import com.streamconverter.path.CSVPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -62,40 +61,35 @@ public class StreamConverterMDCDemo {
         result.length());
   }
 
-  /** デモ2: カスタムコンテキストでのMDC */
+  /** デモ2: カスタムMDCコンテキストでの処理 */
   private static void demonstrateCustomContext() throws IOException {
-    logger.info("🎯 Demo 2: Custom ExecutionContext with MDC");
+    logger.info("🎯 Demo 2: Custom MDC Context");
 
-    // カスタムExecutionContextを作成
-    ExecutionContext customContext =
-        ExecutionContext.builder()
-            .globalContext("requestId", "REQ-DEMO-456")
-            .globalContext("userId", "demo-user")
-            .globalContext("sessionId", "session-789")
-            .userContext("businessUnit", "development")
-            .userContext("priority", "high")
-            .build();
+    // カスタムMDC値を作成
+    java.util.Map<String, String> mdcValues = new java.util.HashMap<>();
+    mdcValues.put("requestId", "REQ-DEMO-456");
+    mdcValues.put("userId", "demo-user");
+    mdcValues.put("sessionId", "session-789");
+    mdcValues.put("businessUnit", "development");
+    mdcValues.put("priority", "high");
 
     String testData = "transaction,amount,currency\n1,100.50,USD\n2,75.25,EUR\n";
 
-    // カスタムコンテキストでコンバーター作成
+    // カスタムMDC値でコンバーター作成
     SampleStreamCommand enrichmentCommand = new SampleStreamCommand("enrichment");
     SampleStreamCommand auditCommand = new SampleStreamCommand("audit");
     StreamConverter converter =
-        StreamConverter.createWithContext(customContext, enrichmentCommand, auditCommand);
+        StreamConverter.createWithMDC(mdcValues, enrichmentCommand, auditCommand);
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    logger.info("Executing pipeline with custom context...");
+    logger.info("Executing pipeline with custom MDC...");
     List<CommandResult> results = converter.run(inputStream, outputStream);
 
     String result = outputStream.toString(StandardCharsets.UTF_8);
-    logger.info(
-        "Demo 2 completed. ExecutionId: {}, Results: {} commands",
-        customContext.getExecutionId(),
-        results.size());
+    logger.info("Demo 2 completed. Results: {} commands", results.size());
     logger.info("Output length: {} characters\n", result.length());
   }
 

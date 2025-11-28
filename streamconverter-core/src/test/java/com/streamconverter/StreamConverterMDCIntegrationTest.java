@@ -4,7 +4,6 @@ import static com.streamconverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.command.impl.SampleStreamCommand;
-import com.streamconverter.context.ExecutionContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -40,16 +39,14 @@ class StreamConverterMDCIntegrationTest {
 
   @Test
   void testCustomExecutionContext() throws IOException {
-    // カスタムExecutionContextを使用したテスト
-    ExecutionContext context =
-        ExecutionContext.builder()
-            .globalContext("requestId", "REQ-TEST-123")
-            .globalContext("userId", "testuser")
-            .userContext("testScope", "integration")
-            .build();
+    // カスタムMDC値を使用したテスト
+    java.util.Map<String, String> mdcValues = new java.util.HashMap<>();
+    mdcValues.put("requestId", "REQ-TEST-123");
+    mdcValues.put("userId", "testuser");
+    mdcValues.put("testScope", "integration");
 
     SampleStreamCommand command = new SampleStreamCommand("contextTest");
-    StreamConverter converter = StreamConverter.createWithContext(context, command);
+    StreamConverter converter = StreamConverter.createWithMDC(mdcValues, command);
 
     String testData = createTestData("custom,context,test", "a,b,c");
     ByteArrayInputStream inputStream =
@@ -95,12 +92,12 @@ class StreamConverterMDCIntegrationTest {
 
   @Test
   void testContextPersistenceInFactory() throws IOException {
-    // ファクトリメソッドで作成したコンテキストが保持されることをテスト
-    ExecutionContext context =
-        ExecutionContext.builder().globalContext("persistenceTest", "factory").build();
+    // ファクトリメソッドで作成したMDC値が保持されることをテスト
+    java.util.Map<String, String> mdcValues = new java.util.HashMap<>();
+    mdcValues.put("persistenceTest", "factory");
 
     SampleStreamCommand command = new SampleStreamCommand("persistenceTest");
-    StreamConverter converter = StreamConverter.createWithContext(context, command);
+    StreamConverter converter = StreamConverter.createWithMDC(mdcValues, command);
 
     // 複数回実行して同じコンテキストが使用されることを確認
     for (int i = 0; i < 3; i++) {

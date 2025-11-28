@@ -1,15 +1,18 @@
 package com.streamconverter;
 
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.context.ExecutionContext;
+import com.streamconverter.logging.MDCContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
@@ -17,6 +20,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -63,7 +67,7 @@ public class StreamConverter {
   private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
-  private ExecutionContext defaultContext;
+  private Map<String, String> defaultMdcValues;
 
   /**
    * Constructs a StreamConverter with the specified array of commands.
@@ -120,38 +124,38 @@ public class StreamConverter {
   }
 
   /**
-   * Creates a StreamConverter with a custom ExecutionContext and specified commands. All subsequent
-   * runs will use the provided context for MDC synchronization.
+   * Creates a StreamConverter with default MDC values and specified commands. All subsequent runs
+   * will use the provided MDC values for logging context.
    *
-   * @param context the execution context to use for MDC and logging
+   * @param mdcValues the default MDC values to use for logging
    * @param commands the array of commands to be executed in sequence
    * @return a new StreamConverter instance
-   * @throws NullPointerException if context or commands is null
+   * @throws NullPointerException if mdcValues or commands is null
    * @throws IllegalArgumentException if commands is empty
    */
-  public static StreamConverter createWithContext(
-      ExecutionContext context, IStreamCommand... commands) {
-    Objects.requireNonNull(context, "context cannot be null");
+  public static StreamConverter createWithMDC(
+      Map<String, String> mdcValues, IStreamCommand... commands) {
+    Objects.requireNonNull(mdcValues, "mdcValues cannot be null");
     StreamConverter converter = new StreamConverter(commands);
-    converter.defaultContext = context;
+    converter.defaultMdcValues = new HashMap<>(mdcValues);
     return converter;
   }
 
   /**
-   * Creates a StreamConverter with a custom ExecutionContext and specified commands list. All
-   * subsequent runs will use the provided context for MDC synchronization.
+   * Creates a StreamConverter with default MDC values and specified commands list. All subsequent
+   * runs will use the provided MDC values for logging context.
    *
-   * @param context the execution context to use for MDC and logging
+   * @param mdcValues the default MDC values to use for logging
    * @param commands the list of commands to be executed in sequence
    * @return a new StreamConverter instance
-   * @throws NullPointerException if context or commands is null
+   * @throws NullPointerException if mdcValues or commands is null
    * @throws IllegalArgumentException if commands is empty
    */
-  public static StreamConverter createWithContext(
-      ExecutionContext context, List<IStreamCommand> commands) {
-    Objects.requireNonNull(context, "context cannot be null");
+  public static StreamConverter createWithMDC(
+      Map<String, String> mdcValues, List<IStreamCommand> commands) {
+    Objects.requireNonNull(mdcValues, "mdcValues cannot be null");
     StreamConverter converter = new StreamConverter(commands);
-    converter.defaultContext = context;
+    converter.defaultMdcValues = new HashMap<>(mdcValues);
     return converter;
   }
 
@@ -166,7 +170,7 @@ public class StreamConverter {
   }
 
   /**
-   * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 自動的にExecutionContextを生成してMDC同期を実現する。
+   * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 自動的に実行IDを生成してMDC同期を実現する。
    *
    * @param inputStream 処理対象の入力ストリーム
    * @param outputStream 処理結果を書き込む出力ストリーム
@@ -175,45 +179,45 @@ public class StreamConverter {
    */
   public List<CommandResult> run(InputStream inputStream, OutputStream outputStream)
       throws IOException {
-    // デフォルトコンテキストがあればそれを使用、なければ自動生成
-    ExecutionContext contextToUse =
-        defaultContext != null ? defaultContext : ExecutionContext.create();
-    return run(inputStream, outputStream, contextToUse);
-  }
-
-  /**
-   * カスタムExecutionContextを使用してストリームを変換する。 マルチスレッド環境でのMDCコンテキスト伝播とログトレーサビリティを実現。
-   *
-   * @param inputStream 処理対象の入力ストリーム
-   * @param outputStream 処理結果を書き込む出力ストリーム
-   * @param context 実行コンテキスト
-   * @return 各コマンドの実行結果リスト
-   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
-   */
-  public List<CommandResult> run(
-      InputStream inputStream, OutputStream outputStream, ExecutionContext context)
-      throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
-    Objects.requireNonNull(context, "context cannot be null");
+
+    // 実行IDの生成
+    String executionId = UUID.randomUUID().toString().substring(0, 8);
+
+    // デフォルトMDC値があればそれを使用、なければ空のMapから開始
+    Map<String, String> mdcValues = new HashMap<>();
+    if (defaultMdcValues != null) {
+      mdcValues.putAll(defaultMdcValues);
+    }
+    mdcValues.put("executionId", executionId);
+    mdcValues.put("startTime", java.time.Instant.now().toString());
 
     // パイプライン開始時にMDCコンテキストを設定
-    context.applyToMDCWithStage("pipeline-start");
+    MDCContext.set(mdcValues);
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info(
-          "Starting StreamConverter with {} commands (executionId: {})",
-          commands.size(),
-          context.getExecutionId());
+    try {
+      if (LOG.isInfoEnabled()) {
+        LOG.info(
+            "Starting StreamConverter with {} commands (executionId: {})",
+            commands.size(),
+            executionId);
+      }
+
+      // PipedStreamで並行処理（MDC対応）
+      return executeMultipleCommandsWithMDC(
+          inputStream, outputStream, executionId, new AtomicInteger(0));
+    } finally {
+      MDCContext.clear();
     }
-
-    // PipedStreamで並行処理（MDC対応）
-    return executeMultipleCommandsWithMDC(inputStream, outputStream, context);
   }
 
   /** コマンド（単一または複数）をMDC同期付きで並列実行 */
   private List<CommandResult> executeMultipleCommandsWithMDC(
-      InputStream inputStream, OutputStream outputStream, ExecutionContext context)
+      InputStream inputStream,
+      OutputStream outputStream,
+      String executionId,
+      AtomicInteger commandSequence)
       throws IOException {
     List<CompletableFuture<CommandResult>> futures = new ArrayList<>();
     List<AutoCloseable> resources = new ArrayList<>();
@@ -248,25 +252,34 @@ public class StreamConverter {
             executor.supplyAsync(
                 () -> {
                   // スレッド固有のMDC設定
-                  int sequence = context.getNextCommandSequence();
+                  int sequence = commandSequence.incrementAndGet();
                   String stageName = command.getClass().getSimpleName() + "-" + sequence;
-                  context.applyToMDCWithStage(stageName);
 
-                  if (LOG.isInfoEnabled()) {
-                    LOG.info(
-                        "Setting up command {} of {}: {} (sequence: {})",
-                        commandIndex + 1,
-                        commands.size(),
-                        command.getClass().getSimpleName(),
-                        sequence);
+                  // MDCContextを設定
+                  Map<String, String> mdcValues = new HashMap<>();
+                  mdcValues.put("executionId", executionId);
+                  mdcValues.put("commandSequence", String.valueOf(sequence));
+                  mdcValues.put("stage", stageName);
+                  if (defaultMdcValues != null) {
+                    mdcValues.putAll(defaultMdcValues);
                   }
+                  MDCContext.set(mdcValues);
 
                   long startTime = System.currentTimeMillis();
                   java.time.Instant startInstant = java.time.Instant.now();
 
                   try {
-                    // コマンド実行（ExecutionContext付きで実行してMDC同期を有効化）
-                    command.execute(commandInput, commandOutput, context);
+                    if (LOG.isInfoEnabled()) {
+                      LOG.info(
+                          "Setting up command {} of {}: {} (sequence: {})",
+                          commandIndex + 1,
+                          commands.size(),
+                          command.getClass().getSimpleName(),
+                          sequence);
+                    }
+
+                    // コマンド実行
+                    command.execute(commandInput, commandOutput);
 
                     // 中間の PipedOutputStream は実行完了後にクローズする必要がある
                     if (commandOutput instanceof PipedOutputStream) {
@@ -310,6 +323,9 @@ public class StreamConverter {
                         e.getMessage(),
                         startInstant,
                         endInstant);
+                  } finally {
+                    // Clean up MDC for this thread
+                    MDCContext.clear();
                   }
                 });
 
@@ -346,7 +362,7 @@ public class StreamConverter {
       }
 
       if (LOG.isInfoEnabled()) {
-        LOG.info("All commands completed successfully (executionId: {})", context.getExecutionId());
+        LOG.info("All commands completed successfully (executionId: {})", executionId);
       }
       return results;
 

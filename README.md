@@ -38,29 +38,37 @@ Java 21 &nbsp;|&nbsp; [📚 完全なドキュメント一覧](docs/INDEX.md) &n
 
 ### パイプライン処理の例
 ```java
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.command.impl.SendHttpCommand;
 import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.logging.MDCInitializer;
 import com.streamconverter.path.TreePath;
+import org.slf4j.MDC;
 
-Map<String, String> mdcValues = new HashMap<>();
-mdcValues.put("requestId", "REQ-12345");
-mdcValues.put("operator", "batch-service");
+// アプリケーション起動時に一度だけMDCを初期化
+static {
+    MDCInitializer.initialize();
+}
 
-StreamConverter converter = StreamConverter.createWithMDC(
-    mdcValues,
+// MDCコンテキスト情報を設定
+MDC.put("requestId", "REQ-12345");
+MDC.put("operator", "batch-service");
+
+// パイプラインを実行（MDC値は自動的に伝播）
+StreamConverter converter = StreamConverter.create(
     JsonNavigateCommand.create(TreePath.fromJson("$.result"), new PassThroughRule()),
     new SendHttpCommand("https://api.example.com/ingest"));
 
 List<CommandResult> results = converter.run(inputStream, outputStream);
 results.forEach(result ->
     LOG.info("{}: {} ms", result.getCommandName(), result.getExecutionTimeMillis()));
+
+// 処理完了後はMDCをクリア
+MDC.clear();
 ```
 
 > 詳細なハンズオンは [docs/quickstart/basic-usage.md](docs/quickstart/basic-usage.md) を参照してください。

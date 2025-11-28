@@ -156,6 +156,17 @@ public class MDCContext {
   }
 
   /**
+   * 共有コンテキストの値を取得します（スレッド固有の値は含まない）
+   *
+   * <p>返されるMapは読み取り専用のコピーです。変更しても元の共有コンテキストには影響しません。
+   *
+   * @return 共有コンテキストの値のコピー
+   */
+  public static Map<String, String> getShared() {
+    return Collections.unmodifiableMap(new HashMap<>(sharedContext));
+  }
+
+  /**
    * 共有コンテキストをクリアします（全スレッド共通の値をクリア）
    *
    * <p>パイプライン処理の終了時などに呼び出して、共有コンテキストをリセットします。

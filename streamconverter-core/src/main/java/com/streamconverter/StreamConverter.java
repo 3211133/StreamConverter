@@ -207,6 +207,8 @@ public class StreamConverter {
                   String stageName = command.getClass().getSimpleName() + "-" + sequence;
 
                   // MDCに値を設定（親スレッドのMDC値は自動的に継承されている）
+                  // 注: MDC.get()は自動的に共有コンテキストも確認するため、
+                  // MdcSetupRuleで設定された値も他のコマンドから利用可能
                   org.slf4j.MDC.put("executionId", executionId);
                   org.slf4j.MDC.put("commandSequence", String.valueOf(sequence));
                   org.slf4j.MDC.put("stage", stageName);

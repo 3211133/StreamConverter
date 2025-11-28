@@ -2,6 +2,7 @@ package com.streamconverter.command.rule;
 
 import com.streamconverter.logging.MDCContext;
 import java.util.Objects;
+import org.slf4j.MDC;
 
 /**
  * MDC設定用のルール
@@ -41,20 +42,27 @@ public class MdcSetupRule implements IRule {
   }
 
   /**
-   * 抽出された値をMDCContextの共有コンテキストに設定します
+   * 抽出された値をMDCに設定します
    *
-   * <p>このメソッドは値を変更せずそのまま返しますが、副作用として MDCContextの共有コンテキストに値を設定します。
-   * 共有コンテキストに設定された値は、すべてのスレッドで共有され、マルチスレッド環境でも正しく伝播します。 MDCへの同期はLogback
-   * TurboFilterが自動的に行うため、呼び出し側は同期を意識する必要がありません。
+   * <p>このメソッドは値を変更せずそのまま返しますが、副作用としてMDCに値を設定します。
    *
-   * @param extractedValue 抽出された値（nullの場合は共有コンテキストから削除）
+   * <p><b>マルチスレッド対応:</b>
+   *
+   * <ul>
+   *   <li>MDC.put() - 現在のスレッドのMDCに即座に設定（InheritableThreadLocalにより子スレッドに伝播）
+   *   <li>MDCContext.putShared() - 共有コンテキストに設定（TurboFilterを経由して他のスレッドでも参照可能）
+   * </ul>
+   *
+   * @param extractedValue 抽出された値（nullの場合はMDCから削除）
    * @return 入力値をそのまま返す
    */
   @Override
   public String apply(String extractedValue) {
     if (extractedValue == null) {
+      MDC.remove(mdcKey);
       MDCContext.removeShared(mdcKey);
     } else {
+      MDC.put(mdcKey, extractedValue);
       MDCContext.putShared(mdcKey, extractedValue);
     }
     return extractedValue;

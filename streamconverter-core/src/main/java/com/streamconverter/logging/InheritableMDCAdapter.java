@@ -82,16 +82,24 @@ public class InheritableMDCAdapter implements MDCAdapter {
   /**
    * MDCから値を取得します
    *
+   * <p>スレッドローカルの値を優先し、存在しない場合は共有コンテキストを確認します。 これにより、MdcSetupRuleなどで他のスレッドが設定した値も自動的に利用可能になります。
+   *
    * @param key MDCキー
    * @return MDC値、存在しない場合はnull
    */
   @Override
   public String get(String key) {
+    // まずスレッドローカルの値を確認
     Map<String, String> map = inheritableThreadLocal.get();
-    if (map == null) {
-      return null;
+    String value = null;
+    if (map != null) {
+      value = map.get(key);
     }
-    return map.get(key);
+    // スレッドローカルに値がない場合のみ共有コンテキストを確認
+    if (value == null) {
+      value = MDCContext.getShared().get(key);
+    }
+    return value;
   }
 
   /**

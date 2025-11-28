@@ -3,6 +3,7 @@ package com.streamconverter;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.logging.MDCContext;
 import com.streamconverter.logging.MDCInitializer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -27,12 +28,14 @@ class MDCPropagationIntegrationTest {
   void setUp() {
     MDCInitializer.initialize();
     MDC.clear();
+    MDCContext.clearShared();
     capturedMDCValues.clear();
   }
 
   @AfterEach
   void tearDown() {
     MDC.clear();
+    MDCContext.clearShared();
   }
 
   @Test

@@ -186,13 +186,6 @@ public class StreamConverter {
     String executionId = UUID.randomUUID().toString().substring(0, 8);
 
     try {
-      if (LOG.isInfoEnabled()) {
-        LOG.info(
-            "Starting StreamConverter with {} commands (executionId: {})",
-            commands.size(),
-            executionId);
-      }
-
       // PipedStreamで並行処理（MDC対応）
       return executeMultipleCommandsWithMDC(
           inputStream, outputStream, executionId, new AtomicInteger(0));

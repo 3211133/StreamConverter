@@ -65,12 +65,10 @@ converter.run(inputStream, outputStream);
 
 ## 3. MDCコンテキストとメトリクス取得
 
-実運用環境では、処理の追跡とメトリクス収集が重要です。MDCコンテキストを使用してログトレースとパフォーマンス測定を行います。
+実運用環境では、処理の追跡とメトリクス収集が重要です。MDCを使用してログトレースとパフォーマンス測定を行います。
 
 ```java
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
@@ -80,14 +78,20 @@ import com.streamconverter.command.impl.SendHttpCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.command.impl.json.JsonValidateCommand;
 import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.logging.MDCInitializer;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
+import org.slf4j.MDC;
+
+// アプリケーション起動時に一度だけMDCを初期化
+static {
+    MDCInitializer.initialize();
+}
 
 // MDCコンテキスト情報を設定
-Map<String, String> mdcValues = new HashMap<>();
-mdcValues.put("jobId", "daily-import");
-mdcValues.put("environment", "production");
-mdcValues.put("operator", "batch-service");
+MDC.put("jobId", "daily-import");
+MDC.put("environment", "production");
+MDC.put("operator", "batch-service");
 
 // 4つのコマンドを組み合わせた高度なパイプライン
 IStreamCommand[] pipeline = {
@@ -97,8 +101,8 @@ IStreamCommand[] pipeline = {
     JsonValidateCommand.create("schemas/product-schema.json")
 };
 
-// MDCコンテキスト付きでパイプラインを実行
-StreamConverter converter = StreamConverter.createWithMDC(mdcValues, pipeline);
+// パイプラインを実行（MDC値は自動的に伝播）
+StreamConverter converter = StreamConverter.create(pipeline);
 List<CommandResult> results = converter.run(inputStream, outputStream);
 
 // 各コマンドの実行結果を確認
@@ -113,6 +117,9 @@ results.forEach(result -> {
         LOG.error("{} failed: {}", result.getCommandName(), result.getErrorMessage());
     }
 });
+
+// 処理完了後はMDCをクリア
+MDC.clear();
 ```
 
 このパイプラインは以下の処理を実行します：
@@ -121,7 +128,7 @@ results.forEach(result -> {
 3. APIレスポンス（JSON）から `result` フィールドを抽出
 4. JSONスキーマで検証
 
-MDCコンテキストにより、すべてのログに `jobId`, `environment`, `operator` の情報が自動的に付加され、マルチスレッド環境でも正確なトレーシングが可能になります。
+InheritableMDCAdapterにより、`MDC.put()`で設定した値（`jobId`, `environment`, `operator`）が自動的にVirtual Threadに伝播し、マルチスレッド環境でも正確なトレーシングが可能になります。
 
 ---
 

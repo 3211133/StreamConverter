@@ -96,10 +96,23 @@ public class InheritableMDCAdapter implements MDCAdapter {
       value = map.get(key);
     }
     // スレッドローカルに値がない場合のみ共有コンテキストを確認
-    if (value == null) {
+    // ただし、StreamConverter管理のキー（executionId, commandSequence, stage）は除外
+    if (value == null && !isStreamConverterManagedKey(key)) {
       value = MDCContext.getShared().get(key);
     }
     return value;
+  }
+
+  /**
+   * StreamConverterが管理するMDCキーかどうかを判定します
+   *
+   * <p>これらのキーはスレッドローカルでのみ管理され、共有コンテキストからは取得しません。
+   *
+   * @param key MDCキー
+   * @return StreamConverter管理のキーの場合true
+   */
+  private boolean isStreamConverterManagedKey(String key) {
+    return "executionId".equals(key) || "commandSequence".equals(key) || "stage".equals(key);
   }
 
   /**

@@ -40,6 +40,13 @@ class MDCPropagationIntegrationTest {
     // InheritableThreadLocalを確実にクリアするため、明示的に空のコンテキストを設定
     // これにより、このスレッドから生成される子スレッドは空のMDCを継承する
     MDC.setContextMap(new java.util.HashMap<>());
+
+    // クリア後の状態を確認（親スレッド）
+    java.util.Map<String, String> afterClear = MDC.getCopyOfContextMap();
+    if (afterClear != null && !afterClear.isEmpty()) {
+      throw new AssertionError(
+          "MDC should be empty after setContextMap(empty), but contains: " + afterClear);
+    }
   }
 
   @AfterEach
@@ -109,6 +116,47 @@ class MDCPropagationIntegrationTest {
     assertTrue(capturedMDCValues.get(0).stage.contains("MDCCapturingCommand"));
     assertTrue(capturedMDCValues.get(1).stage.contains("MDCCapturingCommand"));
     assertTrue(capturedMDCValues.get(2).stage.contains("MDCCapturingCommand"));
+  }
+
+  @Test
+  void testMDCClearedInChildThreadAfterSetup() throws IOException {
+    // setUp()でクリアされた状態で、子スレッドに何も伝播しないことを確認
+    // （親スレッドでMDC値を設定しない）
+
+    IStreamCommand verifyEmptyCommand =
+        new IStreamCommand() {
+          @Override
+          public void execute(InputStream input, OutputStream output) throws IOException {
+            // 子スレッドでMDC値を確認
+            java.util.Map<String, String> childMDC = MDC.getCopyOfContextMap();
+
+            // StreamConverterが設定する値（executionId, commandSequence, stage）は除外
+            if (childMDC != null) {
+              childMDC.remove("executionId");
+              childMDC.remove("commandSequence");
+              childMDC.remove("stage");
+            }
+
+            // 親スレッドから伝播した値がないことを確認
+            if (childMDC != null && !childMDC.isEmpty()) {
+              throw new AssertionError(
+                  "Child thread should not inherit any MDC values from parent after setUp(), but got: "
+                      + childMDC);
+            }
+
+            input.transferTo(output);
+          }
+        };
+
+    StreamConverter converter = StreamConverter.create(verifyEmptyCommand);
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    List<CommandResult> results = converter.run(inputStream, outputStream);
+
+    assertEquals(1, results.size());
+    assertTrue(results.get(0).isSuccess());
   }
 
   @Test

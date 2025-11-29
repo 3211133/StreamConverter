@@ -37,10 +37,9 @@ class MDCPropagationIntegrationTest {
     // テストデータをクリア
     capturedMDCValues.clear();
 
-    // 前のテストから継承された可能性のある値を明示的に削除
-    MDC.remove("commandSequence");
-    MDC.remove("executionId");
-    MDC.remove("stage");
+    // InheritableThreadLocalを確実にクリアするため、明示的に空のコンテキストを設定
+    // これにより、このスレッドから生成される子スレッドは空のMDCを継承する
+    MDC.setContextMap(new java.util.HashMap<>());
   }
 
   @AfterEach

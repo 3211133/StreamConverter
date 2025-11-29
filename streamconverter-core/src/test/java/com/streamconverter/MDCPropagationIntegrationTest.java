@@ -27,9 +27,20 @@ class MDCPropagationIntegrationTest {
   @BeforeEach
   void setUp() {
     MDCInitializer.initialize();
+
+    // MDCを完全にクリア（現在のスレッドのMDC値をクリア）
     MDC.clear();
+
+    // 共有コンテキストもクリア
     MDCContext.clearShared();
+
+    // テストデータをクリア
     capturedMDCValues.clear();
+
+    // 前のテストから継承された可能性のある値を明示的に削除
+    MDC.remove("commandSequence");
+    MDC.remove("executionId");
+    MDC.remove("stage");
   }
 
   @AfterEach

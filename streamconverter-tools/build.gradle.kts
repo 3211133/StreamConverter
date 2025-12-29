@@ -41,8 +41,8 @@ dependencies {
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.20.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.20.0")
+    testImplementation("org.mockito:mockito-core:5.21.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.21.0")
     
     // JSON processing with Jackson
     implementation("com.fasterxml.jackson.core:jackson-core:2.20.1")

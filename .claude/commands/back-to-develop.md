@@ -51,23 +51,24 @@ git push origin <current-branch>
 
 #### Option B: Stash Changes
 ```bash
-# Stash with descriptive message
-git stash push -m "作業中の変更: $(git branch --show-current) - $(date +%Y%m%d-%H%M%S)"
+# Stash with descriptive message (including untracked files)
+git stash push -u -m "作業中の変更: $(git branch --show-current) - $(date +%Y%m%d-%H%M%S)"
 
 # Verify stash was created
 git stash list
 ```
 
 #### Option C: Discard Changes
-**⚠️ WARNING**: This will permanently delete all uncommitted changes!
+**⚠️ WARNING**: This will permanently delete all uncommitted changes and untracked files!
 
 Ask for explicit confirmation before proceeding:
 ```bash
-# Show what will be discarded
+# Show what will be discarded (dry-run)
 git status
 git diff --stat
+git clean -n -fd
 
-# After confirmation, discard changes
+# After explicit confirmation, discard changes
 git reset --hard HEAD
 git clean -fd
 ```
@@ -83,8 +84,8 @@ git fetch origin
 # Switch to develop branch
 git checkout develop
 
-# Update to latest from origin
-git pull origin develop
+# Update to latest from origin (fast-forward only)
+git pull --ff-only origin develop
 
 # Verify current state
 git status

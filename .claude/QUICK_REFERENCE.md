@@ -203,7 +203,7 @@ git merge --abort
 # またはStashして再試行
 git stash
 git checkout develop
-git pull origin develop
+git pull --ff-only origin develop
 ```
 
 ### Detached HEAD状態
@@ -227,7 +227,7 @@ git checkout -b rescue-branch
 1. **実装前に計画レビュー** - `/plan-review`で早期フィードバック
 2. **小さく頻繁にコミット** - 作業を細かく区切る
 3. **完了後は必ずレビュー** - `/code-review`で品質担保
-4. **developは常に最新に** - 定期的に`git pull origin develop`
+4. **developは常に最新に** - 定期的に`git pull --ff-only origin develop`
 5. **ブランチは定期的に整理** - `@branch-manager`でクリーンアップ
 
 ## 詳細ドキュメント

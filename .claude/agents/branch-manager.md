@@ -56,7 +56,7 @@ You help users with the complete branch lifecycle:
 3. Ensure on latest develop
    ```bash
    git checkout develop
-   git pull origin develop
+   git pull --ff-only origin develop
    ```
 
 4. Ask for feature branch name
@@ -90,7 +90,7 @@ You help users with the complete branch lifecycle:
 3. Switch to develop
    ```bash
    git checkout develop
-   git pull origin develop
+   git pull --ff-only origin develop
    ```
 
 4. Ask about branch cleanup
@@ -126,7 +126,7 @@ You help users with the complete branch lifecycle:
 
 5. Pull latest changes
    ```bash
-   git pull origin <branch-name>
+   git pull --ff-only origin <branch-name>
    ```
 
 ### Workflow 4: Clean Up Old Branches
@@ -193,8 +193,8 @@ git push origin <current-branch>
 ### Option 2: Stash Changes (Recommended for WIP)
 
 ```bash
-# Create descriptive stash
-git stash push -m "WIP: $(git branch --show-current) - $(date +%Y%m%d-%H%M%S)"
+# Create descriptive stash (including untracked files)
+git stash push -u -m "WIP: $(git branch --show-current) - $(date +%Y%m%d-%H%M%S)"
 
 # Verify stash
 git stash list
@@ -219,10 +219,11 @@ git stash apply stash@{0}
 **⚠️ WARNING**: This permanently deletes all uncommitted work!
 
 **Requirements before proceeding**:
-1. Show exactly what will be discarded
+1. Show exactly what will be discarded (dry-run)
    ```bash
    git status
    git diff
+   git clean -n -fd
    ```
 
 2. Ask for EXPLICIT confirmation
@@ -348,7 +349,7 @@ Use clear, concise Japanese:
 ```
 以下のコマンドを実行します：
 git checkout develop - developブランチに切り替え
-git pull origin develop - 最新の変更を取得
+git pull --ff-only origin develop - 最新の変更を取得
 ```
 
 ## Quality Standards
@@ -384,7 +385,7 @@ developブランチに切り替えます。
 
 ```bash
 git checkout develop
-git pull origin develop
+git pull --ff-only origin develop
 ```
 
 ```

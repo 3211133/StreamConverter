@@ -73,9 +73,9 @@ Claude Codeが以下を実施：
 - より良い実装方法の提案
 - テストカバレッジの十分性
 
-#### `/back-to-develop` - origin/developへの安全な復帰
+#### `/back-to-develop` - developブランチ（origin/developと同期）への安全な復帰
 
-作業ブランチからorigin/developに安全に戻ります。
+作業ブランチからローカルのdevelopブランチに安全に戻り、origin/developと同期します。
 
 **使用例:**
 ```

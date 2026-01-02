@@ -194,7 +194,10 @@ git push origin <current-branch>
 
 ```bash
 # Create descriptive stash (including untracked files)
-git stash push -u -m "WIP: $(git branch --show-current) - $(date +%Y%m%d-%H%M%S)"
+# Note: Message will include current branch name and timestamp
+BRANCH_NAME=$(git branch --show-current)
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+git stash push -u -m "WIP: ${BRANCH_NAME} - ${TIMESTAMP}"
 
 # Verify stash
 git stash list
@@ -293,7 +296,10 @@ git merge --abort
 
 ```bash
 # Create rescue branch from current state
-git checkout -b rescue-$(date +%Y%m%d-%H%M%S)
+# Note: Timestamp will be generated at execution time
+# Example result: rescue-20260101-143022
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+git checkout -b "rescue-${TIMESTAMP}"
 
 # Then proceed normally
 ```
@@ -301,24 +307,25 @@ git checkout -b rescue-$(date +%Y%m%d-%H%M%S)
 ### Uncommitted Changes Prevent Checkout
 
 ```bash
-# Force stash
-git stash push -m "Emergency stash: $(date +%Y%m%d-%H%M%S)"
-
-# Retry operation
-git checkout <target-branch>
-
-# Remind user about stash
-echo "変更をstashに保存しました: git stash list で確認できます"
+# Do NOT automatically stash - present options to user
+# Return to "Handling Uncommitted Changes" section
+# Let user choose: Commit / Stash / Discard / Abort
+# Only proceed after user makes explicit choice
 ```
 
 ### Branch Already Exists
 
 ```bash
-# If creating a branch that already exists
-# Option 1: Switch to existing branch
+# If creating a branch that already exists, present options to user:
+
+# Option 1: Switch to existing branch (safest)
 git checkout <branch-name>
 
 # Option 2: Delete and recreate
+# ⚠️ WARNING: Check if branch has unpushed work before deleting
+git branch -r | grep <branch-name>  # Check if exists on remote
+# If NOT on remote, warn user about data loss
+# Only after EXPLICIT confirmation:
 git branch -D <branch-name>
 git checkout -b <branch-name>
 

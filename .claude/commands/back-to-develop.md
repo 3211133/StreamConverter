@@ -52,7 +52,10 @@ git push origin <current-branch>
 #### Option B: Stash Changes
 ```bash
 # Stash with descriptive message (including untracked files)
-git stash push -u -m "作業中の変更: $(git branch --show-current) - $(date +%Y%m%d-%H%M%S)"
+# Note: Message will include current branch name and timestamp
+BRANCH_NAME=$(git branch --show-current)
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+git stash push -u -m "作業中の変更: ${BRANCH_NAME} - ${TIMESTAMP}"
 
 # Verify stash was created
 git stash list
@@ -102,13 +105,19 @@ Ask the user if they want to clean up the old feature branch:
 - Intentionally being discarded
 
 ```bash
-# Delete local branch (only if safe to do so)
+# Step 1: Try safe delete (only works if merged)
 git branch -d <old-branch-name>
 
-# If the branch was not merged, use -D to force delete
+# If step 1 fails (branch not merged):
+# - Check if branch exists on remote
+git branch -r | grep <old-branch-name>
+
+# - If NOT on remote, warn user about data loss
+# - Ask for EXPLICIT confirmation before force delete
+# - Only after confirmation:
 git branch -D <old-branch-name>
 
-# Delete remote branch (if desired)
+# Delete remote branch (if desired and exists)
 git push origin --delete <old-branch-name>
 ```
 
@@ -164,19 +173,20 @@ git merge --abort
 If currently in detached HEAD:
 ```bash
 # Create a branch from current state (if desired)
-git checkout -b rescue-branch
+# Note: Use descriptive name or timestamp
+# Example: rescue-20260101-143022
+TIMESTAMP=$(date +%Y%m%d-%H%M%S)
+git checkout -b "rescue-${TIMESTAMP}"
 
 # Then proceed with normal workflow
 ```
 
 ### Uncommitted Changes During Switch
-If `git checkout` fails due to uncommitted changes:
+If `git checkout` fails due to uncommitted changes, return to Option handling:
 ```bash
-# Force stash creation
-git stash push -m "Emergency stash before switching to develop"
-
-# Retry checkout
-git checkout develop
+# Do NOT automatically stash - present options to user again
+# Go back to "Handle Uncommitted Changes" section
+# Let user choose: Commit / Stash / Discard / Abort
 ```
 
 ## Important Notes

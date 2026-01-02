@@ -10,7 +10,7 @@ StreamConverterプロジェクトで利用可能なClaude Code機能のクイッ
 |---------|------|-----------|
 | `/plan-review` | 実装計画のレビュー依頼 | 実装開始前 |
 | `/code-review` | 完成コードのレビュー依頼 | 実装完了後 |
-| `/back-to-develop` | origin/developへ安全に復帰 | 作業完了時 |
+| `/back-to-develop` | developブランチ（origin/developと同期）への安全な復帰 | 作業完了時 |
 
 ### 使用例
 

@@ -57,3 +57,4 @@ temp/
 .claude/logs/
 .claude/tmp/
 .claude/settings.local.json
+streamconverter-core/src/test/java/com/streamconverter/bugs/

@@ -50,9 +50,12 @@ class MDCThreadSynchronizationTest {
    */
   @Test
   void testParentMDCPropagationToChildThreads() throws IOException {
-    // 親スレッドでMDCに業務固有の値を設定
+    // 親スレッドでMDCに業務固有の値を設定（任意のキー名で動作することを確認）
     MDC.put("requestId", "REQ-PARENT-123");
     MDC.put("userId", "PARENT_USER");
+    MDC.put("customKey1", "customValue1");
+    MDC.put("customKey2", "customValue2");
+    MDC.put("arbitraryKey", "arbitraryValue");
 
     ExecutionContext context = ExecutionContext.create();
 
@@ -62,15 +65,28 @@ class MDCThreadSynchronizationTest {
           @Override
           public void execute(InputStream in, OutputStream out, ExecutionContext ctx)
               throws IOException {
-            // 子スレッド内でMDC値を直接検証
+            // 子スレッド内でMDC値を直接検証（任意のキー名で動作確認）
             String requestId = MDC.get("requestId");
             String userId = MDC.get("userId");
+            String customKey1 = MDC.get("customKey1");
+            String customKey2 = MDC.get("customKey2");
+            String arbitraryKey = MDC.get("arbitraryKey");
 
-            LOG.info("Child thread sees: requestId={}, userId={}", requestId, userId);
+            LOG.info(
+                "Child thread sees: requestId={}, userId={}, customKey1={}, customKey2={}, arbitraryKey={}",
+                requestId,
+                userId,
+                customKey1,
+                customKey2,
+                arbitraryKey);
 
-            // Command内でassertion
+            // Command内でassertion - 任意のキー名で正しく伝播されることを確認
             assertEquals("REQ-PARENT-123", requestId, "Child thread should see parent's requestId");
             assertEquals("PARENT_USER", userId, "Child thread should see parent's userId");
+            assertEquals("customValue1", customKey1, "Child thread should see parent's customKey1");
+            assertEquals("customValue2", customKey2, "Child thread should see parent's customKey2");
+            assertEquals(
+                "arbitraryValue", arbitraryKey, "Child thread should see parent's arbitraryKey");
 
             in.transferTo(out);
           }
@@ -103,15 +119,18 @@ class MDCThreadSynchronizationTest {
     CountDownLatch command1Started = new CountDownLatch(1);
     CountDownLatch command2CanProceed = new CountDownLatch(1);
 
-    // Command1: sharedContextにuserIdを設定
+    // Command1: sharedContextに複数の任意のキー名で値を設定
     IStreamCommand command1 =
         new IStreamCommand() {
           @Override
           public void execute(InputStream in, OutputStream out, ExecutionContext ctx)
               throws IOException {
-            // sharedContextに値を設定
+            // sharedContextに任意のキー名で値を設定
             ctx.setSharedContext("userId", "USER_FROM_CMD1");
-            LOG.info("Command1 set userId to sharedContext");
+            ctx.setSharedContext("customData1", "dataValue1");
+            ctx.setSharedContext("customData2", "dataValue2");
+            ctx.setSharedContext("arbitraryField", "arbitraryFieldValue");
+            LOG.info("Command1 set multiple values to sharedContext");
 
             command1Started.countDown();
 
@@ -131,7 +150,7 @@ class MDCThreadSynchronizationTest {
           }
         };
 
-    // Command2: Command1が設定したsharedContextの値を読み取って検証
+    // Command2: Command1が設定した複数のsharedContext値を読み取って検証
     IStreamCommand command2 =
         new IStreamCommand() {
           @Override
@@ -144,15 +163,36 @@ class MDCThreadSynchronizationTest {
               Thread.currentThread().interrupt();
             }
 
-            // sharedContextから値を取得して直接検証
+            // sharedContextから任意のキー名で値を取得して直接検証
             String userId = ctx.getSharedContext("userId");
-            LOG.info("Command2 sees userId from sharedContext: {}", userId);
+            String customData1 = ctx.getSharedContext("customData1");
+            String customData2 = ctx.getSharedContext("customData2");
+            String arbitraryField = ctx.getSharedContext("arbitraryField");
 
-            // Command内でassertion
+            LOG.info(
+                "Command2 sees from sharedContext: userId={}, customData1={}, customData2={}, arbitraryField={}",
+                userId,
+                customData1,
+                customData2,
+                arbitraryField);
+
+            // Command内でassertion - 任意のキー名で正しく同期されることを確認
             assertEquals(
                 "USER_FROM_CMD1",
                 userId,
                 "Command2 should see userId set by Command1 via sharedContext");
+            assertEquals(
+                "dataValue1",
+                customData1,
+                "Command2 should see customData1 set by Command1 via sharedContext");
+            assertEquals(
+                "dataValue2",
+                customData2,
+                "Command2 should see customData2 set by Command1 via sharedContext");
+            assertEquals(
+                "arbitraryFieldValue",
+                arbitraryField,
+                "Command2 should see arbitraryField set by Command1 via sharedContext");
 
             command2CanProceed.countDown();
             in.transferTo(out);
@@ -183,17 +223,20 @@ class MDCThreadSynchronizationTest {
   void testChildSharedContextSynchronizationToParentAfterCompletion() throws IOException {
     ExecutionContext context = ExecutionContext.create();
 
-    // 子スレッドでsharedContextに値を設定するコマンド
+    // 子スレッドでsharedContextに任意のキー名で複数の値を設定するコマンド
     IStreamCommand childCommand =
         new IStreamCommand() {
           @Override
           public void execute(InputStream in, OutputStream out, ExecutionContext ctx)
               throws IOException {
-            // XMLやJSONから抽出した想定でsharedContextに設定
+            // XMLやJSONから抽出した想定で任意のキー名でsharedContextに設定
             ctx.setSharedContext("extractedUserId", "USER_EXTRACTED_123");
             ctx.setSharedContext("extractedSessionId", "SESSION_XYZ");
+            ctx.setSharedContext("customField1", "customValue1");
+            ctx.setSharedContext("customField2", "customValue2");
+            ctx.setSharedContext("arbitraryExtractedData", "arbitraryValue");
 
-            LOG.info("Child set extractedUserId and extractedSessionId to sharedContext");
+            LOG.info("Child set multiple values to sharedContext");
 
             in.transferTo(out);
           }
@@ -210,20 +253,29 @@ class MDCThreadSynchronizationTest {
     ByteArrayInputStream input = new ByteArrayInputStream(testData);
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    // 子スレッド実行前の親スレッドMDC状態
+    // 子スレッド実行前の親スレッドMDC状態（全てnull）
     assertNull(MDC.get("extractedUserId"));
     assertNull(MDC.get("extractedSessionId"));
+    assertNull(MDC.get("customField1"));
+    assertNull(MDC.get("customField2"));
+    assertNull(MDC.get("arbitraryExtractedData"));
 
     converter.run(input, output);
 
-    // 検証: 子スレッドが設定したsharedContextの値が親スレッドのMDCに同期されている
+    // 検証: 子スレッドが設定した任意のキー名のsharedContext値が親スレッドのMDCに同期されている
     assertEquals("USER_EXTRACTED_123", MDC.get("extractedUserId"));
     assertEquals("SESSION_XYZ", MDC.get("extractedSessionId"));
+    assertEquals("customValue1", MDC.get("customField1"));
+    assertEquals("customValue2", MDC.get("customField2"));
+    assertEquals("arbitraryValue", MDC.get("arbitraryExtractedData"));
 
     LOG.info(
-        "Parent thread after completion: extractedUserId={}, extractedSessionId={}",
+        "Parent thread after completion: extractedUserId={}, extractedSessionId={}, customField1={}, customField2={}, arbitraryExtractedData={}",
         MDC.get("extractedUserId"),
-        MDC.get("extractedSessionId"));
+        MDC.get("extractedSessionId"),
+        MDC.get("customField1"),
+        MDC.get("customField2"),
+        MDC.get("arbitraryExtractedData"));
   }
 
   /**

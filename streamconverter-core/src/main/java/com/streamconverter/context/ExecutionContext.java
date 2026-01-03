@@ -251,8 +251,13 @@ public class ExecutionContext {
    *
    * <p>MDC.getCopyOfContextMap()で取得した値は、ExecutionContextが管理する キー（executionId,
    * startTime等）を除外して保存します。 これにより、親スレッドで直接MDC.put()された業務固有の値のみを引き継ぎます。
+   *
+   * <p>呼び出し毎に既存の親MDCコンテキストをクリアしてから新しい値を設定するため、 同じExecutionContextで複数回呼び出しても古い値が残留しません。
    */
   public void captureParentMDC() {
+    // 再呼び出し時の古い値の残留を防ぐため、クリアしてから設定
+    parentMdcContext.clear();
+
     Map<String, String> currentMdc = MDC.getCopyOfContextMap();
     if (currentMdc != null) {
       // ExecutionContextが管理するキーは除外

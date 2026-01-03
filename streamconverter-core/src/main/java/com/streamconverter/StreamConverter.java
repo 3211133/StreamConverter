@@ -197,12 +197,12 @@ public class StreamConverter {
     Objects.requireNonNull(outputStream);
     Objects.requireNonNull(context, "context cannot be null");
 
+    // 親スレッドの現在のMDC状態をキャプチャ（applyToMDCより前に実行）
+    // これにより、親スレッドで直接MDC.put()された業務固有の値のみを保存
+    context.captureParentMDC();
+
     // パイプライン開始時にMDCコンテキストを設定
     context.applyToMDCWithStage("pipeline-start");
-
-    // 親スレッドの現在のMDC状態をキャプチャ
-    // これにより、親スレッドで直接MDC.put()された値も子スレッドに伝播される
-    context.captureParentMDC();
 
     if (LOG.isInfoEnabled()) {
       LOG.info(
@@ -211,19 +211,21 @@ public class StreamConverter {
           context.getExecutionId());
     }
 
-    // PipedStreamで並行処理（MDC対応）
-    List<CommandResult> results =
-        executeMultipleCommandsWithMDC(inputStream, outputStream, context);
+    try {
+      // PipedStreamで並行処理（MDC対応）
+      List<CommandResult> results =
+          executeMultipleCommandsWithMDC(inputStream, outputStream, context);
 
-    // 子スレッドで設定された共有コンテキストを親スレッドのMDCに同期
-    // これにより、子スレッド終了後の親スレッドのログにも子が設定した値が反映される
-    context.syncSharedContextToParentMDC();
+      if (LOG.isInfoEnabled()) {
+        LOG.info("Completed StreamConverter pipeline (executionId: {})", context.getExecutionId());
+      }
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Completed StreamConverter pipeline (executionId: {})", context.getExecutionId());
+      return results;
+    } finally {
+      // 子スレッドで設定された共有コンテキストを親スレッドのMDCに同期
+      // 例外発生時も含めて、常に子の状態を親に反映する
+      context.syncSharedContextToParentMDC();
     }
-
-    return results;
   }
 
   /** コマンド（単一または複数）をMDC同期付きで並列実行 */

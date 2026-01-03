@@ -162,19 +162,43 @@ XmlNavigateCommand extractUserId = new XmlNavigateCommand(
 - **共有コンテキストは全スレッドで共有（ConcurrentHashMap使用）**
 - **各スレッドのThreadLocalに同じExecutionContextが設定される**
 - **TurboFilterが各スレッドで独立してMDCに同期**
+- **親スレッドのMDC状態が子スレッドに伝播（captureParentMDC）**
+- **子スレッド終了後、共有コンテキストが親スレッドのMDCに同期（syncSharedContextToParentMDC）**
 ```
 
-**マルチスレッドでの共有コンテキストの動作**:
+**MDCスレッド間同期の詳細フロー（2026年1月最新）**:
 ```
-Thread 1: XmlNavigateCommand実行
-  → userId抽出 → 共有コンテキストに設定
-  → ログ出力時にTurboFilterがMDCに同期
+親スレッド（HTTPリクエスト処理）:
+  MDC.put("requestId", "REQ-123")  ← 業務固有の値を設定
+  ↓
+  StreamConverter.run()開始
+    context.applyToMDCWithStage("pipeline-start")  ← 基本情報をMDCに設定
+    context.captureParentMDC()  ← 親のMDC状態をキャプチャ（★重要）
+  ↓
+  子スレッド1: XmlNavigateCommand実行
+    context.applyToMDCWithStage(...)  ← 親のMDC値も一緒に適用される
+    → requestId="REQ-123" がMDCに設定される（親から継承）
+    → userId抽出 → context.setSharedContext("userId", "USER456")
+    → ログ出力時にTurboFilterがMDCに同期
+  ↓
+  子スレッド2: XmlDebugCommand実行（並行）
+    context.applyToMDCWithStage(...)  ← 親のMDC値も一緒に適用される
+    → requestId="REQ-123" がMDCに設定される（親から継承）
+    → 共有コンテキストからuserId取得可能
+    → ログ出力時にTurboFilterがMDCに同期
+    → Thread 1が設定したuserIdもログに出力される
+  ↓
+  全子スレッド完了
+    context.syncSharedContextToParentMDC()  ← 共有コンテキストを親MDCに同期（★重要）
+  ↓
+親スレッド（処理完了後）:
+  LOG.info("Completed...")  ← userId="USER456" がログに出力される
+```
 
-Thread 2: XmlDebugCommand実行（並行）
-  → 共有コンテキストからuserId取得可能
-  → ログ出力時にTurboFilterがMDCに同期
-  → Thread 1が設定したuserIdがログに出力される
-```
+**3つのMDC同期ポイント**:
+1. **親→子の伝播**: `captureParentMDC()` - 親スレッドで`MDC.put()`された値を子に引き継ぐ
+2. **子間の共有**: `setSharedContext()` + `TurboFilter` - ConcurrentHashMap経由で即座に共有
+3. **子→親の同期**: `syncSharedContextToParentMDC()` - 子終了後に親のMDCに反映
 
 ## 実装例
 

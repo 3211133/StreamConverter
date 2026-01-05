@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
     // Import Spring Boot BOM to align Spring/Reactor/Logback/Hikari versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.0"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.1"))
 
     // Reactive HTTP Client (needed for SendHttpCommand)
     implementation("org.springframework:spring-webflux")

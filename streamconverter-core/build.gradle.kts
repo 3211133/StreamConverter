@@ -37,7 +37,7 @@ repositories {
 
 dependencies {
     // Import Spring Boot BOM to align Spring/Reactor/Logback/Hikari versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.0"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.1"))
 
     // Reactive HTTP Client (needed for SendHttpCommand)
     implementation("org.springframework:spring-webflux")
@@ -56,7 +56,7 @@ dependencies {
     implementation("commons-io:commons-io:2.21.0")
 
     // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:2.0.0")
+    implementation("com.networknt:json-schema-validator:3.0.0")
 
     // JsonSurfer for streaming JSON processing
     implementation("com.github.jsurfer:jsurfer-jackson:1.6.5")

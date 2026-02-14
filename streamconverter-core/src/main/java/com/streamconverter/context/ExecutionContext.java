@@ -26,6 +26,14 @@ public class ExecutionContext {
   private final ConcurrentHashMap<String, String> sharedContext;
   private final AtomicBoolean sharedContextDirty;
 
+  /**
+   * 親スレッドから受け継いだMDC値を保持
+   *
+   * <p>親スレッドでMDC.put()された値を子スレッドに伝播するために使用。 ExecutionContext経由で設定された値以外の、直接MDC.put()された値も
+   * 子スレッドに引き継がれるようにする。
+   */
+  private final ConcurrentHashMap<String, String> parentMdcContext;
+
   // 標準的なコンテキストキー
   /** 実行ID用のMDCキー */
   public static final String EXECUTION_ID_KEY = "executionId";
@@ -50,6 +58,7 @@ public class ExecutionContext {
     this.userContext = new HashMap<>(builder.userContext);
     this.sharedContext = new ConcurrentHashMap<>();
     this.sharedContextDirty = new AtomicBoolean(false);
+    this.parentMdcContext = new ConcurrentHashMap<>();
   }
 
   /**
@@ -204,6 +213,10 @@ public class ExecutionContext {
    * <p>共有コンテキストはDirty Flag最適化により、変更があった場合のみMDCに同期されます。 これにより、頻繁なapplyToMDC()呼び出しでもパフォーマンスが維持されます。
    */
   public void applyToMDC() {
+    // 親スレッドから受け継いだMDC値を最初に設定
+    // これにより、親スレッドでMDC.put()された値が子スレッドにも反映される
+    parentMdcContext.forEach(MDC::put);
+
     // 基本的なコンテキスト情報をMDCに設定
     MDC.put(EXECUTION_ID_KEY, executionId);
     MDC.put(START_TIME_KEY, startTime.toString());
@@ -229,6 +242,47 @@ public class ExecutionContext {
   public void applyToMDCWithStage(String stageName) {
     applyToMDC();
     MDC.put(STAGE_KEY, stageName);
+  }
+
+  /**
+   * 親スレッドの現在のMDC状態をキャプチャ
+   *
+   * <p>子スレッド生成前に呼び出して、親スレッドで設定されたMDC値を保存します。 これにより、子スレッドでapplyToMDC()を呼んだときに親のMDC値も反映されます。
+   *
+   * <p>MDC.getCopyOfContextMap()で取得した値は、ExecutionContextが管理する キー（executionId,
+   * startTime等）を除外して保存します。 これにより、親スレッドで直接MDC.put()された業務固有の値のみを引き継ぎます。
+   *
+   * <p>呼び出し毎に既存の親MDCコンテキストをクリアしてから新しい値を設定するため、 同じExecutionContextで複数回呼び出しても古い値が残留しません。
+   */
+  public void captureParentMDC() {
+    // 再呼び出し時の古い値の残留を防ぐため、クリアしてから設定
+    parentMdcContext.clear();
+
+    Map<String, String> currentMdc = MDC.getCopyOfContextMap();
+    if (currentMdc != null) {
+      // ExecutionContextが管理するキーは除外
+      // （これらは子スレッドでapplyToMDC()により設定されるため）
+      currentMdc.entrySet().stream()
+          .filter(
+              e ->
+                  !e.getKey().equals(EXECUTION_ID_KEY)
+                      && !e.getKey().equals(START_TIME_KEY)
+                      && !e.getKey().equals(COMMAND_SEQUENCE_KEY)
+                      && !e.getKey().equals(THREAD_NAME_KEY)
+                      && !e.getKey().equals(STAGE_KEY))
+          .forEach(e -> parentMdcContext.put(e.getKey(), e.getValue()));
+    }
+  }
+
+  /**
+   * 子スレッドの共有コンテキストを親スレッドのMDCに同期
+   *
+   * <p>子スレッド終了後に親スレッドで呼び出すことで、 子スレッドが設定した共有コンテキストの値を親スレッドのMDCにも反映します。
+   *
+   * <p>これにより、子スレッド終了後の親スレッドのログにも 子スレッドが設定した値（例：XMLから抽出したuserId等）が出力されます。
+   */
+  public void syncSharedContextToParentMDC() {
+    sharedContext.forEach(MDC::put);
   }
 
   /**

@@ -16,7 +16,6 @@ import org.springframework.web.bind.annotation.*;
 
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.SampleStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.command.rule.PassThroughRule;
@@ -174,7 +173,7 @@ public class StreamProcessingController {
           switch (commandType.toLowerCase()) {
             case "csv" -> CsvNavigateCommand.create(new CSVPath(parameter), new PassThroughRule());
             case "json" -> JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());
-            case "process" -> new SampleStreamCommand(parameter);
+            case "process" -> (IStreamCommand) (in, out) -> in.transferTo(out);
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
           };
     }

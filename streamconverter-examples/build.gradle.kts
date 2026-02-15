@@ -27,6 +27,7 @@ repositories {
 dependencies {
     // Core module dependency
     implementation(project(":streamconverter-core"))
+    implementation(project(":streamconverter-db"))
     
     // SLF4J logging (needed by examples)
     implementation("org.slf4j:slf4j-api")

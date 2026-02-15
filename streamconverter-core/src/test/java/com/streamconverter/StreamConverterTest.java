@@ -3,7 +3,6 @@ package com.streamconverter;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.SampleStreamCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -27,7 +26,7 @@ class StreamConverterTest {
   void setUp() {
     // テスト前の準備
     validCommands =
-        new IStreamCommand[] {new SampleStreamCommand("test1"), new SampleStreamCommand("test2")};
+        new IStreamCommand[] {(in, out) -> in.transferTo(out), (in, out) -> in.transferTo(out)};
     testInput = "Hello, StreamConverter!";
   }
 
@@ -46,7 +45,7 @@ class StreamConverterTest {
   void testConstructorWithValidCommandList() {
     // リストコンストラクタのテスト
     List<IStreamCommand> commandList = new ArrayList<>();
-    commandList.add(new SampleStreamCommand("test1"));
+    commandList.add((in, out) -> in.transferTo(out));
 
     assertDoesNotThrow(
         () -> {
@@ -158,7 +157,9 @@ class StreamConverterTest {
     // 複数コマンドを使用した場合のテスト
     IStreamCommand[] commands =
         new IStreamCommand[] {
-          new SampleStreamCommand("1"), new SampleStreamCommand("2"), new SampleStreamCommand("3")
+          (in, out) -> in.transferTo(out),
+          (in, out) -> in.transferTo(out),
+          (in, out) -> in.transferTo(out)
         };
 
     StreamConverter converter = new StreamConverter(commands);
@@ -211,8 +212,7 @@ class StreamConverterTest {
 
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
     StreamConverter converter =
-        StreamConverter.create(
-            new SampleStreamCommand("large-test-1"), new SampleStreamCommand("large-test-2"));
+        StreamConverter.create((in, out) -> in.transferTo(out), (in, out) -> in.transferTo(out));
 
     // メモリ使用量監視しながら実行
     long startTime = System.currentTimeMillis();

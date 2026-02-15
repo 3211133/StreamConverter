@@ -2,7 +2,6 @@ package com.streamconverter.examples;
 
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.SampleStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.command.rule.PassThroughRule;
@@ -108,8 +107,8 @@ public class PerformanceOptimizationExamples {
     logger.info("\n🔄 Pipeline processing (concurrent)...");
     IStreamCommand[] pipeline = {
       JsonNavigateCommand.create(TreePath.fromJson("$"), new PassThroughRule()),
-      new SampleStreamCommand("stage1"),
-      new SampleStreamCommand("stage2")
+      (IStreamCommand) (in, out) -> in.transferTo(out),
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
     processDataWithTiming(jsonData, pipeline);
     long pipelineTime = System.currentTimeMillis() - startTime;
@@ -172,7 +171,7 @@ public class PerformanceOptimizationExamples {
     start = System.nanoTime();
     IStreamCommand[] pipeline = {
       CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),
-      new SampleStreamCommand("processor")
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
     processDataWithTiming(testData, pipeline);
     long pipelineTime = System.nanoTime() - start;
@@ -181,9 +180,9 @@ public class PerformanceOptimizationExamples {
     start = System.nanoTime();
     IStreamCommand[] multiStage = {
       CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),
-      new SampleStreamCommand("stage1"),
-      new SampleStreamCommand("stage2"),
-      new SampleStreamCommand("stage3")
+      (IStreamCommand) (in, out) -> in.transferTo(out),
+      (IStreamCommand) (in, out) -> in.transferTo(out),
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
     processDataWithTiming(testData, multiStage);
     long multiStageTime = System.nanoTime() - start;

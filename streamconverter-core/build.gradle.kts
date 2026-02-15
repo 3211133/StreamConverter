@@ -36,20 +36,9 @@ repositories {
 }
 
 dependencies {
-    // Import Spring Boot BOM to align Spring/Reactor/Logback/Hikari versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.1"))
-
-    // Reactive HTTP Client (needed for SendHttpCommand)
-    implementation("org.springframework:spring-webflux")
-    implementation("org.springframework:spring-context")
-    implementation("io.projectreactor.netty:reactor-netty-http")
-    // Explicit Netty overrides retained for security/compat compatibility
-    implementation("io.netty:netty-handler:4.2.9.Final")
-    implementation("io.netty:netty-common:4.2.9.Final")
-
-    // Logging (version via BOM)
-    implementation("ch.qos.logback:logback-core")
-    implementation("ch.qos.logback:logback-classic")
+    // Logging
+    implementation("ch.qos.logback:logback-core:1.5.18")
+    implementation("ch.qos.logback:logback-classic:1.5.18")
 
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.20.0")
@@ -63,13 +52,6 @@ dependencies {
 
     // CSV validation support
     implementation("com.opencsv:opencsv:5.12.0")
-
-    // IP address validation
-    implementation("com.google.guava:guava:33.5.0-jre")
-
-    // Database support (version via BOM)
-    implementation("com.zaxxer:HikariCP")
-    testImplementation("com.h2database:h2:2.4.240")
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:6.0.2"))
@@ -236,61 +218,3 @@ tasks.named("check") {
     dependsOn("spotlessApply")
 }
 
-// PMD XMLレポートをAI可読形式に変換するタスク
-tasks.register("convertPmdReport", JavaExec::class) {
-    group = "verification"
-    description = "Convert PMD XML report to AI-readable formats (Markdown, CSV, JSON)"
-    
-    dependsOn(tasks.compileJava, tasks.pmdMain)
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.analysis.PmdReportConverter")
-    
-    // PMD XMLレポートのパスを引数として渡す
-    args("build/reports/pmd/main.xml", "build/reports/pmd/converted")
-    
-    // PMD実行後にのみ実行されるよう条件付きで設定
-    onlyIf {
-        file("build/reports/pmd/main.xml").exists()
-    }
-    
-    doFirst {
-        println("🔄 Converting PMD XML report to AI-readable formats...")
-    }
-}
-
-// テスト失敗解析タスク
-tasks.register("analyzeTestFailures", JavaExec::class) {
-    group = "verification"
-    description = "Analyzes test failures from XML reports and provides detailed failure information"
-    
-    dependsOn(tasks.compileJava)
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.test.TestFailureAnalyzer")
-
-    // テスト結果ディレクトリをパラメータとして渡す
-    args("build/test-results/test")
-    
-    // テスト実行後にのみ実行されるよう条件付きで設定
-    onlyIf {
-        file("build/test-results/test").exists()
-    }
-}
-
-// StreamConverter PMD実装テストタスク
-tasks.register("testPmdConverter", JavaExec::class) {
-    group = "verification"
-    description = "Test StreamConverter-compliant PMD analysis implementation"
-    
-    dependsOn(tasks.compileJava, tasks.pmdMain)
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.test.PmdConverterTest")
-
-    // PMD実行後にのみ実行されるよう条件付きで設定
-    onlyIf {
-        file("build/reports/pmd/main.xml").exists()
-    }
-    
-    doFirst {
-        println("🚀 Testing StreamConverter PMD Analysis Implementation...")
-    }
-}

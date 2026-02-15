@@ -2,7 +2,6 @@ package com.streamconverter.examples;
 
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.SampleStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.command.impl.xml.XmlNavigateCommand;
@@ -62,11 +61,11 @@ public class QuickStart {
     String csvData = "name,age,city\nJohn,30,NYC\nJane,25,LA\n";
 
     // Create pipeline: Extract name column + Process
-    // Note: SampleStreamCommand is a placeholder for demonstration.
+    // Note: The lambda pass-through is a placeholder for demonstration.
     // In real applications, replace with actual processing commands.
     IStreamCommand[] pipeline = {
       CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),
-      new SampleStreamCommand("csv-processor")
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
     String result = processData(csvData, pipeline);
 
@@ -85,11 +84,11 @@ public class QuickStart {
     String jsonData = "{\"name\":\"John\",\"age\":30,\"city\":\"NYC\"}";
 
     // Create pipeline: Extract name property + Process
-    // Note: SampleStreamCommand is a placeholder for demonstration.
+    // Note: The lambda pass-through is a placeholder for demonstration.
     // In real applications, replace with actual processing commands.
     IStreamCommand[] pipeline = {
       JsonNavigateCommand.create(TreePath.fromJson("$.name"), new PassThroughRule()),
-      new SampleStreamCommand("json-processor")
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
     String result = processData(jsonData, pipeline);
 
@@ -116,11 +115,11 @@ public class QuickStart {
         """;
 
     // Create pipeline: Extract name element + Process
-    // Note: SampleStreamCommand is a placeholder for demonstration.
+    // Note: The lambda pass-through is a placeholder for demonstration.
     // In real applications, replace with actual processing commands.
     IStreamCommand[] pipeline = {
       XmlNavigateCommand.create(TreePath.fromXml("person/name"), new PassThroughRule()),
-      new SampleStreamCommand("xml-processor")
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
     String result = processData(xmlData, pipeline);
 
@@ -141,7 +140,7 @@ public class QuickStart {
     // Create processing pipeline
     IStreamCommand[] pipeline = {
       CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()), // Extract names
-      new SampleStreamCommand("processor") // Process names
+      (IStreamCommand) (in, out) -> in.transferTo(out) // Process names
     };
 
     String result = processData(csvData, pipeline);

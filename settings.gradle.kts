@@ -18,12 +18,16 @@ pluginManagement {
 
 // Multi-module configuration
 include("streamconverter-core")
+include("streamconverter-http")
+include("streamconverter-db")
 include("streamconverter-web")
-include("streamconverter-examples") 
+include("streamconverter-examples")
 include("streamconverter-tools")
 
 // Project configuration
 project(":streamconverter-core").projectDir = file("streamconverter-core")
+project(":streamconverter-http").projectDir = file("streamconverter-http")
+project(":streamconverter-db").projectDir = file("streamconverter-db")
 project(":streamconverter-web").projectDir = file("streamconverter-web")
 project(":streamconverter-examples").projectDir = file("streamconverter-examples")
 project(":streamconverter-tools").projectDir = file("streamconverter-tools")

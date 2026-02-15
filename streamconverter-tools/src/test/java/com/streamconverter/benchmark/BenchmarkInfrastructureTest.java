@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.*;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.SampleStreamCommand;
 import java.io.*;
 import java.util.List;
 import org.junit.jupiter.api.*;
@@ -293,7 +292,7 @@ class BenchmarkInfrastructureTest {
     PerformanceAnalyzer analyzer = new PerformanceAnalyzer();
 
     // テストデータ作成
-    IStreamCommand command = new SampleStreamCommand("test-command");
+    IStreamCommand command = (in, out) -> in.transferTo(out);
     StreamConverter converter = new StreamConverter(new IStreamCommand[] {command});
 
     // 小さなデータでテスト実行
@@ -334,7 +333,7 @@ class BenchmarkInfrastructureTest {
 
     // 複数のテストケースを実行
     for (int i = 1; i <= 3; i++) {
-      IStreamCommand command = new SampleStreamCommand("test-" + i);
+      IStreamCommand command = (in, out) -> in.transferTo(out);
       StreamConverter converter = new StreamConverter(new IStreamCommand[] {command});
 
       String testData = "Test data " + i + " with more content";
@@ -368,9 +367,7 @@ class BenchmarkInfrastructureTest {
   void testSmallScaleBenchmark() throws IOException {
     // 小規模データでベンチマーク機能をテスト
     int smallDataSize = 1024; // 1KB
-    IStreamCommand[] pipeline = {
-      new SampleStreamCommand("stage1"), new SampleStreamCommand("stage2")
-    };
+    IStreamCommand[] pipeline = {(in, out) -> in.transferTo(out), (in, out) -> in.transferTo(out)};
 
     // LargeDataBenchmarkの内部クラスを使用してテスト
     Runtime runtime = Runtime.getRuntime();
@@ -412,7 +409,7 @@ class BenchmarkInfrastructureTest {
 
     // 同じテストを5回実行
     for (int i = 0; i < 5; i++) {
-      IStreamCommand command = new SampleStreamCommand("consistency-test");
+      IStreamCommand command = (in, out) -> in.transferTo(out);
       StreamConverter converter = new StreamConverter(new IStreamCommand[] {command});
 
       InputStream input = new ByteArrayInputStream(testData.getBytes());

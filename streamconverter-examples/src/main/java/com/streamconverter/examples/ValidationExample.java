@@ -1,7 +1,7 @@
 package com.streamconverter.examples;
 
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.impl.SampleStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.csv.CsvValidateCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -141,7 +141,7 @@ public class ValidationExample {
 
     // CsvValidateCommandを直接使用してバリデーション実行
     CsvValidateCommand csvValidator = new CsvValidateCommand(requiredColumns);
-    SampleStreamCommand dataProcessor = new SampleStreamCommand("validation-demo");
+    IStreamCommand dataProcessor = (in, out) -> in.transferTo(out);
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
@@ -176,7 +176,7 @@ public class ValidationExample {
     logger.debug("Processing {}: {}", description, data.substring(0, Math.min(50, data.length())));
 
     CsvValidateCommand csvValidator = new CsvValidateCommand(requiredColumns);
-    SampleStreamCommand processor = new SampleStreamCommand("csv-processor");
+    IStreamCommand processor = (in, out) -> in.transferTo(out);
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(data.getBytes(StandardCharsets.UTF_8));

@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.*;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.SampleStreamCommand;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.*;
@@ -28,7 +27,7 @@ class QuickSmokeTest {
 
       // シンプルなパイプライン
       StreamConverter converter =
-          new StreamConverter(new IStreamCommand[] {new SampleStreamCommand("smoke-test")});
+          new StreamConverter(new IStreamCommand[] {(in, out) -> in.transferTo(out)});
 
       // 実行
       var results = converter.run(input, output);
@@ -53,9 +52,9 @@ class QuickSmokeTest {
       StreamConverter converter =
           new StreamConverter(
               new IStreamCommand[] {
-                new SampleStreamCommand("stage1"),
-                new SampleStreamCommand("stage2"),
-                new SampleStreamCommand("stage3")
+                (in, out) -> in.transferTo(out),
+                (in, out) -> in.transferTo(out),
+                (in, out) -> in.transferTo(out)
               });
 
       // 実行
@@ -75,7 +74,7 @@ class QuickSmokeTest {
         ByteArrayOutputStream output = new ByteArrayOutputStream()) {
 
       StreamConverter converter =
-          new StreamConverter(new IStreamCommand[] {new SampleStreamCommand("error-test")});
+          new StreamConverter(new IStreamCommand[] {(in, out) -> in.transferTo(out)});
 
       // 正常実行できることを確認
       assertDoesNotThrow(() -> converter.run(input, output));

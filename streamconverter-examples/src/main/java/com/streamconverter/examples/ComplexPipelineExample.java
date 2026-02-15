@@ -2,7 +2,6 @@ package com.streamconverter.examples;
 
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.SampleStreamCommand;
 import com.streamconverter.command.impl.csv.CsvValidateCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -105,14 +104,14 @@ public class ComplexPipelineExample {
   private static IStreamCommand createDbTransformCommand() {
     logger.info("🔄 Creating DB transform command");
 
-    return new SampleStreamCommand("db-transform") {
+    return new IStreamCommand() {
       @Override
-      public void executeInternal(
-          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
+      public void execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)
+          throws IOException {
         logger.info("Executing database transformation");
 
         // 実際のDB変換処理をシミュレート
-        super.executeInternal(inputStream, outputStream);
+        inputStream.transferTo(outputStream);
 
         logger.info("Database transformation completed");
       }
@@ -123,15 +122,15 @@ public class ComplexPipelineExample {
   private static IStreamCommand createCommunicationCommand() {
     logger.info("🌐 Creating communication command");
 
-    return new SampleStreamCommand("http-communication") {
+    return new IStreamCommand() {
       @Override
-      public void executeInternal(
-          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
+      public void execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)
+          throws IOException {
         logger.info("Executing external API communication");
 
         // 実際のHTTP通信をシミュレート
         // 本来であればSendHttpCommandを使用
-        super.executeInternal(inputStream, outputStream);
+        inputStream.transferTo(outputStream);
 
         logger.info("External API communication completed");
       }
@@ -142,14 +141,14 @@ public class ComplexPipelineExample {
   private static IStreamCommand createResponseValidator() {
     logger.info("✅ Creating response validator command");
 
-    return new SampleStreamCommand("response-validator") {
+    return new IStreamCommand() {
       @Override
-      public void executeInternal(
-          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
+      public void execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)
+          throws IOException {
         logger.info("Validating API response");
 
         // レスポンスバリデーション処理をシミュレート
-        super.executeInternal(inputStream, outputStream);
+        inputStream.transferTo(outputStream);
 
         logger.info("Response validation completed");
       }
@@ -160,14 +159,14 @@ public class ComplexPipelineExample {
   private static IStreamCommand createDbReverseTransformCommand() {
     logger.info("🔙 Creating DB reverse transform command");
 
-    return new SampleStreamCommand("db-reverse-transform") {
+    return new IStreamCommand() {
       @Override
-      public void executeInternal(
-          java.io.InputStream inputStream, java.io.OutputStream outputStream) throws IOException {
+      public void execute(java.io.InputStream inputStream, java.io.OutputStream outputStream)
+          throws IOException {
         logger.info("Executing database reverse transformation");
 
         // DB逆変換処理をシミュレート
-        super.executeInternal(inputStream, outputStream);
+        inputStream.transferTo(outputStream);
 
         logger.info("Database reverse transformation completed");
       }

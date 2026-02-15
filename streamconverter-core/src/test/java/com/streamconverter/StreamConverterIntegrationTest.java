@@ -2,8 +2,6 @@ package com.streamconverter;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamconverter.command.impl.SampleStreamCommand;
-import com.streamconverter.command.impl.SendHttpCommand;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -22,9 +20,9 @@ public class StreamConverterIntegrationTest {
 
     StreamConverter converter =
         StreamConverter.create(
-            new SampleStreamCommand("first"),
-            new SampleStreamCommand("second"),
-            new SampleStreamCommand("third"));
+            (in, out) -> in.transferTo(out),
+            (in, out) -> in.transferTo(out),
+            (in, out) -> in.transferTo(out));
 
     converter.run(input, output);
 
@@ -37,7 +35,7 @@ public class StreamConverterIntegrationTest {
     ByteArrayInputStream input = new ByteArrayInputStream(new byte[0]);
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    StreamConverter converter = StreamConverter.create(new SampleStreamCommand("test"));
+    StreamConverter converter = StreamConverter.create((in, out) -> in.transferTo(out));
 
     converter.run(input, output);
 
@@ -56,40 +54,11 @@ public class StreamConverterIntegrationTest {
         new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    StreamConverter converter = StreamConverter.create(new SampleStreamCommand("large"));
+    StreamConverter converter = StreamConverter.create((in, out) -> in.transferTo(out));
 
     converter.run(input, output);
 
     String result = output.toString(StandardCharsets.UTF_8);
     assertEquals(testData, result, "Large data should be processed correctly");
-  }
-
-  @Test
-  public void testInvalidHttpUrlHandling() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> new SendHttpCommand("invalid-url"),
-        "Invalid URL should throw IllegalArgumentException");
-
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> new SendHttpCommand("ftp://example.com"),
-        "Non-HTTP protocol should throw IllegalArgumentException");
-
-    assertThrows(
-        NullPointerException.class,
-        () -> new SendHttpCommand(null),
-        "Null URL should throw NullPointerException");
-  }
-
-  @Test
-  public void testValidHttpUrlCreation() {
-    assertDoesNotThrow(
-        () -> new SendHttpCommand("https://httpbin.org/post"),
-        "Valid HTTPS URL should not throw exception");
-
-    assertDoesNotThrow(
-        () -> new SendHttpCommand("http://httpbin.org/post"),
-        "Valid HTTP URL should not throw exception");
   }
 }

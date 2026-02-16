@@ -2,6 +2,9 @@
 <configuration>
     <!-- Test-only logging configuration for core module -->
 
+    <!-- パイプライン内コマンド間のMDC共有値を自動同期 -->
+    <turboFilter class="com.streamconverter.logging.PipelineContextTurboFilter"/>
+
     <!-- Console appender for immediate feedback in tests -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>

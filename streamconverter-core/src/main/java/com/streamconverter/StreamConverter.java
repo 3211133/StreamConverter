@@ -1,6 +1,7 @@
 package com.streamconverter;
 
 import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.context.PipelineContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -147,11 +148,15 @@ public class StreamConverter {
     // 親スレッドのMDCコンテキストをキャプチャ
     Map<String, String> parentMdc = MDC.getCopyOfContextMap();
 
+    // パイプライン内コマンド間で共有値を伝搬するためのコンテキスト
+    PipelineContext pipelineContext = new PipelineContext();
+
     if (LOG.isInfoEnabled()) {
       LOG.info("Starting StreamConverter with {} commands", commands.size());
     }
 
-    List<CommandResult> results = executeCommands(inputStream, outputStream, parentMdc);
+    List<CommandResult> results =
+        executeCommands(inputStream, outputStream, parentMdc, pipelineContext);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Completed StreamConverter pipeline");
@@ -162,7 +167,10 @@ public class StreamConverter {
 
   /** コマンド（単一または複数）をMDC伝搬付きで並列実行 */
   private List<CommandResult> executeCommands(
-      InputStream inputStream, OutputStream outputStream, Map<String, String> parentMdc)
+      InputStream inputStream,
+      OutputStream outputStream,
+      Map<String, String> parentMdc,
+      PipelineContext pipelineContext)
       throws IOException {
     List<CompletableFuture<CommandResult>> futures = new ArrayList<>();
     List<AutoCloseable> resources = new ArrayList<>();
@@ -200,6 +208,7 @@ public class StreamConverter {
                   if (parentMdc != null) {
                     MDC.setContextMap(parentMdc);
                   }
+                  PipelineContext.set(pipelineContext);
 
                   if (LOG.isInfoEnabled()) {
                     LOG.info(
@@ -255,6 +264,7 @@ public class StreamConverter {
                         startInstant,
                         endInstant);
                   } finally {
+                    PipelineContext.clear();
                     MDC.clear();
                   }
                 });

@@ -4,16 +4,24 @@ import static com.streamconverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.context.PipelineContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
 /** Integration test for StreamConverter with MDC propagation */
 class StreamConverterMDCIntegrationTest {
+
+  private static final Logger LOG =
+      LoggerFactory.getLogger(StreamConverterMDCIntegrationTest.class);
 
   @Test
   void testMDCPropagation() throws IOException {
@@ -68,6 +76,96 @@ class StreamConverterMDCIntegrationTest {
       // 出力データが正しく処理されたことを確認
       String result = outputStream.toString(StandardCharsets.UTF_8);
       assertEquals(testData, result);
+    } finally {
+      MDC.clear();
+    }
+  }
+
+  @Test
+  void testChildToChildMDCPropagation() throws IOException {
+    // Command AでputSharedした値がCommand BのログでMDCに反映されることを検証
+    MDC.put("requestId", "REQ-PROPAGATION-001");
+
+    AtomicReference<String> capturedOrderId = new AtomicReference<>();
+    CountDownLatch orderIdSet = new CountDownLatch(1);
+
+    try {
+      // Command A: ストリームデータから"orderId"を抽出してPipelineContextに設定
+      IStreamCommand commandA =
+          (in, out) -> {
+            byte[] data = in.readAllBytes();
+            String content = new String(data, StandardCharsets.UTF_8);
+
+            // ストリームデータからorderIdを抽出（シミュレーション）
+            String orderId = "ORD-" + content.substring(0, Math.min(3, content.length()));
+            PipelineContext.putShared("orderId", orderId);
+            LOG.info("Command A: extracted orderId={}", orderId);
+
+            orderIdSet.countDown();
+            out.write(data);
+          };
+
+      // Command B: ログ出力時にTurboFilter経由でorderIdがMDCに反映される
+      IStreamCommand commandB =
+          (in, out) -> {
+            try {
+              orderIdSet.await();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
+
+            // TurboFilter経由でMDCにsyncされるため、ログ出力時にorderIdが反映される
+            // ここでは直接MDCを確認（TurboFilterがsyncToMDCを呼ぶのと同等の検証）
+            PipelineContext.syncToMDC();
+            capturedOrderId.set(MDC.get("orderId"));
+            LOG.info("Command B: orderId from MDC={}", MDC.get("orderId"));
+
+            in.transferTo(out);
+          };
+
+      StreamConverter converter = StreamConverter.create(commandA, commandB);
+
+      String testData = createTestData("ABC,data", "1,value1");
+      ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+      List<CommandResult> results = converter.run(inputStream, outputStream);
+
+      // 結果検証
+      assertEquals(2, results.size());
+      assertTrue(results.get(0).isSuccess());
+      assertTrue(results.get(1).isSuccess());
+
+      // Command AでputSharedした値がCommand Bで取得できたことを検証
+      assertEquals("ORD-ABC", capturedOrderId.get());
+
+      // パイプライン終了後にPipelineContextがクリアされていることを検証
+      assertNull(PipelineContext.getShared("orderId"));
+    } finally {
+      MDC.clear();
+    }
+  }
+
+  @Test
+  void testPipelineContextDoesNotAffectCommandsNotUsingIt() throws IOException {
+    // PipelineContextを使わないCommandに影響がないことを検証
+    MDC.put("requestId", "REQ-NOOP-001");
+
+    try {
+      IStreamCommand simpleCommand = (in, out) -> in.transferTo(out);
+      StreamConverter converter = StreamConverter.create(simpleCommand);
+
+      String testData = createTestData("simple,data");
+      ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+      List<CommandResult> results = converter.run(inputStream, outputStream);
+
+      assertEquals(1, results.size());
+      assertTrue(results.get(0).isSuccess());
+      assertEquals(testData, outputStream.toString(StandardCharsets.UTF_8));
     } finally {
       MDC.clear();
     }

@@ -5,6 +5,7 @@ import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.context.PipelineContext;
 import com.streamconverter.path.CSVPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -34,6 +35,7 @@ public class StreamConverterMDCDemo {
 
     demonstrateBasicMDC();
     demonstrateMultipleCommandsMDC();
+    demonstrateChildToChildPropagation();
 
     logger.info("All demonstrations completed successfully!");
   }
@@ -68,9 +70,53 @@ public class StreamConverterMDCDemo {
     }
   }
 
-  /** デモ2: 複数コマンドでのMDC伝搬 */
+  /** デモ2: コマンド間MDC伝搬（PipelineContext） */
+  private static void demonstrateChildToChildPropagation() throws IOException {
+    logger.info("Demo 2: Child-to-Child MDC Propagation via PipelineContext");
+
+    MDC.put("requestId", "REQ-CHILD-001");
+
+    try {
+      // Command A: ストリームデータからIDを抽出してPipelineContextに設定
+      IStreamCommand extractId =
+          (in, out) -> {
+            byte[] data = in.readAllBytes();
+            String content = new String(data, StandardCharsets.UTF_8);
+
+            // 冒頭行からIDを抽出（シミュレーション）
+            String orderId = content.lines().findFirst().orElse("UNKNOWN");
+            PipelineContext.putShared("orderId", orderId);
+            logger.info("Command A: extracted orderId from stream");
+
+            out.write(data);
+          };
+
+      // Command B: TurboFilter経由でorderIdが自動的にMDCに反映される
+      IStreamCommand process =
+          (in, out) -> {
+            // ログ出力時にTurboFilterがPipelineContextの共有値をMDCにsyncする
+            // → このログにorderId が自動的に含まれる
+            logger.info("Command B: processing with orderId automatically in MDC");
+            in.transferTo(out);
+          };
+
+      StreamConverter converter = StreamConverter.create(extractId, process);
+
+      String testData = "ORD-2026-0001\nitem1,100\nitem2,200\n";
+      ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+      List<CommandResult> results = converter.run(inputStream, outputStream);
+      logger.info("Demo 2 completed. {} commands executed", results.size());
+    } finally {
+      MDC.clear();
+    }
+  }
+
+  /** デモ3: 複数コマンドでのMDC伝搬 */
   private static void demonstrateMultipleCommandsMDC() throws IOException {
-    logger.info("Demo 2: Multiple Commands with MDC Propagation");
+    logger.info("Demo 3: Multiple Commands with MDC Propagation");
 
     MDC.put("requestId", "REQ-MULTI-789");
 
@@ -93,7 +139,7 @@ public class StreamConverterMDCDemo {
       List<CommandResult> results = converter.run(inputStream, outputStream);
 
       String result = outputStream.toString(StandardCharsets.UTF_8);
-      logger.info("Demo 2 completed. Results: {} commands executed", results.size());
+      logger.info("Demo 3 completed. Results: {} commands executed", results.size());
       logger.info("Final output: {}", result.trim());
     } finally {
       MDC.clear();

@@ -17,7 +17,7 @@ import com.streamconverter.context.PipelineContext;
  * );
  * }</pre>
  */
-public class MdcPropagatingRule implements IRule {
+public final class MdcPropagatingRule implements IRule {
 
   private final String mdcKey;
 

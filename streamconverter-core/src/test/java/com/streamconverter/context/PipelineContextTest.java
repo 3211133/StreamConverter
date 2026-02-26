@@ -93,17 +93,16 @@ class PipelineContextTest {
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<String> otherThreadValue = new AtomicReference<>();
 
-    Thread thread =
-        Thread.ofVirtual()
-            .start(
-                () -> {
-                  PipelineContext.set(ctx); // 同一インスタンスを設定
-                  PipelineContext.syncToMDC();
-                  otherThreadValue.set(MDC.get("threadTest"));
-                  PipelineContext.clear();
-                  MDC.clear();
-                  latch.countDown();
-                });
+    Thread.ofVirtual()
+        .start(
+            () -> {
+              PipelineContext.set(ctx); // 同一インスタンスを設定
+              PipelineContext.syncToMDC();
+              otherThreadValue.set(MDC.get("threadTest"));
+              PipelineContext.clear();
+              MDC.clear();
+              latch.countDown();
+            });
 
     latch.await();
     assertEquals("shared-value", otherThreadValue.get());

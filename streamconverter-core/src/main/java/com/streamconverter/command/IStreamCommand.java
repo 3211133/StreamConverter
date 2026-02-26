@@ -3,6 +3,7 @@ package com.streamconverter.command;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.slf4j.Logger;
 
 /**
  * Unified interface for stream commands.
@@ -44,4 +45,36 @@ public interface IStreamCommand {
    * @throws IOException If an I/O error occurs during the execution of the command.
    */
   void execute(InputStream inputStream, OutputStream outputStream) throws IOException;
+
+  /**
+   * Wraps this command with logging. The returned command logs start, completion, and failure using
+   * the provided logger.
+   *
+   * <p>The command name is resolved from the actual command class at wrap time, so there is no
+   * runtime overhead per execution.
+   *
+   * @param logger the logger to write messages to
+   * @return a new {@link IStreamCommand} that delegates to this command and emits log records
+   */
+  default IStreamCommand withLogging(Logger logger) {
+    String commandName = this.getClass().getSimpleName();
+    return (in, out) -> {
+      logger.info("Starting command: {}", commandName);
+      long start = System.currentTimeMillis();
+      try {
+        this.execute(in, out);
+        logger.info(
+            "Completed command: {} ({}ms)", commandName, System.currentTimeMillis() - start);
+      } catch (IOException e) {
+        logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
+        throw e;
+      } catch (RuntimeException e) {
+        logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
+        throw e;
+      } catch (Error e) {
+        logger.error("Fatal error in command: {} - {}", commandName, e.getMessage(), e);
+        throw e;
+      }
+    };
+  }
 }

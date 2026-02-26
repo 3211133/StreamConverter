@@ -175,21 +175,6 @@ class LineEndingNormalizeCommandTest {
   }
 
   @Test
-  @DisplayName("Get command details should include configuration")
-  void testGetCommandDetails() {
-    // Given
-    LineEndingNormalizeCommand command = new LineEndingNormalizeCommand(LineEndingType.WINDOWS);
-
-    // When
-    String details = command.getCommandDetails();
-
-    // Then
-    assertTrue(details.contains("LineEndingNormalizeCommand"));
-    assertTrue(details.contains("WINDOWS"));
-    assertTrue(details.contains("\\r\\n"));
-  }
-
-  @Test
   @DisplayName("Handle large input efficiently")
   void testLargeInput() throws IOException {
     // Given - create a moderately large input

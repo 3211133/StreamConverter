@@ -213,8 +213,8 @@ public class StreamConverter {
                   }
 
                   try {
-                    // コマンド実行
-                    command.execute(commandInput, commandOutput);
+                    // コマンド実行（ロギング付きでラップして実行）
+                    command.withLogging(LOG).execute(commandInput, commandOutput);
 
                     // 中間の PipedOutputStream は実行完了後にクローズする必要がある
                     if (commandOutput instanceof PipedOutputStream) {

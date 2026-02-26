@@ -19,8 +19,7 @@ class AbstractStreamCommandTest {
     private boolean executed = false;
 
     @Override
-    public void executeInternal(InputStream inputStream, OutputStream outputStream)
-        throws IOException {
+    public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
       executed = true;
       // 単純に入力を出力にコピー
       inputStream.transferTo(outputStream);

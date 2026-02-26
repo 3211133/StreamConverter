@@ -2,7 +2,7 @@ package com.streamconverter.benchmark;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamconverter.*;
+import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
@@ -30,11 +30,9 @@ class QuickSmokeTest {
           new StreamConverter(new IStreamCommand[] {(in, out) -> in.transferTo(out)});
 
       // 実行
-      var results = converter.run(input, output);
+      converter.run(input, output);
 
       // 基本的な動作確認
-      assertNotNull(results);
-      assertEquals(1, results.size());
       assertTrue(output.size() > 0);
     }
   }
@@ -58,11 +56,9 @@ class QuickSmokeTest {
               });
 
       // 実行
-      var results = converter.run(input, output);
+      converter.run(input, output);
 
       // 動作確認
-      assertNotNull(results);
-      assertEquals(3, results.size());
       assertTrue(output.size() > 0);
     }
   }

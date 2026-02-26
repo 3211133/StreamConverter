@@ -2,7 +2,7 @@ package com.streamconverter.benchmark;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamconverter.*;
+import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
@@ -15,7 +15,8 @@ import com.streamconverter.test.PlatformAdaptiveTestUtils;
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledIf;
@@ -691,11 +692,7 @@ class LargeDataBenchmark {
         OutputStream output = new NullOutputStream()) {
 
       StreamConverter converter = new StreamConverter(pipeline);
-      List<CommandResult> results = converter.run(input, output);
-
-      // 結果が正しく返されることを確認
-      Assertions.assertNotNull(results);
-      Assertions.assertEquals(pipeline.length, results.size());
+      converter.run(input, output);
     }
   }
 

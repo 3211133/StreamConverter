@@ -9,7 +9,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
@@ -37,11 +36,7 @@ class StreamConverterMDCIntegrationTest {
           new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      List<CommandResult> results = converter.run(inputStream, outputStream);
-
-      // 結果検証
-      assertEquals(1, results.size());
-      assertTrue(results.get(0).isSuccess());
+      converter.run(inputStream, outputStream);
 
       // 出力データが正しく処理されたことを確認
       String result = outputStream.toString(StandardCharsets.UTF_8);
@@ -66,12 +61,7 @@ class StreamConverterMDCIntegrationTest {
           new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      List<CommandResult> results = converter.run(inputStream, outputStream);
-
-      // 結果検証
-      assertEquals(2, results.size());
-      assertTrue(results.get(0).isSuccess());
-      assertTrue(results.get(1).isSuccess());
+      converter.run(inputStream, outputStream);
 
       // 出力データが正しく処理されたことを確認
       String result = outputStream.toString(StandardCharsets.UTF_8);
@@ -130,12 +120,7 @@ class StreamConverterMDCIntegrationTest {
           new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      List<CommandResult> results = converter.run(inputStream, outputStream);
-
-      // 結果検証
-      assertEquals(2, results.size());
-      assertTrue(results.get(0).isSuccess());
-      assertTrue(results.get(1).isSuccess());
+      converter.run(inputStream, outputStream);
 
       // Command AでputSharedした値がCommand Bで取得できたことを検証
       assertEquals("ORD-ABC", capturedOrderId.get());
@@ -161,10 +146,8 @@ class StreamConverterMDCIntegrationTest {
           new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      List<CommandResult> results = converter.run(inputStream, outputStream);
+      converter.run(inputStream, outputStream);
 
-      assertEquals(1, results.size());
-      assertTrue(results.get(0).isSuccess());
       assertEquals(testData, outputStream.toString(StandardCharsets.UTF_8));
     } finally {
       MDC.clear();

@@ -1,9 +1,7 @@
 package com.streamconverter.benchmark;
 
-import com.streamconverter.CommandResult;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.*;
@@ -14,7 +12,7 @@ import org.slf4j.LoggerFactory;
 /**
  * StreamConverterのパフォーマンス分析とレポート生成
  *
- * <p>このクラスは、CommandResultから詳細なパフォーマンス分析を行い、 実行時間、メモリ使用量、スループットなどの統計情報を提供します。
+ * <p>このクラスは、パフォーマンス計測値から詳細なパフォーマンス分析を行い、 実行時間、メモリ使用量、スループットなどの統計情報を提供します。
  *
  * <p>主な機能：
  *
@@ -22,7 +20,6 @@ import org.slf4j.LoggerFactory;
  *   <li>実行時間の統計分析（平均、中央値、分散など）
  *   <li>メモリ使用量の追跡と分析
  *   <li>スループット計算とボトルネック識別
- *   <li>コマンド別パフォーマンス比較
  *   <li>詳細なレポート生成（テキスト、CSV形式）
  * </ul>
  */
@@ -36,23 +33,26 @@ public class PerformanceAnalyzer {
   public PerformanceAnalyzer() {}
 
   /**
-   * CommandResult配列からパフォーマンス記録を追加
+   * パフォーマンス記録を追加
    *
    * @param testName テスト名
-   * @param results コマンド実行結果のリスト
+   * @param commandCount コマンド数
+   * @param totalExecutionTimeMillis 総実行時間（ミリ秒）
    * @param totalDataSize 処理したデータの総サイズ
    */
-  public void addRecord(String testName, List<CommandResult> results, long totalDataSize) {
-    if (results == null || results.isEmpty()) {
-      logger.warn("Empty results provided for test: {}", testName);
+  public void addRecord(
+      String testName, int commandCount, long totalExecutionTimeMillis, long totalDataSize) {
+    if (commandCount <= 0) {
+      logger.warn("Invalid command count provided for test: {}", testName);
       return;
     }
 
-    PerformanceRecord record = new PerformanceRecord(testName, results, totalDataSize);
+    PerformanceRecord record =
+        new PerformanceRecord(testName, commandCount, totalExecutionTimeMillis, totalDataSize);
     records.add(record);
 
     if (logger.isDebugEnabled()) {
-      logger.debug("Added performance record: {} with {} commands", testName, results.size());
+      logger.debug("Added performance record: {} with {} commands", testName, commandCount);
     }
   }
 
@@ -126,21 +126,8 @@ public class PerformanceAnalyzer {
       writer.printf("  Data size: %.2f MB%n", record.totalDataSize / 1024.0 / 1024.0);
       writer.printf("  Total execution time: %d ms%n", record.totalExecutionTime);
       writer.printf("  Throughput: %.2f MB/s%n", record.throughput);
-      writer.printf("  Commands: %d%n", record.results.size());
+      writer.printf("  Commands: %d%n", record.commandCount);
       writer.printf("  Peak memory: %.2f MB%n", record.peakMemoryUsage / 1024.0 / 1024.0);
-
-      // コマンド別詳細
-      writer.println("  Command breakdown:");
-      for (int i = 0; i < record.results.size(); i++) {
-        CommandResult result = record.results.get(i);
-        writer.printf(
-            "    [%d] %s: %d ms (%.2f MB/s, %.2f MB memory)%n",
-            i + 1,
-            result.getCommandName(),
-            result.getExecutionTimeMillis(),
-            calculateThroughput(result, record.totalDataSize),
-            result.getInputBytes() / 1024.0 / 1024.0);
-      }
       writer.println();
     }
 
@@ -186,19 +173,18 @@ public class PerformanceAnalyzer {
   public void generateCSVReport(PrintWriter writer) {
     // ヘッダー
     writer.println(
-        "Test Name,Data Size (MB),Total Time (ms),Throughput (MB/s),Commands,Peak Memory (MB),Success Rate");
+        "Test Name,Data Size (MB),Total Time (ms),Throughput (MB/s),Commands,Peak Memory (MB)");
 
     // データ行
     for (PerformanceRecord record : records) {
       writer.printf(
-          "%s,%.2f,%d,%.2f,%d,%.2f,%.2f%n",
+          "%s,%.2f,%d,%.2f,%d,%.2f%n",
           record.testName,
           record.totalDataSize / 1024.0 / 1024.0,
           record.totalExecutionTime,
           record.throughput,
-          record.results.size(),
-          record.peakMemoryUsage / 1024.0 / 1024.0,
-          record.successRate * 100.0);
+          record.commandCount,
+          record.peakMemoryUsage / 1024.0 / 1024.0);
     }
   }
 
@@ -231,7 +217,7 @@ public class PerformanceAnalyzer {
 
     // コマンド数に基づく推奨事項
     double avgCommandsPerTest =
-        records.stream().mapToInt(r -> r.results.size()).average().orElse(0.0);
+        records.stream().mapToInt(r -> r.commandCount).average().orElse(0.0);
     if (avgCommandsPerTest > 5) {
       recommendations.add(
           "Complex pipelines detected (> 5 commands). Consider pipeline optimization or parallel processing.");
@@ -248,44 +234,28 @@ public class PerformanceAnalyzer {
     writer.println();
   }
 
-  /** スループットを計算 */
-  private double calculateThroughput(CommandResult result, long totalDataSize) {
-    if (result.getExecutionTimeMillis() <= 0) {
-      return 0.0;
-    }
-    return (totalDataSize / 1024.0 / 1024.0) / (result.getExecutionTimeMillis() / 1000.0);
-  }
-
   /** パフォーマンス記録クラス */
   private static class PerformanceRecord {
     final String testName;
-    final List<CommandResult> results;
+    final int commandCount;
     final long totalDataSize;
     final long totalExecutionTime;
     final double throughput;
     final long peakMemoryUsage;
-    final double successRate;
 
-    PerformanceRecord(String testName, List<CommandResult> results, long totalDataSize) {
+    PerformanceRecord(
+        String testName, int commandCount, long totalExecutionTimeMillis, long totalDataSize) {
       this.testName = testName;
-      this.results = new ArrayList<>(results);
+      this.commandCount = commandCount;
       this.totalDataSize = totalDataSize;
-      Instant.now();
-
-      // 統計計算
-      this.totalExecutionTime =
-          results.stream().mapToLong(CommandResult::getExecutionTimeMillis).sum();
+      this.totalExecutionTime = totalExecutionTimeMillis;
 
       this.throughput =
           totalExecutionTime > 0
               ? (totalDataSize / 1024.0 / 1024.0) / (totalExecutionTime / 1000.0)
               : 0.0;
 
-      this.peakMemoryUsage =
-          results.stream().mapToLong(r -> r.getInputBytes() + r.getOutputBytes()).max().orElse(0L);
-
-      long successCount = results.stream().mapToLong(r -> r.isSuccess() ? 1 : 0).sum();
-      this.successRate = results.size() > 0 ? (double) successCount / results.size() : 0.0;
+      this.peakMemoryUsage = 0L;
     }
   }
 
@@ -327,9 +297,6 @@ public class PerformanceAnalyzer {
     /** ピークメモリ使用量（バイト） */
     public final long peakMemoryUsage;
 
-    /** 全体の成功率 */
-    public final double overallSuccessRate;
-
     /** 総テスト数 */
     public final int totalTests;
 
@@ -352,7 +319,6 @@ public class PerformanceAnalyzer {
 
       this.totalDataProcessed = 0L;
       this.peakMemoryUsage = 0L;
-      this.overallSuccessRate = 0.0;
 
       this.totalTests = 0;
       this.totalCommands = 0;
@@ -360,7 +326,7 @@ public class PerformanceAnalyzer {
 
     PerformanceStatistics(List<PerformanceRecord> records) {
       this.totalTests = records.size();
-      this.totalCommands = records.stream().mapToInt(r -> r.results.size()).sum();
+      this.totalCommands = records.stream().mapToInt(r -> r.commandCount).sum();
 
       // 実行時間統計
       List<Double> executionTimes =
@@ -394,9 +360,6 @@ public class PerformanceAnalyzer {
       this.totalDataProcessed = records.stream().mapToLong(r -> r.totalDataSize).sum();
 
       this.peakMemoryUsage = records.stream().mapToLong(r -> r.peakMemoryUsage).max().orElse(0L);
-
-      this.overallSuccessRate =
-          records.stream().mapToDouble(r -> r.successRate).average().orElse(0.0);
     }
 
     private double calculateMedian(List<Double> sortedValues) {

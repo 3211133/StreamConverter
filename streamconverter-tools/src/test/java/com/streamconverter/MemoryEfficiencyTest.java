@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamconverter.benchmark.LargeDataGenerator;
 import com.streamconverter.command.IStreamCommand;
 import java.io.*;
-import java.util.List;
 import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -82,16 +81,12 @@ class MemoryEfficiencyTest {
     long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
 
     // 大容量ストリーム処理実行
-    List<CommandResult> result = converter.run(largeInput, output);
+    converter.run(largeInput, output);
 
     // 処理後のメモリ確認
     System.gc();
     long afterMemory = runtime.totalMemory() - runtime.freeMemory();
     long memoryIncrease = afterMemory - beforeMemory;
-
-    // 結果検証
-    assertNotNull(result);
-    assertEquals(3, result.size());
 
     // 設計原理1: メモリに全て持たないこと - データサイズの50%以下のメモリ増加であること
     long maxAcceptableMemory = dataSize / 2; // 50%制限（より厳しい基準）
@@ -134,15 +129,11 @@ class MemoryEfficiencyTest {
     System.gc();
     long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
 
-    List<CommandResult> result = converter.run(input, output);
+    converter.run(input, output);
 
     System.gc();
     long afterMemory = runtime.totalMemory() - runtime.freeMemory();
     long memoryIncrease = afterMemory - beforeMemory;
-
-    // 結果検証
-    assertNotNull(result);
-    assertEquals(1, result.size());
 
     // 単一コマンドの場合、メモリ増加は最小限であるべき（データサイズの20%以下）
     long maxAcceptableMemory = dataSize / 5; // 20%制限
@@ -202,7 +193,7 @@ class MemoryEfficiencyTest {
 
     // 1GBストリーム処理実行
     long startTime = System.currentTimeMillis();
-    List<CommandResult> result = converter.run(largeInput, output);
+    converter.run(largeInput, output);
     long endTime = System.currentTimeMillis();
 
     // 処理後のメモリ確認
@@ -226,10 +217,6 @@ class MemoryEfficiencyTest {
     System.out.println("Memory increase: " + (memoryIncrease / 1024 / 1024) + "MB");
     System.out.println("Processing time: " + processingTimeMs + "ms");
     System.out.println("Throughput: " + String.format("%.2f", throughputMBps) + " MB/s");
-
-    // 結果検証
-    assertNotNull(result);
-    assertEquals(3, result.size());
 
     // 設計原理2: 逐次処理の並列化でスタックしないこと - データサイズの30%以下のメモリ使用量
     long maxAcceptableMemory = dataSize * 3 / 10; // 30%制限

@@ -1,7 +1,7 @@
 package com.streamconverter.examples.docs;
 
-import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
+import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.LineEndingNormalizeCommand;
 import com.streamconverter.command.impl.LineEndingNormalizeCommand.LineEndingType;
@@ -18,7 +18,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 
 /**
  * Verifiable code examples for StreamConverter documentation.
@@ -50,13 +49,7 @@ public class BasicUsageExamples {
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
-    List<CommandResult> results = converter.run(inputStream, outputStream);
-
-    // Verify execution
-    boolean success = results.stream().allMatch(CommandResult::isSuccess);
-    if (!success) {
-      throw new RuntimeException("CSV navigation failed");
-    }
+    converter.run(inputStream, outputStream);
   }
 
   // [END csv-navigate-basic]
@@ -78,12 +71,7 @@ public class BasicUsageExamples {
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
-    List<CommandResult> results = converter.run(inputStream, outputStream);
-
-    boolean success = results.stream().allMatch(CommandResult::isSuccess);
-    if (!success) {
-      throw new RuntimeException("CSV filter failed");
-    }
+    converter.run(inputStream, outputStream);
   }
 
   // [END csv-filter-basic]
@@ -106,12 +94,7 @@ public class BasicUsageExamples {
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
-    List<CommandResult> results = converter.run(inputStream, outputStream);
-
-    boolean success = results.stream().allMatch(CommandResult::isSuccess);
-    if (!success) {
-      throw new RuntimeException("JSON navigation failed");
-    }
+    converter.run(inputStream, outputStream);
   }
 
   // [END json-navigate-basic]
@@ -134,12 +117,7 @@ public class BasicUsageExamples {
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
-    List<CommandResult> results = converter.run(inputStream, outputStream);
-
-    boolean success = results.stream().allMatch(CommandResult::isSuccess);
-    if (!success) {
-      throw new RuntimeException("XML navigation failed");
-    }
+    converter.run(inputStream, outputStream);
   }
 
   // [END xml-navigate-basic]
@@ -161,12 +139,7 @@ public class BasicUsageExamples {
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
-    List<CommandResult> results = converter.run(inputStream, outputStream);
-
-    boolean success = results.stream().allMatch(CommandResult::isSuccess);
-    if (!success) {
-      throw new RuntimeException("Character conversion failed");
-    }
+    converter.run(inputStream, outputStream);
   }
 
   // [END character-convert-basic]
@@ -188,12 +161,7 @@ public class BasicUsageExamples {
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
-    List<CommandResult> results = converter.run(inputStream, outputStream);
-
-    boolean success = results.stream().allMatch(CommandResult::isSuccess);
-    if (!success) {
-      throw new RuntimeException("Line ending normalization failed");
-    }
+    converter.run(inputStream, outputStream);
   }
 
   // [END line-ending-normalize-basic]
@@ -212,20 +180,15 @@ public class BasicUsageExamples {
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
-    List<CommandResult> results = converter.run(inputStream, outputStream);
-
-    boolean success = results.stream().allMatch(CommandResult::isSuccess);
-    if (!success) {
-      throw new RuntimeException("Pipeline execution failed");
-    }
+    converter.run(inputStream, outputStream);
   }
 
   // [END pipeline-simple]
 
   // [START error-handling-basic]
   /**
-   * Error handling pipeline example - demonstrates CommandResult usage for error detection. Note:
-   * The lambda pass-through is a placeholder for actual processing logic.
+   * Error handling pipeline example - demonstrates exception-based error detection. Note: The
+   * lambda pass-through is a placeholder for actual processing logic.
    */
   public void errorHandlingBasic() throws Exception {
     String csvData = "id,name\n1,Apple\n";
@@ -239,21 +202,11 @@ public class BasicUsageExamples {
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
-    List<CommandResult> results = converter.run(inputStream, outputStream);
-
-    // Check results
-    for (CommandResult result : results) {
-      if (!result.isSuccess()) {
-        System.err.println("Command failed: " + result.getCommandName());
-        System.err.println("Error: " + result.getErrorMessage());
-      } else {
-        System.out.println(
-            "Success: "
-                + result.getCommandName()
-                + " (duration: "
-                + result.getExecutionTimeMillis()
-                + "ms)");
-      }
+    try {
+      converter.run(inputStream, outputStream);
+    } catch (StreamProcessingException e) {
+      System.err.println("Pipeline failed: " + e.getMessage());
+      throw e;
     }
   }
   // [END error-handling-basic]

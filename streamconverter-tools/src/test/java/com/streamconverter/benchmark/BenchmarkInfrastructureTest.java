@@ -5,7 +5,6 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamconverter.*;
 import com.streamconverter.command.IStreamCommand;
 import java.io.*;
-import java.util.List;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -300,10 +299,12 @@ class BenchmarkInfrastructureTest {
     InputStream input = new ByteArrayInputStream(testData.getBytes());
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    List<CommandResult> results = converter.run(input, output);
+    long startMs = System.currentTimeMillis();
+    converter.run(input, output);
+    long execMs = System.currentTimeMillis() - startMs;
 
     // PerformanceAnalyzerに記録追加
-    analyzer.addRecord("basic-test", results, testData.length());
+    analyzer.addRecord("basic-test", 1, execMs, testData.length());
 
     // 統計取得
     PerformanceAnalyzer.PerformanceStatistics stats = analyzer.getStatistics();
@@ -340,8 +341,11 @@ class BenchmarkInfrastructureTest {
       InputStream input = new ByteArrayInputStream(testData.getBytes());
       ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-      List<CommandResult> results = converter.run(input, output);
-      analyzer.addRecord("test-case-" + i, results, testData.length());
+      long startMs = System.currentTimeMillis();
+      converter.run(input, output);
+      long execMs = System.currentTimeMillis() - startMs;
+
+      analyzer.addRecord("test-case-" + i, 1, execMs, testData.length());
     }
 
     // 統計確認
@@ -378,16 +382,7 @@ class BenchmarkInfrastructureTest {
     try (InputStream input = createTestInputStream(smallDataSize);
         OutputStream output = createNullOutputStream()) {
 
-      List<CommandResult> results = converter.run(input, output);
-
-      assertNotNull(results);
-      assertEquals(2, results.size());
-
-      // 基本的なパフォーマンス検証
-      for (CommandResult result : results) {
-        assertTrue(result.isSuccess());
-        assertTrue(result.getExecutionTimeMillis() >= 0);
-      }
+      converter.run(input, output);
     }
 
     System.gc();
@@ -415,8 +410,11 @@ class BenchmarkInfrastructureTest {
       InputStream input = new ByteArrayInputStream(testData.getBytes());
       ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-      List<CommandResult> results = converter.run(input, output);
-      analyzer.addRecord("consistency-" + i, results, testData.length());
+      long startMs = System.currentTimeMillis();
+      converter.run(input, output);
+      long execMs = System.currentTimeMillis() - startMs;
+
+      analyzer.addRecord("consistency-" + i, 1, execMs, testData.length());
     }
 
     PerformanceAnalyzer.PerformanceStatistics stats = analyzer.getStatistics();

@@ -1,6 +1,5 @@
 package com.streamconverter.examples;
 
-import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
@@ -11,7 +10,6 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -58,13 +56,10 @@ public class StreamConverterMDCDemo {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
       logger.info("Executing pipeline with MDC propagation...");
-      List<CommandResult> results = converter.run(inputStream, outputStream);
+      converter.run(inputStream, outputStream);
 
       String result = outputStream.toString(StandardCharsets.UTF_8);
-      logger.info(
-          "Demo 1 completed. Results: {} commands, Output length: {} characters",
-          results.size(),
-          result.length());
+      logger.info("Demo 1 completed. Output length: {} characters", result.length());
     } finally {
       MDC.clear();
     }
@@ -107,8 +102,8 @@ public class StreamConverterMDCDemo {
           new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-      List<CommandResult> results = converter.run(inputStream, outputStream);
-      logger.info("Demo 2 completed. {} commands executed", results.size());
+      converter.run(inputStream, outputStream);
+      logger.info("Demo 2 completed. Output size: {} bytes", outputStream.size());
     } finally {
       MDC.clear();
     }
@@ -136,11 +131,10 @@ public class StreamConverterMDCDemo {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
       logger.info("Executing multi-command pipeline with MDC propagation...");
-      List<CommandResult> results = converter.run(inputStream, outputStream);
+      converter.run(inputStream, outputStream);
 
       String result = outputStream.toString(StandardCharsets.UTF_8);
-      logger.info("Demo 3 completed. Results: {} commands executed", results.size());
-      logger.info("Final output: {}", result.trim());
+      logger.info("Demo 3 completed. Final output: {}", result.trim());
     } finally {
       MDC.clear();
     }

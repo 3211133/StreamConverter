@@ -41,9 +41,8 @@ public class StreamConverter {
       this.executor = executor;
     }
 
-    public CompletableFuture<CommandResult> supplyAsync(
-        java.util.function.Supplier<CommandResult> supplier) {
-      return CompletableFuture.supplyAsync(supplier, executor);
+    public CompletableFuture<Void> runAsync(Runnable runnable) {
+      return CompletableFuture.runAsync(runnable, executor);
     }
 
     @Override
@@ -137,11 +136,9 @@ public class StreamConverter {
    *
    * @param inputStream 処理対象の入力ストリーム
    * @param outputStream 処理結果を書き込む出力ストリーム
-   * @return 各コマンドの実行結果リスト
    * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
    */
-  public List<CommandResult> run(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void run(InputStream inputStream, OutputStream outputStream) throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
@@ -155,24 +152,21 @@ public class StreamConverter {
       LOG.info("Starting StreamConverter with {} commands", commands.size());
     }
 
-    List<CommandResult> results =
-        executeCommands(inputStream, outputStream, parentMdc, pipelineContext);
+    executeCommands(inputStream, outputStream, parentMdc, pipelineContext);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Completed StreamConverter pipeline");
     }
-
-    return results;
   }
 
   /** コマンド（単一または複数）をMDC伝搬付きで並列実行 */
-  private List<CommandResult> executeCommands(
+  private void executeCommands(
       InputStream inputStream,
       OutputStream outputStream,
       Map<String, String> parentMdc,
       PipelineContext pipelineContext)
       throws IOException {
-    List<CompletableFuture<CommandResult>> futures = new ArrayList<>();
+    List<CompletableFuture<Void>> futures = new ArrayList<>();
     List<AutoCloseable> resources = new ArrayList<>();
 
     try (AutoCloseableExecutorService executor =
@@ -201,8 +195,8 @@ public class StreamConverter {
         }
 
         // 各コマンドを非同期実行（親MDCを伝搬）
-        CompletableFuture<CommandResult> future =
-            executor.supplyAsync(
+        CompletableFuture<Void> future =
+            executor.runAsync(
                 () -> {
                   // 親スレッドのMDCを子スレッドに設定
                   if (parentMdc != null) {
@@ -218,9 +212,6 @@ public class StreamConverter {
                         command.getClass().getSimpleName());
                   }
 
-                  long startTime = System.currentTimeMillis();
-                  java.time.Instant startInstant = java.time.Instant.now();
-
                   try {
                     // コマンド実行
                     command.execute(commandInput, commandOutput);
@@ -230,39 +221,29 @@ public class StreamConverter {
                       commandOutput.close();
                     }
 
-                    long endTime = System.currentTimeMillis();
-                    java.time.Instant endInstant = java.time.Instant.now();
-
                     if (LOG.isInfoEnabled()) {
                       LOG.info("Completed command: {}", command.getClass().getSimpleName());
                     }
 
-                    return CommandResult.success(
-                        command.getClass().getSimpleName(),
-                        endTime - startTime,
-                        0L, // 入力バイト数
-                        0L, // 出力バイト数
-                        startInstant,
-                        endInstant);
-
                   } catch (IOException e) {
-                    long endTime = System.currentTimeMillis();
-                    java.time.Instant endInstant = java.time.Instant.now();
-
-                    if (LOG.isErrorEnabled()) {
-                      LOG.error(
-                          "Command execution failed: {} - {}",
-                          command.getClass().getSimpleName(),
-                          e.getMessage(),
-                          e);
-                    }
-
-                    return CommandResult.failure(
+                    LOG.error(
+                        "Command execution failed: {} - {}",
                         command.getClass().getSimpleName(),
-                        endTime - startTime,
                         e.getMessage(),
-                        startInstant,
-                        endInstant);
+                        e);
+                    if (commandOutput instanceof PipedOutputStream) {
+                      try {
+                        commandOutput.close();
+                      } catch (IOException ignored) {
+                        // ignored
+                      }
+                    }
+                    throw new StreamProcessingException(
+                        "Command execution failed: "
+                            + command.getClass().getSimpleName()
+                            + " - "
+                            + e.getMessage(),
+                        e);
                   } finally {
                     PipelineContext.clear();
                     MDC.clear();
@@ -273,42 +254,42 @@ public class StreamConverter {
       }
 
       // すべてのタスクの完了を待機
-      List<CommandResult> results = new ArrayList<>();
-      for (CompletableFuture<CommandResult> future : futures) {
+      for (int i = 0; i < futures.size(); i++) {
         try {
           // タイムアウト付きで待機（デッドロック防止）
-          CommandResult result = future.get(60, TimeUnit.SECONDS);
-          results.add(result);
-
-          // 失敗した場合は例外をスロー
-          if (!result.isSuccess()) {
-            throw new IOException("Command execution failed: " + result.getErrorMessage());
-          }
+          futures.get(i).get(60, TimeUnit.SECONDS);
 
         } catch (ExecutionException e) {
+          cancelRemainingFutures(futures, i + 1);
           Throwable cause = e.getCause();
-          if (cause instanceof IOException) {
-            throw (IOException) cause;
-          } else if (cause instanceof RuntimeException) {
-            throw (RuntimeException) cause;
-          }
-          throw new IOException("Unexpected error during command execution", cause);
+          if (cause instanceof StreamProcessingException spe) throw spe;
+          if (cause instanceof IOException ioe) throw ioe;
+          if (cause instanceof RuntimeException re) throw re;
+          throw new StreamProcessingException("Unexpected error during command execution", cause);
         } catch (InterruptedException e) {
+          cancelRemainingFutures(futures, i + 1);
           Thread.currentThread().interrupt();
-          throw new IOException("Command execution was interrupted", e);
+          throw new StreamProcessingException("Command execution was interrupted", e);
         } catch (TimeoutException e) {
-          throw new IOException("Command execution timed out after 60 seconds", e);
+          cancelRemainingFutures(futures, i + 1);
+          throw new StreamProcessingException("Command execution timed out after 60 seconds", e);
         }
       }
 
       if (LOG.isInfoEnabled()) {
         LOG.info("All commands completed successfully");
       }
-      return results;
 
     } finally {
       // リソースクリーンアップ
       closeResources(resources);
+    }
+  }
+
+  /** 失敗時に残りのfuturesをキャンセルする */
+  private void cancelRemainingFutures(List<CompletableFuture<Void>> futures, int fromIndex) {
+    for (int j = fromIndex; j < futures.size(); j++) {
+      futures.get(j).cancel(true);
     }
   }
 

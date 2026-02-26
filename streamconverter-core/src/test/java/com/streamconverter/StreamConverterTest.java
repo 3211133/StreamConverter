@@ -115,10 +115,9 @@ class StreamConverterTest {
             new ByteArrayInputStream(testInput.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-      List<CommandResult> result = converter.run(inputStream, outputStream);
+      converter.run(inputStream, outputStream);
 
       // 結果の検証
-      assertNotNull(result);
       assertEquals(testInput, outputStream.toString(StandardCharsets.UTF_8));
     }
   }

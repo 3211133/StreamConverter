@@ -1,10 +1,9 @@
 package com.streamconverter.benchmark;
 
-import com.streamconverter.*;
+import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
 import java.io.*;
-import java.util.*;
 import org.junit.jupiter.api.*;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
@@ -51,10 +50,7 @@ class MemoryEfficiencyQuickTest {
         OutputStream output = new NullOutputStream()) {
 
       StreamConverter converter = new StreamConverter(pipeline);
-      List<CommandResult> results = converter.run(input, output);
-
-      Assertions.assertNotNull(results);
-      Assertions.assertEquals(pipeline.length, results.size());
+      converter.run(input, output);
     }
 
     System.gc();

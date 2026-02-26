@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="PerformanceAnalyzer.html" title="class in com.streamconverter.benchmark">PerformanceAnalyzer</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public static class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.html#line-293">PerformanceAnalyzer.PerformanceStatistics</a></span>
+<div class="type-signature"><span class="modifiers">public static class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.html#line-263">PerformanceAnalyzer.PerformanceStatistics</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">パフォーマンス統計クラス</div>
 </section>
@@ -155,34 +155,29 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">最小スループット（MB/s）</div>
 </div>
-<div class="col-first odd-row-color"><code>final double</code></div>
-<div class="col-second odd-row-color"><code><a href="#overallSuccessRate" class="member-name-link">overallSuccessRate</a></code></div>
+<div class="col-first odd-row-color"><code>final long</code></div>
+<div class="col-second odd-row-color"><code><a href="#peakMemoryUsage" class="member-name-link">peakMemoryUsage</a></code></div>
 <div class="col-last odd-row-color">
-<div class="block">全体の成功率</div>
-</div>
-<div class="col-first even-row-color"><code>final long</code></div>
-<div class="col-second even-row-color"><code><a href="#peakMemoryUsage" class="member-name-link">peakMemoryUsage</a></code></div>
-<div class="col-last even-row-color">
 <div class="block">ピークメモリ使用量（バイト）</div>
 </div>
-<div class="col-first odd-row-color"><code>final double</code></div>
-<div class="col-second odd-row-color"><code><a href="#throughputStdDev" class="member-name-link">throughputStdDev</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>final double</code></div>
+<div class="col-second even-row-color"><code><a href="#throughputStdDev" class="member-name-link">throughputStdDev</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">スループットの標準偏差</div>
 </div>
-<div class="col-first even-row-color"><code>final int</code></div>
-<div class="col-second even-row-color"><code><a href="#totalCommands" class="member-name-link">totalCommands</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>final int</code></div>
+<div class="col-second odd-row-color"><code><a href="#totalCommands" class="member-name-link">totalCommands</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">総コマンド数</div>
 </div>
-<div class="col-first odd-row-color"><code>final long</code></div>
-<div class="col-second odd-row-color"><code><a href="#totalDataProcessed" class="member-name-link">totalDataProcessed</a></code></div>
-<div class="col-last odd-row-color">
+<div class="col-first even-row-color"><code>final long</code></div>
+<div class="col-second even-row-color"><code><a href="#totalDataProcessed" class="member-name-link">totalDataProcessed</a></code></div>
+<div class="col-last even-row-color">
 <div class="block">処理した総データサイズ（バイト）</div>
 </div>
-<div class="col-first even-row-color"><code>final int</code></div>
-<div class="col-second even-row-color"><code><a href="#totalTests" class="member-name-link">totalTests</a></code></div>
-<div class="col-last even-row-color">
+<div class="col-first odd-row-color"><code>final int</code></div>
+<div class="col-second odd-row-color"><code><a href="#totalTests" class="member-name-link">totalTests</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">総テスト数</div>
 </div>
 </div>
@@ -209,105 +204,98 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="averageExecutionTime">
 <h3>averageExecutionTime</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-295">averageExecutionTime</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-265">averageExecutionTime</a></span></div>
 <div class="block">平均実行時間（ミリ秒）</div>
 </section>
 </li>
 <li>
 <section class="detail" id="minExecutionTime">
 <h3>minExecutionTime</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-298">minExecutionTime</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-268">minExecutionTime</a></span></div>
 <div class="block">最小実行時間（ミリ秒）</div>
 </section>
 </li>
 <li>
 <section class="detail" id="maxExecutionTime">
 <h3>maxExecutionTime</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-301">maxExecutionTime</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-271">maxExecutionTime</a></span></div>
 <div class="block">最大実行時間（ミリ秒）</div>
 </section>
 </li>
 <li>
 <section class="detail" id="medianExecutionTime">
 <h3>medianExecutionTime</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-304">medianExecutionTime</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-274">medianExecutionTime</a></span></div>
 <div class="block">中央値実行時間（ミリ秒）</div>
 </section>
 </li>
 <li>
 <section class="detail" id="executionTimeStdDev">
 <h3>executionTimeStdDev</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-307">executionTimeStdDev</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-277">executionTimeStdDev</a></span></div>
 <div class="block">実行時間の標準偏差</div>
 </section>
 </li>
 <li>
 <section class="detail" id="averageThroughput">
 <h3>averageThroughput</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-310">averageThroughput</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-280">averageThroughput</a></span></div>
 <div class="block">平均スループット（MB/s）</div>
 </section>
 </li>
 <li>
 <section class="detail" id="minThroughput">
 <h3>minThroughput</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-313">minThroughput</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-283">minThroughput</a></span></div>
 <div class="block">最小スループット（MB/s）</div>
 </section>
 </li>
 <li>
 <section class="detail" id="maxThroughput">
 <h3>maxThroughput</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-316">maxThroughput</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-286">maxThroughput</a></span></div>
 <div class="block">最大スループット（MB/s）</div>
 </section>
 </li>
 <li>
 <section class="detail" id="medianThroughput">
 <h3>medianThroughput</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-319">medianThroughput</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-289">medianThroughput</a></span></div>
 <div class="block">中央値スループット（MB/s）</div>
 </section>
 </li>
 <li>
 <section class="detail" id="throughputStdDev">
 <h3>throughputStdDev</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-322">throughputStdDev</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-292">throughputStdDev</a></span></div>
 <div class="block">スループットの標準偏差</div>
 </section>
 </li>
 <li>
 <section class="detail" id="totalDataProcessed">
 <h3>totalDataProcessed</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-325">totalDataProcessed</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-295">totalDataProcessed</a></span></div>
 <div class="block">処理した総データサイズ（バイト）</div>
 </section>
 </li>
 <li>
 <section class="detail" id="peakMemoryUsage">
 <h3>peakMemoryUsage</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-328">peakMemoryUsage</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">long</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-298">peakMemoryUsage</a></span></div>
 <div class="block">ピークメモリ使用量（バイト）</div>
-</section>
-</li>
-<li>
-<section class="detail" id="overallSuccessRate">
-<h3>overallSuccessRate</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">double</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-331">overallSuccessRate</a></span></div>
-<div class="block">全体の成功率</div>
 </section>
 </li>
 <li>
 <section class="detail" id="totalTests">
 <h3>totalTests</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-334">totalTests</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-301">totalTests</a></span></div>
 <div class="block">総テスト数</div>
 </section>
 </li>
 <li>
 <section class="detail" id="totalCommands">
 <h3>totalCommands</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-337">totalCommands</a></span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/benchmark/PerformanceAnalyzer.PerformanceStatistics.html#line-304">totalCommands</a></span></div>
 <div class="block">総コマンド数</div>
 </section>
 </li>

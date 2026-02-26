@@ -36,7 +36,7 @@ dependencies {
     implementation("com.h2database:h2:2.4.240")
     
     // JUnit 5 の依存関係（テスト用）
-    testImplementation(platform("org.junit:junit-bom:6.0.2"))
+    testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     
@@ -47,7 +47,7 @@ dependencies {
     // JSON processing with Jackson
     implementation("com.fasterxml.jackson.core:jackson-core:2.21.0")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.0")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.1")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.21.0")
 }
 

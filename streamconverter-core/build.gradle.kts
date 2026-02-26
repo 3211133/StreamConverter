@@ -6,7 +6,7 @@ plugins {
     id("pmd")
     id("com.github.spotbugs") version "6.4.8"
     id("com.diffplug.spotless") version "8.1.0"
-    id("info.solidsoft.pitest") version "1.19.0-rc.2"
+    id("info.solidsoft.pitest") version "1.19.0-rc.3"
 }
 
 java {
@@ -54,7 +54,7 @@ dependencies {
     implementation("com.opencsv:opencsv:5.12.0")
 
     // JUnit 5 の依存関係（テスト用）
-    testImplementation(platform("org.junit:junit-bom:6.0.2"))
+    testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")

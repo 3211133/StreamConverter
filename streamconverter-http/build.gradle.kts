@@ -35,14 +35,14 @@ dependencies {
     implementation("org.springframework:spring-webflux")
     implementation("org.springframework:spring-context")
     implementation("io.projectreactor.netty:reactor-netty-http")
-    implementation("io.netty:netty-handler:4.2.9.Final")
-    implementation("io.netty:netty-common:4.2.9.Final")
+    implementation("io.netty:netty-handler:4.2.10.Final")
+    implementation("io.netty:netty-common:4.2.10.Final")
 
     // IP address validation
     implementation("com.google.guava:guava:33.5.0-jre")
 
     // JUnit 5
-    testImplementation(platform("org.junit:junit-bom:6.0.2"))
+    testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }

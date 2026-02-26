@@ -157,6 +157,8 @@ public class StreamConverter {
     if (LOG.isInfoEnabled()) {
       LOG.info("Completed StreamConverter pipeline");
     }
+
+    return results;
   }
 
   /** コマンド（単一または複数）をMDC伝搬付きで並列実行 */

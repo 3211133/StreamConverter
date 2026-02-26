@@ -2,10 +2,10 @@ package com.streamconverter.examples;
 
 import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.impl.SampleStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.rule.PassThroughRule;
-import com.streamconverter.context.ExecutionContext;
+import com.streamconverter.context.PipelineContext;
 import com.streamconverter.path.CSVPath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
@@ -14,115 +14,135 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
- * StreamConverterのMDC機能統合デモ
+ * StreamConverterのMDC伝搬デモ
  *
- * <p>このデモでは、StreamConverterに統合されたMDC機能により、デフォルトでMDC同期が有効になることを示します。
+ * <p>このデモでは、親スレッドで設定したMDC値がStreamConverter配下の 全コマンドに自動的に伝搬されることを示します。
  */
 public class StreamConverterMDCDemo {
   private static final Logger logger = LoggerFactory.getLogger(StreamConverterMDCDemo.class);
 
   /**
-   * Main method to demonstrate StreamConverter MDC integration.
+   * Main method to demonstrate StreamConverter MDC propagation.
    *
    * @param args command line arguments (not used)
    * @throws IOException if file operations fail
    */
   public static void main(String[] args) throws IOException {
-    logger.info("🚀 StreamConverter MDC Integration Demo");
+    logger.info("StreamConverter MDC Propagation Demo");
 
-    demonstrateAutomaticMDC();
-    demonstrateCustomContext();
+    demonstrateBasicMDC();
     demonstrateMultipleCommandsMDC();
+    demonstrateChildToChildPropagation();
 
-    logger.info("✅ All demonstrations completed successfully!");
+    logger.info("All demonstrations completed successfully!");
   }
 
-  /** デモ1: 自動MDC生成 */
-  private static void demonstrateAutomaticMDC() throws IOException {
-    logger.info("📊 Demo 1: Automatic MDC Generation");
+  /** デモ1: 基本的なMDC伝搬 */
+  private static void demonstrateBasicMDC() throws IOException {
+    logger.info("Demo 1: Basic MDC Propagation");
 
-    // 既存のAPIを使用 - MDCが自動的に有効化される
-    SampleStreamCommand command = new SampleStreamCommand("auto-mdc");
-    StreamConverter converter = StreamConverter.create(command);
+    // 親スレッドでMDCを設定
+    MDC.put("requestId", "REQ-DEMO-456");
+    MDC.put("userId", "demo-user");
 
-    String testData = "id,name,department\n1,Alice,Engineering\n2,Bob,Marketing\n";
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try {
+      IStreamCommand command = (in, out) -> in.transferTo(out);
+      StreamConverter converter = StreamConverter.create(command);
 
-    logger.info("Executing pipeline with automatic MDC...");
-    List<CommandResult> results = converter.run(inputStream, outputStream);
+      String testData = "id,name,department\n1,Alice,Engineering\n2,Bob,Marketing\n";
+      ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    String result = outputStream.toString(StandardCharsets.UTF_8);
-    logger.info(
-        "Demo 1 completed. Results: {} commands, Output length: {} characters\n",
-        results.size(),
-        result.length());
+      logger.info("Executing pipeline with MDC propagation...");
+      List<CommandResult> results = converter.run(inputStream, outputStream);
+
+      String result = outputStream.toString(StandardCharsets.UTF_8);
+      logger.info(
+          "Demo 1 completed. Results: {} commands, Output length: {} characters",
+          results.size(),
+          result.length());
+    } finally {
+      MDC.clear();
+    }
   }
 
-  /** デモ2: カスタムコンテキストでのMDC */
-  private static void demonstrateCustomContext() throws IOException {
-    logger.info("🎯 Demo 2: Custom ExecutionContext with MDC");
+  /** デモ2: コマンド間MDC伝搬（PipelineContext） */
+  private static void demonstrateChildToChildPropagation() throws IOException {
+    logger.info("Demo 2: Child-to-Child MDC Propagation via PipelineContext");
 
-    // カスタムExecutionContextを作成
-    ExecutionContext customContext =
-        ExecutionContext.builder()
-            .globalContext("requestId", "REQ-DEMO-456")
-            .globalContext("userId", "demo-user")
-            .globalContext("sessionId", "session-789")
-            .userContext("businessUnit", "development")
-            .userContext("priority", "high")
-            .build();
+    MDC.put("requestId", "REQ-CHILD-001");
 
-    String testData = "transaction,amount,currency\n1,100.50,USD\n2,75.25,EUR\n";
+    try {
+      // Command A: ストリームデータからIDを抽出してPipelineContextに設定
+      IStreamCommand extractId =
+          (in, out) -> {
+            byte[] data = in.readAllBytes();
+            String content = new String(data, StandardCharsets.UTF_8);
 
-    // カスタムコンテキストでコンバーター作成
-    SampleStreamCommand enrichmentCommand = new SampleStreamCommand("enrichment");
-    SampleStreamCommand auditCommand = new SampleStreamCommand("audit");
-    StreamConverter converter =
-        StreamConverter.createWithContext(customContext, enrichmentCommand, auditCommand);
+            // 冒頭行からIDを抽出（シミュレーション）
+            String orderId = content.lines().findFirst().orElse("UNKNOWN");
+            PipelineContext.putShared("orderId", orderId);
+            logger.info("Command A: extracted orderId from stream");
 
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+            out.write(data);
+          };
 
-    logger.info("Executing pipeline with custom context...");
-    List<CommandResult> results = converter.run(inputStream, outputStream);
+      // Command B: TurboFilter経由でorderIdが自動的にMDCに反映される
+      IStreamCommand process =
+          (in, out) -> {
+            // ログ出力時にTurboFilterがPipelineContextの共有値をMDCにsyncする
+            // → このログにorderId が自動的に含まれる
+            logger.info("Command B: processing with orderId automatically in MDC");
+            in.transferTo(out);
+          };
 
-    String result = outputStream.toString(StandardCharsets.UTF_8);
-    logger.info(
-        "Demo 2 completed. ExecutionId: {}, Results: {} commands",
-        customContext.getExecutionId(),
-        results.size());
-    logger.info("Output length: {} characters\n", result.length());
+      StreamConverter converter = StreamConverter.create(extractId, process);
+
+      String testData = "ORD-2026-0001\nitem1,100\nitem2,200\n";
+      ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+      List<CommandResult> results = converter.run(inputStream, outputStream);
+      logger.info("Demo 2 completed. {} commands executed", results.size());
+    } finally {
+      MDC.clear();
+    }
   }
 
-  /** デモ3: 複数コマンドでのMDC同期 */
+  /** デモ3: 複数コマンドでのMDC伝搬 */
   private static void demonstrateMultipleCommandsMDC() throws IOException {
-    logger.info("🔀 Demo 3: Multiple Commands with MDC Synchronization");
+    logger.info("Demo 3: Multiple Commands with MDC Propagation");
 
-    String testData = "product,price,category\nLaptop,999.99,Electronics\nBook,19.99,Education\n";
+    MDC.put("requestId", "REQ-MULTI-789");
 
-    // 複数のコマンドでパイプライン構築
-    SampleStreamCommand validator = new SampleStreamCommand("validator");
-    CsvNavigateCommand extractor =
-        CsvNavigateCommand.create(new CSVPath("product"), new PassThroughRule());
-    SampleStreamCommand formatter = new SampleStreamCommand("formatter");
+    try {
+      String testData = "product,price,category\nLaptop,999.99,Electronics\nBook,19.99,Education\n";
 
-    StreamConverter converter = StreamConverter.create(validator, extractor, formatter);
+      // 複数のコマンドでパイプライン構築
+      IStreamCommand validator = (in, out) -> in.transferTo(out);
+      CsvNavigateCommand extractor =
+          CsvNavigateCommand.create(new CSVPath("product"), new PassThroughRule());
+      IStreamCommand formatter = (in, out) -> in.transferTo(out);
 
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      StreamConverter converter = StreamConverter.create(validator, extractor, formatter);
 
-    logger.info("Executing multi-command pipeline with MDC synchronization...");
-    List<CommandResult> results = converter.run(inputStream, outputStream);
+      ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    String result = outputStream.toString(StandardCharsets.UTF_8);
-    logger.info("Demo 3 completed. Results: {} commands executed", results.size());
-    logger.info("Final output: {}", result.trim());
-    logger.info("All commands completed with MDC synchronization\n");
+      logger.info("Executing multi-command pipeline with MDC propagation...");
+      List<CommandResult> results = converter.run(inputStream, outputStream);
+
+      String result = outputStream.toString(StandardCharsets.UTF_8);
+      logger.info("Demo 3 completed. Results: {} commands executed", results.size());
+      logger.info("Final output: {}", result.trim());
+    } finally {
+      MDC.clear();
+    }
   }
 }

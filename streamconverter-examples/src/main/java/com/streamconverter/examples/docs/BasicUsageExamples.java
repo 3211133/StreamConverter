@@ -5,7 +5,6 @@ import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.LineEndingNormalizeCommand;
 import com.streamconverter.command.impl.LineEndingNormalizeCommand.LineEndingType;
-import com.streamconverter.command.impl.SampleStreamCommand;
 import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
 import com.streamconverter.command.impl.csv.CsvFilterCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
@@ -35,8 +34,8 @@ public class BasicUsageExamples {
   // [START csv-navigate-basic]
   /**
    * CSV navigation pipeline example - demonstrates pipeline structure with CSV column navigation.
-   * Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual
-   * processing).
+   * Note: Uses PassThroughRule (no transformation) and a lambda pass-through (placeholder for
+   * actual processing).
    */
   public void csvNavigateBasic() throws Exception {
     // Sample CSV data
@@ -47,7 +46,7 @@ public class BasicUsageExamples {
     // Create pipeline: navigate CSV + process
     IStreamCommand[] pipeline = {
       new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule()),
-      new SampleStreamCommand("csv-processor")
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
@@ -64,8 +63,8 @@ public class BasicUsageExamples {
 
   // [START csv-filter-basic]
   /**
-   * CSV filter pipeline example - demonstrates column extraction in a pipeline. Note:
-   * SampleStreamCommand is a placeholder for actual processing logic.
+   * CSV filter pipeline example - demonstrates column extraction in a pipeline. Note: The lambda
+   * pass-through is a placeholder for actual processing logic.
    */
   public void csvFilterBasic() throws Exception {
     String csvData = "id,name,price\n" + "1,Apple,100\n" + "2,Banana,50\n";
@@ -74,7 +73,8 @@ public class BasicUsageExamples {
 
     // Create pipeline: filter CSV + process
     IStreamCommand[] pipeline = {
-      CsvFilterCommand.create(new CSVPath("price")), new SampleStreamCommand("filter-processor")
+      CsvFilterCommand.create(new CSVPath("price")),
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
@@ -91,8 +91,8 @@ public class BasicUsageExamples {
   // [START json-navigate-basic]
   /**
    * JSON navigation pipeline example - demonstrates pipeline structure with JSON path navigation.
-   * Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual
-   * processing).
+   * Note: Uses PassThroughRule (no transformation) and a lambda pass-through (placeholder for
+   * actual processing).
    */
   public void jsonNavigateBasic() throws Exception {
     String jsonData = "{\"user\": {\"name\": \"John\", \"age\": 30}}";
@@ -102,7 +102,7 @@ public class BasicUsageExamples {
     // Create pipeline: navigate JSON + process
     IStreamCommand[] pipeline = {
       new JsonNavigateCommand(TreePath.fromJson("$.user.name"), new PassThroughRule()),
-      new SampleStreamCommand("json-processor")
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
@@ -119,8 +119,8 @@ public class BasicUsageExamples {
   // [START xml-navigate-basic]
   /**
    * XML navigation pipeline example - demonstrates pipeline structure with XML path navigation.
-   * Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual
-   * processing).
+   * Note: Uses PassThroughRule (no transformation) and a lambda pass-through (placeholder for
+   * actual processing).
    */
   public void xmlNavigateBasic() throws Exception {
     String xmlData = "<?xml version=\"1.0\"?><root><user><name>John</name></user></root>";
@@ -130,7 +130,7 @@ public class BasicUsageExamples {
     // Create pipeline: navigate XML + process
     IStreamCommand[] pipeline = {
       new XmlNavigateCommand(TreePath.fromXml("root/user/name"), new PassThroughRule()),
-      new SampleStreamCommand("xml-processor")
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
@@ -147,7 +147,7 @@ public class BasicUsageExamples {
   // [START character-convert-basic]
   /**
    * Character encoding conversion pipeline example - demonstrates charset conversion in a pipeline.
-   * Note: SampleStreamCommand is a placeholder for actual processing logic.
+   * Note: The lambda pass-through is a placeholder for actual processing logic.
    */
   public void characterConvertBasic() throws Exception {
     String data = "Hello World";
@@ -157,7 +157,7 @@ public class BasicUsageExamples {
     // Create pipeline: convert encoding + process
     IStreamCommand[] pipeline = {
       new CharacterConvertCommand("Shift_JIS", "UTF-8"),
-      new SampleStreamCommand("encoding-processor")
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
@@ -174,7 +174,7 @@ public class BasicUsageExamples {
   // [START line-ending-normalize-basic]
   /**
    * Line ending normalization pipeline example - demonstrates line ending conversion in a pipeline.
-   * Note: SampleStreamCommand is a placeholder for actual processing logic.
+   * Note: The lambda pass-through is a placeholder for actual processing logic.
    */
   public void lineEndingNormalizeBasic() throws Exception {
     String data = "Line 1\r\nLine 2\rLine 3\n";
@@ -183,7 +183,8 @@ public class BasicUsageExamples {
 
     // Create pipeline: normalize line endings + process
     IStreamCommand[] pipeline = {
-      new LineEndingNormalizeCommand(LineEndingType.UNIX), new SampleStreamCommand("line-processor")
+      new LineEndingNormalizeCommand(LineEndingType.UNIX),
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
@@ -224,7 +225,7 @@ public class BasicUsageExamples {
   // [START error-handling-basic]
   /**
    * Error handling pipeline example - demonstrates CommandResult usage for error detection. Note:
-   * SampleStreamCommand is a placeholder for actual processing logic.
+   * The lambda pass-through is a placeholder for actual processing logic.
    */
   public void errorHandlingBasic() throws Exception {
     String csvData = "id,name\n1,Apple\n";
@@ -234,7 +235,7 @@ public class BasicUsageExamples {
     // Create pipeline for error handling demonstration
     IStreamCommand[] pipeline = {
       new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()),
-      new SampleStreamCommand("error-handler")
+      (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);

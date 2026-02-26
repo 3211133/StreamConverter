@@ -4,7 +4,6 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.benchmark.LargeDataGenerator;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.SampleStreamCommand;
 import java.io.*;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -73,9 +72,9 @@ class MemoryEfficiencyTest {
     StreamConverter converter =
         new StreamConverter(
             new IStreamCommand[] {
-              new SampleStreamCommand("stage1"),
-              new SampleStreamCommand("stage2"),
-              new SampleStreamCommand("stage3")
+              (in, out) -> in.transferTo(out),
+              (in, out) -> in.transferTo(out),
+              (in, out) -> in.transferTo(out)
             });
 
     // GCを実行してベースライン取得
@@ -130,7 +129,7 @@ class MemoryEfficiencyTest {
 
     // 単一コマンド（最適パス）
     StreamConverter converter =
-        new StreamConverter(new IStreamCommand[] {new SampleStreamCommand("single")});
+        new StreamConverter(new IStreamCommand[] {(in, out) -> in.transferTo(out)});
 
     System.gc();
     long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
@@ -180,9 +179,9 @@ class MemoryEfficiencyTest {
     StreamConverter converter =
         new StreamConverter(
             new IStreamCommand[] {
-              new SampleStreamCommand("stage1"),
-              new SampleStreamCommand("stage2"),
-              new SampleStreamCommand("stage3")
+              (in, out) -> in.transferTo(out),
+              (in, out) -> in.transferTo(out),
+              (in, out) -> in.transferTo(out)
             });
 
     // 初期メモリ状態記録

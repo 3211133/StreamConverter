@@ -3,108 +3,160 @@ package com.streamconverter;
 import static com.streamconverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamconverter.command.impl.SampleStreamCommand;
-import com.streamconverter.context.ExecutionContext;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.context.PipelineContext;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.Test;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
-/** Integration test for StreamConverter with MDC functionality */
+/** Integration test for StreamConverter with MDC propagation */
 class StreamConverterMDCIntegrationTest {
 
-  @Test
-  void testAutomaticMDCGeneration() throws IOException {
-    // 既存のAPIでMDC機能が自動的に有効化されることをテスト
-    SampleStreamCommand command = new SampleStreamCommand("test");
-    StreamConverter converter = StreamConverter.create(command);
-
-    String testData = createTestData("test,data", "1,value1", "2,value2");
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-    List<CommandResult> results = converter.run(inputStream, outputStream);
-
-    // 結果検証
-    assertEquals(1, results.size());
-    assertTrue(results.get(0).isSuccess());
-    assertEquals("SampleStreamCommand", results.get(0).getCommandName());
-
-    // 出力データが正しく処理されたことを確認
-    String result = outputStream.toString(StandardCharsets.UTF_8);
-    assertEquals(testData, result);
-  }
+  private static final Logger LOG =
+      LoggerFactory.getLogger(StreamConverterMDCIntegrationTest.class);
 
   @Test
-  void testCustomExecutionContext() throws IOException {
-    // カスタムExecutionContextを使用したテスト
-    ExecutionContext context =
-        ExecutionContext.builder()
-            .globalContext("requestId", "REQ-TEST-123")
-            .globalContext("userId", "testuser")
-            .userContext("testScope", "integration")
-            .build();
+  void testMDCPropagation() throws IOException {
+    // 親スレッドでMDCを設定
+    MDC.put("requestId", "REQ-TEST-123");
 
-    SampleStreamCommand command = new SampleStreamCommand("contextTest");
-    StreamConverter converter = StreamConverter.createWithContext(context, command);
+    try {
+      IStreamCommand command = (in, out) -> in.transferTo(out);
+      StreamConverter converter = StreamConverter.create(command);
 
-    String testData = createTestData("custom,context,test", "a,b,c");
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+      String testData = createTestData("test,data", "1,value1", "2,value2");
+      ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    List<CommandResult> results = converter.run(inputStream, outputStream);
+      List<CommandResult> results = converter.run(inputStream, outputStream);
 
-    // 結果検証
-    assertEquals(1, results.size());
-    assertTrue(results.get(0).isSuccess());
+      // 結果検証
+      assertEquals(1, results.size());
+      assertTrue(results.get(0).isSuccess());
 
-    // 出力データが正しく処理されたことを確認
-    String result = outputStream.toString(StandardCharsets.UTF_8);
-    assertEquals(testData, result);
+      // 出力データが正しく処理されたことを確認
+      String result = outputStream.toString(StandardCharsets.UTF_8);
+      assertEquals(testData, result);
+    } finally {
+      MDC.clear();
+    }
   }
 
   @Test
   void testMultipleCommandsMDC() throws IOException {
     // 複数コマンドでのMDC機能テスト
-    SampleStreamCommand command1 = new SampleStreamCommand("first");
-    SampleStreamCommand command2 = new SampleStreamCommand("second");
-    StreamConverter converter = StreamConverter.create(command1, command2);
+    MDC.put("userId", "testuser");
 
-    String testData = createTestData("multi,command,test", "x,y,z");
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    try {
+      IStreamCommand command1 = (in, out) -> in.transferTo(out);
+      IStreamCommand command2 = (in, out) -> in.transferTo(out);
+      StreamConverter converter = StreamConverter.create(command1, command2);
 
-    List<CommandResult> results = converter.run(inputStream, outputStream);
+      String testData = createTestData("multi,command,test", "x,y,z");
+      ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    // 結果検証
-    assertEquals(2, results.size());
-    assertTrue(results.get(0).isSuccess());
-    assertTrue(results.get(1).isSuccess());
-    assertEquals("SampleStreamCommand", results.get(0).getCommandName());
-    assertEquals("SampleStreamCommand", results.get(1).getCommandName());
+      List<CommandResult> results = converter.run(inputStream, outputStream);
 
-    // 出力データが正しく処理されたことを確認
-    String result = outputStream.toString(StandardCharsets.UTF_8);
-    assertEquals(testData, result);
+      // 結果検証
+      assertEquals(2, results.size());
+      assertTrue(results.get(0).isSuccess());
+      assertTrue(results.get(1).isSuccess());
+
+      // 出力データが正しく処理されたことを確認
+      String result = outputStream.toString(StandardCharsets.UTF_8);
+      assertEquals(testData, result);
+    } finally {
+      MDC.clear();
+    }
   }
 
   @Test
-  void testContextPersistenceInFactory() throws IOException {
-    // ファクトリメソッドで作成したコンテキストが保持されることをテスト
-    ExecutionContext context =
-        ExecutionContext.builder().globalContext("persistenceTest", "factory").build();
+  void testChildToChildMDCPropagation() throws IOException {
+    // Command AでputSharedした値がCommand BのログでMDCに反映されることを検証
+    MDC.put("requestId", "REQ-PROPAGATION-001");
 
-    SampleStreamCommand command = new SampleStreamCommand("persistenceTest");
-    StreamConverter converter = StreamConverter.createWithContext(context, command);
+    AtomicReference<String> capturedOrderId = new AtomicReference<>();
+    CountDownLatch orderIdSet = new CountDownLatch(1);
 
-    // 複数回実行して同じコンテキストが使用されることを確認
-    for (int i = 0; i < 3; i++) {
-      String testData = createTestData("persistence,test," + i, "data,value," + i);
+    try {
+      // Command A: ストリームデータから"orderId"を抽出してPipelineContextに設定
+      IStreamCommand commandA =
+          (in, out) -> {
+            byte[] data = in.readAllBytes();
+            String content = new String(data, StandardCharsets.UTF_8);
+
+            // ストリームデータからorderIdを抽出（シミュレーション）
+            String orderId = "ORD-" + content.substring(0, Math.min(3, content.length()));
+            PipelineContext.putShared("orderId", orderId);
+            LOG.info("Command A: extracted orderId={}", orderId);
+
+            orderIdSet.countDown();
+            out.write(data);
+          };
+
+      // Command B: ログ出力時にTurboFilter経由でorderIdがMDCに反映される
+      IStreamCommand commandB =
+          (in, out) -> {
+            try {
+              orderIdSet.await();
+            } catch (InterruptedException e) {
+              Thread.currentThread().interrupt();
+            }
+
+            // TurboFilter経由でMDCにsyncされるため、ログ出力時にorderIdが反映される
+            // ここでは直接MDCを確認（TurboFilterがsyncToMDCを呼ぶのと同等の検証）
+            PipelineContext.syncToMDC();
+            capturedOrderId.set(MDC.get("orderId"));
+            LOG.info("Command B: orderId from MDC={}", MDC.get("orderId"));
+
+            in.transferTo(out);
+          };
+
+      StreamConverter converter = StreamConverter.create(commandA, commandB);
+
+      String testData = createTestData("ABC,data", "1,value1");
+      ByteArrayInputStream inputStream =
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+      List<CommandResult> results = converter.run(inputStream, outputStream);
+
+      // 結果検証
+      assertEquals(2, results.size());
+      assertTrue(results.get(0).isSuccess());
+      assertTrue(results.get(1).isSuccess());
+
+      // Command AでputSharedした値がCommand Bで取得できたことを検証
+      assertEquals("ORD-ABC", capturedOrderId.get());
+
+      // パイプライン終了後にPipelineContextがクリアされていることを検証
+      assertNull(PipelineContext.getShared("orderId"));
+    } finally {
+      MDC.clear();
+    }
+  }
+
+  @Test
+  void testPipelineContextDoesNotAffectCommandsNotUsingIt() throws IOException {
+    // PipelineContextを使わないCommandに影響がないことを検証
+    MDC.put("requestId", "REQ-NOOP-001");
+
+    try {
+      IStreamCommand simpleCommand = (in, out) -> in.transferTo(out);
+      StreamConverter converter = StreamConverter.create(simpleCommand);
+
+      String testData = createTestData("simple,data");
       ByteArrayInputStream inputStream =
           new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -113,9 +165,9 @@ class StreamConverterMDCIntegrationTest {
 
       assertEquals(1, results.size());
       assertTrue(results.get(0).isSuccess());
-
-      String result = outputStream.toString(StandardCharsets.UTF_8);
-      assertEquals(testData, result);
+      assertEquals(testData, outputStream.toString(StandardCharsets.UTF_8));
+    } finally {
+      MDC.clear();
     }
   }
 }

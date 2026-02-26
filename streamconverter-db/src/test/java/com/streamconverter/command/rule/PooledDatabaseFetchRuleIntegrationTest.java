@@ -237,6 +237,10 @@ public class PooledDatabaseFetchRuleIntegrationTest {
     }
     long pooledDuration = System.currentTimeMillis() - pooledStart;
 
+    // 計測精度が不十分な環境（両方 0ms）ではアサーション省略
+    if (nonPooledDuration == 0 && pooledDuration == 0) {
+      return;
+    }
     // プール版の方が高速であることを確認
     assertTrue(
         pooledDuration <= nonPooledDuration,

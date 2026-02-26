@@ -2,13 +2,13 @@
 <configuration>
     <!-- Test-only logging configuration for core module -->
 
-    <!-- TurboFilter to automatically sync ExecutionContext to MDC on every log event -->
-    <turboFilter class="com.streamconverter.logging.ExecutionContextTurboFilter"/>
+    <!-- パイプライン内コマンド間のMDC共有値を自動同期 -->
+    <turboFilter class="com.streamconverter.logging.PipelineContextTurboFilter"/>
 
     <!-- Console appender for immediate feedback in tests -->
     <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
         <encoder>
-            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36}.%method:%line [execId:%X{executionId:-}, seq:%X{commandSequence:-}, userId:%X{userId:-}] - %msg%n</pattern>
+            <pattern>%d{HH:mm:ss.SSS} %-5level %logger{36}.%method:%line - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -23,7 +23,7 @@
             <totalSizeCap>50MB</totalSizeCap>
         </rollingPolicy>
         <encoder>
-            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36}.%method:%line [execId:%X{executionId:-}, seq:%X{commandSequence:-}, stage:%X{stage:-}, userId:%X{userId:-}] - %msg%n</pattern>
+            <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %logger{36}.%method:%line - %msg%n</pattern>
         </encoder>
     </appender>
 
@@ -44,4 +44,3 @@
         <appender-ref ref="FILE"/>
     </root>
 </configuration>
-

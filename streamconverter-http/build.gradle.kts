@@ -1,0 +1,53 @@
+plugins {
+    id("java")
+}
+
+description = "StreamConverter HTTP module - SendHttpCommand for HTTP stream processing"
+
+java {
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
+
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(21)
+    }
+}
+
+tasks.withType<JavaCompile> {
+    options.encoding = "UTF-8"
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    implementation(project(":streamconverter-core"))
+
+    // Import Spring Boot BOM to align Spring/Reactor/Netty versions
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.1"))
+
+    // Logging (version via BOM)
+    implementation("ch.qos.logback:logback-core")
+    implementation("ch.qos.logback:logback-classic")
+
+    // Reactive HTTP Client
+    implementation("org.springframework:spring-webflux")
+    implementation("org.springframework:spring-context")
+    implementation("io.projectreactor.netty:reactor-netty-http")
+    implementation("io.netty:netty-handler:4.2.9.Final")
+    implementation("io.netty:netty-common:4.2.9.Final")
+
+    // IP address validation
+    implementation("com.google.guava:guava:33.5.0-jre")
+
+    // JUnit 5
+    testImplementation(platform("org.junit:junit-bom:6.0.2"))
+    testImplementation("org.junit.jupiter:junit-jupiter")
+    testRuntimeOnly("org.junit.platform:junit-platform-launcher")
+}
+
+tasks.test {
+    useJUnitPlatform()
+    jvmArgs("-Xmx2g", "-Xms1g", "-Dfile.encoding=UTF-8")
+}

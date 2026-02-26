@@ -6,7 +6,7 @@ plugins {
     id("pmd")
     id("com.github.spotbugs") version "6.4.8"
     id("com.diffplug.spotless") version "8.1.0"
-    id("info.solidsoft.pitest") version "1.19.0-rc.2"
+    id("info.solidsoft.pitest") version "1.19.0-rc.3"
 }
 
 java {

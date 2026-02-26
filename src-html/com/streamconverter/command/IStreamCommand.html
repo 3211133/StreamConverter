@@ -13,81 +13,51 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamconverter.command;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.context.ExecutionContext;</span>
-<span class="source-line-no">004</span><span id="line-4">import java.io.IOException;</span>
-<span class="source-line-no">005</span><span id="line-5">import java.io.InputStream;</span>
-<span class="source-line-no">006</span><span id="line-6">import java.io.OutputStream;</span>
-<span class="source-line-no">007</span><span id="line-7"></span>
-<span class="source-line-no">008</span><span id="line-8">/**</span>
-<span class="source-line-no">009</span><span id="line-9"> * Unified interface for stream commands with optional execution context support.</span>
-<span class="source-line-no">010</span><span id="line-10"> *</span>
-<span class="source-line-no">011</span><span id="line-11"> * &lt;p&gt;This interface defines methods for executing commands on input streams and writing results to</span>
-<span class="source-line-no">012</span><span id="line-12"> * output streams. Commands can optionally utilize ExecutionContext for enhanced logging,</span>
-<span class="source-line-no">013</span><span id="line-13"> * traceability, and multi-threaded context propagation.</span>
-<span class="source-line-no">014</span><span id="line-14"> *</span>
-<span class="source-line-no">015</span><span id="line-15"> * &lt;p&gt;Implementation options:</span>
-<span class="source-line-no">016</span><span id="line-16"> *</span>
-<span class="source-line-no">017</span><span id="line-17"> * &lt;ul&gt;</span>
-<span class="source-line-no">018</span><span id="line-18"> *   &lt;li&gt;Basic commands: Implement only the 2-parameter execute method</span>
-<span class="source-line-no">019</span><span id="line-19"> *   &lt;li&gt;Context-aware commands: Override the 3-parameter execute method for enhanced functionality</span>
-<span class="source-line-no">020</span><span id="line-20"> * &lt;/ul&gt;</span>
+<span class="source-line-no">003</span><span id="line-3">import java.io.IOException;</span>
+<span class="source-line-no">004</span><span id="line-4">import java.io.InputStream;</span>
+<span class="source-line-no">005</span><span id="line-5">import java.io.OutputStream;</span>
+<span class="source-line-no">006</span><span id="line-6"></span>
+<span class="source-line-no">007</span><span id="line-7">/**</span>
+<span class="source-line-no">008</span><span id="line-8"> * Unified interface for stream commands.</span>
+<span class="source-line-no">009</span><span id="line-9"> *</span>
+<span class="source-line-no">010</span><span id="line-10"> * &lt;p&gt;This interface defines methods for executing commands on input streams and writing results to</span>
+<span class="source-line-no">011</span><span id="line-11"> * output streams.</span>
+<span class="source-line-no">012</span><span id="line-12"> *</span>
+<span class="source-line-no">013</span><span id="line-13"> * &lt;p&gt;This is a functional interface and can be implemented using lambda expressions or method</span>
+<span class="source-line-no">014</span><span id="line-14"> * references for simple stream processing operations.</span>
+<span class="source-line-no">015</span><span id="line-15"> *</span>
+<span class="source-line-no">016</span><span id="line-16"> * &lt;p&gt;Usage examples:</span>
+<span class="source-line-no">017</span><span id="line-17"> *</span>
+<span class="source-line-no">018</span><span id="line-18"> * &lt;pre&gt;{@code</span>
+<span class="source-line-no">019</span><span id="line-19"> * // Simple copy operation (IOException is propagated from execute method signature)</span>
+<span class="source-line-no">020</span><span id="line-20"> * IStreamCommand copyCommand = (in, out) -&gt; in.transferTo(out);</span>
 <span class="source-line-no">021</span><span id="line-21"> *</span>
-<span class="source-line-no">022</span><span id="line-22"> * &lt;p&gt;This is a functional interface and can be implemented using lambda expressions or method</span>
-<span class="source-line-no">023</span><span id="line-23"> * references for simple stream processing operations.</span>
-<span class="source-line-no">024</span><span id="line-24"> *</span>
-<span class="source-line-no">025</span><span id="line-25"> * &lt;p&gt;Usage examples:</span>
-<span class="source-line-no">026</span><span id="line-26"> *</span>
-<span class="source-line-no">027</span><span id="line-27"> * &lt;pre&gt;{@code</span>
-<span class="source-line-no">028</span><span id="line-28"> * // Simple copy operation (IOException is propagated from execute method signature)</span>
-<span class="source-line-no">029</span><span id="line-29"> * IStreamCommand copyCommand = (in, out) -&gt; in.transferTo(out);</span>
+<span class="source-line-no">022</span><span id="line-22"> * // Buffered stream processing with custom logic</span>
+<span class="source-line-no">023</span><span id="line-23"> * IStreamCommand bufferCommand = (in, out) -&gt; {</span>
+<span class="source-line-no">024</span><span id="line-24"> *     byte[] buffer = new byte[8192];</span>
+<span class="source-line-no">025</span><span id="line-25"> *     int len;</span>
+<span class="source-line-no">026</span><span id="line-26"> *     while ((len = in.read(buffer)) != -1) {</span>
+<span class="source-line-no">027</span><span id="line-27"> *         out.write(buffer, 0, len);</span>
+<span class="source-line-no">028</span><span id="line-28"> *     }</span>
+<span class="source-line-no">029</span><span id="line-29"> * };</span>
 <span class="source-line-no">030</span><span id="line-30"> *</span>
-<span class="source-line-no">031</span><span id="line-31"> * // Buffered stream processing with custom logic</span>
-<span class="source-line-no">032</span><span id="line-32"> * IStreamCommand bufferCommand = (in, out) -&gt; {</span>
-<span class="source-line-no">033</span><span id="line-33"> *     byte[] buffer = new byte[8192];</span>
-<span class="source-line-no">034</span><span id="line-34"> *     int len;</span>
-<span class="source-line-no">035</span><span id="line-35"> *     while ((len = in.read(buffer)) != -1) {</span>
-<span class="source-line-no">036</span><span id="line-36"> *         out.write(buffer, 0, len);</span>
-<span class="source-line-no">037</span><span id="line-37"> *     }</span>
-<span class="source-line-no">038</span><span id="line-38"> * };</span>
-<span class="source-line-no">039</span><span id="line-39"> *</span>
-<span class="source-line-no">040</span><span id="line-40"> * // Using in StreamConverter pipeline</span>
-<span class="source-line-no">041</span><span id="line-41"> * StreamConverter converter = StreamConverter.create(copyCommand);</span>
-<span class="source-line-no">042</span><span id="line-42"> * converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">043</span><span id="line-43"> * }&lt;/pre&gt;</span>
-<span class="source-line-no">044</span><span id="line-44"> */</span>
-<span class="source-line-no">045</span><span id="line-45">@FunctionalInterface</span>
-<span class="source-line-no">046</span><span id="line-46">public interface IStreamCommand {</span>
-<span class="source-line-no">047</span><span id="line-47"></span>
-<span class="source-line-no">048</span><span id="line-48">  /**</span>
-<span class="source-line-no">049</span><span id="line-49">   * Executes the command with ExecutionContext support for enhanced traceability.</span>
-<span class="source-line-no">050</span><span id="line-50">   *</span>
-<span class="source-line-no">051</span><span id="line-51">   * &lt;p&gt;This is the primary execution method that supports MDC context propagation, execution</span>
-<span class="source-line-no">052</span><span id="line-52">   * tracking, and enhanced logging capabilities.</span>
-<span class="source-line-no">053</span><span id="line-53">   *</span>
-<span class="source-line-no">054</span><span id="line-54">   * @param inputStream The input stream to read data from.</span>
-<span class="source-line-no">055</span><span id="line-55">   * @param outputStream The output stream to write data to.</span>
-<span class="source-line-no">056</span><span id="line-56">   * @param context The execution context for traceability and logging enhancement.</span>
-<span class="source-line-no">057</span><span id="line-57">   * @throws IOException If an I/O error occurs during the execution of the command.</span>
-<span class="source-line-no">058</span><span id="line-58">   */</span>
-<span class="source-line-no">059</span><span id="line-59">  default void execute(InputStream inputStream, OutputStream outputStream, ExecutionContext context)</span>
-<span class="source-line-no">060</span><span id="line-60">      throws IOException {</span>
-<span class="source-line-no">061</span><span id="line-61">    // Default implementation delegates to the basic execute method for backward compatibility</span>
-<span class="source-line-no">062</span><span id="line-62">    execute(inputStream, outputStream);</span>
-<span class="source-line-no">063</span><span id="line-63">  }</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">  /**</span>
-<span class="source-line-no">066</span><span id="line-66">   * Executes the command on the provided input stream and writes the result to the output stream.</span>
-<span class="source-line-no">067</span><span id="line-67">   *</span>
-<span class="source-line-no">068</span><span id="line-68">   * &lt;p&gt;This method maintains backward compatibility for existing implementations. When called</span>
-<span class="source-line-no">069</span><span id="line-69">   * without ExecutionContext, a new context will be automatically created by the StreamConverter</span>
-<span class="source-line-no">070</span><span id="line-70">   * pipeline.</span>
-<span class="source-line-no">071</span><span id="line-71">   *</span>
-<span class="source-line-no">072</span><span id="line-72">   * @param inputStream The input stream to read data from.</span>
-<span class="source-line-no">073</span><span id="line-73">   * @param outputStream The output stream to write data to.</span>
-<span class="source-line-no">074</span><span id="line-74">   * @throws IOException If an I/O error occurs during the execution of the command.</span>
-<span class="source-line-no">075</span><span id="line-75">   */</span>
-<span class="source-line-no">076</span><span id="line-76">  void execute(InputStream inputStream, OutputStream outputStream) throws IOException;</span>
-<span class="source-line-no">077</span><span id="line-77">}</span>
+<span class="source-line-no">031</span><span id="line-31"> * // Using in StreamConverter pipeline</span>
+<span class="source-line-no">032</span><span id="line-32"> * StreamConverter converter = StreamConverter.create(copyCommand);</span>
+<span class="source-line-no">033</span><span id="line-33"> * converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">034</span><span id="line-34"> * }&lt;/pre&gt;</span>
+<span class="source-line-no">035</span><span id="line-35"> */</span>
+<span class="source-line-no">036</span><span id="line-36">@FunctionalInterface</span>
+<span class="source-line-no">037</span><span id="line-37">public interface IStreamCommand {</span>
+<span class="source-line-no">038</span><span id="line-38"></span>
+<span class="source-line-no">039</span><span id="line-39">  /**</span>
+<span class="source-line-no">040</span><span id="line-40">   * Executes the command on the provided input stream and writes the result to the output stream.</span>
+<span class="source-line-no">041</span><span id="line-41">   *</span>
+<span class="source-line-no">042</span><span id="line-42">   * @param inputStream The input stream to read data from.</span>
+<span class="source-line-no">043</span><span id="line-43">   * @param outputStream The output stream to write data to.</span>
+<span class="source-line-no">044</span><span id="line-44">   * @throws IOException If an I/O error occurs during the execution of the command.</span>
+<span class="source-line-no">045</span><span id="line-45">   */</span>
+<span class="source-line-no">046</span><span id="line-46">  void execute(InputStream inputStream, OutputStream outputStream) throws IOException;</span>
+<span class="source-line-no">047</span><span id="line-47">}</span>
 
 
 

@@ -15,10 +15,10 @@
 <span class="source-line-no">002</span><span id="line-2"></span>
 <span class="source-line-no">003</span><span id="line-3">import com.streamconverter.CommandResult;</span>
 <span class="source-line-no">004</span><span id="line-4">import com.streamconverter.StreamConverter;</span>
-<span class="source-line-no">005</span><span id="line-5">import com.streamconverter.command.impl.SampleStreamCommand;</span>
+<span class="source-line-no">005</span><span id="line-5">import com.streamconverter.command.IStreamCommand;</span>
 <span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.impl.csv.CsvNavigateCommand;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamconverter.command.rule.PassThroughRule;</span>
-<span class="source-line-no">008</span><span id="line-8">import com.streamconverter.context.ExecutionContext;</span>
+<span class="source-line-no">008</span><span id="line-8">import com.streamconverter.context.PipelineContext;</span>
 <span class="source-line-no">009</span><span id="line-9">import com.streamconverter.path.CSVPath;</span>
 <span class="source-line-no">010</span><span id="line-10">import java.io.ByteArrayInputStream;</span>
 <span class="source-line-no">011</span><span id="line-11">import java.io.ByteArrayOutputStream;</span>
@@ -27,118 +27,138 @@
 <span class="source-line-no">014</span><span id="line-14">import java.util.List;</span>
 <span class="source-line-no">015</span><span id="line-15">import org.slf4j.Logger;</span>
 <span class="source-line-no">016</span><span id="line-16">import org.slf4j.LoggerFactory;</span>
-<span class="source-line-no">017</span><span id="line-17"></span>
-<span class="source-line-no">018</span><span id="line-18">/**</span>
-<span class="source-line-no">019</span><span id="line-19"> * StreamConverterのMDC機能統合デモ</span>
-<span class="source-line-no">020</span><span id="line-20"> *</span>
-<span class="source-line-no">021</span><span id="line-21"> * &lt;p&gt;このデモでは、StreamConverterに統合されたMDC機能により、デフォルトでMDC同期が有効になることを示します。</span>
-<span class="source-line-no">022</span><span id="line-22"> */</span>
-<span class="source-line-no">023</span><span id="line-23">public class StreamConverterMDCDemo {</span>
-<span class="source-line-no">024</span><span id="line-24">  private static final Logger logger = LoggerFactory.getLogger(StreamConverterMDCDemo.class);</span>
-<span class="source-line-no">025</span><span id="line-25"></span>
-<span class="source-line-no">026</span><span id="line-26">  /**</span>
-<span class="source-line-no">027</span><span id="line-27">   * Main method to demonstrate StreamConverter MDC integration.</span>
-<span class="source-line-no">028</span><span id="line-28">   *</span>
-<span class="source-line-no">029</span><span id="line-29">   * @param args command line arguments (not used)</span>
-<span class="source-line-no">030</span><span id="line-30">   * @throws IOException if file operations fail</span>
-<span class="source-line-no">031</span><span id="line-31">   */</span>
-<span class="source-line-no">032</span><span id="line-32">  public static void main(String[] args) throws IOException {</span>
-<span class="source-line-no">033</span><span id="line-33">    logger.info("🚀 StreamConverter MDC Integration Demo");</span>
-<span class="source-line-no">034</span><span id="line-34"></span>
-<span class="source-line-no">035</span><span id="line-35">    demonstrateAutomaticMDC();</span>
-<span class="source-line-no">036</span><span id="line-36">    demonstrateCustomContext();</span>
+<span class="source-line-no">017</span><span id="line-17">import org.slf4j.MDC;</span>
+<span class="source-line-no">018</span><span id="line-18"></span>
+<span class="source-line-no">019</span><span id="line-19">/**</span>
+<span class="source-line-no">020</span><span id="line-20"> * StreamConverterのMDC伝搬デモ</span>
+<span class="source-line-no">021</span><span id="line-21"> *</span>
+<span class="source-line-no">022</span><span id="line-22"> * &lt;p&gt;このデモでは、親スレッドで設定したMDC値がStreamConverter配下の 全コマンドに自動的に伝搬されることを示します。</span>
+<span class="source-line-no">023</span><span id="line-23"> */</span>
+<span class="source-line-no">024</span><span id="line-24">public class StreamConverterMDCDemo {</span>
+<span class="source-line-no">025</span><span id="line-25">  private static final Logger logger = LoggerFactory.getLogger(StreamConverterMDCDemo.class);</span>
+<span class="source-line-no">026</span><span id="line-26"></span>
+<span class="source-line-no">027</span><span id="line-27">  /**</span>
+<span class="source-line-no">028</span><span id="line-28">   * Main method to demonstrate StreamConverter MDC propagation.</span>
+<span class="source-line-no">029</span><span id="line-29">   *</span>
+<span class="source-line-no">030</span><span id="line-30">   * @param args command line arguments (not used)</span>
+<span class="source-line-no">031</span><span id="line-31">   * @throws IOException if file operations fail</span>
+<span class="source-line-no">032</span><span id="line-32">   */</span>
+<span class="source-line-no">033</span><span id="line-33">  public static void main(String[] args) throws IOException {</span>
+<span class="source-line-no">034</span><span id="line-34">    logger.info("StreamConverter MDC Propagation Demo");</span>
+<span class="source-line-no">035</span><span id="line-35"></span>
+<span class="source-line-no">036</span><span id="line-36">    demonstrateBasicMDC();</span>
 <span class="source-line-no">037</span><span id="line-37">    demonstrateMultipleCommandsMDC();</span>
-<span class="source-line-no">038</span><span id="line-38"></span>
-<span class="source-line-no">039</span><span id="line-39">    logger.info("✅ All demonstrations completed successfully!");</span>
-<span class="source-line-no">040</span><span id="line-40">  }</span>
-<span class="source-line-no">041</span><span id="line-41"></span>
-<span class="source-line-no">042</span><span id="line-42">  /** デモ1: 自動MDC生成 */</span>
-<span class="source-line-no">043</span><span id="line-43">  private static void demonstrateAutomaticMDC() throws IOException {</span>
-<span class="source-line-no">044</span><span id="line-44">    logger.info("📊 Demo 1: Automatic MDC Generation");</span>
-<span class="source-line-no">045</span><span id="line-45"></span>
-<span class="source-line-no">046</span><span id="line-46">    // 既存のAPIを使用 - MDCが自動的に有効化される</span>
-<span class="source-line-no">047</span><span id="line-47">    SampleStreamCommand command = new SampleStreamCommand("auto-mdc");</span>
-<span class="source-line-no">048</span><span id="line-48">    StreamConverter converter = StreamConverter.create(command);</span>
-<span class="source-line-no">049</span><span id="line-49"></span>
-<span class="source-line-no">050</span><span id="line-50">    String testData = "id,name,department\n1,Alice,Engineering\n2,Bob,Marketing\n";</span>
-<span class="source-line-no">051</span><span id="line-51">    ByteArrayInputStream inputStream =</span>
-<span class="source-line-no">052</span><span id="line-52">        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">053</span><span id="line-53">    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();</span>
+<span class="source-line-no">038</span><span id="line-38">    demonstrateChildToChildPropagation();</span>
+<span class="source-line-no">039</span><span id="line-39"></span>
+<span class="source-line-no">040</span><span id="line-40">    logger.info("All demonstrations completed successfully!");</span>
+<span class="source-line-no">041</span><span id="line-41">  }</span>
+<span class="source-line-no">042</span><span id="line-42"></span>
+<span class="source-line-no">043</span><span id="line-43">  /** デモ1: 基本的なMDC伝搬 */</span>
+<span class="source-line-no">044</span><span id="line-44">  private static void demonstrateBasicMDC() throws IOException {</span>
+<span class="source-line-no">045</span><span id="line-45">    logger.info("Demo 1: Basic MDC Propagation");</span>
+<span class="source-line-no">046</span><span id="line-46"></span>
+<span class="source-line-no">047</span><span id="line-47">    // 親スレッドでMDCを設定</span>
+<span class="source-line-no">048</span><span id="line-48">    MDC.put("requestId", "REQ-DEMO-456");</span>
+<span class="source-line-no">049</span><span id="line-49">    MDC.put("userId", "demo-user");</span>
+<span class="source-line-no">050</span><span id="line-50"></span>
+<span class="source-line-no">051</span><span id="line-51">    try {</span>
+<span class="source-line-no">052</span><span id="line-52">      IStreamCommand command = (in, out) -&gt; in.transferTo(out);</span>
+<span class="source-line-no">053</span><span id="line-53">      StreamConverter converter = StreamConverter.create(command);</span>
 <span class="source-line-no">054</span><span id="line-54"></span>
-<span class="source-line-no">055</span><span id="line-55">    logger.info("Executing pipeline with automatic MDC...");</span>
-<span class="source-line-no">056</span><span id="line-56">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">057</span><span id="line-57"></span>
-<span class="source-line-no">058</span><span id="line-58">    String result = outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">059</span><span id="line-59">    logger.info(</span>
-<span class="source-line-no">060</span><span id="line-60">        "Demo 1 completed. Results: {} commands, Output length: {} characters\n",</span>
-<span class="source-line-no">061</span><span id="line-61">        results.size(),</span>
-<span class="source-line-no">062</span><span id="line-62">        result.length());</span>
-<span class="source-line-no">063</span><span id="line-63">  }</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">  /** デモ2: カスタムコンテキストでのMDC */</span>
-<span class="source-line-no">066</span><span id="line-66">  private static void demonstrateCustomContext() throws IOException {</span>
-<span class="source-line-no">067</span><span id="line-67">    logger.info("🎯 Demo 2: Custom ExecutionContext with MDC");</span>
-<span class="source-line-no">068</span><span id="line-68"></span>
-<span class="source-line-no">069</span><span id="line-69">    // カスタムExecutionContextを作成</span>
-<span class="source-line-no">070</span><span id="line-70">    ExecutionContext customContext =</span>
-<span class="source-line-no">071</span><span id="line-71">        ExecutionContext.builder()</span>
-<span class="source-line-no">072</span><span id="line-72">            .globalContext("requestId", "REQ-DEMO-456")</span>
-<span class="source-line-no">073</span><span id="line-73">            .globalContext("userId", "demo-user")</span>
-<span class="source-line-no">074</span><span id="line-74">            .globalContext("sessionId", "session-789")</span>
-<span class="source-line-no">075</span><span id="line-75">            .userContext("businessUnit", "development")</span>
-<span class="source-line-no">076</span><span id="line-76">            .userContext("priority", "high")</span>
-<span class="source-line-no">077</span><span id="line-77">            .build();</span>
+<span class="source-line-no">055</span><span id="line-55">      String testData = "id,name,department\n1,Alice,Engineering\n2,Bob,Marketing\n";</span>
+<span class="source-line-no">056</span><span id="line-56">      ByteArrayInputStream inputStream =</span>
+<span class="source-line-no">057</span><span id="line-57">          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">058</span><span id="line-58">      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();</span>
+<span class="source-line-no">059</span><span id="line-59"></span>
+<span class="source-line-no">060</span><span id="line-60">      logger.info("Executing pipeline with MDC propagation...");</span>
+<span class="source-line-no">061</span><span id="line-61">      List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">062</span><span id="line-62"></span>
+<span class="source-line-no">063</span><span id="line-63">      String result = outputStream.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">064</span><span id="line-64">      logger.info(</span>
+<span class="source-line-no">065</span><span id="line-65">          "Demo 1 completed. Results: {} commands, Output length: {} characters",</span>
+<span class="source-line-no">066</span><span id="line-66">          results.size(),</span>
+<span class="source-line-no">067</span><span id="line-67">          result.length());</span>
+<span class="source-line-no">068</span><span id="line-68">    } finally {</span>
+<span class="source-line-no">069</span><span id="line-69">      MDC.clear();</span>
+<span class="source-line-no">070</span><span id="line-70">    }</span>
+<span class="source-line-no">071</span><span id="line-71">  }</span>
+<span class="source-line-no">072</span><span id="line-72"></span>
+<span class="source-line-no">073</span><span id="line-73">  /** デモ2: コマンド間MDC伝搬（PipelineContext） */</span>
+<span class="source-line-no">074</span><span id="line-74">  private static void demonstrateChildToChildPropagation() throws IOException {</span>
+<span class="source-line-no">075</span><span id="line-75">    logger.info("Demo 2: Child-to-Child MDC Propagation via PipelineContext");</span>
+<span class="source-line-no">076</span><span id="line-76"></span>
+<span class="source-line-no">077</span><span id="line-77">    MDC.put("requestId", "REQ-CHILD-001");</span>
 <span class="source-line-no">078</span><span id="line-78"></span>
-<span class="source-line-no">079</span><span id="line-79">    String testData = "transaction,amount,currency\n1,100.50,USD\n2,75.25,EUR\n";</span>
-<span class="source-line-no">080</span><span id="line-80"></span>
-<span class="source-line-no">081</span><span id="line-81">    // カスタムコンテキストでコンバーター作成</span>
-<span class="source-line-no">082</span><span id="line-82">    SampleStreamCommand enrichmentCommand = new SampleStreamCommand("enrichment");</span>
-<span class="source-line-no">083</span><span id="line-83">    SampleStreamCommand auditCommand = new SampleStreamCommand("audit");</span>
-<span class="source-line-no">084</span><span id="line-84">    StreamConverter converter =</span>
-<span class="source-line-no">085</span><span id="line-85">        StreamConverter.createWithContext(customContext, enrichmentCommand, auditCommand);</span>
-<span class="source-line-no">086</span><span id="line-86"></span>
-<span class="source-line-no">087</span><span id="line-87">    ByteArrayInputStream inputStream =</span>
-<span class="source-line-no">088</span><span id="line-88">        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">089</span><span id="line-89">    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();</span>
+<span class="source-line-no">079</span><span id="line-79">    try {</span>
+<span class="source-line-no">080</span><span id="line-80">      // Command A: ストリームデータからIDを抽出してPipelineContextに設定</span>
+<span class="source-line-no">081</span><span id="line-81">      IStreamCommand extractId =</span>
+<span class="source-line-no">082</span><span id="line-82">          (in, out) -&gt; {</span>
+<span class="source-line-no">083</span><span id="line-83">            byte[] data = in.readAllBytes();</span>
+<span class="source-line-no">084</span><span id="line-84">            String content = new String(data, StandardCharsets.UTF_8);</span>
+<span class="source-line-no">085</span><span id="line-85"></span>
+<span class="source-line-no">086</span><span id="line-86">            // 冒頭行からIDを抽出（シミュレーション）</span>
+<span class="source-line-no">087</span><span id="line-87">            String orderId = content.lines().findFirst().orElse("UNKNOWN");</span>
+<span class="source-line-no">088</span><span id="line-88">            PipelineContext.putShared("orderId", orderId);</span>
+<span class="source-line-no">089</span><span id="line-89">            logger.info("Command A: extracted orderId from stream");</span>
 <span class="source-line-no">090</span><span id="line-90"></span>
-<span class="source-line-no">091</span><span id="line-91">    logger.info("Executing pipeline with custom context...");</span>
-<span class="source-line-no">092</span><span id="line-92">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">091</span><span id="line-91">            out.write(data);</span>
+<span class="source-line-no">092</span><span id="line-92">          };</span>
 <span class="source-line-no">093</span><span id="line-93"></span>
-<span class="source-line-no">094</span><span id="line-94">    String result = outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">095</span><span id="line-95">    logger.info(</span>
-<span class="source-line-no">096</span><span id="line-96">        "Demo 2 completed. ExecutionId: {}, Results: {} commands",</span>
-<span class="source-line-no">097</span><span id="line-97">        customContext.getExecutionId(),</span>
-<span class="source-line-no">098</span><span id="line-98">        results.size());</span>
-<span class="source-line-no">099</span><span id="line-99">    logger.info("Output length: {} characters\n", result.length());</span>
-<span class="source-line-no">100</span><span id="line-100">  }</span>
-<span class="source-line-no">101</span><span id="line-101"></span>
-<span class="source-line-no">102</span><span id="line-102">  /** デモ3: 複数コマンドでのMDC同期 */</span>
-<span class="source-line-no">103</span><span id="line-103">  private static void demonstrateMultipleCommandsMDC() throws IOException {</span>
-<span class="source-line-no">104</span><span id="line-104">    logger.info("🔀 Demo 3: Multiple Commands with MDC Synchronization");</span>
-<span class="source-line-no">105</span><span id="line-105"></span>
-<span class="source-line-no">106</span><span id="line-106">    String testData = "product,price,category\nLaptop,999.99,Electronics\nBook,19.99,Education\n";</span>
-<span class="source-line-no">107</span><span id="line-107"></span>
-<span class="source-line-no">108</span><span id="line-108">    // 複数のコマンドでパイプライン構築</span>
-<span class="source-line-no">109</span><span id="line-109">    SampleStreamCommand validator = new SampleStreamCommand("validator");</span>
-<span class="source-line-no">110</span><span id="line-110">    CsvNavigateCommand extractor =</span>
-<span class="source-line-no">111</span><span id="line-111">        CsvNavigateCommand.create(new CSVPath("product"), new PassThroughRule());</span>
-<span class="source-line-no">112</span><span id="line-112">    SampleStreamCommand formatter = new SampleStreamCommand("formatter");</span>
-<span class="source-line-no">113</span><span id="line-113"></span>
-<span class="source-line-no">114</span><span id="line-114">    StreamConverter converter = StreamConverter.create(validator, extractor, formatter);</span>
-<span class="source-line-no">115</span><span id="line-115"></span>
-<span class="source-line-no">116</span><span id="line-116">    ByteArrayInputStream inputStream =</span>
-<span class="source-line-no">117</span><span id="line-117">        new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">118</span><span id="line-118">    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();</span>
-<span class="source-line-no">119</span><span id="line-119"></span>
-<span class="source-line-no">120</span><span id="line-120">    logger.info("Executing multi-command pipeline with MDC synchronization...");</span>
-<span class="source-line-no">121</span><span id="line-121">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">094</span><span id="line-94">      // Command B: TurboFilter経由でorderIdが自動的にMDCに反映される</span>
+<span class="source-line-no">095</span><span id="line-95">      IStreamCommand process =</span>
+<span class="source-line-no">096</span><span id="line-96">          (in, out) -&gt; {</span>
+<span class="source-line-no">097</span><span id="line-97">            // ログ出力時にTurboFilterがPipelineContextの共有値をMDCにsyncする</span>
+<span class="source-line-no">098</span><span id="line-98">            // → このログにorderId が自動的に含まれる</span>
+<span class="source-line-no">099</span><span id="line-99">            logger.info("Command B: processing with orderId automatically in MDC");</span>
+<span class="source-line-no">100</span><span id="line-100">            in.transferTo(out);</span>
+<span class="source-line-no">101</span><span id="line-101">          };</span>
+<span class="source-line-no">102</span><span id="line-102"></span>
+<span class="source-line-no">103</span><span id="line-103">      StreamConverter converter = StreamConverter.create(extractId, process);</span>
+<span class="source-line-no">104</span><span id="line-104"></span>
+<span class="source-line-no">105</span><span id="line-105">      String testData = "ORD-2026-0001\nitem1,100\nitem2,200\n";</span>
+<span class="source-line-no">106</span><span id="line-106">      ByteArrayInputStream inputStream =</span>
+<span class="source-line-no">107</span><span id="line-107">          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">108</span><span id="line-108">      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();</span>
+<span class="source-line-no">109</span><span id="line-109"></span>
+<span class="source-line-no">110</span><span id="line-110">      List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">111</span><span id="line-111">      logger.info("Demo 2 completed. {} commands executed", results.size());</span>
+<span class="source-line-no">112</span><span id="line-112">    } finally {</span>
+<span class="source-line-no">113</span><span id="line-113">      MDC.clear();</span>
+<span class="source-line-no">114</span><span id="line-114">    }</span>
+<span class="source-line-no">115</span><span id="line-115">  }</span>
+<span class="source-line-no">116</span><span id="line-116"></span>
+<span class="source-line-no">117</span><span id="line-117">  /** デモ3: 複数コマンドでのMDC伝搬 */</span>
+<span class="source-line-no">118</span><span id="line-118">  private static void demonstrateMultipleCommandsMDC() throws IOException {</span>
+<span class="source-line-no">119</span><span id="line-119">    logger.info("Demo 3: Multiple Commands with MDC Propagation");</span>
+<span class="source-line-no">120</span><span id="line-120"></span>
+<span class="source-line-no">121</span><span id="line-121">    MDC.put("requestId", "REQ-MULTI-789");</span>
 <span class="source-line-no">122</span><span id="line-122"></span>
-<span class="source-line-no">123</span><span id="line-123">    String result = outputStream.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">124</span><span id="line-124">    logger.info("Demo 3 completed. Results: {} commands executed", results.size());</span>
-<span class="source-line-no">125</span><span id="line-125">    logger.info("Final output: {}", result.trim());</span>
-<span class="source-line-no">126</span><span id="line-126">    logger.info("All commands completed with MDC synchronization\n");</span>
-<span class="source-line-no">127</span><span id="line-127">  }</span>
-<span class="source-line-no">128</span><span id="line-128">}</span>
+<span class="source-line-no">123</span><span id="line-123">    try {</span>
+<span class="source-line-no">124</span><span id="line-124">      String testData = "product,price,category\nLaptop,999.99,Electronics\nBook,19.99,Education\n";</span>
+<span class="source-line-no">125</span><span id="line-125"></span>
+<span class="source-line-no">126</span><span id="line-126">      // 複数のコマンドでパイプライン構築</span>
+<span class="source-line-no">127</span><span id="line-127">      IStreamCommand validator = (in, out) -&gt; in.transferTo(out);</span>
+<span class="source-line-no">128</span><span id="line-128">      CsvNavigateCommand extractor =</span>
+<span class="source-line-no">129</span><span id="line-129">          CsvNavigateCommand.create(new CSVPath("product"), new PassThroughRule());</span>
+<span class="source-line-no">130</span><span id="line-130">      IStreamCommand formatter = (in, out) -&gt; in.transferTo(out);</span>
+<span class="source-line-no">131</span><span id="line-131"></span>
+<span class="source-line-no">132</span><span id="line-132">      StreamConverter converter = StreamConverter.create(validator, extractor, formatter);</span>
+<span class="source-line-no">133</span><span id="line-133"></span>
+<span class="source-line-no">134</span><span id="line-134">      ByteArrayInputStream inputStream =</span>
+<span class="source-line-no">135</span><span id="line-135">          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">136</span><span id="line-136">      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();</span>
+<span class="source-line-no">137</span><span id="line-137"></span>
+<span class="source-line-no">138</span><span id="line-138">      logger.info("Executing multi-command pipeline with MDC propagation...");</span>
+<span class="source-line-no">139</span><span id="line-139">      List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">140</span><span id="line-140"></span>
+<span class="source-line-no">141</span><span id="line-141">      String result = outputStream.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">142</span><span id="line-142">      logger.info("Demo 3 completed. Results: {} commands executed", results.size());</span>
+<span class="source-line-no">143</span><span id="line-143">      logger.info("Final output: {}", result.trim());</span>
+<span class="source-line-no">144</span><span id="line-144">    } finally {</span>
+<span class="source-line-no">145</span><span id="line-145">      MDC.clear();</span>
+<span class="source-line-no">146</span><span id="line-146">    }</span>
+<span class="source-line-no">147</span><span id="line-147">  }</span>
+<span class="source-line-no">148</span><span id="line-148">}</span>
 
 
 

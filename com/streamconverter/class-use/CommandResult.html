@@ -104,14 +104,7 @@ loadScripts(document, 'script');</script>
 <div class="col-second even-row-color"><span class="type-name-label">StreamConverter.</span><code><a href="../StreamConverter.html#run(java.io.InputStream,java.io.OutputStream)" class="member-name-link">run</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</code></div>
 <div class="col-last even-row-color">
-<div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 自動的にExecutionContextを生成してMDC同期を実現する。</div>
-</div>
-<div class="col-first odd-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="../CommandResult.html" title="class in com.streamconverter">CommandResult</a>&gt;</code></div>
-<div class="col-second odd-row-color"><span class="type-name-label">StreamConverter.</span><code><a href="../StreamConverter.html#run(java.io.InputStream,java.io.OutputStream,com.streamconverter.context.ExecutionContext)" class="member-name-link">run</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
- <a href="../context/ExecutionContext.html" title="class in com.streamconverter.context">ExecutionContext</a>&nbsp;context)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">カスタムExecutionContextを使用してストリームを変換する。 マルチスレッド環境でのMDCコンテキスト伝播とログトレーサビリティを実現。</div>
+<div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 親スレッドのMDCコンテキストは各コマンドの仮想スレッドに自動伝搬される。</div>
 </div>
 </div>
 </section>

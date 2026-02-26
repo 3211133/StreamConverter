@@ -18,76 +18,76 @@
 <span class="source-line-no">005</span><span id="line-5">import com.streamconverter.command.IStreamCommand;</span>
 <span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.impl.LineEndingNormalizeCommand;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamconverter.command.impl.LineEndingNormalizeCommand.LineEndingType;</span>
-<span class="source-line-no">008</span><span id="line-8">import com.streamconverter.command.impl.SampleStreamCommand;</span>
-<span class="source-line-no">009</span><span id="line-9">import com.streamconverter.command.impl.charcode.CharacterConvertCommand;</span>
-<span class="source-line-no">010</span><span id="line-10">import com.streamconverter.command.impl.csv.CsvFilterCommand;</span>
-<span class="source-line-no">011</span><span id="line-11">import com.streamconverter.command.impl.csv.CsvNavigateCommand;</span>
-<span class="source-line-no">012</span><span id="line-12">import com.streamconverter.command.impl.json.JsonNavigateCommand;</span>
-<span class="source-line-no">013</span><span id="line-13">import com.streamconverter.command.impl.xml.XmlNavigateCommand;</span>
-<span class="source-line-no">014</span><span id="line-14">import com.streamconverter.command.rule.PassThroughRule;</span>
-<span class="source-line-no">015</span><span id="line-15">import com.streamconverter.path.CSVPath;</span>
-<span class="source-line-no">016</span><span id="line-16">import com.streamconverter.path.TreePath;</span>
-<span class="source-line-no">017</span><span id="line-17">import java.io.ByteArrayInputStream;</span>
-<span class="source-line-no">018</span><span id="line-18">import java.io.ByteArrayOutputStream;</span>
-<span class="source-line-no">019</span><span id="line-19">import java.io.InputStream;</span>
-<span class="source-line-no">020</span><span id="line-20">import java.io.OutputStream;</span>
-<span class="source-line-no">021</span><span id="line-21">import java.nio.charset.StandardCharsets;</span>
-<span class="source-line-no">022</span><span id="line-22">import java.util.List;</span>
-<span class="source-line-no">023</span><span id="line-23"></span>
-<span class="source-line-no">024</span><span id="line-24">/**</span>
-<span class="source-line-no">025</span><span id="line-25"> * Verifiable code examples for StreamConverter documentation.</span>
-<span class="source-line-no">026</span><span id="line-26"> *</span>
-<span class="source-line-no">027</span><span id="line-27"> * &lt;p&gt;This class contains actual, compilable, and runnable code examples that are referenced from</span>
-<span class="source-line-no">028</span><span id="line-28"> * documentation. Each example is marked with START/END comments for potential extraction into</span>
-<span class="source-line-no">029</span><span id="line-29"> * documentation.</span>
-<span class="source-line-no">030</span><span id="line-30"> *</span>
-<span class="source-line-no">031</span><span id="line-31"> * &lt;p&gt;All examples in this file are tested to ensure they compile and execute correctly.</span>
-<span class="source-line-no">032</span><span id="line-32"> */</span>
-<span class="source-line-no">033</span><span id="line-33">public class BasicUsageExamples {</span>
-<span class="source-line-no">034</span><span id="line-34"></span>
-<span class="source-line-no">035</span><span id="line-35">  // [START csv-navigate-basic]</span>
-<span class="source-line-no">036</span><span id="line-36">  /**</span>
-<span class="source-line-no">037</span><span id="line-37">   * CSV navigation pipeline example - demonstrates pipeline structure with CSV column navigation.</span>
-<span class="source-line-no">038</span><span id="line-38">   * Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual</span>
-<span class="source-line-no">039</span><span id="line-39">   * processing).</span>
-<span class="source-line-no">040</span><span id="line-40">   */</span>
-<span class="source-line-no">041</span><span id="line-41">  public void csvNavigateBasic() throws Exception {</span>
-<span class="source-line-no">042</span><span id="line-42">    // Sample CSV data</span>
-<span class="source-line-no">043</span><span id="line-43">    String csvData = "id,productName,price\n" + "1,Apple,100\n" + "2,Banana,50\n";</span>
-<span class="source-line-no">044</span><span id="line-44">    InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">045</span><span id="line-45">    OutputStream outputStream = new ByteArrayOutputStream();</span>
-<span class="source-line-no">046</span><span id="line-46"></span>
-<span class="source-line-no">047</span><span id="line-47">    // Create pipeline: navigate CSV + process</span>
-<span class="source-line-no">048</span><span id="line-48">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">049</span><span id="line-49">      new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule()),</span>
-<span class="source-line-no">050</span><span id="line-50">      new SampleStreamCommand("csv-processor")</span>
-<span class="source-line-no">051</span><span id="line-51">    };</span>
-<span class="source-line-no">052</span><span id="line-52"></span>
-<span class="source-line-no">053</span><span id="line-53">    StreamConverter converter = StreamConverter.create(pipeline);</span>
-<span class="source-line-no">054</span><span id="line-54">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">055</span><span id="line-55"></span>
-<span class="source-line-no">056</span><span id="line-56">    // Verify execution</span>
-<span class="source-line-no">057</span><span id="line-57">    boolean success = results.stream().allMatch(CommandResult::isSuccess);</span>
-<span class="source-line-no">058</span><span id="line-58">    if (!success) {</span>
-<span class="source-line-no">059</span><span id="line-59">      throw new RuntimeException("CSV navigation failed");</span>
-<span class="source-line-no">060</span><span id="line-60">    }</span>
-<span class="source-line-no">061</span><span id="line-61">  }</span>
-<span class="source-line-no">062</span><span id="line-62"></span>
-<span class="source-line-no">063</span><span id="line-63">  // [END csv-navigate-basic]</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">  // [START csv-filter-basic]</span>
-<span class="source-line-no">066</span><span id="line-66">  /**</span>
-<span class="source-line-no">067</span><span id="line-67">   * CSV filter pipeline example - demonstrates column extraction in a pipeline. Note:</span>
-<span class="source-line-no">068</span><span id="line-68">   * SampleStreamCommand is a placeholder for actual processing logic.</span>
-<span class="source-line-no">069</span><span id="line-69">   */</span>
-<span class="source-line-no">070</span><span id="line-70">  public void csvFilterBasic() throws Exception {</span>
-<span class="source-line-no">071</span><span id="line-71">    String csvData = "id,name,price\n" + "1,Apple,100\n" + "2,Banana,50\n";</span>
-<span class="source-line-no">072</span><span id="line-72">    InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">073</span><span id="line-73">    OutputStream outputStream = new ByteArrayOutputStream();</span>
-<span class="source-line-no">074</span><span id="line-74"></span>
-<span class="source-line-no">075</span><span id="line-75">    // Create pipeline: filter CSV + process</span>
-<span class="source-line-no">076</span><span id="line-76">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">077</span><span id="line-77">      CsvFilterCommand.create(new CSVPath("price")), new SampleStreamCommand("filter-processor")</span>
+<span class="source-line-no">008</span><span id="line-8">import com.streamconverter.command.impl.charcode.CharacterConvertCommand;</span>
+<span class="source-line-no">009</span><span id="line-9">import com.streamconverter.command.impl.csv.CsvFilterCommand;</span>
+<span class="source-line-no">010</span><span id="line-10">import com.streamconverter.command.impl.csv.CsvNavigateCommand;</span>
+<span class="source-line-no">011</span><span id="line-11">import com.streamconverter.command.impl.json.JsonNavigateCommand;</span>
+<span class="source-line-no">012</span><span id="line-12">import com.streamconverter.command.impl.xml.XmlNavigateCommand;</span>
+<span class="source-line-no">013</span><span id="line-13">import com.streamconverter.command.rule.PassThroughRule;</span>
+<span class="source-line-no">014</span><span id="line-14">import com.streamconverter.path.CSVPath;</span>
+<span class="source-line-no">015</span><span id="line-15">import com.streamconverter.path.TreePath;</span>
+<span class="source-line-no">016</span><span id="line-16">import java.io.ByteArrayInputStream;</span>
+<span class="source-line-no">017</span><span id="line-17">import java.io.ByteArrayOutputStream;</span>
+<span class="source-line-no">018</span><span id="line-18">import java.io.InputStream;</span>
+<span class="source-line-no">019</span><span id="line-19">import java.io.OutputStream;</span>
+<span class="source-line-no">020</span><span id="line-20">import java.nio.charset.StandardCharsets;</span>
+<span class="source-line-no">021</span><span id="line-21">import java.util.List;</span>
+<span class="source-line-no">022</span><span id="line-22"></span>
+<span class="source-line-no">023</span><span id="line-23">/**</span>
+<span class="source-line-no">024</span><span id="line-24"> * Verifiable code examples for StreamConverter documentation.</span>
+<span class="source-line-no">025</span><span id="line-25"> *</span>
+<span class="source-line-no">026</span><span id="line-26"> * &lt;p&gt;This class contains actual, compilable, and runnable code examples that are referenced from</span>
+<span class="source-line-no">027</span><span id="line-27"> * documentation. Each example is marked with START/END comments for potential extraction into</span>
+<span class="source-line-no">028</span><span id="line-28"> * documentation.</span>
+<span class="source-line-no">029</span><span id="line-29"> *</span>
+<span class="source-line-no">030</span><span id="line-30"> * &lt;p&gt;All examples in this file are tested to ensure they compile and execute correctly.</span>
+<span class="source-line-no">031</span><span id="line-31"> */</span>
+<span class="source-line-no">032</span><span id="line-32">public class BasicUsageExamples {</span>
+<span class="source-line-no">033</span><span id="line-33"></span>
+<span class="source-line-no">034</span><span id="line-34">  // [START csv-navigate-basic]</span>
+<span class="source-line-no">035</span><span id="line-35">  /**</span>
+<span class="source-line-no">036</span><span id="line-36">   * CSV navigation pipeline example - demonstrates pipeline structure with CSV column navigation.</span>
+<span class="source-line-no">037</span><span id="line-37">   * Note: Uses PassThroughRule (no transformation) and a lambda pass-through (placeholder for</span>
+<span class="source-line-no">038</span><span id="line-38">   * actual processing).</span>
+<span class="source-line-no">039</span><span id="line-39">   */</span>
+<span class="source-line-no">040</span><span id="line-40">  public void csvNavigateBasic() throws Exception {</span>
+<span class="source-line-no">041</span><span id="line-41">    // Sample CSV data</span>
+<span class="source-line-no">042</span><span id="line-42">    String csvData = "id,productName,price\n" + "1,Apple,100\n" + "2,Banana,50\n";</span>
+<span class="source-line-no">043</span><span id="line-43">    InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">044</span><span id="line-44">    OutputStream outputStream = new ByteArrayOutputStream();</span>
+<span class="source-line-no">045</span><span id="line-45"></span>
+<span class="source-line-no">046</span><span id="line-46">    // Create pipeline: navigate CSV + process</span>
+<span class="source-line-no">047</span><span id="line-47">    IStreamCommand[] pipeline = {</span>
+<span class="source-line-no">048</span><span id="line-48">      new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule()),</span>
+<span class="source-line-no">049</span><span id="line-49">      (IStreamCommand) (in, out) -&gt; in.transferTo(out)</span>
+<span class="source-line-no">050</span><span id="line-50">    };</span>
+<span class="source-line-no">051</span><span id="line-51"></span>
+<span class="source-line-no">052</span><span id="line-52">    StreamConverter converter = StreamConverter.create(pipeline);</span>
+<span class="source-line-no">053</span><span id="line-53">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">054</span><span id="line-54"></span>
+<span class="source-line-no">055</span><span id="line-55">    // Verify execution</span>
+<span class="source-line-no">056</span><span id="line-56">    boolean success = results.stream().allMatch(CommandResult::isSuccess);</span>
+<span class="source-line-no">057</span><span id="line-57">    if (!success) {</span>
+<span class="source-line-no">058</span><span id="line-58">      throw new RuntimeException("CSV navigation failed");</span>
+<span class="source-line-no">059</span><span id="line-59">    }</span>
+<span class="source-line-no">060</span><span id="line-60">  }</span>
+<span class="source-line-no">061</span><span id="line-61"></span>
+<span class="source-line-no">062</span><span id="line-62">  // [END csv-navigate-basic]</span>
+<span class="source-line-no">063</span><span id="line-63"></span>
+<span class="source-line-no">064</span><span id="line-64">  // [START csv-filter-basic]</span>
+<span class="source-line-no">065</span><span id="line-65">  /**</span>
+<span class="source-line-no">066</span><span id="line-66">   * CSV filter pipeline example - demonstrates column extraction in a pipeline. Note: The lambda</span>
+<span class="source-line-no">067</span><span id="line-67">   * pass-through is a placeholder for actual processing logic.</span>
+<span class="source-line-no">068</span><span id="line-68">   */</span>
+<span class="source-line-no">069</span><span id="line-69">  public void csvFilterBasic() throws Exception {</span>
+<span class="source-line-no">070</span><span id="line-70">    String csvData = "id,name,price\n" + "1,Apple,100\n" + "2,Banana,50\n";</span>
+<span class="source-line-no">071</span><span id="line-71">    InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">072</span><span id="line-72">    OutputStream outputStream = new ByteArrayOutputStream();</span>
+<span class="source-line-no">073</span><span id="line-73"></span>
+<span class="source-line-no">074</span><span id="line-74">    // Create pipeline: filter CSV + process</span>
+<span class="source-line-no">075</span><span id="line-75">    IStreamCommand[] pipeline = {</span>
+<span class="source-line-no">076</span><span id="line-76">      CsvFilterCommand.create(new CSVPath("price")),</span>
+<span class="source-line-no">077</span><span id="line-77">      (IStreamCommand) (in, out) -&gt; in.transferTo(out)</span>
 <span class="source-line-no">078</span><span id="line-78">    };</span>
 <span class="source-line-no">079</span><span id="line-79"></span>
 <span class="source-line-no">080</span><span id="line-80">    StreamConverter converter = StreamConverter.create(pipeline);</span>
@@ -104,8 +104,8 @@
 <span class="source-line-no">091</span><span id="line-91">  // [START json-navigate-basic]</span>
 <span class="source-line-no">092</span><span id="line-92">  /**</span>
 <span class="source-line-no">093</span><span id="line-93">   * JSON navigation pipeline example - demonstrates pipeline structure with JSON path navigation.</span>
-<span class="source-line-no">094</span><span id="line-94">   * Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual</span>
-<span class="source-line-no">095</span><span id="line-95">   * processing).</span>
+<span class="source-line-no">094</span><span id="line-94">   * Note: Uses PassThroughRule (no transformation) and a lambda pass-through (placeholder for</span>
+<span class="source-line-no">095</span><span id="line-95">   * actual processing).</span>
 <span class="source-line-no">096</span><span id="line-96">   */</span>
 <span class="source-line-no">097</span><span id="line-97">  public void jsonNavigateBasic() throws Exception {</span>
 <span class="source-line-no">098</span><span id="line-98">    String jsonData = "{\"user\": {\"name\": \"John\", \"age\": 30}}";</span>
@@ -115,7 +115,7 @@
 <span class="source-line-no">102</span><span id="line-102">    // Create pipeline: navigate JSON + process</span>
 <span class="source-line-no">103</span><span id="line-103">    IStreamCommand[] pipeline = {</span>
 <span class="source-line-no">104</span><span id="line-104">      new JsonNavigateCommand(TreePath.fromJson("$.user.name"), new PassThroughRule()),</span>
-<span class="source-line-no">105</span><span id="line-105">      new SampleStreamCommand("json-processor")</span>
+<span class="source-line-no">105</span><span id="line-105">      (IStreamCommand) (in, out) -&gt; in.transferTo(out)</span>
 <span class="source-line-no">106</span><span id="line-106">    };</span>
 <span class="source-line-no">107</span><span id="line-107"></span>
 <span class="source-line-no">108</span><span id="line-108">    StreamConverter converter = StreamConverter.create(pipeline);</span>
@@ -132,8 +132,8 @@
 <span class="source-line-no">119</span><span id="line-119">  // [START xml-navigate-basic]</span>
 <span class="source-line-no">120</span><span id="line-120">  /**</span>
 <span class="source-line-no">121</span><span id="line-121">   * XML navigation pipeline example - demonstrates pipeline structure with XML path navigation.</span>
-<span class="source-line-no">122</span><span id="line-122">   * Note: Uses PassThroughRule (no transformation) and SampleStreamCommand (placeholder for actual</span>
-<span class="source-line-no">123</span><span id="line-123">   * processing).</span>
+<span class="source-line-no">122</span><span id="line-122">   * Note: Uses PassThroughRule (no transformation) and a lambda pass-through (placeholder for</span>
+<span class="source-line-no">123</span><span id="line-123">   * actual processing).</span>
 <span class="source-line-no">124</span><span id="line-124">   */</span>
 <span class="source-line-no">125</span><span id="line-125">  public void xmlNavigateBasic() throws Exception {</span>
 <span class="source-line-no">126</span><span id="line-126">    String xmlData = "&lt;?xml version=\"1.0\"?&gt;&lt;root&gt;&lt;user&gt;&lt;name&gt;John&lt;/name&gt;&lt;/user&gt;&lt;/root&gt;";</span>
@@ -143,7 +143,7 @@
 <span class="source-line-no">130</span><span id="line-130">    // Create pipeline: navigate XML + process</span>
 <span class="source-line-no">131</span><span id="line-131">    IStreamCommand[] pipeline = {</span>
 <span class="source-line-no">132</span><span id="line-132">      new XmlNavigateCommand(TreePath.fromXml("root/user/name"), new PassThroughRule()),</span>
-<span class="source-line-no">133</span><span id="line-133">      new SampleStreamCommand("xml-processor")</span>
+<span class="source-line-no">133</span><span id="line-133">      (IStreamCommand) (in, out) -&gt; in.transferTo(out)</span>
 <span class="source-line-no">134</span><span id="line-134">    };</span>
 <span class="source-line-no">135</span><span id="line-135"></span>
 <span class="source-line-no">136</span><span id="line-136">    StreamConverter converter = StreamConverter.create(pipeline);</span>
@@ -160,7 +160,7 @@
 <span class="source-line-no">147</span><span id="line-147">  // [START character-convert-basic]</span>
 <span class="source-line-no">148</span><span id="line-148">  /**</span>
 <span class="source-line-no">149</span><span id="line-149">   * Character encoding conversion pipeline example - demonstrates charset conversion in a pipeline.</span>
-<span class="source-line-no">150</span><span id="line-150">   * Note: SampleStreamCommand is a placeholder for actual processing logic.</span>
+<span class="source-line-no">150</span><span id="line-150">   * Note: The lambda pass-through is a placeholder for actual processing logic.</span>
 <span class="source-line-no">151</span><span id="line-151">   */</span>
 <span class="source-line-no">152</span><span id="line-152">  public void characterConvertBasic() throws Exception {</span>
 <span class="source-line-no">153</span><span id="line-153">    String data = "Hello World";</span>
@@ -170,7 +170,7 @@
 <span class="source-line-no">157</span><span id="line-157">    // Create pipeline: convert encoding + process</span>
 <span class="source-line-no">158</span><span id="line-158">    IStreamCommand[] pipeline = {</span>
 <span class="source-line-no">159</span><span id="line-159">      new CharacterConvertCommand("Shift_JIS", "UTF-8"),</span>
-<span class="source-line-no">160</span><span id="line-160">      new SampleStreamCommand("encoding-processor")</span>
+<span class="source-line-no">160</span><span id="line-160">      (IStreamCommand) (in, out) -&gt; in.transferTo(out)</span>
 <span class="source-line-no">161</span><span id="line-161">    };</span>
 <span class="source-line-no">162</span><span id="line-162"></span>
 <span class="source-line-no">163</span><span id="line-163">    StreamConverter converter = StreamConverter.create(pipeline);</span>
@@ -187,7 +187,7 @@
 <span class="source-line-no">174</span><span id="line-174">  // [START line-ending-normalize-basic]</span>
 <span class="source-line-no">175</span><span id="line-175">  /**</span>
 <span class="source-line-no">176</span><span id="line-176">   * Line ending normalization pipeline example - demonstrates line ending conversion in a pipeline.</span>
-<span class="source-line-no">177</span><span id="line-177">   * Note: SampleStreamCommand is a placeholder for actual processing logic.</span>
+<span class="source-line-no">177</span><span id="line-177">   * Note: The lambda pass-through is a placeholder for actual processing logic.</span>
 <span class="source-line-no">178</span><span id="line-178">   */</span>
 <span class="source-line-no">179</span><span id="line-179">  public void lineEndingNormalizeBasic() throws Exception {</span>
 <span class="source-line-no">180</span><span id="line-180">    String data = "Line 1\r\nLine 2\rLine 3\n";</span>
@@ -196,80 +196,81 @@
 <span class="source-line-no">183</span><span id="line-183"></span>
 <span class="source-line-no">184</span><span id="line-184">    // Create pipeline: normalize line endings + process</span>
 <span class="source-line-no">185</span><span id="line-185">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">186</span><span id="line-186">      new LineEndingNormalizeCommand(LineEndingType.UNIX), new SampleStreamCommand("line-processor")</span>
-<span class="source-line-no">187</span><span id="line-187">    };</span>
-<span class="source-line-no">188</span><span id="line-188"></span>
-<span class="source-line-no">189</span><span id="line-189">    StreamConverter converter = StreamConverter.create(pipeline);</span>
-<span class="source-line-no">190</span><span id="line-190">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">191</span><span id="line-191"></span>
-<span class="source-line-no">192</span><span id="line-192">    boolean success = results.stream().allMatch(CommandResult::isSuccess);</span>
-<span class="source-line-no">193</span><span id="line-193">    if (!success) {</span>
-<span class="source-line-no">194</span><span id="line-194">      throw new RuntimeException("Line ending normalization failed");</span>
-<span class="source-line-no">195</span><span id="line-195">    }</span>
-<span class="source-line-no">196</span><span id="line-196">  }</span>
-<span class="source-line-no">197</span><span id="line-197"></span>
-<span class="source-line-no">198</span><span id="line-198">  // [END line-ending-normalize-basic]</span>
-<span class="source-line-no">199</span><span id="line-199"></span>
-<span class="source-line-no">200</span><span id="line-200">  // [START pipeline-simple]</span>
-<span class="source-line-no">201</span><span id="line-201">  /** Simple pipeline example - chaining multiple commands. */</span>
-<span class="source-line-no">202</span><span id="line-202">  public void simplePipeline() throws Exception {</span>
-<span class="source-line-no">203</span><span id="line-203">    String csvData = "id,name,price\n1,Apple,100\n";</span>
-<span class="source-line-no">204</span><span id="line-204">    InputStream inputStream = new ByteArrayInputStream(csvData.getBytes("Shift_JIS"));</span>
-<span class="source-line-no">205</span><span id="line-205">    OutputStream outputStream = new ByteArrayOutputStream();</span>
-<span class="source-line-no">206</span><span id="line-206"></span>
-<span class="source-line-no">207</span><span id="line-207">    // CSV → Character conversion → Output</span>
-<span class="source-line-no">208</span><span id="line-208">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">209</span><span id="line-209">      new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()),</span>
-<span class="source-line-no">210</span><span id="line-210">      new CharacterConvertCommand("Shift_JIS", "UTF-8")</span>
-<span class="source-line-no">211</span><span id="line-211">    };</span>
-<span class="source-line-no">212</span><span id="line-212"></span>
-<span class="source-line-no">213</span><span id="line-213">    StreamConverter converter = StreamConverter.create(pipeline);</span>
-<span class="source-line-no">214</span><span id="line-214">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">215</span><span id="line-215"></span>
-<span class="source-line-no">216</span><span id="line-216">    boolean success = results.stream().allMatch(CommandResult::isSuccess);</span>
-<span class="source-line-no">217</span><span id="line-217">    if (!success) {</span>
-<span class="source-line-no">218</span><span id="line-218">      throw new RuntimeException("Pipeline execution failed");</span>
-<span class="source-line-no">219</span><span id="line-219">    }</span>
-<span class="source-line-no">220</span><span id="line-220">  }</span>
-<span class="source-line-no">221</span><span id="line-221"></span>
-<span class="source-line-no">222</span><span id="line-222">  // [END pipeline-simple]</span>
-<span class="source-line-no">223</span><span id="line-223"></span>
-<span class="source-line-no">224</span><span id="line-224">  // [START error-handling-basic]</span>
-<span class="source-line-no">225</span><span id="line-225">  /**</span>
-<span class="source-line-no">226</span><span id="line-226">   * Error handling pipeline example - demonstrates CommandResult usage for error detection. Note:</span>
-<span class="source-line-no">227</span><span id="line-227">   * SampleStreamCommand is a placeholder for actual processing logic.</span>
-<span class="source-line-no">228</span><span id="line-228">   */</span>
-<span class="source-line-no">229</span><span id="line-229">  public void errorHandlingBasic() throws Exception {</span>
-<span class="source-line-no">230</span><span id="line-230">    String csvData = "id,name\n1,Apple\n";</span>
-<span class="source-line-no">231</span><span id="line-231">    InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));</span>
-<span class="source-line-no">232</span><span id="line-232">    OutputStream outputStream = new ByteArrayOutputStream();</span>
-<span class="source-line-no">233</span><span id="line-233"></span>
-<span class="source-line-no">234</span><span id="line-234">    // Create pipeline for error handling demonstration</span>
-<span class="source-line-no">235</span><span id="line-235">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">236</span><span id="line-236">      new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()),</span>
-<span class="source-line-no">237</span><span id="line-237">      new SampleStreamCommand("error-handler")</span>
-<span class="source-line-no">238</span><span id="line-238">    };</span>
-<span class="source-line-no">239</span><span id="line-239"></span>
-<span class="source-line-no">240</span><span id="line-240">    StreamConverter converter = StreamConverter.create(pipeline);</span>
-<span class="source-line-no">241</span><span id="line-241">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">242</span><span id="line-242"></span>
-<span class="source-line-no">243</span><span id="line-243">    // Check results</span>
-<span class="source-line-no">244</span><span id="line-244">    for (CommandResult result : results) {</span>
-<span class="source-line-no">245</span><span id="line-245">      if (!result.isSuccess()) {</span>
-<span class="source-line-no">246</span><span id="line-246">        System.err.println("Command failed: " + result.getCommandName());</span>
-<span class="source-line-no">247</span><span id="line-247">        System.err.println("Error: " + result.getErrorMessage());</span>
-<span class="source-line-no">248</span><span id="line-248">      } else {</span>
-<span class="source-line-no">249</span><span id="line-249">        System.out.println(</span>
-<span class="source-line-no">250</span><span id="line-250">            "Success: "</span>
-<span class="source-line-no">251</span><span id="line-251">                + result.getCommandName()</span>
-<span class="source-line-no">252</span><span id="line-252">                + " (duration: "</span>
-<span class="source-line-no">253</span><span id="line-253">                + result.getExecutionTimeMillis()</span>
-<span class="source-line-no">254</span><span id="line-254">                + "ms)");</span>
-<span class="source-line-no">255</span><span id="line-255">      }</span>
-<span class="source-line-no">256</span><span id="line-256">    }</span>
-<span class="source-line-no">257</span><span id="line-257">  }</span>
-<span class="source-line-no">258</span><span id="line-258">  // [END error-handling-basic]</span>
-<span class="source-line-no">259</span><span id="line-259">}</span>
+<span class="source-line-no">186</span><span id="line-186">      new LineEndingNormalizeCommand(LineEndingType.UNIX),</span>
+<span class="source-line-no">187</span><span id="line-187">      (IStreamCommand) (in, out) -&gt; in.transferTo(out)</span>
+<span class="source-line-no">188</span><span id="line-188">    };</span>
+<span class="source-line-no">189</span><span id="line-189"></span>
+<span class="source-line-no">190</span><span id="line-190">    StreamConverter converter = StreamConverter.create(pipeline);</span>
+<span class="source-line-no">191</span><span id="line-191">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">192</span><span id="line-192"></span>
+<span class="source-line-no">193</span><span id="line-193">    boolean success = results.stream().allMatch(CommandResult::isSuccess);</span>
+<span class="source-line-no">194</span><span id="line-194">    if (!success) {</span>
+<span class="source-line-no">195</span><span id="line-195">      throw new RuntimeException("Line ending normalization failed");</span>
+<span class="source-line-no">196</span><span id="line-196">    }</span>
+<span class="source-line-no">197</span><span id="line-197">  }</span>
+<span class="source-line-no">198</span><span id="line-198"></span>
+<span class="source-line-no">199</span><span id="line-199">  // [END line-ending-normalize-basic]</span>
+<span class="source-line-no">200</span><span id="line-200"></span>
+<span class="source-line-no">201</span><span id="line-201">  // [START pipeline-simple]</span>
+<span class="source-line-no">202</span><span id="line-202">  /** Simple pipeline example - chaining multiple commands. */</span>
+<span class="source-line-no">203</span><span id="line-203">  public void simplePipeline() throws Exception {</span>
+<span class="source-line-no">204</span><span id="line-204">    String csvData = "id,name,price\n1,Apple,100\n";</span>
+<span class="source-line-no">205</span><span id="line-205">    InputStream inputStream = new ByteArrayInputStream(csvData.getBytes("Shift_JIS"));</span>
+<span class="source-line-no">206</span><span id="line-206">    OutputStream outputStream = new ByteArrayOutputStream();</span>
+<span class="source-line-no">207</span><span id="line-207"></span>
+<span class="source-line-no">208</span><span id="line-208">    // CSV → Character conversion → Output</span>
+<span class="source-line-no">209</span><span id="line-209">    IStreamCommand[] pipeline = {</span>
+<span class="source-line-no">210</span><span id="line-210">      new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()),</span>
+<span class="source-line-no">211</span><span id="line-211">      new CharacterConvertCommand("Shift_JIS", "UTF-8")</span>
+<span class="source-line-no">212</span><span id="line-212">    };</span>
+<span class="source-line-no">213</span><span id="line-213"></span>
+<span class="source-line-no">214</span><span id="line-214">    StreamConverter converter = StreamConverter.create(pipeline);</span>
+<span class="source-line-no">215</span><span id="line-215">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">216</span><span id="line-216"></span>
+<span class="source-line-no">217</span><span id="line-217">    boolean success = results.stream().allMatch(CommandResult::isSuccess);</span>
+<span class="source-line-no">218</span><span id="line-218">    if (!success) {</span>
+<span class="source-line-no">219</span><span id="line-219">      throw new RuntimeException("Pipeline execution failed");</span>
+<span class="source-line-no">220</span><span id="line-220">    }</span>
+<span class="source-line-no">221</span><span id="line-221">  }</span>
+<span class="source-line-no">222</span><span id="line-222"></span>
+<span class="source-line-no">223</span><span id="line-223">  // [END pipeline-simple]</span>
+<span class="source-line-no">224</span><span id="line-224"></span>
+<span class="source-line-no">225</span><span id="line-225">  // [START error-handling-basic]</span>
+<span class="source-line-no">226</span><span id="line-226">  /**</span>
+<span class="source-line-no">227</span><span id="line-227">   * Error handling pipeline example - demonstrates CommandResult usage for error detection. Note:</span>
+<span class="source-line-no">228</span><span id="line-228">   * The lambda pass-through is a placeholder for actual processing logic.</span>
+<span class="source-line-no">229</span><span id="line-229">   */</span>
+<span class="source-line-no">230</span><span id="line-230">  public void errorHandlingBasic() throws Exception {</span>
+<span class="source-line-no">231</span><span id="line-231">    String csvData = "id,name\n1,Apple\n";</span>
+<span class="source-line-no">232</span><span id="line-232">    InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));</span>
+<span class="source-line-no">233</span><span id="line-233">    OutputStream outputStream = new ByteArrayOutputStream();</span>
+<span class="source-line-no">234</span><span id="line-234"></span>
+<span class="source-line-no">235</span><span id="line-235">    // Create pipeline for error handling demonstration</span>
+<span class="source-line-no">236</span><span id="line-236">    IStreamCommand[] pipeline = {</span>
+<span class="source-line-no">237</span><span id="line-237">      new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()),</span>
+<span class="source-line-no">238</span><span id="line-238">      (IStreamCommand) (in, out) -&gt; in.transferTo(out)</span>
+<span class="source-line-no">239</span><span id="line-239">    };</span>
+<span class="source-line-no">240</span><span id="line-240"></span>
+<span class="source-line-no">241</span><span id="line-241">    StreamConverter converter = StreamConverter.create(pipeline);</span>
+<span class="source-line-no">242</span><span id="line-242">    List&lt;CommandResult&gt; results = converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">243</span><span id="line-243"></span>
+<span class="source-line-no">244</span><span id="line-244">    // Check results</span>
+<span class="source-line-no">245</span><span id="line-245">    for (CommandResult result : results) {</span>
+<span class="source-line-no">246</span><span id="line-246">      if (!result.isSuccess()) {</span>
+<span class="source-line-no">247</span><span id="line-247">        System.err.println("Command failed: " + result.getCommandName());</span>
+<span class="source-line-no">248</span><span id="line-248">        System.err.println("Error: " + result.getErrorMessage());</span>
+<span class="source-line-no">249</span><span id="line-249">      } else {</span>
+<span class="source-line-no">250</span><span id="line-250">        System.out.println(</span>
+<span class="source-line-no">251</span><span id="line-251">            "Success: "</span>
+<span class="source-line-no">252</span><span id="line-252">                + result.getCommandName()</span>
+<span class="source-line-no">253</span><span id="line-253">                + " (duration: "</span>
+<span class="source-line-no">254</span><span id="line-254">                + result.getExecutionTimeMillis()</span>
+<span class="source-line-no">255</span><span id="line-255">                + "ms)");</span>
+<span class="source-line-no">256</span><span id="line-256">      }</span>
+<span class="source-line-no">257</span><span id="line-257">    }</span>
+<span class="source-line-no">258</span><span id="line-258">  }</span>
+<span class="source-line-no">259</span><span id="line-259">  // [END error-handling-basic]</span>
+<span class="source-line-no">260</span><span id="line-260">}</span>
 
 
 

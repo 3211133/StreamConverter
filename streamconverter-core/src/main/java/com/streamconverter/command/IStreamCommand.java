@@ -50,14 +50,32 @@ public interface IStreamCommand {
    * Wraps this command with logging. The returned command logs start, completion, and failure using
    * the provided logger.
    *
-   * <p>The command name is resolved from the actual command class at wrap time, so there is no
-   * runtime overhead per execution.
+   * <p>The command name is derived from {@code this.getClass().getSimpleName()} at wrap time. When
+   * this command is implemented as a lambda or method reference, the underlying class is synthetic
+   * and the derived name may not be meaningful. In such cases, prefer {@link #withLogging(Logger,
+   * String)} to provide an explicit command name.
    *
    * @param logger the logger to write messages to
    * @return a new {@link IStreamCommand} that delegates to this command and emits log records
    */
   default IStreamCommand withLogging(Logger logger) {
-    String commandName = this.getClass().getSimpleName();
+    Class<?> implClass = this.getClass();
+    String commandName = implClass.isSynthetic() ? "IStreamCommand" : implClass.getSimpleName();
+    return withLogging(logger, commandName);
+  }
+
+  /**
+   * Wraps this command with logging using an explicit command name.
+   *
+   * <p>This overload is recommended when the command is implemented as a lambda expression or
+   * method reference, where the underlying class name might be synthetic and not meaningful in
+   * logs.
+   *
+   * @param logger the logger to write messages to
+   * @param commandName the human-readable name of this command to appear in log messages
+   * @return a new {@link IStreamCommand} that delegates to this command and emits log records
+   */
+  default IStreamCommand withLogging(Logger logger, String commandName) {
     return (in, out) -> {
       logger.info("Starting command: {}", commandName);
       long start = System.currentTimeMillis();

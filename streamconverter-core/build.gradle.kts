@@ -37,8 +37,8 @@ repositories {
 
 dependencies {
     // Logging
-    implementation("ch.qos.logback:logback-core:1.5.18")
-    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("ch.qos.logback:logback-core:1.5.32")
+    implementation("ch.qos.logback:logback-classic:1.5.32")
 
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.20.0")

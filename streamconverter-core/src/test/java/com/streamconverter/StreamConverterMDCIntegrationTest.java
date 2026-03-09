@@ -5,19 +5,26 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.context.PipelineContext;
+import com.streamconverter.logging.MDCInitializer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 
-/** Integration test for StreamConverter with MDC propagation */
+/** Integration test for StreamConverter with MDC propagation via InheritableMDCAdapter */
 class StreamConverterMDCIntegrationTest {
+
+  @BeforeAll
+  static void installInheritableMDCAdapter() {
+    MDCInitializer.initialize();
+  }
 
   private static final Logger LOG =
       LoggerFactory.getLogger(StreamConverterMDCIntegrationTest.class);
@@ -27,8 +34,15 @@ class StreamConverterMDCIntegrationTest {
     // 親スレッドでMDCを設定
     MDC.put("requestId", "REQ-TEST-123");
 
+    AtomicReference<String> workerMdc = new AtomicReference<>();
+
     try {
-      IStreamCommand command = (in, out) -> in.transferTo(out);
+      IStreamCommand command =
+          (in, out) -> {
+            // ワーカースレッドで MDC の伝播を確認
+            workerMdc.set(MDC.get("requestId"));
+            in.transferTo(out);
+          };
       StreamConverter converter = StreamConverter.create(command);
 
       String testData = createTestData("test,data", "1,value1", "2,value2");
@@ -37,6 +51,9 @@ class StreamConverterMDCIntegrationTest {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
       converter.run(inputStream, outputStream);
+
+      // ワーカースレッドに MDC が伝播されたことを確認
+      assertEquals("REQ-TEST-123", workerMdc.get());
 
       // 出力データが正しく処理されたことを確認
       String result = outputStream.toString(StandardCharsets.UTF_8);

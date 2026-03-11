@@ -3,6 +3,7 @@ package com.streamconverter.command;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.slf4j.Logger;
 
 /**
  * Unified interface for stream commands.
@@ -44,4 +45,54 @@ public interface IStreamCommand {
    * @throws IOException If an I/O error occurs during the execution of the command.
    */
   void execute(InputStream inputStream, OutputStream outputStream) throws IOException;
+
+  /**
+   * Wraps this command with logging. The returned command logs start, completion, and failure using
+   * the provided logger.
+   *
+   * <p>The command name is derived from {@code this.getClass().getSimpleName()} at wrap time. When
+   * this command is implemented as a lambda or method reference, the underlying class is synthetic
+   * and the derived name may not be meaningful. In such cases, prefer {@link #withLogging(Logger,
+   * String)} to provide an explicit command name.
+   *
+   * @param logger the logger to write messages to
+   * @return a new {@link IStreamCommand} that delegates to this command and emits log records
+   */
+  default IStreamCommand withLogging(Logger logger) {
+    Class<?> implClass = this.getClass();
+    String commandName = implClass.isSynthetic() ? "IStreamCommand" : implClass.getSimpleName();
+    return withLogging(logger, commandName);
+  }
+
+  /**
+   * Wraps this command with logging using an explicit command name.
+   *
+   * <p>This overload is recommended when the command is implemented as a lambda expression or
+   * method reference, where the underlying class name might be synthetic and not meaningful in
+   * logs.
+   *
+   * @param logger the logger to write messages to
+   * @param commandName the human-readable name of this command to appear in log messages
+   * @return a new {@link IStreamCommand} that delegates to this command and emits log records
+   */
+  default IStreamCommand withLogging(Logger logger, String commandName) {
+    return (in, out) -> {
+      logger.info("Starting command: {}", commandName);
+      long start = System.currentTimeMillis();
+      try {
+        this.execute(in, out);
+        logger.info(
+            "Completed command: {} ({}ms)", commandName, System.currentTimeMillis() - start);
+      } catch (IOException e) {
+        logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
+        throw e;
+      } catch (RuntimeException e) {
+        logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
+        throw e;
+      } catch (Error e) {
+        logger.error("Fatal error in command: {} - {}", commandName, e.getMessage(), e);
+        throw e;
+      }
+    };
+  }
 }

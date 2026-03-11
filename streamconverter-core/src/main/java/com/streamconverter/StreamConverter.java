@@ -81,7 +81,7 @@ public class StreamConverter {
     if (commands.length == 0) {
       throw new IllegalArgumentException("commands is empty.");
     }
-    this.commands = List.of(commands);
+    this.commands = wrapWithLogging(List.of(commands));
   }
 
   /**
@@ -96,7 +96,7 @@ public class StreamConverter {
     if (commands.isEmpty()) {
       throw new IllegalArgumentException("commands is empty.");
     }
-    this.commands = new ArrayList<>(commands); // Defensive copy
+    this.commands = wrapWithLogging(commands);
   }
 
   /**
@@ -121,6 +121,15 @@ public class StreamConverter {
    */
   public static StreamConverter create(List<IStreamCommand> commands) {
     return new StreamConverter(commands);
+  }
+
+  /** コマンドリストの各コマンドに withLogging をあらかじめ適用して返す。 ラッピングはコンストラクト時に1度だけ行われ、実行ごとのオーバーヘッドを排除する。 */
+  private static List<IStreamCommand> wrapWithLogging(List<IStreamCommand> commands) {
+    List<IStreamCommand> wrapped = new ArrayList<>(commands.size());
+    for (IStreamCommand command : commands) {
+      wrapped.add(command.withLogging(LOG));
+    }
+    return wrapped;
   }
 
   /**
@@ -172,8 +181,6 @@ public class StreamConverter {
       // パイプライン構築
       for (int i = 0; i < this.commands.size(); i++) {
         IStreamCommand command = this.commands.get(i);
-        final int commandIndex = i;
-
         final InputStream commandInput = currentInput;
         final OutputStream commandOutput;
 
@@ -196,25 +203,13 @@ public class StreamConverter {
                 () -> {
                   PipelineContext.set(pipelineContext);
 
-                  if (LOG.isInfoEnabled()) {
-                    LOG.info(
-                        "Setting up command {} of {}: {}",
-                        commandIndex + 1,
-                        commands.size(),
-                        command.getClass().getSimpleName());
-                  }
-
                   try {
-                    // コマンド実行
+                    // コマンド実行（ロギングはコンストラクタ時にwithLogging()でラップ済み）
                     command.execute(commandInput, commandOutput);
 
                     // 中間の PipedOutputStream は実行完了後にクローズする必要がある
                     if (commandOutput instanceof PipedOutputStream) {
                       commandOutput.close();
-                    }
-
-                    if (LOG.isInfoEnabled()) {
-                      LOG.info("Completed command: {}", command.getClass().getSimpleName());
                     }
 
                   } catch (IOException e) {

@@ -56,17 +56,11 @@ class ConvertTest {
     CharacterConvertCommand command = new CharacterConvertCommand("UTF-8", "UTF-16");
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    Exception exception =
-        assertThrows(
-            IOException.class,
-            () -> {
-              command.execute(null, outputStream);
-            });
-
-    // The root cause should be NullPointerException
-    assertTrue(
-        exception.getCause() instanceof NullPointerException,
-        "Root cause should be NullPointerException");
+    assertThrows(
+        NullPointerException.class,
+        () -> {
+          command.execute(null, outputStream);
+        });
   }
 
   @Test
@@ -77,17 +71,11 @@ class ConvertTest {
     InputStream inputStream =
         new ByteArrayInputStream(TEST_STRING.getBytes(StandardCharsets.UTF_8));
 
-    Exception exception =
-        assertThrows(
-            IOException.class,
-            () -> {
-              command.execute(inputStream, null);
-            });
-
-    // The root cause should be NullPointerException
-    assertTrue(
-        exception.getCause() instanceof NullPointerException,
-        "Root cause should be NullPointerException");
+    assertThrows(
+        NullPointerException.class,
+        () -> {
+          command.execute(inputStream, null);
+        });
   }
 
   @Test

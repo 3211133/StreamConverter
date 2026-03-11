@@ -67,13 +67,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   @Override
-  protected String getCommandDetails() {
-    return String.format("XmlNavigateCommand(treePath='%s')", treePath.toString());
-  }
-
-  @Override
-  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
       // Apply rule to specific XPath elements while preserving structure
       applyRuleToXmlPath(inputStream, writer);

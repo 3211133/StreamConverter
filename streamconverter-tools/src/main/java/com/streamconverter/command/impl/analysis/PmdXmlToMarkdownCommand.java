@@ -50,7 +50,7 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
    * @throws IOException XML解析エラーまたはI/O例外の場合
    */
   @Override
-  protected void executeInternal(InputStream input, OutputStream output) throws IOException {
+  public void execute(InputStream input, OutputStream output) throws IOException {
     try {
       // StreamConverter原則: InputStreamから読み取り、OutputStreamに書き込み
       List<PmdViolation> violations = parseXmlStream(input);
@@ -60,11 +60,6 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
     } catch (Exception e) {
       throw new IOException("Failed to convert PMD XML to Markdown: " + e.getMessage(), e);
     }
-  }
-
-  @Override
-  protected String getCommandDetails() {
-    return "PmdXmlToMarkdownCommand: Converts PMD XML reports to AI-readable Markdown format";
   }
 
   /**

@@ -32,8 +32,7 @@ public abstract class ConsumerCommand extends AbstractStreamCommand {
    * @throws IOException If an I/O error occurs during the execution of the command.
    */
   @Override
-  public void executeInternal(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 

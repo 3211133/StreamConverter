@@ -64,15 +64,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   }
 
   @Override
-  protected String getCommandDetails() {
-    return String.format(
-        "JsonNavigateCommand(treePath='%s', rule='%s')",
-        treePath.toString(), rule.getClass().getSimpleName());
-  }
-
-  @Override
-  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     processJsonWithStreaming(inputStream, outputStream);
   }
 

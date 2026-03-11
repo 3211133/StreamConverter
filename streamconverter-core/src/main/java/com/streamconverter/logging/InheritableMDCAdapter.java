@@ -66,6 +66,9 @@ public class InheritableMDCAdapter implements MDCAdapter {
     Map<String, String> map = tlm.get();
     if (map != null) {
       map.remove(key);
+      if (map.isEmpty()) {
+        tlm.remove();
+      }
     }
   }
 

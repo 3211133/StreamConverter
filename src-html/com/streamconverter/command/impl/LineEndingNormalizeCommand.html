@@ -85,78 +85,56 @@
 <span class="source-line-no">072</span><span id="line-72">  }</span>
 <span class="source-line-no">073</span><span id="line-73"></span>
 <span class="source-line-no">074</span><span id="line-74">  @Override</span>
-<span class="source-line-no">075</span><span id="line-75">  protected void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
-<span class="source-line-no">076</span><span id="line-76">      throws IOException {</span>
-<span class="source-line-no">077</span><span id="line-77">    logger.debug("Starting line ending normalization to: {}", targetType);</span>
-<span class="source-line-no">078</span><span id="line-78"></span>
-<span class="source-line-no">079</span><span id="line-79">    // Stream processing for memory efficiency</span>
-<span class="source-line-no">080</span><span id="line-80">    try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);</span>
-<span class="source-line-no">081</span><span id="line-81">        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
-<span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">      if (targetType == LineEndingType.PRESERVE_INPUT) {</span>
-<span class="source-line-no">084</span><span id="line-84">        // For PRESERVE_INPUT, copy directly without modification</span>
-<span class="source-line-no">085</span><span id="line-85">        char[] buffer = new char[8192];</span>
-<span class="source-line-no">086</span><span id="line-86">        int bytesRead;</span>
-<span class="source-line-no">087</span><span id="line-87">        while ((bytesRead = reader.read(buffer)) != -1) {</span>
-<span class="source-line-no">088</span><span id="line-88">          writer.write(buffer, 0, bytesRead);</span>
-<span class="source-line-no">089</span><span id="line-89">        }</span>
-<span class="source-line-no">090</span><span id="line-90">      } else {</span>
-<span class="source-line-no">091</span><span id="line-91">        // Process character by character for line ending normalization</span>
-<span class="source-line-no">092</span><span id="line-92">        String targetSeparator = targetType.getSeparator();</span>
-<span class="source-line-no">093</span><span id="line-93">        int current;</span>
-<span class="source-line-no">094</span><span id="line-94"></span>
-<span class="source-line-no">095</span><span id="line-95">        while ((current = reader.read()) != -1) {</span>
-<span class="source-line-no">096</span><span id="line-96">          if (current == '\r') {</span>
-<span class="source-line-no">097</span><span id="line-97">            // Handle CR - could be CR, CRLF, or standalone CR</span>
-<span class="source-line-no">098</span><span id="line-98">            int next = reader.read();</span>
-<span class="source-line-no">099</span><span id="line-99">            if (next == '\n') {</span>
-<span class="source-line-no">100</span><span id="line-100">              // CRLF -&gt; convert to target</span>
-<span class="source-line-no">101</span><span id="line-101">              writer.write(targetSeparator);</span>
-<span class="source-line-no">102</span><span id="line-102">            } else {</span>
-<span class="source-line-no">103</span><span id="line-103">              // Standalone CR -&gt; convert to target</span>
-<span class="source-line-no">104</span><span id="line-104">              writer.write(targetSeparator);</span>
-<span class="source-line-no">105</span><span id="line-105">              // Write the next character that wasn't part of line ending</span>
-<span class="source-line-no">106</span><span id="line-106">              if (next != -1) {</span>
-<span class="source-line-no">107</span><span id="line-107">                writer.write(next);</span>
-<span class="source-line-no">108</span><span id="line-108">              }</span>
-<span class="source-line-no">109</span><span id="line-109">            }</span>
-<span class="source-line-no">110</span><span id="line-110">          } else if (current == '\n') {</span>
-<span class="source-line-no">111</span><span id="line-111">            // LF -&gt; convert to target (handles Unix style)</span>
-<span class="source-line-no">112</span><span id="line-112">            writer.write(targetSeparator);</span>
-<span class="source-line-no">113</span><span id="line-113">          } else {</span>
-<span class="source-line-no">114</span><span id="line-114">            // Regular character</span>
-<span class="source-line-no">115</span><span id="line-115">            writer.write(current);</span>
-<span class="source-line-no">116</span><span id="line-116">          }</span>
-<span class="source-line-no">117</span><span id="line-117">        }</span>
-<span class="source-line-no">118</span><span id="line-118">      }</span>
-<span class="source-line-no">119</span><span id="line-119"></span>
-<span class="source-line-no">120</span><span id="line-120">      writer.flush();</span>
-<span class="source-line-no">121</span><span id="line-121">    }</span>
-<span class="source-line-no">122</span><span id="line-122"></span>
-<span class="source-line-no">123</span><span id="line-123">    logger.debug("Line ending normalization completed successfully");</span>
-<span class="source-line-no">124</span><span id="line-124">  }</span>
-<span class="source-line-no">125</span><span id="line-125"></span>
-<span class="source-line-no">126</span><span id="line-126">  @Override</span>
-<span class="source-line-no">127</span><span id="line-127">  protected String getCommandDetails() {</span>
-<span class="source-line-no">128</span><span id="line-128">    return String.format(</span>
-<span class="source-line-no">129</span><span id="line-129">        "LineEndingNormalizeCommand(target=%s, separator='%s')",</span>
-<span class="source-line-no">130</span><span id="line-130">        targetType,</span>
-<span class="source-line-no">131</span><span id="line-131">        targetType.getSeparator() != null</span>
-<span class="source-line-no">132</span><span id="line-132">            ? escapeLineSeparator(targetType.getSeparator())</span>
-<span class="source-line-no">133</span><span id="line-133">            : "preserve");</span>
-<span class="source-line-no">134</span><span id="line-134">  }</span>
-<span class="source-line-no">135</span><span id="line-135"></span>
-<span class="source-line-no">136</span><span id="line-136">  /**</span>
-<span class="source-line-no">137</span><span id="line-137">   * Escapes line separator characters for display purposes.</span>
-<span class="source-line-no">138</span><span id="line-138">   *</span>
-<span class="source-line-no">139</span><span id="line-139">   * @param separator the line separator to escape</span>
-<span class="source-line-no">140</span><span id="line-140">   * @return escaped string representation</span>
-<span class="source-line-no">141</span><span id="line-141">   */</span>
-<span class="source-line-no">142</span><span id="line-142">  private String escapeLineSeparator(String separator) {</span>
-<span class="source-line-no">143</span><span id="line-143">    if (separator == null) return "null";</span>
-<span class="source-line-no">144</span><span id="line-144">    return separator.replace("\r", "\\r").replace("\n", "\\n");</span>
-<span class="source-line-no">145</span><span id="line-145">  }</span>
-<span class="source-line-no">146</span><span id="line-146">}</span>
+<span class="source-line-no">075</span><span id="line-75">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">076</span><span id="line-76">    logger.debug("Starting line ending normalization to: {}", targetType);</span>
+<span class="source-line-no">077</span><span id="line-77"></span>
+<span class="source-line-no">078</span><span id="line-78">    // Stream processing for memory efficiency</span>
+<span class="source-line-no">079</span><span id="line-79">    try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);</span>
+<span class="source-line-no">080</span><span id="line-80">        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
+<span class="source-line-no">081</span><span id="line-81"></span>
+<span class="source-line-no">082</span><span id="line-82">      if (targetType == LineEndingType.PRESERVE_INPUT) {</span>
+<span class="source-line-no">083</span><span id="line-83">        // For PRESERVE_INPUT, copy directly without modification</span>
+<span class="source-line-no">084</span><span id="line-84">        char[] buffer = new char[8192];</span>
+<span class="source-line-no">085</span><span id="line-85">        int bytesRead;</span>
+<span class="source-line-no">086</span><span id="line-86">        while ((bytesRead = reader.read(buffer)) != -1) {</span>
+<span class="source-line-no">087</span><span id="line-87">          writer.write(buffer, 0, bytesRead);</span>
+<span class="source-line-no">088</span><span id="line-88">        }</span>
+<span class="source-line-no">089</span><span id="line-89">      } else {</span>
+<span class="source-line-no">090</span><span id="line-90">        // Process character by character for line ending normalization</span>
+<span class="source-line-no">091</span><span id="line-91">        String targetSeparator = targetType.getSeparator();</span>
+<span class="source-line-no">092</span><span id="line-92">        int current;</span>
+<span class="source-line-no">093</span><span id="line-93"></span>
+<span class="source-line-no">094</span><span id="line-94">        while ((current = reader.read()) != -1) {</span>
+<span class="source-line-no">095</span><span id="line-95">          if (current == '\r') {</span>
+<span class="source-line-no">096</span><span id="line-96">            // Handle CR - could be CR, CRLF, or standalone CR</span>
+<span class="source-line-no">097</span><span id="line-97">            int next = reader.read();</span>
+<span class="source-line-no">098</span><span id="line-98">            if (next == '\n') {</span>
+<span class="source-line-no">099</span><span id="line-99">              // CRLF -&gt; convert to target</span>
+<span class="source-line-no">100</span><span id="line-100">              writer.write(targetSeparator);</span>
+<span class="source-line-no">101</span><span id="line-101">            } else {</span>
+<span class="source-line-no">102</span><span id="line-102">              // Standalone CR -&gt; convert to target</span>
+<span class="source-line-no">103</span><span id="line-103">              writer.write(targetSeparator);</span>
+<span class="source-line-no">104</span><span id="line-104">              // Write the next character that wasn't part of line ending</span>
+<span class="source-line-no">105</span><span id="line-105">              if (next != -1) {</span>
+<span class="source-line-no">106</span><span id="line-106">                writer.write(next);</span>
+<span class="source-line-no">107</span><span id="line-107">              }</span>
+<span class="source-line-no">108</span><span id="line-108">            }</span>
+<span class="source-line-no">109</span><span id="line-109">          } else if (current == '\n') {</span>
+<span class="source-line-no">110</span><span id="line-110">            // LF -&gt; convert to target (handles Unix style)</span>
+<span class="source-line-no">111</span><span id="line-111">            writer.write(targetSeparator);</span>
+<span class="source-line-no">112</span><span id="line-112">          } else {</span>
+<span class="source-line-no">113</span><span id="line-113">            // Regular character</span>
+<span class="source-line-no">114</span><span id="line-114">            writer.write(current);</span>
+<span class="source-line-no">115</span><span id="line-115">          }</span>
+<span class="source-line-no">116</span><span id="line-116">        }</span>
+<span class="source-line-no">117</span><span id="line-117">      }</span>
+<span class="source-line-no">118</span><span id="line-118"></span>
+<span class="source-line-no">119</span><span id="line-119">      writer.flush();</span>
+<span class="source-line-no">120</span><span id="line-120">    }</span>
+<span class="source-line-no">121</span><span id="line-121"></span>
+<span class="source-line-no">122</span><span id="line-122">    logger.debug("Line ending normalization completed successfully");</span>
+<span class="source-line-no">123</span><span id="line-123">  }</span>
+<span class="source-line-no">124</span><span id="line-124">}</span>
 
 
 

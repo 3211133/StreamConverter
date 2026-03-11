@@ -92,7 +92,7 @@
 <span class="source-line-no">079</span><span id="line-79">    if (commands.length == 0) {</span>
 <span class="source-line-no">080</span><span id="line-80">      throw new IllegalArgumentException("commands is empty.");</span>
 <span class="source-line-no">081</span><span id="line-81">    }</span>
-<span class="source-line-no">082</span><span id="line-82">    this.commands = List.of(commands);</span>
+<span class="source-line-no">082</span><span id="line-82">    this.commands = wrapWithLogging(List.of(commands));</span>
 <span class="source-line-no">083</span><span id="line-83">  }</span>
 <span class="source-line-no">084</span><span id="line-84"></span>
 <span class="source-line-no">085</span><span id="line-85">  /**</span>
@@ -107,7 +107,7 @@
 <span class="source-line-no">094</span><span id="line-94">    if (commands.isEmpty()) {</span>
 <span class="source-line-no">095</span><span id="line-95">      throw new IllegalArgumentException("commands is empty.");</span>
 <span class="source-line-no">096</span><span id="line-96">    }</span>
-<span class="source-line-no">097</span><span id="line-97">    this.commands = new ArrayList&lt;&gt;(commands); // Defensive copy</span>
+<span class="source-line-no">097</span><span id="line-97">    this.commands = wrapWithLogging(commands);</span>
 <span class="source-line-no">098</span><span id="line-98">  }</span>
 <span class="source-line-no">099</span><span id="line-99"></span>
 <span class="source-line-no">100</span><span id="line-100">  /**</span>
@@ -134,195 +134,190 @@
 <span class="source-line-no">121</span><span id="line-121">    return new StreamConverter(commands);</span>
 <span class="source-line-no">122</span><span id="line-122">  }</span>
 <span class="source-line-no">123</span><span id="line-123"></span>
-<span class="source-line-no">124</span><span id="line-124">  /**</span>
-<span class="source-line-no">125</span><span id="line-125">   * Creates an optimal executor service based on available system resources and command count.</span>
-<span class="source-line-no">126</span><span id="line-126">   *</span>
-<span class="source-line-no">127</span><span id="line-127">   * @return an optimally configured ExecutorService</span>
-<span class="source-line-no">128</span><span id="line-128">   */</span>
-<span class="source-line-no">129</span><span id="line-129">  private ExecutorService createOptimalExecutor() {</span>
-<span class="source-line-no">130</span><span id="line-130">    ThreadFactory threadFactory = Thread.ofVirtual().name("stream-converter-", 0).factory();</span>
-<span class="source-line-no">131</span><span id="line-131">    return Executors.newThreadPerTaskExecutor(threadFactory);</span>
-<span class="source-line-no">132</span><span id="line-132">  }</span>
-<span class="source-line-no">133</span><span id="line-133"></span>
-<span class="source-line-no">134</span><span id="line-134">  /**</span>
-<span class="source-line-no">135</span><span id="line-135">   * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 親スレッドのMDCコンテキストは各コマンドの仮想スレッドに自動伝搬される。</span>
-<span class="source-line-no">136</span><span id="line-136">   *</span>
-<span class="source-line-no">137</span><span id="line-137">   * @param inputStream 処理対象の入力ストリーム</span>
-<span class="source-line-no">138</span><span id="line-138">   * @param outputStream 処理結果を書き込む出力ストリーム</span>
-<span class="source-line-no">139</span><span id="line-139">   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合</span>
-<span class="source-line-no">140</span><span id="line-140">   */</span>
-<span class="source-line-no">141</span><span id="line-141">  public void run(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">142</span><span id="line-142">    Objects.requireNonNull(inputStream);</span>
-<span class="source-line-no">143</span><span id="line-143">    Objects.requireNonNull(outputStream);</span>
-<span class="source-line-no">144</span><span id="line-144"></span>
-<span class="source-line-no">145</span><span id="line-145">    // 親スレッドのMDCコンテキストをキャプチャ</span>
-<span class="source-line-no">146</span><span id="line-146">    Map&lt;String, String&gt; parentMdc = MDC.getCopyOfContextMap();</span>
-<span class="source-line-no">147</span><span id="line-147"></span>
-<span class="source-line-no">148</span><span id="line-148">    // パイプライン内コマンド間で共有値を伝搬するためのコンテキスト</span>
-<span class="source-line-no">149</span><span id="line-149">    PipelineContext pipelineContext = new PipelineContext();</span>
-<span class="source-line-no">150</span><span id="line-150"></span>
-<span class="source-line-no">151</span><span id="line-151">    if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">152</span><span id="line-152">      LOG.info("Starting StreamConverter with {} commands", commands.size());</span>
-<span class="source-line-no">153</span><span id="line-153">    }</span>
-<span class="source-line-no">154</span><span id="line-154"></span>
-<span class="source-line-no">155</span><span id="line-155">    executeCommands(inputStream, outputStream, parentMdc, pipelineContext);</span>
+<span class="source-line-no">124</span><span id="line-124">  /** コマンドリストの各コマンドに withLogging をあらかじめ適用して返す。 ラッピングはコンストラクト時に1度だけ行われ、実行ごとのオーバーヘッドを排除する。 */</span>
+<span class="source-line-no">125</span><span id="line-125">  private static List&lt;IStreamCommand&gt; wrapWithLogging(List&lt;IStreamCommand&gt; commands) {</span>
+<span class="source-line-no">126</span><span id="line-126">    List&lt;IStreamCommand&gt; wrapped = new ArrayList&lt;&gt;(commands.size());</span>
+<span class="source-line-no">127</span><span id="line-127">    for (IStreamCommand command : commands) {</span>
+<span class="source-line-no">128</span><span id="line-128">      wrapped.add(command.withLogging(LOG));</span>
+<span class="source-line-no">129</span><span id="line-129">    }</span>
+<span class="source-line-no">130</span><span id="line-130">    return wrapped;</span>
+<span class="source-line-no">131</span><span id="line-131">  }</span>
+<span class="source-line-no">132</span><span id="line-132"></span>
+<span class="source-line-no">133</span><span id="line-133">  /**</span>
+<span class="source-line-no">134</span><span id="line-134">   * Creates an optimal executor service based on available system resources and command count.</span>
+<span class="source-line-no">135</span><span id="line-135">   *</span>
+<span class="source-line-no">136</span><span id="line-136">   * @return an optimally configured ExecutorService</span>
+<span class="source-line-no">137</span><span id="line-137">   */</span>
+<span class="source-line-no">138</span><span id="line-138">  private ExecutorService createOptimalExecutor() {</span>
+<span class="source-line-no">139</span><span id="line-139">    ThreadFactory threadFactory = Thread.ofVirtual().name("stream-converter-", 0).factory();</span>
+<span class="source-line-no">140</span><span id="line-140">    return Executors.newThreadPerTaskExecutor(threadFactory);</span>
+<span class="source-line-no">141</span><span id="line-141">  }</span>
+<span class="source-line-no">142</span><span id="line-142"></span>
+<span class="source-line-no">143</span><span id="line-143">  /**</span>
+<span class="source-line-no">144</span><span id="line-144">   * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。 親スレッドのMDCコンテキストは各コマンドの仮想スレッドに自動伝搬される。</span>
+<span class="source-line-no">145</span><span id="line-145">   *</span>
+<span class="source-line-no">146</span><span id="line-146">   * @param inputStream 処理対象の入力ストリーム</span>
+<span class="source-line-no">147</span><span id="line-147">   * @param outputStream 処理結果を書き込む出力ストリーム</span>
+<span class="source-line-no">148</span><span id="line-148">   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合</span>
+<span class="source-line-no">149</span><span id="line-149">   */</span>
+<span class="source-line-no">150</span><span id="line-150">  public void run(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">151</span><span id="line-151">    Objects.requireNonNull(inputStream);</span>
+<span class="source-line-no">152</span><span id="line-152">    Objects.requireNonNull(outputStream);</span>
+<span class="source-line-no">153</span><span id="line-153"></span>
+<span class="source-line-no">154</span><span id="line-154">    // 親スレッドのMDCコンテキストをキャプチャ</span>
+<span class="source-line-no">155</span><span id="line-155">    Map&lt;String, String&gt; parentMdc = MDC.getCopyOfContextMap();</span>
 <span class="source-line-no">156</span><span id="line-156"></span>
-<span class="source-line-no">157</span><span id="line-157">    if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">158</span><span id="line-158">      LOG.info("Completed StreamConverter pipeline");</span>
-<span class="source-line-no">159</span><span id="line-159">    }</span>
-<span class="source-line-no">160</span><span id="line-160">  }</span>
-<span class="source-line-no">161</span><span id="line-161"></span>
-<span class="source-line-no">162</span><span id="line-162">  /** コマンド（単一または複数）をMDC伝搬付きで並列実行 */</span>
-<span class="source-line-no">163</span><span id="line-163">  private void executeCommands(</span>
-<span class="source-line-no">164</span><span id="line-164">      InputStream inputStream,</span>
-<span class="source-line-no">165</span><span id="line-165">      OutputStream outputStream,</span>
-<span class="source-line-no">166</span><span id="line-166">      Map&lt;String, String&gt; parentMdc,</span>
-<span class="source-line-no">167</span><span id="line-167">      PipelineContext pipelineContext)</span>
-<span class="source-line-no">168</span><span id="line-168">      throws IOException {</span>
-<span class="source-line-no">169</span><span id="line-169">    List&lt;CompletableFuture&lt;Void&gt;&gt; futures = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">170</span><span id="line-170">    List&lt;AutoCloseable&gt; resources = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">171</span><span id="line-171"></span>
-<span class="source-line-no">172</span><span id="line-172">    try (AutoCloseableExecutorService executor =</span>
-<span class="source-line-no">173</span><span id="line-173">        new AutoCloseableExecutorService(createOptimalExecutor())) {</span>
-<span class="source-line-no">174</span><span id="line-174">      InputStream currentInput = inputStream;</span>
-<span class="source-line-no">175</span><span id="line-175"></span>
-<span class="source-line-no">176</span><span id="line-176">      // パイプライン構築</span>
-<span class="source-line-no">177</span><span id="line-177">      for (int i = 0; i &lt; this.commands.size(); i++) {</span>
-<span class="source-line-no">178</span><span id="line-178">        IStreamCommand command = this.commands.get(i);</span>
-<span class="source-line-no">179</span><span id="line-179">        final int commandIndex = i;</span>
+<span class="source-line-no">157</span><span id="line-157">    // パイプライン内コマンド間で共有値を伝搬するためのコンテキスト</span>
+<span class="source-line-no">158</span><span id="line-158">    PipelineContext pipelineContext = new PipelineContext();</span>
+<span class="source-line-no">159</span><span id="line-159"></span>
+<span class="source-line-no">160</span><span id="line-160">    if (LOG.isInfoEnabled()) {</span>
+<span class="source-line-no">161</span><span id="line-161">      LOG.info("Starting StreamConverter with {} commands", commands.size());</span>
+<span class="source-line-no">162</span><span id="line-162">    }</span>
+<span class="source-line-no">163</span><span id="line-163"></span>
+<span class="source-line-no">164</span><span id="line-164">    executeCommands(inputStream, outputStream, parentMdc, pipelineContext);</span>
+<span class="source-line-no">165</span><span id="line-165"></span>
+<span class="source-line-no">166</span><span id="line-166">    if (LOG.isInfoEnabled()) {</span>
+<span class="source-line-no">167</span><span id="line-167">      LOG.info("Completed StreamConverter pipeline");</span>
+<span class="source-line-no">168</span><span id="line-168">    }</span>
+<span class="source-line-no">169</span><span id="line-169">  }</span>
+<span class="source-line-no">170</span><span id="line-170"></span>
+<span class="source-line-no">171</span><span id="line-171">  /** コマンド（単一または複数）をMDC伝搬付きで並列実行 */</span>
+<span class="source-line-no">172</span><span id="line-172">  private void executeCommands(</span>
+<span class="source-line-no">173</span><span id="line-173">      InputStream inputStream,</span>
+<span class="source-line-no">174</span><span id="line-174">      OutputStream outputStream,</span>
+<span class="source-line-no">175</span><span id="line-175">      Map&lt;String, String&gt; parentMdc,</span>
+<span class="source-line-no">176</span><span id="line-176">      PipelineContext pipelineContext)</span>
+<span class="source-line-no">177</span><span id="line-177">      throws IOException {</span>
+<span class="source-line-no">178</span><span id="line-178">    List&lt;CompletableFuture&lt;Void&gt;&gt; futures = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">179</span><span id="line-179">    List&lt;AutoCloseable&gt; resources = new ArrayList&lt;&gt;();</span>
 <span class="source-line-no">180</span><span id="line-180"></span>
-<span class="source-line-no">181</span><span id="line-181">        final InputStream commandInput = currentInput;</span>
-<span class="source-line-no">182</span><span id="line-182">        final OutputStream commandOutput;</span>
-<span class="source-line-no">183</span><span id="line-183"></span>
-<span class="source-line-no">184</span><span id="line-184">        if (i == this.commands.size() - 1) {</span>
-<span class="source-line-no">185</span><span id="line-185">          // 最後のコマンド</span>
-<span class="source-line-no">186</span><span id="line-186">          commandOutput = outputStream;</span>
-<span class="source-line-no">187</span><span id="line-187">        } else {</span>
-<span class="source-line-no">188</span><span id="line-188">          // 中間コマンド: 次のコマンド用にPipedStreamペア作成</span>
-<span class="source-line-no">189</span><span id="line-189">          PipedOutputStream pipedOut = new PipedOutputStream();</span>
-<span class="source-line-no">190</span><span id="line-190">          PipedInputStream pipedIn = new PipedInputStream(pipedOut, DEFAULT_BUFFER_SIZE);</span>
-<span class="source-line-no">191</span><span id="line-191">          resources.add(pipedOut);</span>
-<span class="source-line-no">192</span><span id="line-192">          resources.add(pipedIn);</span>
-<span class="source-line-no">193</span><span id="line-193">          commandOutput = pipedOut;</span>
-<span class="source-line-no">194</span><span id="line-194">          currentInput = pipedIn;</span>
-<span class="source-line-no">195</span><span id="line-195">        }</span>
-<span class="source-line-no">196</span><span id="line-196"></span>
-<span class="source-line-no">197</span><span id="line-197">        // 各コマンドを非同期実行（親MDCを伝搬）</span>
-<span class="source-line-no">198</span><span id="line-198">        CompletableFuture&lt;Void&gt; future =</span>
-<span class="source-line-no">199</span><span id="line-199">            executor.runAsync(</span>
-<span class="source-line-no">200</span><span id="line-200">                () -&gt; {</span>
-<span class="source-line-no">201</span><span id="line-201">                  // 親スレッドのMDCを子スレッドに設定</span>
-<span class="source-line-no">202</span><span id="line-202">                  if (parentMdc != null) {</span>
-<span class="source-line-no">203</span><span id="line-203">                    MDC.setContextMap(parentMdc);</span>
-<span class="source-line-no">204</span><span id="line-204">                  }</span>
-<span class="source-line-no">205</span><span id="line-205">                  PipelineContext.set(pipelineContext);</span>
-<span class="source-line-no">206</span><span id="line-206"></span>
-<span class="source-line-no">207</span><span id="line-207">                  if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">208</span><span id="line-208">                    LOG.info(</span>
-<span class="source-line-no">209</span><span id="line-209">                        "Setting up command {} of {}: {}",</span>
-<span class="source-line-no">210</span><span id="line-210">                        commandIndex + 1,</span>
-<span class="source-line-no">211</span><span id="line-211">                        commands.size(),</span>
-<span class="source-line-no">212</span><span id="line-212">                        command.getClass().getSimpleName());</span>
-<span class="source-line-no">213</span><span id="line-213">                  }</span>
-<span class="source-line-no">214</span><span id="line-214"></span>
-<span class="source-line-no">215</span><span id="line-215">                  try {</span>
-<span class="source-line-no">216</span><span id="line-216">                    // コマンド実行</span>
-<span class="source-line-no">217</span><span id="line-217">                    command.execute(commandInput, commandOutput);</span>
-<span class="source-line-no">218</span><span id="line-218"></span>
-<span class="source-line-no">219</span><span id="line-219">                    // 中間の PipedOutputStream は実行完了後にクローズする必要がある</span>
-<span class="source-line-no">220</span><span id="line-220">                    if (commandOutput instanceof PipedOutputStream) {</span>
-<span class="source-line-no">221</span><span id="line-221">                      commandOutput.close();</span>
-<span class="source-line-no">222</span><span id="line-222">                    }</span>
-<span class="source-line-no">223</span><span id="line-223"></span>
-<span class="source-line-no">224</span><span id="line-224">                    if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">225</span><span id="line-225">                      LOG.info("Completed command: {}", command.getClass().getSimpleName());</span>
-<span class="source-line-no">226</span><span id="line-226">                    }</span>
-<span class="source-line-no">227</span><span id="line-227"></span>
-<span class="source-line-no">228</span><span id="line-228">                  } catch (IOException e) {</span>
-<span class="source-line-no">229</span><span id="line-229">                    LOG.error(</span>
-<span class="source-line-no">230</span><span id="line-230">                        "Command execution failed: {} - {}",</span>
-<span class="source-line-no">231</span><span id="line-231">                        command.getClass().getSimpleName(),</span>
-<span class="source-line-no">232</span><span id="line-232">                        e.getMessage(),</span>
-<span class="source-line-no">233</span><span id="line-233">                        e);</span>
-<span class="source-line-no">234</span><span id="line-234">                    if (commandOutput instanceof PipedOutputStream) {</span>
-<span class="source-line-no">235</span><span id="line-235">                      try {</span>
-<span class="source-line-no">236</span><span id="line-236">                        commandOutput.close();</span>
-<span class="source-line-no">237</span><span id="line-237">                      } catch (IOException ignored) {</span>
-<span class="source-line-no">238</span><span id="line-238">                        // ignored</span>
-<span class="source-line-no">239</span><span id="line-239">                      }</span>
-<span class="source-line-no">240</span><span id="line-240">                    }</span>
-<span class="source-line-no">241</span><span id="line-241">                    throw new StreamProcessingException(</span>
-<span class="source-line-no">242</span><span id="line-242">                        "Command execution failed: "</span>
-<span class="source-line-no">243</span><span id="line-243">                            + command.getClass().getSimpleName()</span>
-<span class="source-line-no">244</span><span id="line-244">                            + " - "</span>
-<span class="source-line-no">245</span><span id="line-245">                            + e.getMessage(),</span>
-<span class="source-line-no">246</span><span id="line-246">                        e);</span>
-<span class="source-line-no">247</span><span id="line-247">                  } finally {</span>
-<span class="source-line-no">248</span><span id="line-248">                    PipelineContext.clear();</span>
-<span class="source-line-no">249</span><span id="line-249">                    MDC.clear();</span>
-<span class="source-line-no">250</span><span id="line-250">                  }</span>
-<span class="source-line-no">251</span><span id="line-251">                });</span>
-<span class="source-line-no">252</span><span id="line-252"></span>
-<span class="source-line-no">253</span><span id="line-253">        futures.add(future);</span>
-<span class="source-line-no">254</span><span id="line-254">      }</span>
-<span class="source-line-no">255</span><span id="line-255"></span>
-<span class="source-line-no">256</span><span id="line-256">      // すべてのタスクの完了を待機</span>
-<span class="source-line-no">257</span><span id="line-257">      for (int i = 0; i &lt; futures.size(); i++) {</span>
-<span class="source-line-no">258</span><span id="line-258">        try {</span>
-<span class="source-line-no">259</span><span id="line-259">          // タイムアウト付きで待機（デッドロック防止）</span>
-<span class="source-line-no">260</span><span id="line-260">          futures.get(i).get(60, TimeUnit.SECONDS);</span>
-<span class="source-line-no">261</span><span id="line-261"></span>
-<span class="source-line-no">262</span><span id="line-262">        } catch (ExecutionException e) {</span>
-<span class="source-line-no">263</span><span id="line-263">          cancelRemainingFutures(futures, i + 1);</span>
-<span class="source-line-no">264</span><span id="line-264">          Throwable cause = e.getCause();</span>
-<span class="source-line-no">265</span><span id="line-265">          if (cause instanceof StreamProcessingException spe) throw spe;</span>
-<span class="source-line-no">266</span><span id="line-266">          if (cause instanceof IOException ioe) throw ioe;</span>
-<span class="source-line-no">267</span><span id="line-267">          if (cause instanceof RuntimeException re) throw re;</span>
-<span class="source-line-no">268</span><span id="line-268">          throw new StreamProcessingException("Unexpected error during command execution", cause);</span>
-<span class="source-line-no">269</span><span id="line-269">        } catch (InterruptedException e) {</span>
-<span class="source-line-no">270</span><span id="line-270">          cancelRemainingFutures(futures, i + 1);</span>
-<span class="source-line-no">271</span><span id="line-271">          Thread.currentThread().interrupt();</span>
-<span class="source-line-no">272</span><span id="line-272">          throw new StreamProcessingException("Command execution was interrupted", e);</span>
-<span class="source-line-no">273</span><span id="line-273">        } catch (TimeoutException e) {</span>
-<span class="source-line-no">274</span><span id="line-274">          cancelRemainingFutures(futures, i + 1);</span>
-<span class="source-line-no">275</span><span id="line-275">          throw new StreamProcessingException("Command execution timed out after 60 seconds", e);</span>
-<span class="source-line-no">276</span><span id="line-276">        }</span>
-<span class="source-line-no">277</span><span id="line-277">      }</span>
-<span class="source-line-no">278</span><span id="line-278"></span>
-<span class="source-line-no">279</span><span id="line-279">      if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">280</span><span id="line-280">        LOG.info("All commands completed successfully");</span>
-<span class="source-line-no">281</span><span id="line-281">      }</span>
-<span class="source-line-no">282</span><span id="line-282"></span>
-<span class="source-line-no">283</span><span id="line-283">    } finally {</span>
-<span class="source-line-no">284</span><span id="line-284">      // リソースクリーンアップ</span>
-<span class="source-line-no">285</span><span id="line-285">      closeResources(resources);</span>
-<span class="source-line-no">286</span><span id="line-286">    }</span>
-<span class="source-line-no">287</span><span id="line-287">  }</span>
-<span class="source-line-no">288</span><span id="line-288"></span>
-<span class="source-line-no">289</span><span id="line-289">  /** 失敗時に残りのfuturesをキャンセルする */</span>
-<span class="source-line-no">290</span><span id="line-290">  private void cancelRemainingFutures(List&lt;CompletableFuture&lt;Void&gt;&gt; futures, int fromIndex) {</span>
-<span class="source-line-no">291</span><span id="line-291">    for (int j = fromIndex; j &lt; futures.size(); j++) {</span>
-<span class="source-line-no">292</span><span id="line-292">      futures.get(j).cancel(true);</span>
-<span class="source-line-no">293</span><span id="line-293">    }</span>
-<span class="source-line-no">294</span><span id="line-294">  }</span>
-<span class="source-line-no">295</span><span id="line-295"></span>
-<span class="source-line-no">296</span><span id="line-296">  /**</span>
-<span class="source-line-no">297</span><span id="line-297">   * 使用したリソースを安全にクローズする</span>
-<span class="source-line-no">298</span><span id="line-298">   *</span>
-<span class="source-line-no">299</span><span id="line-299">   * @param resources クローズ対象のリソースリスト</span>
-<span class="source-line-no">300</span><span id="line-300">   */</span>
-<span class="source-line-no">301</span><span id="line-301">  private void closeResources(List&lt;AutoCloseable&gt; resources) {</span>
-<span class="source-line-no">302</span><span id="line-302">    for (AutoCloseable resource : resources) {</span>
-<span class="source-line-no">303</span><span id="line-303">      try {</span>
-<span class="source-line-no">304</span><span id="line-304">        resource.close();</span>
-<span class="source-line-no">305</span><span id="line-305">      } catch (Exception e) {</span>
-<span class="source-line-no">306</span><span id="line-306">        if (LOG.isWarnEnabled()) {</span>
-<span class="source-line-no">307</span><span id="line-307">          LOG.warn("Failed to close resource: {}", e.getMessage());</span>
-<span class="source-line-no">308</span><span id="line-308">        }</span>
-<span class="source-line-no">309</span><span id="line-309">      }</span>
-<span class="source-line-no">310</span><span id="line-310">    }</span>
-<span class="source-line-no">311</span><span id="line-311">  }</span>
-<span class="source-line-no">312</span><span id="line-312">}</span>
+<span class="source-line-no">181</span><span id="line-181">    try (AutoCloseableExecutorService executor =</span>
+<span class="source-line-no">182</span><span id="line-182">        new AutoCloseableExecutorService(createOptimalExecutor())) {</span>
+<span class="source-line-no">183</span><span id="line-183">      InputStream currentInput = inputStream;</span>
+<span class="source-line-no">184</span><span id="line-184"></span>
+<span class="source-line-no">185</span><span id="line-185">      // パイプライン構築</span>
+<span class="source-line-no">186</span><span id="line-186">      for (int i = 0; i &lt; this.commands.size(); i++) {</span>
+<span class="source-line-no">187</span><span id="line-187">        IStreamCommand command = this.commands.get(i);</span>
+<span class="source-line-no">188</span><span id="line-188">        final InputStream commandInput = currentInput;</span>
+<span class="source-line-no">189</span><span id="line-189">        final OutputStream commandOutput;</span>
+<span class="source-line-no">190</span><span id="line-190"></span>
+<span class="source-line-no">191</span><span id="line-191">        if (i == this.commands.size() - 1) {</span>
+<span class="source-line-no">192</span><span id="line-192">          // 最後のコマンド</span>
+<span class="source-line-no">193</span><span id="line-193">          commandOutput = outputStream;</span>
+<span class="source-line-no">194</span><span id="line-194">        } else {</span>
+<span class="source-line-no">195</span><span id="line-195">          // 中間コマンド: 次のコマンド用にPipedStreamペア作成</span>
+<span class="source-line-no">196</span><span id="line-196">          PipedOutputStream pipedOut = new PipedOutputStream();</span>
+<span class="source-line-no">197</span><span id="line-197">          PipedInputStream pipedIn = new PipedInputStream(pipedOut, DEFAULT_BUFFER_SIZE);</span>
+<span class="source-line-no">198</span><span id="line-198">          resources.add(pipedOut);</span>
+<span class="source-line-no">199</span><span id="line-199">          resources.add(pipedIn);</span>
+<span class="source-line-no">200</span><span id="line-200">          commandOutput = pipedOut;</span>
+<span class="source-line-no">201</span><span id="line-201">          currentInput = pipedIn;</span>
+<span class="source-line-no">202</span><span id="line-202">        }</span>
+<span class="source-line-no">203</span><span id="line-203"></span>
+<span class="source-line-no">204</span><span id="line-204">        // 各コマンドを非同期実行（親MDCを伝搬）</span>
+<span class="source-line-no">205</span><span id="line-205">        CompletableFuture&lt;Void&gt; future =</span>
+<span class="source-line-no">206</span><span id="line-206">            executor.runAsync(</span>
+<span class="source-line-no">207</span><span id="line-207">                () -&gt; {</span>
+<span class="source-line-no">208</span><span id="line-208">                  // 親スレッドのMDCを子スレッドに設定</span>
+<span class="source-line-no">209</span><span id="line-209">                  if (parentMdc != null) {</span>
+<span class="source-line-no">210</span><span id="line-210">                    MDC.setContextMap(parentMdc);</span>
+<span class="source-line-no">211</span><span id="line-211">                  }</span>
+<span class="source-line-no">212</span><span id="line-212">                  PipelineContext.set(pipelineContext);</span>
+<span class="source-line-no">213</span><span id="line-213"></span>
+<span class="source-line-no">214</span><span id="line-214">                  try {</span>
+<span class="source-line-no">215</span><span id="line-215">                    // コマンド実行（ロギングはコンストラクタ時にwithLogging()でラップ済み）</span>
+<span class="source-line-no">216</span><span id="line-216">                    command.execute(commandInput, commandOutput);</span>
+<span class="source-line-no">217</span><span id="line-217"></span>
+<span class="source-line-no">218</span><span id="line-218">                    // 中間の PipedOutputStream は実行完了後にクローズする必要がある</span>
+<span class="source-line-no">219</span><span id="line-219">                    if (commandOutput instanceof PipedOutputStream) {</span>
+<span class="source-line-no">220</span><span id="line-220">                      commandOutput.close();</span>
+<span class="source-line-no">221</span><span id="line-221">                    }</span>
+<span class="source-line-no">222</span><span id="line-222"></span>
+<span class="source-line-no">223</span><span id="line-223">                  } catch (IOException e) {</span>
+<span class="source-line-no">224</span><span id="line-224">                    LOG.error(</span>
+<span class="source-line-no">225</span><span id="line-225">                        "Command execution failed: {} - {}",</span>
+<span class="source-line-no">226</span><span id="line-226">                        command.getClass().getSimpleName(),</span>
+<span class="source-line-no">227</span><span id="line-227">                        e.getMessage(),</span>
+<span class="source-line-no">228</span><span id="line-228">                        e);</span>
+<span class="source-line-no">229</span><span id="line-229">                    if (commandOutput instanceof PipedOutputStream) {</span>
+<span class="source-line-no">230</span><span id="line-230">                      try {</span>
+<span class="source-line-no">231</span><span id="line-231">                        commandOutput.close();</span>
+<span class="source-line-no">232</span><span id="line-232">                      } catch (IOException ignored) {</span>
+<span class="source-line-no">233</span><span id="line-233">                        // ignored</span>
+<span class="source-line-no">234</span><span id="line-234">                      }</span>
+<span class="source-line-no">235</span><span id="line-235">                    }</span>
+<span class="source-line-no">236</span><span id="line-236">                    throw new StreamProcessingException(</span>
+<span class="source-line-no">237</span><span id="line-237">                        "Command execution failed: "</span>
+<span class="source-line-no">238</span><span id="line-238">                            + command.getClass().getSimpleName()</span>
+<span class="source-line-no">239</span><span id="line-239">                            + " - "</span>
+<span class="source-line-no">240</span><span id="line-240">                            + e.getMessage(),</span>
+<span class="source-line-no">241</span><span id="line-241">                        e);</span>
+<span class="source-line-no">242</span><span id="line-242">                  } finally {</span>
+<span class="source-line-no">243</span><span id="line-243">                    PipelineContext.clear();</span>
+<span class="source-line-no">244</span><span id="line-244">                    MDC.clear();</span>
+<span class="source-line-no">245</span><span id="line-245">                  }</span>
+<span class="source-line-no">246</span><span id="line-246">                });</span>
+<span class="source-line-no">247</span><span id="line-247"></span>
+<span class="source-line-no">248</span><span id="line-248">        futures.add(future);</span>
+<span class="source-line-no">249</span><span id="line-249">      }</span>
+<span class="source-line-no">250</span><span id="line-250"></span>
+<span class="source-line-no">251</span><span id="line-251">      // すべてのタスクの完了を待機</span>
+<span class="source-line-no">252</span><span id="line-252">      for (int i = 0; i &lt; futures.size(); i++) {</span>
+<span class="source-line-no">253</span><span id="line-253">        try {</span>
+<span class="source-line-no">254</span><span id="line-254">          // タイムアウト付きで待機（デッドロック防止）</span>
+<span class="source-line-no">255</span><span id="line-255">          futures.get(i).get(60, TimeUnit.SECONDS);</span>
+<span class="source-line-no">256</span><span id="line-256"></span>
+<span class="source-line-no">257</span><span id="line-257">        } catch (ExecutionException e) {</span>
+<span class="source-line-no">258</span><span id="line-258">          cancelRemainingFutures(futures, i + 1);</span>
+<span class="source-line-no">259</span><span id="line-259">          Throwable cause = e.getCause();</span>
+<span class="source-line-no">260</span><span id="line-260">          if (cause instanceof StreamProcessingException spe) throw spe;</span>
+<span class="source-line-no">261</span><span id="line-261">          if (cause instanceof IOException ioe) throw ioe;</span>
+<span class="source-line-no">262</span><span id="line-262">          if (cause instanceof RuntimeException re) throw re;</span>
+<span class="source-line-no">263</span><span id="line-263">          throw new StreamProcessingException("Unexpected error during command execution", cause);</span>
+<span class="source-line-no">264</span><span id="line-264">        } catch (InterruptedException e) {</span>
+<span class="source-line-no">265</span><span id="line-265">          cancelRemainingFutures(futures, i + 1);</span>
+<span class="source-line-no">266</span><span id="line-266">          Thread.currentThread().interrupt();</span>
+<span class="source-line-no">267</span><span id="line-267">          throw new StreamProcessingException("Command execution was interrupted", e);</span>
+<span class="source-line-no">268</span><span id="line-268">        } catch (TimeoutException e) {</span>
+<span class="source-line-no">269</span><span id="line-269">          cancelRemainingFutures(futures, i + 1);</span>
+<span class="source-line-no">270</span><span id="line-270">          throw new StreamProcessingException("Command execution timed out after 60 seconds", e);</span>
+<span class="source-line-no">271</span><span id="line-271">        }</span>
+<span class="source-line-no">272</span><span id="line-272">      }</span>
+<span class="source-line-no">273</span><span id="line-273"></span>
+<span class="source-line-no">274</span><span id="line-274">      if (LOG.isInfoEnabled()) {</span>
+<span class="source-line-no">275</span><span id="line-275">        LOG.info("All commands completed successfully");</span>
+<span class="source-line-no">276</span><span id="line-276">      }</span>
+<span class="source-line-no">277</span><span id="line-277"></span>
+<span class="source-line-no">278</span><span id="line-278">    } finally {</span>
+<span class="source-line-no">279</span><span id="line-279">      // リソースクリーンアップ</span>
+<span class="source-line-no">280</span><span id="line-280">      closeResources(resources);</span>
+<span class="source-line-no">281</span><span id="line-281">    }</span>
+<span class="source-line-no">282</span><span id="line-282">  }</span>
+<span class="source-line-no">283</span><span id="line-283"></span>
+<span class="source-line-no">284</span><span id="line-284">  /** 失敗時に残りのfuturesをキャンセルする */</span>
+<span class="source-line-no">285</span><span id="line-285">  private void cancelRemainingFutures(List&lt;CompletableFuture&lt;Void&gt;&gt; futures, int fromIndex) {</span>
+<span class="source-line-no">286</span><span id="line-286">    for (int j = fromIndex; j &lt; futures.size(); j++) {</span>
+<span class="source-line-no">287</span><span id="line-287">      futures.get(j).cancel(true);</span>
+<span class="source-line-no">288</span><span id="line-288">    }</span>
+<span class="source-line-no">289</span><span id="line-289">  }</span>
+<span class="source-line-no">290</span><span id="line-290"></span>
+<span class="source-line-no">291</span><span id="line-291">  /**</span>
+<span class="source-line-no">292</span><span id="line-292">   * 使用したリソースを安全にクローズする</span>
+<span class="source-line-no">293</span><span id="line-293">   *</span>
+<span class="source-line-no">294</span><span id="line-294">   * @param resources クローズ対象のリソースリスト</span>
+<span class="source-line-no">295</span><span id="line-295">   */</span>
+<span class="source-line-no">296</span><span id="line-296">  private void closeResources(List&lt;AutoCloseable&gt; resources) {</span>
+<span class="source-line-no">297</span><span id="line-297">    for (AutoCloseable resource : resources) {</span>
+<span class="source-line-no">298</span><span id="line-298">      try {</span>
+<span class="source-line-no">299</span><span id="line-299">        resource.close();</span>
+<span class="source-line-no">300</span><span id="line-300">      } catch (Exception e) {</span>
+<span class="source-line-no">301</span><span id="line-301">        if (LOG.isWarnEnabled()) {</span>
+<span class="source-line-no">302</span><span id="line-302">          LOG.warn("Failed to close resource: {}", e.getMessage());</span>
+<span class="source-line-no">303</span><span id="line-303">        }</span>
+<span class="source-line-no">304</span><span id="line-304">      }</span>
+<span class="source-line-no">305</span><span id="line-305">    }</span>
+<span class="source-line-no">306</span><span id="line-306">  }</span>
+<span class="source-line-no">307</span><span id="line-307">}</span>
 
 
 

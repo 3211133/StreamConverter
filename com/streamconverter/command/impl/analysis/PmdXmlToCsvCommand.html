@@ -166,26 +166,21 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#executeInternal(java.io.InputStream,java.io.OutputStream)" class="member-name-link">executeInternal</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;input,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;input,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;output)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">PMD XML InputStream を CSV OutputStream に変換</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCommandDetails()" class="member-name-link">getCommandDetails</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">コマンドの詳細情報を取得します。</div>
 </div>
 </div>
 </div>
-</div>
-<div class="inherited-list">
-<h3 id="methods-inherited-from-class-com.streamconverter.command.AbstractStreamCommand">Methods inherited from class&nbsp;com.streamconverter.command.<a href="../../AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></h3>
-<code><a href="../../AbstractStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">execute</a></code></div>
 <div class="inherited-list">
 <h3 id="methods-inherited-from-class-java.lang.Object">Methods inherited from class&nbsp;java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></h3>
 <code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#clone()" title="class or interface in java.lang" class="external-link">clone</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#finalize()" title="class or interface in java.lang" class="external-link">finalize</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#getClass()" title="class or interface in java.lang" class="external-link">getClass</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notify()" title="class or interface in java.lang" class="external-link">notify</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#notifyAll()" title="class or interface in java.lang" class="external-link">notifyAll</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait()" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long)" title="class or interface in java.lang" class="external-link">wait</a>, <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#wait(long,int)" title="class or interface in java.lang" class="external-link">wait</a></code></div>
+<div class="inherited-list">
+<h3 id="methods-inherited-from-class-com.streamconverter.command.IStreamCommand">Methods inherited from interface&nbsp;com.streamconverter.command.<a href="../../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></h3>
+<code><a href="../../IStreamCommand.html#withLogging(org.slf4j.Logger)">withLogging</a>, <a href="../../IStreamCommand.html#withLogging(org.slf4j.Logger,java.lang.String)">withLogging</a></code></div>
 </section>
 </li>
 </ul>
@@ -213,36 +208,22 @@ loadScripts(document, 'script');</script>
 <h2>Method Details</h2>
 <ul class="member-list">
 <li>
-<section class="detail" id="executeInternal(java.io.InputStream,java.io.OutputStream)">
-<h3>executeInternal</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/analysis/PmdXmlToCsvCommand.html#line-64">executeInternal</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;input,
+<section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
+<h3>execute</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/analysis/PmdXmlToCsvCommand.html#line-64">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;input,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;output)</span>
-                        throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
+             throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">PMD XML InputStream を CSV OutputStream に変換</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="../../AbstractStreamCommand.html#executeInternal(java.io.InputStream,java.io.OutputStream)">executeInternal</a></code>&nbsp;in class&nbsp;<code><a href="../../AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></code></dd>
+<dd><code><a href="../../IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">execute</a></code>&nbsp;in interface&nbsp;<code><a href="../../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></dd>
+<dt>Specified by:</dt>
+<dd><code><a href="../../AbstractStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">execute</a></code>&nbsp;in class&nbsp;<code><a href="../../AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></code></dd>
 <dt>Parameters:</dt>
 <dd><code>input</code> - PMD XML レポートの入力ストリーム</dd>
 <dd><code>output</code> - CSV レポートの出力ストリーム</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - XML解析エラーまたはI/O例外の場合</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="getCommandDetails()">
-<h3>getCommandDetails</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/analysis/PmdXmlToCsvCommand.html#line-76">getCommandDetails</a></span>()</div>
-<div class="block"><span class="description-from-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#getCommandDetails()">AbstractStreamCommand</a></code></span></div>
-<div class="block">コマンドの詳細情報を取得します。
-
- <p>サブクラスでオーバーライドして、コマンド固有の設定や状態を返すことができます。 この情報はデバッグログに出力され、問題の診断に役立ちます。</div>
-<dl class="notes">
-<dt>Overrides:</dt>
-<dd><code><a href="../../AbstractStreamCommand.html#getCommandDetails()">getCommandDetails</a></code>&nbsp;in class&nbsp;<code><a href="../../AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></code></dd>
-<dt>Returns:</dt>
-<dd>コマンドの詳細情報</dd>
 </dl>
 </section>
 </li>

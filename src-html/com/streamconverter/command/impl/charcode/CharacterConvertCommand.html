@@ -62,27 +62,26 @@
 <span class="source-line-no">049</span><span id="line-49">   * @throws IOException If an I/O error occurs during the execution of the command.</span>
 <span class="source-line-no">050</span><span id="line-50">   */</span>
 <span class="source-line-no">051</span><span id="line-51">  @Override</span>
-<span class="source-line-no">052</span><span id="line-52">  public void executeInternal(InputStream inputStream, OutputStream outputStream)</span>
-<span class="source-line-no">053</span><span id="line-53">      throws IOException {</span>
-<span class="source-line-no">054</span><span id="line-54">    Objects.requireNonNull(inputStream);</span>
-<span class="source-line-no">055</span><span id="line-55">    Objects.requireNonNull(outputStream);</span>
-<span class="source-line-no">056</span><span id="line-56"></span>
-<span class="source-line-no">057</span><span id="line-57">    // 省メモリストリーミング文字コード変換</span>
-<span class="source-line-no">058</span><span id="line-58">    try (InputStreamReader reader = new InputStreamReader(inputStream, this.from);</span>
-<span class="source-line-no">059</span><span id="line-59">        OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.to); ) {</span>
-<span class="source-line-no">060</span><span id="line-60"></span>
-<span class="source-line-no">061</span><span id="line-61">      // transferTo()は大容量データでメモリを大量消費するため、</span>
-<span class="source-line-no">062</span><span id="line-62">      // 固定サイズバッファでストリーミング処理を実装</span>
-<span class="source-line-no">063</span><span id="line-63">      char[] buffer = new char[8192]; // 8KB char buffer (16KB memory)</span>
-<span class="source-line-no">064</span><span id="line-64">      int charsRead;</span>
-<span class="source-line-no">065</span><span id="line-65"></span>
-<span class="source-line-no">066</span><span id="line-66">      while ((charsRead = reader.read(buffer)) != -1) {</span>
-<span class="source-line-no">067</span><span id="line-67">        writer.write(buffer, 0, charsRead);</span>
-<span class="source-line-no">068</span><span id="line-68">        writer.flush(); // 即座に出力してメモリを解放</span>
-<span class="source-line-no">069</span><span id="line-69">      }</span>
-<span class="source-line-no">070</span><span id="line-70">    }</span>
-<span class="source-line-no">071</span><span id="line-71">  }</span>
-<span class="source-line-no">072</span><span id="line-72">}</span>
+<span class="source-line-no">052</span><span id="line-52">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">053</span><span id="line-53">    Objects.requireNonNull(inputStream);</span>
+<span class="source-line-no">054</span><span id="line-54">    Objects.requireNonNull(outputStream);</span>
+<span class="source-line-no">055</span><span id="line-55"></span>
+<span class="source-line-no">056</span><span id="line-56">    // 省メモリストリーミング文字コード変換</span>
+<span class="source-line-no">057</span><span id="line-57">    try (InputStreamReader reader = new InputStreamReader(inputStream, this.from);</span>
+<span class="source-line-no">058</span><span id="line-58">        OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.to); ) {</span>
+<span class="source-line-no">059</span><span id="line-59"></span>
+<span class="source-line-no">060</span><span id="line-60">      // transferTo()は大容量データでメモリを大量消費するため、</span>
+<span class="source-line-no">061</span><span id="line-61">      // 固定サイズバッファでストリーミング処理を実装</span>
+<span class="source-line-no">062</span><span id="line-62">      char[] buffer = new char[8192]; // 8KB char buffer (16KB memory)</span>
+<span class="source-line-no">063</span><span id="line-63">      int charsRead;</span>
+<span class="source-line-no">064</span><span id="line-64"></span>
+<span class="source-line-no">065</span><span id="line-65">      while ((charsRead = reader.read(buffer)) != -1) {</span>
+<span class="source-line-no">066</span><span id="line-66">        writer.write(buffer, 0, charsRead);</span>
+<span class="source-line-no">067</span><span id="line-67">        writer.flush(); // 即座に出力してメモリを解放</span>
+<span class="source-line-no">068</span><span id="line-68">      }</span>
+<span class="source-line-no">069</span><span id="line-69">    }</span>
+<span class="source-line-no">070</span><span id="line-70">  }</span>
+<span class="source-line-no">071</span><span id="line-71">}</span>
 
 
 

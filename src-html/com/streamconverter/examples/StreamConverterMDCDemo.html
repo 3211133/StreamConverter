@@ -134,7 +134,7 @@
 <span class="source-line-no">121</span><span id="line-121">      // 複数のコマンドでパイプライン構築</span>
 <span class="source-line-no">122</span><span id="line-122">      IStreamCommand validator = (in, out) -&gt; in.transferTo(out);</span>
 <span class="source-line-no">123</span><span id="line-123">      CsvNavigateCommand extractor =</span>
-<span class="source-line-no">124</span><span id="line-124">          CsvNavigateCommand.create(new CSVPath("product"), new PassThroughRule());</span>
+<span class="source-line-no">124</span><span id="line-124">          CsvNavigateCommand.create(CSVPath.of("product"), new PassThroughRule());</span>
 <span class="source-line-no">125</span><span id="line-125">      IStreamCommand formatter = (in, out) -&gt; in.transferTo(out);</span>
 <span class="source-line-no">126</span><span id="line-126"></span>
 <span class="source-line-no">127</span><span id="line-127">      StreamConverter converter = StreamConverter.create(validator, extractor, formatter);</span>

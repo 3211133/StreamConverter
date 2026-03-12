@@ -77,7 +77,7 @@
 <span class="source-line-no">064</span><span id="line-64">    // Note: The lambda pass-through is a placeholder for demonstration.</span>
 <span class="source-line-no">065</span><span id="line-65">    // In real applications, replace with actual processing commands.</span>
 <span class="source-line-no">066</span><span id="line-66">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">067</span><span id="line-67">      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),</span>
+<span class="source-line-no">067</span><span id="line-67">      CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()),</span>
 <span class="source-line-no">068</span><span id="line-68">      (IStreamCommand) (in, out) -&gt; in.transferTo(out)</span>
 <span class="source-line-no">069</span><span id="line-69">    };</span>
 <span class="source-line-no">070</span><span id="line-70">    String result = processData(csvData, pipeline);</span>
@@ -152,7 +152,7 @@
 <span class="source-line-no">139</span><span id="line-139"></span>
 <span class="source-line-no">140</span><span id="line-140">    // Create processing pipeline</span>
 <span class="source-line-no">141</span><span id="line-141">    IStreamCommand[] pipeline = {</span>
-<span class="source-line-no">142</span><span id="line-142">      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()), // Extract names</span>
+<span class="source-line-no">142</span><span id="line-142">      CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()), // Extract names</span>
 <span class="source-line-no">143</span><span id="line-143">      (IStreamCommand) (in, out) -&gt; in.transferTo(out) // Process names</span>
 <span class="source-line-no">144</span><span id="line-144">    };</span>
 <span class="source-line-no">145</span><span id="line-145"></span>

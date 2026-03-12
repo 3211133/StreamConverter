@@ -57,6 +57,8 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color"><a href="#com.streamconverter.command.impl.csv">com.streamconverter.command.impl.csv</a></div>
 <div class="col-last even-row-color">&nbsp;</div>
+<div class="col-first odd-row-color"><a href="#com.streamconverter.path">com.streamconverter.path</a></div>
+<div class="col-last odd-row-color">&nbsp;</div>
 </div>
 <section class="class-uses">
 <ul class="block-list">
@@ -86,22 +88,25 @@ loadScripts(document, 'script');</script>
 <div class="block">Factory method for creating a CSV navigation command with typed column selector and rule.</div>
 </div>
 </div>
-<div class="caption"><span>Constructors in <a href="../../command/impl/csv/package-summary.html">com.streamconverter.command.impl.csv</a> with parameters of type <a href="../CSVPath.html" title="class in com.streamconverter.path">CSVPath</a></span></div>
+</section>
+</li>
+<li>
+<section class="detail" id="com.streamconverter.path">
+<h2>Uses of <a href="../CSVPath.html" title="class in com.streamconverter.path">CSVPath</a> in <a href="../package-summary.html">com.streamconverter.path</a></h2>
+<div class="caption"><span>Methods in <a href="../package-summary.html">com.streamconverter.path</a> that return <a href="../CSVPath.html" title="class in com.streamconverter.path">CSVPath</a></span></div>
 <div class="summary-table three-column-summary">
-<div class="table-header col-first">Modifier</div>
-<div class="table-header col-second">Constructor</div>
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../../command/impl/csv/CsvFilterCommand.html#%3Cinit%3E(com.streamconverter.path.CSVPath,boolean)" class="member-name-link">CsvFilterCommand</a><wbr>(<a href="../CSVPath.html" title="class in com.streamconverter.path">CSVPath</a>&nbsp;columnSelector,
- boolean&nbsp;hasHeader)</code></div>
+<div class="col-first even-row-color"><code>static <a href="../CSVPath.html" title="class in com.streamconverter.path">CSVPath</a></code></div>
+<div class="col-second even-row-color"><span class="type-name-label">CSVPath.</span><code><a href="../CSVPath.html#of(java.lang.String)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;selector)</code></div>
 <div class="col-last even-row-color">
-<div class="block">Constructor for CSV filtering with single typed column selector.</div>
+<div class="block">単一セレクターでCSVPathを作成</div>
 </div>
-<div class="col-first odd-row-color"><code>&nbsp;</code></div>
-<div class="col-second odd-row-color"><code><a href="../../command/impl/csv/CsvNavigateCommand.html#%3Cinit%3E(com.streamconverter.path.CSVPath,com.streamconverter.command.rule.IRule)" class="member-name-link">CsvNavigateCommand</a><wbr>(<a href="../CSVPath.html" title="class in com.streamconverter.path">CSVPath</a>&nbsp;columnSelector,
- <a href="../../command/rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>&nbsp;rule)</code></div>
+<div class="col-first odd-row-color"><code>static <a href="../CSVPath.html" title="class in com.streamconverter.path">CSVPath</a></code></div>
+<div class="col-second odd-row-color"><span class="type-name-label">CSVPath.</span><code><a href="../CSVPath.html#of(java.util.List)" class="member-name-link">of</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;selectorList)</code></div>
 <div class="col-last odd-row-color">
-<div class="block">Constructor for CSV navigation with typed column selector and transformation rule.</div>
+<div class="block">複数セレクターでCSVPathを作成（OR条件）</div>
 </div>
 </div>
 </section>

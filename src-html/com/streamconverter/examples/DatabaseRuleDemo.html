@@ -184,7 +184,7 @@
 <span class="source-line-no">171</span><span id="line-171"></span>
 <span class="source-line-no">172</span><span id="line-172">    // JsonNavigateCommandの作成</span>
 <span class="source-line-no">173</span><span id="line-173">    JsonNavigateCommand command =</span>
-<span class="source-line-no">174</span><span id="line-174">        new JsonNavigateCommand(TreePath.fromJson("$.customerId"), customerRule);</span>
+<span class="source-line-no">174</span><span id="line-174">        JsonNavigateCommand.create(TreePath.fromJson("$.customerId"), customerRule);</span>
 <span class="source-line-no">175</span><span id="line-175"></span>
 <span class="source-line-no">176</span><span id="line-176">    // 変換前のJSON</span>
 <span class="source-line-no">177</span><span id="line-177">    String inputJson =</span>
@@ -223,7 +223,7 @@
 <span class="source-line-no">210</span><span id="line-210">        new DatabaseFetchRule(DB_URL, "SELECT name FROM products WHERE code = ?");</span>
 <span class="source-line-no">211</span><span id="line-211"></span>
 <span class="source-line-no">212</span><span id="line-212">    // CsvNavigateCommandの作成</span>
-<span class="source-line-no">213</span><span id="line-213">    CsvNavigateCommand command = new CsvNavigateCommand(new CSVPath("product_code"), productRule);</span>
+<span class="source-line-no">213</span><span id="line-213">    CsvNavigateCommand command = CsvNavigateCommand.create(CSVPath.of("product_code"), productRule);</span>
 <span class="source-line-no">214</span><span id="line-214"></span>
 <span class="source-line-no">215</span><span id="line-215">    // 変換前のCSV</span>
 <span class="source-line-no">216</span><span id="line-216">    String inputCsv =</span>
@@ -258,7 +258,7 @@
 <span class="source-line-no">245</span><span id="line-245"></span>
 <span class="source-line-no">246</span><span id="line-246">    // JsonNavigateCommandの作成</span>
 <span class="source-line-no">247</span><span id="line-247">    JsonNavigateCommand command =</span>
-<span class="source-line-no">248</span><span id="line-248">        new JsonNavigateCommand(TreePath.fromJson("$.customerId"), customerRule);</span>
+<span class="source-line-no">248</span><span id="line-248">        JsonNavigateCommand.create(TreePath.fromJson("$.customerId"), customerRule);</span>
 <span class="source-line-no">249</span><span id="line-249"></span>
 <span class="source-line-no">250</span><span id="line-250">    // 複数の注文を含むJSON</span>
 <span class="source-line-no">251</span><span id="line-251">    String inputJson =</span>
@@ -310,9 +310,9 @@
 <span class="source-line-no">297</span><span id="line-297"></span>
 <span class="source-line-no">298</span><span id="line-298">    // 複数段階の変換を組み合わせる</span>
 <span class="source-line-no">299</span><span id="line-299">    JsonNavigateCommand customerCommand =</span>
-<span class="source-line-no">300</span><span id="line-300">        new JsonNavigateCommand(TreePath.fromJson("$.customerId"), customerRule);</span>
+<span class="source-line-no">300</span><span id="line-300">        JsonNavigateCommand.create(TreePath.fromJson("$.customerId"), customerRule);</span>
 <span class="source-line-no">301</span><span id="line-301">    JsonNavigateCommand deptCommand =</span>
-<span class="source-line-no">302</span><span id="line-302">        new JsonNavigateCommand(TreePath.fromJson("$.deptCode"), deptRule);</span>
+<span class="source-line-no">302</span><span id="line-302">        JsonNavigateCommand.create(TreePath.fromJson("$.deptCode"), deptRule);</span>
 <span class="source-line-no">303</span><span id="line-303"></span>
 <span class="source-line-no">304</span><span id="line-304">    // StreamConverterで複数のコマンドを組み合わせ</span>
 <span class="source-line-no">305</span><span id="line-305">    StreamConverter converter =</span>
@@ -354,7 +354,7 @@
 <span class="source-line-no">341</span><span id="line-341"></span>
 <span class="source-line-no">342</span><span id="line-342">    // JsonNavigateCommandの作成</span>
 <span class="source-line-no">343</span><span id="line-343">    JsonNavigateCommand command =</span>
-<span class="source-line-no">344</span><span id="line-344">        new JsonNavigateCommand(TreePath.fromJson("$.customerId"), customerRule);</span>
+<span class="source-line-no">344</span><span id="line-344">        JsonNavigateCommand.create(TreePath.fromJson("$.customerId"), customerRule);</span>
 <span class="source-line-no">345</span><span id="line-345"></span>
 <span class="source-line-no">346</span><span id="line-346">    // 存在しない顧客IDを含むJSON</span>
 <span class="source-line-no">347</span><span id="line-347">    String inputJson =</span>

@@ -55,27 +55,27 @@
 <span class="source-line-no">042</span><span id="line-42">   * @param rule the transformation rule to apply to selected elements</span>
 <span class="source-line-no">043</span><span id="line-43">   * @throws IllegalArgumentException if treePath or rule is null</span>
 <span class="source-line-no">044</span><span id="line-44">   */</span>
-<span class="source-line-no">045</span><span id="line-45">  public XmlNavigateCommand(TreePath treePath, IRule rule) {</span>
-<span class="source-line-no">046</span><span id="line-46">    if (treePath == null) {</span>
-<span class="source-line-no">047</span><span id="line-47">      throw new IllegalArgumentException("TreePath cannot be null");</span>
-<span class="source-line-no">048</span><span id="line-48">    }</span>
-<span class="source-line-no">049</span><span id="line-49">    if (rule == null) {</span>
-<span class="source-line-no">050</span><span id="line-50">      throw new IllegalArgumentException("Rule cannot be null");</span>
-<span class="source-line-no">051</span><span id="line-51">    }</span>
-<span class="source-line-no">052</span><span id="line-52">    this.treePath = treePath;</span>
-<span class="source-line-no">053</span><span id="line-53">    this.rule = rule;</span>
-<span class="source-line-no">054</span><span id="line-54">  }</span>
-<span class="source-line-no">055</span><span id="line-55"></span>
-<span class="source-line-no">056</span><span id="line-56">  /**</span>
-<span class="source-line-no">057</span><span id="line-57">   * Factory method for creating an XML navigation command with TreePath and rule.</span>
-<span class="source-line-no">058</span><span id="line-58">   *</span>
-<span class="source-line-no">059</span><span id="line-59">   * @param treePath the TreePath to select elements</span>
-<span class="source-line-no">060</span><span id="line-60">   * @param rule the transformation rule to apply to selected elements</span>
-<span class="source-line-no">061</span><span id="line-61">   * @return an XmlNavigateCommand that transforms the specified TreePath elements with the given</span>
-<span class="source-line-no">062</span><span id="line-62">   *     rule</span>
-<span class="source-line-no">063</span><span id="line-63">   * @throws IllegalArgumentException if rule is null</span>
-<span class="source-line-no">064</span><span id="line-64">   */</span>
-<span class="source-line-no">065</span><span id="line-65">  public static XmlNavigateCommand create(TreePath treePath, IRule rule) {</span>
+<span class="source-line-no">045</span><span id="line-45">  private XmlNavigateCommand(TreePath treePath, IRule rule) {</span>
+<span class="source-line-no">046</span><span id="line-46">    this.treePath = treePath;</span>
+<span class="source-line-no">047</span><span id="line-47">    this.rule = rule;</span>
+<span class="source-line-no">048</span><span id="line-48">  }</span>
+<span class="source-line-no">049</span><span id="line-49"></span>
+<span class="source-line-no">050</span><span id="line-50">  /**</span>
+<span class="source-line-no">051</span><span id="line-51">   * Factory method for creating an XML navigation command with TreePath and rule.</span>
+<span class="source-line-no">052</span><span id="line-52">   *</span>
+<span class="source-line-no">053</span><span id="line-53">   * @param treePath the TreePath to select elements</span>
+<span class="source-line-no">054</span><span id="line-54">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">055</span><span id="line-55">   * @return an XmlNavigateCommand that transforms the specified TreePath elements with the given</span>
+<span class="source-line-no">056</span><span id="line-56">   *     rule</span>
+<span class="source-line-no">057</span><span id="line-57">   * @throws IllegalArgumentException if treePath or rule is null</span>
+<span class="source-line-no">058</span><span id="line-58">   */</span>
+<span class="source-line-no">059</span><span id="line-59">  public static XmlNavigateCommand create(TreePath treePath, IRule rule) {</span>
+<span class="source-line-no">060</span><span id="line-60">    if (treePath == null) {</span>
+<span class="source-line-no">061</span><span id="line-61">      throw new IllegalArgumentException("TreePath cannot be null");</span>
+<span class="source-line-no">062</span><span id="line-62">    }</span>
+<span class="source-line-no">063</span><span id="line-63">    if (rule == null) {</span>
+<span class="source-line-no">064</span><span id="line-64">      throw new IllegalArgumentException("Rule cannot be null");</span>
+<span class="source-line-no">065</span><span id="line-65">    }</span>
 <span class="source-line-no">066</span><span id="line-66">    return new XmlNavigateCommand(treePath, rule);</span>
 <span class="source-line-no">067</span><span id="line-67">  }</span>
 <span class="source-line-no">068</span><span id="line-68"></span>

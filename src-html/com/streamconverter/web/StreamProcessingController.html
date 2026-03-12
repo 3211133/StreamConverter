@@ -72,7 +72,7 @@
 <span class="source-line-no">059</span><span id="line-59">                    processWithStreamConverter(</span>
 <span class="source-line-no">060</span><span id="line-60">                        inputData,</span>
 <span class="source-line-no">061</span><span id="line-61">                        CsvNavigateCommand.create(</span>
-<span class="source-line-no">062</span><span id="line-62">                            new CSVPath(columnName), new PassThroughRule()))))</span>
+<span class="source-line-no">062</span><span id="line-62">                            CSVPath.of(columnName), new PassThroughRule()))))</span>
 <span class="source-line-no">063</span><span id="line-63">        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
 <span class="source-line-no">064</span><span id="line-64">  }</span>
 <span class="source-line-no">065</span><span id="line-65"></span>
@@ -184,7 +184,7 @@
 <span class="source-line-no">171</span><span id="line-171"></span>
 <span class="source-line-no">172</span><span id="line-172">      commands[i] =</span>
 <span class="source-line-no">173</span><span id="line-173">          switch (commandType.toLowerCase()) {</span>
-<span class="source-line-no">174</span><span id="line-174">            case "csv" -&gt; CsvNavigateCommand.create(new CSVPath(parameter), new PassThroughRule());</span>
+<span class="source-line-no">174</span><span id="line-174">            case "csv" -&gt; CsvNavigateCommand.create(CSVPath.of(parameter), new PassThroughRule());</span>
 <span class="source-line-no">175</span><span id="line-175">            case "json" -&gt; JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());</span>
 <span class="source-line-no">176</span><span id="line-176">            case "process" -&gt; (IStreamCommand) (in, out) -&gt; in.transferTo(out);</span>
 <span class="source-line-no">177</span><span id="line-177">            default -&gt; throw new IllegalArgumentException("Unknown command type: " + commandType);</span>

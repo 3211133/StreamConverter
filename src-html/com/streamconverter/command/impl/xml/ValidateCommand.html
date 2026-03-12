@@ -58,121 +58,134 @@
 <span class="source-line-no">045</span><span id="line-45">   * @param schemaPath クラスパスリソース識別子（例: "schemas/test.xsd", "test-schema.xsd"）</span>
 <span class="source-line-no">046</span><span id="line-46">   * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合</span>
 <span class="source-line-no">047</span><span id="line-47">   */</span>
-<span class="source-line-no">048</span><span id="line-48">  public ValidateCommand(String schemaPath) {</span>
-<span class="source-line-no">049</span><span id="line-49">    Objects.requireNonNull(schemaPath, "Schema path cannot be null");</span>
-<span class="source-line-no">050</span><span id="line-50">    if (schemaPath.trim().isEmpty()) {</span>
-<span class="source-line-no">051</span><span id="line-51">      throw new IllegalArgumentException("Schema path cannot be empty");</span>
-<span class="source-line-no">052</span><span id="line-52">    }</span>
-<span class="source-line-no">053</span><span id="line-53"></span>
-<span class="source-line-no">054</span><span id="line-54">    // クラスパスリソース識別子として扱う（セキュリティはClasspathResourceValidatorが担保）</span>
-<span class="source-line-no">055</span><span id="line-55">    this.schemaPath = normalizeClasspathPath(schemaPath);</span>
-<span class="source-line-no">056</span><span id="line-56">    this.schema = loadSchemaFromClasspath(this.schemaPath);</span>
-<span class="source-line-no">057</span><span id="line-57">  }</span>
-<span class="source-line-no">058</span><span id="line-58"></span>
-<span class="source-line-no">059</span><span id="line-59">  /**</span>
-<span class="source-line-no">060</span><span id="line-60">   * クラスパスリソース識別子を正規化します</span>
-<span class="source-line-no">061</span><span id="line-61">   *</span>
-<span class="source-line-no">062</span><span id="line-62">   * &lt;p&gt;先頭のスラッシュはClassLoader互換性のため除去されます。</span>
-<span class="source-line-no">063</span><span id="line-63">   *</span>
-<span class="source-line-no">064</span><span id="line-64">   * @param inputPath 入力されたクラスパス識別子</span>
-<span class="source-line-no">065</span><span id="line-65">   * @return 正規化されたクラスパス識別子</span>
-<span class="source-line-no">066</span><span id="line-66">   */</span>
-<span class="source-line-no">067</span><span id="line-67">  private String normalizeClasspathPath(String inputPath) {</span>
-<span class="source-line-no">068</span><span id="line-68">    String trimmed = inputPath.trim();</span>
-<span class="source-line-no">069</span><span id="line-69">    // Remove leading slash for ClassLoader compatibility</span>
-<span class="source-line-no">070</span><span id="line-70">    if (trimmed.startsWith("/")) {</span>
-<span class="source-line-no">071</span><span id="line-71">      trimmed = trimmed.substring(1);</span>
-<span class="source-line-no">072</span><span id="line-72">    }</span>
-<span class="source-line-no">073</span><span id="line-73">    return trimmed;</span>
-<span class="source-line-no">074</span><span id="line-74">  }</span>
-<span class="source-line-no">075</span><span id="line-75"></span>
-<span class="source-line-no">076</span><span id="line-76">  /**</span>
-<span class="source-line-no">077</span><span id="line-77">   * セキュアにスキーマをロードします</span>
-<span class="source-line-no">078</span><span id="line-78">   *</span>
-<span class="source-line-no">079</span><span id="line-79">   * @param validatedPath 検証済みのスキーマパス</span>
-<span class="source-line-no">080</span><span id="line-80">   * @return ロードされたSchemaオブジェクト</span>
-<span class="source-line-no">081</span><span id="line-81">   * @throws StreamProcessingException スキーマロードに失敗した場合</span>
-<span class="source-line-no">082</span><span id="line-82">   */</span>
-<span class="source-line-no">083</span><span id="line-83">  private Schema loadSchemaFromClasspath(String validatedPath) {</span>
-<span class="source-line-no">084</span><span id="line-84">    try {</span>
-<span class="source-line-no">085</span><span id="line-85">      // セキュアなSchemaFactoryの作成（新しいセキュリティインフラを使用）</span>
-<span class="source-line-no">086</span><span id="line-86">      SchemaFactory factory = SecureXmlConfiguration.createSecureSchemaFactory();</span>
-<span class="source-line-no">087</span><span id="line-87"></span>
-<span class="source-line-no">088</span><span id="line-88">      // クラスパスからスキーマをロード（パストラバーサル不要・JAR対応）</span>
-<span class="source-line-no">089</span><span id="line-89">      URL schemaUrl = ClasspathResourceValidator.getResourceUrl(validatedPath);</span>
-<span class="source-line-no">090</span><span id="line-90"></span>
-<span class="source-line-no">091</span><span id="line-91">      Schema loadedSchema = factory.newSchema(schemaUrl);</span>
-<span class="source-line-no">092</span><span id="line-92">      logger.info("XML Schema loaded successfully from: {}", validatedPath);</span>
-<span class="source-line-no">093</span><span id="line-93">      securityLogger.info("Secure XML schema loading completed for: {}", validatedPath);</span>
-<span class="source-line-no">094</span><span id="line-94"></span>
-<span class="source-line-no">095</span><span id="line-95">      return loadedSchema;</span>
-<span class="source-line-no">096</span><span id="line-96"></span>
-<span class="source-line-no">097</span><span id="line-97">    } catch (SAXException | IllegalArgumentException e) {</span>
-<span class="source-line-no">098</span><span id="line-98">      logger.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);</span>
-<span class="source-line-no">099</span><span id="line-99">      securityLogger.error("Secure XML schema loading failed for: {}", validatedPath);</span>
-<span class="source-line-no">100</span><span id="line-100">      throw new StreamProcessingException(</span>
-<span class="source-line-no">101</span><span id="line-101">          String.format("XMLスキーマの読み込みに失敗しました - スキーマ: %s, エラー: %s", validatedPath, e.getMessage()),</span>
-<span class="source-line-no">102</span><span id="line-102">          e);</span>
-<span class="source-line-no">103</span><span id="line-103">    }</span>
-<span class="source-line-no">104</span><span id="line-104">  }</span>
-<span class="source-line-no">105</span><span id="line-105"></span>
-<span class="source-line-no">106</span><span id="line-106">  /**</span>
-<span class="source-line-no">107</span><span id="line-107">   * XMLのバリデーションを行うコマンドを実行します。</span>
-<span class="source-line-no">108</span><span id="line-108">   *</span>
-<span class="source-line-no">109</span><span id="line-109">   * &lt;p&gt;XMLのスキーマを指定して、XMLのバリデーションを行います。</span>
-<span class="source-line-no">110</span><span id="line-110">   *</span>
-<span class="source-line-no">111</span><span id="line-111">   * &lt;p&gt;バリデーションエラーが発生した場合は、エラーメッセージを出力します。</span>
-<span class="source-line-no">112</span><span id="line-112">   *</span>
-<span class="source-line-no">113</span><span id="line-113">   * @param inputStream 入力ストリーム</span>
-<span class="source-line-no">114</span><span id="line-114">   * @throws IOException 入出力エラーが発生した場合</span>
-<span class="source-line-no">115</span><span id="line-115">   * @throws StreamProcessingException XMLバリデーションエラーが発生した場合</span>
-<span class="source-line-no">116</span><span id="line-116">   */</span>
-<span class="source-line-no">117</span><span id="line-117">  @Override</span>
-<span class="source-line-no">118</span><span id="line-118">  public void consume(InputStream inputStream) throws IOException {</span>
-<span class="source-line-no">119</span><span id="line-119">    Objects.requireNonNull(inputStream, "Input stream cannot be null");</span>
-<span class="source-line-no">120</span><span id="line-120"></span>
-<span class="source-line-no">121</span><span id="line-121">    try {</span>
-<span class="source-line-no">122</span><span id="line-122">      // セキュアなValidatorの作成</span>
-<span class="source-line-no">123</span><span id="line-123">      Validator validator = schema.newValidator();</span>
-<span class="source-line-no">124</span><span id="line-124">      configureSecureValidator(validator);</span>
-<span class="source-line-no">125</span><span id="line-125"></span>
-<span class="source-line-no">126</span><span id="line-126">      // XMLバリデーションの実行</span>
-<span class="source-line-no">127</span><span id="line-127">      validator.validate(new StreamSource(inputStream));</span>
-<span class="source-line-no">128</span><span id="line-128"></span>
-<span class="source-line-no">129</span><span id="line-129">      logger.info("XML validation completed successfully using schema: {}", schemaPath);</span>
-<span class="source-line-no">130</span><span id="line-130"></span>
-<span class="source-line-no">131</span><span id="line-131">    } catch (SAXException e) {</span>
-<span class="source-line-no">132</span><span id="line-132">      // バリデーションエラーの詳細ログ出力</span>
-<span class="source-line-no">133</span><span id="line-133">      logger.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);</span>
-<span class="source-line-no">134</span><span id="line-134"></span>
-<span class="source-line-no">135</span><span id="line-135">      // バリデーションエラーをカスタム例外でラップして伝播</span>
-<span class="source-line-no">136</span><span id="line-136">      throw new StreamProcessingException(</span>
-<span class="source-line-no">137</span><span id="line-137">          String.format("XMLバリデーションに失敗しました - スキーマ: %s, エラー: %s", schemaPath, e.getMessage()), e);</span>
-<span class="source-line-no">138</span><span id="line-138">    }</span>
-<span class="source-line-no">139</span><span id="line-139">  }</span>
-<span class="source-line-no">140</span><span id="line-140"></span>
-<span class="source-line-no">141</span><span id="line-141">  /**</span>
-<span class="source-line-no">142</span><span id="line-142">   * Validatorにセキュリティ設定を適用します</span>
-<span class="source-line-no">143</span><span id="line-143">   *</span>
-<span class="source-line-no">144</span><span id="line-144">   * @param validator 設定対象のValidator</span>
-<span class="source-line-no">145</span><span id="line-145">   */</span>
-<span class="source-line-no">146</span><span id="line-146">  private void configureSecureValidator(Validator validator) {</span>
-<span class="source-line-no">147</span><span id="line-147">    try {</span>
-<span class="source-line-no">148</span><span id="line-148">      // XXE攻撃防止設定</span>
-<span class="source-line-no">149</span><span id="line-149">      validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);</span>
-<span class="source-line-no">150</span><span id="line-150"></span>
-<span class="source-line-no">151</span><span id="line-151">      // 外部リソースアクセスを無効化</span>
-<span class="source-line-no">152</span><span id="line-152">      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");</span>
-<span class="source-line-no">153</span><span id="line-153">      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");</span>
-<span class="source-line-no">154</span><span id="line-154"></span>
-<span class="source-line-no">155</span><span id="line-155">      logger.debug("Secure XML processing features configured for Validator");</span>
-<span class="source-line-no">156</span><span id="line-156"></span>
-<span class="source-line-no">157</span><span id="line-157">    } catch (Exception e) {</span>
-<span class="source-line-no">158</span><span id="line-158">      logger.warn("Could not configure all security features for Validator: {}", e.getMessage());</span>
-<span class="source-line-no">159</span><span id="line-159">      // 警告レベルで記録し、処理は継続</span>
-<span class="source-line-no">160</span><span id="line-160">    }</span>
-<span class="source-line-no">161</span><span id="line-161">  }</span>
-<span class="source-line-no">162</span><span id="line-162">}</span>
+<span class="source-line-no">048</span><span id="line-48">  private ValidateCommand(String schemaPath, Schema schema) {</span>
+<span class="source-line-no">049</span><span id="line-49">    this.schemaPath = schemaPath;</span>
+<span class="source-line-no">050</span><span id="line-50">    this.schema = schema;</span>
+<span class="source-line-no">051</span><span id="line-51">  }</span>
+<span class="source-line-no">052</span><span id="line-52"></span>
+<span class="source-line-no">053</span><span id="line-53">  /**</span>
+<span class="source-line-no">054</span><span id="line-54">   * Factory method for creating a ValidateCommand.</span>
+<span class="source-line-no">055</span><span id="line-55">   *</span>
+<span class="source-line-no">056</span><span id="line-56">   * @param schemaPath クラスパスリソース識別子（例: "schemas/test.xsd", "test-schema.xsd"）</span>
+<span class="source-line-no">057</span><span id="line-57">   * @return a ValidateCommand instance</span>
+<span class="source-line-no">058</span><span id="line-58">   * @throws NullPointerException スキーマパスがnullの場合</span>
+<span class="source-line-no">059</span><span id="line-59">   * @throws IllegalArgumentException スキーマパスが空の場合</span>
+<span class="source-line-no">060</span><span id="line-60">   * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合</span>
+<span class="source-line-no">061</span><span id="line-61">   */</span>
+<span class="source-line-no">062</span><span id="line-62">  public static ValidateCommand create(String schemaPath) {</span>
+<span class="source-line-no">063</span><span id="line-63">    Objects.requireNonNull(schemaPath, "Schema path cannot be null");</span>
+<span class="source-line-no">064</span><span id="line-64">    if (schemaPath.trim().isEmpty()) {</span>
+<span class="source-line-no">065</span><span id="line-65">      throw new IllegalArgumentException("Schema path cannot be empty");</span>
+<span class="source-line-no">066</span><span id="line-66">    }</span>
+<span class="source-line-no">067</span><span id="line-67">    String normalizedPath = normalizeClasspathPath(schemaPath);</span>
+<span class="source-line-no">068</span><span id="line-68">    Schema schema = loadSchemaFromClasspath(normalizedPath);</span>
+<span class="source-line-no">069</span><span id="line-69">    return new ValidateCommand(normalizedPath, schema);</span>
+<span class="source-line-no">070</span><span id="line-70">  }</span>
+<span class="source-line-no">071</span><span id="line-71"></span>
+<span class="source-line-no">072</span><span id="line-72">  /**</span>
+<span class="source-line-no">073</span><span id="line-73">   * クラスパスリソース識別子を正規化します</span>
+<span class="source-line-no">074</span><span id="line-74">   *</span>
+<span class="source-line-no">075</span><span id="line-75">   * &lt;p&gt;先頭のスラッシュはClassLoader互換性のため除去されます。</span>
+<span class="source-line-no">076</span><span id="line-76">   *</span>
+<span class="source-line-no">077</span><span id="line-77">   * @param inputPath 入力されたクラスパス識別子</span>
+<span class="source-line-no">078</span><span id="line-78">   * @return 正規化されたクラスパス識別子</span>
+<span class="source-line-no">079</span><span id="line-79">   */</span>
+<span class="source-line-no">080</span><span id="line-80">  private static String normalizeClasspathPath(String inputPath) {</span>
+<span class="source-line-no">081</span><span id="line-81">    String trimmed = inputPath.trim();</span>
+<span class="source-line-no">082</span><span id="line-82">    // Remove leading slash for ClassLoader compatibility</span>
+<span class="source-line-no">083</span><span id="line-83">    if (trimmed.startsWith("/")) {</span>
+<span class="source-line-no">084</span><span id="line-84">      trimmed = trimmed.substring(1);</span>
+<span class="source-line-no">085</span><span id="line-85">    }</span>
+<span class="source-line-no">086</span><span id="line-86">    return trimmed;</span>
+<span class="source-line-no">087</span><span id="line-87">  }</span>
+<span class="source-line-no">088</span><span id="line-88"></span>
+<span class="source-line-no">089</span><span id="line-89">  /**</span>
+<span class="source-line-no">090</span><span id="line-90">   * セキュアにスキーマをロードします</span>
+<span class="source-line-no">091</span><span id="line-91">   *</span>
+<span class="source-line-no">092</span><span id="line-92">   * @param validatedPath 検証済みのスキーマパス</span>
+<span class="source-line-no">093</span><span id="line-93">   * @return ロードされたSchemaオブジェクト</span>
+<span class="source-line-no">094</span><span id="line-94">   * @throws StreamProcessingException スキーマロードに失敗した場合</span>
+<span class="source-line-no">095</span><span id="line-95">   */</span>
+<span class="source-line-no">096</span><span id="line-96">  private static Schema loadSchemaFromClasspath(String validatedPath) {</span>
+<span class="source-line-no">097</span><span id="line-97">    try {</span>
+<span class="source-line-no">098</span><span id="line-98">      // セキュアなSchemaFactoryの作成（新しいセキュリティインフラを使用）</span>
+<span class="source-line-no">099</span><span id="line-99">      SchemaFactory factory = SecureXmlConfiguration.createSecureSchemaFactory();</span>
+<span class="source-line-no">100</span><span id="line-100"></span>
+<span class="source-line-no">101</span><span id="line-101">      // クラスパスからスキーマをロード（パストラバーサル不要・JAR対応）</span>
+<span class="source-line-no">102</span><span id="line-102">      URL schemaUrl = ClasspathResourceValidator.getResourceUrl(validatedPath);</span>
+<span class="source-line-no">103</span><span id="line-103"></span>
+<span class="source-line-no">104</span><span id="line-104">      Schema loadedSchema = factory.newSchema(schemaUrl);</span>
+<span class="source-line-no">105</span><span id="line-105">      logger.info("XML Schema loaded successfully from: {}", validatedPath);</span>
+<span class="source-line-no">106</span><span id="line-106">      securityLogger.info("Secure XML schema loading completed for: {}", validatedPath);</span>
+<span class="source-line-no">107</span><span id="line-107"></span>
+<span class="source-line-no">108</span><span id="line-108">      return loadedSchema;</span>
+<span class="source-line-no">109</span><span id="line-109"></span>
+<span class="source-line-no">110</span><span id="line-110">    } catch (SAXException | IllegalArgumentException e) {</span>
+<span class="source-line-no">111</span><span id="line-111">      logger.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);</span>
+<span class="source-line-no">112</span><span id="line-112">      securityLogger.error("Secure XML schema loading failed for: {}", validatedPath);</span>
+<span class="source-line-no">113</span><span id="line-113">      throw new StreamProcessingException(</span>
+<span class="source-line-no">114</span><span id="line-114">          String.format("XMLスキーマの読み込みに失敗しました - スキーマ: %s, エラー: %s", validatedPath, e.getMessage()),</span>
+<span class="source-line-no">115</span><span id="line-115">          e);</span>
+<span class="source-line-no">116</span><span id="line-116">    }</span>
+<span class="source-line-no">117</span><span id="line-117">  }</span>
+<span class="source-line-no">118</span><span id="line-118"></span>
+<span class="source-line-no">119</span><span id="line-119">  /**</span>
+<span class="source-line-no">120</span><span id="line-120">   * XMLのバリデーションを行うコマンドを実行します。</span>
+<span class="source-line-no">121</span><span id="line-121">   *</span>
+<span class="source-line-no">122</span><span id="line-122">   * &lt;p&gt;XMLのスキーマを指定して、XMLのバリデーションを行います。</span>
+<span class="source-line-no">123</span><span id="line-123">   *</span>
+<span class="source-line-no">124</span><span id="line-124">   * &lt;p&gt;バリデーションエラーが発生した場合は、エラーメッセージを出力します。</span>
+<span class="source-line-no">125</span><span id="line-125">   *</span>
+<span class="source-line-no">126</span><span id="line-126">   * @param inputStream 入力ストリーム</span>
+<span class="source-line-no">127</span><span id="line-127">   * @throws IOException 入出力エラーが発生した場合</span>
+<span class="source-line-no">128</span><span id="line-128">   * @throws StreamProcessingException XMLバリデーションエラーが発生した場合</span>
+<span class="source-line-no">129</span><span id="line-129">   */</span>
+<span class="source-line-no">130</span><span id="line-130">  @Override</span>
+<span class="source-line-no">131</span><span id="line-131">  public void consume(InputStream inputStream) throws IOException {</span>
+<span class="source-line-no">132</span><span id="line-132">    Objects.requireNonNull(inputStream, "Input stream cannot be null");</span>
+<span class="source-line-no">133</span><span id="line-133"></span>
+<span class="source-line-no">134</span><span id="line-134">    try {</span>
+<span class="source-line-no">135</span><span id="line-135">      // セキュアなValidatorの作成</span>
+<span class="source-line-no">136</span><span id="line-136">      Validator validator = schema.newValidator();</span>
+<span class="source-line-no">137</span><span id="line-137">      configureSecureValidator(validator);</span>
+<span class="source-line-no">138</span><span id="line-138"></span>
+<span class="source-line-no">139</span><span id="line-139">      // XMLバリデーションの実行</span>
+<span class="source-line-no">140</span><span id="line-140">      validator.validate(new StreamSource(inputStream));</span>
+<span class="source-line-no">141</span><span id="line-141"></span>
+<span class="source-line-no">142</span><span id="line-142">      logger.info("XML validation completed successfully using schema: {}", schemaPath);</span>
+<span class="source-line-no">143</span><span id="line-143"></span>
+<span class="source-line-no">144</span><span id="line-144">    } catch (SAXException e) {</span>
+<span class="source-line-no">145</span><span id="line-145">      // バリデーションエラーの詳細ログ出力</span>
+<span class="source-line-no">146</span><span id="line-146">      logger.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);</span>
+<span class="source-line-no">147</span><span id="line-147"></span>
+<span class="source-line-no">148</span><span id="line-148">      // バリデーションエラーをカスタム例外でラップして伝播</span>
+<span class="source-line-no">149</span><span id="line-149">      throw new StreamProcessingException(</span>
+<span class="source-line-no">150</span><span id="line-150">          String.format("XMLバリデーションに失敗しました - スキーマ: %s, エラー: %s", schemaPath, e.getMessage()), e);</span>
+<span class="source-line-no">151</span><span id="line-151">    }</span>
+<span class="source-line-no">152</span><span id="line-152">  }</span>
+<span class="source-line-no">153</span><span id="line-153"></span>
+<span class="source-line-no">154</span><span id="line-154">  /**</span>
+<span class="source-line-no">155</span><span id="line-155">   * Validatorにセキュリティ設定を適用します</span>
+<span class="source-line-no">156</span><span id="line-156">   *</span>
+<span class="source-line-no">157</span><span id="line-157">   * @param validator 設定対象のValidator</span>
+<span class="source-line-no">158</span><span id="line-158">   */</span>
+<span class="source-line-no">159</span><span id="line-159">  private void configureSecureValidator(Validator validator) {</span>
+<span class="source-line-no">160</span><span id="line-160">    try {</span>
+<span class="source-line-no">161</span><span id="line-161">      // XXE攻撃防止設定</span>
+<span class="source-line-no">162</span><span id="line-162">      validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);</span>
+<span class="source-line-no">163</span><span id="line-163"></span>
+<span class="source-line-no">164</span><span id="line-164">      // 外部リソースアクセスを無効化</span>
+<span class="source-line-no">165</span><span id="line-165">      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");</span>
+<span class="source-line-no">166</span><span id="line-166">      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");</span>
+<span class="source-line-no">167</span><span id="line-167"></span>
+<span class="source-line-no">168</span><span id="line-168">      logger.debug("Secure XML processing features configured for Validator");</span>
+<span class="source-line-no">169</span><span id="line-169"></span>
+<span class="source-line-no">170</span><span id="line-170">    } catch (Exception e) {</span>
+<span class="source-line-no">171</span><span id="line-171">      logger.warn("Could not configure all security features for Validator: {}", e.getMessage());</span>
+<span class="source-line-no">172</span><span id="line-172">      // 警告レベルで記録し、処理は継続</span>
+<span class="source-line-no">173</span><span id="line-173">    }</span>
+<span class="source-line-no">174</span><span id="line-174">  }</span>
+<span class="source-line-no">175</span><span id="line-175">}</span>
 
 
 

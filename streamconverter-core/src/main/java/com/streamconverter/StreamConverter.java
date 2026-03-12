@@ -231,6 +231,16 @@ public class StreamConverter {
                       commandOutput.close();
                     }
 
+                  } catch (StreamProcessingException e) {
+                    if (commandOutput instanceof PipedOutputStream) {
+                      try {
+                        commandOutput.close();
+                      } catch (IOException ignored) {
+                        // ignored
+                      }
+                    }
+                    // Already a StreamProcessingException — re-throw as-is to avoid double-wrapping
+                    throw e;
                   } catch (IOException | RuntimeException e) {
                     if (commandOutput instanceof PipedOutputStream) {
                       try {

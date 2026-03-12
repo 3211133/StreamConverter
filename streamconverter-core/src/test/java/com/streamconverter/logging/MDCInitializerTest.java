@@ -18,18 +18,23 @@ class MDCInitializerTest {
 
   private MDCAdapter originalSlf4jAdapter;
   private MDCAdapter originalLogbackAdapter;
+  private Map<String, String> originalMdcContents;
 
   @BeforeEach
-  void saveAdapters() throws Exception {
+  void saveState() throws Exception {
     originalSlf4jAdapter = MDC.getMDCAdapter();
     originalLogbackAdapter = getLogbackAdapter();
+    originalMdcContents = MDC.getCopyOfContextMap();
   }
 
   @AfterEach
-  void restoreAdapters() throws Exception {
+  void restoreState() throws Exception {
     setSlf4jAdapter(originalSlf4jAdapter);
     setLogbackAdapter(originalLogbackAdapter);
     MDC.clear();
+    if (originalMdcContents != null) {
+      MDC.getMDCAdapter().setContextMap(originalMdcContents);
+    }
   }
 
   // --- reflection helpers ---

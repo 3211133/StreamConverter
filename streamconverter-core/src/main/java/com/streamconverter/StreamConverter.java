@@ -68,6 +68,7 @@ public class StreamConverter {
   private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
   private List<IStreamCommand> commands;
+  private List<String> commandNames;
 
   /**
    * Constructs a StreamConverter with the specified array of commands.
@@ -81,6 +82,7 @@ public class StreamConverter {
     if (commands.length == 0) {
       throw new IllegalArgumentException("commands is empty.");
     }
+    this.commandNames = resolveCommandNames(List.of(commands));
     this.commands = wrapWithLogging(List.of(commands));
   }
 
@@ -96,6 +98,7 @@ public class StreamConverter {
     if (commands.isEmpty()) {
       throw new IllegalArgumentException("commands is empty.");
     }
+    this.commandNames = resolveCommandNames(commands);
     this.commands = wrapWithLogging(commands);
   }
 
@@ -121,6 +124,16 @@ public class StreamConverter {
    */
   public static StreamConverter create(List<IStreamCommand> commands) {
     return new StreamConverter(commands);
+  }
+
+  /** 元のコマンドクラスから人が読めるコマンド名リストを解決する。 */
+  private static List<String> resolveCommandNames(List<IStreamCommand> commands) {
+    List<String> names = new ArrayList<>(commands.size());
+    for (IStreamCommand command : commands) {
+      Class<?> cls = command.getClass();
+      names.add(cls.isSynthetic() ? "IStreamCommand" : cls.getSimpleName());
+    }
+    return names;
   }
 
   /** コマンドリストの各コマンドに withLogging をあらかじめ適用して返す。 ラッピングはコンストラクト時に1度だけ行われ、実行ごとのオーバーヘッドを排除する。 */
@@ -181,6 +194,7 @@ public class StreamConverter {
       // パイプライン構築
       for (int i = 0; i < this.commands.size(); i++) {
         IStreamCommand command = this.commands.get(i);
+        final String commandName = this.commandNames.get(i);
         final InputStream commandInput = currentInput;
         final OutputStream commandOutput;
 
@@ -221,7 +235,7 @@ public class StreamConverter {
                       }
                     }
                     throw new StreamProcessingException(
-                        "Command execution failed: " + e.getMessage(), e);
+                        "Command execution failed: " + commandName + " - " + e.getMessage(), e);
                   } finally {
                     PipelineContext.clear();
                     MDC.clear();

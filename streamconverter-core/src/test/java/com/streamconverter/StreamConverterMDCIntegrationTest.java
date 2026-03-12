@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterAll;
@@ -28,11 +29,13 @@ class StreamConverterMDCIntegrationTest {
 
   private static MDCAdapter originalSlf4jAdapter;
   private static MDCAdapter originalLogbackAdapter;
+  private static Map<String, String> originalMdcContents;
 
   @BeforeAll
   static void installInheritableMDCAdapter() throws Exception {
     originalSlf4jAdapter = MDC.getMDCAdapter();
     originalLogbackAdapter = getLogbackAdapter();
+    originalMdcContents = MDC.getCopyOfContextMap();
     MDCInitializer.initialize();
   }
 
@@ -41,6 +44,9 @@ class StreamConverterMDCIntegrationTest {
     setSlf4jAdapter(originalSlf4jAdapter);
     setLogbackAdapter(originalLogbackAdapter);
     MDC.clear();
+    if (originalMdcContents != null) {
+      MDC.getMDCAdapter().setContextMap(originalMdcContents);
+    }
   }
 
   private static MDCAdapter getLogbackAdapter() {

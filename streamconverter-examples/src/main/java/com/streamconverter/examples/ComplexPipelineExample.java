@@ -97,7 +97,7 @@ public class ComplexPipelineExample {
     String[] requiredColumns = {"id", "name", "email", "department"};
 
     // CsvValidateCommandを使用して入力検証
-    return new CsvValidateCommand(requiredColumns);
+    return CsvValidateCommand.create(requiredColumns);
   }
 
   /** DB変換コマンドを作成 */

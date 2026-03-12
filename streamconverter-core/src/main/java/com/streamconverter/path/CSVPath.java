@@ -21,7 +21,7 @@ public class CSVPath extends AbstractPath<Integer> {
    * @param selector 列選択子（列名または数値インデックス）
    * @throws IllegalArgumentException セレクターが不正な場合
    */
-  public CSVPath(String selector) {
+  private CSVPath(String selector) {
     super(selector);
     this.selectors = Collections.singletonList(selector.trim());
   }
@@ -32,11 +32,8 @@ public class CSVPath extends AbstractPath<Integer> {
    * @param selectorList 列選択子のリスト
    * @throws IllegalArgumentException セレクターが不正な場合
    */
-  public CSVPath(List<String> selectorList) {
+  private CSVPath(List<String> selectorList) {
     super(String.join(",", selectorList));
-    if (selectorList == null || selectorList.isEmpty()) {
-      throw new IllegalArgumentException("Selector list cannot be null or empty");
-    }
     List<String> temp = new ArrayList<>();
     for (String sel : selectorList) {
       temp.add(sel.trim());
@@ -44,11 +41,37 @@ public class CSVPath extends AbstractPath<Integer> {
     this.selectors = Collections.unmodifiableList(temp);
   }
 
-  @Override
-  protected void validateAndNormalize(String rawSelector) {
-    if (isNullOrEmpty(rawSelector)) {
+  /**
+   * 単一セレクターでCSVPathを作成
+   *
+   * @param selector 列選択子（列名または数値インデックス）
+   * @return CSVPath instance
+   * @throws IllegalArgumentException セレクターが不正な場合
+   */
+  public static CSVPath of(String selector) {
+    if (selector == null || selector.trim().isEmpty()) {
       throw new IllegalArgumentException("CSV column selector cannot be null or empty");
     }
+    return new CSVPath(selector);
+  }
+
+  /**
+   * 複数セレクターでCSVPathを作成（OR条件）
+   *
+   * @param selectorList 列選択子のリスト
+   * @return CSVPath instance
+   * @throws IllegalArgumentException セレクターが不正な場合
+   */
+  public static CSVPath of(List<String> selectorList) {
+    if (selectorList == null || selectorList.isEmpty()) {
+      throw new IllegalArgumentException("Selector list cannot be null or empty");
+    }
+    return new CSVPath(selectorList);
+  }
+
+  @Override
+  protected void validateAndNormalize(String rawSelector) {
+    // Validation is performed in factory methods (of/create) to avoid CT_CONSTRUCTOR_THROW
   }
 
   @Override

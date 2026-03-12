@@ -59,7 +59,7 @@ public class StreamProcessingController {
                     processWithStreamConverter(
                         inputData,
                         CsvNavigateCommand.create(
-                            new CSVPath(columnName), new PassThroughRule()))))
+                            CSVPath.of(columnName), new PassThroughRule()))))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 
@@ -171,7 +171,7 @@ public class StreamProcessingController {
 
       commands[i] =
           switch (commandType.toLowerCase()) {
-            case "csv" -> CsvNavigateCommand.create(new CSVPath(parameter), new PassThroughRule());
+            case "csv" -> CsvNavigateCommand.create(CSVPath.of(parameter), new PassThroughRule());
             case "json" -> JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());
             case "process" -> (IStreamCommand) (in, out) -> in.transferTo(out);
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);

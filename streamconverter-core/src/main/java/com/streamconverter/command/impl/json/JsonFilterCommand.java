@@ -40,13 +40,23 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @param jsonPath the typed TreePath to extract data
    * @throws IllegalArgumentException if jsonPath is null
    */
-  public JsonFilterCommand(IPath<List<String>> jsonPath) {
+  private JsonFilterCommand(IPath<List<String>> jsonPath) {
+    this.jsonPath = jsonPath;
+    this.objectMapper = new ObjectMapper();
+  }
+
+  /**
+   * Factory method for JSON filtering with typed path selector.
+   *
+   * @param jsonPath the typed path to extract data
+   * @return a JsonFilterCommand instance
+   * @throws IllegalArgumentException if jsonPath is null
+   */
+  public static JsonFilterCommand create(IPath<List<String>> jsonPath) {
     if (jsonPath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
-    this.jsonPath = jsonPath;
-    jsonPath.toString();
-    this.objectMapper = new ObjectMapper();
+    return new JsonFilterCommand(jsonPath);
   }
 
   @Override

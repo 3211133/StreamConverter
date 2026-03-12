@@ -42,12 +42,22 @@ public class XmlFilterCommand extends AbstractStreamCommand {
    * @param xpath the typed TreePath to extract elements
    * @throws IllegalArgumentException if xpath is null
    */
-  public XmlFilterCommand(IPath<List<String>> xpath) {
+  private XmlFilterCommand(IPath<List<String>> xpath) {
+    this.xpath = xpath;
+  }
+
+  /**
+   * Factory method for XML filtering with typed path selector.
+   *
+   * @param xpath the typed path to extract elements
+   * @return an XmlFilterCommand instance
+   * @throws IllegalArgumentException if xpath is null
+   */
+  public static XmlFilterCommand create(IPath<List<String>> xpath) {
     if (xpath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
-    this.xpath = xpath;
-    xpath.toString();
+    return new XmlFilterCommand(xpath);
   }
 
   @Override

@@ -32,7 +32,7 @@ import org.slf4j.LoggerFactory;
  *
  * <pre>
  * String[] requiredColumns = {"id", "name", "email"};
- * CsvValidateCommand validator = new CsvValidateCommand(requiredColumns);
+ * CsvValidateCommand validator = CsvValidateCommand.create(requiredColumns);
  * validator.consume(csvInputStream);
  * </pre>
  */
@@ -49,7 +49,7 @@ public class CsvValidateCommand extends ConsumerCommand {
    * @param requiredColumns 必須カラム名の配列
    * @throws IllegalArgumentException 必須カラムがnullの場合
    */
-  public CsvValidateCommand(final String... requiredColumns) {
+  private CsvValidateCommand(final String... requiredColumns) {
     this(true, 10, requiredColumns);
   }
 
@@ -59,15 +59,10 @@ public class CsvValidateCommand extends ConsumerCommand {
    * @param hasHeader ヘッダー行の存在フラグ
    * @param maxErrorsToReport 報告する最大エラー数
    * @param requiredColumns 必須カラム名の配列
-   * @throws IllegalArgumentException requiredColumnsがnullの場合
    */
-  public CsvValidateCommand(
+  private CsvValidateCommand(
       final boolean hasHeader, final int maxErrorsToReport, final String... requiredColumns) {
     super();
-    if (requiredColumns == null) {
-      throw new IllegalArgumentException("Required columns cannot be null");
-    }
-
     this.hasHeader = hasHeader;
     this.maxErrorsToReport = Math.max(1, maxErrorsToReport);
 
@@ -83,6 +78,37 @@ public class CsvValidateCommand extends ConsumerCommand {
     } else {
       LOGGER.info("Required columns: {}", this.requiredColumns);
     }
+  }
+
+  /**
+   * 必須カラムを指定してCsvValidateCommandを作成（ヘッダー行ありと仮定）
+   *
+   * @param requiredColumns 必須カラム名の配列
+   * @return a CsvValidateCommand instance
+   * @throws IllegalArgumentException 必須カラムがnullの場合
+   */
+  public static CsvValidateCommand create(final String... requiredColumns) {
+    if (requiredColumns == null) {
+      throw new IllegalArgumentException("Required columns cannot be null");
+    }
+    return new CsvValidateCommand(requiredColumns);
+  }
+
+  /**
+   * 詳細設定を指定してCsvValidateCommandを作成
+   *
+   * @param hasHeader ヘッダー行の存在フラグ
+   * @param maxErrorsToReport 報告する最大エラー数
+   * @param requiredColumns 必須カラム名の配列
+   * @return a CsvValidateCommand instance
+   * @throws IllegalArgumentException requiredColumnsがnullの場合
+   */
+  public static CsvValidateCommand create(
+      final boolean hasHeader, final int maxErrorsToReport, final String... requiredColumns) {
+    if (requiredColumns == null) {
+      throw new IllegalArgumentException("Required columns cannot be null");
+    }
+    return new CsvValidateCommand(hasHeader, maxErrorsToReport, requiredColumns);
   }
 
   /**

@@ -15,6 +15,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -210,6 +211,7 @@ public class PooledDatabaseFetchRuleIntegrationTest {
   }
 
   @Test
+  @Tag("performance")
   @DisplayName("プールvs非プールパフォーマンス比較テスト")
   public void testPoolVsNonPoolPerformance() {
     // 非プール版

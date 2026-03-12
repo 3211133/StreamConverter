@@ -35,14 +35,8 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @deprecated Use {@link #CsvNavigateCommand(CSVPath, IRule)} instead
    */
   @Deprecated
-  public CsvNavigateCommand(String columnSelector, IRule rule) {
-    if (columnSelector == null) {
-      throw new IllegalArgumentException("Column selector cannot be null");
-    }
-    if (rule == null) {
-      throw new IllegalArgumentException("Rule cannot be null");
-    }
-    this.columnSelector = new CSVPath(columnSelector);
+  private CsvNavigateCommand(String columnSelector, IRule rule) {
+    this.columnSelector = CSVPath.of(columnSelector);
     this.rule = rule;
   }
 
@@ -53,15 +47,8 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected column
    * @throws IllegalArgumentException if columnSelector or rule is null
    */
-  public CsvNavigateCommand(CSVPath columnSelector, IRule rule) {
-    if (columnSelector == null) {
-      throw new IllegalArgumentException("Column selector cannot be null");
-    }
-    if (rule == null) {
-      throw new IllegalArgumentException("Rule cannot be null");
-    }
+  private CsvNavigateCommand(CSVPath columnSelector, IRule rule) {
     this.columnSelector = columnSelector;
-    columnSelector.toString();
     this.rule = rule;
   }
 
@@ -72,16 +59,8 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected column
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  public CsvNavigateCommand(TreePath treePath, IRule rule) {
-    if (treePath == null) {
-      throw new IllegalArgumentException("TreePath cannot be null");
-    }
-    if (rule == null) {
-      throw new IllegalArgumentException("Rule cannot be null");
-    }
-    // Convert TreePath to CSVPath - assume simple column name
-    String columnName = treePath.toString();
-    this.columnSelector = new CSVPath(columnName);
+  private CsvNavigateCommand(TreePath treePath, IRule rule) {
+    this.columnSelector = CSVPath.of(treePath.toString());
     this.rule = rule;
   }
 
@@ -98,6 +77,12 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    */
   @Deprecated
   public static CsvNavigateCommand create(String columnSelector, IRule rule) {
+    if (columnSelector == null) {
+      throw new IllegalArgumentException("Column selector cannot be null");
+    }
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
     return new CsvNavigateCommand(columnSelector, rule);
   }
 
@@ -107,10 +92,34 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @param columnSelector the typed CSVPath to select column
    * @param rule the transformation rule to apply to selected column data
    * @return a CsvNavigateCommand that extracts the specified column with the given rule
-   * @throws IllegalArgumentException if rule is null
+   * @throws IllegalArgumentException if columnSelector or rule is null
    */
   public static CsvNavigateCommand create(CSVPath columnSelector, IRule rule) {
+    if (columnSelector == null) {
+      throw new IllegalArgumentException("Column selector cannot be null");
+    }
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
     return new CsvNavigateCommand(columnSelector, rule);
+  }
+
+  /**
+   * Factory method for creating a CSV navigation command with TreePath compatibility.
+   *
+   * @param treePath the TreePath representing column selector
+   * @param rule the transformation rule to apply to selected column data
+   * @return a CsvNavigateCommand that extracts the specified column with the given rule
+   * @throws IllegalArgumentException if treePath or rule is null
+   */
+  public static CsvNavigateCommand create(TreePath treePath, IRule rule) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
+    }
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
+    return new CsvNavigateCommand(treePath, rule);
   }
 
   @Override

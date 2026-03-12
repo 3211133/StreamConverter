@@ -3,34 +3,72 @@ package com.streamconverter.logging;
 import static org.junit.jupiter.api.Assertions.*;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.slf4j.ILoggerFactory;
+import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.spi.MDCAdapter;
 
 /** Unit tests for {@link MDCInitializer}. */
 class MDCInitializerTest {
 
-  private MDCAdapter originalAdapter;
+  private MDCAdapter originalSlf4jAdapter;
+  private MDCAdapter originalLogbackAdapter;
 
   @BeforeEach
-  void saveOriginalAdapter() throws Exception {
-    originalAdapter = MDC.getMDCAdapter();
+  void saveAdapters() throws Exception {
+    originalSlf4jAdapter = MDC.getMDCAdapter();
+    originalLogbackAdapter = getLogbackAdapter();
   }
 
   @AfterEach
-  void restoreOriginalAdapter() throws Exception {
-    setMdcAdapter(originalAdapter);
+  void restoreAdapters() throws Exception {
+    setSlf4jAdapter(originalSlf4jAdapter);
+    setLogbackAdapter(originalLogbackAdapter);
     MDC.clear();
   }
 
-  private static void setMdcAdapter(MDCAdapter adapter) throws Exception {
+  // --- reflection helpers ---
+
+  private static void setSlf4jAdapter(MDCAdapter adapter) throws Exception {
     Field field = MDC.class.getDeclaredField("MDC_ADAPTER");
     field.setAccessible(true);
     field.set(null, adapter);
   }
+
+  private static MDCAdapter getLogbackAdapter() {
+    try {
+      Class<?> loggerContextClass = Class.forName("ch.qos.logback.classic.LoggerContext");
+      ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+      if (loggerContextClass.isInstance(factory)) {
+        Method get = loggerContextClass.getMethod("getMDCAdapter");
+        return (MDCAdapter) get.invoke(factory);
+      }
+    } catch (Exception ignored) {
+      // Logback not on classpath
+    }
+    return null;
+  }
+
+  private static void setLogbackAdapter(MDCAdapter adapter) {
+    if (adapter == null) return;
+    try {
+      Class<?> loggerContextClass = Class.forName("ch.qos.logback.classic.LoggerContext");
+      ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+      if (loggerContextClass.isInstance(factory)) {
+        Method set = loggerContextClass.getMethod("setMDCAdapter", MDCAdapter.class);
+        set.invoke(factory, adapter);
+      }
+    } catch (Exception ignored) {
+      // Logback not on classpath
+    }
+  }
+
+  // --- tests ---
 
   @Test
   void initialize_installsInheritableMDCAdapter() {
@@ -44,7 +82,7 @@ class MDCInitializerTest {
     MDCAdapter first = MDC.getMDCAdapter();
     MDCInitializer.initialize();
     MDCAdapter second = MDC.getMDCAdapter();
-    assertSame(first, second, "Second call should return without replacing the adapter");
+    assertSame(first, second, "Second call should not replace the adapter");
   }
 
   @Test
@@ -76,5 +114,18 @@ class MDCInitializerTest {
     Map<String, String> ctx = MDC.getCopyOfContextMap();
     assertNotNull(ctx);
     assertEquals("TRACE-42", ctx.get("traceId"));
+  }
+
+  @Test
+  void initialize_alsoUpdatesLogbackLoggerContext() {
+    MDCInitializer.initialize();
+    MDCAdapter logbackAdapter = getLogbackAdapter();
+    if (logbackAdapter == null) {
+      return; // Logback not on classpath — skip
+    }
+    assertInstanceOf(
+        InheritableMDCAdapter.class,
+        logbackAdapter,
+        "Logback LoggerContext should also use InheritableMDCAdapter");
   }
 }

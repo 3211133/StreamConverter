@@ -53,8 +53,9 @@ public final class MDCInitializer {
    * first call. It is also thread-safe; concurrent calls are serialized.
    *
    * <p><strong>Note:</strong> Any MDC values already set in the current thread at the time of this
-   * call will be lost, because the adapter instance is replaced globally. Call this method before
-   * setting any MDC values (ideally at application startup before the first log statement).
+   * call are migrated into the new adapter so that they are not lost. However, values set in other
+   * threads are not migrated. For best results, call this method at application startup before any
+   * MDC values are set.
    *
    * @throws IllegalStateException if the adapter cannot be installed via reflection
    */

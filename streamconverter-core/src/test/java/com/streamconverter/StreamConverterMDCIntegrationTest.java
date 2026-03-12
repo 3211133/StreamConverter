@@ -9,21 +9,71 @@ import com.streamconverter.logging.MDCInitializer;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
+import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
+import org.slf4j.spi.MDCAdapter;
 
 /** Integration test for StreamConverter with MDC propagation via InheritableMDCAdapter */
 class StreamConverterMDCIntegrationTest {
 
+  private static MDCAdapter originalSlf4jAdapter;
+  private static MDCAdapter originalLogbackAdapter;
+
   @BeforeAll
-  static void installInheritableMDCAdapter() {
+  static void installInheritableMDCAdapter() throws Exception {
+    originalSlf4jAdapter = MDC.getMDCAdapter();
+    originalLogbackAdapter = getLogbackAdapter();
     MDCInitializer.initialize();
+  }
+
+  @AfterAll
+  static void restoreOriginalAdapters() throws Exception {
+    setSlf4jAdapter(originalSlf4jAdapter);
+    setLogbackAdapter(originalLogbackAdapter);
+    MDC.clear();
+  }
+
+  private static MDCAdapter getLogbackAdapter() {
+    try {
+      Class<?> lc = Class.forName("ch.qos.logback.classic.LoggerContext");
+      ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+      if (lc.isInstance(factory)) {
+        return (MDCAdapter) lc.getMethod("getMDCAdapter").invoke(factory);
+      }
+    } catch (Exception ignored) {
+      // Logback not on classpath
+    }
+    return null;
+  }
+
+  private static void setSlf4jAdapter(MDCAdapter adapter) throws Exception {
+    Field field = MDC.class.getDeclaredField("MDC_ADAPTER");
+    field.setAccessible(true);
+    field.set(null, adapter);
+  }
+
+  private static void setLogbackAdapter(MDCAdapter adapter) {
+    if (adapter == null) return;
+    try {
+      Class<?> lc = Class.forName("ch.qos.logback.classic.LoggerContext");
+      ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+      if (lc.isInstance(factory)) {
+        Method set = lc.getMethod("setMDCAdapter", MDCAdapter.class);
+        set.invoke(factory, adapter);
+      }
+    } catch (Exception ignored) {
+      // Logback not on classpath
+    }
   }
 
   private static final Logger LOG =

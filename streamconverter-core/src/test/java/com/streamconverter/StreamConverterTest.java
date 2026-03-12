@@ -39,7 +39,7 @@ class StreamConverterTest {
     // 配列コンストラクタのテスト
     assertDoesNotThrow(
         () -> {
-          new StreamConverter(validCommands);
+          StreamConverter.create(validCommands);
         });
   }
 
@@ -52,7 +52,7 @@ class StreamConverterTest {
 
     assertDoesNotThrow(
         () -> {
-          new StreamConverter(commandList);
+          StreamConverter.create(commandList);
         });
   }
 
@@ -65,7 +65,7 @@ class StreamConverterTest {
     assertThrows(
         NullPointerException.class,
         () -> {
-          new StreamConverter(nullCommands);
+          StreamConverter.create(nullCommands);
         });
   }
 
@@ -78,7 +78,7 @@ class StreamConverterTest {
     assertThrows(
         NullPointerException.class,
         () -> {
-          new StreamConverter(nullCommandList);
+          StreamConverter.create(nullCommandList);
         });
   }
 
@@ -91,7 +91,7 @@ class StreamConverterTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
-          new StreamConverter(emptyCommands);
+          StreamConverter.create(emptyCommands);
         });
   }
 
@@ -104,7 +104,7 @@ class StreamConverterTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
-          new StreamConverter(emptyCommandList);
+          StreamConverter.create(emptyCommandList);
         });
   }
 
@@ -112,7 +112,7 @@ class StreamConverterTest {
   @DisplayName("Run Normal Case: Input/Output Stream Processing")
   void testRunWithValidStreams() throws IOException {
     // 正常系のrunメソッドテスト
-    StreamConverter converter = new StreamConverter(validCommands);
+    StreamConverter converter = StreamConverter.create(validCommands);
 
     try (InputStream inputStream =
             new ByteArrayInputStream(testInput.getBytes(StandardCharsets.UTF_8));
@@ -129,7 +129,7 @@ class StreamConverterTest {
   @DisplayName("Run Error Case: Null Input Stream")
   void testRunWithNullInputStream() {
     // null入力ストリームでのrunメソッドテスト
-    StreamConverter converter = new StreamConverter(validCommands);
+    StreamConverter converter = StreamConverter.create(validCommands);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     assertThrows(
@@ -143,7 +143,7 @@ class StreamConverterTest {
   @DisplayName("Run Error Case: Null Output Stream")
   void testRunWithNullOutputStream() {
     // null出力ストリームでのrunメソッドテスト
-    StreamConverter converter = new StreamConverter(validCommands);
+    StreamConverter converter = StreamConverter.create(validCommands);
     InputStream inputStream = new ByteArrayInputStream(testInput.getBytes(StandardCharsets.UTF_8));
 
     assertThrows(
@@ -164,7 +164,7 @@ class StreamConverterTest {
           (in, out) -> in.transferTo(out)
         };
 
-    StreamConverter converter = new StreamConverter(commands);
+    StreamConverter converter = StreamConverter.create(commands);
 
     try (InputStream inputStream =
             new ByteArrayInputStream(testInput.getBytes(StandardCharsets.UTF_8));

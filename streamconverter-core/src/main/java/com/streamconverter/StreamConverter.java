@@ -70,29 +70,7 @@ public class StreamConverter {
   private List<IStreamCommand> commands;
   private List<String> commandNames;
 
-  /**
-   * Constructs a StreamConverter with the specified array of commands.
-   *
-   * @param commands the array of commands to be executed in sequence
-   * @throws NullPointerException if commands is null
-   * @throws IllegalArgumentException if commands is empty
-   */
-  public StreamConverter(IStreamCommand[] commands) {
-    this(List.of(commands));
-  }
-
-  /**
-   * Constructs a StreamConverter with the specified list of commands.
-   *
-   * @param commands the list of commands to be executed in sequence
-   * @throws NullPointerException if commands is null
-   * @throws IllegalArgumentException if commands is empty
-   */
-  public StreamConverter(List<IStreamCommand> commands) {
-    Objects.requireNonNull(commands, "commands cannot be null");
-    if (commands.isEmpty()) {
-      throw new IllegalArgumentException("commands is empty.");
-    }
+  private StreamConverter(List<IStreamCommand> commands) {
     this.commandNames = commands.stream().map(StreamConverter::resolveCommandName).toList();
     this.commands = wrapWithLogging(commands, this.commandNames);
   }
@@ -106,7 +84,11 @@ public class StreamConverter {
    * @throws IllegalArgumentException if commands is empty
    */
   public static StreamConverter create(IStreamCommand... commands) {
-    return new StreamConverter(commands);
+    Objects.requireNonNull(commands, "commands cannot be null");
+    if (commands.length == 0) {
+      throw new IllegalArgumentException("commands is empty.");
+    }
+    return new StreamConverter(List.of(commands));
   }
 
   /**
@@ -118,7 +100,11 @@ public class StreamConverter {
    * @throws IllegalArgumentException if commands is empty
    */
   public static StreamConverter create(List<IStreamCommand> commands) {
-    return new StreamConverter(commands);
+    Objects.requireNonNull(commands, "commands cannot be null");
+    if (commands.isEmpty()) {
+      throw new IllegalArgumentException("commands is empty.");
+    }
+    return new StreamConverter(List.copyOf(commands));
   }
 
   /**

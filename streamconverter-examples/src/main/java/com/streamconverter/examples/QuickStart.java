@@ -159,7 +159,7 @@ public class QuickStart {
             new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-      StreamConverter converter = new StreamConverter(commands);
+      StreamConverter converter = StreamConverter.create(commands);
       converter.run(inputStream, outputStream);
 
       return outputStream.toString(StandardCharsets.UTF_8);

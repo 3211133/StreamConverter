@@ -45,6 +45,8 @@ dependencies {
 }
 
 tasks.test {
-    useJUnitPlatform()
+    useJUnitPlatform {
+        excludeTags("performance")
+    }
     jvmArgs("-Xmx2g", "-Xms1g", "-Dfile.encoding=UTF-8")
 }

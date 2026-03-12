@@ -528,8 +528,8 @@ class LargeDataBenchmark {
       // 複雑パイプラインを軽量化（文字コード変換を含む4段階）
       IStreamCommand[] pipeline = {
         (in, out) -> in.transferTo(out),
-        new CharacterConvertCommand("UTF-8", "UTF-16"),
-        new CharacterConvertCommand("UTF-16", "UTF-8"),
+        CharacterConvertCommand.create("UTF-8", "UTF-16"),
+        CharacterConvertCommand.create("UTF-16", "UTF-8"),
         (in, out) -> in.transferTo(out)
       };
 
@@ -785,7 +785,7 @@ class LargeDataBenchmark {
       case "JSON":
         return JsonNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule());
       case "CSV":
-        return CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule());
+        return CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
       default:
         return (in, out) -> in.transferTo(out);
     }

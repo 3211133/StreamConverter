@@ -26,7 +26,7 @@ class CsvNavigateCommandTest {
   @BeforeEach
   void setUp() {
     // Use a specific column selector instead of createForAll
-    command = CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule());
+    command = CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
   }
 
   @Test
@@ -95,7 +95,7 @@ class CsvNavigateCommandTest {
 
     // Create command for the specific column that exists in this test's data
     CsvNavigateCommand testCommand =
-        CsvNavigateCommand.create(new CSVPath("id"), new PassThroughRule());
+        CsvNavigateCommand.create(CSVPath.of("id"), new PassThroughRule());
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
@@ -138,7 +138,7 @@ class CsvNavigateCommandTest {
 
     // Create command for the specific column that exists in this test's data
     CsvNavigateCommand testCommand =
-        CsvNavigateCommand.create(new CSVPath("employee_id"), new PassThroughRule());
+        CsvNavigateCommand.create(CSVPath.of("employee_id"), new PassThroughRule());
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));

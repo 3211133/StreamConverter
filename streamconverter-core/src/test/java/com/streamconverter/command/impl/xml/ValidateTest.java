@@ -38,7 +38,7 @@ class ValidateTest {
   @DisplayName("コンストラクタのテスト")
   void testConstructor() {
     // コンストラクタのテスト
-    ValidateCommand command = new ValidateCommand(schemaPath);
+    ValidateCommand command = ValidateCommand.create(schemaPath);
     assertNotNull(command);
   }
 
@@ -46,7 +46,7 @@ class ValidateTest {
   @DisplayName("execute正常系：有効なXML")
   void testExecuteWithValidXml() throws IOException {
     // 正常系のexecuteメソッドテスト
-    ValidateCommand command = new ValidateCommand(schemaPath);
+    ValidateCommand command = ValidateCommand.create(schemaPath);
 
     try (InputStream inputStream =
             getClass().getClassLoader().getResourceAsStream("valid-test.xml");
@@ -68,7 +68,7 @@ class ValidateTest {
   @DisplayName("execute異常系：無効なXML")
   void testExecuteWithInvalidXml() throws IOException {
     // 無効なXMLでのexecuteメソッドテスト
-    ValidateCommand command = new ValidateCommand(schemaPath);
+    ValidateCommand command = ValidateCommand.create(schemaPath);
 
     try (InputStream inputStream =
             getClass().getClassLoader().getResourceAsStream("invalid-test.xml");
@@ -87,7 +87,7 @@ class ValidateTest {
   @DisplayName("execute異常系：null入力ストリーム")
   void testExecuteWithNullInputStream() {
     // null入力ストリームでのexecuteメソッドテスト
-    ValidateCommand command = new ValidateCommand(schemaPath);
+    ValidateCommand command = ValidateCommand.create(schemaPath);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     assertThrows(
@@ -101,7 +101,7 @@ class ValidateTest {
   @DisplayName("execute異常系：null出力ストリーム")
   void testExecuteWithNullOutputStream() throws IOException {
     // null出力ストリームでのexecuteメソッドテスト
-    ValidateCommand command = new ValidateCommand(schemaPath);
+    ValidateCommand command = ValidateCommand.create(schemaPath);
 
     try (InputStream inputStream =
         getClass().getClassLoader().getResourceAsStream("valid-test.xml")) {
@@ -121,7 +121,7 @@ class ValidateTest {
     assertThrows(
         com.streamconverter.StreamProcessingException.class,
         () -> {
-          new ValidateCommand("non-existent-schema.xsd");
+          ValidateCommand.create("non-existent-schema.xsd");
         });
   }
 
@@ -134,14 +134,14 @@ class ValidateTest {
     assertThrows(
         com.streamconverter.StreamProcessingException.class,
         () -> {
-          new ValidateCommand("../secret-schema.xsd");
+          ValidateCommand.create("../secret-schema.xsd");
         },
         "Path with .. should be treated as non-existent resource");
 
     assertThrows(
         com.streamconverter.StreamProcessingException.class,
         () -> {
-          new ValidateCommand("schemas/../../etc/passwd");
+          ValidateCommand.create("schemas/../../etc/passwd");
         },
         "Path with .. should be treated as non-existent resource");
   }
@@ -150,7 +150,7 @@ class ValidateTest {
   @DisplayName("execute：空の入力ストリーム")
   void testExecuteWithEmptyInputStream() throws IOException {
     // 空の入力ストリームでのexecuteメソッドテスト
-    ValidateCommand command = new ValidateCommand(schemaPath);
+    ValidateCommand command = ValidateCommand.create(schemaPath);
 
     try (InputStream inputStream = new ByteArrayInputStream(new byte[0]);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -167,7 +167,7 @@ class ValidateTest {
   @Test
   @DisplayName("Streaming XML validation behavior verification")
   void testStreamingXmlValidationBehavior() throws IOException {
-    ValidateCommand command = new ValidateCommand(schemaPath);
+    ValidateCommand command = ValidateCommand.create(schemaPath);
 
     // Create multiple valid XML documents to observe streaming behavior
     StringBuilder xmlBuilder = new StringBuilder();
@@ -211,7 +211,7 @@ class ValidateTest {
   @Test
   @DisplayName("Incremental XML validation processing verification")
   void testIncrementalXmlValidationProcessing() throws IOException {
-    ValidateCommand command = new ValidateCommand(schemaPath);
+    ValidateCommand command = ValidateCommand.create(schemaPath);
 
     // Create complex XML with nested structures to force incremental processing
     StringBuilder xmlBuilder = new StringBuilder();

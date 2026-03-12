@@ -11,7 +11,7 @@ import com.streamconverter.context.PipelineContext;
  *
  * <ol>
  *   <li><b>後続コマンドへの伝搬</b> — 値を {@link com.streamconverter.context.PipelineContext}
- *       の共有値として格納し、{@code PipelineContextTurboFilter} が他コマンドのログ出力直前に {@code syncToMDC()}
+ *       の共有値として格納し、{@link com.streamconverter.logging.PipelineContextTurboFilter PipelineContextTurboFilter} が他コマンドのログ出力直前に {@code syncToMDC()}
  *       で自動反映する。{@code MDC.put} だけでは呼び出しスレッド内しか効かない。
  *   <li><b>実行タイミング非依存</b> — 子スレッド起動後に値を書いても {@code PipelineContext} 経由なら {@code TurboFilter}
  *       が毎ログ前に同期するため順序非依存。

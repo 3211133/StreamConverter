@@ -21,7 +21,7 @@ public class CsvValidateCommandTest {
 
     assertDoesNotThrow(
         () -> {
-          CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+          CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
           assertNotNull(command);
         });
   }
@@ -30,7 +30,8 @@ public class CsvValidateCommandTest {
   @DisplayName("Constructor with null required columns throws exception")
   void testConstructorWithNullRequiredColumns() {
     IllegalArgumentException exception =
-        assertThrows(IllegalArgumentException.class, () -> new CsvValidateCommand((String[]) null));
+        assertThrows(
+            IllegalArgumentException.class, () -> CsvValidateCommand.create((String[]) null));
     assertEquals("Required columns cannot be null", exception.getMessage());
   }
 
@@ -41,7 +42,7 @@ public class CsvValidateCommandTest {
 
     assertDoesNotThrow(
         () -> {
-          CsvValidateCommand command = new CsvValidateCommand(emptyColumns);
+          CsvValidateCommand command = CsvValidateCommand.create(emptyColumns);
           assertNotNull(command);
         });
   }
@@ -53,13 +54,13 @@ public class CsvValidateCommandTest {
 
     assertDoesNotThrow(
         () -> {
-          CsvValidateCommand command = new CsvValidateCommand(true, 10, requiredColumns);
+          CsvValidateCommand command = CsvValidateCommand.create(true, 10, requiredColumns);
           assertNotNull(command);
         });
 
     assertDoesNotThrow(
         () -> {
-          CsvValidateCommand command = new CsvValidateCommand(false, 10, requiredColumns);
+          CsvValidateCommand command = CsvValidateCommand.create(false, 10, requiredColumns);
           assertNotNull(command);
         });
   }
@@ -68,7 +69,7 @@ public class CsvValidateCommandTest {
   @DisplayName("Valid CSV with required columns validation succeeds")
   void testValidCsvWithRequiredColumnsSuccess() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String validCsv =
         """
@@ -89,7 +90,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV missing required columns validation fails")
   void testCsvMissingRequiredColumnsFailure() throws IOException {
     String[] requiredColumns = {"id", "name", "email", "phone"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String csvMissingColumns =
         """
@@ -112,7 +113,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV with duplicate headers validation fails")
   void testCsvWithDuplicateHeadersFailure() throws IOException {
     String[] requiredColumns = {"id", "name"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String csvWithDuplicates =
         """
@@ -135,7 +136,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV with inconsistent row length validation fails")
   void testCsvWithInconsistentRowLengthFailure() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String csvInconsistentRows =
         """
@@ -159,7 +160,7 @@ public class CsvValidateCommandTest {
   @DisplayName("Empty CSV input validation fails")
   void testEmptyCsvInputFailure() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
@@ -175,7 +176,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV with only header validation fails")
   void testCsvWithOnlyHeaderFailure() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String csvOnlyHeader = "id,name,email,department\n";
 
@@ -193,7 +194,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV without header validation with hasHeader=false")
   void testCsvWithoutHeaderValidation() throws IOException {
     String[] requiredColumns = {}; // ヘッダーなしの場合は必須カラムなし
-    CsvValidateCommand command = new CsvValidateCommand(false, 10, requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(false, 10, requiredColumns);
 
     String csvWithoutHeader =
         """
@@ -213,7 +214,7 @@ public class CsvValidateCommandTest {
   @DisplayName("Large CSV validation")
   void testLargeCsvValidation() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     // 大きなCSVデータを作成
     StringBuilder largeCsv = new StringBuilder();
@@ -235,7 +236,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV with special characters validation")
   void testCsvWithSpecialCharactersValidation() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String csvWithSpecialChars =
         """
@@ -256,7 +257,7 @@ public class CsvValidateCommandTest {
   @DisplayName("Null input stream throws exception")
   void testNullInputStream() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     NullPointerException exception =
         assertThrows(NullPointerException.class, () -> command.consume(null));
@@ -268,7 +269,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV with quoted fields containing newlines")
   void testCsvWithQuotedFieldsContainingNewlines() throws IOException {
     String[] requiredColumns = {"id", "name", "description"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String csvWithNewlines =
         """
@@ -289,7 +290,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV with empty fields validation")
   void testCsvWithEmptyFieldsValidation() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String csvWithEmptyFields =
         """
@@ -311,7 +312,7 @@ public class CsvValidateCommandTest {
   @DisplayName("Malformed CSV with unclosed quotes validation fails")
   void testMalformedCsvWithUnclosedQuotes() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String malformedCsv =
         """
@@ -333,7 +334,7 @@ public class CsvValidateCommandTest {
   @DisplayName("CSV validation with no required columns succeeds")
   void testCsvValidationWithNoRequiredColumns() throws IOException {
     String[] requiredColumns = {}; // 必須カラムなし
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     String csvAnyStructure =
         """
@@ -354,7 +355,7 @@ public class CsvValidateCommandTest {
       "Verify streaming behavior: validation completes before input stream is fully consumed")
   void testStreamingValidationBehavior() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     // Create a larger CSV to ensure streaming behavior is observable
     StringBuilder csvBuilder = new StringBuilder();
@@ -389,7 +390,7 @@ public class CsvValidateCommandTest {
   @DisplayName("Verify incremental CSV processing with streaming validation")
   void testIncrementalCsvValidation() throws IOException {
     String[] requiredColumns = {"id", "name"};
-    CsvValidateCommand command = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 
     // Create CSV data that requires incremental processing
     StringBuilder csvBuilder = new StringBuilder();

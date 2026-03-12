@@ -121,7 +121,7 @@ public class StreamConverterMDCDemo {
       // 複数のコマンドでパイプライン構築
       IStreamCommand validator = (in, out) -> in.transferTo(out);
       CsvNavigateCommand extractor =
-          CsvNavigateCommand.create(new CSVPath("product"), new PassThroughRule());
+          CsvNavigateCommand.create(CSVPath.of("product"), new PassThroughRule());
       IStreamCommand formatter = (in, out) -> in.transferTo(out);
 
       StreamConverter converter = StreamConverter.create(validator, extractor, formatter);

@@ -27,17 +27,29 @@ public class CharacterConvertCommand extends AbstractStreamCommand {
    * @param to The target character encoding.
    * @throws IllegalArgumentException if the specified character encodings are not supported.
    */
-  public CharacterConvertCommand(String from, String to) {
-    Objects.requireNonNull(from);
-    Objects.requireNonNull(to);
-    if (Charset.isSupported(from) == false) {
-      throw new IllegalArgumentException("変換元文字コードがサポートされていません");
-    }
-    if (Charset.isSupported(to) == false) {
-      throw new IllegalArgumentException("変換先文字コードがサポートされていません");
-    }
+  private CharacterConvertCommand(String from, String to) {
     this.from = from;
     this.to = to;
+  }
+
+  /**
+   * Factory method to create a CharacterConvertCommand.
+   *
+   * @param from The source character encoding.
+   * @param to The target character encoding.
+   * @return a new CharacterConvertCommand instance
+   * @throws IllegalArgumentException if the specified character encodings are not supported.
+   */
+  public static CharacterConvertCommand create(String from, String to) {
+    Objects.requireNonNull(from);
+    Objects.requireNonNull(to);
+    if (!Charset.isSupported(from)) {
+      throw new IllegalArgumentException("変換元文字コードがサポートされていません");
+    }
+    if (!Charset.isSupported(to)) {
+      throw new IllegalArgumentException("変換先文字コードがサポートされていません");
+    }
+    return new CharacterConvertCommand(from, to);
   }
 
   /**

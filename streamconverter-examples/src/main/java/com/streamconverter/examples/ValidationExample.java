@@ -140,7 +140,7 @@ public class ValidationExample {
     String[] requiredColumns = {"id", "name", "email"};
 
     // CsvValidateCommandを直接使用してバリデーション実行
-    CsvValidateCommand csvValidator = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand csvValidator = CsvValidateCommand.create(requiredColumns);
     IStreamCommand dataProcessor = (in, out) -> in.transferTo(out);
 
     ByteArrayInputStream inputStream =
@@ -175,7 +175,7 @@ public class ValidationExample {
       String data, String[] requiredColumns, String description) throws IOException {
     logger.debug("Processing {}: {}", description, data.substring(0, Math.min(50, data.length())));
 
-    CsvValidateCommand csvValidator = new CsvValidateCommand(requiredColumns);
+    CsvValidateCommand csvValidator = CsvValidateCommand.create(requiredColumns);
     IStreamCommand processor = (in, out) -> in.transferTo(out);
 
     ByteArrayInputStream inputStream =

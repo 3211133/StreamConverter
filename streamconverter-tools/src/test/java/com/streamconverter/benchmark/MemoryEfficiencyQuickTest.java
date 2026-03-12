@@ -39,7 +39,8 @@ class MemoryEfficiencyQuickTest {
 
     // 複雑パイプラインの文字コード変換部分のみテスト
     IStreamCommand[] pipeline = {
-      new CharacterConvertCommand("UTF-8", "UTF-16"), new CharacterConvertCommand("UTF-16", "UTF-8")
+      CharacterConvertCommand.create("UTF-8", "UTF-16"),
+      CharacterConvertCommand.create("UTF-16", "UTF-8")
     };
 
     // テスト実行

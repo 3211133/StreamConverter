@@ -45,15 +45,28 @@ public class ValidateCommand extends ConsumerCommand {
    * @param schemaPath クラスパスリソース識別子（例: "schemas/test.xsd", "test-schema.xsd"）
    * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
    */
-  public ValidateCommand(String schemaPath) {
+  private ValidateCommand(String schemaPath, Schema schema) {
+    this.schemaPath = schemaPath;
+    this.schema = schema;
+  }
+
+  /**
+   * Factory method for creating a ValidateCommand.
+   *
+   * @param schemaPath クラスパスリソース識別子（例: "schemas/test.xsd", "test-schema.xsd"）
+   * @return a ValidateCommand instance
+   * @throws NullPointerException スキーマパスがnullの場合
+   * @throws IllegalArgumentException スキーマパスが空の場合
+   * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
+   */
+  public static ValidateCommand create(String schemaPath) {
     Objects.requireNonNull(schemaPath, "Schema path cannot be null");
     if (schemaPath.trim().isEmpty()) {
       throw new IllegalArgumentException("Schema path cannot be empty");
     }
-
-    // クラスパスリソース識別子として扱う（セキュリティはClasspathResourceValidatorが担保）
-    this.schemaPath = normalizeClasspathPath(schemaPath);
-    this.schema = loadSchemaFromClasspath(this.schemaPath);
+    String normalizedPath = normalizeClasspathPath(schemaPath);
+    Schema schema = loadSchemaFromClasspath(normalizedPath);
+    return new ValidateCommand(normalizedPath, schema);
   }
 
   /**
@@ -64,7 +77,7 @@ public class ValidateCommand extends ConsumerCommand {
    * @param inputPath 入力されたクラスパス識別子
    * @return 正規化されたクラスパス識別子
    */
-  private String normalizeClasspathPath(String inputPath) {
+  private static String normalizeClasspathPath(String inputPath) {
     String trimmed = inputPath.trim();
     // Remove leading slash for ClassLoader compatibility
     if (trimmed.startsWith("/")) {
@@ -80,7 +93,7 @@ public class ValidateCommand extends ConsumerCommand {
    * @return ロードされたSchemaオブジェクト
    * @throws StreamProcessingException スキーマロードに失敗した場合
    */
-  private Schema loadSchemaFromClasspath(String validatedPath) {
+  private static Schema loadSchemaFromClasspath(String validatedPath) {
     try {
       // セキュアなSchemaFactoryの作成（新しいセキュリティインフラを使用）
       SchemaFactory factory = SecureXmlConfiguration.createSecureSchemaFactory();

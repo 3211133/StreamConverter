@@ -72,8 +72,7 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
   }
 
   @Override
-  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     logger.debug("Starting line ending normalization to: {}", targetType);
 
     // Stream processing for memory efficiency
@@ -121,26 +120,5 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
     }
 
     logger.debug("Line ending normalization completed successfully");
-  }
-
-  @Override
-  protected String getCommandDetails() {
-    return String.format(
-        "LineEndingNormalizeCommand(target=%s, separator='%s')",
-        targetType,
-        targetType.getSeparator() != null
-            ? escapeLineSeparator(targetType.getSeparator())
-            : "preserve");
-  }
-
-  /**
-   * Escapes line separator characters for display purposes.
-   *
-   * @param separator the line separator to escape
-   * @return escaped string representation
-   */
-  private String escapeLineSeparator(String separator) {
-    if (separator == null) return "null";
-    return separator.replace("\r", "\\r").replace("\n", "\\n");
   }
 }

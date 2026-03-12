@@ -69,14 +69,14 @@ if [ -z "$current_branch" ]; then
 fi
 
 print_info "Checking for conflicts with remote branch: origin/$current_branch"
-if git diff --quiet HEAD origin/$current_branch -- docs/javadoc/ 2>/dev/null; then
+if git diff --quiet HEAD "origin/$current_branch" -- docs/javadoc/ 2>/dev/null; then
     print_status "No conflicts with remote Javadoc"
 else
     print_warning "Javadoc differs from remote. Resolving conflicts..."
     
     # Try to safely merge remote changes
     print_info "Attempting to merge remote Javadoc changes..."
-    if git merge origin/$current_branch --no-commit --no-ff 2>/dev/null; then
+    if git merge "origin/$current_branch" --no-commit --no-ff 2>/dev/null; then
         # If merge succeeds, commit only if there were actual changes
         if ! git diff --quiet --cached; then
             git commit -m "docs: merge remote Javadoc changes"
@@ -93,7 +93,7 @@ else
         git reset --hard HEAD 2>/dev/null || true
         
         # Checkout remote version of javadoc directory
-        if git checkout origin/$current_branch -- docs/javadoc/ 2>/dev/null; then
+        if git checkout "origin/$current_branch" -- docs/javadoc/ 2>/dev/null; then
             print_status "Using remote Javadoc as base"
             
             # Commit the remote version if changes exist
@@ -139,9 +139,9 @@ else
     print_status "Javadoc updated with new changes"
     
     # Show summary of changes
-    added=$(git diff --name-status docs/javadoc/ | grep "^A" | wc -l)
-    modified=$(git diff --name-status docs/javadoc/ | grep "^M" | wc -l)
-    deleted=$(git diff --name-status docs/javadoc/ | grep "^D" | wc -l)
+    added=$(git diff --name-only --diff-filter=A docs/javadoc/ | wc -l)
+    modified=$(git diff --name-only --diff-filter=M docs/javadoc/ | wc -l)
+    deleted=$(git diff --name-only --diff-filter=D docs/javadoc/ | wc -l)
     
     echo "📊 Change Summary:"
     echo "   Added: $added files"

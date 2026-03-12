@@ -7,12 +7,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -36,7 +39,7 @@ class StreamConverterTest {
     // 配列コンストラクタのテスト
     assertDoesNotThrow(
         () -> {
-          new StreamConverter(validCommands);
+          StreamConverter.create(validCommands);
         });
   }
 
@@ -49,7 +52,7 @@ class StreamConverterTest {
 
     assertDoesNotThrow(
         () -> {
-          new StreamConverter(commandList);
+          StreamConverter.create(commandList);
         });
   }
 
@@ -62,7 +65,7 @@ class StreamConverterTest {
     assertThrows(
         NullPointerException.class,
         () -> {
-          new StreamConverter(nullCommands);
+          StreamConverter.create(nullCommands);
         });
   }
 
@@ -75,7 +78,7 @@ class StreamConverterTest {
     assertThrows(
         NullPointerException.class,
         () -> {
-          new StreamConverter(nullCommandList);
+          StreamConverter.create(nullCommandList);
         });
   }
 
@@ -88,7 +91,7 @@ class StreamConverterTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
-          new StreamConverter(emptyCommands);
+          StreamConverter.create(emptyCommands);
         });
   }
 
@@ -101,7 +104,7 @@ class StreamConverterTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
-          new StreamConverter(emptyCommandList);
+          StreamConverter.create(emptyCommandList);
         });
   }
 
@@ -109,7 +112,7 @@ class StreamConverterTest {
   @DisplayName("Run Normal Case: Input/Output Stream Processing")
   void testRunWithValidStreams() throws IOException {
     // 正常系のrunメソッドテスト
-    StreamConverter converter = new StreamConverter(validCommands);
+    StreamConverter converter = StreamConverter.create(validCommands);
 
     try (InputStream inputStream =
             new ByteArrayInputStream(testInput.getBytes(StandardCharsets.UTF_8));
@@ -126,7 +129,7 @@ class StreamConverterTest {
   @DisplayName("Run Error Case: Null Input Stream")
   void testRunWithNullInputStream() {
     // null入力ストリームでのrunメソッドテスト
-    StreamConverter converter = new StreamConverter(validCommands);
+    StreamConverter converter = StreamConverter.create(validCommands);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     assertThrows(
@@ -140,7 +143,7 @@ class StreamConverterTest {
   @DisplayName("Run Error Case: Null Output Stream")
   void testRunWithNullOutputStream() {
     // null出力ストリームでのrunメソッドテスト
-    StreamConverter converter = new StreamConverter(validCommands);
+    StreamConverter converter = StreamConverter.create(validCommands);
     InputStream inputStream = new ByteArrayInputStream(testInput.getBytes(StandardCharsets.UTF_8));
 
     assertThrows(
@@ -161,7 +164,7 @@ class StreamConverterTest {
           (in, out) -> in.transferTo(out)
         };
 
-    StreamConverter converter = new StreamConverter(commands);
+    StreamConverter converter = StreamConverter.create(commands);
 
     try (InputStream inputStream =
             new ByteArrayInputStream(testInput.getBytes(StandardCharsets.UTF_8));
@@ -172,6 +175,125 @@ class StreamConverterTest {
       // 結果の検証 - SampleStreamCommandは単純にコピーするだけなので、入力と同じ出力になるはず
       assertEquals(testInput, outputStream.toString(StandardCharsets.UTF_8));
     }
+  }
+
+  @Test
+  @Timeout(10)
+  @DisplayName("Downstream failure unblocks upstream within 10 seconds (no 60s timeout)")
+  void testDownstreamFailureUnblocksUpstreamQuickly() {
+    // 後段が即時失敗した場合、前段が 60 秒待たずに StreamProcessingException を受け取る
+    IStreamCommand upstreamCommand =
+        (in, out) -> {
+          // 大量データを書き込もうとして、後段が失敗したときにブロックしないことを確認
+          byte[] chunk = new byte[65536];
+          Arrays.fill(chunk, (byte) 'A');
+          for (int i = 0; i < 1000; i++) {
+            out.write(chunk); // 後段失敗後は IOException で解放される
+          }
+        };
+    IStreamCommand downstreamCommand =
+        (in, out) -> {
+          throw new RuntimeException("Downstream failed immediately");
+        };
+
+    StreamConverter converter = StreamConverter.create(upstreamCommand, downstreamCommand);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    // The exception chain should reflect the downstream failure, not a secondary "Pipe closed"
+    String fullMessage =
+        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
+    assertTrue(
+        fullMessage.contains("Downstream failed immediately"),
+        "Exception should reflect downstream failure, got: " + fullMessage);
+  }
+
+  @Test
+  @Timeout(10)
+  @DisplayName("Middle-stage failure in 3-stage pipeline unblocks upstream quickly")
+  void testMiddleStageFailureUnblocksUpstreamIn3StagePipeline() {
+    // 3段パイプライン: 前段(大量書き込み) → 中段(即時失敗) → 後段(コピー)
+    // 中段の失敗により前段のパイプ書き込みブロックが 60 秒タイムアウトを待たずに解放されることを確認
+    IStreamCommand upstream =
+        (in, out) -> {
+          byte[] chunk = new byte[65536];
+          Arrays.fill(chunk, (byte) 'A');
+          for (int i = 0; i < 1000; i++) {
+            out.write(chunk);
+          }
+        };
+    IStreamCommand middle =
+        (in, out) -> {
+          throw new RuntimeException("Middle stage failed");
+        };
+    IStreamCommand downstream = (in, out) -> in.transferTo(out);
+
+    StreamConverter converter = StreamConverter.create(upstream, middle, downstream);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    String fullMessage =
+        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
+    assertTrue(
+        fullMessage.contains("Middle stage failed"),
+        "Exception should reflect middle-stage failure, got: " + fullMessage);
+  }
+
+  @Test
+  @Timeout(10)
+  @DisplayName(
+      "Pipe IOException from upstream is not reported as root cause when downstream fails first")
+  void testPipeIOExceptionFromUpstreamIsNotRootCause() {
+    // 後段が即時失敗 → 前段が PipedOutputStream への書き込みで IOException を受ける。
+    // isPipeBrokenCause() が pipe 系 IOException を secondary として除外し、
+    // 後段の失敗が根本原因として返ることを確認する。
+    IStreamCommand upstream =
+        (in, out) -> {
+          byte[] chunk = new byte[65536];
+          Arrays.fill(chunk, (byte) 'A');
+          for (int i = 0; i < 1000; i++) {
+            out.write(chunk); // 後段失敗後に PipedOutputStream から IOException が来る
+          }
+        };
+    IStreamCommand downstream =
+        (in, out) -> {
+          throw new RuntimeException("Root cause: downstream failed");
+        };
+
+    StreamConverter converter = StreamConverter.create(upstream, downstream);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+
+    // pipe 系の二次エラーではなく、後段の失敗が根本原因として伝播すること
+    String fullMessage =
+        ex.getMessage()
+            + (ex.getCause() != null ? " caused by: " + ex.getCause().getMessage() : "");
+    assertTrue(
+        fullMessage.contains("Root cause: downstream failed"),
+        "Root cause should be downstream failure, not pipe IOException. Got: " + fullMessage);
+  }
+
+  @Test
+  @DisplayName("AssertionError propagates as-is without being wrapped")
+  void testAssertionErrorPropagatesUnwrapped() {
+    IStreamCommand failingCommand =
+        (in, out) -> {
+          throw new AssertionError("assertion failed in command");
+        };
+
+    StreamConverter converter = StreamConverter.create(failingCommand);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    AssertionError ex = assertThrows(AssertionError.class, () -> converter.run(input, output));
+    assertEquals("assertion failed in command", ex.getMessage());
   }
 
   @Test

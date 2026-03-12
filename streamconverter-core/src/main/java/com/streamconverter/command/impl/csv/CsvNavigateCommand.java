@@ -114,15 +114,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
   }
 
   @Override
-  protected String getCommandDetails() {
-    return String.format(
-        "CsvNavigateCommand(columnSelector='%s', rule='%s')",
-        columnSelector.toString(), rule.getClass().getSimpleName());
-  }
-
-  @Override
-  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     try (BufferedReader reader =
             new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {

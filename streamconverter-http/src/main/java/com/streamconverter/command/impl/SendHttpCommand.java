@@ -145,7 +145,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
    * @throws IOException 入出力エラーが発生した場合
    */
   @Override
-  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
+  public void execute(InputStream inputStream, OutputStream outputStream)
       throws IOException {
     Objects.requireNonNull(inputStream, "inputStream must not be null");
     Objects.requireNonNull(outputStream, "outputStream must not be null");

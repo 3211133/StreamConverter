@@ -49,7 +49,7 @@ class MemoryEfficiencyQuickTest {
     try (InputStream input = LargeDataGenerator.createLargeDataStream("CSV", dataSize);
         OutputStream output = new NullOutputStream()) {
 
-      StreamConverter converter = new StreamConverter(pipeline);
+      StreamConverter converter = StreamConverter.create(pipeline);
       converter.run(input, output);
     }
 

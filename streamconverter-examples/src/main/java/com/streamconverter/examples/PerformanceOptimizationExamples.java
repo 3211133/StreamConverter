@@ -212,7 +212,7 @@ public class PerformanceOptimizationExamples {
             new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-      StreamConverter converter = new StreamConverter(commands);
+      StreamConverter converter = StreamConverter.create(commands);
       converter.run(inputStream, outputStream);
 
       // Show only a sample of output for large datasets

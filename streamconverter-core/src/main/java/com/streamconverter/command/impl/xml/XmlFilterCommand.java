@@ -51,13 +51,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
   }
 
   @Override
-  protected String getCommandDetails() {
-    return String.format("XmlFilterCommand(xpath='%s')", xpath.toString());
-  }
-
-  @Override
-  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
 
       XMLInputFactory inputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();

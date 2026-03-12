@@ -264,6 +264,28 @@ class StreamConverterMDCIntegrationTest {
   }
 
   @Test
+  void testStreamProcessingExceptionIsNotDoubleWrapped() {
+    // コマンドが StreamProcessingException を投げたとき、同じ例外がそのまま伝播する（二重ラップなし）
+    StreamProcessingException original = new StreamProcessingException("original error");
+    IStreamCommand failingCommand =
+        (in, out) -> {
+          throw original;
+        };
+
+    StreamConverter converter = StreamConverter.create(failingCommand);
+
+    StreamProcessingException thrown =
+        assertThrows(
+            StreamProcessingException.class,
+            () ->
+                converter.run(
+                    new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8)),
+                    new ByteArrayOutputStream()));
+
+    assertSame(original, thrown, "StreamProcessingException must not be double-wrapped");
+  }
+
+  @Test
   void testAnonymousClassCommandNameInException() {
     // 匿名クラスで実装したコマンドが失敗したとき、例外メッセージに "IStreamCommand" が含まれる
     IStreamCommand failingCommand =

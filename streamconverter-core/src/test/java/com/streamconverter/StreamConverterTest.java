@@ -244,6 +244,43 @@ class StreamConverterTest {
   }
 
   @Test
+  @Timeout(10)
+  @DisplayName(
+      "Pipe IOException from upstream is not reported as root cause when downstream fails first")
+  void testPipeIOExceptionFromUpstreamIsNotRootCause() {
+    // 後段が即時失敗 → 前段が PipedOutputStream への書き込みで IOException を受ける。
+    // isPipeBrokenCause() が pipe 系 IOException を secondary として除外し、
+    // 後段の失敗が根本原因として返ることを確認する。
+    IStreamCommand upstream =
+        (in, out) -> {
+          byte[] chunk = new byte[65536];
+          Arrays.fill(chunk, (byte) 'A');
+          for (int i = 0; i < 1000; i++) {
+            out.write(chunk); // 後段失敗後に PipedOutputStream から IOException が来る
+          }
+        };
+    IStreamCommand downstream =
+        (in, out) -> {
+          throw new RuntimeException("Root cause: downstream failed");
+        };
+
+    StreamConverter converter = StreamConverter.create(upstream, downstream);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+
+    // pipe 系の二次エラーではなく、後段の失敗が根本原因として伝播すること
+    String fullMessage =
+        ex.getMessage()
+            + (ex.getCause() != null ? " caused by: " + ex.getCause().getMessage() : "");
+    assertTrue(
+        fullMessage.contains("Root cause: downstream failed"),
+        "Root cause should be downstream failure, not pipe IOException. Got: " + fullMessage);
+  }
+
+  @Test
   @DisplayName("AssertionError propagates as-is without being wrapped")
   void testAssertionErrorPropagatesUnwrapped() {
     IStreamCommand failingCommand =

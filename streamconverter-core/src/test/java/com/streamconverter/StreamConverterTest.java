@@ -211,6 +211,39 @@ class StreamConverterTest {
   }
 
   @Test
+  @Timeout(10)
+  @DisplayName("Middle-stage failure in 3-stage pipeline unblocks upstream quickly")
+  void testMiddleStageFailureUnblocksUpstreamIn3StagePipeline() {
+    // 3段パイプライン: 前段(大量書き込み) → 中段(即時失敗) → 後段(コピー)
+    // 中段の失敗により前段のパイプ書き込みブロックが 60 秒タイムアウトを待たずに解放されることを確認
+    IStreamCommand upstream =
+        (in, out) -> {
+          byte[] chunk = new byte[65536];
+          Arrays.fill(chunk, (byte) 'A');
+          for (int i = 0; i < 1000; i++) {
+            out.write(chunk);
+          }
+        };
+    IStreamCommand middle =
+        (in, out) -> {
+          throw new RuntimeException("Middle stage failed");
+        };
+    IStreamCommand downstream = (in, out) -> in.transferTo(out);
+
+    StreamConverter converter = StreamConverter.create(upstream, middle, downstream);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    String fullMessage =
+        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
+    assertTrue(
+        fullMessage.contains("Middle stage failed"),
+        "Exception should reflect middle-stage failure, got: " + fullMessage);
+  }
+
+  @Test
   @DisplayName("AssertionError propagates as-is without being wrapped")
   void testAssertionErrorPropagatesUnwrapped() {
     IStreamCommand failingCommand =

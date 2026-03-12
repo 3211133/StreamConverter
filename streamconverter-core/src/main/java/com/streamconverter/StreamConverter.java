@@ -82,8 +82,9 @@ public class StreamConverter {
     if (commands.length == 0) {
       throw new IllegalArgumentException("commands is empty.");
     }
-    this.commandNames = resolveCommandNames(List.of(commands));
-    this.commands = wrapWithLogging(List.of(commands));
+    List<IStreamCommand> list = List.of(commands);
+    this.commandNames = list.stream().map(StreamConverter::resolveCommandName).toList();
+    this.commands = wrapWithLogging(list, this.commandNames);
   }
 
   /**
@@ -98,8 +99,8 @@ public class StreamConverter {
     if (commands.isEmpty()) {
       throw new IllegalArgumentException("commands is empty.");
     }
-    this.commandNames = resolveCommandNames(commands);
-    this.commands = wrapWithLogging(commands);
+    this.commandNames = commands.stream().map(StreamConverter::resolveCommandName).toList();
+    this.commands = wrapWithLogging(commands, this.commandNames);
   }
 
   /**
@@ -126,21 +127,25 @@ public class StreamConverter {
     return new StreamConverter(commands);
   }
 
-  /** 元のコマンドクラスから人が読めるコマンド名リストを解決する。 */
-  private static List<String> resolveCommandNames(List<IStreamCommand> commands) {
-    List<String> names = new ArrayList<>(commands.size());
-    for (IStreamCommand command : commands) {
-      Class<?> cls = command.getClass();
-      names.add(cls.isSynthetic() ? "IStreamCommand" : cls.getSimpleName());
+  /**
+   * 元のコマンドクラスから人が読めるコマンド名を解決する。 ラムダ（synthetic）と匿名クラス（getSimpleName が空文字）は "IStreamCommand"
+   * にフォールバックする。
+   */
+  private static String resolveCommandName(IStreamCommand command) {
+    Class<?> cls = command.getClass();
+    if (cls.isSynthetic()) {
+      return "IStreamCommand";
     }
-    return names;
+    String simpleName = cls.getSimpleName();
+    return simpleName.isEmpty() ? "IStreamCommand" : simpleName;
   }
 
   /** コマンドリストの各コマンドに withLogging をあらかじめ適用して返す。 ラッピングはコンストラクト時に1度だけ行われ、実行ごとのオーバーヘッドを排除する。 */
-  private static List<IStreamCommand> wrapWithLogging(List<IStreamCommand> commands) {
+  private static List<IStreamCommand> wrapWithLogging(
+      List<IStreamCommand> commands, List<String> names) {
     List<IStreamCommand> wrapped = new ArrayList<>(commands.size());
-    for (IStreamCommand command : commands) {
-      wrapped.add(command.withLogging(LOG));
+    for (int i = 0; i < commands.size(); i++) {
+      wrapped.add(commands.get(i).withLogging(LOG, names.get(i)));
     }
     return wrapped;
   }

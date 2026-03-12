@@ -33,6 +33,11 @@ import org.slf4j.Logger;
  * StreamConverter converter = StreamConverter.create(copyCommand);
  * converter.run(inputStream, outputStream);
  * }</pre>
+ *
+ * <p><b>MDC への値の伝搬について:</b> {@code execute()} 内で {@code MDC.put()} を直接呼び出しても、
+ * 他コマンドのスレッドには伝搬されません。ストリームから抽出した値を全コマンドのログに反映させるには {@link
+ * com.streamconverter.command.rule.MdcPropagatingRule} を使用してください。子スレッドへの MDC 自動継承が必要な場合は {@link
+ * com.streamconverter.logging.MDCInitializer} を参照してください。
  */
 @FunctionalInterface
 public interface IStreamCommand {

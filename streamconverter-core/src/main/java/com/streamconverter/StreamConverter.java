@@ -7,7 +7,6 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PipedInputStream;
 import java.io.PipedOutputStream;
-import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -18,7 +17,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -69,77 +67,8 @@ public class StreamConverter {
 
   private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
-
-  /** デフォルトのパイプラインタイムアウト（実質無制限: 約292年）。 */
-  static final Duration DEFAULT_PIPELINE_TIMEOUT = Duration.ofDays(365 * 292L);
-
   private List<IStreamCommand> commands;
   private List<String> commandNames;
-  private final Duration pipelineTimeout;
-
-  /**
-   * Builder for StreamConverter.
-   *
-   * <pre>{@code
-   * StreamConverter converter = StreamConverter.builder()
-   *     .pipelineTimeout(Duration.ofMinutes(30))
-   *     .build(command1, command2);
-   * }</pre>
-   */
-  public static final class Builder {
-    private Duration pipelineTimeout = DEFAULT_PIPELINE_TIMEOUT;
-
-    private Builder() {}
-
-    /**
-     * パイプライン実行全体（{@code run()} 1回）の wall-clock 上限を設定する。
-     *
-     * <p>デフォルトは実質無制限。パイプ破損による二次的なブロックは {@code exceptionally}
-     * ハンドラで即解放されるため、このタイムアウトは異常系の最終安全弁として機能する。 大容量ファイル処理など正常な処理が数分〜数十分かかる場合でも発動しない値を設定すること。
-     *
-     * @param timeout タイムアウト時間（正の値）
-     * @return this builder
-     * @throws NullPointerException timeout が null の場合
-     * @throws IllegalArgumentException timeout が正でない場合
-     */
-    public Builder pipelineTimeout(Duration timeout) {
-      Objects.requireNonNull(timeout, "pipelineTimeout must not be null");
-      if (timeout.isNegative() || timeout.isZero()) {
-        throw new IllegalArgumentException("pipelineTimeout must be positive");
-      }
-      this.pipelineTimeout = timeout;
-      return this;
-    }
-
-    /**
-     * 指定したコマンド配列で StreamConverter を構築する。
-     *
-     * @param commands 実行するコマンドの配列
-     * @return 新しい StreamConverter インスタンス
-     */
-    public StreamConverter build(IStreamCommand... commands) {
-      return new StreamConverter(List.of(commands), pipelineTimeout);
-    }
-
-    /**
-     * 指定したコマンドリストで StreamConverter を構築する。
-     *
-     * @param commands 実行するコマンドのリスト
-     * @return 新しい StreamConverter インスタンス
-     */
-    public StreamConverter build(List<IStreamCommand> commands) {
-      return new StreamConverter(commands, pipelineTimeout);
-    }
-  }
-
-  /**
-   * Returns a new Builder for StreamConverter.
-   *
-   * @return a new Builder instance
-   */
-  public static Builder builder() {
-    return new Builder();
-  }
 
   /**
    * Constructs a StreamConverter with the specified array of commands.
@@ -149,7 +78,7 @@ public class StreamConverter {
    * @throws IllegalArgumentException if commands is empty
    */
   public StreamConverter(IStreamCommand[] commands) {
-    this(List.of(commands), DEFAULT_PIPELINE_TIMEOUT);
+    this(List.of(commands));
   }
 
   /**
@@ -160,17 +89,12 @@ public class StreamConverter {
    * @throws IllegalArgumentException if commands is empty
    */
   public StreamConverter(List<IStreamCommand> commands) {
-    this(commands, DEFAULT_PIPELINE_TIMEOUT);
-  }
-
-  private StreamConverter(List<IStreamCommand> commands, Duration pipelineTimeout) {
     Objects.requireNonNull(commands, "commands cannot be null");
     if (commands.isEmpty()) {
       throw new IllegalArgumentException("commands is empty.");
     }
     this.commandNames = commands.stream().map(StreamConverter::resolveCommandName).toList();
     this.commands = wrapWithLogging(commands, this.commandNames);
-    this.pipelineTimeout = pipelineTimeout;
   }
 
   /**
@@ -353,20 +277,12 @@ public class StreamConverter {
             });
       }
 
-      // すべてのタスクの完了を待機（絶対 deadline でパイプライン全体の wall-clock を制限）
+      // すべてのタスクの完了を待機。
       // 前段コマンドの待機中に後段が失敗していれば exceptionally ハンドラがパイプをクローズし、
       // 前段の書き込みブロックを IOException で即解放する。
-      long deadlineNanos = System.nanoTime() + pipelineTimeout.toNanos();
       for (int i = 0; i < futures.size(); i++) {
-        long remainingNanos = deadlineNanos - System.nanoTime();
-        if (remainingNanos <= 0) {
-          cancelRemainingFutures(futures, i);
-          closeResources(resources);
-          throw new StreamProcessingException(
-              "Pipeline execution timed out after " + pipelineTimeout);
-        }
         try {
-          futures.get(i).get(remainingNanos, TimeUnit.NANOSECONDS);
+          futures.get(i).get();
         } catch (ExecutionException e) {
           // findFirstFailureCause より先に cancel すると、後段 future が isCancelled() になり
           // 根本原因が取得できなくなるため、先に根本原因を特定してからキャンセルする
@@ -381,12 +297,6 @@ public class StreamConverter {
           cancelRemainingFutures(futures, i);
           Thread.currentThread().interrupt();
           throw new StreamProcessingException("Pipeline execution was interrupted", e);
-        } catch (TimeoutException e) {
-          // タイムアウトした future 自身（i）も含めて全キャンセル
-          cancelRemainingFutures(futures, i);
-          closeResources(resources);
-          throw new StreamProcessingException(
-              "Pipeline execution timed out after " + pipelineTimeout, e);
         }
       }
 

@@ -114,6 +114,11 @@ class MdcPropagatingRuleTest {
     PipelineContext.set(ctx);
     MdcPropagatingRule.create("orderId").apply("ORD-999");
 
+    // 親スレッドの MDC をクリアしてから子スレッドを生成する。
+    // これにより InheritableMDCAdapter の有無に関わらず、子スレッドは
+    // PipelineContext.syncToMDC() を呼ぶまで orderId を参照できないことを確認できる。
+    MDC.clear();
+
     CountDownLatch latch = new CountDownLatch(1);
     AtomicReference<String> mdcBeforeSync = new AtomicReference<>();
     AtomicReference<String> mdcAfterSync = new AtomicReference<>();
@@ -121,7 +126,7 @@ class MdcPropagatingRuleTest {
     Thread child =
         new Thread(
             () -> {
-              // InheritableMDCAdapter がインストールされていないため、子スレッドの MDC は空
+              // 親の MDC はクリア済みのため、継承の有無によらず子スレッドの MDC は空
               mdcBeforeSync.set(MDC.get("orderId"));
               // 同一 ctx を子スレッドに設定して syncToMDC で反映
               PipelineContext.set(ctx);
@@ -134,7 +139,7 @@ class MdcPropagatingRuleTest {
     child.start();
     latch.await();
 
-    assertNull(mdcBeforeSync.get(), "InheritableMDCAdapter 未インストール時は子スレッドの MDC は空");
+    assertNull(mdcBeforeSync.get(), "親の MDC クリア後は子スレッドでも syncToMDC 前は orderId が見えない");
     assertEquals("ORD-999", mdcAfterSync.get(), "PipelineContext.syncToMDC() 後は MDC に反映される");
   }
 

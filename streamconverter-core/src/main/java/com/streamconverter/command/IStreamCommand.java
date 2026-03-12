@@ -34,10 +34,11 @@ import org.slf4j.Logger;
  * converter.run(inputStream, outputStream);
  * }</pre>
  *
- * <p><b>MDC への値の伝搬について:</b> {@code execute()} 内で {@code MDC.put()} を直接呼び出しても、
- * 他コマンドのスレッドには伝搬されません。ストリームから抽出した値を全コマンドのログに反映させるには {@link
- * com.streamconverter.command.rule.MdcPropagatingRule} を使用してください。子スレッドへの MDC 自動継承が必要な場合は {@link
- * com.streamconverter.logging.MDCInitializer} を参照してください。
+ * <p><b>About MDC value propagation:</b> Calling {@code MDC.put()} directly inside {@code
+ * execute()} does not automatically propagate the values to threads used by other commands. To
+ * reflect values extracted from the stream in the logs of all commands, use {@link
+ * com.streamconverter.command.rule.MdcPropagatingRule}. If you need automatic MDC inheritance to
+ * child threads, see {@link com.streamconverter.logging.MDCInitializer}.
  */
 @FunctionalInterface
 public interface IStreamCommand {

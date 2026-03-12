@@ -22,15 +22,15 @@ import org.slf4j.MDC;
  * // 他のコマンドのログ出力時に自動的にMDCに反映される
  * }</pre>
  *
- * <p><b>MDC 関連クラスの全体像:</b>
+ * <p><b>MDC関連クラスの全体像:</b>
  *
  * <ul>
- *   <li>{@link com.streamconverter.command.rule.MdcPropagatingRule} — ストリームから抽出した値を このコンテキスト経由で MDC
- *       に伝搬する Rule 実装。コマンドから MDC へ値を書き込む際の推奨手段。
+ *   <li>{@link com.streamconverter.command.rule.MdcPropagatingRule} —
+ *       ストリームから抽出した値をこのコンテキスト経由でMDCに伝搬するRule実装。コマンドからMDCへ値を書き込む際の推奨手段。
  *   <li>{@link com.streamconverter.logging.PipelineContextTurboFilter} — ログ出力直前に {@link
- *       #syncToMDC()} を呼び出し、共有値を MDC へ自動反映する Logback TurboFilter。
+ *       #syncToMDC()} を呼び出し、共有値をMDCへ自動反映する Logback TurboFilter。
  *   <li>{@link com.streamconverter.logging.MDCInitializer} — {@code InheritableMDCAdapter} を
- *       インストールし、MDC コンテキストを子スレッドへ自動継承させる。アプリ起動時に一度呼ぶ。
+ *       インストールし、MDCコンテキストを子スレッドへ自動継承させる。アプリ起動時に一度呼ぶ。
  * </ul>
  */
 public final class PipelineContext {

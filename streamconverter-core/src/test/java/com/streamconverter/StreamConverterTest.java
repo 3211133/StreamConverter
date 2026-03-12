@@ -7,12 +7,15 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.condition.EnabledOnOs;
 import org.junit.jupiter.api.condition.OS;
 
@@ -172,6 +175,55 @@ class StreamConverterTest {
       // 結果の検証 - SampleStreamCommandは単純にコピーするだけなので、入力と同じ出力になるはず
       assertEquals(testInput, outputStream.toString(StandardCharsets.UTF_8));
     }
+  }
+
+  @Test
+  @Timeout(10)
+  @DisplayName("Downstream failure unblocks upstream within 10 seconds (no 60s timeout)")
+  void testDownstreamFailureUnblocksUpstreamQuickly() {
+    // 後段が即時失敗した場合、前段が 60 秒待たずに StreamProcessingException を受け取る
+    IStreamCommand upstreamCommand =
+        (in, out) -> {
+          // 大量データを書き込もうとして、後段が失敗したときにブロックしないことを確認
+          byte[] chunk = new byte[65536];
+          Arrays.fill(chunk, (byte) 'A');
+          for (int i = 0; i < 1000; i++) {
+            out.write(chunk); // 後段失敗後は IOException で解放される
+          }
+        };
+    IStreamCommand downstreamCommand =
+        (in, out) -> {
+          throw new RuntimeException("Downstream failed immediately");
+        };
+
+    StreamConverter converter = StreamConverter.create(upstreamCommand, downstreamCommand);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    // The exception chain should reflect the downstream failure, not a secondary "Pipe closed"
+    String fullMessage =
+        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
+    assertTrue(
+        fullMessage.contains("Downstream failed immediately"),
+        "Exception should reflect downstream failure, got: " + fullMessage);
+  }
+
+  @Test
+  @DisplayName("AssertionError propagates as-is without being wrapped")
+  void testAssertionErrorPropagatesUnwrapped() {
+    IStreamCommand failingCommand =
+        (in, out) -> {
+          throw new AssertionError("assertion failed in command");
+        };
+
+    StreamConverter converter = StreamConverter.create(failingCommand);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    AssertionError ex = assertThrows(AssertionError.class, () -> converter.run(input, output));
+    assertEquals("assertion failed in command", ex.getMessage());
   }
 
   @Test

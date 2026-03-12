@@ -213,11 +213,6 @@ public class StreamConverter {
                     }
 
                   } catch (IOException e) {
-                    LOG.error(
-                        "Command execution failed: {} - {}",
-                        command.getClass().getSimpleName(),
-                        e.getMessage(),
-                        e);
                     if (commandOutput instanceof PipedOutputStream) {
                       try {
                         commandOutput.close();
@@ -226,11 +221,7 @@ public class StreamConverter {
                       }
                     }
                     throw new StreamProcessingException(
-                        "Command execution failed: "
-                            + command.getClass().getSimpleName()
-                            + " - "
-                            + e.getMessage(),
-                        e);
+                        "Command execution failed: " + e.getMessage(), e);
                   } finally {
                     PipelineContext.clear();
                     MDC.clear();

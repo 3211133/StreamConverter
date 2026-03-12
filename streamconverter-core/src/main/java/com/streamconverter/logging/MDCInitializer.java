@@ -63,6 +63,9 @@ public final class MDCInitializer {
       return;
     }
 
+    // Capture existing MDC state BEFORE replacing the adapter so it can be migrated
+    Map<String, String> existingContext = MDC.getCopyOfContextMap();
+
     InheritableMDCAdapter adapter = new InheritableMDCAdapter();
 
     // Replace the MDC_ADAPTER field in SLF4J MDC via reflection
@@ -91,7 +94,6 @@ public final class MDCInitializer {
     }
 
     // Migrate existing MDC state from the previous adapter into the new one
-    Map<String, String> existingContext = MDC.getCopyOfContextMap();
     if (existingContext != null) {
       adapter.setContextMap(existingContext);
     }

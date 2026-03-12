@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.context.PipelineContext;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.DisplayName;
@@ -121,18 +122,21 @@ class MdcPropagatingRuleTest {
     Thread child =
         new Thread(
             () -> {
-              // InheritableMDCAdapter がインストールされていないため、子スレッドの MDC は空
-              mdcBeforeSync.set(MDC.get("orderId"));
-              // 同一 ctx を子スレッドに設定して syncToMDC で反映
-              PipelineContext.set(ctx);
-              PipelineContext.syncToMDC();
-              mdcAfterSync.set(MDC.get("orderId"));
-              PipelineContext.clear();
-              MDC.clear();
-              latch.countDown();
+              try {
+                // InheritableMDCAdapter がインストールされていないため、子スレッドの MDC は空
+                mdcBeforeSync.set(MDC.get("orderId"));
+                // 同一 ctx を子スレッドに設定して syncToMDC で反映
+                PipelineContext.set(ctx);
+                PipelineContext.syncToMDC();
+                mdcAfterSync.set(MDC.get("orderId"));
+                PipelineContext.clear();
+                MDC.clear();
+              } finally {
+                latch.countDown();
+              }
             });
     child.start();
-    latch.await();
+    assertTrue(latch.await(5, TimeUnit.SECONDS), "Child thread did not complete in time");
 
     assertNull(mdcBeforeSync.get(), "InheritableMDCAdapter 未インストール時は子スレッドの MDC は空");
     assertEquals("ORD-999", mdcAfterSync.get(), "PipelineContext.syncToMDC() 後は MDC に反映される");

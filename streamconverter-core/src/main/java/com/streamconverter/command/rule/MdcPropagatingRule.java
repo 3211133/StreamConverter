@@ -15,7 +15,7 @@ import com.streamconverter.context.PipelineContext;
  *       で自動反映する。{@code MDC.put} だけでは呼び出しスレッド内しか効かない。
  *   <li><b>実行タイミング非依存</b> — 子スレッド起動後に値を書いても {@code PipelineContext} 経由なら {@code TurboFilter}
  *       が毎ログ前に同期するため順序非依存。
- *   <li><b>一括クリア</b> — {@code PipelineContext.clear()} で管理される。
+ *   <li><b>スレッドからのコンテキスト切り離し</b> — {@code PipelineContext.clear()} により、このスレッドとの関連付けを解除できる。
  * </ol>
  *
  * <p>使用例:

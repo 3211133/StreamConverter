@@ -41,7 +41,7 @@ loadScripts(document, 'script');</script>
 <ul>
 <li>Nested</li>
 <li>Field</li>
-<li><a href="#constructor-summary">Constr</a></li>
+<li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 </li>
@@ -49,7 +49,7 @@ loadScripts(document, 'script');</script>
 <p>Detail:</p>
 <ul>
 <li>Field</li>
-<li><a href="#constructor-detail">Constr</a></li>
+<li>Constr</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
 </li>
@@ -61,13 +61,13 @@ loadScripts(document, 'script');</script>
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
 <ul class="sub-nav-list">
 <li>Detail:&nbsp;</li>
 <li>Field&nbsp;|&nbsp;</li>
-<li><a href="#constructor-detail">Constr</a>&nbsp;|&nbsp;</li>
+<li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-detail">Method</a></li>
 </ul>
 </div>
@@ -105,25 +105,6 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- ======== CONSTRUCTOR SUMMARY ======== -->
-<li>
-<section class="constructor-summary" id="constructor-summary">
-<h2>Constructor Summary</h2>
-<div class="caption"><span>Constructors</span></div>
-<div class="summary-table two-column-summary">
-<div class="table-header col-first">Constructor</div>
-<div class="table-header col-last">Description</div>
-<div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E(com.streamconverter.command.IStreamCommand%5B%5D)" class="member-name-link">StreamConverter</a><wbr>(<a href="command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>[]&nbsp;commands)</code></div>
-<div class="col-last even-row-color">
-<div class="block">Constructs a StreamConverter with the specified array of commands.</div>
-</div>
-<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.util.List)" class="member-name-link">StreamConverter</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>&gt;&nbsp;commands)</code></div>
-<div class="col-last odd-row-color">
-<div class="block">Constructs a StreamConverter with the specified list of commands.</div>
-</div>
-</div>
-</section>
-</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -163,42 +144,6 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="details">
 <ul class="details-list">
-<!-- ========= CONSTRUCTOR DETAIL ======== -->
-<li>
-<section class="constructor-details" id="constructor-detail">
-<h2>Constructor Details</h2>
-<ul class="member-list">
-<li>
-<section class="detail" id="&lt;init&gt;(com.streamconverter.command.IStreamCommand[])">
-<h3>StreamConverter</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/StreamConverter.html#line-80">StreamConverter</a></span><wbr><span class="parameters">(<a href="command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>[]&nbsp;commands)</span></div>
-<div class="block">Constructs a StreamConverter with the specified array of commands.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>commands</code> - the array of commands to be executed in sequence</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if commands is null</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if commands is empty</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="&lt;init&gt;(java.util.List)">
-<h3>StreamConverter</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/StreamConverter.html#line-97">StreamConverter</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>&gt;&nbsp;commands)</span></div>
-<div class="block">Constructs a StreamConverter with the specified list of commands.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>commands</code> - the list of commands to be executed in sequence</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/NullPointerException.html" title="class or interface in java.lang" class="external-link">NullPointerException</a></code> - if commands is null</dd>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - if commands is empty</dd>
-</dl>
-</section>
-</li>
-</ul>
-</section>
-</li>
 <!-- ============ METHOD DETAIL ========== -->
 <li>
 <section class="method-details" id="method-detail">
@@ -207,7 +152,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="create(com.streamconverter.command.IStreamCommand...)">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="StreamConverter.html" title="class in com.streamconverter">StreamConverter</a></span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/StreamConverter.html#line-114">create</a></span><wbr><span class="parameters">(<a href="command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>...&nbsp;commands)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="StreamConverter.html" title="class in com.streamconverter">StreamConverter</a></span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/StreamConverter.html#line-86">create</a></span><wbr><span class="parameters">(<a href="command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>...&nbsp;commands)</span></div>
 <div class="block">Creates a StreamConverter with the specified array of commands.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -223,7 +168,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="create(java.util.List)">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="StreamConverter.html" title="class in com.streamconverter">StreamConverter</a></span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/StreamConverter.html#line-126">create</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>&gt;&nbsp;commands)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="StreamConverter.html" title="class in com.streamconverter">StreamConverter</a></span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/StreamConverter.html#line-102">create</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>&gt;&nbsp;commands)</span></div>
 <div class="block">Creates a StreamConverter with the specified list of commands.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -239,7 +184,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="run(java.io.InputStream,java.io.OutputStream)">
 <h3>run</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/StreamConverter.html#line-170">run</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/StreamConverter.html#line-150">run</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
          throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。</div>

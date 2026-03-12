@@ -316,7 +316,7 @@
 <span class="source-line-no">303</span><span id="line-303"></span>
 <span class="source-line-no">304</span><span id="line-304">    // StreamConverterで複数のコマンドを組み合わせ</span>
 <span class="source-line-no">305</span><span id="line-305">    StreamConverter converter =</span>
-<span class="source-line-no">306</span><span id="line-306">        new StreamConverter(new IStreamCommand[] {customerCommand, deptCommand});</span>
+<span class="source-line-no">306</span><span id="line-306">        StreamConverter.create(new IStreamCommand[] {customerCommand, deptCommand});</span>
 <span class="source-line-no">307</span><span id="line-307"></span>
 <span class="source-line-no">308</span><span id="line-308">    // 変換前のJSON</span>
 <span class="source-line-no">309</span><span id="line-309">    String inputJson =</span>

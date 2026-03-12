@@ -172,7 +172,7 @@
 <span class="source-line-no">159</span><span id="line-159">            new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));</span>
 <span class="source-line-no">160</span><span id="line-160">        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {</span>
 <span class="source-line-no">161</span><span id="line-161"></span>
-<span class="source-line-no">162</span><span id="line-162">      StreamConverter converter = new StreamConverter(commands);</span>
+<span class="source-line-no">162</span><span id="line-162">      StreamConverter converter = StreamConverter.create(commands);</span>
 <span class="source-line-no">163</span><span id="line-163">      converter.run(inputStream, outputStream);</span>
 <span class="source-line-no">164</span><span id="line-164"></span>
 <span class="source-line-no">165</span><span id="line-165">      return outputStream.toString(StandardCharsets.UTF_8);</span>

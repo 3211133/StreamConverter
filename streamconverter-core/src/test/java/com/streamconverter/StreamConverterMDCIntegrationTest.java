@@ -18,13 +18,21 @@ import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.spi.MDCAdapter;
 
-/** Integration test for StreamConverter with MDC propagation via InheritableMDCAdapter */
+/**
+ * Integration test for StreamConverter with MDC propagation via InheritableMDCAdapter.
+ *
+ * <p>This class mutates the JVM-global MDC adapter via reflection. The {@link ResourceLock}
+ * annotation ensures exclusive access relative to other classes that also modify the MDC adapter,
+ * preventing flakiness when JUnit parallel execution is enabled.
+ */
+@ResourceLock("MDC_ADAPTER")
 class StreamConverterMDCIntegrationTest {
 
   private static MDCAdapter originalSlf4jAdapter;

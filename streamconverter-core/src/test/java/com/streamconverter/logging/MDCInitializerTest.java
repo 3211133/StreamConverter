@@ -8,12 +8,20 @@ import java.util.Map;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.parallel.ResourceLock;
 import org.slf4j.ILoggerFactory;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.spi.MDCAdapter;
 
-/** Unit tests for {@link MDCInitializer}. */
+/**
+ * Unit tests for {@link MDCInitializer}.
+ *
+ * <p>These tests mutate the JVM-global MDC adapter via reflection. The {@link ResourceLock}
+ * annotation ensures that tests in this class run exclusively relative to other classes that also
+ * modify the MDC adapter, preventing flakiness when JUnit parallel execution is enabled.
+ */
+@ResourceLock("MDC_ADAPTER")
 class MDCInitializerTest {
 
   private MDCAdapter originalSlf4jAdapter;

@@ -68,8 +68,75 @@ public class StreamConverter {
 
   private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
+
+  /** デフォルトのコマンドタイムアウト（実質無制限）。 */
+  static final long DEFAULT_COMMAND_TIMEOUT_SECONDS = Long.MAX_VALUE / 2;
+
   private List<IStreamCommand> commands;
   private List<String> commandNames;
+  private final long commandTimeoutSeconds;
+
+  /**
+   * Builder for StreamConverter.
+   *
+   * <pre>{@code
+   * StreamConverter converter = StreamConverter.builder()
+   *     .commandTimeoutSeconds(300)
+   *     .build(command1, command2);
+   * }</pre>
+   */
+  public static final class Builder {
+    private long commandTimeoutSeconds = DEFAULT_COMMAND_TIMEOUT_SECONDS;
+
+    private Builder() {}
+
+    /**
+     * コマンドごとの完了待機タイムアウトを秒単位で設定する。
+     *
+     * <p>デフォルトは実質無制限（{@link Long#MAX_VALUE} / 2 秒）。 パイプ破損による二次的なブロックは {@code exceptionally}
+     * ハンドラで即解放されるため、 このタイムアウトは異常系の最終安全弁として機能する。
+     *
+     * @param seconds タイムアウト秒数（1以上）
+     * @return this builder
+     * @throws IllegalArgumentException seconds が1未満の場合
+     */
+    public Builder commandTimeoutSeconds(long seconds) {
+      if (seconds < 1) {
+        throw new IllegalArgumentException("commandTimeoutSeconds must be >= 1");
+      }
+      this.commandTimeoutSeconds = seconds;
+      return this;
+    }
+
+    /**
+     * 指定したコマンド配列で StreamConverter を構築する。
+     *
+     * @param commands 実行するコマンドの配列
+     * @return 新しい StreamConverter インスタンス
+     */
+    public StreamConverter build(IStreamCommand... commands) {
+      return new StreamConverter(List.of(commands), commandTimeoutSeconds);
+    }
+
+    /**
+     * 指定したコマンドリストで StreamConverter を構築する。
+     *
+     * @param commands 実行するコマンドのリスト
+     * @return 新しい StreamConverter インスタンス
+     */
+    public StreamConverter build(List<IStreamCommand> commands) {
+      return new StreamConverter(commands, commandTimeoutSeconds);
+    }
+  }
+
+  /**
+   * Returns a new Builder for StreamConverter.
+   *
+   * @return a new Builder instance
+   */
+  public static Builder builder() {
+    return new Builder();
+  }
 
   /**
    * Constructs a StreamConverter with the specified array of commands.
@@ -79,13 +146,7 @@ public class StreamConverter {
    * @throws IllegalArgumentException if commands is empty
    */
   public StreamConverter(IStreamCommand[] commands) {
-    Objects.requireNonNull(commands, "commands cannot be null");
-    if (commands.length == 0) {
-      throw new IllegalArgumentException("commands is empty.");
-    }
-    List<IStreamCommand> list = List.of(commands);
-    this.commandNames = list.stream().map(StreamConverter::resolveCommandName).toList();
-    this.commands = wrapWithLogging(list, this.commandNames);
+    this(List.of(commands), DEFAULT_COMMAND_TIMEOUT_SECONDS);
   }
 
   /**
@@ -96,12 +157,17 @@ public class StreamConverter {
    * @throws IllegalArgumentException if commands is empty
    */
   public StreamConverter(List<IStreamCommand> commands) {
+    this(commands, DEFAULT_COMMAND_TIMEOUT_SECONDS);
+  }
+
+  private StreamConverter(List<IStreamCommand> commands, long commandTimeoutSeconds) {
     Objects.requireNonNull(commands, "commands cannot be null");
     if (commands.isEmpty()) {
       throw new IllegalArgumentException("commands is empty.");
     }
     this.commandNames = commands.stream().map(StreamConverter::resolveCommandName).toList();
     this.commands = wrapWithLogging(commands, this.commandNames);
+    this.commandTimeoutSeconds = commandTimeoutSeconds;
   }
 
   /**
@@ -289,7 +355,7 @@ public class StreamConverter {
       // 前段の書き込みブロックを IOException で即解放する。
       for (int i = 0; i < futures.size(); i++) {
         try {
-          futures.get(i).get(60, TimeUnit.SECONDS);
+          futures.get(i).get(commandTimeoutSeconds, TimeUnit.SECONDS);
         } catch (ExecutionException e) {
           // findFirstFailureCause より先に cancel すると、後段 future が isCancelled() になり
           // 根本原因が取得できなくなるため、先に根本原因を特定してからキャンセルする
@@ -306,7 +372,8 @@ public class StreamConverter {
           throw new StreamProcessingException("Command execution was interrupted", e);
         } catch (TimeoutException e) {
           cancelRemainingFutures(futures, i + 1);
-          throw new StreamProcessingException("Command execution timed out after 60 seconds", e);
+          throw new StreamProcessingException(
+              "Command execution timed out after " + commandTimeoutSeconds + " seconds", e);
         }
       }
 

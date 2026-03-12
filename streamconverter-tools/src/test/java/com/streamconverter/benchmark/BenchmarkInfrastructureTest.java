@@ -292,7 +292,7 @@ class BenchmarkInfrastructureTest {
 
     // テストデータ作成
     IStreamCommand command = (in, out) -> in.transferTo(out);
-    StreamConverter converter = new StreamConverter(new IStreamCommand[] {command});
+    StreamConverter converter = StreamConverter.create(command);
 
     // 小さなデータでテスト実行
     String testData = "Hello, World!";
@@ -335,7 +335,7 @@ class BenchmarkInfrastructureTest {
     // 複数のテストケースを実行
     for (int i = 1; i <= 3; i++) {
       IStreamCommand command = (in, out) -> in.transferTo(out);
-      StreamConverter converter = new StreamConverter(new IStreamCommand[] {command});
+      StreamConverter converter = StreamConverter.create(command);
 
       String testData = "Test data " + i + " with more content";
       InputStream input = new ByteArrayInputStream(testData.getBytes());
@@ -377,7 +377,7 @@ class BenchmarkInfrastructureTest {
     Runtime runtime = Runtime.getRuntime();
     long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
 
-    StreamConverter converter = new StreamConverter(pipeline);
+    StreamConverter converter = StreamConverter.create(pipeline);
 
     try (InputStream input = createTestInputStream(smallDataSize);
         OutputStream output = createNullOutputStream()) {
@@ -405,7 +405,7 @@ class BenchmarkInfrastructureTest {
     // 同じテストを5回実行
     for (int i = 0; i < 5; i++) {
       IStreamCommand command = (in, out) -> in.transferTo(out);
-      StreamConverter converter = new StreamConverter(new IStreamCommand[] {command});
+      StreamConverter converter = StreamConverter.create(command);
 
       InputStream input = new ByteArrayInputStream(testData.getBytes());
       ByteArrayOutputStream output = new ByteArrayOutputStream();

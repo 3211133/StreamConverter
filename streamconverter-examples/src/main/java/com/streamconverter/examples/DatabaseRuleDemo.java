@@ -303,7 +303,7 @@ public class DatabaseRuleDemo {
 
     // StreamConverterで複数のコマンドを組み合わせ
     StreamConverter converter =
-        new StreamConverter(new IStreamCommand[] {customerCommand, deptCommand});
+        StreamConverter.create(new IStreamCommand[] {customerCommand, deptCommand});
 
     // 変換前のJSON
     String inputJson =

@@ -226,4 +226,64 @@ class StreamConverterMDCIntegrationTest {
       MDC.clear();
     }
   }
+
+  @Test
+  void testMDCNotPropagatedWithoutInitializer() throws Exception {
+    // InheritableMDCAdapter を外した標準アダプターに一時切り替えて、
+    // MDCInitializer 未インストール相当の状態を再現する
+    MDCAdapter standardAdapter = MDC.getMDCAdapter();
+    // 標準 LogbackMDCAdapter のインスタンスを作成
+    MDCAdapter plainAdapter = new ch.qos.logback.classic.util.LogbackMDCAdapter();
+    setSlf4jAdapter(plainAdapter);
+
+    MDC.put("requestId", "REQ-NOPROP-001");
+
+    AtomicReference<String> workerMdc = new AtomicReference<>("NOT_SET");
+    try {
+      IStreamCommand command =
+          (in, out) -> {
+            workerMdc.set(MDC.get("requestId"));
+            in.transferTo(out);
+          };
+      StreamConverter converter = StreamConverter.create(command);
+
+      String testData = createTestData("data");
+      converter.run(
+          new ByteArrayInputStream(testData.getBytes(StandardCharsets.UTF_8)),
+          new ByteArrayOutputStream());
+
+      // 標準アダプターでは子スレッドに MDC が伝搬しない
+      assertNull(workerMdc.get(), "MDC should NOT propagate without InheritableMDCAdapter");
+    } finally {
+      setSlf4jAdapter(standardAdapter);
+      MDC.clear();
+    }
+  }
+
+  @Test
+  void testAnonymousClassCommandNameInException() {
+    // 匿名クラスで実装したコマンドが失敗したとき、例外メッセージに "IStreamCommand" が含まれる
+    IStreamCommand failingCommand =
+        new IStreamCommand() {
+          @Override
+          public void execute(java.io.InputStream in, java.io.OutputStream out) throws IOException {
+            throw new IOException("intentional failure");
+          }
+        };
+
+    StreamConverter converter = StreamConverter.create(failingCommand);
+
+    StreamProcessingException ex =
+        assertThrows(
+            StreamProcessingException.class,
+            () ->
+                converter.run(
+                    new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8)),
+                    new ByteArrayOutputStream()));
+
+    assertTrue(
+        ex.getMessage().contains("IStreamCommand"),
+        "Exception message should contain 'IStreamCommand' for anonymous class, but was: "
+            + ex.getMessage());
+  }
 }

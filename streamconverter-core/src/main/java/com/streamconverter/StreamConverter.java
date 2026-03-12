@@ -231,7 +231,7 @@ public class StreamConverter {
                       commandOutput.close();
                     }
 
-                  } catch (IOException e) {
+                  } catch (IOException | RuntimeException e) {
                     if (commandOutput instanceof PipedOutputStream) {
                       try {
                         commandOutput.close();

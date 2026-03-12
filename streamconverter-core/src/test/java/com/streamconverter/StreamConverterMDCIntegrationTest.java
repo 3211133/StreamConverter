@@ -230,11 +230,13 @@ class StreamConverterMDCIntegrationTest {
   @Test
   void testMDCNotPropagatedWithoutInitializer() throws Exception {
     // InheritableMDCAdapter を外した標準アダプターに一時切り替えて、
-    // MDCInitializer 未インストール相当の状態を再現する
-    MDCAdapter standardAdapter = MDC.getMDCAdapter();
-    // 標準 LogbackMDCAdapter のインスタンスを作成
+    // MDCInitializer 未インストール相当の状態 (SLF4J + Logback 両側) を再現する
+    MDCAdapter savedSlf4j = MDC.getMDCAdapter();
+    MDCAdapter savedLogback = getLogbackAdapter();
+
     MDCAdapter plainAdapter = new ch.qos.logback.classic.util.LogbackMDCAdapter();
     setSlf4jAdapter(plainAdapter);
+    setLogbackAdapter(plainAdapter);
 
     MDC.put("requestId", "REQ-NOPROP-001");
 
@@ -255,7 +257,8 @@ class StreamConverterMDCIntegrationTest {
       // 標準アダプターでは子スレッドに MDC が伝搬しない
       assertNull(workerMdc.get(), "MDC should NOT propagate without InheritableMDCAdapter");
     } finally {
-      setSlf4jAdapter(standardAdapter);
+      setSlf4jAdapter(savedSlf4j);
+      setLogbackAdapter(savedLogback);
       MDC.clear();
     }
   }

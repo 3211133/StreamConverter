@@ -139,7 +139,7 @@ class MdcPropagatingRuleTest {
   }
 
   @Test
-  @DisplayName("PipelineContext 未設定スレッドで MDC.put のみのルールを apply した場合、後続スレッドへ伝搬しない")
+  @DisplayName("PipelineContext 未設定スレッドで MDC.put を直接呼んでも後続スレッドへ伝搬しない")
   void rawMdcPutDoesNotPersistInPipelineContext() {
     MDC.put("rawKey", "raw-value");
 

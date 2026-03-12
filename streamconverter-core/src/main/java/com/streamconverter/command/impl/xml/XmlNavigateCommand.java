@@ -42,13 +42,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  public XmlNavigateCommand(TreePath treePath, IRule rule) {
-    if (treePath == null) {
-      throw new IllegalArgumentException("TreePath cannot be null");
-    }
-    if (rule == null) {
-      throw new IllegalArgumentException("Rule cannot be null");
-    }
+  private XmlNavigateCommand(TreePath treePath, IRule rule) {
     this.treePath = treePath;
     this.rule = rule;
   }
@@ -60,9 +54,15 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected elements
    * @return an XmlNavigateCommand that transforms the specified TreePath elements with the given
    *     rule
-   * @throws IllegalArgumentException if rule is null
+   * @throws IllegalArgumentException if treePath or rule is null
    */
   public static XmlNavigateCommand create(TreePath treePath, IRule rule) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
+    }
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
     return new XmlNavigateCommand(treePath, rule);
   }
 

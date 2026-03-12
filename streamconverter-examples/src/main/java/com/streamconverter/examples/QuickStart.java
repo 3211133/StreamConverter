@@ -64,7 +64,7 @@ public class QuickStart {
     // Note: The lambda pass-through is a placeholder for demonstration.
     // In real applications, replace with actual processing commands.
     IStreamCommand[] pipeline = {
-      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),
+      CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()),
       (IStreamCommand) (in, out) -> in.transferTo(out)
     };
     String result = processData(csvData, pipeline);
@@ -139,7 +139,7 @@ public class QuickStart {
 
     // Create processing pipeline
     IStreamCommand[] pipeline = {
-      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()), // Extract names
+      CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()), // Extract names
       (IStreamCommand) (in, out) -> in.transferTo(out) // Process names
     };
 

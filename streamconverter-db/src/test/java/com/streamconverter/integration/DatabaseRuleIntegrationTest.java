@@ -109,7 +109,7 @@ class DatabaseRuleIntegrationTest {
     DatabaseFetchRule dbRule = new DatabaseFetchRule(DB_URL, "SELECT name FROM users WHERE id = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand(TreePath.fromJson("$.userId"), dbRule);
+    JsonNavigateCommand command = JsonNavigateCommand.create(TreePath.fromJson("$.userId"), dbRule);
 
     // テスト用JSON
     String inputJson =
@@ -146,7 +146,7 @@ class DatabaseRuleIntegrationTest {
         new DatabaseFetchRule(DB_URL, "SELECT name FROM products WHERE code = ?");
 
     // CsvNavigateCommandの作成
-    CsvNavigateCommand command = new CsvNavigateCommand(new CSVPath("product_code"), dbRule);
+    CsvNavigateCommand command = CsvNavigateCommand.create(CSVPath.of("product_code"), dbRule);
 
     // テスト用CSV
     String inputCsv =
@@ -181,7 +181,7 @@ class DatabaseRuleIntegrationTest {
     DatabaseFetchRule dbRule = new DatabaseFetchRule(DB_URL, "SELECT name FROM users WHERE id = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand(TreePath.fromJson("$.userId"), dbRule);
+    JsonNavigateCommand command = JsonNavigateCommand.create(TreePath.fromJson("$.userId"), dbRule);
 
     // 存在しないユーザーIDを含むJSON
     String inputJson =
@@ -215,7 +215,7 @@ class DatabaseRuleIntegrationTest {
         new DatabaseFetchRule(DB_URL, "SELECT department FROM users WHERE id = ?");
 
     // JsonNavigateCommandの作成
-    JsonNavigateCommand command = new JsonNavigateCommand(TreePath.fromJson("$.userId"), dbRule);
+    JsonNavigateCommand command = JsonNavigateCommand.create(TreePath.fromJson("$.userId"), dbRule);
 
     // 複数のユーザーIDを含むJSON配列
     String inputJson =
@@ -253,7 +253,7 @@ class DatabaseRuleIntegrationTest {
 
     // JsonNavigateCommandの作成
     JsonNavigateCommand command =
-        new JsonNavigateCommand(TreePath.fromJson("$.productCode"), dbRule);
+        JsonNavigateCommand.create(TreePath.fromJson("$.productCode"), dbRule);
 
     // テスト用JSON
     String inputJson =

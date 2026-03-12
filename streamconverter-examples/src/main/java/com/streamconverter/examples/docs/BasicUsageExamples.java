@@ -44,7 +44,7 @@ public class BasicUsageExamples {
 
     // Create pipeline: navigate CSV + process
     IStreamCommand[] pipeline = {
-      new CsvNavigateCommand(new CSVPath("productName"), new PassThroughRule()),
+      CsvNavigateCommand.create(CSVPath.of("productName"), new PassThroughRule()),
       (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
@@ -66,8 +66,7 @@ public class BasicUsageExamples {
 
     // Create pipeline: filter CSV + process
     IStreamCommand[] pipeline = {
-      CsvFilterCommand.create(new CSVPath("price")),
-      (IStreamCommand) (in, out) -> in.transferTo(out)
+      CsvFilterCommand.create(CSVPath.of("price")), (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
@@ -89,7 +88,7 @@ public class BasicUsageExamples {
 
     // Create pipeline: navigate JSON + process
     IStreamCommand[] pipeline = {
-      new JsonNavigateCommand(TreePath.fromJson("$.user.name"), new PassThroughRule()),
+      JsonNavigateCommand.create(TreePath.fromJson("$.user.name"), new PassThroughRule()),
       (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
@@ -112,7 +111,7 @@ public class BasicUsageExamples {
 
     // Create pipeline: navigate XML + process
     IStreamCommand[] pipeline = {
-      new XmlNavigateCommand(TreePath.fromXml("root/user/name"), new PassThroughRule()),
+      XmlNavigateCommand.create(TreePath.fromXml("root/user/name"), new PassThroughRule()),
       (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
@@ -134,7 +133,7 @@ public class BasicUsageExamples {
 
     // Create pipeline: convert encoding + process
     IStreamCommand[] pipeline = {
-      new CharacterConvertCommand("Shift_JIS", "UTF-8"),
+      CharacterConvertCommand.create("Shift_JIS", "UTF-8"),
       (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 
@@ -175,8 +174,8 @@ public class BasicUsageExamples {
 
     // CSV → Character conversion → Output
     IStreamCommand[] pipeline = {
-      new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()),
-      new CharacterConvertCommand("Shift_JIS", "UTF-8")
+      CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()),
+      CharacterConvertCommand.create("Shift_JIS", "UTF-8")
     };
 
     StreamConverter converter = StreamConverter.create(pipeline);
@@ -197,7 +196,7 @@ public class BasicUsageExamples {
 
     // Create pipeline for error handling demonstration
     IStreamCommand[] pipeline = {
-      new CsvNavigateCommand(new CSVPath("name"), new PassThroughRule()),
+      CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()),
       (IStreamCommand) (in, out) -> in.transferTo(out)
     };
 

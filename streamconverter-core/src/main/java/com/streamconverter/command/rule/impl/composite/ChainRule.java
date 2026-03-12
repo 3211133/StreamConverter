@@ -41,9 +41,6 @@ public class ChainRule implements IRule {
 
   /** Private constructor for builder pattern */
   private ChainRule(List<IRule> rules) {
-    if (rules == null || rules.isEmpty()) {
-      throw new IllegalArgumentException("Chain must contain at least one rule");
-    }
     this.rules = Collections.unmodifiableList(new ArrayList<>(rules));
   }
 
@@ -199,6 +196,9 @@ public class ChainRule implements IRule {
      * @throws IllegalArgumentException if no rules have been added
      */
     public ChainRule build() {
+      if (rules.isEmpty()) {
+        throw new IllegalArgumentException("Chain must contain at least one rule");
+      }
       return new ChainRule(rules);
     }
   }

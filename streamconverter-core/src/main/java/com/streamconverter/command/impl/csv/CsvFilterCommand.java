@@ -11,7 +11,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,13 +36,8 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @param hasHeader whether the CSV has a header row
    * @throws IllegalArgumentException if columnSelector is null
    */
-  public CsvFilterCommand(CSVPath columnSelector, boolean hasHeader) {
-    if (columnSelector == null) {
-      throw new IllegalArgumentException("Column selector cannot be null");
-    }
+  private CsvFilterCommand(CSVPath columnSelector, boolean hasHeader) {
     this.combinedSelector = columnSelector;
-    Arrays.asList(columnSelector);
-    Arrays.asList(columnSelector.toString());
     this.hasHeader = hasHeader;
   }
 
@@ -52,6 +46,7 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    *
    * @param columnSelector the typed CSVPath to extract
    * @return a CsvFilterCommand instance
+   * @throws IllegalArgumentException if columnSelector is null
    */
   public static CsvFilterCommand create(CSVPath columnSelector) {
     return create(columnSelector, true);
@@ -63,8 +58,12 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @param columnSelector the typed CSVPath to extract
    * @param hasHeader whether the CSV has a header row
    * @return a CsvFilterCommand instance
+   * @throws IllegalArgumentException if columnSelector is null
    */
   public static CsvFilterCommand create(CSVPath columnSelector, boolean hasHeader) {
+    if (columnSelector == null) {
+      throw new IllegalArgumentException("Column selector cannot be null");
+    }
     return new CsvFilterCommand(columnSelector, hasHeader);
   }
 
@@ -74,7 +73,7 @@ public class CsvFilterCommand extends AbstractStreamCommand {
             new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
 
-      List<Integer> columnIndices = new ArrayList<>();
+      List<Integer> columnIndices;
       String[] headers = null;
 
       // Read first line

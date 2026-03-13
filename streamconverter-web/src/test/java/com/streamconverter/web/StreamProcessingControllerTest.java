@@ -6,8 +6,8 @@ import com.streamconverter.test.TestUtils;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.web.server.LocalServerPort;
 import org.springframework.core.io.buffer.DataBuffer;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.MediaType;
@@ -18,12 +18,16 @@ import reactor.core.publisher.Flux;
 @DisplayName("StreamProcessingController Web API Test")
 class StreamProcessingControllerTest {
 
-  @Autowired private WebTestClient webTestClient;
+  @LocalServerPort private int port;
+
+  private WebTestClient webTestClient() {
+    return WebTestClient.bindToServer().baseUrl("http://localhost:" + port).build();
+  }
 
   @Test
   @DisplayName("Health check endpoint test")
   void testHealthEndpoint() {
-    webTestClient
+    webTestClient()
         .get()
         .uri("/api/v1/stream/health")
         .exchange()
@@ -40,7 +44,7 @@ class StreamProcessingControllerTest {
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap(csvData.getBytes(StandardCharsets.UTF_8));
 
-    webTestClient
+    webTestClient()
         .post()
         .uri("/api/v1/stream/csv/extract?columnName=name")
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
@@ -89,7 +93,7 @@ class StreamProcessingControllerTest {
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap(jsonData.getBytes(StandardCharsets.UTF_8));
 
-    webTestClient
+    webTestClient()
         .post()
         .uri("/api/v1/stream/json/extract?jsonPath=$.name")
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
@@ -145,7 +149,7 @@ class StreamProcessingControllerTest {
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap(csvData.getBytes(StandardCharsets.UTF_8));
 
-    webTestClient
+    webTestClient()
         .post()
         .uri("/api/v1/stream/process")
         .header("X-Pipeline-Config", "csv:name,process:validator")
@@ -201,7 +205,7 @@ class StreamProcessingControllerTest {
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap(csvData.getBytes(StandardCharsets.UTF_8));
 
-    webTestClient
+    webTestClient()
         .post()
         .uri("/api/v1/stream/process")
         .header("X-Pipeline-Config", "invalid:command")

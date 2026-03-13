@@ -6,6 +6,8 @@ import com.streamconverter.execution.ErrorPolicy;
 import com.streamconverter.execution.ExecutionStrategy;
 import com.streamconverter.execution.MemoryBudget;
 import com.streamconverter.execution.ParallelExecutionStrategy;
+import com.streamconverter.io.Sink;
+import com.streamconverter.io.Source;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -190,6 +192,25 @@ public class StreamConverter {
   // ─────────────────────────────────────────────────────────────────────────
   // 実行
   // ─────────────────────────────────────────────────────────────────────────
+
+  /**
+   * Source と Sink を使用してストリームを変換する。
+   *
+   * <p>Source と Sink のストリームはこのメソッド内で開かれ、処理完了後にクローズされる。
+   *
+   * @param source 入力ソース
+   * @param sink 出力シンク
+   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
+   * @throws NullPointerException source または sink が null の場合
+   */
+  public void run(Source source, Sink sink) throws IOException {
+    Objects.requireNonNull(source, "source must not be null");
+    Objects.requireNonNull(sink, "sink must not be null");
+    try (InputStream inputStream = source.open();
+        OutputStream outputStream = sink.open()) {
+      run(inputStream, outputStream);
+    }
+  }
 
   /**
    * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。

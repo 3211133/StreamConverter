@@ -218,50 +218,12 @@ public class StreamConverter {
   private void executeCommands(
       InputStream inputStream, OutputStream outputStream, BufferPolicy bufferPolicy)
       throws IOException {
-    if (errorPolicy instanceof ErrorPolicy.FailFast) {
-      executionStrategy.execute(commands, commandNames, inputStream, outputStream, bufferPolicy);
-    } else if (errorPolicy instanceof ErrorPolicy.Retry retry) {
-      executeWithRetry(inputStream, outputStream, bufferPolicy, retry);
-    } else {
-      // ErrorPolicy.Skip その他は将来の拡張のため基本実行にフォールスルー
-      executionStrategy.execute(commands, commandNames, inputStream, outputStream, bufferPolicy);
+    if (errorPolicy instanceof ErrorPolicy.Retry) {
+      // InputStream は巻き戻せないためリトライ不可。run(Source, Sink) を使用すること。
+      throw new UnsupportedOperationException(
+          "ErrorPolicy.Retry requires run(Source, Sink) — InputStream cannot be rewound for retry."
+              + " Use StreamConverter.run(Source, Sink) instead.");
     }
-  }
-
-  /** リトライポリシーでの実行 */
-  private void executeWithRetry(
-      InputStream inputStream,
-      OutputStream outputStream,
-      BufferPolicy bufferPolicy,
-      ErrorPolicy.Retry retry)
-      throws IOException {
-    IOException lastException = null;
-    for (int attempt = 0; attempt <= retry.maxRetries(); attempt++) {
-      try {
-        executionStrategy.execute(commands, commandNames, inputStream, outputStream, bufferPolicy);
-        return;
-      } catch (IOException e) {
-        lastException = e;
-        if (attempt < retry.maxRetries()) {
-          if (LOG.isWarnEnabled()) {
-            LOG.warn(
-                "Command execution failed (attempt {}/{}), retrying in {}ms: {}",
-                attempt + 1,
-                retry.maxRetries() + 1,
-                retry.delayMs(),
-                e.getMessage());
-          }
-          if (retry.delayMs() > 0) {
-            try {
-              Thread.sleep(retry.delayMs());
-            } catch (InterruptedException ie) {
-              Thread.currentThread().interrupt();
-              throw new StreamProcessingException("Retry interrupted", ie);
-            }
-          }
-        }
-      }
-    }
-    throw lastException;
+    executionStrategy.execute(commands, commandNames, inputStream, outputStream, bufferPolicy);
   }
 }

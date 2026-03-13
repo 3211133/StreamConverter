@@ -21,8 +21,8 @@ import com.streamconverter.path.CSVPath;
 
 // 2つのコマンドを組み合わせたパイプライン
 IStreamCommand[] pipeline = {
-    CsvNavigateCommand.create(new CSVPath("email"), new TrimRule()),
-    new CharacterConvertCommand("UTF-8", "Shift_JIS")
+    CsvNavigateCommand.create(CSVPath.of("email"), new TrimRule()),
+    CharacterConvertCommand.create("UTF-8", "Shift_JIS")
 };
 
 StreamConverter converter = StreamConverter.create(pipeline);
@@ -49,7 +49,7 @@ import com.streamconverter.path.TreePath;
 
 // 3つのコマンドを組み合わせた実用的なパイプライン
 IStreamCommand[] pipeline = {
-    CsvNavigateCommand.create(new CSVPath("productId"), new PassThroughRule()),
+    CsvNavigateCommand.create(CSVPath.of("productId"), new PassThroughRule()),
     new SendHttpCommand("https://api.example.com/products"),
     JsonNavigateCommand.create(TreePath.fromJson("$.result"), new PassThroughRule())
 };
@@ -60,69 +60,79 @@ converter.run(inputStream, outputStream);
 
 このパイプラインは以下の処理を実行します：
 1. CSVファイルから `productId` 列を抽出
-2. 抽出したIDをHTTP APIに送信
+2. 抽出したIDをHTTP APIに送信（`SendHttpCommand` は `streamconverter-http` モジュールで提供）
 3. APIレスポンス（JSON）から `result` フィールドを抽出
 
-## 3. ExecutionContext とメトリクス取得
+## 3. MDC によるログトレーシング
 
-実運用環境では、処理の追跡とメトリクス収集が重要です。ExecutionContextを使用してログトレースとパフォーマンス測定を行います。
+実運用環境では、ログにリクエスト・ジョブレベルのコンテキスト情報を付加することで、分散トレーシングが容易になります。SLF4J の MDC と `MdcPropagatingRule` を組み合わせることで、ストリームから抽出した値を自動的にログコンテキストへ伝搬できます。
 
 ```java
-import java.util.List;
-
-import com.streamconverter.CommandResult;
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
-import com.streamconverter.command.impl.SendHttpCommand;
-import com.streamconverter.command.impl.json.JsonNavigateCommand;
-import com.streamconverter.command.impl.json.JsonValidateCommand;
-import com.streamconverter.command.rule.PassThroughRule;
-import com.streamconverter.context.ExecutionContext;
+import com.streamconverter.command.rule.MdcPropagatingRule;
+import com.streamconverter.logging.MDCInitializer;
 import com.streamconverter.path.CSVPath;
-import com.streamconverter.path.TreePath;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
-// ExecutionContextを作成してトレーシング情報を設定
-ExecutionContext context = ExecutionContext.builder()
-    .globalContext("jobId", "daily-import")
-    .globalContext("environment", "production")
-    .userContext("operator", "batch-service")
-    .build();
+private static final Logger LOG = LoggerFactory.getLogger(MyProcessor.class);
 
-// 4つのコマンドを組み合わせた高度なパイプライン
-IStreamCommand[] pipeline = {
-    CsvNavigateCommand.create(new CSVPath("productId"), new PassThroughRule()),
-    new SendHttpCommand("https://api.example.com/products"),
-    JsonNavigateCommand.create(TreePath.fromJson("$.result"), new PassThroughRule()),
-    JsonValidateCommand.create("schemas/product-schema.json")
-};
+// アプリ起動時に一度呼び出し、MDC を子スレッドへ継承可能にする
+MDCInitializer.initialize();
 
-// ExecutionContext付きでパイプラインを実行
-StreamConverter converter = StreamConverter.createWithContext(context, pipeline);
-List<CommandResult> results = converter.run(inputStream, outputStream);
+// ジョブレベルのトレーシング情報を親スレッドの MDC に設定
+MDC.put("jobId", "daily-import");
+MDC.put("environment", "production");
 
-// 各コマンドの実行結果を確認
-results.forEach(result -> {
-    if (result.isSuccessful()) {
-        LOG.info("{} -> {} ms (input: {} bytes, output: {} bytes)",
-            result.getCommandName(),
-            result.getExecutionTimeMillis(),
-            result.getInputBytes(),
-            result.getOutputBytes());
-    } else {
-        LOG.error("{} failed: {}", result.getCommandName(), result.getErrorMessage());
-    }
-});
+try {
+    IStreamCommand[] pipeline = {
+        CsvNavigateCommand.create(CSVPath.of("productId"), new MdcPropagatingRule("productId")),
+        (IStreamCommand) (in, out) -> {
+            // 上流コマンドと並列実行されるため、開始時点での productId の有無は非決定的
+            // （入力が小さい場合は上流が先に完了し、既に MDC に含まれることもある）
+            LOG.info("Command start"); // MDC: jobId, environment（productId は不定）
+            in.transferTo(out);
+            // transferTo 完了後は上流が全行処理済みのため productId が MDC に確実に存在する
+            LOG.info("Command end");   // MDC: jobId, environment, productId
+        }
+    };
+    StreamConverter converter = StreamConverter.create(pipeline);
+    converter.run(inputStream, outputStream);
+} finally {
+    MDC.clear();
+}
 ```
 
 このパイプラインは以下の処理を実行します：
-1. CSVファイルから `productId` 列を抽出
-2. 抽出したIDをHTTP APIに送信
-3. APIレスポンス（JSON）から `result` フィールドを抽出
-4. JSONスキーマで検証
+1. `MDCInitializer.initialize()` でアプリ起動時に MDC の子スレッド継承を有効化
+2. `MDC.put()` でジョブ/リクエストレベルのコンテキストを設定
+3. `MdcPropagatingRule` でストリームから抽出した値（`productId`）を MDC に自動伝搬
+4. 後続コマンドのすべてのログに `jobId`・`environment`・`productId` が付加される
 
-ExecutionContextにより、すべてのログに `jobId`, `environment`, `operator` の情報が自動的に付加され、マルチスレッド環境でも正確なトレーシングが可能になります。
+### Logback の設定
+
+`MdcPropagatingRule` が書き込む値は `PipelineContext` 経由で伝搬されます。別コマンドのスレッドのログに反映させるには、`logback.xml` に `PipelineContextTurboFilter` を追加してください。
+
+```xml
+<configuration>
+    <turboFilter class="com.streamconverter.logging.PipelineContextTurboFilter"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- %mdc で MDC の全キー=値 を出力 -->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} MDC={%mdc} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>
+```
 
 ---
 
-より多くの例は [streamconverter-examples](../../streamconverter-examples/src/main/java/com/streamconverter/examples/) を参照してください。
+より多くの例は [BasicUsageExamples.java](../../streamconverter-examples/src/main/java/com/streamconverter/examples/docs/BasicUsageExamples.java)（コンパイル検証済み）を参照してください。

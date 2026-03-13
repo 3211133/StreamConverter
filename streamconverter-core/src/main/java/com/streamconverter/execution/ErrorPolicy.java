@@ -32,10 +32,14 @@ public sealed interface ErrorPolicy permits ErrorPolicy.FailFast, ErrorPolicy.Re
   /**
    * エラー発生時にリトライするポリシーを返す。
    *
-   * <p><strong>注意:</strong> Retry は {@link com.streamconverter.StreamConverter#run(
-   * com.streamconverter.io.Source, com.streamconverter.io.Sink)} でのみ有効。 {@link
+   * <p><strong>制約 1 — run(Source, Sink) のみ有効:</strong> {@link
    * com.streamconverter.StreamConverter#run(java.io.InputStream, java.io.OutputStream)} に渡した場合は
    * {@link UnsupportedOperationException} をスローする（InputStream は巻き戻せないため）。
+   *
+   * <p><strong>制約 2 — Source/Sink は毎回新しいストリームを開くこと:</strong> {@code Source.of(inputStream)} や
+   * {@code Sink.of(outputStream)} でラップしたストリームは、最初の試行後に close されるため 2 回目以降のリトライが失敗する。 Retry
+   * と組み合わせる場合は {@code Source.ofFile(Path)} / {@code Sink.toFile(Path)} など、 {@link
+   * com.streamconverter.io.Source#open()} を呼ぶたびに新しいストリームを生成するファクトリを使用すること。
    *
    * @param maxRetries 最大リトライ回数（1以上）
    * @param delayMs リトライ間隔（ミリ秒、0以上）

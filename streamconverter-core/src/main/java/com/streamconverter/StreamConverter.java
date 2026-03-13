@@ -239,9 +239,16 @@ public class StreamConverter {
     runCore(inputStream, outputStream);
   }
 
-  /** Source を再オープンしながらリトライするコア実装 */
+  /**
+   * Source を再オープンしながらリトライするコア実装。
+   *
+   * <p><strong>注意:</strong> {@link com.streamconverter.io.Source#of(java.io.InputStream)} / {@link
+   * com.streamconverter.io.Sink#of(java.io.OutputStream)} でラップしたストリームは、最初の試行で close
+   * された後に再利用できないためリトライが失敗する。 Retry と組み合わせる場合は必ず {@link
+   * com.streamconverter.io.Source#ofFile(java.nio.file.Path)} など、毎回新しいストリームを開く Source/Sink を使用すること。
+   */
   private void runWithRetry(Source source, Sink sink, ErrorPolicy.Retry retry) throws IOException {
-    IOException lastException = null;
+    Exception lastException = null;
     BufferPolicy bufferPolicy = memoryBudget.getBufferPolicy();
     for (int attempt = 0; attempt <= retry.maxRetries(); attempt++) {
       try (InputStream inputStream = source.open();
@@ -254,7 +261,8 @@ public class StreamConverter {
           LOG.info("Completed StreamConverter pipeline");
         }
         return;
-      } catch (IOException e) {
+      } catch (IOException | RuntimeException e) {
+        // RuntimeException をキャッチすることで StreamProcessingException（RuntimeException）もリトライ対象とする
         lastException = e;
         if (attempt < retry.maxRetries()) {
           if (LOG.isWarnEnabled()) {
@@ -276,7 +284,10 @@ public class StreamConverter {
         }
       }
     }
-    throw lastException;
+    if (lastException instanceof IOException ioe) {
+      throw ioe;
+    }
+    throw (RuntimeException) lastException;
   }
 
   /** エラーポリシーなしで実行する内部コア */

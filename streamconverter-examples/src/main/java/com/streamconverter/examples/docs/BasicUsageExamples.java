@@ -10,7 +10,9 @@ import com.streamconverter.command.impl.csv.CsvFilterCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.command.impl.xml.XmlNavigateCommand;
+import com.streamconverter.command.rule.MdcPropagatingRule;
 import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.logging.MDCInitializer;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
 import java.io.ByteArrayInputStream;
@@ -18,6 +20,9 @@ import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.slf4j.MDC;
 
 /**
  * Verifiable code examples for StreamConverter documentation.
@@ -29,6 +34,22 @@ import java.nio.charset.StandardCharsets;
  * <p>All examples in this file are tested to ensure they compile and execute correctly.
  */
 public class BasicUsageExamples {
+
+  private static final Logger LOG = LoggerFactory.getLogger(BasicUsageExamples.class);
+
+  /** Run all examples. */
+  public static void main(String[] args) throws Exception {
+    BasicUsageExamples ex = new BasicUsageExamples();
+    ex.csvNavigateBasic();
+    ex.csvFilterBasic();
+    ex.jsonNavigateBasic();
+    ex.xmlNavigateBasic();
+    ex.characterConvertBasic();
+    ex.lineEndingNormalizeBasic();
+    ex.simplePipeline();
+    ex.errorHandlingBasic();
+    ex.mdcLoggingBasic();
+  }
 
   // [START csv-navigate-basic]
   /**
@@ -208,5 +229,44 @@ public class BasicUsageExamples {
       throw e;
     }
   }
+
   // [END error-handling-basic]
+
+  // [START mdc-logging-basic]
+  /** MDC logging pipeline example - demonstrates MDC context propagation for log tracing. */
+  public void mdcLoggingBasic() throws Exception {
+    String csvData = "id,productId\n1,P-001\n2,P-002\n";
+    InputStream inputStream = new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
+    OutputStream outputStream = new ByteArrayOutputStream();
+
+    // Enable MDC inheritance to worker threads (call once at application startup)
+    MDCInitializer.initialize();
+
+    MDC.put("jobId", "daily-import");
+    MDC.put("environment", "production");
+
+    try {
+      IStreamCommand[] pipeline = {
+        CsvNavigateCommand.create(CSVPath.of("productId"), MdcPropagatingRule.create("productId")),
+        (IStreamCommand)
+            (in, out) -> {
+              // Both commands run concurrently on separate virtual threads. productId is written
+              // to PipelineContext by MdcPropagatingRule as the upstream parses each row, so its
+              // presence in MDC at "Command start" is nondeterministic for small inputs where the
+              // upstream may finish before this thread logs.
+              LOG.info(
+                  "Command start"); // MDC: jobId, environment (productId may or may not be set)
+              in.transferTo(out);
+              // After transferTo completes, the upstream has finished all rows — productId is
+              // guaranteed to be in MDC at this point.
+              LOG.info("Command end"); // MDC: jobId, environment, productId
+            }
+      };
+      StreamConverter converter = StreamConverter.create(pipeline);
+      converter.run(inputStream, outputStream);
+    } finally {
+      MDC.clear();
+    }
+  }
+  // [END mdc-logging-basic]
 }

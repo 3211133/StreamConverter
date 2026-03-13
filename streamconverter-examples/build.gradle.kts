@@ -81,6 +81,13 @@ tasks.register<JavaExec>("runDatabaseRuleDemo") {
     mainClass.set("com.streamconverter.examples.DatabaseRuleDemo")
 }
 
+tasks.register<JavaExec>("runBasicUsageExamples") {
+    group = "application"
+    description = "Run BasicUsageExamples (docs examples)"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamconverter.examples.docs.BasicUsageExamples")
+}
+
 // Spotless configuration for code formatting
 spotless {
     java {

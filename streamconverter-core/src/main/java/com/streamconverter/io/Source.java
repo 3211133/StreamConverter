@@ -1,23 +1,22 @@
 package com.streamconverter.io;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
 
 /**
  * パイプラインの入力ソースを表すインターフェース。
  *
- * <p>{@link #open()} でストリームを取得し、try-with-resources で安全にクローズすること。 ファイル・既存ストリームからのファクトリメソッドを提供する。
+ * <p>{@link #open()} でストリームを取得する。{@link com.streamconverter.StreamConverter#run(Source, Sink)}
+ * に渡した場合、ストリームの close は {@code run} メソッドが責任を持って行う。
  *
  * <p>使用例:
  *
  * <pre>{@code
- * // ファイルからのソース
- * try (InputStream in = Source.ofFile(Path.of("input.csv")).open()) {
- *     converter.run(in, outputStream);
- * }
+ * // ファイルからのソース（StreamConverter.run が close を管理）
+ * converter.run(Source.ofFile(Path.of("input.csv")), sink);
  *
  * // Pipeline DSL での使用
  * Pipeline.input(Source.ofFile(Path.of("input.csv")))
@@ -31,6 +30,9 @@ public interface Source {
   /**
    * 入力ストリームを開いて返す。
    *
+   * <p>呼び出し側（または {@link com.streamconverter.StreamConverter#run(Source, Sink)}）が 返されたストリームを close
+   * する責任を持つ。
+   *
    * @return 入力ストリーム
    * @throws IOException ストリームを開けない場合
    */
@@ -39,7 +41,10 @@ public interface Source {
   /**
    * 既存の {@link InputStream} を Source としてラップする。
    *
-   * <p>ストリームのクローズは呼び出し側が管理する。
+   * <p><strong>所有権の注意:</strong> {@link com.streamconverter.StreamConverter#run(Source, Sink)}
+   * に渡すと、このストリームは {@code run} の完了時に close される。close 後にストリームを使用してはならない。 close
+   * されることを避けたい場合は、InputStream を直接 {@link com.streamconverter.StreamConverter#run(InputStream,
+   * java.io.OutputStream)} に渡すこと。
    *
    * @param inputStream ラップする入力ストリーム
    * @return Source
@@ -53,7 +58,7 @@ public interface Source {
   /**
    * ファイルパスから Source を作成する。
    *
-   * <p>{@link #open()} が呼ばれるたびに新しい {@link FileInputStream} を開く。
+   * <p>{@link #open()} が呼ばれるたびに新しい {@link InputStream} を開く。
    *
    * @param path 入力ファイルのパス
    * @return Source
@@ -61,6 +66,6 @@ public interface Source {
    */
   static Source ofFile(Path path) {
     Objects.requireNonNull(path, "path must not be null");
-    return () -> new FileInputStream(path.toFile());
+    return () -> Files.newInputStream(path);
   }
 }

@@ -35,6 +35,13 @@ repositories {
     gradlePluginPortal()
 }
 
+// ─────────────────────────────────────────────────────────────────────────
+// コア独立性制約 (#500):
+//   streamconverter-core は Spring Framework / Reactor / JDBC / Servlet API
+//   に依存してはならない。依存を追加する場合は docs/ARCHITECTURE.md の
+//   「コア独立性保証」セクションを参照し、設計判断を記録すること。
+//   確認コマンド: ./gradlew :streamconverter-core:dependencies
+// ─────────────────────────────────────────────────────────────────────────
 dependencies {
     // Logging
     implementation("ch.qos.logback:logback-core:1.5.32")

@@ -133,6 +133,34 @@ try {
 </configuration>
 ```
 
+## 4. Pipeline DSL（#502）
+
+`Pipeline` クラスを使用すると、より宣言的にパイプラインを構築できます。
+
+```java
+import com.streamconverter.dsl.Pipeline;
+import com.streamconverter.io.Source;
+import com.streamconverter.io.Sink;
+import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.path.CSVPath;
+import java.nio.file.Path;
+
+// ファイルベースのパイプライン
+Pipeline.input(Source.ofFile(Path.of("input.csv")))
+    .then(CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()))
+    .to(Sink.toFile(Path.of("output.txt")));
+```
+
+既存のストリームを使用する場合:
+
+```java
+Pipeline.input(Source.of(inputStream))
+    .then(command1)
+    .then(command2)
+    .to(Sink.of(outputStream));
+```
+
 ---
 
 より多くの例は [BasicUsageExamples.java](../../streamconverter-examples/src/main/java/com/streamconverter/examples/docs/BasicUsageExamples.java)（コンパイル検証済み）を参照してください。

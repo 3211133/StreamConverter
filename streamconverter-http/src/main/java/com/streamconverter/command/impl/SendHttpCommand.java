@@ -14,6 +14,7 @@ package com.streamconverter.command.impl;
 
 import com.google.common.net.InetAddresses;
 import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.security.InputValidator;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -68,36 +69,23 @@ public class SendHttpCommand extends AbstractStreamCommand {
   /**
    * URLの検証とサニタイゼーションを行う
    *
+   * <p>基本的なスキーム・ホスト検証は {@link InputValidator#validateUrl(String)} に委譲し、
+   * SSRF 対策（ローカルホスト・プライベート IP ブロック）はここで追加検証する。
+   *
    * @param url 検証するURL
    * @return 検証済みURL
    * @throws IllegalArgumentException URLが無効な場合
    */
   private String validateAndSanitizeUrl(String url) {
-    Objects.requireNonNull(url, "URL cannot be null");
+    // 基本的な URL スキーム・ホスト検証を InputValidator に委譲
+    InputValidator.validateUrl(url);
 
     String trimmedUrl = url.trim();
-    if (trimmedUrl.isEmpty()) {
-      throw new IllegalArgumentException("URL cannot be empty");
-    }
-
     try {
       URI uri = new URI(trimmedUrl);
-      String scheme = uri.getScheme();
-
-      if (scheme == null) {
-        throw new IllegalArgumentException("URL must have a scheme (http or https)");
-      }
-
-      if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-        throw new IllegalArgumentException("Only HTTP and HTTPS protocols are allowed");
-      }
-
       String host = uri.getHost();
-      if (host == null || host.trim().isEmpty()) {
-        throw new IllegalArgumentException("URL must have a valid host");
-      }
 
-      // ローカルホストや内部IPアドレスへのアクセスを防ぐ
+      // ローカルホストや内部IPアドレスへのアクセスを防ぐ（SSRF対策）
       if (isLocalhost(host) || isPrivateIpAddress(host)) {
         throw new IllegalArgumentException(
             "Access to localhost or private IP addresses is not allowed");

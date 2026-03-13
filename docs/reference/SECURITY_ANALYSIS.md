@@ -207,6 +207,25 @@ StreamConverterプロジェクトは現在、**高いセキュリティ品質を
 
 この状態により、**Issue #110の根本的解決が完了**しました。
 
+## 🏗️ バリデーション設計方針
+
+### 入力バリデーション集約（#508）
+
+共通の入力バリデーションロジックは `streamconverter-core` の
+`com.streamconverter.security.InputValidator` クラスに集約している。
+
+```java
+// InputValidator — コア共通バリデーション
+InputValidator.validateUrl(url);  // HTTP/HTTPS スキームのみ許可
+
+// SendHttpCommand — SSRF 対策（コア非依存のホスト固有チェック）
+if (isLocalhost(host) || isPrivateIpAddress(host)) { ... }
+```
+
+**設計判断:** `DatabaseFetchRule` の SQL バリデーション（PreparedStatement 使用）は
+`streamconverter-db` モジュール固有のため、コアに移動しない。
+これにより `streamconverter-core` → `streamconverter-db` の依存逆転を回避する。
+
 ## 関連ドキュメント
 
 - [Security Policy](../SECURITY.md) - セキュリティポリシーと脆弱性報告

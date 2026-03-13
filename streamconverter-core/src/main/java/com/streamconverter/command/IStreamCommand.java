@@ -1,5 +1,7 @@
 package com.streamconverter.command;
 
+import com.streamconverter.metrics.Metrics;
+import com.streamconverter.metrics.NoOpMetrics;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -81,21 +83,41 @@ public interface IStreamCommand {
    * @return a new {@link IStreamCommand} that delegates to this command and emits log records
    */
   default IStreamCommand withLogging(Logger logger, String commandName) {
+    return withLogging(logger, commandName, NoOpMetrics.INSTANCE);
+  }
+
+  /**
+   * Wraps this command with logging and metrics using an explicit command name.
+   *
+   * <p>Combines log output with {@link Metrics} recording for observability.
+   *
+   * @param logger the logger to write messages to
+   * @param commandName the human-readable name of this command to appear in log messages
+   * @param metrics the metrics collector to record execution events
+   * @return a new {@link IStreamCommand} that delegates to this command and emits log records and
+   *     metrics
+   */
+  default IStreamCommand withLogging(Logger logger, String commandName, Metrics metrics) {
     return (in, out) -> {
       logger.info("Starting command: {}", commandName);
+      metrics.recordCommandStart(commandName);
       long start = System.currentTimeMillis();
       try {
         this.execute(in, out);
-        logger.info(
-            "Completed command: {} ({}ms)", commandName, System.currentTimeMillis() - start);
+        long durationMs = System.currentTimeMillis() - start;
+        logger.info("Completed command: {} ({}ms)", commandName, durationMs);
+        metrics.recordCommandEnd(commandName, durationMs);
       } catch (IOException e) {
         logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
+        metrics.recordError(commandName, e);
         throw e;
       } catch (RuntimeException e) {
         logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
+        metrics.recordError(commandName, e);
         throw e;
       } catch (Error e) {
         logger.error("Fatal error in command: {} - {}", commandName, e.getMessage(), e);
+        metrics.recordError(commandName, e);
         throw e;
       }
     };

@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+    <!-- パイプライン内コマンド間のMDC共有値を自動同期 -->
+    <turboFilter class="com.streamconverter.logging.PipelineContextTurboFilter"/>
+
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <!-- MDC値 (jobId, environment, productId など) を出力に含める -->
+            <pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} MDC={%mdc} - %msg%n</pattern>
+        </encoder>
+    </appender>
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+    </root>
+</configuration>

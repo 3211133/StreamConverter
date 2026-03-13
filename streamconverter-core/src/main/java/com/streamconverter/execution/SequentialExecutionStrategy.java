@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.List;
+import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
@@ -20,6 +21,8 @@ import org.slf4j.MDC;
  *
  * <p>注意: 中間バッファリングのためメモリ使用量は {@link ParallelExecutionStrategy} より多くなる場合がある。 大容量データ処理には {@link
  * ParallelExecutionStrategy} の使用を推奨する。
+ *
+ * <p>MDC の分離: 各コマンド実行前に MDC スナップショットを取得し、実行後に復元することで コマンド間での MDC 値の汚染を防いでいる。
  */
 public final class SequentialExecutionStrategy implements ExecutionStrategy {
 
@@ -44,6 +47,9 @@ public final class SequentialExecutionStrategy implements ExecutionStrategy {
         IStreamCommand command = commands.get(i);
         String commandName = commandNames.get(i);
 
+        // コマンド実行前の MDC スナップショットを保存（コマンド間汚染防止）
+        Map<String, String> mdcSnapshot = MDC.getCopyOfContextMap();
+
         if (i == commands.size() - 1) {
           // 最後のコマンドは最終出力ストリームに直接書き込む
           try {
@@ -53,6 +59,8 @@ public final class SequentialExecutionStrategy implements ExecutionStrategy {
           } catch (IOException | RuntimeException e) {
             throw new StreamProcessingException(
                 "Command execution failed: " + commandName + " - " + e.getMessage(), e);
+          } finally {
+            restoreMdc(mdcSnapshot);
           }
         } else {
           // 中間コマンドはバッファに書き込む
@@ -65,6 +73,8 @@ public final class SequentialExecutionStrategy implements ExecutionStrategy {
           } catch (IOException | RuntimeException e) {
             throw new StreamProcessingException(
                 "Command execution failed: " + commandName + " - " + e.getMessage(), e);
+          } finally {
+            restoreMdc(mdcSnapshot);
           }
           currentInput = new ByteArrayInputStream(buffer.toByteArray());
 
@@ -81,6 +91,14 @@ public final class SequentialExecutionStrategy implements ExecutionStrategy {
     } finally {
       PipelineContext.clear();
       MDC.clear();
+    }
+  }
+
+  /** MDC を指定したスナップショットの状態に復元する。スナップショットが null の場合はクリアする。 */
+  private static void restoreMdc(Map<String, String> snapshot) {
+    MDC.clear();
+    if (snapshot != null) {
+      MDC.setContextMap(snapshot);
     }
   }
 }

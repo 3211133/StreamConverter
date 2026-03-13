@@ -89,7 +89,7 @@ MDC.put("environment", "production");
 
 try {
     IStreamCommand[] pipeline = {
-        CsvNavigateCommand.create(CSVPath.of("productId"), new MdcPropagatingRule("productId")),
+        CsvNavigateCommand.create(CSVPath.of("productId"), MdcPropagatingRule.create("productId")),
         (IStreamCommand) (in, out) -> {
             // 上流コマンドと並列実行されるため、開始時点での productId の有無は非決定的
             // （入力が小さい場合は上流が先に完了し、既に MDC に含まれることもある）

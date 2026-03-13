@@ -247,7 +247,7 @@ public class BasicUsageExamples {
 
     try {
       IStreamCommand[] pipeline = {
-        CsvNavigateCommand.create(CSVPath.of("productId"), new MdcPropagatingRule("productId")),
+        CsvNavigateCommand.create(CSVPath.of("productId"), MdcPropagatingRule.create("productId")),
         (IStreamCommand)
             (in, out) -> {
               // Both commands run concurrently on separate virtual threads. productId is written

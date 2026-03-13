@@ -48,6 +48,11 @@
 - **[WEB_API.md](WEB_API.md)**: API 公開時の注意事項
 - **[logging-rules.md](logging-rules.md)**: ログ運用ポリシー
 
+## 🗺️ Roadmap & Design Decisions
+- **[reference/JSON_VALIDATE_REINSTATEMENT_CRITERIA.md](reference/JSON_VALIDATE_REINSTATEMENT_CRITERIA.md)**: JSON バリデーション再導入要件 (#456)
+- **[reference/SCOPED_VALUE_MIGRATION_PLAN.md](reference/SCOPED_VALUE_MIGRATION_PLAN.md)**: ScopedValue 移行計画（Java 25 LTS 待ち）(#498)
+- **[reference/TEST_MODULE_STRATEGY.md](reference/TEST_MODULE_STRATEGY.md)**: モジュール別テスト責任境界 (#509)
+
 ## 🤖 AI Assistant Guides
 - **[../CLAUDE.md](../CLAUDE.md)**: Claude Code 向けメインガイド（コマンド、ワークフロー）
 - **[reference/CLAUDE_ARCHITECTURE.md](reference/CLAUDE_ARCHITECTURE.md)**: アーキテクチャパターンとコマンドタイプ

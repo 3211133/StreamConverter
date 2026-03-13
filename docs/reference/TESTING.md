@@ -473,8 +473,28 @@ void testBenchmarkConsistency()          // 性能一貫性テスト
 
 すべてのテストは現在成功していますが、上記の環境条件によっては失敗する可能性があります。
 
+## モジュール別テスト責任
+
+各モジュールが担うテスト責任の詳細は [TEST_MODULE_STRATEGY.md](TEST_MODULE_STRATEGY.md) を参照してください。
+
+### ベンチマーク配置の原則
+
+- ベンチマークテストは `streamconverter-tools` モジュールに集約する
+- すべてのベンチマークに `@Tag("benchmark")` を付与し、通常の `./gradlew test` から除外する
+- 専用タスク (`benchmarkAll`, `benchmarkLargeData` 等) で実行する
+
+```bash
+# ベンチマークのみ実行
+./gradlew :streamconverter-tools:benchmarkAll
+
+# モジュール別テスト
+./gradlew :streamconverter-core:test
+./gradlew :streamconverter-http:test
+```
+
 ## 関連ドキュメント
 
+- [TEST_MODULE_STRATEGY.md](TEST_MODULE_STRATEGY.md) - モジュール別テスト責任境界
 - [Memory Efficiency Test Strategy](MEMORY_EFFICIENCY_TEST_STRATEGY.md) - メモリ効率化テストの包括的な設計書
 - [Cross-Platform Test Considerations](CROSS_PLATFORM_TEST_CONSIDERATIONS.md) - クロスプラットフォームテストの考慮事項
 - [Command Architecture](../archived/COMMAND_ARCHITECTURE.md) - コマンドパターンとテストアーキテクチャ

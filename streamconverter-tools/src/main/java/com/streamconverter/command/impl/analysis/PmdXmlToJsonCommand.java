@@ -97,7 +97,7 @@ public class PmdXmlToJsonCommand extends AbstractStreamCommand {
    * @throws IOException XML解析エラーまたはI/O例外の場合
    */
   @Override
-  protected void executeInternal(InputStream input, OutputStream output) throws IOException {
+  public void execute(InputStream input, OutputStream output) throws IOException {
     try {
       // StreamConverter原則: ストリーム間変換
       List<PmdViolation> violations = parseXmlStream(input);
@@ -109,11 +109,6 @@ public class PmdXmlToJsonCommand extends AbstractStreamCommand {
     } catch (Exception e) {
       throw new IOException("Failed to convert PMD XML to JSON: " + e.getMessage(), e);
     }
-  }
-
-  @Override
-  protected String getCommandDetails() {
-    return "PmdXmlToJsonCommand: Converts PMD XML reports to structured JSON using Jackson ObjectMapper";
   }
 
   /** PMD XML ストリームからバイオレーション情報を解析 */

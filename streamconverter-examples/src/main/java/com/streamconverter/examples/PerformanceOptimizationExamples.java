@@ -75,7 +75,7 @@ public class PerformanceOptimizationExamples {
     logger.info("🔄 Processing 10,000 records...");
     processDataWithTiming(
         largeDataset.toString(),
-        CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()));
+        CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()));
 
     long endTime = System.currentTimeMillis();
     logger.info(String.format("⏱️ Processing completed in %d ms", endTime - startTime));
@@ -139,8 +139,7 @@ public class PerformanceOptimizationExamples {
 
     logger.info("🔄 Processing 50,000 records with 100-char data each...");
     processDataWithTiming(
-        hugeDataset.toString(),
-        CsvNavigateCommand.create(new CSVPath("id"), new PassThroughRule()));
+        hugeDataset.toString(), CsvNavigateCommand.create(CSVPath.of("id"), new PassThroughRule()));
 
     long afterMemory = getUsedMemory();
     long memoryIncrease = afterMemory - beforeMemory;
@@ -164,13 +163,13 @@ public class PerformanceOptimizationExamples {
     // Strategy 1: Direct processing
     long start = System.nanoTime();
     processDataWithTiming(
-        testData, CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()));
+        testData, CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()));
     long directTime = System.nanoTime() - start;
 
     // Strategy 2: Pipeline processing
     start = System.nanoTime();
     IStreamCommand[] pipeline = {
-      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),
+      CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()),
       (IStreamCommand) (in, out) -> in.transferTo(out)
     };
     processDataWithTiming(testData, pipeline);
@@ -179,7 +178,7 @@ public class PerformanceOptimizationExamples {
     // Strategy 3: Multi-stage processing
     start = System.nanoTime();
     IStreamCommand[] multiStage = {
-      CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule()),
+      CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()),
       (IStreamCommand) (in, out) -> in.transferTo(out),
       (IStreamCommand) (in, out) -> in.transferTo(out),
       (IStreamCommand) (in, out) -> in.transferTo(out)
@@ -212,7 +211,7 @@ public class PerformanceOptimizationExamples {
             new ByteArrayInputStream(inputData.getBytes(StandardCharsets.UTF_8));
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-      StreamConverter converter = new StreamConverter(commands);
+      StreamConverter converter = StreamConverter.create(commands);
       converter.run(inputStream, outputStream);
 
       // Show only a sample of output for large datasets

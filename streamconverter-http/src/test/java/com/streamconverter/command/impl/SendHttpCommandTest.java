@@ -177,16 +177,10 @@ class SendHttpCommandTest {
     SendHttpCommand command = new SendHttpCommand("https://httpbin.org/post");
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    Exception exception =
-        assertThrows(
-            IOException.class,
-            () -> command.execute(null, outputStream),
-            "null入力ストリームはIOExceptionをスローするべき");
-
-    // The root cause should be NullPointerException
-    assertTrue(
-        exception.getCause() instanceof NullPointerException,
-        "Root cause should be NullPointerException");
+    assertThrows(
+        NullPointerException.class,
+        () -> command.execute(null, outputStream),
+        "null入力ストリームはNullPointerExceptionをスローするべき");
   }
 
   @Test
@@ -196,16 +190,10 @@ class SendHttpCommandTest {
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
 
-    Exception exception =
-        assertThrows(
-            IOException.class,
-            () -> command.execute(inputStream, null),
-            "null出力ストリームはIOExceptionをスローするべき");
-
-    // The root cause should be NullPointerException
-    assertTrue(
-        exception.getCause() instanceof NullPointerException,
-        "Root cause should be NullPointerException");
+    assertThrows(
+        NullPointerException.class,
+        () -> command.execute(inputStream, null),
+        "null出力ストリームはNullPointerExceptionをスローするべき");
   }
 
   @Test

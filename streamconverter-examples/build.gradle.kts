@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("application")
-    id("com.diffplug.spotless") version "8.1.0"
+    id("com.diffplug.spotless") version "8.2.1"
     id("org.springframework.boot") version "3.5.7"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -79,6 +79,13 @@ tasks.register<JavaExec>("runDatabaseRuleDemo") {
     description = "Run Database Rule Demo"
     classpath = sourceSets.main.get().runtimeClasspath
     mainClass.set("com.streamconverter.examples.DatabaseRuleDemo")
+}
+
+tasks.register<JavaExec>("runBasicUsageExamples") {
+    group = "application"
+    description = "Run BasicUsageExamples (docs examples)"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamconverter.examples.docs.BasicUsageExamples")
 }
 
 // Spotless configuration for code formatting

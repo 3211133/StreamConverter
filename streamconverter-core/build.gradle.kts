@@ -5,7 +5,7 @@ plugins {
     id("jacoco")
     id("pmd")
     id("com.github.spotbugs") version "6.4.8"
-    id("com.diffplug.spotless") version "8.1.0"
+    id("com.diffplug.spotless") version "8.2.1"
     id("info.solidsoft.pitest") version "1.19.0-rc.3"
 }
 
@@ -37,8 +37,8 @@ repositories {
 
 dependencies {
     // Logging
-    implementation("ch.qos.logback:logback-core:1.5.18")
-    implementation("ch.qos.logback:logback-classic:1.5.18")
+    implementation("ch.qos.logback:logback-core:1.5.32")
+    implementation("ch.qos.logback:logback-classic:1.5.32")
 
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.20.0")

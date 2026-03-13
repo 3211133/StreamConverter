@@ -24,7 +24,7 @@ class ConvertTest {
   @DisplayName("Constructor Test")
   void testConstructor() {
     // コンストラクタのテスト
-    CharacterConvertCommand command = new CharacterConvertCommand("UTF-8", "UTF-16");
+    CharacterConvertCommand command = CharacterConvertCommand.create("UTF-8", "UTF-16");
     assertNotNull(command);
   }
 
@@ -33,7 +33,7 @@ class ConvertTest {
   @DisplayName("Execute Normal Case: Character Code Conversion")
   void testExecuteWithValidCharsets(String fromCharset, String toCharset) throws IOException {
     // 正常系のexecuteメソッドテスト
-    CharacterConvertCommand command = new CharacterConvertCommand(fromCharset, toCharset);
+    CharacterConvertCommand command = CharacterConvertCommand.create(fromCharset, toCharset);
 
     // 入力文字列をfromCharsetでエンコード
     byte[] inputBytes = TEST_STRING.getBytes(Charset.forName(fromCharset));
@@ -53,41 +53,29 @@ class ConvertTest {
   @DisplayName("Execute Error Case: Null Input Stream")
   void testExecuteWithNullInputStream() {
     // null入力ストリームでのexecuteメソッドテスト
-    CharacterConvertCommand command = new CharacterConvertCommand("UTF-8", "UTF-16");
+    CharacterConvertCommand command = CharacterConvertCommand.create("UTF-8", "UTF-16");
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    Exception exception =
-        assertThrows(
-            IOException.class,
-            () -> {
-              command.execute(null, outputStream);
-            });
-
-    // The root cause should be NullPointerException
-    assertTrue(
-        exception.getCause() instanceof NullPointerException,
-        "Root cause should be NullPointerException");
+    assertThrows(
+        NullPointerException.class,
+        () -> {
+          command.execute(null, outputStream);
+        });
   }
 
   @Test
   @DisplayName("Execute Error Case: Null Output Stream")
   void testExecuteWithNullOutputStream() {
     // null出力ストリームでのexecuteメソッドテスト
-    CharacterConvertCommand command = new CharacterConvertCommand("UTF-8", "UTF-16");
+    CharacterConvertCommand command = CharacterConvertCommand.create("UTF-8", "UTF-16");
     InputStream inputStream =
         new ByteArrayInputStream(TEST_STRING.getBytes(StandardCharsets.UTF_8));
 
-    Exception exception =
-        assertThrows(
-            IOException.class,
-            () -> {
-              command.execute(inputStream, null);
-            });
-
-    // The root cause should be NullPointerException
-    assertTrue(
-        exception.getCause() instanceof NullPointerException,
-        "Root cause should be NullPointerException");
+    assertThrows(
+        NullPointerException.class,
+        () -> {
+          command.execute(inputStream, null);
+        });
   }
 
   @Test
@@ -98,7 +86,7 @@ class ConvertTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
-          new CharacterConvertCommand("INVALID-CHARSET", "UTF-8");
+          CharacterConvertCommand.create("INVALID-CHARSET", "UTF-8");
         });
   }
 
@@ -110,7 +98,7 @@ class ConvertTest {
     assertThrows(
         IllegalArgumentException.class,
         () -> {
-          new CharacterConvertCommand("UTF-8", "INVALID-CHARSET");
+          CharacterConvertCommand.create("UTF-8", "INVALID-CHARSET");
         });
   }
 
@@ -118,7 +106,7 @@ class ConvertTest {
   @DisplayName("Execute: Empty Input Stream")
   void testExecuteWithEmptyInputStream() throws IOException {
     // 空の入力ストリームでのexecuteメソッドテスト
-    CharacterConvertCommand command = new CharacterConvertCommand("UTF-8", "UTF-16");
+    CharacterConvertCommand command = CharacterConvertCommand.create("UTF-8", "UTF-16");
 
     try (InputStream inputStream = new ByteArrayInputStream(new byte[0]);
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
@@ -135,7 +123,7 @@ class ConvertTest {
   void testJapaneseCharacterConversion() throws IOException {
     // 日本語文字の変換テスト
     String japaneseText = "日本語のテスト文字列です。漢字、ひらがな、カタカナを含みます。";
-    CharacterConvertCommand command = new CharacterConvertCommand("UTF-8", "UTF-16");
+    CharacterConvertCommand command = CharacterConvertCommand.create("UTF-8", "UTF-16");
 
     try (InputStream inputStream =
             new ByteArrayInputStream(japaneseText.getBytes(StandardCharsets.UTF_8));
@@ -152,7 +140,7 @@ class ConvertTest {
   @Test
   @DisplayName("Streaming character conversion behavior verification")
   void testStreamingCharacterConversionBehavior() throws IOException {
-    CharacterConvertCommand command = new CharacterConvertCommand("UTF-8", "UTF-16");
+    CharacterConvertCommand command = CharacterConvertCommand.create("UTF-8", "UTF-16");
 
     // Create moderate-sized multilingual text to observe streaming behavior
     StringBuilder textBuilder = new StringBuilder();
@@ -195,7 +183,7 @@ class ConvertTest {
   @Test
   @DisplayName("Incremental character conversion processing verification")
   void testIncrementalCharacterConversionProcessing() throws IOException {
-    CharacterConvertCommand command = new CharacterConvertCommand("UTF-8", "UTF-16");
+    CharacterConvertCommand command = CharacterConvertCommand.create("UTF-8", "UTF-16");
 
     // Create complex multilingual content to force incremental processing
     StringBuilder contentBuilder = new StringBuilder();

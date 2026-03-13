@@ -39,13 +39,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  public JsonNavigateCommand(TreePath treePath, IRule rule) {
-    if (treePath == null) {
-      throw new IllegalArgumentException("TreePath cannot be null");
-    }
-    if (rule == null) {
-      throw new IllegalArgumentException("Rule cannot be null");
-    }
+  private JsonNavigateCommand(TreePath treePath, IRule rule) {
     this.treePath = treePath;
     this.rule = rule;
     this.objectMapper = new ObjectMapper();
@@ -57,22 +51,20 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * @param treePath the TreePath to select data
    * @param rule the transformation rule to apply to selected elements
    * @return a JsonNavigateCommand that transforms the specified path with the given rule
-   * @throws IllegalArgumentException if rule is null
+   * @throws IllegalArgumentException if treePath or rule is null
    */
   public static JsonNavigateCommand create(TreePath treePath, IRule rule) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
+    }
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
     return new JsonNavigateCommand(treePath, rule);
   }
 
   @Override
-  protected String getCommandDetails() {
-    return String.format(
-        "JsonNavigateCommand(treePath='%s', rule='%s')",
-        treePath.toString(), rule.getClass().getSimpleName());
-  }
-
-  @Override
-  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     processJsonWithStreaming(inputStream, outputStream);
   }
 

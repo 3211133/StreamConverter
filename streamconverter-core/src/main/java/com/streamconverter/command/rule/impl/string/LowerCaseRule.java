@@ -43,11 +43,22 @@ public class LowerCaseRule implements IRule {
    * @param locale the locale to use for case conversion
    * @throws IllegalArgumentException if locale is null
    */
-  public LowerCaseRule(Locale locale) {
+  private LowerCaseRule(Locale locale) {
+    this.locale = locale;
+  }
+
+  /**
+   * Creates a LowerCaseRule using the specified locale.
+   *
+   * @param locale the locale to use for case conversion
+   * @return a LowerCaseRule instance
+   * @throws IllegalArgumentException if locale is null
+   */
+  public static LowerCaseRule create(Locale locale) {
     if (locale == null) {
       throw new IllegalArgumentException("Locale cannot be null");
     }
-    this.locale = locale;
+    return new LowerCaseRule(locale);
   }
 
   @Override

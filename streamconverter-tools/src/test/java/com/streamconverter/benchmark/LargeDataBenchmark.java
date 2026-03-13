@@ -128,8 +128,7 @@ class LargeDataBenchmark {
     OutputStream nullOutput = new NullOutputStream();
 
     // シンプルなパイプライン（メモリ効率最優先）
-    StreamConverter converter =
-        new StreamConverter(new IStreamCommand[] {(in, out) -> in.transferTo(out)});
+    StreamConverter converter = StreamConverter.create((in, out) -> in.transferTo(out));
 
     // リソース監視開始
     ResourceMonitor monitor = new ResourceMonitor();
@@ -196,7 +195,7 @@ class LargeDataBenchmark {
 
     // フォーマット別コマンド選択
     IStreamCommand command = createFormatSpecificCommand(format);
-    StreamConverter converter = new StreamConverter(new IStreamCommand[] {command});
+    StreamConverter converter = StreamConverter.create(command);
 
     ResourceMonitor monitor = new ResourceMonitor();
     monitor.start(testDataSize);
@@ -252,7 +251,7 @@ class LargeDataBenchmark {
 
     // フォーマット別コマンド選択
     IStreamCommand command = createFormatSpecificCommand(format);
-    StreamConverter converter = new StreamConverter(new IStreamCommand[] {command});
+    StreamConverter converter = StreamConverter.create(command);
 
     ResourceMonitor monitor = new ResourceMonitor();
     monitor.start(testDataSize);
@@ -313,8 +312,7 @@ class LargeDataBenchmark {
       InputStream dataStream = LargeDataGenerator.createLargeDataStream("XML", dataSize);
       OutputStream nullOutput = new NullOutputStream();
 
-      StreamConverter converter =
-          new StreamConverter(new IStreamCommand[] {(in, out) -> in.transferTo(out)});
+      StreamConverter converter = StreamConverter.create((in, out) -> in.transferTo(out));
 
       ResourceMonitor monitor = new ResourceMonitor();
       monitor.start(dataSize);
@@ -374,13 +372,11 @@ class LargeDataBenchmark {
 
     // 複雑なパイプライン（メモリプレッシャーをかける）
     StreamConverter converter =
-        new StreamConverter(
-            new IStreamCommand[] {
-              JsonNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule()),
-              (in, out) -> in.transferTo(out),
-              (in, out) -> in.transferTo(out),
-              (in, out) -> in.transferTo(out)
-            });
+        StreamConverter.create(
+            JsonNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule()),
+            (in, out) -> in.transferTo(out),
+            (in, out) -> in.transferTo(out),
+            (in, out) -> in.transferTo(out));
 
     ResourceMonitor monitor = new ResourceMonitor();
     monitor.start(testDataSize);
@@ -476,13 +472,11 @@ class LargeDataBenchmark {
 
       // 複雑な4段階パイプライン
       StreamConverter converter =
-          new StreamConverter(
-              new IStreamCommand[] {
-                XmlNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule()),
-                (in, out) -> in.transferTo(out),
-                (in, out) -> in.transferTo(out),
-                (in, out) -> in.transferTo(out)
-              });
+          StreamConverter.create(
+              XmlNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule()),
+              (in, out) -> in.transferTo(out),
+              (in, out) -> in.transferTo(out),
+              (in, out) -> in.transferTo(out));
 
       ResourceMonitor monitor = new ResourceMonitor();
       monitor.start(testDataSize);
@@ -534,8 +528,8 @@ class LargeDataBenchmark {
       // 複雑パイプラインを軽量化（文字コード変換を含む4段階）
       IStreamCommand[] pipeline = {
         (in, out) -> in.transferTo(out),
-        new CharacterConvertCommand("UTF-8", "UTF-16"),
-        new CharacterConvertCommand("UTF-16", "UTF-8"),
+        CharacterConvertCommand.create("UTF-8", "UTF-16"),
+        CharacterConvertCommand.create("UTF-16", "UTF-8"),
         (in, out) -> in.transferTo(out)
       };
 
@@ -691,7 +685,7 @@ class LargeDataBenchmark {
     try (InputStream input = LargeDataGenerator.createLargeDataStream("CSV", dataSize);
         OutputStream output = new NullOutputStream()) {
 
-      StreamConverter converter = new StreamConverter(pipeline);
+      StreamConverter converter = StreamConverter.create(pipeline);
       converter.run(input, output);
     }
   }
@@ -791,7 +785,7 @@ class LargeDataBenchmark {
       case "JSON":
         return JsonNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule());
       case "CSV":
-        return CsvNavigateCommand.create(new CSVPath("name"), new PassThroughRule());
+        return CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
       default:
         return (in, out) -> in.transferTo(out);
     }

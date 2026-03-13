@@ -40,23 +40,27 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @param jsonPath the typed TreePath to extract data
    * @throws IllegalArgumentException if jsonPath is null
    */
-  public JsonFilterCommand(IPath<List<String>> jsonPath) {
-    if (jsonPath == null) {
-      throw new IllegalArgumentException("TreePath cannot be null");
-    }
+  private JsonFilterCommand(IPath<List<String>> jsonPath) {
     this.jsonPath = jsonPath;
-    jsonPath.toString();
     this.objectMapper = new ObjectMapper();
   }
 
-  @Override
-  protected String getCommandDetails() {
-    return String.format("JsonFilterCommand(jsonPath='%s')", jsonPath.toString());
+  /**
+   * Factory method for JSON filtering with typed path selector.
+   *
+   * @param jsonPath the typed path to extract data
+   * @return a JsonFilterCommand instance
+   * @throws IllegalArgumentException if jsonPath is null
+   */
+  public static JsonFilterCommand create(IPath<List<String>> jsonPath) {
+    if (jsonPath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
+    }
+    return new JsonFilterCommand(jsonPath);
   }
 
   @Override
-  protected void executeInternal(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     try (BufferedReader reader =
             new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
         Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {

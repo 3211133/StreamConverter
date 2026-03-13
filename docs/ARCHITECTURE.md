@@ -312,17 +312,14 @@ new PassThroughRule()  // No transformation, just pass data through
 ### 依存関係の原則
 
 ```
-streamconverter-core   ← web / db / http の依存を受けない
-       ▲
-       │ implements
-streamconverter-http   (SpringWebFlux + Reactor Netty)
-streamconverter-db     (H2 / JDBC)
-streamconverter-web    (Spring Boot MVC)
+streamconverter-http   (Spring WebFlux + Reactor Netty)  ─┐
+streamconverter-db     (H2 / JDBC)                        ├─ depends on ──▶ streamconverter-core
+streamconverter-web    (Spring Boot WebFlux)              ─┘
 ```
 
 **`streamconverter-core` が依存して良いもの:**
 - Java 標準ライブラリ (java.*)
-- SLF4J (ログ API のみ、実装はランタイム依存)
+- SLF4J + Logback (ログ実装を含む)
 - Apache Commons (commons-lang3, commons-io)
 - JSON Schema バリデーターなどの処理ライブラリ
 
@@ -332,8 +329,8 @@ streamconverter-web    (Spring Boot MVC)
 - JDBC / JPA
 - サーブレット API
 
-この独立性は `streamconverter-core/build.gradle.kts` の依存宣言によって構造的に保証される。
-変更時は `./gradlew :streamconverter-core:dependencies` で依存ツリーを確認すること。
+この独立性は `./gradlew :streamconverter-core:dependencies` で依存ツリーを確認することで検証できる。
+変更時は必ず上記コマンドで禁止依存が含まれていないことを確認すること。
 
 ## Conclusion
 

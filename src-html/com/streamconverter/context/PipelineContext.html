@@ -34,100 +34,111 @@
 <span class="source-line-no">021</span><span id="line-21"> *</span>
 <span class="source-line-no">022</span><span id="line-22"> * // 他のコマンドのログ出力時に自動的にMDCに反映される</span>
 <span class="source-line-no">023</span><span id="line-23"> * }&lt;/pre&gt;</span>
-<span class="source-line-no">024</span><span id="line-24"> */</span>
-<span class="source-line-no">025</span><span id="line-25">public final class PipelineContext {</span>
-<span class="source-line-no">026</span><span id="line-26"></span>
-<span class="source-line-no">027</span><span id="line-27">  private static final ThreadLocal&lt;PipelineContext&gt; HOLDER = new ThreadLocal&lt;&gt;();</span>
-<span class="source-line-no">028</span><span id="line-28"></span>
-<span class="source-line-no">029</span><span id="line-29">  private final ConcurrentHashMap&lt;String, String&gt; sharedValues = new ConcurrentHashMap&lt;&gt;();</span>
-<span class="source-line-no">030</span><span id="line-30"></span>
-<span class="source-line-no">031</span><span id="line-31">  /**</span>
-<span class="source-line-no">032</span><span id="line-32">   * 共有値を設定し、呼び出しスレッドのMDCにも即座に反映する。</span>
-<span class="source-line-no">033</span><span id="line-33">   *</span>
-<span class="source-line-no">034</span><span id="line-34">   * &lt;p&gt;PipelineContextが未設定のスレッドから呼ばれた場合は何もしない。</span>
-<span class="source-line-no">035</span><span id="line-35">   *</span>
-<span class="source-line-no">036</span><span id="line-36">   * @param key MDCキー名</span>
-<span class="source-line-no">037</span><span id="line-37">   * @param value 値。nullの場合はキーを削除する</span>
-<span class="source-line-no">038</span><span id="line-38">   * @throws IllegalArgumentException keyがnullの場合</span>
-<span class="source-line-no">039</span><span id="line-39">   */</span>
-<span class="source-line-no">040</span><span id="line-40">  public static void putShared(String key, String value) {</span>
-<span class="source-line-no">041</span><span id="line-41">    if (key == null) {</span>
-<span class="source-line-no">042</span><span id="line-42">      throw new IllegalArgumentException("key must not be null");</span>
-<span class="source-line-no">043</span><span id="line-43">    }</span>
-<span class="source-line-no">044</span><span id="line-44">    PipelineContext ctx = HOLDER.get();</span>
-<span class="source-line-no">045</span><span id="line-45">    if (ctx == null) {</span>
-<span class="source-line-no">046</span><span id="line-46">      return;</span>
-<span class="source-line-no">047</span><span id="line-47">    }</span>
-<span class="source-line-no">048</span><span id="line-48">    if (value != null) {</span>
-<span class="source-line-no">049</span><span id="line-49">      ctx.sharedValues.put(key, value);</span>
-<span class="source-line-no">050</span><span id="line-50">      MDC.put(key, value);</span>
-<span class="source-line-no">051</span><span id="line-51">    } else {</span>
-<span class="source-line-no">052</span><span id="line-52">      ctx.sharedValues.remove(key);</span>
-<span class="source-line-no">053</span><span id="line-53">      MDC.remove(key);</span>
+<span class="source-line-no">024</span><span id="line-24"> *</span>
+<span class="source-line-no">025</span><span id="line-25"> * &lt;p&gt;&lt;b&gt;MDC 関連クラスの全体像:&lt;/b&gt;</span>
+<span class="source-line-no">026</span><span id="line-26"> *</span>
+<span class="source-line-no">027</span><span id="line-27"> * &lt;ul&gt;</span>
+<span class="source-line-no">028</span><span id="line-28"> *   &lt;li&gt;{@link com.streamconverter.command.rule.MdcPropagatingRule} — ストリームから抽出した値を このコンテキスト経由で MDC</span>
+<span class="source-line-no">029</span><span id="line-29"> *       に伝搬する Rule 実装。コマンドから MDC へ値を書き込む際の推奨手段。</span>
+<span class="source-line-no">030</span><span id="line-30"> *   &lt;li&gt;{@link com.streamconverter.logging.PipelineContextTurboFilter} — ログ出力直前に {@link</span>
+<span class="source-line-no">031</span><span id="line-31"> *       #syncToMDC()} を呼び出し、共有値を MDC へ自動反映する Logback TurboFilter。</span>
+<span class="source-line-no">032</span><span id="line-32"> *   &lt;li&gt;{@link com.streamconverter.logging.MDCInitializer} — {@code InheritableMDCAdapter} を</span>
+<span class="source-line-no">033</span><span id="line-33"> *       インストールし、MDC コンテキストを子スレッドへ自動継承させる。アプリ起動時に一度呼ぶ。</span>
+<span class="source-line-no">034</span><span id="line-34"> * &lt;/ul&gt;</span>
+<span class="source-line-no">035</span><span id="line-35"> */</span>
+<span class="source-line-no">036</span><span id="line-36">public final class PipelineContext {</span>
+<span class="source-line-no">037</span><span id="line-37"></span>
+<span class="source-line-no">038</span><span id="line-38">  private static final ThreadLocal&lt;PipelineContext&gt; HOLDER = new ThreadLocal&lt;&gt;();</span>
+<span class="source-line-no">039</span><span id="line-39"></span>
+<span class="source-line-no">040</span><span id="line-40">  private final ConcurrentHashMap&lt;String, String&gt; sharedValues = new ConcurrentHashMap&lt;&gt;();</span>
+<span class="source-line-no">041</span><span id="line-41"></span>
+<span class="source-line-no">042</span><span id="line-42">  /**</span>
+<span class="source-line-no">043</span><span id="line-43">   * 共有値を設定し、呼び出しスレッドのMDCにも即座に反映する。</span>
+<span class="source-line-no">044</span><span id="line-44">   *</span>
+<span class="source-line-no">045</span><span id="line-45">   * &lt;p&gt;PipelineContextが未設定のスレッドから呼ばれた場合は何もしない。</span>
+<span class="source-line-no">046</span><span id="line-46">   *</span>
+<span class="source-line-no">047</span><span id="line-47">   * @param key MDCキー名</span>
+<span class="source-line-no">048</span><span id="line-48">   * @param value 値。nullの場合はキーを削除する</span>
+<span class="source-line-no">049</span><span id="line-49">   * @throws IllegalArgumentException keyがnullの場合</span>
+<span class="source-line-no">050</span><span id="line-50">   */</span>
+<span class="source-line-no">051</span><span id="line-51">  public static void putShared(String key, String value) {</span>
+<span class="source-line-no">052</span><span id="line-52">    if (key == null) {</span>
+<span class="source-line-no">053</span><span id="line-53">      throw new IllegalArgumentException("key must not be null");</span>
 <span class="source-line-no">054</span><span id="line-54">    }</span>
-<span class="source-line-no">055</span><span id="line-55">  }</span>
-<span class="source-line-no">056</span><span id="line-56"></span>
-<span class="source-line-no">057</span><span id="line-57">  /**</span>
-<span class="source-line-no">058</span><span id="line-58">   * 共有値を取得する。</span>
-<span class="source-line-no">059</span><span id="line-59">   *</span>
-<span class="source-line-no">060</span><span id="line-60">   * @param key MDCキー名</span>
-<span class="source-line-no">061</span><span id="line-61">   * @return 値。キーが存在しない場合またはPipelineContext未設定の場合はnull</span>
-<span class="source-line-no">062</span><span id="line-62">   */</span>
-<span class="source-line-no">063</span><span id="line-63">  public static String getShared(String key) {</span>
-<span class="source-line-no">064</span><span id="line-64">    PipelineContext ctx = HOLDER.get();</span>
-<span class="source-line-no">065</span><span id="line-65">    if (ctx == null) {</span>
-<span class="source-line-no">066</span><span id="line-66">      return null;</span>
-<span class="source-line-no">067</span><span id="line-67">    }</span>
-<span class="source-line-no">068</span><span id="line-68">    return ctx.sharedValues.get(key);</span>
-<span class="source-line-no">069</span><span id="line-69">  }</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">  /**</span>
-<span class="source-line-no">072</span><span id="line-72">   * 全共有値を呼び出しスレッドのMDCにマージする。</span>
-<span class="source-line-no">073</span><span id="line-73">   *</span>
-<span class="source-line-no">074</span><span id="line-74">   * &lt;p&gt;PipelineContextが未設定の場合は何もしない。</span>
-<span class="source-line-no">075</span><span id="line-75">   */</span>
-<span class="source-line-no">076</span><span id="line-76">  public static void syncToMDC() {</span>
-<span class="source-line-no">077</span><span id="line-77">    PipelineContext ctx = HOLDER.get();</span>
-<span class="source-line-no">078</span><span id="line-78">    if (ctx == null) {</span>
-<span class="source-line-no">079</span><span id="line-79">      return;</span>
-<span class="source-line-no">080</span><span id="line-80">    }</span>
-<span class="source-line-no">081</span><span id="line-81">    ctx.sharedValues.forEach(MDC::put);</span>
-<span class="source-line-no">082</span><span id="line-82">  }</span>
-<span class="source-line-no">083</span><span id="line-83"></span>
-<span class="source-line-no">084</span><span id="line-84">  /**</span>
-<span class="source-line-no">085</span><span id="line-85">   * 現在のスレッドに紐づくPipelineContextを取得する。</span>
-<span class="source-line-no">086</span><span id="line-86">   *</span>
-<span class="source-line-no">087</span><span id="line-87">   * @return PipelineContext、未設定の場合はnull</span>
-<span class="source-line-no">088</span><span id="line-88">   */</span>
-<span class="source-line-no">089</span><span id="line-89">  static PipelineContext current() {</span>
-<span class="source-line-no">090</span><span id="line-90">    return HOLDER.get();</span>
-<span class="source-line-no">091</span><span id="line-91">  }</span>
-<span class="source-line-no">092</span><span id="line-92"></span>
-<span class="source-line-no">093</span><span id="line-93">  /**</span>
-<span class="source-line-no">094</span><span id="line-94">   * 共有値のスナップショットを返す。</span>
-<span class="source-line-no">095</span><span id="line-95">   *</span>
-<span class="source-line-no">096</span><span id="line-96">   * @return 共有値の不変ビュー</span>
-<span class="source-line-no">097</span><span id="line-97">   */</span>
-<span class="source-line-no">098</span><span id="line-98">  Map&lt;String, String&gt; getSharedValues() {</span>
-<span class="source-line-no">099</span><span id="line-99">    return Collections.unmodifiableMap(sharedValues);</span>
-<span class="source-line-no">100</span><span id="line-100">  }</span>
-<span class="source-line-no">101</span><span id="line-101"></span>
-<span class="source-line-no">102</span><span id="line-102">  /**</span>
-<span class="source-line-no">103</span><span id="line-103">   * 現在のスレッドにPipelineContextを設定する。</span>
-<span class="source-line-no">104</span><span id="line-104">   *</span>
-<span class="source-line-no">105</span><span id="line-105">   * &lt;p&gt;StreamConverterがパイプラインの各コマンドスレッドで呼び出す。</span>
+<span class="source-line-no">055</span><span id="line-55">    PipelineContext ctx = HOLDER.get();</span>
+<span class="source-line-no">056</span><span id="line-56">    if (ctx == null) {</span>
+<span class="source-line-no">057</span><span id="line-57">      return;</span>
+<span class="source-line-no">058</span><span id="line-58">    }</span>
+<span class="source-line-no">059</span><span id="line-59">    if (value != null) {</span>
+<span class="source-line-no">060</span><span id="line-60">      ctx.sharedValues.put(key, value);</span>
+<span class="source-line-no">061</span><span id="line-61">      MDC.put(key, value);</span>
+<span class="source-line-no">062</span><span id="line-62">    } else {</span>
+<span class="source-line-no">063</span><span id="line-63">      ctx.sharedValues.remove(key);</span>
+<span class="source-line-no">064</span><span id="line-64">      MDC.remove(key);</span>
+<span class="source-line-no">065</span><span id="line-65">    }</span>
+<span class="source-line-no">066</span><span id="line-66">  }</span>
+<span class="source-line-no">067</span><span id="line-67"></span>
+<span class="source-line-no">068</span><span id="line-68">  /**</span>
+<span class="source-line-no">069</span><span id="line-69">   * 共有値を取得する。</span>
+<span class="source-line-no">070</span><span id="line-70">   *</span>
+<span class="source-line-no">071</span><span id="line-71">   * @param key MDCキー名</span>
+<span class="source-line-no">072</span><span id="line-72">   * @return 値。キーが存在しない場合またはPipelineContext未設定の場合はnull</span>
+<span class="source-line-no">073</span><span id="line-73">   */</span>
+<span class="source-line-no">074</span><span id="line-74">  public static String getShared(String key) {</span>
+<span class="source-line-no">075</span><span id="line-75">    PipelineContext ctx = HOLDER.get();</span>
+<span class="source-line-no">076</span><span id="line-76">    if (ctx == null) {</span>
+<span class="source-line-no">077</span><span id="line-77">      return null;</span>
+<span class="source-line-no">078</span><span id="line-78">    }</span>
+<span class="source-line-no">079</span><span id="line-79">    return ctx.sharedValues.get(key);</span>
+<span class="source-line-no">080</span><span id="line-80">  }</span>
+<span class="source-line-no">081</span><span id="line-81"></span>
+<span class="source-line-no">082</span><span id="line-82">  /**</span>
+<span class="source-line-no">083</span><span id="line-83">   * 全共有値を呼び出しスレッドのMDCにマージする。</span>
+<span class="source-line-no">084</span><span id="line-84">   *</span>
+<span class="source-line-no">085</span><span id="line-85">   * &lt;p&gt;PipelineContextが未設定の場合は何もしない。</span>
+<span class="source-line-no">086</span><span id="line-86">   */</span>
+<span class="source-line-no">087</span><span id="line-87">  public static void syncToMDC() {</span>
+<span class="source-line-no">088</span><span id="line-88">    PipelineContext ctx = HOLDER.get();</span>
+<span class="source-line-no">089</span><span id="line-89">    if (ctx == null) {</span>
+<span class="source-line-no">090</span><span id="line-90">      return;</span>
+<span class="source-line-no">091</span><span id="line-91">    }</span>
+<span class="source-line-no">092</span><span id="line-92">    ctx.sharedValues.forEach(MDC::put);</span>
+<span class="source-line-no">093</span><span id="line-93">  }</span>
+<span class="source-line-no">094</span><span id="line-94"></span>
+<span class="source-line-no">095</span><span id="line-95">  /**</span>
+<span class="source-line-no">096</span><span id="line-96">   * 現在のスレッドに紐づくPipelineContextを取得する。</span>
+<span class="source-line-no">097</span><span id="line-97">   *</span>
+<span class="source-line-no">098</span><span id="line-98">   * @return PipelineContext、未設定の場合はnull</span>
+<span class="source-line-no">099</span><span id="line-99">   */</span>
+<span class="source-line-no">100</span><span id="line-100">  static PipelineContext current() {</span>
+<span class="source-line-no">101</span><span id="line-101">    return HOLDER.get();</span>
+<span class="source-line-no">102</span><span id="line-102">  }</span>
+<span class="source-line-no">103</span><span id="line-103"></span>
+<span class="source-line-no">104</span><span id="line-104">  /**</span>
+<span class="source-line-no">105</span><span id="line-105">   * 共有値のスナップショットを返す。</span>
 <span class="source-line-no">106</span><span id="line-106">   *</span>
-<span class="source-line-no">107</span><span id="line-107">   * @param context 設定するPipelineContext</span>
+<span class="source-line-no">107</span><span id="line-107">   * @return 共有値の不変ビュー</span>
 <span class="source-line-no">108</span><span id="line-108">   */</span>
-<span class="source-line-no">109</span><span id="line-109">  public static void set(PipelineContext context) {</span>
-<span class="source-line-no">110</span><span id="line-110">    HOLDER.set(context);</span>
+<span class="source-line-no">109</span><span id="line-109">  Map&lt;String, String&gt; getSharedValues() {</span>
+<span class="source-line-no">110</span><span id="line-110">    return Collections.unmodifiableMap(sharedValues);</span>
 <span class="source-line-no">111</span><span id="line-111">  }</span>
 <span class="source-line-no">112</span><span id="line-112"></span>
-<span class="source-line-no">113</span><span id="line-113">  /** 現在のスレッドからPipelineContextをクリアする。 */</span>
-<span class="source-line-no">114</span><span id="line-114">  public static void clear() {</span>
-<span class="source-line-no">115</span><span id="line-115">    HOLDER.remove();</span>
-<span class="source-line-no">116</span><span id="line-116">  }</span>
-<span class="source-line-no">117</span><span id="line-117">}</span>
+<span class="source-line-no">113</span><span id="line-113">  /**</span>
+<span class="source-line-no">114</span><span id="line-114">   * 現在のスレッドにPipelineContextを設定する。</span>
+<span class="source-line-no">115</span><span id="line-115">   *</span>
+<span class="source-line-no">116</span><span id="line-116">   * &lt;p&gt;StreamConverterがパイプラインの各コマンドスレッドで呼び出す。</span>
+<span class="source-line-no">117</span><span id="line-117">   *</span>
+<span class="source-line-no">118</span><span id="line-118">   * @param context 設定するPipelineContext</span>
+<span class="source-line-no">119</span><span id="line-119">   */</span>
+<span class="source-line-no">120</span><span id="line-120">  public static void set(PipelineContext context) {</span>
+<span class="source-line-no">121</span><span id="line-121">    HOLDER.set(context);</span>
+<span class="source-line-no">122</span><span id="line-122">  }</span>
+<span class="source-line-no">123</span><span id="line-123"></span>
+<span class="source-line-no">124</span><span id="line-124">  /** 現在のスレッドからPipelineContextをクリアする。 */</span>
+<span class="source-line-no">125</span><span id="line-125">  public static void clear() {</span>
+<span class="source-line-no">126</span><span id="line-126">    HOLDER.remove();</span>
+<span class="source-line-no">127</span><span id="line-127">  }</span>
+<span class="source-line-no">128</span><span id="line-128">}</span>
 
 
 

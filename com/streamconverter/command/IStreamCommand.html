@@ -97,7 +97,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/FunctionalInterface.html" title="class or interface in java.lang" class="external-link">@FunctionalInterface</a>
-</span><span class="modifiers">public interface </span><span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-37">IStreamCommand</a></span></div>
+</span><span class="modifiers">public interface </span><span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-42">IStreamCommand</a></span></div>
 <div class="block">Unified interface for stream commands.
 
  <p>This interface defines methods for executing commands on input streams and writing results to
@@ -124,7 +124,10 @@ loadScripts(document, 'script');</script>
  // Using in StreamConverter pipeline
  StreamConverter converter = StreamConverter.create(copyCommand);
  converter.run(inputStream, outputStream);
- </code></pre></div>
+ </code></pre>
+
+ <p><b>MDC への値の伝搬について:</b> <code>execute()</code> 内で <code>MDC.put()</code> を直接呼び出しても、
+ 他コマンドのスレッドには伝搬されません。ストリームから抽出した値を全コマンドのログに反映させるには <a href="rule/MdcPropagatingRule.html" title="class in com.streamconverter.command.rule"><code>MdcPropagatingRule</code></a> を使用してください。子スレッドへの MDC 自動継承が必要な場合は <a href="../logging/MDCInitializer.html" title="class in com.streamconverter.logging"><code>MDCInitializer</code></a> を参照してください。</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -173,7 +176,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
-<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-47">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-52">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
       throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
@@ -189,7 +192,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="withLogging(org.slf4j.Logger)">
 <h3>withLogging</h3>
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-61">withLogging</a></span><wbr><span class="parameters">(org.slf4j.Logger&nbsp;logger)</span></div>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-66">withLogging</a></span><wbr><span class="parameters">(org.slf4j.Logger&nbsp;logger)</span></div>
 <div class="block">Wraps this command with logging. The returned command logs start, completion, and failure using
  the provided logger.
 
@@ -207,7 +210,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="withLogging(org.slf4j.Logger,java.lang.String)">
 <h3>withLogging</h3>
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-78">withLogging</a></span><wbr><span class="parameters">(org.slf4j.Logger&nbsp;logger,
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-83">withLogging</a></span><wbr><span class="parameters">(org.slf4j.Logger&nbsp;logger,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;commandName)</span></div>
 <div class="block">Wraps this command with logging using an explicit command name.
 

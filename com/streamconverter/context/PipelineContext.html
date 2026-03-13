@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public final class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-25">PipelineContext</a></span>
+<div class="type-signature"><span class="modifiers">public final class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-36">PipelineContext</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">パイプライン内でコマンド間の共有値を管理するコンテキスト。
 
@@ -107,7 +107,17 @@ loadScripts(document, 'script');</script>
  PipelineContext.putShared("orderId", extractedOrderId);
 
  // 他のコマンドのログ出力時に自動的にMDCに反映される
- </code></pre></div>
+ </code></pre>
+
+ <p><b>MDC 関連クラスの全体像:</b>
+
+ <ul>
+   <li><a href="../command/rule/MdcPropagatingRule.html" title="class in com.streamconverter.command.rule"><code>MdcPropagatingRule</code></a> — ストリームから抽出した値を このコンテキスト経由で MDC
+       に伝搬する Rule 実装。コマンドから MDC へ値を書き込む際の推奨手段。
+   <li><a href="../logging/PipelineContextTurboFilter.html" title="class in com.streamconverter.logging"><code>PipelineContextTurboFilter</code></a> — ログ出力直前に <a href="#syncToMDC()"><code>syncToMDC()</code></a> を呼び出し、共有値を MDC へ自動反映する Logback TurboFilter。
+   <li><a href="../logging/MDCInitializer.html" title="class in com.streamconverter.logging"><code>MDCInitializer</code></a> — <code>InheritableMDCAdapter</code> を
+       インストールし、MDC コンテキストを子スレッドへ自動継承させる。アプリ起動時に一度呼ぶ。
+ </ul></div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -181,7 +191,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>PipelineContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-25">PipelineContext</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-36">PipelineContext</a></span>()</div>
 </section>
 </li>
 </ul>
@@ -195,7 +205,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="putShared(java.lang.String,java.lang.String)">
 <h3>putShared</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-40">putShared</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-51">putShared</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</span></div>
 <div class="block">共有値を設定し、呼び出しスレッドのMDCにも即座に反映する。
 
@@ -212,7 +222,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getShared(java.lang.String)">
 <h3>getShared</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-63">getShared</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-74">getShared</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
 <div class="block">共有値を取得する。</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -225,7 +235,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="syncToMDC()">
 <h3>syncToMDC</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-76">syncToMDC</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-87">syncToMDC</a></span>()</div>
 <div class="block">全共有値を呼び出しスレッドのMDCにマージする。
 
  <p>PipelineContextが未設定の場合は何もしない。</div>
@@ -234,7 +244,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="set(com.streamconverter.context.PipelineContext)">
 <h3>set</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-109">set</a></span><wbr><span class="parameters">(<a href="PipelineContext.html" title="class in com.streamconverter.context">PipelineContext</a>&nbsp;context)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-120">set</a></span><wbr><span class="parameters">(<a href="PipelineContext.html" title="class in com.streamconverter.context">PipelineContext</a>&nbsp;context)</span></div>
 <div class="block">現在のスレッドにPipelineContextを設定する。
 
  <p>StreamConverterがパイプラインの各コマンドスレッドで呼び出す。</div>
@@ -247,7 +257,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="clear()">
 <h3>clear</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-114">clear</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-125">clear</a></span>()</div>
 <div class="block">現在のスレッドからPipelineContextをクリアする。</div>
 </section>
 </li>

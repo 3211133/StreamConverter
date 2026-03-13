@@ -2,7 +2,6 @@ package com.streamconverter.security;
 
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.util.Objects;
 
 /**
  * 入力バリデーションを集約するユーティリティクラス。
@@ -39,11 +38,12 @@ public final class InputValidator {
    * のバリデーションロジックを参照のこと。
    *
    * @param url 検証する URL 文字列
-   * @throws NullPointerException url が null の場合
-   * @throws IllegalArgumentException url が空、不正な形式、または HTTP/HTTPS 以外のスキームの場合
+   * @throws IllegalArgumentException url が null、空、不正な形式、または HTTP/HTTPS 以外のスキームの場合
    */
   public static void validateUrl(String url) {
-    Objects.requireNonNull(url, "URL cannot be null");
+    if (url == null) {
+      throw new IllegalArgumentException("URL cannot be null");
+    }
 
     String trimmedUrl = url.trim();
     if (trimmedUrl.isEmpty()) {

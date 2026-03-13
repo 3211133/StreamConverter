@@ -480,7 +480,7 @@ void testBenchmarkConsistency()          // 性能一貫性テスト
 ### ベンチマーク配置の原則
 
 - ベンチマークテストは `streamconverter-tools` モジュールに集約する
-- すべてのベンチマークに `@Tag("benchmark")` を付与し、通常の `./gradlew test` から除外する
+- ベンチマークの通常テストからの除外は `excludeTags("benchmark", "large-data")` に加え、クラス名/パスの `exclude` パターン（例: `**/benchmark/**`, `**/MemoryEfficiencyTest*`）も併用する
 - 専用タスク (`benchmarkAll`, `benchmarkLargeData` 等) で実行する
 
 ```bash

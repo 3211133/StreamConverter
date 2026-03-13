@@ -24,7 +24,10 @@ JSON バリデーション機能（`JsonValidateCommand` など）はかつて�
 
 2. **ストリーミング互換性**
    - `IStreamCommand.execute(InputStream, OutputStream)` の契約を遵守すること
-   - 入力全体をメモリにロードせず、ストリーミング処理を維持すること（設計原理 1）
+   - JSON Schema は全体構造を要求するため真のストリーミング検証が困難であることを踏まえ、以下のいずれかのアプローチを採用すること：
+     - (a) **構文検証のみ**: 入力全体をメモリにロードせず、トークン単位の検証に限定する
+     - (b) **制約限定スキーマ検証**: `required`/`type` など構造を要求しないキーワードのみを対象とし、要素単位で検証する
+     - (c) **サイズ上限付き非ストリーミング検証**: 入力サイズ上限（例: 10MB）を明示し、上限内は全体ロードを許容する
    - バリデーション失敗時は `StreamProcessingException` でラップして伝搬すること
 
 3. **エラーレポート**
@@ -65,6 +68,6 @@ JSON バリデーション機能（`JsonValidateCommand` など）はかつて�
 
 ## 追跡
 
-- 関連 PR: [#456](https://github.com/anthropics/StreamConverter/issues/456)
+- 関連 Issue: [#456](https://github.com/anthropics/StreamConverter/issues/456)
 - 参照: [TESTING.md](TESTING.md) — テスト戦略
 - 参照: [SECURITY_ANALYSIS.md](SECURITY_ANALYSIS.md) — セキュリティ要件

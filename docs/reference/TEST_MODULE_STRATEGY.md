@@ -16,10 +16,9 @@
 | 単体テスト | `StreamConverter`, `IStreamCommand`, `AbstractStreamCommand`, ルール実装 | `src/test/java/` |
 | パイプライン統合テスト | 複数コマンドの連携動作 | `StreamConverterIntegrationTest` |
 | コンテキスト伝播テスト | `PipelineContext`, MDC 継承 | `PipelineContextTest`, `StreamConverterMDCIntegrationTest` |
-| メモリ効率テスト | ストリーミング設計原理の検証 | `MemoryEfficiencyTest` |
-| セキュリティテスト | XXE, XPath injection 防止 | `security/` パッケージ下 |
+| セキュリティテスト | XPath injection 防止 | `com.streamconverter.security` パッケージ下 |
 
-**テスト除外:** ベンチマーク (`@Tag("benchmark")`) は `streamconverter-tools` に委譲。
+**テスト除外:** ベンチマーク・メモリ効率テストは `streamconverter-tools` に委譲。
 
 ### `streamconverter-http`
 
@@ -64,8 +63,9 @@
 | メモリ効率ベンチマーク | ヒープ使用量プロファイリング | `benchmarkMemoryEfficiency` |
 | 全ベンチマーク | 全ベンチマークスイート | `benchmarkAll` |
 
-**タグ規約:** すべてのベンチマークテストには `@Tag("benchmark")` を付与すること。
+**タグ規約:** ベンチマークテストには原則として `@Tag("benchmark")` を付与することを推奨する。
 大容量データ使用のテストには追加で `@Tag("large-data")` を付与すること。
+ただし `benchmarkInfrastructure` タスクのように、クラス名/パスパターンで対象を指定するタスクはタグ不要。
 
 ### `streamconverter-examples`
 
@@ -78,10 +78,11 @@
 
 ## ベンチマーク配置の原則
 
-1. **配置場所**: ベンチマークテストは `streamconverter-tools/src/test/java/**/benchmark/` に集約する。
-2. **タグ付け**: `@Tag("benchmark")` を必ず付与し、通常テスト実行 (`./gradlew test`) から除外されることを保証する。
+1. **配置場所**: ベンチマークテストは原則 `streamconverter-tools/src/test/java/**/benchmark/` に集約する。
+   `MemoryEfficiencyTest` のように `benchmark/` 配下に置かないテストは、Gradle タスクの `include` パターンで明示的に補足する（例: `include("**/MemoryEfficiencyTest*")`）。
+2. **タグ付け**: `@Tag("benchmark")` を推奨し、通常テスト実行 (`./gradlew test`) から除外する。除外はタグに加え、クラス名/パスの `exclude` パターンも併用する（例: `exclude("**/benchmark/**", "**/MemoryEfficiencyTest*")`）。
 3. **専用タスク**: `benchmarkAll` タスクで一括実行できること。
-4. **メモリ設定**: ベンチマークタスクには `-Xmx3g` 以上を設定すること。
+4. **メモリ設定**: ベンチマークタスクには適切なヒープサイズを設定すること（`benchmarkAll`/`benchmarkMemoryEfficiency` は `-Xmx2g`、`benchmarkLargeData` は `-Xmx3g`）。
 
 ## テスト実行コマンド
 

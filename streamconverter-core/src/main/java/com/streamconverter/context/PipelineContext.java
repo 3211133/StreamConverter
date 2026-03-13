@@ -14,9 +14,8 @@ import org.slf4j.MDC;
  * ログ出力直前にMDCへ自動的にマージされる。
  *
  * <p><b>ScopedValue への移行計画:</b> 現在は {@link ThreadLocal} を使用しているが、 Java 25 LTS で {@code ScopedValue}
- * が正式化された後に移行を予定している。 移行計画の詳細は <a
- * href="../../../../docs/reference/SCOPED_VALUE_MIGRATION_PLAN.md">SCOPED_VALUE_MIGRATION_PLAN.md</a>
- * を参照。
+ * が正式化された後に移行を予定している。 移行計画の詳細は
+ * {@code docs/reference/SCOPED_VALUE_MIGRATION_PLAN.md} を参照。
  *
  * <p>使用例:
  *

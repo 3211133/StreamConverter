@@ -70,7 +70,7 @@ ScopedValue.where(PipelineContext.HOLDER, pipelineContext)
 
 | 条件 | 状態 |
 |------|------|
-| Java 25 LTS リリース | 未リリース（2025年9月予定） |
+| Java 25 LTS リリース | 未リリース（予定、as of 2026-03） |
 | `ScopedValue` の final 化 (JEP 487 相当) | Java 25 Preview |
 | プロジェクトの最小 Java バージョン引き上げ | 現在 Java 21 |
 

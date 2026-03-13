@@ -196,7 +196,8 @@ public class StreamConverter {
   /**
    * Source と Sink を使用してストリームを変換する。
    *
-   * <p>Source と Sink のストリームはこのメソッド内で開かれ、処理完了後にクローズされる。
+   * <p>Source と Sink のストリームはこのメソッド内で開かれ、処理完了後にクローズされる。 {@link ErrorPolicy#retry(int, long)}
+   * を使用している場合、失敗時に Source を再オープンしてリトライする。
    *
    * @param source 入力ソース
    * @param sink 出力シンク
@@ -206,45 +207,87 @@ public class StreamConverter {
   public void run(Source source, Sink sink) throws IOException {
     Objects.requireNonNull(source, "source must not be null");
     Objects.requireNonNull(sink, "sink must not be null");
-    try (InputStream inputStream = source.open();
-        OutputStream outputStream = sink.open()) {
-      run(inputStream, outputStream);
+    if (errorPolicy instanceof ErrorPolicy.Retry retry) {
+      runWithRetry(source, sink, retry);
+    } else {
+      try (InputStream inputStream = source.open();
+          OutputStream outputStream = sink.open()) {
+        runCore(inputStream, outputStream);
+      }
     }
   }
 
   /**
    * 非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。
    *
+   * <p><strong>注意:</strong> {@link ErrorPolicy#retry(int, long)} とともに使用する場合は、 InputStream は巻き戻せないため
+   * {@link UnsupportedOperationException} をスローする。 代わりに {@link #run(Source, Sink)} を使用すること。
+   *
    * @param inputStream 処理対象の入力ストリーム
    * @param outputStream 処理結果を書き込む出力ストリーム
    * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
+   * @throws UnsupportedOperationException ErrorPolicy.Retry が設定されている場合
    */
   public void run(InputStream inputStream, OutputStream outputStream) throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
-
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Starting StreamConverter with {} commands", commands.size());
-    }
-
-    BufferPolicy bufferPolicy = memoryBudget.getBufferPolicy();
-    executeCommands(inputStream, outputStream, bufferPolicy);
-
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Completed StreamConverter pipeline");
-    }
-  }
-
-  /** 設定された実行戦略とエラーポリシーでコマンドを実行する */
-  private void executeCommands(
-      InputStream inputStream, OutputStream outputStream, BufferPolicy bufferPolicy)
-      throws IOException {
     if (errorPolicy instanceof ErrorPolicy.Retry) {
-      // InputStream は巻き戻せないためリトライ不可。run(Source, Sink) を使用すること。
       throw new UnsupportedOperationException(
           "ErrorPolicy.Retry requires run(Source, Sink) — InputStream cannot be rewound for retry."
               + " Use StreamConverter.run(Source, Sink) instead.");
     }
+    runCore(inputStream, outputStream);
+  }
+
+  /** Source を再オープンしながらリトライするコア実装 */
+  private void runWithRetry(Source source, Sink sink, ErrorPolicy.Retry retry) throws IOException {
+    IOException lastException = null;
+    BufferPolicy bufferPolicy = memoryBudget.getBufferPolicy();
+    for (int attempt = 0; attempt <= retry.maxRetries(); attempt++) {
+      try (InputStream inputStream = source.open();
+          OutputStream outputStream = sink.open()) {
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Starting StreamConverter with {} commands", commands.size());
+        }
+        executionStrategy.execute(commands, commandNames, inputStream, outputStream, bufferPolicy);
+        if (LOG.isInfoEnabled()) {
+          LOG.info("Completed StreamConverter pipeline");
+        }
+        return;
+      } catch (IOException e) {
+        lastException = e;
+        if (attempt < retry.maxRetries()) {
+          if (LOG.isWarnEnabled()) {
+            LOG.warn(
+                "Command execution failed (attempt {}/{}), retrying in {}ms: {}",
+                attempt + 1,
+                retry.maxRetries() + 1,
+                retry.delayMs(),
+                e.getMessage());
+          }
+          if (retry.delayMs() > 0) {
+            try {
+              Thread.sleep(retry.delayMs());
+            } catch (InterruptedException ie) {
+              Thread.currentThread().interrupt();
+              throw new StreamProcessingException("Retry interrupted", ie);
+            }
+          }
+        }
+      }
+    }
+    throw lastException;
+  }
+
+  /** エラーポリシーなしで実行する内部コア */
+  private void runCore(InputStream inputStream, OutputStream outputStream) throws IOException {
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Starting StreamConverter with {} commands", commands.size());
+    }
+    BufferPolicy bufferPolicy = memoryBudget.getBufferPolicy();
     executionStrategy.execute(commands, commandNames, inputStream, outputStream, bufferPolicy);
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Completed StreamConverter pipeline");
+    }
   }
 }

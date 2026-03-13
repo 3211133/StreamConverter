@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="IRule.html" title="interface in com.streamconverter.command.rule">IRule</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public final class </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-31">MdcPropagatingRule</a></span>
+<div class="type-signature"><span class="modifiers">public final class </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-32">MdcPropagatingRule</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="IRule.html" title="interface in com.streamconverter.command.rule">IRule</a></span></div>
 <div class="block">変換結果をMDC共有値として伝搬するルール。
@@ -106,8 +106,8 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 
  <ol>
    <li><b>後続コマンドへの伝搬</b> — 値を <a href="../../context/PipelineContext.html" title="class in com.streamconverter.context"><code>PipelineContext</code></a>
-       の共有値として格納し、<a href="../../logging/PipelineContextTurboFilter.html" title="class in com.streamconverter.logging"><code>PipelineContextTurboFilter</code></a> が他コマンドのログ出力直前に <code>syncToMDC()</code>
-       で自動反映する。<code>MDC.put</code> だけでは呼び出しスレッド内しか効かない。
+       の共有値として格納し、<a href="../../logging/PipelineContextTurboFilter.html" title="class in com.streamconverter.logging"><code>PipelineContextTurboFilter</code></a> が他コマンドのログ出力直前に <code>syncToMDC()</code> で自動反映する。<code>MDC.put</code>
+       だけでは呼び出しスレッド内しか効かない。
    <li><b>実行タイミング非依存</b> — 子スレッド起動後に値を書いても <code>PipelineContext</code> 経由なら <code>TurboFilter</code>
        が毎ログ前に同期するため順序非依存。
    <li><b>スレッドからのコンテキスト切り離し</b> — <code>PipelineContext.clear()</code> により、このスレッドとの関連付けを解除できる。
@@ -175,7 +175,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <li>
 <section class="detail" id="create(java.lang.String)">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="MdcPropagatingRule.html" title="class in com.streamconverter.command.rule">MdcPropagatingRule</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-54">create</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mdcKey)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="MdcPropagatingRule.html" title="class in com.streamconverter.command.rule">MdcPropagatingRule</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-55">create</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;mdcKey)</span></div>
 <div class="block">指定されたキーにストリーム値を伝搬するルールを作成します。
 
  <p>使用例:
@@ -198,7 +198,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <li>
 <section class="detail" id="apply(java.lang.String)">
 <h3>apply</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-68">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-69">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span></div>
 <div class="block">入力値をMDC共有値として設定し、そのまま返す。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
@@ -215,7 +215,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <li>
 <section class="detail" id="toString()">
 <h3>toString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-77">toString</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-78">toString</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#toString()" title="class or interface in java.lang" class="external-link">toString</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
@@ -225,7 +225,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <li>
 <section class="detail" id="equals(java.lang.Object)">
 <h3>equals</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-82">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-83">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#equals(java.lang.Object)" title="class or interface in java.lang" class="external-link">equals</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>
@@ -235,7 +235,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <li>
 <section class="detail" id="hashCode()">
 <h3>hashCode</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-89">hashCode</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/MdcPropagatingRule.html#line-90">hashCode</a></span>()</div>
 <dl class="notes">
 <dt>Overrides:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html#hashCode()" title="class or interface in java.lang" class="external-link">hashCode</a></code>&nbsp;in class&nbsp;<code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></code></dd>

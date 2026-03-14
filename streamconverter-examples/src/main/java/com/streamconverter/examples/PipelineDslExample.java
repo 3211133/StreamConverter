@@ -32,21 +32,23 @@ public class PipelineDslExample {
   public static void main(String[] args) throws IOException {
     // サンプル CSV データ
     String csvData = "name,email\nAlice,alice@example.com\nBob,bob@example.com\n";
-    String targetEncoding = "UTF-8";
+    String targetEncoding = "UTF-16";
 
     // thenIf を使った条件付きコマンド追加の例
     // targetEncoding が UTF-8 でなければ CharacterConvertCommand を追加する
     boolean needsCharConvert = !targetEncoding.equals("UTF-8");
 
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(csvData.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
     // Pipeline DSL でパイプラインを構築・実行
-    // thenIf: needsCharConvert が false なので CharacterConvertCommand は追加されない
-    // withErrorPolicy: リトライポリシーを設定
-    // withExecutionStrategy: 逐次実行戦略を設定
-    Pipeline.input(Source.of(inputStream))
+    // - thenIf: needsCharConvert が true なので CharacterConvertCommand が追加される
+    // - withErrorPolicy(retry): Source.of(stream) ではなく Source.of(bytes供給ラムダ) を使うことで
+    //   リトライ時に毎回新しい InputStream を生成できる
+    // - withExecutionStrategy: 逐次実行戦略を設定
+    byte[] inputBytes = csvData.getBytes(StandardCharsets.UTF_8);
+    Source retryableSource = () -> new ByteArrayInputStream(inputBytes);
+
+    Pipeline.input(retryableSource)
         .then(CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule()))
         .thenIf(needsCharConvert, CharacterConvertCommand.create("UTF-8", targetEncoding))
         .withErrorPolicy(ErrorPolicy.retry(3, 100))
@@ -54,6 +56,5 @@ public class PipelineDslExample {
         .to(Sink.of(outputStream));
 
     System.out.println("Pipeline completed. Output size: " + outputStream.size() + " bytes");
-    System.out.println("Output: " + outputStream.toString(StandardCharsets.UTF_8));
   }
 }

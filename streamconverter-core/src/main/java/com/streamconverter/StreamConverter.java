@@ -162,6 +162,36 @@ public class StreamConverter {
         errorPolicy);
   }
 
+  /**
+   * Creates a StreamConverter with custom {@link ExecutionStrategy}, {@link MemoryBudget}, {@link
+   * ErrorPolicy} and a list of commands.
+   *
+   * <p>このファクトリメソッドは {@link com.streamconverter.dsl.Pipeline} が内部で使用するメソッドであり、 すべての実行設定を一度に指定して
+   * StreamConverter を生成する。
+   *
+   * @param strategy the execution strategy to use
+   * @param memoryBudget the memory budget configuration
+   * @param errorPolicy the error handling policy
+   * @param commands the list of commands to be executed in sequence
+   * @return a new StreamConverter instance
+   * @throws NullPointerException if any argument is null
+   * @throws IllegalArgumentException if commands is empty
+   */
+  public static StreamConverter create(
+      ExecutionStrategy strategy,
+      MemoryBudget memoryBudget,
+      ErrorPolicy errorPolicy,
+      List<IStreamCommand> commands) {
+    Objects.requireNonNull(strategy, "strategy cannot be null");
+    Objects.requireNonNull(memoryBudget, "memoryBudget cannot be null");
+    Objects.requireNonNull(errorPolicy, "errorPolicy cannot be null");
+    Objects.requireNonNull(commands, "commands cannot be null");
+    if (commands.isEmpty()) {
+      throw new IllegalArgumentException("commands is empty.");
+    }
+    return new StreamConverter(List.copyOf(commands), strategy, memoryBudget, errorPolicy);
+  }
+
   // ─────────────────────────────────────────────────────────────────────────
   // ヘルパーメソッド
   // ─────────────────────────────────────────────────────────────────────────

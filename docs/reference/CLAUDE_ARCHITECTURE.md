@@ -56,6 +56,12 @@ Foundation Layer   → Path handlers, utilities, security components
 - `JsonFilterCommand` - Filter JSON elements
 - `XmlFilterCommand` - Filter XML nodes
 
+### Pipeline Control
+- `FileBufferCommand` - Buffer data through a temporary file between pipeline stages
+  - `FileBufferCommand.create()` — 平文モード
+  - `FileBufferCommand.createEncrypted()` — AES-256-GCM 暗号化モード（機密データ向け）
+  - バリデーション失敗時に不正データが下流へ流れる問題（`ConsumerCommand` + `TeeInputStream` パターンの issue #545）を解決する
+
 ## Testing Patterns
 
 - **Unit Tests**: Standard JUnit 5 with Mockito

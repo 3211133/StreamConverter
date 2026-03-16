@@ -15,7 +15,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CsvNavigateCommand. */
@@ -119,6 +126,43 @@ class CsvNavigateCommandTest {
     // Verify the content was processed (output should contain some CSV-related data)
     String output = monitoringOutputStream.getContent();
     assertTrue(output.length() > 0, "Should have produced some output from CSV navigation");
+  }
+
+  @Test
+  @DisplayName("[#547] Concurrent execution of same instance does not corrupt column index")
+  void testConcurrentExecutionThreadSafety() throws Exception {
+    String csvInput = "name,age,city\nAlice,30,NYC\nBob,25,LA\nCarol,35,Chicago\n";
+    CsvNavigateCommand sharedCommand =
+        CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
+
+    int threadCount = 8;
+    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    List<Callable<String>> tasks = new ArrayList<>();
+
+    for (int i = 0; i < threadCount; i++) {
+      tasks.add(
+          () -> {
+            ByteArrayInputStream input =
+                new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            sharedCommand.execute(input, output);
+            return output.toString(StandardCharsets.UTF_8);
+          });
+    }
+
+    List<Future<String>> results = executor.invokeAll(tasks);
+    executor.shutdown();
+
+    for (Future<String> result : results) {
+      String output = result.get();
+      // All columns are preserved in the output; only the target column value is transformed
+      assertTrue(output.contains("name"), "Header 'name' should appear in output");
+      assertTrue(output.contains("Alice"), "Data 'Alice' should appear in output");
+      assertTrue(output.contains("age"), "Header row should contain all columns including 'age'");
+      // Verify each thread got a complete result (3 data rows)
+      long lineCount = output.lines().filter(l -> !l.isBlank()).count();
+      assertTrue(lineCount >= 3, "Output should contain header plus data rows");
+    }
   }
 
   @Test

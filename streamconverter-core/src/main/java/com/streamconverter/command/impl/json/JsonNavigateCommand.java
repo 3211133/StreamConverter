@@ -88,6 +88,9 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   /** Process JSON with specific JSONPath targeting */
   private void processJsonStreamWithPath(JsonParser parser, JsonGenerator generator)
       throws IOException {
+    // depth tracks how many objects deep we are (0 = before root object)
+    int depth = 0;
+    // currentPath[i] holds the field name active at object-depth i+1
     List<String> currentPath = new ArrayList<>();
     JsonToken token;
 
@@ -95,42 +98,40 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
       switch (token) {
         case FIELD_NAME:
           String fieldName = parser.currentName();
-
-          // Reset path for new field at current level
-          if (!currentPath.isEmpty() && currentPath.size() > 1) {
-            // Remove previous sibling field from path
-            currentPath.set(currentPath.size() - 1, fieldName);
-          } else {
-            // Clear and add current field
-            currentPath.clear();
-            currentPath.add(fieldName);
+          // Ensure currentPath has a slot for depth (1-based object depth)
+          while (currentPath.size() < depth) {
+            currentPath.add(null);
           }
-
+          while (currentPath.size() > depth) {
+            currentPath.remove(currentPath.size() - 1);
+          }
+          if (depth > 0) {
+            currentPath.set(depth - 1, fieldName);
+          }
           generator.writeFieldName(fieldName);
           break;
 
         case VALUE_STRING:
           String originalValue = parser.getText();
-          boolean inTargetPath = isMatchingPath(currentPath);
-          if (inTargetPath) {
-            String transformedValue = rule.apply(originalValue);
-            generator.writeString(transformedValue);
+          if (isMatchingPath(currentPath)) {
+            generator.writeString(rule.apply(originalValue));
           } else {
             generator.writeString(originalValue);
           }
           break;
 
         case START_OBJECT:
+          depth++;
           generator.writeStartObject();
-          // Don't modify path on object start
           break;
 
         case END_OBJECT:
-          generator.writeEndObject();
-          // Remove one level from path
-          if (currentPath.size() > 1) {
+          depth--;
+          // Trim path to current depth
+          while (currentPath.size() > depth) {
             currentPath.remove(currentPath.size() - 1);
           }
+          generator.writeEndObject();
           break;
 
         case START_ARRAY:

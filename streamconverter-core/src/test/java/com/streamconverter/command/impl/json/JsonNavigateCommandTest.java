@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.command.rule.TestRule;
 import com.streamconverter.path.TreePath;
 import com.streamconverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
@@ -15,6 +16,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for JsonNavigateCommand. */
@@ -179,5 +181,65 @@ class JsonNavigateCommandTest {
     // Verify output was generated (JSON navigation should produce some result)
     String output = monitoringOutputStream.getContent();
     assertTrue(output.length() > 0, "JSON navigation should produce output");
+  }
+
+  @Test
+  @DisplayName("[#548] Nested path $.a.b.c transforms only the target node")
+  void testNestedPathTransformation() throws IOException {
+    String jsonInput =
+        "{\"a\":{\"b\":{\"c\":\"original\",\"d\":\"unchanged\"}},\"other\":\"untouched\"}";
+    JsonNavigateCommand cmd =
+        JsonNavigateCommand.create(TreePath.fromJson("$.a.b.c"), TestRule.contentTransformRule());
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    cmd.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("\"transformed\""), "Target field $.a.b.c should be transformed");
+    assertTrue(result.contains("\"unchanged\""), "Sibling field $.a.b.d should not be transformed");
+    assertTrue(result.contains("\"untouched\""), "Top-level field $.other should not be changed");
+  }
+
+  @Test
+  @DisplayName("[#548] Sibling fields at same level are not transformed")
+  void testSiblingFieldsNotTransformed() throws IOException {
+    String jsonInput = "{\"x\":\"original value\",\"y\":\"original value\"}";
+    JsonNavigateCommand cmd =
+        JsonNavigateCommand.create(TreePath.fromJson("$.x"), TestRule.contentTransformRule());
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    cmd.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("\"transformed value\""), "Field $.x should be transformed");
+    assertTrue(
+        result.contains("\"original value\""), "Sibling field $.y should NOT be transformed");
+  }
+
+  @Test
+  @DisplayName("[#548] $.second.x path does not transform $.first.x (original bug regression)")
+  void testSecondObjectPathDoesNotTransformFirst() throws IOException {
+    String jsonInput =
+        "{\"first\":{\"x\":\"original\",\"y\":\"keep\"},\"second\":{\"x\":\"original\",\"y\":\"keep\"}}";
+    JsonNavigateCommand cmd =
+        JsonNavigateCommand.create(
+            TreePath.fromJson("$.second.x"), TestRule.contentTransformRule());
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    cmd.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("\"transformed\""), "Field $.second.x should be transformed");
+    // first.x must remain "original" — exactly one "original" in the output
+    assertTrue(
+        result.indexOf("\"original\"") == result.lastIndexOf("\"original\""),
+        "$.first.x must remain 'original'; only one occurrence expected in output");
+    assertTrue(result.contains("\"keep\""), "Non-target fields should be preserved");
   }
 }

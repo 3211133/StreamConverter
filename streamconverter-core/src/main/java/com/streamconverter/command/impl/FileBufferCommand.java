@@ -84,14 +84,14 @@ public class FileBufferCommand extends AbstractStreamCommand {
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     Path tempFile = Files.createTempFile("streamconverter-", ".tmp");
     Thread shutdownHook = new Thread(() -> deleteSilently(tempFile), "FileBufferCommand-cleanup");
-    Runtime.getRuntime().addShutdownHook(shutdownHook);
 
     try {
+      registerShutdownHook(shutdownHook, tempFile);
       if (encrypted) {
         SecretKey key = generateAesKey();
         byte[] iv = generateIv();
         writeEncrypted(inputStream, tempFile, key, iv);
-        readDecrypted(tempFile, outputStream, key, iv);
+        readDecrypted(tempFile, outputStream, key);
       } else {
         write(inputStream, tempFile);
         read(tempFile, outputStream);
@@ -140,7 +140,7 @@ public class FileBufferCommand extends AbstractStreamCommand {
     }
   }
 
-  private void readDecrypted(Path tempFile, OutputStream outputStream, SecretKey key, byte[] iv)
+  private void readDecrypted(Path tempFile, OutputStream outputStream, SecretKey key)
       throws IOException {
     try (InputStream fileIn = Files.newInputStream(tempFile)) {
       byte[] storedIv = new byte[GCM_IV_LENGTH];
@@ -189,11 +189,14 @@ public class FileBufferCommand extends AbstractStreamCommand {
     }
   }
 
-  private void deleteSilently(Path path) {
+  private void registerShutdownHook(Thread shutdownHook, Path tempFile) {
     try {
-      Files.deleteIfExists(path);
-    } catch (IOException e) {
-      log.warn("Failed to delete temporary file: {}", path, e);
+      Runtime.getRuntime().addShutdownHook(shutdownHook);
+    } catch (IllegalStateException | SecurityException e) {
+      // JVM shutting down or security manager disallows hooks: fall back to deleteOnExit
+      log.debug(
+          "Could not register shutdown hook; falling back to deleteOnExit for {}", tempFile, e);
+      tempFile.toFile().deleteOnExit();
     }
   }
 
@@ -202,6 +205,16 @@ public class FileBufferCommand extends AbstractStreamCommand {
       Runtime.getRuntime().removeShutdownHook(shutdownHook);
     } catch (IllegalStateException e) {
       log.debug("JVM is shutting down; could not deregister shutdown hook", e);
+    } catch (SecurityException e) {
+      log.debug("Security manager prevented shutdown hook deregistration", e);
+    }
+  }
+
+  private void deleteSilently(Path path) {
+    try {
+      Files.deleteIfExists(path);
+    } catch (IOException e) {
+      log.warn("Failed to delete temporary file: {}", path, e);
     }
   }
 }

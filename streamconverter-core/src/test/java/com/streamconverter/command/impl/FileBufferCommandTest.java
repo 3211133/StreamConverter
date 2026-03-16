@@ -13,9 +13,11 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.io.TempDir;
 
 @DisplayName("FileBufferCommand Tests")
 class FileBufferCommandTest {
@@ -49,57 +51,54 @@ class FileBufferCommandTest {
 
   @Test
   @DisplayName("Plain: temporary file is deleted after execution")
-  void testPlain_tempFileDeletedAfterExecution() throws IOException {
-    // Track temp files before and after execution
-    Path tempDir = Path.of(System.getProperty("java.io.tmpdir"));
-    String[] before = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
-    if (before == null) before = new String[0];
-
-    byte[] input = "test data".getBytes(StandardCharsets.UTF_8);
-    execute(FileBufferCommand.create(), input);
-
-    String[] after = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
-    if (after == null) after = new String[0];
-
-    // No new streamconverter temp files should remain
-    assertEquals(before.length, after.length, "Temporary file should be deleted after execution");
+  void testPlain_tempFileDeletedAfterExecution(@TempDir Path tempDir) throws IOException {
+    System.setProperty("java.io.tmpdir", tempDir.toString());
+    try {
+      execute(FileBufferCommand.create(), "test data".getBytes(StandardCharsets.UTF_8));
+      String[] remaining = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
+      assertEquals(
+          0,
+          remaining == null ? 0 : remaining.length,
+          "Temporary file should be deleted after execution");
+    } finally {
+      System.clearProperty("java.io.tmpdir");
+    }
   }
 
   @Test
   @DisplayName("Plain: temporary file is deleted even when IOException is thrown mid-read")
-  void testPlain_tempFileDeletedOnException() {
-    Path tempDir = Path.of(System.getProperty("java.io.tmpdir"));
-    String[] before = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
-    if (before == null) before = new String[0];
-    final int beforeCount = before.length;
+  void testPlain_tempFileDeletedOnException(@TempDir Path tempDir) {
+    System.setProperty("java.io.tmpdir", tempDir.toString());
+    try {
+      InputStream failingStream =
+          new InputStream() {
+            private int count = 0;
 
-    InputStream failingStream =
-        new InputStream() {
-          private int count = 0;
+            @Override
+            public int read(byte[] buf, int off, int len) throws IOException {
+              if (count++ > 2) throw new IOException("Simulated read failure");
+              buf[off] = 'X';
+              return 1;
+            }
 
-          @Override
-          public int read(byte[] buf, int off, int len) throws IOException {
-            if (count++ > 2) throw new IOException("Simulated read failure");
-            buf[off] = 'X';
-            return 1;
-          }
+            @Override
+            public int read() throws IOException {
+              return 'X';
+            }
+          };
 
-          @Override
-          public int read() throws IOException {
-            return 'X';
-          }
-        };
+      assertThrows(
+          IOException.class,
+          () -> FileBufferCommand.create().execute(failingStream, new ByteArrayOutputStream()));
 
-    assertThrows(
-        IOException.class,
-        () -> {
-          ByteArrayOutputStream out = new ByteArrayOutputStream();
-          FileBufferCommand.create().execute(failingStream, out);
-        });
-
-    String[] after = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
-    if (after == null) after = new String[0];
-    assertEquals(beforeCount, after.length, "Temporary file should be deleted after exception");
+      String[] remaining = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
+      assertEquals(
+          0,
+          remaining == null ? 0 : remaining.length,
+          "Temporary file should be deleted after exception");
+    } finally {
+      System.clearProperty("java.io.tmpdir");
+    }
   }
 
   @Test
@@ -143,7 +142,14 @@ class FileBufferCommandTest {
   void testEncrypted_tempFileContainsEncryptedData() throws Exception {
     byte[] input = "Sensitive plaintext payload.".getBytes(StandardCharsets.UTF_8);
 
-    Path tempDir = Path.of(System.getProperty("java.io.tmpdir"));
+    // 実際の tmpdir をスキャン。execute() 開始直前のスナップショットとの差分で
+    // このテストが作成した一時ファイルを確実に特定する。
+    Path actualTmpDir = Path.of(System.getProperty("java.io.tmpdir"));
+    java.util.Set<String> before =
+        java.util.Arrays.stream(
+                actualTmpDir.toFile().list((d, n) -> n.startsWith("streamconverter-")))
+            .collect(java.util.stream.Collectors.toSet());
+
     AtomicReference<byte[]> capturedTempFileBytes = new AtomicReference<>();
     CountDownLatch firstWriteReceived = new CountDownLatch(1);
     CountDownLatch writeMayProceed = new CountDownLatch(1);
@@ -167,19 +173,26 @@ class FileBufferCommandTest {
           private void maybeIntercept() throws IOException {
             if (!intercepted) {
               intercepted = true;
-              // この時点で一時ファイルへの書き込みは完了している
-              String[] tempFiles =
-                  tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
-              if (tempFiles != null && tempFiles.length == 1) {
-                try {
-                  capturedTempFileBytes.set(Files.readAllBytes(tempDir.resolve(tempFiles[0])));
-                } catch (IOException e) {
-                  // 読み取れない場合は null のまま
+              // スナップショット差分でこのテストの一時ファイルを特定する
+              String[] current =
+                  actualTmpDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
+              if (current != null) {
+                for (String name : current) {
+                  if (!before.contains(name)) {
+                    try {
+                      capturedTempFileBytes.set(Files.readAllBytes(actualTmpDir.resolve(name)));
+                    } catch (IOException e) {
+                      // 読み取れない場合は null のまま
+                    }
+                    break;
+                  }
                 }
               }
               firstWriteReceived.countDown();
               try {
-                writeMayProceed.await();
+                if (!writeMayProceed.await(10, TimeUnit.SECONDS)) {
+                  throw new IOException("Timed out waiting for test to proceed");
+                }
               } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new IOException("Interrupted", e);
@@ -201,10 +214,13 @@ class FileBufferCommandTest {
             });
     executor.start();
 
-    // 最初の write() が来るまで待ってからアンブロック
-    firstWriteReceived.await();
+    // 最初の write() が来るまで待ってからアンブロック（タイムアウト付き）
+    assertTrue(
+        firstWriteReceived.await(10, TimeUnit.SECONDS),
+        "Timed out waiting for encrypted output to be written");
     writeMayProceed.countDown();
-    executor.join();
+    executor.join(10_000);
+    assertFalse(executor.isAlive(), "Executor thread did not finish in time");
 
     byte[] fileBytes = capturedTempFileBytes.get();
     assertNotNull(fileBytes, "Temp file bytes should have been captured mid-execution");
@@ -223,17 +239,18 @@ class FileBufferCommandTest {
 
   @Test
   @DisplayName("Encrypted: temporary file is deleted after execution")
-  void testEncrypted_tempFileDeletedAfterExecution() throws IOException {
-    Path tempDir = Path.of(System.getProperty("java.io.tmpdir"));
-    String[] before = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
-    if (before == null) before = new String[0];
-
-    execute(FileBufferCommand.createEncrypted(), "secret".getBytes(StandardCharsets.UTF_8));
-
-    String[] after = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
-    if (after == null) after = new String[0];
-    assertEquals(
-        before.length, after.length, "Temporary file should be deleted after encrypted execution");
+  void testEncrypted_tempFileDeletedAfterExecution(@TempDir Path tempDir) throws IOException {
+    System.setProperty("java.io.tmpdir", tempDir.toString());
+    try {
+      execute(FileBufferCommand.createEncrypted(), "secret".getBytes(StandardCharsets.UTF_8));
+      String[] remaining = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
+      assertEquals(
+          0,
+          remaining == null ? 0 : remaining.length,
+          "Temporary file should be deleted after encrypted execution");
+    } finally {
+      System.clearProperty("java.io.tmpdir");
+    }
   }
 
   // ---------------------------------------------------------------------------
@@ -243,8 +260,6 @@ class FileBufferCommandTest {
   @Test
   @DisplayName("Pipeline: cmd1 → FileBufferCommand → cmd2 produces correct output")
   void testPipelineIntegration() throws IOException {
-    // cmd1: append " [stage1]"
-    // cmd2: append " [stage2]"
     byte[] input = "input".getBytes(StandardCharsets.UTF_8);
 
     StreamConverter converter =
@@ -264,8 +279,7 @@ class FileBufferCommandTest {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     converter.run(new ByteArrayInputStream(input), output);
 
-    String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("input [stage1] [stage2]", result);
+    assertEquals("input [stage1] [stage2]", output.toString(StandardCharsets.UTF_8));
   }
 
   // ---------------------------------------------------------------------------
@@ -312,7 +326,6 @@ class FileBufferCommandTest {
       java.util.IdentityHashMap<?, ?> hooks = (java.util.IdentityHashMap<?, ?>) field.get(null);
       return hooks.size();
     } catch (Exception e) {
-      // If reflection fails (e.g., security manager), return -1 to skip assertion
       return -1;
     }
   }

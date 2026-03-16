@@ -64,6 +64,35 @@ StreamConverter.createWithContext(context, extractUserId, processor)
 - Downstream commands are MDC-agnostic
 - Works correctly in multi-threaded environments
 
+### Validate-then-Transform with FileBufferCommand
+
+バリデーションが失敗した場合でも不正データが下流コマンドへ流れないようにしたい場合、`FileBufferCommand` をステージ間に挟む。
+
+```java
+// バリデーション失敗時に不正データが transformCmd へ到達しないことを保証する
+StreamConverter converter = StreamConverter.create(
+    validateCmd,
+    FileBufferCommand.create(),   // ← 一時ファイルでステージを分離
+    transformCmd
+);
+converter.run(inputStream, outputStream);
+```
+
+機密データを扱う場合は暗号化モードを使用する：
+
+```java
+StreamConverter converter = StreamConverter.create(
+    validateCmd,
+    FileBufferCommand.createEncrypted(),  // AES-256-GCM で一時ファイルを暗号化
+    transformCmd
+);
+```
+
+**一時ファイルのライフサイクル**:
+- `execute()` 開始時に `Files.createTempFile("streamconverter-", ".tmp")` で作成
+- 正常終了・例外発生を問わず `finally` で削除
+- JVM 異常終了に備えて ShutdownHook も登録（正常終了時は解除）
+
 ### Testing Network-Dependent Code
 
 ```java

@@ -63,7 +63,35 @@ converter.run(inputStream, outputStream);
 2. 抽出したIDをHTTP APIに送信（`SendHttpCommand` は `streamconverter-http` モジュールで提供）
 3. APIレスポンス（JSON）から `result` フィールドを抽出
 
-## 3. MDC によるログトレーシング
+## 3. バリデーションとバッファリング
+
+バリデーションコマンドが失敗した場合に不正データが後続コマンドへ流れないようにするには、`FileBufferCommand` をステージ間に挟みます。
+
+```java
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.impl.FileBufferCommand;
+
+StreamConverter converter = StreamConverter.create(
+    validateCmd,                  // バリデーション（失敗時は IOException をスロー）
+    FileBufferCommand.create(),   // 一時ファイルでステージを分離
+    transformCmd                  // バリデーション通過後のみ実行される
+);
+converter.run(inputStream, outputStream);
+```
+
+`validateCmd` が `IOException` をスローすると、`transformCmd` はまったく実行されません。一時ファイルは実行終了後に自動削除されます。
+
+機密データを扱うパイプラインでは、AES-256-GCM で一時ファイルを暗号化するモードを使用できます：
+
+```java
+StreamConverter converter = StreamConverter.create(
+    validateCmd,
+    FileBufferCommand.createEncrypted(),  // 一時ファイルを AES-256-GCM で暗号化
+    transformCmd
+);
+```
+
+## 4. MDC によるログトレーシング
 
 実運用環境では、ログにリクエスト・ジョブレベルのコンテキスト情報を付加することで、分散トレーシングが容易になります。SLF4J の MDC と `MdcPropagatingRule` を組み合わせることで、ストリームから抽出した値を自動的にログコンテキストへ伝搬できます。
 

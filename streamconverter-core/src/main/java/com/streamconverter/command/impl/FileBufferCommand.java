@@ -42,6 +42,7 @@ public class FileBufferCommand extends AbstractStreamCommand {
   private static final int GCM_IV_LENGTH = 12;
   private static final int GCM_TAG_LENGTH = 128;
   private static final String CIPHER_ALGORITHM = "AES/GCM/NoPadding";
+  private static final SecureRandom SECURE_RANDOM = new SecureRandom();
 
   private final boolean encrypted;
 
@@ -165,7 +166,7 @@ public class FileBufferCommand extends AbstractStreamCommand {
   private SecretKey generateAesKey() throws IOException {
     try {
       KeyGenerator keyGen = KeyGenerator.getInstance("AES");
-      keyGen.init(AES_KEY_BITS, new SecureRandom());
+      keyGen.init(AES_KEY_BITS, SECURE_RANDOM);
       return keyGen.generateKey();
     } catch (GeneralSecurityException e) {
       throw new IOException("Failed to generate AES key", e);
@@ -174,7 +175,7 @@ public class FileBufferCommand extends AbstractStreamCommand {
 
   private byte[] generateIv() {
     byte[] iv = new byte[GCM_IV_LENGTH];
-    new SecureRandom().nextBytes(iv);
+    SECURE_RANDOM.nextBytes(iv);
     return iv;
   }
 

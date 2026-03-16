@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -345,5 +346,31 @@ class FilterCommandBasicTest {
     // Verify output was generated correctly
     String output = monitoringOutputStream.getContent();
     assertTrue(output.contains("Dept"), "Filtering should produce expected department data");
+  }
+
+  @Test
+  @DisplayName("[#549] JsonFilterCommand processes JSON larger than 10MB without IOException")
+  void testJsonFilterCommand_LargeJsonNoMemoryLimit() throws IOException {
+    // Build JSON > 10MB: each entry has a long "data" field to ensure total exceeds 10MB
+    String padding = "x".repeat(100);
+    StringBuilder jsonBuilder = new StringBuilder("[");
+    for (int i = 0; i < 100_000; i++) {
+      if (i > 0) jsonBuilder.append(",");
+      jsonBuilder.append(String.format("{\"id\":%d,\"value\":\"%s\"}", i, padding));
+    }
+    jsonBuilder.append("]");
+    String largeJson = jsonBuilder.toString();
+    assertTrue(largeJson.length() > 10 * 1024 * 1024, "Test data should exceed 10MB");
+
+    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$[*].id"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(largeJson.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    // Should not throw IOException("JSON content too large...")
+    command.execute(input, output);
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("["), "Result should be a JSON array");
   }
 }

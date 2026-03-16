@@ -12,7 +12,6 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
@@ -20,6 +19,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * XML Navigate Command Class
@@ -29,7 +30,7 @@ import javax.xml.stream.events.XMLEvent;
  * while preserving the overall XML structure.
  */
 public class XmlNavigateCommand extends AbstractStreamCommand {
-  private static final Logger LOGGER = Logger.getLogger(XmlNavigateCommand.class.getName());
+  private static final Logger LOGGER = LoggerFactory.getLogger(XmlNavigateCommand.class);
   private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
   private TreePath treePath;
@@ -175,14 +176,14 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       try {
         eventReader.close();
       } catch (XMLStreamException e) {
-        LOGGER.warning("Failed to close XMLEventReader: " + e.getMessage());
+        LOGGER.warn("Failed to close XMLEventReader: " + e.getMessage());
       }
     }
     if (eventWriter != null) {
       try {
         eventWriter.close();
       } catch (XMLStreamException e) {
-        LOGGER.warning("Failed to close XMLEventWriter: " + e.getMessage());
+        LOGGER.warn("Failed to close XMLEventWriter: " + e.getMessage());
       }
     }
   }

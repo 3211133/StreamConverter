@@ -12,13 +12,14 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * XML Filter Command Class
@@ -32,7 +33,7 @@ import javax.xml.stream.events.XMLEvent;
  * path expressions including nested elements and attributes
  */
 public class XmlFilterCommand extends AbstractStreamCommand {
-  private static final Logger LOGGER = Logger.getLogger(XmlFilterCommand.class.getName());
+  private static final Logger LOGGER = LoggerFactory.getLogger(XmlFilterCommand.class);
 
   private final IPath<List<String>> xpath;
 
@@ -96,7 +97,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter.add(event);
               eventWriter.close();
             } catch (XMLStreamException e) {
-              LOGGER.warning("Error writing start element: " + e.getMessage());
+              LOGGER.warn("Error writing start element: " + e.getMessage());
             }
           } else if (isCapturing && currentDepth > captureDepth) {
             // We're inside a matching element, continue capturing
@@ -105,7 +106,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter.add(event);
               eventWriter.close();
             } catch (XMLStreamException e) {
-              LOGGER.warning("Error writing nested start element: " + e.getMessage());
+              LOGGER.warn("Error writing nested start element: " + e.getMessage());
             }
           }
 
@@ -116,7 +117,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter.add(event);
               eventWriter.close();
             } catch (XMLStreamException e) {
-              LOGGER.warning("Error writing end element: " + e.getMessage());
+              LOGGER.warn("Error writing end element: " + e.getMessage());
             }
 
             // If we're closing the captured element
@@ -137,7 +138,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
             eventWriter.add(event);
             eventWriter.close();
           } catch (XMLStreamException e) {
-            LOGGER.warning("Error writing content: " + e.getMessage());
+            LOGGER.warn("Error writing content: " + e.getMessage());
           }
         }
       }

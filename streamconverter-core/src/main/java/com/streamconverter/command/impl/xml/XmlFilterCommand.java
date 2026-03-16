@@ -12,13 +12,14 @@ import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.logging.Logger;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * XML Filter Command Class
@@ -32,7 +33,7 @@ import javax.xml.stream.events.XMLEvent;
  * path expressions including nested elements and attributes
  */
 public class XmlFilterCommand extends AbstractStreamCommand {
-  private static final Logger LOGGER = Logger.getLogger(XmlFilterCommand.class.getName());
+  private static final Logger LOGGER = LoggerFactory.getLogger(XmlFilterCommand.class);
 
   private final IPath<List<String>> xpath;
 
@@ -76,6 +77,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
 
       XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
       StringWriter elementWriter = new StringWriter();
+      XMLEventWriter eventWriter = null;
 
       while (reader.hasNext()) {
         XMLEvent event = reader.nextEvent();
@@ -90,37 +92,43 @@ public class XmlFilterCommand extends AbstractStreamCommand {
             isCapturing = true;
             captureDepth = currentDepth;
             elementWriter = new StringWriter();
-
             try {
-              XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(elementWriter);
+              eventWriter = outputFactory.createXMLEventWriter(elementWriter);
               eventWriter.add(event);
-              eventWriter.close();
             } catch (XMLStreamException e) {
-              LOGGER.warning("Error writing start element: " + e.getMessage());
+              LOGGER.warn("Error writing start element: {}", e.getMessage());
             }
           } else if (isCapturing && currentDepth > captureDepth) {
-            // We're inside a matching element, continue capturing
+            // We're inside a matching element, continue capturing with the same writer
             try {
-              XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(elementWriter);
-              eventWriter.add(event);
-              eventWriter.close();
+              if (eventWriter != null) {
+                eventWriter.add(event);
+              }
             } catch (XMLStreamException e) {
-              LOGGER.warning("Error writing nested start element: " + e.getMessage());
+              LOGGER.warn("Error writing nested start element: {}", e.getMessage());
             }
           }
 
         } else if (event.isEndElement()) {
           if (isCapturing) {
             try {
-              XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(elementWriter);
-              eventWriter.add(event);
-              eventWriter.close();
+              if (eventWriter != null) {
+                eventWriter.add(event);
+              }
             } catch (XMLStreamException e) {
-              LOGGER.warning("Error writing end element: " + e.getMessage());
+              LOGGER.warn("Error writing end element: {}", e.getMessage());
             }
 
             // If we're closing the captured element
             if (currentDepth == captureDepth) {
+              try {
+                if (eventWriter != null) {
+                  eventWriter.close();
+                  eventWriter = null;
+                }
+              } catch (XMLStreamException e) {
+                LOGGER.warn("Error closing event writer: {}", e.getMessage());
+              }
               extractedElements.add(elementWriter.toString());
               isCapturing = false;
               captureDepth = 0;
@@ -133,12 +141,21 @@ public class XmlFilterCommand extends AbstractStreamCommand {
         } else if (isCapturing) {
           // Characters, comments, etc. inside captured element
           try {
-            XMLEventWriter eventWriter = outputFactory.createXMLEventWriter(elementWriter);
-            eventWriter.add(event);
-            eventWriter.close();
+            if (eventWriter != null) {
+              eventWriter.add(event);
+            }
           } catch (XMLStreamException e) {
-            LOGGER.warning("Error writing content: " + e.getMessage());
+            LOGGER.warn("Error writing content: {}", e.getMessage());
           }
+        }
+      }
+
+      // Ensure writer is closed if capture was interrupted
+      if (eventWriter != null) {
+        try {
+          eventWriter.close();
+        } catch (XMLStreamException e) {
+          LOGGER.warn("Error closing event writer: {}", e.getMessage());
         }
       }
 

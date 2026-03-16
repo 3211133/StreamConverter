@@ -15,6 +15,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -345,5 +346,32 @@ class FilterCommandBasicTest {
     // Verify output was generated correctly
     String output = monitoringOutputStream.getContent();
     assertTrue(output.contains("Dept"), "Filtering should produce expected department data");
+  }
+
+  @Test
+  @DisplayName("[#550] XmlFilterCommand captures nested child elements correctly")
+  void testXmlFilterCommand_NestedChildElements() throws IOException {
+    String xmlInput =
+        "<?xml version=\"1.0\"?>"
+            + "<catalog>"
+            + "<book id=\"1\"><title>Java</title><author>Gosling</author></book>"
+            + "<book id=\"2\"><title>Kotlin</title><author>JetBrains</author></book>"
+            + "</catalog>";
+
+    XmlFilterCommand command = XmlFilterCommand.create(TreePath.fromXml("catalog/book"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    // Both book elements should be captured with their children
+    assertTrue(result.contains("Java"), "First book title should be present");
+    assertTrue(result.contains("Gosling"), "First book author should be present");
+    assertTrue(result.contains("Kotlin"), "Second book title should be present");
+    assertTrue(result.contains("JetBrains"), "Second book author should be present");
+    assertTrue(result.contains("<book"), "Book start tag should be preserved");
+    assertTrue(result.contains("</book>"), "Book end tag should be preserved");
   }
 }

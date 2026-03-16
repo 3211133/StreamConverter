@@ -373,4 +373,57 @@ class FilterCommandBasicTest {
             + "</filtered-results>";
     assertEquals(expected, result);
   }
+
+  @Test
+  @DisplayName("[#546] RFC 4180: double-quote escaping is handled correctly by CsvFilterCommand")
+  void testCsvFilterCommand_Rfc4180DoubleQuoteEscaping() throws IOException {
+    // Field with embedded double-quote: value is: say "hi"  (RFC 4180 doubled-quote: "say ""hi""")
+    String csvInput = "name,note\nAlice,\"say \"\"hi\"\"\"\n";
+    // Select the "note" column which contains the quoted value — not "name"
+    CsvFilterCommand command = CsvFilterCommand.create(CSVPath.of("note"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    // The quoted field must round-trip correctly: output should contain the unescaped value
+    assertTrue(result.contains("say"), "Note field should be present");
+    assertTrue(result.contains("hi"), "Embedded value inside quotes should be present");
+    // The raw output should contain the RFC 4180 doubled-quote encoding (not backslash escape)
+    assertFalse(result.contains("\\\""), "Output must not use backslash escaping (not RFC 4180)");
+  }
+
+  @Test
+  @DisplayName("[#546] RFC 4180: comma inside quoted field is not split by CsvFilterCommand")
+  void testCsvFilterCommand_Rfc4180CommaInQuotedField() throws IOException {
+    String csvInput = "id,address\n1,\"456 Oak Ave, Apt 2B\"\n";
+    CsvFilterCommand command = CsvFilterCommand.create(CSVPath.of("address"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("456 Oak Ave"), "First part of address should be present");
+    assertTrue(result.contains("Apt 2B"), "Second part of address (after comma) should be present");
+  }
+
+  @Test
+  @DisplayName("[#546] RFC 4180: newline inside quoted field is handled by CsvFilterCommand")
+  void testCsvFilterCommand_Rfc4180NewlineInQuotedField() throws IOException {
+    String csvInput = "name,bio\nAlice,\"Line1\nLine2\"\n";
+    CsvFilterCommand command = CsvFilterCommand.create(CSVPath.of("bio"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("Line1"), "First line of multi-line field should be present");
+    assertTrue(result.contains("Line2"), "Second line of multi-line field should be present");
+  }
 }

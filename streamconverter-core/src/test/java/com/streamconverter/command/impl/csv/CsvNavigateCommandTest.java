@@ -220,4 +220,40 @@ class CsvNavigateCommandTest {
     String output = monitoringOutputStream.getContent();
     assertTrue(output.length() > 0, "CSV navigation should produce output");
   }
+
+  @Test
+  @DisplayName("[#546] RFC 4180: double-quote escaping in target column is preserved")
+  void testRfc4180DoubleQuoteEscaping() throws IOException {
+    // Field containing a quote character: She said ""hello""
+    String csvInput = "name,comment\nAlice,\"She said \"\"hello\"\"\"\n";
+    CsvNavigateCommand testCommand =
+        CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    testCommand.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("Alice"), "Name column value should be preserved");
+    assertTrue(result.contains("She said"), "Comment column should also appear in output");
+  }
+
+  @Test
+  @DisplayName("[#546] RFC 4180: comma inside quoted field is not split")
+  void testRfc4180CommaInsideQuotedField() throws IOException {
+    String csvInput = "name,address\nAlice,\"123 Main St, Suite 4\"\n";
+    CsvNavigateCommand testCommand =
+        CsvNavigateCommand.create(CSVPath.of("address"), new PassThroughRule());
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    testCommand.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    // The address field with internal comma should be preserved intact
+    assertTrue(result.contains("123 Main St"), "Address should be preserved");
+    assertTrue(result.contains("Suite 4"), "Comma-separated part of address should be preserved");
+  }
 }

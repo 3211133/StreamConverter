@@ -28,8 +28,8 @@ public abstract class ConsumerCommand extends AbstractStreamCommand {
    * Executes the command on the provided input stream and writes the result to the output stream.
    *
    * <p><strong>Note on data integrity:</strong> This method uses {@link TeeInputStream} to copy
-   * input bytes to {@code outputStream} concurrently with {@link #consume(InputStream)}. If {@code
-   * consume()} throws an exception, partial data may already have been written to {@code
+   * input bytes to {@code outputStream} as they are read by {@link #consume(InputStream)}. If
+   * {@code consume()} throws an exception, partial data may already have been written to {@code
    * outputStream}. To prevent this, place a {@link
    * com.streamconverter.command.impl.FileBufferCommand} immediately before this command in the
    * pipeline:
@@ -38,7 +38,7 @@ public abstract class ConsumerCommand extends AbstractStreamCommand {
    * StreamConverter.create(
    *     new MyValidateCommand(),
    *     FileBufferCommand.create(),
-   *     nextStageCommand
+   *     new MyConsumerCommand()  // ConsumerCommand subclass
    * );
    * }</pre>
    *

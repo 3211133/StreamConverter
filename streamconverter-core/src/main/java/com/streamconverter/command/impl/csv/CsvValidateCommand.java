@@ -226,7 +226,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     int expectedColumnCount = headers != null ? headers.length : -1;
 
     if (row == null) {
-      addError(errors, String.format("Row %d: null row", rowNum));
+      addError(errors, String.format("Data row %d: null row", rowNum));
       return;
     }
 
@@ -235,7 +235,7 @@ public class CsvValidateCommand extends ConsumerCommand {
       addError(
           errors,
           String.format(
-              "Row %d has inconsistent number of columns (expected %d, found %d)",
+              "Data row %d has inconsistent number of columns (expected %d, found %d)",
               rowNum, expectedColumnCount, row.length));
       return;
     }
@@ -250,7 +250,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     }
 
     if (isEmptyRow) {
-      addError(errors, String.format("Row %d: Empty data row", rowNum));
+      addError(errors, String.format("Data row %d: Empty data row", rowNum));
     }
   }
 

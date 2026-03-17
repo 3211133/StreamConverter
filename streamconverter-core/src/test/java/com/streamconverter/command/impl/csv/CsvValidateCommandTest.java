@@ -153,7 +153,7 @@ public class CsvValidateCommandTest {
         assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
 
     assertTrue(exception.getMessage().contains("CSV validation failed"));
-    assertTrue(exception.getMessage().contains("Row 2 has inconsistent number of columns"));
+    assertTrue(exception.getMessage().contains("Data row 2 has inconsistent number of columns"));
   }
 
   @Test

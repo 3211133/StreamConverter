@@ -96,7 +96,10 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter = outputFactory.createXMLEventWriter(elementWriter);
               eventWriter.add(event);
             } catch (XMLStreamException e) {
-              LOGGER.warn("Error writing start element: {}", e.getMessage());
+              // Reset capturing state to avoid leaving isCapturing=true with eventWriter=null
+              isCapturing = false;
+              captureDepth = 0;
+              LOGGER.warn("Error writing start element", e);
             }
           } else if (isCapturing && currentDepth > captureDepth) {
             // We're inside a matching element, continue capturing with the same writer
@@ -105,7 +108,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
                 eventWriter.add(event);
               }
             } catch (XMLStreamException e) {
-              LOGGER.warn("Error writing nested start element: {}", e.getMessage());
+              LOGGER.warn("Error writing nested start element", e);
             }
           }
 
@@ -116,7 +119,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
                 eventWriter.add(event);
               }
             } catch (XMLStreamException e) {
-              LOGGER.warn("Error writing end element: {}", e.getMessage());
+              LOGGER.warn("Error writing end element", e);
             }
 
             // If we're closing the captured element
@@ -127,7 +130,8 @@ public class XmlFilterCommand extends AbstractStreamCommand {
                   eventWriter = null;
                 }
               } catch (XMLStreamException e) {
-                LOGGER.warn("Error closing event writer: {}", e.getMessage());
+                eventWriter = null;
+                LOGGER.warn("Error closing event writer", e);
               }
               extractedElements.add(elementWriter.toString());
               isCapturing = false;
@@ -145,7 +149,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter.add(event);
             }
           } catch (XMLStreamException e) {
-            LOGGER.warn("Error writing content: {}", e.getMessage());
+            LOGGER.warn("Error writing content", e);
           }
         }
       }
@@ -155,7 +159,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
         try {
           eventWriter.close();
         } catch (XMLStreamException e) {
-          LOGGER.warn("Error closing event writer: {}", e.getMessage());
+          LOGGER.warn("Error closing event writer", e);
         }
       }
 

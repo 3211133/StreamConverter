@@ -176,14 +176,14 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       try {
         eventReader.close();
       } catch (XMLStreamException e) {
-        LOGGER.warn("Failed to close XMLEventReader: " + e.getMessage());
+        LOGGER.warn("Failed to close XMLEventReader", e);
       }
     }
     if (eventWriter != null) {
       try {
         eventWriter.close();
       } catch (XMLStreamException e) {
-        LOGGER.warn("Failed to close XMLEventWriter: " + e.getMessage());
+        LOGGER.warn("Failed to close XMLEventWriter", e);
       }
     }
   }

@@ -97,7 +97,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter.add(event);
               eventWriter.close();
             } catch (XMLStreamException e) {
-              LOGGER.warn("Error writing start element: " + e.getMessage());
+              LOGGER.warn("Error writing start element", e);
             }
           } else if (isCapturing && currentDepth > captureDepth) {
             // We're inside a matching element, continue capturing
@@ -106,7 +106,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter.add(event);
               eventWriter.close();
             } catch (XMLStreamException e) {
-              LOGGER.warn("Error writing nested start element: " + e.getMessage());
+              LOGGER.warn("Error writing nested start element", e);
             }
           }
 
@@ -117,7 +117,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter.add(event);
               eventWriter.close();
             } catch (XMLStreamException e) {
-              LOGGER.warn("Error writing end element: " + e.getMessage());
+              LOGGER.warn("Error writing end element", e);
             }
 
             // If we're closing the captured element
@@ -138,7 +138,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
             eventWriter.add(event);
             eventWriter.close();
           } catch (XMLStreamException e) {
-            LOGGER.warn("Error writing content: " + e.getMessage());
+            LOGGER.warn("Error writing content", e);
           }
         }
       }

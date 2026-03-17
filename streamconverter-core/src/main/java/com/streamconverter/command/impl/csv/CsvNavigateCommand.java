@@ -132,6 +132,8 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
                 CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.DEFAULT_QUOTE_CHARACTER,
                 CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                // Use DEFAULT_LINE_END (\n) instead of RFC4180_LINE_END (\r\n)
+                // for cross-platform compatibility (avoids test failures on Windows).
                 CSVWriter.DEFAULT_LINE_END)) {
 
       applyRuleToColumn(csvReader, csvWriter);

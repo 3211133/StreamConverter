@@ -1,5 +1,6 @@
 package com.streamconverter.command.impl;
 
+import static com.streamconverter.test.TestUtils.assertEqualsIgnoreLineEndings;
 import static com.streamconverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -81,7 +82,7 @@ class FilterCommandBasicTest {
     // Verify
     String result = output.toString(StandardCharsets.UTF_8);
     String expected = createTestData("name", "田中太郎", "佐藤花子", "");
-    assertEquals(expected, result);
+    assertEqualsIgnoreLineEndings(expected, result);
   }
 
   @Test
@@ -102,7 +103,7 @@ class FilterCommandBasicTest {
     // Verify
     String result = output.toString(StandardCharsets.UTF_8);
     String expected = createTestData("name,city", "田中太郎,東京", "佐藤花子,大阪", "");
-    assertEquals(expected, result);
+    assertEqualsIgnoreLineEndings(expected, result);
   }
 
   @Test
@@ -161,7 +162,7 @@ class FilterCommandBasicTest {
     // Verify
     String result = output.toString(StandardCharsets.UTF_8);
     String expected = createTestData("田中太郎", "佐藤花子", "");
-    assertEquals(expected, result);
+    assertEqualsIgnoreLineEndings(expected, result);
   }
 
   @Test

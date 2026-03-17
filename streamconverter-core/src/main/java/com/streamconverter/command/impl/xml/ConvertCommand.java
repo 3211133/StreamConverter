@@ -34,15 +34,13 @@ public class ConvertCommand extends AbstractStreamCommand {
   private TreePath treePath;
 
   /**
-   * デフォルトコンストラクタ
+   * 内部利用のみ。インスタンス生成には {@link #create} を使うこと。
    *
    * @param rule 変換ルール
    * @param treePath 変換対象のTreePath
    */
   private ConvertCommand(IRule rule, TreePath treePath) {
     super();
-    Objects.requireNonNull(rule, "rule must not be null");
-    Objects.requireNonNull(treePath, "treePath must not be null");
     this.rule = rule;
     this.treePath = treePath;
   }

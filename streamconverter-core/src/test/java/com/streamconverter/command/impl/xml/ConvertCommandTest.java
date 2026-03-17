@@ -78,7 +78,7 @@ public class ConvertCommandTest {
   }
 
   @Test
-  @DisplayName("Constructor validation")
+  @DisplayName("Factory method validation")
   public void testConstructorValidation() {
     TestRule rule = TestRule.contentTransformRule();
 

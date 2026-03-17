@@ -221,6 +221,26 @@ class JsonNavigateCommandTest {
   }
 
   @Test
+  @DisplayName("[#548] Array-syntax path $.orders[*].product_code matches nested fields")
+  void testArraySyntaxPathMatching() throws IOException {
+    String jsonInput =
+        "{\"orders\":[{\"product_code\":\"ABC\",\"qty\":1},{\"product_code\":\"XYZ\",\"qty\":2}]}";
+    JsonNavigateCommand cmd =
+        JsonNavigateCommand.create(
+            TreePath.fromJson("$.orders[*].product_code"), s -> s.toLowerCase());
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    cmd.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("\"abc\""), "product_code should be lower-cased via array path");
+    assertTrue(result.contains("\"xyz\""), "second product_code should also be lower-cased");
+    assertTrue(result.contains("\"qty\""), "Other fields should be preserved");
+  }
+
+  @Test
   @DisplayName("[#548] $.second.x path does not transform $.first.x (original bug regression)")
   void testSecondObjectPathDoesNotTransformFirst() throws IOException {
     String jsonInput =

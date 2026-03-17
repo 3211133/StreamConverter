@@ -152,7 +152,9 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   /** Simple path matching for streaming JSON processing */
   private boolean isMatchingPath(List<String> currentPath) {
-    return treePath.matches(currentPath);
+    // Use matchesIgnoringArraySyntax so that paths like $.orders[*].product_code
+    // correctly match the streaming currentPath ["orders", "product_code"].
+    return treePath.matchesIgnoringArraySyntax(currentPath);
   }
 
   /** Handle JSON parsing exceptions */

@@ -1,6 +1,7 @@
 package com.streamconverter.command.impl.csv;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -131,9 +132,10 @@ class CsvNavigateCommandTest {
   @Test
   @DisplayName("[#547] Concurrent execution of same instance does not corrupt column index")
   void testConcurrentExecutionThreadSafety() throws Exception {
+    // Use a real transformation (upper-case) so we can verify the correct column was targeted
     String csvInput = "name,age,city\nAlice,30,NYC\nBob,25,LA\nCarol,35,Chicago\n";
     CsvNavigateCommand sharedCommand =
-        CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
+        CsvNavigateCommand.create(CSVPath.of("name"), s -> s.toUpperCase());
 
     int threadCount = 8;
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -150,18 +152,25 @@ class CsvNavigateCommandTest {
           });
     }
 
-    List<Future<String>> results = executor.invokeAll(tasks);
-    executor.shutdown();
+    List<Future<String>> results;
+    try {
+      results = executor.invokeAll(tasks);
+    } finally {
+      executor.shutdown();
+    }
 
     for (Future<String> result : results) {
       String output = result.get();
-      // All columns are preserved in the output; only the target column value is transformed
+      // Header row should be unchanged
       assertTrue(output.contains("name"), "Header 'name' should appear in output");
-      assertTrue(output.contains("Alice"), "Data 'Alice' should appear in output");
-      assertTrue(output.contains("age"), "Header row should contain all columns including 'age'");
-      // Verify each thread got a complete result (3 data rows)
+      // name column values should be upper-cased (proving the correct column was transformed)
+      assertTrue(output.contains("ALICE"), "name column value 'Alice' should be upper-cased");
+      assertTrue(output.contains("BOB"), "name column value 'Bob' should be upper-cased");
+      // age and city columns should not be upper-cased
+      assertTrue(output.contains("30"), "age value should be unchanged");
+      // Verify each thread got a complete result: 1 header + 3 data rows = 4 non-blank lines
       long lineCount = output.lines().filter(l -> !l.isBlank()).count();
-      assertTrue(lineCount >= 3, "Output should contain header plus data rows");
+      assertEquals(4, lineCount, "Output should contain header plus 3 data rows");
     }
   }
 

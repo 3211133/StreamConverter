@@ -2,6 +2,8 @@ package com.streamconverter.test;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.StandardCharsets;
 
@@ -47,6 +49,20 @@ public class StreamingTestUtils {
         fullyReadTime = System.nanoTime();
       }
       return bytesActuallyRead;
+    }
+
+    @Override
+    public long transferTo(OutputStream out) throws IOException {
+      // ByteArrayInputStream.transferTo() on Java 17+ uses System.arraycopy and bypasses
+      // our read() overrides. Delegate through read(byte[], ...) so tracking still works.
+      long transferred = 0;
+      byte[] buffer = new byte[8192];
+      int n;
+      while ((n = this.read(buffer, 0, buffer.length)) != -1) {
+        out.write(buffer, 0, n);
+        transferred += n;
+      }
+      return transferred;
     }
 
     @Override

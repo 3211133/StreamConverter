@@ -21,8 +21,8 @@ import java.util.List;
  * based on specified paths without any modifications.
  *
  * <p>Features: - Extract specific elements using TreePath expressions - Preserve exact data types
- * and structure of extracted elements - Memory-efficient processing for large JSON files - Support
- * for simple path expressions
+ * and structure of extracted elements - Loads full JSON tree into memory; use a streaming approach
+ * for very large files - Support for simple path expressions
  */
 public class JsonFilterCommand extends AbstractStreamCommand {
 
@@ -60,9 +60,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
 
       JsonNode rootNode = objectMapper.readTree(inputStream);
       // Drain any remaining bytes to fully consume the input stream
-      while (inputStream.read() != -1) {
-        // discard
-      }
+      inputStream.transferTo(OutputStream.nullOutputStream());
 
       if (rootNode == null || rootNode.isNull()) {
         writer.write("null");

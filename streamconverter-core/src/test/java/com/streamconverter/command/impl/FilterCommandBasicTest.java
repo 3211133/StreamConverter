@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -349,6 +350,7 @@ class FilterCommandBasicTest {
   }
 
   @Test
+  @Tag("large-data")
   @DisplayName("[#549] JsonFilterCommand processes JSON larger than 10MB without IOException")
   void testJsonFilterCommand_LargeJsonNoMemoryLimit() throws IOException {
     // Build JSON > 10MB: each entry has a long "data" field to ensure total exceeds 10MB

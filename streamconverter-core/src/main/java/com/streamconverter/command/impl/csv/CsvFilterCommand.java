@@ -77,7 +77,8 @@ public class CsvFilterCommand extends AbstractStreamCommand {
                 CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.DEFAULT_QUOTE_CHARACTER,
                 CSVWriter.DEFAULT_ESCAPE_CHARACTER,
-                CSVWriter.DEFAULT_LINE_END)) {
+                // RFC4180_LINE_END (\r\n) per RFC 4180 §2.
+                CSVWriter.RFC4180_LINE_END)) {
 
       List<Integer> columnIndices;
 

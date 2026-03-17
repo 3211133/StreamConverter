@@ -186,7 +186,8 @@ class StreamProcessingControllerTest {
                   lines.length >= 2, "Should have at least header and data rows after processing");
 
               // Verify pipeline executed successfully (data passed through both commands).
-              // Use line-ending-agnostic comparison: CsvWriter normalizes to \n regardless of OS.
+              // Use line-ending-agnostic comparison: CsvWriter outputs \r\n (RFC 4180 §2) but
+              // TestUtils.createTestData uses System.lineSeparator() which is \n on Unix / \r\n on Windows.
               assertEqualsIgnoreLineEndings(
                   csvData.trim(),
                   responseString.trim(),

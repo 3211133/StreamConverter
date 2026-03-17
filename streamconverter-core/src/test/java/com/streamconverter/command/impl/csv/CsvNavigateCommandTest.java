@@ -266,6 +266,21 @@ class CsvNavigateCommandTest {
   }
 
   @Test
+  @DisplayName("[#546] RFC 4180: output uses CRLF line endings per RFC 4180 §2")
+  void testOutputUsesCrlfLineEndings() throws IOException {
+    String csvInput = "name,age\nAlice,30\n";
+    CsvNavigateCommand testCommand =
+        CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
+
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    testCommand.execute(
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8)), output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("\r\n"), "CSV output must use CRLF (\\r\\n) per RFC 4180 §2");
+  }
+
+  @Test
   @DisplayName("[#546] RFC 4180: comma inside quoted field is not split")
   void testRfc4180CommaInsideQuotedField() throws IOException {
     String csvInput = "name,address\nAlice,\"123 Main St, Suite 4\"\n";

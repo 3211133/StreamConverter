@@ -366,12 +366,12 @@ class FilterCommandBasicTest {
     command.execute(input, output);
 
     String result = output.toString(StandardCharsets.UTF_8);
-    // Both book elements should be captured with their children
-    assertTrue(result.contains("Java"), "First book title should be present");
-    assertTrue(result.contains("Gosling"), "First book author should be present");
-    assertTrue(result.contains("Kotlin"), "Second book title should be present");
-    assertTrue(result.contains("JetBrains"), "Second book author should be present");
-    assertTrue(result.contains("<book"), "Book start tag should be preserved");
-    assertTrue(result.contains("</book>"), "Book end tag should be preserved");
+    String expected =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<filtered-results>"
+            + "<book id=\"1\"><title>Java</title><author>Gosling</author></book>"
+            + "<book id=\"2\"><title>Kotlin</title><author>JetBrains</author></book>"
+            + "</filtered-results>";
+    assertEquals(expected, result);
   }
 }

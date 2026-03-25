@@ -131,7 +131,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
                 }
               } catch (XMLStreamException e) {
                 eventWriter = null;
-                LOGGER.warn("Error closing event writer", e);
+                LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);
               }
               extractedElements.add(elementWriter.toString());
               isCapturing = false;
@@ -149,7 +149,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter.add(event);
             }
           } catch (XMLStreamException e) {
-            LOGGER.warn("Error writing content", e);
+            LOGGER.warn("Error writing content: {}", e.getMessage(), e);
           }
         }
       }
@@ -159,7 +159,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
         try {
           eventWriter.close();
         } catch (XMLStreamException e) {
-          LOGGER.warn("Error closing event writer", e);
+          LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);
         }
       }
 

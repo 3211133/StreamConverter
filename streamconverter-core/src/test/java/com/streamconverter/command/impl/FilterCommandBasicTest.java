@@ -120,10 +120,9 @@ class FilterCommandBasicTest {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     command.execute(input, output);
 
-    // Verify output contains the extracted name element
+    // Verify output matches the exact extracted element
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.contains("田中太郎"));
-    assertTrue(result.contains("<name>") || result.contains("name"));
+    assertEquals("<name>田中太郎</name>", result);
   }
 
   @Test

@@ -209,7 +209,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         return;
       }
       boolean found = false;
-      while (parser.nextToken() != JsonToken.END_OBJECT) {
+      JsonToken t;
+      while ((t = parser.nextToken()) != null && t != JsonToken.END_OBJECT) {
         String name = parser.currentName();
         if (seg.field.equals(name)) {
           extractPath(parser, generator, segments, segIdx + 1);
@@ -230,8 +231,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         return;
       }
       generator.writeStartArray();
-      while (parser.nextToken() != JsonToken.END_ARRAY) {
-        JsonToken elemToken = parser.currentToken();
+      JsonToken elemToken;
+      while ((elemToken = parser.nextToken()) != null && elemToken != JsonToken.END_ARRAY) {
         if (segIdx + 1 >= segments.size()) {
           copyValue(parser, generator, elemToken);
         } else {
@@ -248,16 +249,18 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       }
       int currentIdx = 0;
       boolean found = false;
-      while (parser.nextToken() != JsonToken.END_ARRAY) {
+      JsonToken arrToken;
+      while ((arrToken = parser.nextToken()) != null && arrToken != JsonToken.END_ARRAY) {
         if (currentIdx == seg.index) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
-          while (parser.nextToken() != JsonToken.END_ARRAY) {
-            skipValue(parser, parser.currentToken());
+          JsonToken skipToken;
+          while ((skipToken = parser.nextToken()) != null && skipToken != JsonToken.END_ARRAY) {
+            skipValue(parser, skipToken);
           }
           break;
         } else {
-          skipValue(parser, parser.currentToken());
+          skipValue(parser, arrToken);
         }
         currentIdx++;
       }
@@ -294,7 +297,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         return;
       }
       boolean found = false;
-      while (parser.nextToken() != JsonToken.END_OBJECT) {
+      JsonToken t2;
+      while ((t2 = parser.nextToken()) != null && t2 != JsonToken.END_OBJECT) {
         String name = parser.currentName();
         if (seg.field.equals(name)) {
           extractPath(parser, generator, segments, segIdx + 1);
@@ -314,12 +318,12 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         return;
       }
       generator.writeStartArray();
-      while (parser.nextToken() != JsonToken.END_ARRAY) {
-        JsonToken elemToken = parser.currentToken();
+      JsonToken elemToken2;
+      while ((elemToken2 = parser.nextToken()) != null && elemToken2 != JsonToken.END_ARRAY) {
         if (segIdx + 1 >= segments.size()) {
-          copyValue(parser, generator, elemToken);
+          copyValue(parser, generator, elemToken2);
         } else {
-          extractFromToken(parser, generator, segments, segIdx + 1, elemToken);
+          extractFromToken(parser, generator, segments, segIdx + 1, elemToken2);
         }
       }
       generator.writeEndArray();
@@ -331,16 +335,18 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       }
       int currentIdx = 0;
       boolean found = false;
-      while (parser.nextToken() != JsonToken.END_ARRAY) {
+      JsonToken arrToken2;
+      while ((arrToken2 = parser.nextToken()) != null && arrToken2 != JsonToken.END_ARRAY) {
         if (currentIdx == seg.index) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
-          while (parser.nextToken() != JsonToken.END_ARRAY) {
-            skipValue(parser, parser.currentToken());
+          JsonToken skipToken2;
+          while ((skipToken2 = parser.nextToken()) != null && skipToken2 != JsonToken.END_ARRAY) {
+            skipValue(parser, skipToken2);
           }
           break;
         } else {
-          skipValue(parser, parser.currentToken());
+          skipValue(parser, arrToken2);
         }
         currentIdx++;
       }
@@ -376,7 +382,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
     switch (token) {
       case START_OBJECT:
         generator.writeStartObject();
-        while (parser.nextToken() != JsonToken.END_OBJECT) {
+        JsonToken objToken;
+        while ((objToken = parser.nextToken()) != null && objToken != JsonToken.END_OBJECT) {
           generator.writeFieldName(parser.currentName());
           copyValue(parser, generator);
         }

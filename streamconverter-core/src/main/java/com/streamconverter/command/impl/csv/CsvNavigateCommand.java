@@ -131,7 +131,8 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
                 new OutputStreamWriter(outputStream, StandardCharsets.UTF_8),
                 CSVWriter.DEFAULT_SEPARATOR,
                 CSVWriter.DEFAULT_QUOTE_CHARACTER,
-                CSVWriter.DEFAULT_ESCAPE_CHARACTER,
+                // RFC 4180 §5: only doubled-quote escaping, no backslash escape
+                CSVWriter.NO_ESCAPE_CHARACTER,
                 // RFC4180_LINE_END (\r\n) per RFC 4180 §2.
                 CSVWriter.RFC4180_LINE_END)) {
 

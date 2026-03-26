@@ -4,7 +4,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.TreePath;
@@ -30,7 +29,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
 
   private final TreePath treePath;
   private final IRule rule;
-  private final ObjectMapper objectMapper;
+  private final JsonFactory jsonFactory;
 
   /**
    * Constructor for JSON navigation with TreePath selector and transformation rule.
@@ -42,7 +41,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   private JsonNavigateCommand(TreePath treePath, IRule rule) {
     this.treePath = treePath;
     this.rule = rule;
-    this.objectMapper = new ObjectMapper();
+    this.jsonFactory = new JsonFactory();
   }
 
   /**
@@ -71,8 +70,6 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   /** Stream JSON processing with structure preservation */
   private void processJsonWithStreaming(InputStream inputStream, OutputStream outputStream)
       throws IOException {
-    JsonFactory jsonFactory = objectMapper.getFactory();
-
     try (JsonParser parser = jsonFactory.createParser(inputStream);
         JsonGenerator generator = jsonFactory.createGenerator(outputStream)) {
 

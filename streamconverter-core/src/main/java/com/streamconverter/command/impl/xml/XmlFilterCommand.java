@@ -108,7 +108,11 @@ public class XmlFilterCommand extends AbstractStreamCommand {
                 eventWriter.add(event);
               }
             } catch (XMLStreamException e) {
-              LOGGER.warn("Error writing nested start element", e);
+              // Abort capture to avoid writing corrupt partial state
+              isCapturing = false;
+              captureDepth = 0;
+              eventWriter = null;
+              LOGGER.warn("Error writing nested start element; aborting capture", e);
             }
           }
 
@@ -119,7 +123,11 @@ public class XmlFilterCommand extends AbstractStreamCommand {
                 eventWriter.add(event);
               }
             } catch (XMLStreamException e) {
-              LOGGER.warn("Error writing end element", e);
+              // Abort capture to avoid corrupt state propagation
+              isCapturing = false;
+              captureDepth = 0;
+              eventWriter = null;
+              LOGGER.warn("Error writing end element; aborting capture", e);
             }
 
             // If we're closing the captured element
@@ -149,7 +157,11 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               eventWriter.add(event);
             }
           } catch (XMLStreamException e) {
-            LOGGER.warn("Error writing content: {}", e.getMessage(), e);
+            // Abort capture to avoid corrupt state propagation
+            isCapturing = false;
+            captureDepth = 0;
+            eventWriter = null;
+            LOGGER.warn("Error writing content; aborting capture", e);
           }
         }
       }

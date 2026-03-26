@@ -80,16 +80,17 @@ class JsonNavigateCommandTest {
   }
 
   @Test
-  @org.junit.jupiter.api.Disabled(
-      "JsonNavigateCommand behavior changed - error handling needs review")
   void testInvalidJsonInput() throws IOException {
+    // JsonNavigateCommand writes a descriptive error message to the output stream
+    // rather than throwing an exception (tolerant processing design).
     String invalidJson = "{invalid json}";
     InputStream inputStream =
         new ByteArrayInputStream(invalidJson.getBytes(StandardCharsets.UTF_8));
-    OutputStream outputStream = new ByteArrayOutputStream();
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    // Should not throw for now - actual navigation logic will handle validation
     assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
+    String result = outputStream.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("JSON parsing error"), "Invalid input should produce error message");
   }
 
   @Test

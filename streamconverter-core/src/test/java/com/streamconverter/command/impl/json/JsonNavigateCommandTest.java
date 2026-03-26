@@ -262,4 +262,31 @@ class JsonNavigateCommandTest {
         "$.first.x must remain 'original'; only one occurrence expected in output");
     assertTrue(result.contains("\"keep\""), "Non-target fields should be preserved");
   }
+
+  @Test
+  @DisplayName("[#548] Array-syntax path $.orders[*].product_code matches streaming path")
+  void testArraySyntaxPath_matchesNestedField() throws IOException {
+    // Verify that matchesIgnoringArraySyntax() enables array-syntax paths to work
+    // Use "original" as value so TestRule.contentTransformRule() can replace it with "transformed"
+    String jsonInput =
+        "{\"orders\":["
+            + "{\"order_id\":\"ORD-001\",\"product_code\":\"original\"},"
+            + "{\"order_id\":\"ORD-002\",\"product_code\":\"original\"}"
+            + "]}";
+    JsonNavigateCommand cmd =
+        JsonNavigateCommand.create(
+            TreePath.fromJson("$.orders[*].product_code"), TestRule.contentTransformRule());
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    cmd.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(
+        result.contains("\"transformed\""),
+        "product_code values should be transformed via $.orders[*].product_code path");
+    // order_id should be preserved untouched
+    assertTrue(result.contains("ORD-001"), "order_id should be preserved");
+  }
 }

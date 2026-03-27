@@ -1,16 +1,16 @@
 package com.streamconverter.command.impl.csv;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvValidationException;
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.path.CSVPath;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -69,49 +69,46 @@ public class CsvFilterCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-    try (BufferedReader reader =
-            new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+    try (CSVReader csvReader =
+            new CSVReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+        CSVWriter csvWriter =
+            new CSVWriter(
+                new OutputStreamWriter(outputStream, StandardCharsets.UTF_8),
+                CSVWriter.DEFAULT_SEPARATOR,
+                CSVWriter.DEFAULT_QUOTE_CHARACTER,
+                // RFC 4180 §5: only doubled-quote escaping, no backslash escape
+                CSVWriter.NO_ESCAPE_CHARACTER,
+                // RFC4180_LINE_END (\r\n) per RFC 4180 §2.
+                CSVWriter.RFC4180_LINE_END)) {
 
       List<Integer> columnIndices;
-      String[] headers = null;
 
-      // Read first line
-      String firstLine = reader.readLine();
-      if (firstLine == null) {
-        // Empty CSV
-        writer.flush();
+      String[] firstRow = csvReader.readNext();
+      if (firstRow == null) {
+        csvWriter.flush();
         return;
       }
 
-      String[] firstRowFields = parseCsvLine(firstLine);
-
       if (hasHeader) {
-        headers = firstRowFields;
-        // Map column selectors to indices
-        columnIndices = mapColumnSelectorsToIndices(combinedSelector, headers);
-
+        columnIndices = mapColumnSelectorsToIndices(combinedSelector, firstRow);
         // Write filtered header
-        writeFilteredRow(writer, firstRowFields, columnIndices);
-        writer.write(System.lineSeparator());
+        writeFilteredRow(csvWriter, firstRow, columnIndices);
       } else {
-        // No header - column selectors must be numeric indices
-        columnIndices = parseNumericColumnSelectors(combinedSelector, firstRowFields.length);
-
+        // No header — column selectors must be numeric indices
+        columnIndices = parseNumericColumnSelectors(combinedSelector, firstRow.length);
         // Write filtered first data row
-        writeFilteredRow(writer, firstRowFields, columnIndices);
-        writer.write(System.lineSeparator());
+        writeFilteredRow(csvWriter, firstRow, columnIndices);
       }
 
-      // Process remaining data rows
-      String line;
-      while ((line = reader.readLine()) != null) {
-        String[] fields = parseCsvLine(line);
-        writeFilteredRow(writer, fields, columnIndices);
-        writer.write(System.lineSeparator());
+      // Process remaining rows
+      String[] row;
+      while ((row = csvReader.readNext()) != null) {
+        writeFilteredRow(csvWriter, row, columnIndices);
       }
 
-      writer.flush();
+      csvWriter.flush();
+    } catch (CsvValidationException e) {
+      throw new IOException("Failed to parse CSV: " + e.getMessage(), e);
     }
   }
 
@@ -149,67 +146,20 @@ public class CsvFilterCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Parse a CSV line into fields (simple implementation)
+   * Write filtered row with only selected columns. Quotes are applied only when required by RFC
+   * 4180 (fields containing commas, quotes, or newlines).
    *
-   * @param line CSV line
-   * @return array of field values
-   */
-  private String[] parseCsvLine(String line) {
-    // Simple CSV parsing - handles basic comma separation
-    // For production, consider using a proper CSV library
-    if (line == null || line.isEmpty()) {
-      return new String[0];
-    }
-
-    List<String> fields = new ArrayList<>();
-    StringBuilder current = new StringBuilder();
-    boolean inQuotes = false;
-
-    for (int i = 0; i < line.length(); i++) {
-      char c = line.charAt(i);
-
-      if (c == '"') {
-        inQuotes = !inQuotes;
-      } else if (c == ',' && !inQuotes) {
-        fields.add(current.toString().trim());
-        current.setLength(0);
-      } else {
-        current.append(c);
-      }
-    }
-
-    fields.add(current.toString().trim());
-    return fields.toArray(new String[0]);
-  }
-
-  /**
-   * Write filtered row with only selected columns
-   *
-   * @param writer output writer
+   * @param csvWriter output writer
    * @param fields all field values
    * @param columnIndices indices of columns to include
-   * @throws IOException if writing fails
    */
-  private void writeFilteredRow(Writer writer, String[] fields, List<Integer> columnIndices)
-      throws IOException {
+  private void writeFilteredRow(CSVWriter csvWriter, String[] fields, List<Integer> columnIndices) {
+    String[] filteredRow = new String[columnIndices.size()];
     for (int i = 0; i < columnIndices.size(); i++) {
-      if (i > 0) {
-        writer.write(",");
-      }
-
       int columnIndex = columnIndices.get(i);
-      if (columnIndex < fields.length) {
-        String field = fields[columnIndex];
-        // Quote field if it contains comma or quotes
-        if (field.contains(",") || field.contains("\"")) {
-          writer.write("\"" + field.replace("\"", "\"\"") + "\"");
-        } else {
-          writer.write(field);
-        }
-      } else {
-        // Column doesn't exist in this row - write empty field
-        writer.write("");
-      }
+      filteredRow[i] = columnIndex < fields.length ? fields[columnIndex] : "";
     }
+    // applyQuotesToAll=false: only quote fields that contain delimiters or quotes
+    csvWriter.writeNext(filteredRow, false);
   }
 }

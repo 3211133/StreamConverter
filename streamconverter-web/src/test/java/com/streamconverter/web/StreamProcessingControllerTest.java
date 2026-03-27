@@ -1,5 +1,6 @@
 package com.streamconverter.web;
 
+import static com.streamconverter.test.TestUtils.assertEqualsIgnoreLineEndings;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.test.TestUtils;
@@ -184,17 +185,13 @@ class StreamProcessingControllerTest {
               assertTrue(
                   lines.length >= 2, "Should have at least header and data rows after processing");
 
-              // Verify pipeline executed successfully (data passed through both commands)
-              assertEquals(
+              // Verify pipeline executed successfully (data passed through both commands).
+              // Use line-ending-agnostic comparison: CsvWriter outputs \r\n (RFC 4180 §2) but
+              // TestUtils.createTestData uses System.lineSeparator() which is \n on Unix / \r\n on Windows.
+              assertEqualsIgnoreLineEndings(
                   csvData.trim(),
                   responseString.trim(),
                   "With pass-through commands, input should equal output");
-
-              // Verify byte count matches expectation
-              assertEquals(
-                  csvData.getBytes(StandardCharsets.UTF_8).length,
-                  responseBody.length,
-                  "Response size should match input size for pass-through pipeline");
             });
   }
 

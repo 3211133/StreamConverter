@@ -5,6 +5,8 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvValidationException;
 import com.streamconverter.command.rule.PassThroughRule;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.test.StreamingTestUtils.MonitoringOutputStream;
@@ -14,6 +16,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -219,5 +222,79 @@ class CsvNavigateCommandTest {
     // Verify output was generated (CSV navigation should produce some result)
     String output = monitoringOutputStream.getContent();
     assertTrue(output.length() > 0, "CSV navigation should produce output");
+  }
+
+  @Test
+  @DisplayName("[#546] RFC 4180: double-quote escaping in target column is preserved")
+  void testRfc4180DoubleQuoteEscaping() throws IOException, CsvValidationException {
+    // Field containing a quote character: She said "hello"  (RFC 4180: doubled quotes)
+    String csvInput = "name,comment\nAlice,\"She said \"\"hello\"\"\"\n";
+    // Select the "comment" column which contains the quoted value
+    CsvNavigateCommand testCommand =
+        CsvNavigateCommand.create(CSVPath.of("comment"), new PassThroughRule());
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    testCommand.execute(input, output);
+
+    // Re-parse the output with opencsv to verify the round-trip is exact
+    String result = output.toString(StandardCharsets.UTF_8);
+    try (CSVReader reader =
+        new CSVReader(
+            new InputStreamReader(
+                new ByteArrayInputStream(result.getBytes(StandardCharsets.UTF_8)),
+                StandardCharsets.UTF_8))) {
+      String[] header = reader.readNext();
+      assertNotNull(header, "Output should have a header row");
+      int commentIndex = -1;
+      for (int i = 0; i < header.length; i++) {
+        if ("comment".equals(header[i])) {
+          commentIndex = i;
+          break;
+        }
+      }
+      assertTrue(commentIndex >= 0, "Output should contain the 'comment' column");
+
+      String[] dataRow = reader.readNext();
+      assertNotNull(dataRow, "Output should have at least one data row");
+      assertEquals(
+          "She said \"hello\"",
+          dataRow[commentIndex],
+          "RFC 4180 double-quote escaping should round-trip correctly");
+    }
+  }
+
+  @Test
+  @DisplayName("[#546] RFC 4180: output uses CRLF line endings per RFC 4180 §2")
+  void testOutputUsesCrlfLineEndings() throws IOException {
+    String csvInput = "name,age\nAlice,30\n";
+    CsvNavigateCommand testCommand =
+        CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
+
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    testCommand.execute(
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8)), output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("\r\n"), "CSV output must use CRLF (\\r\\n) per RFC 4180 §2");
+  }
+
+  @Test
+  @DisplayName("[#546] RFC 4180: comma inside quoted field is not split")
+  void testRfc4180CommaInsideQuotedField() throws IOException {
+    String csvInput = "name,address\nAlice,\"123 Main St, Suite 4\"\n";
+    CsvNavigateCommand testCommand =
+        CsvNavigateCommand.create(CSVPath.of("address"), new PassThroughRule());
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    testCommand.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    // The address field with internal comma should be preserved intact
+    assertTrue(result.contains("123 Main St"), "Address should be preserved");
+    assertTrue(result.contains("Suite 4"), "Comma-separated part of address should be preserved");
   }
 }

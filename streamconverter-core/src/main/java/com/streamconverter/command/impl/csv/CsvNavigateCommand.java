@@ -1,16 +1,17 @@
 package com.streamconverter.command.impl.csv;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVWriter;
+import com.opencsv.exceptions.CsvValidationException;
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -123,88 +124,57 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-    try (BufferedReader reader =
-            new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+    try (CSVReader csvReader =
+            new CSVReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+        CSVWriter csvWriter =
+            new CSVWriter(
+                new OutputStreamWriter(outputStream, StandardCharsets.UTF_8),
+                CSVWriter.DEFAULT_SEPARATOR,
+                CSVWriter.DEFAULT_QUOTE_CHARACTER,
+                // RFC 4180 §5: only doubled-quote escaping, no backslash escape
+                CSVWriter.NO_ESCAPE_CHARACTER,
+                // RFC4180_LINE_END (\r\n) per RFC 4180 §2.
+                CSVWriter.RFC4180_LINE_END)) {
 
-      // Apply rule to specific column while preserving structure
-      applyRuleToColumn(reader, writer);
+      applyRuleToColumn(csvReader, csvWriter);
+
+    } catch (CsvValidationException e) {
+      throw new IOException("Failed to parse CSV: " + e.getMessage(), e);
     }
   }
 
   /** Apply transformation rule to specific column while preserving CSV structure */
-  private void applyRuleToColumn(BufferedReader reader, Writer writer) throws IOException {
-    String headerLine = reader.readLine();
-    if (headerLine == null) {
+  private void applyRuleToColumn(CSVReader csvReader, CSVWriter csvWriter)
+      throws IOException, CsvValidationException {
+    String[] headers = csvReader.readNext();
+    if (headers == null) {
       return; // Empty input
     }
 
-    String[] headers = parseCSVLine(headerLine);
-
-    // Determine column index if selector is provided
+    // Determine column index
     int columnIndex = resolveColumnIndex(headers, columnSelector);
     if (columnIndex == -1) {
       throw new IllegalArgumentException("Column not found: " + columnSelector.toString());
     }
 
-    // Write header (unchanged)
-    writer.write(headerLine);
-    writer.write(System.lineSeparator());
+    // Write header (unchanged); applyQuotesToAll=false: only quote when RFC 4180 requires
+    csvWriter.writeNext(headers, false);
 
     // Process data rows
-    String line;
-    while ((line = reader.readLine()) != null) {
-      String[] values = parseCSVLine(line);
-
-      if (columnIndex < values.length) {
+    String[] row;
+    while ((row = csvReader.readNext()) != null) {
+      if (columnIndex < row.length) {
         // Apply rule to target column only
-        values[columnIndex] = rule.apply(values[columnIndex]);
+        row[columnIndex] = rule.apply(row[columnIndex]);
       }
-
-      // Write entire row with transformed column (with proper CSV escaping)
-      writer.write(formatCsvRow(values));
-      writer.write(System.lineSeparator());
+      // applyQuotesToAll=false: only quote fields that contain delimiters or quotes
+      csvWriter.writeNext(row, false);
     }
-    writer.flush();
-  }
-
-  private String[] parseCSVLine(String line) {
-    return line.split(",(?=([^\"]*\"[^\"]*\")*[^\"]*$)");
-  }
-
-  /** Format CSV row with proper escaping */
-  private String formatCsvRow(String[] values) {
-    StringBuilder row = new StringBuilder();
-    for (int i = 0; i < values.length; i++) {
-      if (i > 0) {
-        row.append(",");
-      }
-      row.append(escapeCsvValue(values[i]));
-    }
-    return row.toString();
-  }
-
-  /** Escape CSV value according to CSV standards */
-  private String escapeCsvValue(String value) {
-    if (value == null) {
-      return "";
-    }
-
-    // Check if value needs escaping (contains comma, quote, or newline)
-    if (value.contains(",")
-        || value.contains("\"")
-        || value.contains("\n")
-        || value.contains("\r")) {
-      // Escape quotes by doubling them and wrap entire value in quotes
-      return "\"" + value.replace("\"", "\"\"") + "\"";
-    }
-
-    return value;
+    csvWriter.flush();
   }
 
   /** Resolve column index using CSVPath matches() method */
   private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
-    // Use matches() method to check each column
     for (int i = 0; i < headers.length; i++) {
       if (csvPath.matches(headers, i)) {
         return i;

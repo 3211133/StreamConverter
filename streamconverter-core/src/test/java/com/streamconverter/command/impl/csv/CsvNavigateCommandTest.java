@@ -1,6 +1,7 @@
 package com.streamconverter.command.impl.csv;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -15,7 +16,14 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CsvNavigateCommand. */
@@ -119,6 +127,51 @@ class CsvNavigateCommandTest {
     // Verify the content was processed (output should contain some CSV-related data)
     String output = monitoringOutputStream.getContent();
     assertTrue(output.length() > 0, "Should have produced some output from CSV navigation");
+  }
+
+  @Test
+  @DisplayName("[#547] Concurrent execution of same instance does not corrupt column index")
+  void testConcurrentExecutionThreadSafety() throws Exception {
+    // Use a real transformation (upper-case) so we can verify the correct column was targeted
+    String csvInput = "name,age,city\nAlice,30,NYC\nBob,25,LA\nCarol,35,Chicago\n";
+    CsvNavigateCommand sharedCommand =
+        CsvNavigateCommand.create(CSVPath.of("name"), s -> s.toUpperCase());
+
+    int threadCount = 8;
+    ExecutorService executor = Executors.newFixedThreadPool(threadCount);
+    List<Callable<String>> tasks = new ArrayList<>();
+
+    for (int i = 0; i < threadCount; i++) {
+      tasks.add(
+          () -> {
+            ByteArrayInputStream input =
+                new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+            ByteArrayOutputStream output = new ByteArrayOutputStream();
+            sharedCommand.execute(input, output);
+            return output.toString(StandardCharsets.UTF_8);
+          });
+    }
+
+    List<Future<String>> results;
+    try {
+      results = executor.invokeAll(tasks);
+    } finally {
+      executor.shutdown();
+    }
+
+    for (Future<String> result : results) {
+      String output = result.get();
+      // Header row should be unchanged
+      assertTrue(output.contains("name"), "Header 'name' should appear in output");
+      // name column values should be upper-cased (proving the correct column was transformed)
+      assertTrue(output.contains("ALICE"), "name column value 'Alice' should be upper-cased");
+      assertTrue(output.contains("BOB"), "name column value 'Bob' should be upper-cased");
+      // age and city columns should not be upper-cased
+      assertTrue(output.contains("30"), "age value should be unchanged");
+      // Verify each thread got a complete result: 1 header + 3 data rows = 4 non-blank lines
+      long lineCount = output.lines().filter(l -> !l.isBlank()).count();
+      assertEquals(4, lineCount, "Output should contain header plus 3 data rows");
+    }
   }
 
   @Test

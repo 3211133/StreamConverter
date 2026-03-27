@@ -122,10 +122,9 @@ class FilterCommandBasicTest {
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     command.execute(input, output);
 
-    // Verify output contains the extracted name element
+    // Verify output matches the exact extracted element
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.contains("田中太郎"));
-    assertTrue(result.contains("<name>") || result.contains("name"));
+    assertEquals("<name>田中太郎</name>", result);
   }
 
   @Test
@@ -432,5 +431,32 @@ class FilterCommandBasicTest {
     assertFalse(
         trackingInput.wasReadAllBytesCalled(),
         "JsonFilterCommand must not call readAllBytes() – input must be read incrementally");
+  }
+
+  @Test
+  @DisplayName("[#550] XmlFilterCommand captures nested child elements correctly")
+  void testXmlFilterCommand_NestedChildElements() throws IOException {
+    String xmlInput =
+        "<?xml version=\"1.0\"?>"
+            + "<catalog>"
+            + "<book id=\"1\"><title>Java</title><author>Gosling</author></book>"
+            + "<book id=\"2\"><title>Kotlin</title><author>JetBrains</author></book>"
+            + "</catalog>";
+
+    XmlFilterCommand command = XmlFilterCommand.create(TreePath.fromXml("catalog/book"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    String expected =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<filtered-results>"
+            + "<book id=\"1\"><title>Java</title><author>Gosling</author></book>"
+            + "<book id=\"2\"><title>Kotlin</title><author>JetBrains</author></book>"
+            + "</filtered-results>";
+    assertEquals(expected, result);
   }
 }

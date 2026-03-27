@@ -13,391 +13,464 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamconverter.command.impl.json;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">import com.fasterxml.jackson.databind.JsonNode;</span>
-<span class="source-line-no">004</span><span id="line-4">import com.fasterxml.jackson.databind.ObjectMapper;</span>
-<span class="source-line-no">005</span><span id="line-5">import com.streamconverter.command.AbstractStreamCommand;</span>
-<span class="source-line-no">006</span><span id="line-6">import com.streamconverter.path.IPath;</span>
-<span class="source-line-no">007</span><span id="line-7">import java.io.BufferedReader;</span>
-<span class="source-line-no">008</span><span id="line-8">import java.io.IOException;</span>
-<span class="source-line-no">009</span><span id="line-9">import java.io.InputStream;</span>
-<span class="source-line-no">010</span><span id="line-10">import java.io.InputStreamReader;</span>
+<span class="source-line-no">003</span><span id="line-3">import com.fasterxml.jackson.core.JsonFactory;</span>
+<span class="source-line-no">004</span><span id="line-4">import com.fasterxml.jackson.core.JsonGenerator;</span>
+<span class="source-line-no">005</span><span id="line-5">import com.fasterxml.jackson.core.JsonParser;</span>
+<span class="source-line-no">006</span><span id="line-6">import com.fasterxml.jackson.core.JsonToken;</span>
+<span class="source-line-no">007</span><span id="line-7">import com.streamconverter.command.AbstractStreamCommand;</span>
+<span class="source-line-no">008</span><span id="line-8">import com.streamconverter.path.IPath;</span>
+<span class="source-line-no">009</span><span id="line-9">import java.io.IOException;</span>
+<span class="source-line-no">010</span><span id="line-10">import java.io.InputStream;</span>
 <span class="source-line-no">011</span><span id="line-11">import java.io.OutputStream;</span>
-<span class="source-line-no">012</span><span id="line-12">import java.io.OutputStreamWriter;</span>
-<span class="source-line-no">013</span><span id="line-13">import java.io.Writer;</span>
-<span class="source-line-no">014</span><span id="line-14">import java.nio.charset.StandardCharsets;</span>
-<span class="source-line-no">015</span><span id="line-15">import java.util.Arrays;</span>
-<span class="source-line-no">016</span><span id="line-16">import java.util.List;</span>
-<span class="source-line-no">017</span><span id="line-17"></span>
-<span class="source-line-no">018</span><span id="line-18">/**</span>
-<span class="source-line-no">019</span><span id="line-19"> * JSON Filter Command Class</span>
-<span class="source-line-no">020</span><span id="line-20"> *</span>
-<span class="source-line-no">021</span><span id="line-21"> * &lt;p&gt;This class implements pure data extraction from JSON using TreePath expressions. Unlike</span>
-<span class="source-line-no">022</span><span id="line-22"> * JsonNavigateCommand which applies transformations, JsonFilterCommand only extracts/filters data</span>
-<span class="source-line-no">023</span><span id="line-23"> * based on specified paths without any modifications.</span>
-<span class="source-line-no">024</span><span id="line-24"> *</span>
-<span class="source-line-no">025</span><span id="line-25"> * &lt;p&gt;Features: - Extract specific elements using TreePath expressions - Preserve exact data types</span>
-<span class="source-line-no">026</span><span id="line-26"> * and structure of extracted elements - Memory-efficient processing for large JSON files - Support</span>
-<span class="source-line-no">027</span><span id="line-27"> * for simple path expressions</span>
-<span class="source-line-no">028</span><span id="line-28"> */</span>
-<span class="source-line-no">029</span><span id="line-29">public class JsonFilterCommand extends AbstractStreamCommand {</span>
-<span class="source-line-no">030</span><span id="line-30"></span>
-<span class="source-line-no">031</span><span id="line-31">  private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming</span>
-<span class="source-line-no">032</span><span id="line-32">  private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer</span>
-<span class="source-line-no">033</span><span id="line-33"></span>
-<span class="source-line-no">034</span><span id="line-34">  private final IPath&lt;List&lt;String&gt;&gt; jsonPath;</span>
-<span class="source-line-no">035</span><span id="line-35">  private final ObjectMapper objectMapper;</span>
-<span class="source-line-no">036</span><span id="line-36"></span>
-<span class="source-line-no">037</span><span id="line-37">  /**</span>
-<span class="source-line-no">038</span><span id="line-38">   * Constructor for JSON filtering with typed TreePath selector.</span>
-<span class="source-line-no">039</span><span id="line-39">   *</span>
-<span class="source-line-no">040</span><span id="line-40">   * @param jsonPath the typed TreePath to extract data</span>
-<span class="source-line-no">041</span><span id="line-41">   * @throws IllegalArgumentException if jsonPath is null</span>
-<span class="source-line-no">042</span><span id="line-42">   */</span>
-<span class="source-line-no">043</span><span id="line-43">  private JsonFilterCommand(IPath&lt;List&lt;String&gt;&gt; jsonPath) {</span>
-<span class="source-line-no">044</span><span id="line-44">    this.jsonPath = jsonPath;</span>
-<span class="source-line-no">045</span><span id="line-45">    this.objectMapper = new ObjectMapper();</span>
-<span class="source-line-no">046</span><span id="line-46">  }</span>
-<span class="source-line-no">047</span><span id="line-47"></span>
-<span class="source-line-no">048</span><span id="line-48">  /**</span>
-<span class="source-line-no">049</span><span id="line-49">   * Factory method for JSON filtering with typed path selector.</span>
-<span class="source-line-no">050</span><span id="line-50">   *</span>
-<span class="source-line-no">051</span><span id="line-51">   * @param jsonPath the typed path to extract data</span>
-<span class="source-line-no">052</span><span id="line-52">   * @return a JsonFilterCommand instance</span>
-<span class="source-line-no">053</span><span id="line-53">   * @throws IllegalArgumentException if jsonPath is null</span>
-<span class="source-line-no">054</span><span id="line-54">   */</span>
-<span class="source-line-no">055</span><span id="line-55">  public static JsonFilterCommand create(IPath&lt;List&lt;String&gt;&gt; jsonPath) {</span>
-<span class="source-line-no">056</span><span id="line-56">    if (jsonPath == null) {</span>
-<span class="source-line-no">057</span><span id="line-57">      throw new IllegalArgumentException("TreePath cannot be null");</span>
-<span class="source-line-no">058</span><span id="line-58">    }</span>
-<span class="source-line-no">059</span><span id="line-59">    return new JsonFilterCommand(jsonPath);</span>
-<span class="source-line-no">060</span><span id="line-60">  }</span>
+<span class="source-line-no">012</span><span id="line-12">import java.util.ArrayList;</span>
+<span class="source-line-no">013</span><span id="line-13">import java.util.List;</span>
+<span class="source-line-no">014</span><span id="line-14"></span>
+<span class="source-line-no">015</span><span id="line-15">/**</span>
+<span class="source-line-no">016</span><span id="line-16"> * JSON Filter Command Class</span>
+<span class="source-line-no">017</span><span id="line-17"> *</span>
+<span class="source-line-no">018</span><span id="line-18"> * &lt;p&gt;This class implements pure data extraction from JSON using TreePath expressions. Unlike</span>
+<span class="source-line-no">019</span><span id="line-19"> * JsonNavigateCommand which applies transformations, JsonFilterCommand only extracts/filters data</span>
+<span class="source-line-no">020</span><span id="line-20"> * based on specified paths without any modifications.</span>
+<span class="source-line-no">021</span><span id="line-21"> *</span>
+<span class="source-line-no">022</span><span id="line-22"> * &lt;p&gt;Features: - Extract specific elements using TreePath expressions - Preserve exact data types</span>
+<span class="source-line-no">023</span><span id="line-23"> * and structure of extracted elements - Streaming processing via Jackson Streaming API</span>
+<span class="source-line-no">024</span><span id="line-24"> * (JsonParser/JsonGenerator); the document is never fully loaded into memory - Support for simple</span>
+<span class="source-line-no">025</span><span id="line-25"> * path expressions including wildcards ($[*].field, $.array[*].nested.field)</span>
+<span class="source-line-no">026</span><span id="line-26"> */</span>
+<span class="source-line-no">027</span><span id="line-27">public class JsonFilterCommand extends AbstractStreamCommand {</span>
+<span class="source-line-no">028</span><span id="line-28"></span>
+<span class="source-line-no">029</span><span id="line-29">  private final IPath&lt;List&lt;String&gt;&gt; jsonPath;</span>
+<span class="source-line-no">030</span><span id="line-30">  private final JsonFactory jsonFactory;</span>
+<span class="source-line-no">031</span><span id="line-31"></span>
+<span class="source-line-no">032</span><span id="line-32">  /**</span>
+<span class="source-line-no">033</span><span id="line-33">   * Constructor for JSON filtering with typed TreePath selector.</span>
+<span class="source-line-no">034</span><span id="line-34">   *</span>
+<span class="source-line-no">035</span><span id="line-35">   * @param jsonPath the typed TreePath to extract data</span>
+<span class="source-line-no">036</span><span id="line-36">   * @throws IllegalArgumentException if jsonPath is null</span>
+<span class="source-line-no">037</span><span id="line-37">   */</span>
+<span class="source-line-no">038</span><span id="line-38">  private JsonFilterCommand(IPath&lt;List&lt;String&gt;&gt; jsonPath) {</span>
+<span class="source-line-no">039</span><span id="line-39">    this.jsonPath = jsonPath;</span>
+<span class="source-line-no">040</span><span id="line-40">    this.jsonFactory = new JsonFactory();</span>
+<span class="source-line-no">041</span><span id="line-41">  }</span>
+<span class="source-line-no">042</span><span id="line-42"></span>
+<span class="source-line-no">043</span><span id="line-43">  /**</span>
+<span class="source-line-no">044</span><span id="line-44">   * Factory method for JSON filtering with typed path selector.</span>
+<span class="source-line-no">045</span><span id="line-45">   *</span>
+<span class="source-line-no">046</span><span id="line-46">   * @param jsonPath the typed path to extract data</span>
+<span class="source-line-no">047</span><span id="line-47">   * @return a JsonFilterCommand instance</span>
+<span class="source-line-no">048</span><span id="line-48">   * @throws IllegalArgumentException if jsonPath is null</span>
+<span class="source-line-no">049</span><span id="line-49">   */</span>
+<span class="source-line-no">050</span><span id="line-50">  public static JsonFilterCommand create(IPath&lt;List&lt;String&gt;&gt; jsonPath) {</span>
+<span class="source-line-no">051</span><span id="line-51">    if (jsonPath == null) {</span>
+<span class="source-line-no">052</span><span id="line-52">      throw new IllegalArgumentException("TreePath cannot be null");</span>
+<span class="source-line-no">053</span><span id="line-53">    }</span>
+<span class="source-line-no">054</span><span id="line-54">    return new JsonFilterCommand(jsonPath);</span>
+<span class="source-line-no">055</span><span id="line-55">  }</span>
+<span class="source-line-no">056</span><span id="line-56"></span>
+<span class="source-line-no">057</span><span id="line-57">  @Override</span>
+<span class="source-line-no">058</span><span id="line-58">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">059</span><span id="line-59">    String path = jsonPath.toString();</span>
+<span class="source-line-no">060</span><span id="line-60">    List&lt;PathSegment&gt; segments = parsePath(path);</span>
 <span class="source-line-no">061</span><span id="line-61"></span>
-<span class="source-line-no">062</span><span id="line-62">  @Override</span>
-<span class="source-line-no">063</span><span id="line-63">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">064</span><span id="line-64">    try (BufferedReader reader =</span>
-<span class="source-line-no">065</span><span id="line-65">            new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));</span>
-<span class="source-line-no">066</span><span id="line-66">        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {</span>
-<span class="source-line-no">067</span><span id="line-67"></span>
-<span class="source-line-no">068</span><span id="line-68">      // Read JSON content efficiently</span>
-<span class="source-line-no">069</span><span id="line-69">      String jsonContent = readJsonContent(reader);</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">      if (jsonContent.trim().isEmpty()) {</span>
-<span class="source-line-no">072</span><span id="line-72">        writer.write("null");</span>
-<span class="source-line-no">073</span><span id="line-73">        writer.flush();</span>
-<span class="source-line-no">074</span><span id="line-74">        return;</span>
-<span class="source-line-no">075</span><span id="line-75">      }</span>
+<span class="source-line-no">062</span><span id="line-62">    try (JsonParser parser = jsonFactory.createParser(inputStream);</span>
+<span class="source-line-no">063</span><span id="line-63">        JsonGenerator generator = jsonFactory.createGenerator(outputStream)) {</span>
+<span class="source-line-no">064</span><span id="line-64">      generator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);</span>
+<span class="source-line-no">065</span><span id="line-65"></span>
+<span class="source-line-no">066</span><span id="line-66">      if (segments.isEmpty()) {</span>
+<span class="source-line-no">067</span><span id="line-67">        // Root path "$": copy the entire document</span>
+<span class="source-line-no">068</span><span id="line-68">        copyValue(parser, generator);</span>
+<span class="source-line-no">069</span><span id="line-69">      } else {</span>
+<span class="source-line-no">070</span><span id="line-70">        extractPath(parser, generator, segments, 0);</span>
+<span class="source-line-no">071</span><span id="line-71">      }</span>
+<span class="source-line-no">072</span><span id="line-72"></span>
+<span class="source-line-no">073</span><span id="line-73">      generator.flush();</span>
+<span class="source-line-no">074</span><span id="line-74">    }</span>
+<span class="source-line-no">075</span><span id="line-75">  }</span>
 <span class="source-line-no">076</span><span id="line-76"></span>
-<span class="source-line-no">077</span><span id="line-77">      try {</span>
-<span class="source-line-no">078</span><span id="line-78">        // Apply simple TreePath-like extraction using lightweight parsing</span>
-<span class="source-line-no">079</span><span id="line-79">        String result = extractJsonValue(jsonContent, jsonPath.toString());</span>
-<span class="source-line-no">080</span><span id="line-80">        writer.write(result);</span>
-<span class="source-line-no">081</span><span id="line-81">        writer.flush();</span>
-<span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">      } catch (Exception e) {</span>
-<span class="source-line-no">084</span><span id="line-84">        // If extraction fails, return null</span>
-<span class="source-line-no">085</span><span id="line-85">        writer.write("null");</span>
-<span class="source-line-no">086</span><span id="line-86">        writer.flush();</span>
-<span class="source-line-no">087</span><span id="line-87">      }</span>
-<span class="source-line-no">088</span><span id="line-88">    }</span>
-<span class="source-line-no">089</span><span id="line-89">  }</span>
-<span class="source-line-no">090</span><span id="line-90"></span>
-<span class="source-line-no">091</span><span id="line-91">  /**</span>
-<span class="source-line-no">092</span><span id="line-92">   * Read JSON content from reader with memory management</span>
-<span class="source-line-no">093</span><span id="line-93">   *</span>
-<span class="source-line-no">094</span><span id="line-94">   * @param reader the BufferedReader to read from</span>
-<span class="source-line-no">095</span><span id="line-95">   * @return JSON content as string, or empty string if no content</span>
-<span class="source-line-no">096</span><span id="line-96">   * @throws IOException if reading fails</span>
-<span class="source-line-no">097</span><span id="line-97">   */</span>
-<span class="source-line-no">098</span><span id="line-98">  private String readJsonContent(BufferedReader reader) throws IOException {</span>
-<span class="source-line-no">099</span><span id="line-99">    StringBuilder jsonBuilder = new StringBuilder();</span>
-<span class="source-line-no">100</span><span id="line-100">    char[] buffer = new char[BUFFER_SIZE];</span>
-<span class="source-line-no">101</span><span id="line-101">    int totalCharsRead = 0;</span>
-<span class="source-line-no">102</span><span id="line-102">    int charsRead;</span>
-<span class="source-line-no">103</span><span id="line-103"></span>
-<span class="source-line-no">104</span><span id="line-104">    while ((charsRead = reader.read(buffer)) != -1) {</span>
-<span class="source-line-no">105</span><span id="line-105">      totalCharsRead += charsRead;</span>
-<span class="source-line-no">106</span><span id="line-106"></span>
-<span class="source-line-no">107</span><span id="line-107">      // Memory protection: prevent reading excessively large JSON into memory</span>
-<span class="source-line-no">108</span><span id="line-108">      if (totalCharsRead &gt; MAX_MEMORY_BUFFER) {</span>
-<span class="source-line-no">109</span><span id="line-109">        throw new IOException(</span>
-<span class="source-line-no">110</span><span id="line-110">            "JSON content too large for filtering. Use streaming NavigateCommand instead.");</span>
-<span class="source-line-no">111</span><span id="line-111">      }</span>
-<span class="source-line-no">112</span><span id="line-112"></span>
-<span class="source-line-no">113</span><span id="line-113">      jsonBuilder.append(buffer, 0, charsRead);</span>
-<span class="source-line-no">114</span><span id="line-114">    }</span>
-<span class="source-line-no">115</span><span id="line-115"></span>
-<span class="source-line-no">116</span><span id="line-116">    return jsonBuilder.toString(); // Return empty string instead of null</span>
-<span class="source-line-no">117</span><span id="line-117">  }</span>
-<span class="source-line-no">118</span><span id="line-118"></span>
-<span class="source-line-no">119</span><span id="line-119">  /**</span>
-<span class="source-line-no">120</span><span id="line-120">   * Extract JSON value using simple TreePath-like expressions</span>
-<span class="source-line-no">121</span><span id="line-121">   *</span>
-<span class="source-line-no">122</span><span id="line-122">   * @param jsonContent the JSON content string</span>
-<span class="source-line-no">123</span><span id="line-123">   * @param path the TreePath expression (simplified)</span>
-<span class="source-line-no">124</span><span id="line-124">   * @return extracted value as JSON string</span>
+<span class="source-line-no">077</span><span id="line-77">  // -------------------------------------------------------------------------</span>
+<span class="source-line-no">078</span><span id="line-78">  // Path parsing</span>
+<span class="source-line-no">079</span><span id="line-79">  // -------------------------------------------------------------------------</span>
+<span class="source-line-no">080</span><span id="line-80"></span>
+<span class="source-line-no">081</span><span id="line-81">  /** A single segment in a parsed path. */</span>
+<span class="source-line-no">082</span><span id="line-82">  private static class PathSegment {</span>
+<span class="source-line-no">083</span><span id="line-83"></span>
+<span class="source-line-no">084</span><span id="line-84">    final String field; // non-null for field access</span>
+<span class="source-line-no">085</span><span id="line-85">    final boolean wildcard; // true for [*]</span>
+<span class="source-line-no">086</span><span id="line-86">    final int index; // &gt;= 0 for numeric index, -1 otherwise</span>
+<span class="source-line-no">087</span><span id="line-87"></span>
+<span class="source-line-no">088</span><span id="line-88">    static PathSegment field(String name) {</span>
+<span class="source-line-no">089</span><span id="line-89">      return new PathSegment(name, false, -1);</span>
+<span class="source-line-no">090</span><span id="line-90">    }</span>
+<span class="source-line-no">091</span><span id="line-91"></span>
+<span class="source-line-no">092</span><span id="line-92">    static PathSegment wildcard() {</span>
+<span class="source-line-no">093</span><span id="line-93">      return new PathSegment(null, true, -1);</span>
+<span class="source-line-no">094</span><span id="line-94">    }</span>
+<span class="source-line-no">095</span><span id="line-95"></span>
+<span class="source-line-no">096</span><span id="line-96">    static PathSegment index(int i) {</span>
+<span class="source-line-no">097</span><span id="line-97">      return new PathSegment(null, false, i);</span>
+<span class="source-line-no">098</span><span id="line-98">    }</span>
+<span class="source-line-no">099</span><span id="line-99"></span>
+<span class="source-line-no">100</span><span id="line-100">    private PathSegment(String field, boolean wildcard, int index) {</span>
+<span class="source-line-no">101</span><span id="line-101">      this.field = field;</span>
+<span class="source-line-no">102</span><span id="line-102">      this.wildcard = wildcard;</span>
+<span class="source-line-no">103</span><span id="line-103">      this.index = index;</span>
+<span class="source-line-no">104</span><span id="line-104">    }</span>
+<span class="source-line-no">105</span><span id="line-105"></span>
+<span class="source-line-no">106</span><span id="line-106">    boolean isField() {</span>
+<span class="source-line-no">107</span><span id="line-107">      return field != null;</span>
+<span class="source-line-no">108</span><span id="line-108">    }</span>
+<span class="source-line-no">109</span><span id="line-109">  }</span>
+<span class="source-line-no">110</span><span id="line-110"></span>
+<span class="source-line-no">111</span><span id="line-111">  /**</span>
+<span class="source-line-no">112</span><span id="line-112">   * Parse a path string into an ordered list of {@link PathSegment}s.</span>
+<span class="source-line-no">113</span><span id="line-113">   *</span>
+<span class="source-line-no">114</span><span id="line-114">   * &lt;p&gt;Supported syntax:</span>
+<span class="source-line-no">115</span><span id="line-115">   *</span>
+<span class="source-line-no">116</span><span id="line-116">   * &lt;ul&gt;</span>
+<span class="source-line-no">117</span><span id="line-117">   *   &lt;li&gt;{@code $} – root (empty list)</span>
+<span class="source-line-no">118</span><span id="line-118">   *   &lt;li&gt;{@code $.name} – top-level field</span>
+<span class="source-line-no">119</span><span id="line-119">   *   &lt;li&gt;{@code $[*].name} – root-array wildcard then field</span>
+<span class="source-line-no">120</span><span id="line-120">   *   &lt;li&gt;{@code $.users[*].profile.department} – field, wildcard, nested fields</span>
+<span class="source-line-no">121</span><span id="line-121">   * &lt;/ul&gt;</span>
+<span class="source-line-no">122</span><span id="line-122">   *</span>
+<span class="source-line-no">123</span><span id="line-123">   * @param path the path expression</span>
+<span class="source-line-no">124</span><span id="line-124">   * @return ordered list of path segments (empty = root)</span>
 <span class="source-line-no">125</span><span id="line-125">   */</span>
-<span class="source-line-no">126</span><span id="line-126">  private String extractJsonValue(String jsonContent, String path) {</span>
-<span class="source-line-no">127</span><span id="line-127">    try {</span>
-<span class="source-line-no">128</span><span id="line-128">      JsonNode rootNode = objectMapper.readTree(jsonContent);</span>
-<span class="source-line-no">129</span><span id="line-129"></span>
-<span class="source-line-no">130</span><span id="line-130">      // Handle root path</span>
-<span class="source-line-no">131</span><span id="line-131">      if ("$".equals(path)) {</span>
-<span class="source-line-no">132</span><span id="line-132">        return objectMapper.writeValueAsString(rootNode);</span>
-<span class="source-line-no">133</span><span id="line-133">      }</span>
-<span class="source-line-no">134</span><span id="line-134"></span>
-<span class="source-line-no">135</span><span id="line-135">      // Handle special case of $[*].property (root array with wildcard)</span>
-<span class="source-line-no">136</span><span id="line-136">      if (path.startsWith("$[*].") &amp;&amp; path.length() &gt; 5) {</span>
-<span class="source-line-no">137</span><span id="line-137">        String propertyPath = path.substring(5); // Remove "$[*]."</span>
-<span class="source-line-no">138</span><span id="line-138">        if (rootNode.isArray()) {</span>
-<span class="source-line-no">139</span><span id="line-139">          StringBuilder resultBuilder = new StringBuilder("[");</span>
-<span class="source-line-no">140</span><span id="line-140">          boolean first = true;</span>
-<span class="source-line-no">141</span><span id="line-141">          for (JsonNode arrayElement : rootNode) {</span>
-<span class="source-line-no">142</span><span id="line-142">            if (!first) resultBuilder.append(",");</span>
-<span class="source-line-no">143</span><span id="line-143">            first = false;</span>
-<span class="source-line-no">144</span><span id="line-144"></span>
-<span class="source-line-no">145</span><span id="line-145">            // Apply the property path to each array element</span>
-<span class="source-line-no">146</span><span id="line-146">            String[] propertySegments = propertyPath.split("\\.");</span>
-<span class="source-line-no">147</span><span id="line-147">            JsonNode extractedNode = arrayElement;</span>
-<span class="source-line-no">148</span><span id="line-148">            for (String segment : propertySegments) {</span>
-<span class="source-line-no">149</span><span id="line-149">              if (segment.isEmpty()) continue;</span>
-<span class="source-line-no">150</span><span id="line-150">              extractedNode = extractedNode.get(segment);</span>
-<span class="source-line-no">151</span><span id="line-151">              if (extractedNode == null) {</span>
-<span class="source-line-no">152</span><span id="line-152">                extractedNode = objectMapper.getNodeFactory().nullNode();</span>
-<span class="source-line-no">153</span><span id="line-153">                break;</span>
-<span class="source-line-no">154</span><span id="line-154">              }</span>
-<span class="source-line-no">155</span><span id="line-155">            }</span>
-<span class="source-line-no">156</span><span id="line-156">            resultBuilder.append(objectMapper.writeValueAsString(extractedNode));</span>
-<span class="source-line-no">157</span><span id="line-157">          }</span>
-<span class="source-line-no">158</span><span id="line-158">          resultBuilder.append("]");</span>
-<span class="source-line-no">159</span><span id="line-159">          return resultBuilder.toString();</span>
-<span class="source-line-no">160</span><span id="line-160">        } else {</span>
-<span class="source-line-no">161</span><span id="line-161">          return "null";</span>
-<span class="source-line-no">162</span><span id="line-162">        }</span>
-<span class="source-line-no">163</span><span id="line-163">      }</span>
-<span class="source-line-no">164</span><span id="line-164"></span>
-<span class="source-line-no">165</span><span id="line-165">      // Remove the '$.' prefix if present</span>
-<span class="source-line-no">166</span><span id="line-166">      String normalizedPath = path.startsWith("$.") ? path.substring(2) : path;</span>
-<span class="source-line-no">167</span><span id="line-167"></span>
-<span class="source-line-no">168</span><span id="line-168">      // Navigate through the path</span>
-<span class="source-line-no">169</span><span id="line-169">      JsonNode currentNode = rootNode;</span>
-<span class="source-line-no">170</span><span id="line-170">      String[] pathSegments = normalizedPath.split("\\.");</span>
-<span class="source-line-no">171</span><span id="line-171"></span>
-<span class="source-line-no">172</span><span id="line-172">      for (String segment : pathSegments) {</span>
-<span class="source-line-no">173</span><span id="line-173">        if (segment.isEmpty()) continue;</span>
-<span class="source-line-no">174</span><span id="line-174"></span>
-<span class="source-line-no">175</span><span id="line-175">        // Handle array indexing (e.g., "users[0]")</span>
-<span class="source-line-no">176</span><span id="line-176">        if (segment.contains("[") &amp;&amp; segment.endsWith("]")) {</span>
-<span class="source-line-no">177</span><span id="line-177">          String fieldName = segment.substring(0, segment.indexOf("["));</span>
-<span class="source-line-no">178</span><span id="line-178">          String indexStr = segment.substring(segment.indexOf("[") + 1, segment.indexOf("]"));</span>
-<span class="source-line-no">179</span><span id="line-179"></span>
-<span class="source-line-no">180</span><span id="line-180">          if (!fieldName.isEmpty()) {</span>
-<span class="source-line-no">181</span><span id="line-181">            currentNode = currentNode.get(fieldName);</span>
-<span class="source-line-no">182</span><span id="line-182">            if (currentNode == null) return "null";</span>
-<span class="source-line-no">183</span><span id="line-183">          }</span>
-<span class="source-line-no">184</span><span id="line-184"></span>
-<span class="source-line-no">185</span><span id="line-185">          // Handle wildcard array access [*]</span>
-<span class="source-line-no">186</span><span id="line-186">          if ("*".equals(indexStr)) {</span>
-<span class="source-line-no">187</span><span id="line-187">            if (currentNode.isArray()) {</span>
-<span class="source-line-no">188</span><span id="line-188">              // For wildcard, we need to handle subsequent path segments differently</span>
-<span class="source-line-no">189</span><span id="line-189">              // This is a simplified implementation that extracts all matching elements</span>
-<span class="source-line-no">190</span><span id="line-190">              StringBuilder resultBuilder = new StringBuilder("[");</span>
-<span class="source-line-no">191</span><span id="line-191">              boolean first = true;</span>
-<span class="source-line-no">192</span><span id="line-192">              for (JsonNode arrayElement : currentNode) {</span>
-<span class="source-line-no">193</span><span id="line-193">                if (!first) resultBuilder.append(",");</span>
-<span class="source-line-no">194</span><span id="line-194">                first = false;</span>
+<span class="source-line-no">126</span><span id="line-126">  private static List&lt;PathSegment&gt; parsePath(String path) {</span>
+<span class="source-line-no">127</span><span id="line-127">    List&lt;PathSegment&gt; result = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">128</span><span id="line-128">    if ("$".equals(path)) {</span>
+<span class="source-line-no">129</span><span id="line-129">      return result;</span>
+<span class="source-line-no">130</span><span id="line-130">    }</span>
+<span class="source-line-no">131</span><span id="line-131"></span>
+<span class="source-line-no">132</span><span id="line-132">    // Strip leading "$" then process the remaining characters</span>
+<span class="source-line-no">133</span><span id="line-133">    int start = path.startsWith("$") ? 1 : 0;</span>
+<span class="source-line-no">134</span><span id="line-134">    String rest = path.substring(start);</span>
+<span class="source-line-no">135</span><span id="line-135"></span>
+<span class="source-line-no">136</span><span id="line-136">    int i = 0;</span>
+<span class="source-line-no">137</span><span id="line-137">    while (i &lt; rest.length()) {</span>
+<span class="source-line-no">138</span><span id="line-138">      char c = rest.charAt(i);</span>
+<span class="source-line-no">139</span><span id="line-139">      if (c == '.') {</span>
+<span class="source-line-no">140</span><span id="line-140">        i++; // skip dot separator</span>
+<span class="source-line-no">141</span><span id="line-141">      } else if (c == '[') {</span>
+<span class="source-line-no">142</span><span id="line-142">        // Array access: [*] or [N]</span>
+<span class="source-line-no">143</span><span id="line-143">        int close = rest.indexOf(']', i);</span>
+<span class="source-line-no">144</span><span id="line-144">        if (close == -1) {</span>
+<span class="source-line-no">145</span><span id="line-145">          break; // malformed – stop here</span>
+<span class="source-line-no">146</span><span id="line-146">        }</span>
+<span class="source-line-no">147</span><span id="line-147">        String inner = rest.substring(i + 1, close);</span>
+<span class="source-line-no">148</span><span id="line-148">        if ("*".equals(inner)) {</span>
+<span class="source-line-no">149</span><span id="line-149">          result.add(PathSegment.wildcard());</span>
+<span class="source-line-no">150</span><span id="line-150">        } else {</span>
+<span class="source-line-no">151</span><span id="line-151">          try {</span>
+<span class="source-line-no">152</span><span id="line-152">            result.add(PathSegment.index(Integer.parseInt(inner)));</span>
+<span class="source-line-no">153</span><span id="line-153">          } catch (NumberFormatException e) {</span>
+<span class="source-line-no">154</span><span id="line-154">            result.add(PathSegment.wildcard()); // treat unknown as wildcard</span>
+<span class="source-line-no">155</span><span id="line-155">          }</span>
+<span class="source-line-no">156</span><span id="line-156">        }</span>
+<span class="source-line-no">157</span><span id="line-157">        i = close + 1;</span>
+<span class="source-line-no">158</span><span id="line-158">      } else {</span>
+<span class="source-line-no">159</span><span id="line-159">        // Field name: read until '.', '[', or end</span>
+<span class="source-line-no">160</span><span id="line-160">        int end = i;</span>
+<span class="source-line-no">161</span><span id="line-161">        while (end &lt; rest.length() &amp;&amp; rest.charAt(end) != '.' &amp;&amp; rest.charAt(end) != '[') {</span>
+<span class="source-line-no">162</span><span id="line-162">          end++;</span>
+<span class="source-line-no">163</span><span id="line-163">        }</span>
+<span class="source-line-no">164</span><span id="line-164">        String fieldName = rest.substring(i, end);</span>
+<span class="source-line-no">165</span><span id="line-165">        if (!fieldName.isEmpty()) {</span>
+<span class="source-line-no">166</span><span id="line-166">          result.add(PathSegment.field(fieldName));</span>
+<span class="source-line-no">167</span><span id="line-167">        }</span>
+<span class="source-line-no">168</span><span id="line-168">        i = end;</span>
+<span class="source-line-no">169</span><span id="line-169">      }</span>
+<span class="source-line-no">170</span><span id="line-170">    }</span>
+<span class="source-line-no">171</span><span id="line-171">    return result;</span>
+<span class="source-line-no">172</span><span id="line-172">  }</span>
+<span class="source-line-no">173</span><span id="line-173"></span>
+<span class="source-line-no">174</span><span id="line-174">  // -------------------------------------------------------------------------</span>
+<span class="source-line-no">175</span><span id="line-175">  // Streaming extraction</span>
+<span class="source-line-no">176</span><span id="line-176">  // -------------------------------------------------------------------------</span>
+<span class="source-line-no">177</span><span id="line-177"></span>
+<span class="source-line-no">178</span><span id="line-178">  /**</span>
+<span class="source-line-no">179</span><span id="line-179">   * Advance the parser to the next value and recursively navigate {@code segments[segIdx..]} to</span>
+<span class="source-line-no">180</span><span id="line-180">   * write the matching value(s) to {@code generator}.</span>
+<span class="source-line-no">181</span><span id="line-181">   *</span>
+<span class="source-line-no">182</span><span id="line-182">   * @param parser the JSON parser (not yet advanced to the target value)</span>
+<span class="source-line-no">183</span><span id="line-183">   * @param generator the JSON generator</span>
+<span class="source-line-no">184</span><span id="line-184">   * @param segments the full path segment list</span>
+<span class="source-line-no">185</span><span id="line-185">   * @param segIdx current position in {@code segments}</span>
+<span class="source-line-no">186</span><span id="line-186">   */</span>
+<span class="source-line-no">187</span><span id="line-187">  private void extractPath(</span>
+<span class="source-line-no">188</span><span id="line-188">      JsonParser parser, JsonGenerator generator, List&lt;PathSegment&gt; segments, int segIdx)</span>
+<span class="source-line-no">189</span><span id="line-189">      throws IOException {</span>
+<span class="source-line-no">190</span><span id="line-190"></span>
+<span class="source-line-no">191</span><span id="line-191">    if (segIdx &gt;= segments.size()) {</span>
+<span class="source-line-no">192</span><span id="line-192">      copyValue(parser, generator);</span>
+<span class="source-line-no">193</span><span id="line-193">      return;</span>
+<span class="source-line-no">194</span><span id="line-194">    }</span>
 <span class="source-line-no">195</span><span id="line-195"></span>
-<span class="source-line-no">196</span><span id="line-196">                // If there are more path segments, apply them to each array element</span>
-<span class="source-line-no">197</span><span id="line-197">                String remainingPath =</span>
-<span class="source-line-no">198</span><span id="line-198">                    String.join(</span>
-<span class="source-line-no">199</span><span id="line-199">                        ".",</span>
-<span class="source-line-no">200</span><span id="line-200">                        Arrays.copyOfRange(</span>
-<span class="source-line-no">201</span><span id="line-201">                            pathSegments,</span>
-<span class="source-line-no">202</span><span id="line-202">                            Arrays.asList(pathSegments).indexOf(segment) + 1,</span>
-<span class="source-line-no">203</span><span id="line-203">                            pathSegments.length));</span>
-<span class="source-line-no">204</span><span id="line-204">                if (!remainingPath.isEmpty()) {</span>
-<span class="source-line-no">205</span><span id="line-205">                  JsonNode extractedNode = arrayElement;</span>
-<span class="source-line-no">206</span><span id="line-206">                  String[] remainingSegments = remainingPath.split("\\.");</span>
-<span class="source-line-no">207</span><span id="line-207">                  for (String remainingSeg : remainingSegments) {</span>
-<span class="source-line-no">208</span><span id="line-208">                    if (remainingSeg.isEmpty()) continue;</span>
-<span class="source-line-no">209</span><span id="line-209">                    extractedNode = extractedNode.get(remainingSeg);</span>
-<span class="source-line-no">210</span><span id="line-210">                    if (extractedNode == null) {</span>
-<span class="source-line-no">211</span><span id="line-211">                      extractedNode = objectMapper.getNodeFactory().nullNode();</span>
-<span class="source-line-no">212</span><span id="line-212">                      break;</span>
-<span class="source-line-no">213</span><span id="line-213">                    }</span>
-<span class="source-line-no">214</span><span id="line-214">                  }</span>
-<span class="source-line-no">215</span><span id="line-215">                  resultBuilder.append(objectMapper.writeValueAsString(extractedNode));</span>
-<span class="source-line-no">216</span><span id="line-216">                } else {</span>
-<span class="source-line-no">217</span><span id="line-217">                  resultBuilder.append(objectMapper.writeValueAsString(arrayElement));</span>
-<span class="source-line-no">218</span><span id="line-218">                }</span>
-<span class="source-line-no">219</span><span id="line-219">              }</span>
-<span class="source-line-no">220</span><span id="line-220">              resultBuilder.append("]");</span>
-<span class="source-line-no">221</span><span id="line-221">              return resultBuilder.toString();</span>
-<span class="source-line-no">222</span><span id="line-222">            } else {</span>
-<span class="source-line-no">223</span><span id="line-223">              return "null";</span>
-<span class="source-line-no">224</span><span id="line-224">            }</span>
-<span class="source-line-no">225</span><span id="line-225">          } else {</span>
-<span class="source-line-no">226</span><span id="line-226">            // Regular array indexing</span>
-<span class="source-line-no">227</span><span id="line-227">            try {</span>
-<span class="source-line-no">228</span><span id="line-228">              int index = Integer.parseInt(indexStr);</span>
-<span class="source-line-no">229</span><span id="line-229">              if (currentNode.isArray() &amp;&amp; index &gt;= 0 &amp;&amp; index &lt; currentNode.size()) {</span>
-<span class="source-line-no">230</span><span id="line-230">                currentNode = currentNode.get(index);</span>
-<span class="source-line-no">231</span><span id="line-231">              } else {</span>
-<span class="source-line-no">232</span><span id="line-232">                return "null";</span>
-<span class="source-line-no">233</span><span id="line-233">              }</span>
-<span class="source-line-no">234</span><span id="line-234">            } catch (NumberFormatException e) {</span>
-<span class="source-line-no">235</span><span id="line-235">              return "null";</span>
-<span class="source-line-no">236</span><span id="line-236">            }</span>
-<span class="source-line-no">237</span><span id="line-237">          }</span>
+<span class="source-line-no">196</span><span id="line-196">    PathSegment seg = segments.get(segIdx);</span>
+<span class="source-line-no">197</span><span id="line-197">    JsonToken token = parser.nextToken();</span>
+<span class="source-line-no">198</span><span id="line-198"></span>
+<span class="source-line-no">199</span><span id="line-199">    if (token == null) {</span>
+<span class="source-line-no">200</span><span id="line-200">      generator.writeNull();</span>
+<span class="source-line-no">201</span><span id="line-201">      return;</span>
+<span class="source-line-no">202</span><span id="line-202">    }</span>
+<span class="source-line-no">203</span><span id="line-203"></span>
+<span class="source-line-no">204</span><span id="line-204">    if (seg.isField()) {</span>
+<span class="source-line-no">205</span><span id="line-205">      // Expect an object; find the named field</span>
+<span class="source-line-no">206</span><span id="line-206">      if (token != JsonToken.START_OBJECT) {</span>
+<span class="source-line-no">207</span><span id="line-207">        skipValue(parser, token);</span>
+<span class="source-line-no">208</span><span id="line-208">        generator.writeNull();</span>
+<span class="source-line-no">209</span><span id="line-209">        return;</span>
+<span class="source-line-no">210</span><span id="line-210">      }</span>
+<span class="source-line-no">211</span><span id="line-211">      boolean found = false;</span>
+<span class="source-line-no">212</span><span id="line-212">      JsonToken t;</span>
+<span class="source-line-no">213</span><span id="line-213">      while ((t = parser.nextToken()) != null &amp;&amp; t != JsonToken.END_OBJECT) {</span>
+<span class="source-line-no">214</span><span id="line-214">        String name = parser.currentName();</span>
+<span class="source-line-no">215</span><span id="line-215">        if (seg.field.equals(name)) {</span>
+<span class="source-line-no">216</span><span id="line-216">          extractPath(parser, generator, segments, segIdx + 1);</span>
+<span class="source-line-no">217</span><span id="line-217">          found = true;</span>
+<span class="source-line-no">218</span><span id="line-218">        } else {</span>
+<span class="source-line-no">219</span><span id="line-219">          parser.nextToken();</span>
+<span class="source-line-no">220</span><span id="line-220">          skipValue(parser, parser.currentToken());</span>
+<span class="source-line-no">221</span><span id="line-221">        }</span>
+<span class="source-line-no">222</span><span id="line-222">      }</span>
+<span class="source-line-no">223</span><span id="line-223">      if (!found) {</span>
+<span class="source-line-no">224</span><span id="line-224">        generator.writeNull();</span>
+<span class="source-line-no">225</span><span id="line-225">      }</span>
+<span class="source-line-no">226</span><span id="line-226">    } else if (seg.wildcard) {</span>
+<span class="source-line-no">227</span><span id="line-227">      // Expect an array; iterate elements and extract from each</span>
+<span class="source-line-no">228</span><span id="line-228">      if (token != JsonToken.START_ARRAY) {</span>
+<span class="source-line-no">229</span><span id="line-229">        skipValue(parser, token);</span>
+<span class="source-line-no">230</span><span id="line-230">        generator.writeNull();</span>
+<span class="source-line-no">231</span><span id="line-231">        return;</span>
+<span class="source-line-no">232</span><span id="line-232">      }</span>
+<span class="source-line-no">233</span><span id="line-233">      generator.writeStartArray();</span>
+<span class="source-line-no">234</span><span id="line-234">      JsonToken elemToken;</span>
+<span class="source-line-no">235</span><span id="line-235">      while ((elemToken = parser.nextToken()) != null &amp;&amp; elemToken != JsonToken.END_ARRAY) {</span>
+<span class="source-line-no">236</span><span id="line-236">        if (segIdx + 1 &gt;= segments.size()) {</span>
+<span class="source-line-no">237</span><span id="line-237">          copyValue(parser, generator, elemToken);</span>
 <span class="source-line-no">238</span><span id="line-238">        } else {</span>
-<span class="source-line-no">239</span><span id="line-239">          // Simple property access</span>
-<span class="source-line-no">240</span><span id="line-240">          currentNode = currentNode.get(segment);</span>
-<span class="source-line-no">241</span><span id="line-241">          if (currentNode == null) {</span>
-<span class="source-line-no">242</span><span id="line-242">            return "null";</span>
-<span class="source-line-no">243</span><span id="line-243">          }</span>
-<span class="source-line-no">244</span><span id="line-244">        }</span>
-<span class="source-line-no">245</span><span id="line-245">      }</span>
-<span class="source-line-no">246</span><span id="line-246"></span>
-<span class="source-line-no">247</span><span id="line-247">      return objectMapper.writeValueAsString(currentNode);</span>
-<span class="source-line-no">248</span><span id="line-248">    } catch (Exception e) {</span>
-<span class="source-line-no">249</span><span id="line-249">      // If JSON parsing fails, fall back to simple string-based extraction</span>
-<span class="source-line-no">250</span><span id="line-250">      return extractSimplePropertyFallback(jsonContent, path);</span>
-<span class="source-line-no">251</span><span id="line-251">    }</span>
-<span class="source-line-no">252</span><span id="line-252">  }</span>
-<span class="source-line-no">253</span><span id="line-253"></span>
-<span class="source-line-no">254</span><span id="line-254">  /**</span>
-<span class="source-line-no">255</span><span id="line-255">   * Fallback method for simple string-based extraction when JSON parsing fails</span>
-<span class="source-line-no">256</span><span id="line-256">   *</span>
-<span class="source-line-no">257</span><span id="line-257">   * @param jsonContent the JSON content string</span>
-<span class="source-line-no">258</span><span id="line-258">   * @param path the TreePath expression</span>
-<span class="source-line-no">259</span><span id="line-259">   * @return extracted value as JSON string or original content</span>
-<span class="source-line-no">260</span><span id="line-260">   */</span>
-<span class="source-line-no">261</span><span id="line-261">  private String extractSimplePropertyFallback(String jsonContent, String path) {</span>
-<span class="source-line-no">262</span><span id="line-262">    // Handle root path</span>
-<span class="source-line-no">263</span><span id="line-263">    if ("$".equals(path)) {</span>
-<span class="source-line-no">264</span><span id="line-264">      return jsonContent.trim();</span>
-<span class="source-line-no">265</span><span id="line-265">    }</span>
-<span class="source-line-no">266</span><span id="line-266"></span>
-<span class="source-line-no">267</span><span id="line-267">    // Simple property extraction: $.property</span>
-<span class="source-line-no">268</span><span id="line-268">    if (path.startsWith("$.") &amp;&amp; !path.contains("[") &amp;&amp; path.indexOf(".", 2) == -1) {</span>
-<span class="source-line-no">269</span><span id="line-269">      String property = path.substring(2);</span>
-<span class="source-line-no">270</span><span id="line-270">      return extractSimpleProperty(jsonContent, property);</span>
-<span class="source-line-no">271</span><span id="line-271">    }</span>
+<span class="source-line-no">239</span><span id="line-239">          extractFromToken(parser, generator, segments, segIdx + 1, elemToken);</span>
+<span class="source-line-no">240</span><span id="line-240">        }</span>
+<span class="source-line-no">241</span><span id="line-241">      }</span>
+<span class="source-line-no">242</span><span id="line-242">      generator.writeEndArray();</span>
+<span class="source-line-no">243</span><span id="line-243">    } else {</span>
+<span class="source-line-no">244</span><span id="line-244">      // Numeric index access</span>
+<span class="source-line-no">245</span><span id="line-245">      if (token != JsonToken.START_ARRAY) {</span>
+<span class="source-line-no">246</span><span id="line-246">        skipValue(parser, token);</span>
+<span class="source-line-no">247</span><span id="line-247">        generator.writeNull();</span>
+<span class="source-line-no">248</span><span id="line-248">        return;</span>
+<span class="source-line-no">249</span><span id="line-249">      }</span>
+<span class="source-line-no">250</span><span id="line-250">      int currentIdx = 0;</span>
+<span class="source-line-no">251</span><span id="line-251">      boolean found = false;</span>
+<span class="source-line-no">252</span><span id="line-252">      JsonToken arrToken;</span>
+<span class="source-line-no">253</span><span id="line-253">      while ((arrToken = parser.nextToken()) != null &amp;&amp; arrToken != JsonToken.END_ARRAY) {</span>
+<span class="source-line-no">254</span><span id="line-254">        if (currentIdx == seg.index) {</span>
+<span class="source-line-no">255</span><span id="line-255">          extractPath(parser, generator, segments, segIdx + 1);</span>
+<span class="source-line-no">256</span><span id="line-256">          found = true;</span>
+<span class="source-line-no">257</span><span id="line-257">          JsonToken skipToken;</span>
+<span class="source-line-no">258</span><span id="line-258">          while ((skipToken = parser.nextToken()) != null &amp;&amp; skipToken != JsonToken.END_ARRAY) {</span>
+<span class="source-line-no">259</span><span id="line-259">            skipValue(parser, skipToken);</span>
+<span class="source-line-no">260</span><span id="line-260">          }</span>
+<span class="source-line-no">261</span><span id="line-261">          break;</span>
+<span class="source-line-no">262</span><span id="line-262">        } else {</span>
+<span class="source-line-no">263</span><span id="line-263">          skipValue(parser, arrToken);</span>
+<span class="source-line-no">264</span><span id="line-264">        }</span>
+<span class="source-line-no">265</span><span id="line-265">        currentIdx++;</span>
+<span class="source-line-no">266</span><span id="line-266">      }</span>
+<span class="source-line-no">267</span><span id="line-267">      if (!found) {</span>
+<span class="source-line-no">268</span><span id="line-268">        generator.writeNull();</span>
+<span class="source-line-no">269</span><span id="line-269">      }</span>
+<span class="source-line-no">270</span><span id="line-270">    }</span>
+<span class="source-line-no">271</span><span id="line-271">  }</span>
 <span class="source-line-no">272</span><span id="line-272"></span>
-<span class="source-line-no">273</span><span id="line-273">    // For other complex paths that couldn't be parsed, return null instead of original content</span>
-<span class="source-line-no">274</span><span id="line-274">    return "null";</span>
-<span class="source-line-no">275</span><span id="line-275">  }</span>
-<span class="source-line-no">276</span><span id="line-276"></span>
-<span class="source-line-no">277</span><span id="line-277">  /**</span>
-<span class="source-line-no">278</span><span id="line-278">   * Extract a simple property from JSON content</span>
-<span class="source-line-no">279</span><span id="line-279">   *</span>
-<span class="source-line-no">280</span><span id="line-280">   * @param jsonContent JSON string</span>
-<span class="source-line-no">281</span><span id="line-281">   * @param property property name to extract</span>
-<span class="source-line-no">282</span><span id="line-282">   * @return property value as JSON string or "null" if not found</span>
-<span class="source-line-no">283</span><span id="line-283">   */</span>
-<span class="source-line-no">284</span><span id="line-284">  private String extractSimpleProperty(String jsonContent, String property) {</span>
-<span class="source-line-no">285</span><span id="line-285">    String searchPattern = "\"" + property + "\":";</span>
-<span class="source-line-no">286</span><span id="line-286">    int propertyStart = jsonContent.indexOf(searchPattern);</span>
-<span class="source-line-no">287</span><span id="line-287"></span>
-<span class="source-line-no">288</span><span id="line-288">    if (propertyStart == -1) {</span>
-<span class="source-line-no">289</span><span id="line-289">      return "null"; // Property not found</span>
-<span class="source-line-no">290</span><span id="line-290">    }</span>
-<span class="source-line-no">291</span><span id="line-291"></span>
-<span class="source-line-no">292</span><span id="line-292">    // Find the start of the value</span>
-<span class="source-line-no">293</span><span id="line-293">    int colonIndex = propertyStart + searchPattern.length();</span>
-<span class="source-line-no">294</span><span id="line-294">    int valueStart = colonIndex;</span>
-<span class="source-line-no">295</span><span id="line-295">    while (valueStart &lt; jsonContent.length()</span>
-<span class="source-line-no">296</span><span id="line-296">        &amp;&amp; Character.isWhitespace(jsonContent.charAt(valueStart))) {</span>
-<span class="source-line-no">297</span><span id="line-297">      valueStart++;</span>
-<span class="source-line-no">298</span><span id="line-298">    }</span>
-<span class="source-line-no">299</span><span id="line-299"></span>
-<span class="source-line-no">300</span><span id="line-300">    if (valueStart &gt;= jsonContent.length()) {</span>
-<span class="source-line-no">301</span><span id="line-301">      return "null";</span>
-<span class="source-line-no">302</span><span id="line-302">    }</span>
-<span class="source-line-no">303</span><span id="line-303"></span>
-<span class="source-line-no">304</span><span id="line-304">    // Extract the value based on its type</span>
-<span class="source-line-no">305</span><span id="line-305">    char firstChar = jsonContent.charAt(valueStart);</span>
-<span class="source-line-no">306</span><span id="line-306"></span>
-<span class="source-line-no">307</span><span id="line-307">    if (firstChar == '"') {</span>
-<span class="source-line-no">308</span><span id="line-308">      // String value</span>
-<span class="source-line-no">309</span><span id="line-309">      return extractQuotedString(jsonContent, valueStart);</span>
-<span class="source-line-no">310</span><span id="line-310">    } else if (firstChar == '{') {</span>
-<span class="source-line-no">311</span><span id="line-311">      // Object value</span>
-<span class="source-line-no">312</span><span id="line-312">      return extractJsonObject(jsonContent, valueStart);</span>
-<span class="source-line-no">313</span><span id="line-313">    } else if (firstChar == '[') {</span>
-<span class="source-line-no">314</span><span id="line-314">      // Array value</span>
-<span class="source-line-no">315</span><span id="line-315">      return extractJsonArray(jsonContent, valueStart);</span>
-<span class="source-line-no">316</span><span id="line-316">    } else {</span>
-<span class="source-line-no">317</span><span id="line-317">      // Number, boolean, or null</span>
-<span class="source-line-no">318</span><span id="line-318">      return extractSimpleValue(jsonContent, valueStart);</span>
-<span class="source-line-no">319</span><span id="line-319">    }</span>
-<span class="source-line-no">320</span><span id="line-320">  }</span>
-<span class="source-line-no">321</span><span id="line-321"></span>
-<span class="source-line-no">322</span><span id="line-322">  private String extractQuotedString(String json, int start) {</span>
-<span class="source-line-no">323</span><span id="line-323">    StringBuilder result = new StringBuilder();</span>
-<span class="source-line-no">324</span><span id="line-324">    result.append('"');</span>
-<span class="source-line-no">325</span><span id="line-325">    int i = start + 1; // Skip opening quote</span>
-<span class="source-line-no">326</span><span id="line-326"></span>
-<span class="source-line-no">327</span><span id="line-327">    while (i &lt; json.length()) {</span>
-<span class="source-line-no">328</span><span id="line-328">      char c = json.charAt(i);</span>
-<span class="source-line-no">329</span><span id="line-329">      if (c == '"' &amp;&amp; (i == start + 1 || json.charAt(i - 1) != '\\')) {</span>
-<span class="source-line-no">330</span><span id="line-330">        result.append('"');</span>
-<span class="source-line-no">331</span><span id="line-331">        break;</span>
-<span class="source-line-no">332</span><span id="line-332">      }</span>
-<span class="source-line-no">333</span><span id="line-333">      result.append(c);</span>
-<span class="source-line-no">334</span><span id="line-334">      i++;</span>
-<span class="source-line-no">335</span><span id="line-335">    }</span>
-<span class="source-line-no">336</span><span id="line-336"></span>
-<span class="source-line-no">337</span><span id="line-337">    return result.toString();</span>
-<span class="source-line-no">338</span><span id="line-338">  }</span>
-<span class="source-line-no">339</span><span id="line-339"></span>
-<span class="source-line-no">340</span><span id="line-340">  private String extractJsonObject(String json, int start) {</span>
-<span class="source-line-no">341</span><span id="line-341">    StringBuilder result = new StringBuilder();</span>
-<span class="source-line-no">342</span><span id="line-342">    int braceCount = 0;</span>
-<span class="source-line-no">343</span><span id="line-343"></span>
-<span class="source-line-no">344</span><span id="line-344">    for (int i = start; i &lt; json.length(); i++) {</span>
-<span class="source-line-no">345</span><span id="line-345">      char c = json.charAt(i);</span>
-<span class="source-line-no">346</span><span id="line-346">      result.append(c);</span>
-<span class="source-line-no">347</span><span id="line-347"></span>
-<span class="source-line-no">348</span><span id="line-348">      if (c == '{') braceCount++;</span>
-<span class="source-line-no">349</span><span id="line-349">      else if (c == '}') braceCount--;</span>
-<span class="source-line-no">350</span><span id="line-350"></span>
-<span class="source-line-no">351</span><span id="line-351">      if (braceCount == 0) break;</span>
-<span class="source-line-no">352</span><span id="line-352">    }</span>
-<span class="source-line-no">353</span><span id="line-353"></span>
-<span class="source-line-no">354</span><span id="line-354">    return result.toString();</span>
-<span class="source-line-no">355</span><span id="line-355">  }</span>
-<span class="source-line-no">356</span><span id="line-356"></span>
-<span class="source-line-no">357</span><span id="line-357">  private String extractJsonArray(String json, int start) {</span>
-<span class="source-line-no">358</span><span id="line-358">    StringBuilder result = new StringBuilder();</span>
-<span class="source-line-no">359</span><span id="line-359">    int bracketCount = 0;</span>
-<span class="source-line-no">360</span><span id="line-360"></span>
-<span class="source-line-no">361</span><span id="line-361">    for (int i = start; i &lt; json.length(); i++) {</span>
-<span class="source-line-no">362</span><span id="line-362">      char c = json.charAt(i);</span>
-<span class="source-line-no">363</span><span id="line-363">      result.append(c);</span>
-<span class="source-line-no">364</span><span id="line-364"></span>
-<span class="source-line-no">365</span><span id="line-365">      if (c == '[') bracketCount++;</span>
-<span class="source-line-no">366</span><span id="line-366">      else if (c == ']') bracketCount--;</span>
-<span class="source-line-no">367</span><span id="line-367"></span>
-<span class="source-line-no">368</span><span id="line-368">      if (bracketCount == 0) break;</span>
-<span class="source-line-no">369</span><span id="line-369">    }</span>
-<span class="source-line-no">370</span><span id="line-370"></span>
-<span class="source-line-no">371</span><span id="line-371">    return result.toString();</span>
-<span class="source-line-no">372</span><span id="line-372">  }</span>
-<span class="source-line-no">373</span><span id="line-373"></span>
-<span class="source-line-no">374</span><span id="line-374">  private String extractSimpleValue(String json, int start) {</span>
-<span class="source-line-no">375</span><span id="line-375">    StringBuilder result = new StringBuilder();</span>
-<span class="source-line-no">376</span><span id="line-376"></span>
-<span class="source-line-no">377</span><span id="line-377">    for (int i = start; i &lt; json.length(); i++) {</span>
-<span class="source-line-no">378</span><span id="line-378">      char c = json.charAt(i);</span>
-<span class="source-line-no">379</span><span id="line-379">      if (c == ',' || c == '}' || c == ']' || Character.isWhitespace(c)) {</span>
-<span class="source-line-no">380</span><span id="line-380">        break;</span>
-<span class="source-line-no">381</span><span id="line-381">      }</span>
-<span class="source-line-no">382</span><span id="line-382">      result.append(c);</span>
-<span class="source-line-no">383</span><span id="line-383">    }</span>
-<span class="source-line-no">384</span><span id="line-384"></span>
-<span class="source-line-no">385</span><span id="line-385">    return result.toString();</span>
-<span class="source-line-no">386</span><span id="line-386">  }</span>
-<span class="source-line-no">387</span><span id="line-387">}</span>
+<span class="source-line-no">273</span><span id="line-273">  /**</span>
+<span class="source-line-no">274</span><span id="line-274">   * Same as {@link #extractPath} but the parser's current token has already been consumed and is</span>
+<span class="source-line-no">275</span><span id="line-275">   * supplied as {@code currentToken}. Used when iterating array elements where {@code nextToken()}</span>
+<span class="source-line-no">276</span><span id="line-276">   * was already called to detect {@code END_ARRAY}.</span>
+<span class="source-line-no">277</span><span id="line-277">   */</span>
+<span class="source-line-no">278</span><span id="line-278">  private void extractFromToken(</span>
+<span class="source-line-no">279</span><span id="line-279">      JsonParser parser,</span>
+<span class="source-line-no">280</span><span id="line-280">      JsonGenerator generator,</span>
+<span class="source-line-no">281</span><span id="line-281">      List&lt;PathSegment&gt; segments,</span>
+<span class="source-line-no">282</span><span id="line-282">      int segIdx,</span>
+<span class="source-line-no">283</span><span id="line-283">      JsonToken currentToken)</span>
+<span class="source-line-no">284</span><span id="line-284">      throws IOException {</span>
+<span class="source-line-no">285</span><span id="line-285"></span>
+<span class="source-line-no">286</span><span id="line-286">    if (segIdx &gt;= segments.size()) {</span>
+<span class="source-line-no">287</span><span id="line-287">      copyValue(parser, generator, currentToken);</span>
+<span class="source-line-no">288</span><span id="line-288">      return;</span>
+<span class="source-line-no">289</span><span id="line-289">    }</span>
+<span class="source-line-no">290</span><span id="line-290"></span>
+<span class="source-line-no">291</span><span id="line-291">    PathSegment seg = segments.get(segIdx);</span>
+<span class="source-line-no">292</span><span id="line-292"></span>
+<span class="source-line-no">293</span><span id="line-293">    if (seg.isField()) {</span>
+<span class="source-line-no">294</span><span id="line-294">      if (currentToken != JsonToken.START_OBJECT) {</span>
+<span class="source-line-no">295</span><span id="line-295">        skipValue(parser, currentToken);</span>
+<span class="source-line-no">296</span><span id="line-296">        generator.writeNull();</span>
+<span class="source-line-no">297</span><span id="line-297">        return;</span>
+<span class="source-line-no">298</span><span id="line-298">      }</span>
+<span class="source-line-no">299</span><span id="line-299">      boolean found = false;</span>
+<span class="source-line-no">300</span><span id="line-300">      JsonToken t2;</span>
+<span class="source-line-no">301</span><span id="line-301">      while ((t2 = parser.nextToken()) != null &amp;&amp; t2 != JsonToken.END_OBJECT) {</span>
+<span class="source-line-no">302</span><span id="line-302">        String name = parser.currentName();</span>
+<span class="source-line-no">303</span><span id="line-303">        if (seg.field.equals(name)) {</span>
+<span class="source-line-no">304</span><span id="line-304">          extractPath(parser, generator, segments, segIdx + 1);</span>
+<span class="source-line-no">305</span><span id="line-305">          found = true;</span>
+<span class="source-line-no">306</span><span id="line-306">        } else {</span>
+<span class="source-line-no">307</span><span id="line-307">          parser.nextToken();</span>
+<span class="source-line-no">308</span><span id="line-308">          skipValue(parser, parser.currentToken());</span>
+<span class="source-line-no">309</span><span id="line-309">        }</span>
+<span class="source-line-no">310</span><span id="line-310">      }</span>
+<span class="source-line-no">311</span><span id="line-311">      if (!found) {</span>
+<span class="source-line-no">312</span><span id="line-312">        generator.writeNull();</span>
+<span class="source-line-no">313</span><span id="line-313">      }</span>
+<span class="source-line-no">314</span><span id="line-314">    } else if (seg.wildcard) {</span>
+<span class="source-line-no">315</span><span id="line-315">      if (currentToken != JsonToken.START_ARRAY) {</span>
+<span class="source-line-no">316</span><span id="line-316">        skipValue(parser, currentToken);</span>
+<span class="source-line-no">317</span><span id="line-317">        generator.writeNull();</span>
+<span class="source-line-no">318</span><span id="line-318">        return;</span>
+<span class="source-line-no">319</span><span id="line-319">      }</span>
+<span class="source-line-no">320</span><span id="line-320">      generator.writeStartArray();</span>
+<span class="source-line-no">321</span><span id="line-321">      JsonToken elemToken2;</span>
+<span class="source-line-no">322</span><span id="line-322">      while ((elemToken2 = parser.nextToken()) != null &amp;&amp; elemToken2 != JsonToken.END_ARRAY) {</span>
+<span class="source-line-no">323</span><span id="line-323">        if (segIdx + 1 &gt;= segments.size()) {</span>
+<span class="source-line-no">324</span><span id="line-324">          copyValue(parser, generator, elemToken2);</span>
+<span class="source-line-no">325</span><span id="line-325">        } else {</span>
+<span class="source-line-no">326</span><span id="line-326">          extractFromToken(parser, generator, segments, segIdx + 1, elemToken2);</span>
+<span class="source-line-no">327</span><span id="line-327">        }</span>
+<span class="source-line-no">328</span><span id="line-328">      }</span>
+<span class="source-line-no">329</span><span id="line-329">      generator.writeEndArray();</span>
+<span class="source-line-no">330</span><span id="line-330">    } else {</span>
+<span class="source-line-no">331</span><span id="line-331">      if (currentToken != JsonToken.START_ARRAY) {</span>
+<span class="source-line-no">332</span><span id="line-332">        skipValue(parser, currentToken);</span>
+<span class="source-line-no">333</span><span id="line-333">        generator.writeNull();</span>
+<span class="source-line-no">334</span><span id="line-334">        return;</span>
+<span class="source-line-no">335</span><span id="line-335">      }</span>
+<span class="source-line-no">336</span><span id="line-336">      int currentIdx = 0;</span>
+<span class="source-line-no">337</span><span id="line-337">      boolean found = false;</span>
+<span class="source-line-no">338</span><span id="line-338">      JsonToken arrToken2;</span>
+<span class="source-line-no">339</span><span id="line-339">      while ((arrToken2 = parser.nextToken()) != null &amp;&amp; arrToken2 != JsonToken.END_ARRAY) {</span>
+<span class="source-line-no">340</span><span id="line-340">        if (currentIdx == seg.index) {</span>
+<span class="source-line-no">341</span><span id="line-341">          extractPath(parser, generator, segments, segIdx + 1);</span>
+<span class="source-line-no">342</span><span id="line-342">          found = true;</span>
+<span class="source-line-no">343</span><span id="line-343">          JsonToken skipToken2;</span>
+<span class="source-line-no">344</span><span id="line-344">          while ((skipToken2 = parser.nextToken()) != null &amp;&amp; skipToken2 != JsonToken.END_ARRAY) {</span>
+<span class="source-line-no">345</span><span id="line-345">            skipValue(parser, skipToken2);</span>
+<span class="source-line-no">346</span><span id="line-346">          }</span>
+<span class="source-line-no">347</span><span id="line-347">          break;</span>
+<span class="source-line-no">348</span><span id="line-348">        } else {</span>
+<span class="source-line-no">349</span><span id="line-349">          skipValue(parser, arrToken2);</span>
+<span class="source-line-no">350</span><span id="line-350">        }</span>
+<span class="source-line-no">351</span><span id="line-351">        currentIdx++;</span>
+<span class="source-line-no">352</span><span id="line-352">      }</span>
+<span class="source-line-no">353</span><span id="line-353">      if (!found) {</span>
+<span class="source-line-no">354</span><span id="line-354">        generator.writeNull();</span>
+<span class="source-line-no">355</span><span id="line-355">      }</span>
+<span class="source-line-no">356</span><span id="line-356">    }</span>
+<span class="source-line-no">357</span><span id="line-357">  }</span>
+<span class="source-line-no">358</span><span id="line-358"></span>
+<span class="source-line-no">359</span><span id="line-359">  // -------------------------------------------------------------------------</span>
+<span class="source-line-no">360</span><span id="line-360">  // Copy / skip helpers</span>
+<span class="source-line-no">361</span><span id="line-361">  // -------------------------------------------------------------------------</span>
+<span class="source-line-no">362</span><span id="line-362"></span>
+<span class="source-line-no">363</span><span id="line-363">  /**</span>
+<span class="source-line-no">364</span><span id="line-364">   * Copy the next complete value from {@code parser} to {@code generator}. Advances the parser by</span>
+<span class="source-line-no">365</span><span id="line-365">   * one token internally.</span>
+<span class="source-line-no">366</span><span id="line-366">   */</span>
+<span class="source-line-no">367</span><span id="line-367">  private void copyValue(JsonParser parser, JsonGenerator generator) throws IOException {</span>
+<span class="source-line-no">368</span><span id="line-368">    JsonToken token = parser.nextToken();</span>
+<span class="source-line-no">369</span><span id="line-369">    if (token == null) {</span>
+<span class="source-line-no">370</span><span id="line-370">      generator.writeNull();</span>
+<span class="source-line-no">371</span><span id="line-371">      return;</span>
+<span class="source-line-no">372</span><span id="line-372">    }</span>
+<span class="source-line-no">373</span><span id="line-373">    copyValue(parser, generator, token);</span>
+<span class="source-line-no">374</span><span id="line-374">  }</span>
+<span class="source-line-no">375</span><span id="line-375"></span>
+<span class="source-line-no">376</span><span id="line-376">  /**</span>
+<span class="source-line-no">377</span><span id="line-377">   * Copy a complete value starting at {@code token} (already read) from {@code parser} to {@code</span>
+<span class="source-line-no">378</span><span id="line-378">   * generator}.</span>
+<span class="source-line-no">379</span><span id="line-379">   */</span>
+<span class="source-line-no">380</span><span id="line-380">  private void copyValue(JsonParser parser, JsonGenerator generator, JsonToken token)</span>
+<span class="source-line-no">381</span><span id="line-381">      throws IOException {</span>
+<span class="source-line-no">382</span><span id="line-382">    switch (token) {</span>
+<span class="source-line-no">383</span><span id="line-383">      case START_OBJECT:</span>
+<span class="source-line-no">384</span><span id="line-384">        generator.writeStartObject();</span>
+<span class="source-line-no">385</span><span id="line-385">        JsonToken objToken;</span>
+<span class="source-line-no">386</span><span id="line-386">        while ((objToken = parser.nextToken()) != null &amp;&amp; objToken != JsonToken.END_OBJECT) {</span>
+<span class="source-line-no">387</span><span id="line-387">          generator.writeFieldName(parser.currentName());</span>
+<span class="source-line-no">388</span><span id="line-388">          copyValue(parser, generator);</span>
+<span class="source-line-no">389</span><span id="line-389">        }</span>
+<span class="source-line-no">390</span><span id="line-390">        generator.writeEndObject();</span>
+<span class="source-line-no">391</span><span id="line-391">        break;</span>
+<span class="source-line-no">392</span><span id="line-392"></span>
+<span class="source-line-no">393</span><span id="line-393">      case START_ARRAY:</span>
+<span class="source-line-no">394</span><span id="line-394">        generator.writeStartArray();</span>
+<span class="source-line-no">395</span><span id="line-395">        while (true) {</span>
+<span class="source-line-no">396</span><span id="line-396">          JsonToken t = parser.nextToken();</span>
+<span class="source-line-no">397</span><span id="line-397">          if (t == JsonToken.END_ARRAY) break;</span>
+<span class="source-line-no">398</span><span id="line-398">          copyValue(parser, generator, t);</span>
+<span class="source-line-no">399</span><span id="line-399">        }</span>
+<span class="source-line-no">400</span><span id="line-400">        generator.writeEndArray();</span>
+<span class="source-line-no">401</span><span id="line-401">        break;</span>
+<span class="source-line-no">402</span><span id="line-402"></span>
+<span class="source-line-no">403</span><span id="line-403">      case VALUE_STRING:</span>
+<span class="source-line-no">404</span><span id="line-404">        generator.writeString(parser.getText());</span>
+<span class="source-line-no">405</span><span id="line-405">        break;</span>
+<span class="source-line-no">406</span><span id="line-406"></span>
+<span class="source-line-no">407</span><span id="line-407">      case VALUE_NUMBER_INT:</span>
+<span class="source-line-no">408</span><span id="line-408">        generator.writeNumber(parser.getLongValue());</span>
+<span class="source-line-no">409</span><span id="line-409">        break;</span>
+<span class="source-line-no">410</span><span id="line-410"></span>
+<span class="source-line-no">411</span><span id="line-411">      case VALUE_NUMBER_FLOAT:</span>
+<span class="source-line-no">412</span><span id="line-412">        generator.writeNumber(parser.getDoubleValue());</span>
+<span class="source-line-no">413</span><span id="line-413">        break;</span>
+<span class="source-line-no">414</span><span id="line-414"></span>
+<span class="source-line-no">415</span><span id="line-415">      case VALUE_TRUE:</span>
+<span class="source-line-no">416</span><span id="line-416">        generator.writeBoolean(true);</span>
+<span class="source-line-no">417</span><span id="line-417">        break;</span>
+<span class="source-line-no">418</span><span id="line-418"></span>
+<span class="source-line-no">419</span><span id="line-419">      case VALUE_FALSE:</span>
+<span class="source-line-no">420</span><span id="line-420">        generator.writeBoolean(false);</span>
+<span class="source-line-no">421</span><span id="line-421">        break;</span>
+<span class="source-line-no">422</span><span id="line-422"></span>
+<span class="source-line-no">423</span><span id="line-423">      default:</span>
+<span class="source-line-no">424</span><span id="line-424">        generator.writeNull();</span>
+<span class="source-line-no">425</span><span id="line-425">        break;</span>
+<span class="source-line-no">426</span><span id="line-426">    }</span>
+<span class="source-line-no">427</span><span id="line-427">  }</span>
+<span class="source-line-no">428</span><span id="line-428"></span>
+<span class="source-line-no">429</span><span id="line-429">  /**</span>
+<span class="source-line-no">430</span><span id="line-430">   * Skip over a complete value starting at {@code token} (already read). Does not write anything.</span>
+<span class="source-line-no">431</span><span id="line-431">   */</span>
+<span class="source-line-no">432</span><span id="line-432">  private void skipValue(JsonParser parser, JsonToken token) throws IOException {</span>
+<span class="source-line-no">433</span><span id="line-433">    if (token == null) {</span>
+<span class="source-line-no">434</span><span id="line-434">      return;</span>
+<span class="source-line-no">435</span><span id="line-435">    }</span>
+<span class="source-line-no">436</span><span id="line-436">    switch (token) {</span>
+<span class="source-line-no">437</span><span id="line-437">      case START_OBJECT:</span>
+<span class="source-line-no">438</span><span id="line-438">        int objDepth = 1;</span>
+<span class="source-line-no">439</span><span id="line-439">        while (objDepth &gt; 0) {</span>
+<span class="source-line-no">440</span><span id="line-440">          JsonToken t = parser.nextToken();</span>
+<span class="source-line-no">441</span><span id="line-441">          if (t == JsonToken.START_OBJECT) objDepth++;</span>
+<span class="source-line-no">442</span><span id="line-442">          else if (t == JsonToken.END_OBJECT) objDepth--;</span>
+<span class="source-line-no">443</span><span id="line-443">        }</span>
+<span class="source-line-no">444</span><span id="line-444">        break;</span>
+<span class="source-line-no">445</span><span id="line-445"></span>
+<span class="source-line-no">446</span><span id="line-446">      case START_ARRAY:</span>
+<span class="source-line-no">447</span><span id="line-447">        int arrDepth = 1;</span>
+<span class="source-line-no">448</span><span id="line-448">        while (arrDepth &gt; 0) {</span>
+<span class="source-line-no">449</span><span id="line-449">          JsonToken t = parser.nextToken();</span>
+<span class="source-line-no">450</span><span id="line-450">          if (t == JsonToken.START_ARRAY) arrDepth++;</span>
+<span class="source-line-no">451</span><span id="line-451">          else if (t == JsonToken.END_ARRAY) arrDepth--;</span>
+<span class="source-line-no">452</span><span id="line-452">        }</span>
+<span class="source-line-no">453</span><span id="line-453">        break;</span>
+<span class="source-line-no">454</span><span id="line-454"></span>
+<span class="source-line-no">455</span><span id="line-455">      default:</span>
+<span class="source-line-no">456</span><span id="line-456">        // Scalar values are self-contained – nothing more to skip</span>
+<span class="source-line-no">457</span><span id="line-457">        break;</span>
+<span class="source-line-no">458</span><span id="line-458">    }</span>
+<span class="source-line-no">459</span><span id="line-459">  }</span>
+<span class="source-line-no">460</span><span id="line-460">}</span>
 
 
 

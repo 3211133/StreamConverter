@@ -1,7 +1,7 @@
 plugins {
     id("java")
     id("application")
-    id("com.diffplug.spotless") version "8.2.1"
+    id("com.diffplug.spotless") version "8.3.0"
     id("org.springframework.boot") version "4.0.3"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -48,7 +48,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-core:2.21.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.21.0")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.21.1")
 }
 
 // Benchmark tasks

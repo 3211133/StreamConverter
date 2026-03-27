@@ -29,7 +29,7 @@ dependencies {
     implementation("ch.qos.logback:logback-classic:1.5.32")
 
     // HikariCP connection pool
-    implementation("com.zaxxer:HikariCP:6.3.0")
+    implementation("com.zaxxer:HikariCP:7.0.2")
 
     // JUnit 5
     testImplementation(platform("org.junit:junit-bom:6.0.3"))

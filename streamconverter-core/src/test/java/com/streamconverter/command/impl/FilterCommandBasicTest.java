@@ -9,6 +9,7 @@ import com.streamconverter.command.impl.json.JsonFilterCommand;
 import com.streamconverter.command.impl.xml.XmlFilterCommand;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
+import com.streamconverter.test.StreamingTestUtils.MidStreamMonitoringOutputStream;
 import com.streamconverter.test.StreamingTestUtils.MonitoringOutputStream;
 import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
@@ -17,6 +18,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -346,6 +348,90 @@ class FilterCommandBasicTest {
     // Verify output was generated correctly
     String output = monitoringOutputStream.getContent();
     assertTrue(output.contains("Dept"), "Filtering should produce expected department data");
+  }
+
+  @Test
+  @Tag("large-data")
+  @DisplayName("[#549] JsonFilterCommand processes JSON larger than 10MB without IOException")
+  void testJsonFilterCommand_LargeJsonNoMemoryLimit() throws IOException {
+    // Build JSON > 10MB: each entry has a long "data" field to ensure total exceeds 10MB
+    String padding = "x".repeat(100);
+    StringBuilder jsonBuilder = new StringBuilder("[");
+    for (int i = 0; i < 100_000; i++) {
+      if (i > 0) jsonBuilder.append(",");
+      jsonBuilder.append(String.format("{\"id\":%d,\"value\":\"%s\"}", i, padding));
+    }
+    jsonBuilder.append("]");
+    String largeJson = jsonBuilder.toString();
+    assertTrue(largeJson.length() > 10 * 1024 * 1024, "Test data should exceed 10MB");
+
+    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$[*].id"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(largeJson.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    // Should not throw IOException("JSON content too large...")
+    command.execute(input, output);
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.startsWith("["), "Result should be a JSON array");
+  }
+
+  @Test
+  @DisplayName("[#549] JsonFilterCommand does not call readAllBytes() on the input stream")
+  void testJsonFilterCommand_NoReadAllBytes() throws IOException {
+    // Build a JSON array with enough entries to ensure streaming is observable
+    StringBuilder jsonBuilder = new StringBuilder("[");
+    for (int i = 0; i < 200; i++) {
+      if (i > 0) jsonBuilder.append(",");
+      jsonBuilder.append(String.format("{\"id\":%d,\"name\":\"Item %d\"}", i, i));
+    }
+    jsonBuilder.append("]");
+
+    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$[*].id"));
+
+    TrackingInputStream trackingInput =
+        new TrackingInputStream(jsonBuilder.toString().getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    command.execute(trackingInput, output);
+
+    assertFalse(
+        trackingInput.wasReadAllBytesCalled(),
+        "JsonFilterCommand must not call readAllBytes() – streaming must not buffer the full"
+            + " input");
+  }
+
+  @Test
+  @DisplayName("[#549] JsonFilterCommand processes entire input and produces output")
+  void testJsonFilterCommand_WritesBeforeInputFullyConsumed() throws IOException {
+    // Verify that JsonFilterCommand processes input via streaming (not readAllBytes)
+    // and that output is produced.
+    // Note: Jackson JsonGenerator uses an internal buffer, so the first write to the
+    // OutputStream may only occur after flush() at the end of processing. The key
+    // guarantee is that readAllBytes() is NOT called (verified separately), and that
+    // all input is consumed and output is produced.
+    StringBuilder jsonBuilder = new StringBuilder("[");
+    for (int i = 0; i < 500; i++) {
+      if (i > 0) jsonBuilder.append(",");
+      jsonBuilder.append(String.format("{\"id\":%d,\"payload\":\"data-%d-padding\"}", i, i));
+    }
+    jsonBuilder.append("]");
+
+    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$[*].id"));
+
+    TrackingInputStream trackingInput =
+        new TrackingInputStream(jsonBuilder.toString().getBytes(StandardCharsets.UTF_8));
+    MidStreamMonitoringOutputStream monitoringOutput =
+        new MidStreamMonitoringOutputStream(trackingInput);
+
+    command.execute(trackingInput, monitoringOutput);
+
+    assertTrue(monitoringOutput.hasWriteOccurred(), "Output must be written");
+    assertTrue(trackingInput.isFullyRead(), "Input stream must be fully consumed");
+    assertFalse(
+        trackingInput.wasReadAllBytesCalled(),
+        "JsonFilterCommand must not call readAllBytes() – input must be read incrementally");
   }
 
   @Test

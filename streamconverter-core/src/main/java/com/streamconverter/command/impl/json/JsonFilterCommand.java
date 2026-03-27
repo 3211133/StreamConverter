@@ -1,18 +1,15 @@
 package com.streamconverter.command.impl.json;
 
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.JsonFactory;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.core.JsonToken;
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.path.IPath;
-import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -23,16 +20,14 @@ import java.util.List;
  * based on specified paths without any modifications.
  *
  * <p>Features: - Extract specific elements using TreePath expressions - Preserve exact data types
- * and structure of extracted elements - Memory-efficient processing for large JSON files - Support
- * for simple path expressions
+ * and structure of extracted elements - Streaming processing via Jackson Streaming API
+ * (JsonParser/JsonGenerator); the document is never fully loaded into memory - Support for simple
+ * path expressions including wildcards ($[*].field, $.array[*].nested.field)
  */
 public class JsonFilterCommand extends AbstractStreamCommand {
 
-  private static final int BUFFER_SIZE = 8192; // 8KB buffer for streaming
-  private static final int MAX_MEMORY_BUFFER = 10 * 1024 * 1024; // 10MB max buffer
-
   private final IPath<List<String>> jsonPath;
-  private final ObjectMapper objectMapper;
+  private final JsonFactory jsonFactory;
 
   /**
    * Constructor for JSON filtering with typed TreePath selector.
@@ -42,7 +37,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    */
   private JsonFilterCommand(IPath<List<String>> jsonPath) {
     this.jsonPath = jsonPath;
-    this.objectMapper = new ObjectMapper();
+    this.jsonFactory = new JsonFactory();
   }
 
   /**
@@ -61,327 +56,405 @@ public class JsonFilterCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-    try (BufferedReader reader =
-            new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-        Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
+    String path = jsonPath.toString();
+    List<PathSegment> segments = parsePath(path);
 
-      // Read JSON content efficiently
-      String jsonContent = readJsonContent(reader);
+    try (JsonParser parser = jsonFactory.createParser(inputStream);
+        JsonGenerator generator = jsonFactory.createGenerator(outputStream)) {
+      generator.disable(JsonGenerator.Feature.AUTO_CLOSE_TARGET);
 
-      if (jsonContent.trim().isEmpty()) {
-        writer.write("null");
-        writer.flush();
+      if (segments.isEmpty()) {
+        // Root path "$": copy the entire document
+        copyValue(parser, generator);
+      } else {
+        extractPath(parser, generator, segments, 0);
+      }
+
+      generator.flush();
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Path parsing
+  // -------------------------------------------------------------------------
+
+  /** A single segment in a parsed path. */
+  private static class PathSegment {
+
+    final String field; // non-null for field access
+    final boolean wildcard; // true for [*]
+    final int index; // >= 0 for numeric index, -1 otherwise
+
+    static PathSegment field(String name) {
+      return new PathSegment(name, false, -1);
+    }
+
+    static PathSegment wildcard() {
+      return new PathSegment(null, true, -1);
+    }
+
+    static PathSegment index(int i) {
+      return new PathSegment(null, false, i);
+    }
+
+    private PathSegment(String field, boolean wildcard, int index) {
+      this.field = field;
+      this.wildcard = wildcard;
+      this.index = index;
+    }
+
+    boolean isField() {
+      return field != null;
+    }
+  }
+
+  /**
+   * Parse a path string into an ordered list of {@link PathSegment}s.
+   *
+   * <p>Supported syntax:
+   *
+   * <ul>
+   *   <li>{@code $} – root (empty list)
+   *   <li>{@code $.name} – top-level field
+   *   <li>{@code $[*].name} – root-array wildcard then field
+   *   <li>{@code $.users[*].profile.department} – field, wildcard, nested fields
+   * </ul>
+   *
+   * @param path the path expression
+   * @return ordered list of path segments (empty = root)
+   */
+  private static List<PathSegment> parsePath(String path) {
+    List<PathSegment> result = new ArrayList<>();
+    if ("$".equals(path)) {
+      return result;
+    }
+
+    // Strip leading "$" then process the remaining characters
+    int start = path.startsWith("$") ? 1 : 0;
+    String rest = path.substring(start);
+
+    int i = 0;
+    while (i < rest.length()) {
+      char c = rest.charAt(i);
+      if (c == '.') {
+        i++; // skip dot separator
+      } else if (c == '[') {
+        // Array access: [*] or [N]
+        int close = rest.indexOf(']', i);
+        if (close == -1) {
+          break; // malformed – stop here
+        }
+        String inner = rest.substring(i + 1, close);
+        if ("*".equals(inner)) {
+          result.add(PathSegment.wildcard());
+        } else {
+          try {
+            result.add(PathSegment.index(Integer.parseInt(inner)));
+          } catch (NumberFormatException e) {
+            result.add(PathSegment.wildcard()); // treat unknown as wildcard
+          }
+        }
+        i = close + 1;
+      } else {
+        // Field name: read until '.', '[', or end
+        int end = i;
+        while (end < rest.length() && rest.charAt(end) != '.' && rest.charAt(end) != '[') {
+          end++;
+        }
+        String fieldName = rest.substring(i, end);
+        if (!fieldName.isEmpty()) {
+          result.add(PathSegment.field(fieldName));
+        }
+        i = end;
+      }
+    }
+    return result;
+  }
+
+  // -------------------------------------------------------------------------
+  // Streaming extraction
+  // -------------------------------------------------------------------------
+
+  /**
+   * Advance the parser to the next value and recursively navigate {@code segments[segIdx..]} to
+   * write the matching value(s) to {@code generator}.
+   *
+   * @param parser the JSON parser (not yet advanced to the target value)
+   * @param generator the JSON generator
+   * @param segments the full path segment list
+   * @param segIdx current position in {@code segments}
+   */
+  private void extractPath(
+      JsonParser parser, JsonGenerator generator, List<PathSegment> segments, int segIdx)
+      throws IOException {
+
+    if (segIdx >= segments.size()) {
+      copyValue(parser, generator);
+      return;
+    }
+
+    PathSegment seg = segments.get(segIdx);
+    JsonToken token = parser.nextToken();
+
+    if (token == null) {
+      generator.writeNull();
+      return;
+    }
+
+    if (seg.isField()) {
+      // Expect an object; find the named field
+      if (token != JsonToken.START_OBJECT) {
+        skipValue(parser, token);
+        generator.writeNull();
         return;
       }
-
-      try {
-        // Apply simple TreePath-like extraction using lightweight parsing
-        String result = extractJsonValue(jsonContent, jsonPath.toString());
-        writer.write(result);
-        writer.flush();
-
-      } catch (Exception e) {
-        // If extraction fails, return null
-        writer.write("null");
-        writer.flush();
-      }
-    }
-  }
-
-  /**
-   * Read JSON content from reader with memory management
-   *
-   * @param reader the BufferedReader to read from
-   * @return JSON content as string, or empty string if no content
-   * @throws IOException if reading fails
-   */
-  private String readJsonContent(BufferedReader reader) throws IOException {
-    StringBuilder jsonBuilder = new StringBuilder();
-    char[] buffer = new char[BUFFER_SIZE];
-    int totalCharsRead = 0;
-    int charsRead;
-
-    while ((charsRead = reader.read(buffer)) != -1) {
-      totalCharsRead += charsRead;
-
-      // Memory protection: prevent reading excessively large JSON into memory
-      if (totalCharsRead > MAX_MEMORY_BUFFER) {
-        throw new IOException(
-            "JSON content too large for filtering. Use streaming NavigateCommand instead.");
-      }
-
-      jsonBuilder.append(buffer, 0, charsRead);
-    }
-
-    return jsonBuilder.toString(); // Return empty string instead of null
-  }
-
-  /**
-   * Extract JSON value using simple TreePath-like expressions
-   *
-   * @param jsonContent the JSON content string
-   * @param path the TreePath expression (simplified)
-   * @return extracted value as JSON string
-   */
-  private String extractJsonValue(String jsonContent, String path) {
-    try {
-      JsonNode rootNode = objectMapper.readTree(jsonContent);
-
-      // Handle root path
-      if ("$".equals(path)) {
-        return objectMapper.writeValueAsString(rootNode);
-      }
-
-      // Handle special case of $[*].property (root array with wildcard)
-      if (path.startsWith("$[*].") && path.length() > 5) {
-        String propertyPath = path.substring(5); // Remove "$[*]."
-        if (rootNode.isArray()) {
-          StringBuilder resultBuilder = new StringBuilder("[");
-          boolean first = true;
-          for (JsonNode arrayElement : rootNode) {
-            if (!first) resultBuilder.append(",");
-            first = false;
-
-            // Apply the property path to each array element
-            String[] propertySegments = propertyPath.split("\\.");
-            JsonNode extractedNode = arrayElement;
-            for (String segment : propertySegments) {
-              if (segment.isEmpty()) continue;
-              extractedNode = extractedNode.get(segment);
-              if (extractedNode == null) {
-                extractedNode = objectMapper.getNodeFactory().nullNode();
-                break;
-              }
-            }
-            resultBuilder.append(objectMapper.writeValueAsString(extractedNode));
-          }
-          resultBuilder.append("]");
-          return resultBuilder.toString();
+      boolean found = false;
+      JsonToken t;
+      while ((t = parser.nextToken()) != null && t != JsonToken.END_OBJECT) {
+        String name = parser.currentName();
+        if (seg.field.equals(name)) {
+          extractPath(parser, generator, segments, segIdx + 1);
+          found = true;
         } else {
-          return "null";
+          parser.nextToken();
+          skipValue(parser, parser.currentToken());
         }
       }
-
-      // Remove the '$.' prefix if present
-      String normalizedPath = path.startsWith("$.") ? path.substring(2) : path;
-
-      // Navigate through the path
-      JsonNode currentNode = rootNode;
-      String[] pathSegments = normalizedPath.split("\\.");
-
-      for (String segment : pathSegments) {
-        if (segment.isEmpty()) continue;
-
-        // Handle array indexing (e.g., "users[0]")
-        if (segment.contains("[") && segment.endsWith("]")) {
-          String fieldName = segment.substring(0, segment.indexOf("["));
-          String indexStr = segment.substring(segment.indexOf("[") + 1, segment.indexOf("]"));
-
-          if (!fieldName.isEmpty()) {
-            currentNode = currentNode.get(fieldName);
-            if (currentNode == null) return "null";
-          }
-
-          // Handle wildcard array access [*]
-          if ("*".equals(indexStr)) {
-            if (currentNode.isArray()) {
-              // For wildcard, we need to handle subsequent path segments differently
-              // This is a simplified implementation that extracts all matching elements
-              StringBuilder resultBuilder = new StringBuilder("[");
-              boolean first = true;
-              for (JsonNode arrayElement : currentNode) {
-                if (!first) resultBuilder.append(",");
-                first = false;
-
-                // If there are more path segments, apply them to each array element
-                String remainingPath =
-                    String.join(
-                        ".",
-                        Arrays.copyOfRange(
-                            pathSegments,
-                            Arrays.asList(pathSegments).indexOf(segment) + 1,
-                            pathSegments.length));
-                if (!remainingPath.isEmpty()) {
-                  JsonNode extractedNode = arrayElement;
-                  String[] remainingSegments = remainingPath.split("\\.");
-                  for (String remainingSeg : remainingSegments) {
-                    if (remainingSeg.isEmpty()) continue;
-                    extractedNode = extractedNode.get(remainingSeg);
-                    if (extractedNode == null) {
-                      extractedNode = objectMapper.getNodeFactory().nullNode();
-                      break;
-                    }
-                  }
-                  resultBuilder.append(objectMapper.writeValueAsString(extractedNode));
-                } else {
-                  resultBuilder.append(objectMapper.writeValueAsString(arrayElement));
-                }
-              }
-              resultBuilder.append("]");
-              return resultBuilder.toString();
-            } else {
-              return "null";
-            }
-          } else {
-            // Regular array indexing
-            try {
-              int index = Integer.parseInt(indexStr);
-              if (currentNode.isArray() && index >= 0 && index < currentNode.size()) {
-                currentNode = currentNode.get(index);
-              } else {
-                return "null";
-              }
-            } catch (NumberFormatException e) {
-              return "null";
-            }
-          }
+      if (!found) {
+        generator.writeNull();
+      }
+    } else if (seg.wildcard) {
+      // Expect an array; iterate elements and extract from each
+      if (token != JsonToken.START_ARRAY) {
+        skipValue(parser, token);
+        generator.writeNull();
+        return;
+      }
+      generator.writeStartArray();
+      JsonToken elemToken;
+      while ((elemToken = parser.nextToken()) != null && elemToken != JsonToken.END_ARRAY) {
+        if (segIdx + 1 >= segments.size()) {
+          copyValue(parser, generator, elemToken);
         } else {
-          // Simple property access
-          currentNode = currentNode.get(segment);
-          if (currentNode == null) {
-            return "null";
-          }
+          extractFromToken(parser, generator, segments, segIdx + 1, elemToken);
         }
       }
-
-      return objectMapper.writeValueAsString(currentNode);
-    } catch (Exception e) {
-      // If JSON parsing fails, fall back to simple string-based extraction
-      return extractSimplePropertyFallback(jsonContent, path);
-    }
-  }
-
-  /**
-   * Fallback method for simple string-based extraction when JSON parsing fails
-   *
-   * @param jsonContent the JSON content string
-   * @param path the TreePath expression
-   * @return extracted value as JSON string or original content
-   */
-  private String extractSimplePropertyFallback(String jsonContent, String path) {
-    // Handle root path
-    if ("$".equals(path)) {
-      return jsonContent.trim();
-    }
-
-    // Simple property extraction: $.property
-    if (path.startsWith("$.") && !path.contains("[") && path.indexOf(".", 2) == -1) {
-      String property = path.substring(2);
-      return extractSimpleProperty(jsonContent, property);
-    }
-
-    // For other complex paths that couldn't be parsed, return null instead of original content
-    return "null";
-  }
-
-  /**
-   * Extract a simple property from JSON content
-   *
-   * @param jsonContent JSON string
-   * @param property property name to extract
-   * @return property value as JSON string or "null" if not found
-   */
-  private String extractSimpleProperty(String jsonContent, String property) {
-    String searchPattern = "\"" + property + "\":";
-    int propertyStart = jsonContent.indexOf(searchPattern);
-
-    if (propertyStart == -1) {
-      return "null"; // Property not found
-    }
-
-    // Find the start of the value
-    int colonIndex = propertyStart + searchPattern.length();
-    int valueStart = colonIndex;
-    while (valueStart < jsonContent.length()
-        && Character.isWhitespace(jsonContent.charAt(valueStart))) {
-      valueStart++;
-    }
-
-    if (valueStart >= jsonContent.length()) {
-      return "null";
-    }
-
-    // Extract the value based on its type
-    char firstChar = jsonContent.charAt(valueStart);
-
-    if (firstChar == '"') {
-      // String value
-      return extractQuotedString(jsonContent, valueStart);
-    } else if (firstChar == '{') {
-      // Object value
-      return extractJsonObject(jsonContent, valueStart);
-    } else if (firstChar == '[') {
-      // Array value
-      return extractJsonArray(jsonContent, valueStart);
+      generator.writeEndArray();
     } else {
-      // Number, boolean, or null
-      return extractSimpleValue(jsonContent, valueStart);
-    }
-  }
-
-  private String extractQuotedString(String json, int start) {
-    StringBuilder result = new StringBuilder();
-    result.append('"');
-    int i = start + 1; // Skip opening quote
-
-    while (i < json.length()) {
-      char c = json.charAt(i);
-      if (c == '"' && (i == start + 1 || json.charAt(i - 1) != '\\')) {
-        result.append('"');
-        break;
+      // Numeric index access
+      if (token != JsonToken.START_ARRAY) {
+        skipValue(parser, token);
+        generator.writeNull();
+        return;
       }
-      result.append(c);
-      i++;
-    }
-
-    return result.toString();
-  }
-
-  private String extractJsonObject(String json, int start) {
-    StringBuilder result = new StringBuilder();
-    int braceCount = 0;
-
-    for (int i = start; i < json.length(); i++) {
-      char c = json.charAt(i);
-      result.append(c);
-
-      if (c == '{') braceCount++;
-      else if (c == '}') braceCount--;
-
-      if (braceCount == 0) break;
-    }
-
-    return result.toString();
-  }
-
-  private String extractJsonArray(String json, int start) {
-    StringBuilder result = new StringBuilder();
-    int bracketCount = 0;
-
-    for (int i = start; i < json.length(); i++) {
-      char c = json.charAt(i);
-      result.append(c);
-
-      if (c == '[') bracketCount++;
-      else if (c == ']') bracketCount--;
-
-      if (bracketCount == 0) break;
-    }
-
-    return result.toString();
-  }
-
-  private String extractSimpleValue(String json, int start) {
-    StringBuilder result = new StringBuilder();
-
-    for (int i = start; i < json.length(); i++) {
-      char c = json.charAt(i);
-      if (c == ',' || c == '}' || c == ']' || Character.isWhitespace(c)) {
-        break;
+      int currentIdx = 0;
+      boolean found = false;
+      JsonToken arrToken;
+      while ((arrToken = parser.nextToken()) != null && arrToken != JsonToken.END_ARRAY) {
+        if (currentIdx == seg.index) {
+          extractPath(parser, generator, segments, segIdx + 1);
+          found = true;
+          JsonToken skipToken;
+          while ((skipToken = parser.nextToken()) != null && skipToken != JsonToken.END_ARRAY) {
+            skipValue(parser, skipToken);
+          }
+          break;
+        } else {
+          skipValue(parser, arrToken);
+        }
+        currentIdx++;
       }
-      result.append(c);
+      if (!found) {
+        generator.writeNull();
+      }
+    }
+  }
+
+  /**
+   * Same as {@link #extractPath} but the parser's current token has already been consumed and is
+   * supplied as {@code currentToken}. Used when iterating array elements where {@code nextToken()}
+   * was already called to detect {@code END_ARRAY}.
+   */
+  private void extractFromToken(
+      JsonParser parser,
+      JsonGenerator generator,
+      List<PathSegment> segments,
+      int segIdx,
+      JsonToken currentToken)
+      throws IOException {
+
+    if (segIdx >= segments.size()) {
+      copyValue(parser, generator, currentToken);
+      return;
     }
 
-    return result.toString();
+    PathSegment seg = segments.get(segIdx);
+
+    if (seg.isField()) {
+      if (currentToken != JsonToken.START_OBJECT) {
+        skipValue(parser, currentToken);
+        generator.writeNull();
+        return;
+      }
+      boolean found = false;
+      JsonToken t2;
+      while ((t2 = parser.nextToken()) != null && t2 != JsonToken.END_OBJECT) {
+        String name = parser.currentName();
+        if (seg.field.equals(name)) {
+          extractPath(parser, generator, segments, segIdx + 1);
+          found = true;
+        } else {
+          parser.nextToken();
+          skipValue(parser, parser.currentToken());
+        }
+      }
+      if (!found) {
+        generator.writeNull();
+      }
+    } else if (seg.wildcard) {
+      if (currentToken != JsonToken.START_ARRAY) {
+        skipValue(parser, currentToken);
+        generator.writeNull();
+        return;
+      }
+      generator.writeStartArray();
+      JsonToken elemToken2;
+      while ((elemToken2 = parser.nextToken()) != null && elemToken2 != JsonToken.END_ARRAY) {
+        if (segIdx + 1 >= segments.size()) {
+          copyValue(parser, generator, elemToken2);
+        } else {
+          extractFromToken(parser, generator, segments, segIdx + 1, elemToken2);
+        }
+      }
+      generator.writeEndArray();
+    } else {
+      if (currentToken != JsonToken.START_ARRAY) {
+        skipValue(parser, currentToken);
+        generator.writeNull();
+        return;
+      }
+      int currentIdx = 0;
+      boolean found = false;
+      JsonToken arrToken2;
+      while ((arrToken2 = parser.nextToken()) != null && arrToken2 != JsonToken.END_ARRAY) {
+        if (currentIdx == seg.index) {
+          extractPath(parser, generator, segments, segIdx + 1);
+          found = true;
+          JsonToken skipToken2;
+          while ((skipToken2 = parser.nextToken()) != null && skipToken2 != JsonToken.END_ARRAY) {
+            skipValue(parser, skipToken2);
+          }
+          break;
+        } else {
+          skipValue(parser, arrToken2);
+        }
+        currentIdx++;
+      }
+      if (!found) {
+        generator.writeNull();
+      }
+    }
+  }
+
+  // -------------------------------------------------------------------------
+  // Copy / skip helpers
+  // -------------------------------------------------------------------------
+
+  /**
+   * Copy the next complete value from {@code parser} to {@code generator}. Advances the parser by
+   * one token internally.
+   */
+  private void copyValue(JsonParser parser, JsonGenerator generator) throws IOException {
+    JsonToken token = parser.nextToken();
+    if (token == null) {
+      generator.writeNull();
+      return;
+    }
+    copyValue(parser, generator, token);
+  }
+
+  /**
+   * Copy a complete value starting at {@code token} (already read) from {@code parser} to {@code
+   * generator}.
+   */
+  private void copyValue(JsonParser parser, JsonGenerator generator, JsonToken token)
+      throws IOException {
+    switch (token) {
+      case START_OBJECT:
+        generator.writeStartObject();
+        JsonToken objToken;
+        while ((objToken = parser.nextToken()) != null && objToken != JsonToken.END_OBJECT) {
+          generator.writeFieldName(parser.currentName());
+          copyValue(parser, generator);
+        }
+        generator.writeEndObject();
+        break;
+
+      case START_ARRAY:
+        generator.writeStartArray();
+        while (true) {
+          JsonToken t = parser.nextToken();
+          if (t == JsonToken.END_ARRAY) break;
+          copyValue(parser, generator, t);
+        }
+        generator.writeEndArray();
+        break;
+
+      case VALUE_STRING:
+        generator.writeString(parser.getText());
+        break;
+
+      case VALUE_NUMBER_INT:
+        generator.writeNumber(parser.getLongValue());
+        break;
+
+      case VALUE_NUMBER_FLOAT:
+        generator.writeNumber(parser.getDoubleValue());
+        break;
+
+      case VALUE_TRUE:
+        generator.writeBoolean(true);
+        break;
+
+      case VALUE_FALSE:
+        generator.writeBoolean(false);
+        break;
+
+      default:
+        generator.writeNull();
+        break;
+    }
+  }
+
+  /**
+   * Skip over a complete value starting at {@code token} (already read). Does not write anything.
+   */
+  private void skipValue(JsonParser parser, JsonToken token) throws IOException {
+    if (token == null) {
+      return;
+    }
+    switch (token) {
+      case START_OBJECT:
+        int objDepth = 1;
+        while (objDepth > 0) {
+          JsonToken t = parser.nextToken();
+          if (t == JsonToken.START_OBJECT) objDepth++;
+          else if (t == JsonToken.END_OBJECT) objDepth--;
+        }
+        break;
+
+      case START_ARRAY:
+        int arrDepth = 1;
+        while (arrDepth > 0) {
+          JsonToken t = parser.nextToken();
+          if (t == JsonToken.START_ARRAY) arrDepth++;
+          else if (t == JsonToken.END_ARRAY) arrDepth--;
+        }
+        break;
+
+      default:
+        // Scalar values are self-contained – nothing more to skip
+        break;
+    }
   }
 }

@@ -68,6 +68,41 @@ public class TreePath implements IPath<List<String>> {
   }
 
   /**
+   * Checks if current path matches after stripping array-index syntax from this path's segments.
+   *
+   * <p>A segment like {@code "orders[*]"} or {@code "orders[0]"} is normalized to {@code "orders"}
+   * before comparison. This allows paths such as {@code "$.orders[*].product_code"} to match the
+   * streaming {@code currentPath} list {@code ["orders", "product_code"]}.
+   *
+   * @param currentPath current path segments built by the streaming traversal
+   * @return true if the normalized segments equal {@code currentPath}
+   */
+  public boolean matchesIgnoringArraySyntax(List<String> currentPath) {
+    if (currentPath == null) {
+      return false;
+    }
+    List<String> normalized = new ArrayList<>();
+    for (String segment : segments) {
+      // Strip leading $. prefix if present (handles complex path single-segment case)
+      String s = segment;
+      if (s.startsWith("$.")) {
+        s = s.substring(2);
+      } else if (s.startsWith("$")) {
+        s = s.substring(1);
+      }
+      // Split on dots to expand compound segments like "orders[*].product_code"
+      for (String part : s.split("\\.")) {
+        // Remove array index notation: [*], [0], [1], etc.
+        String stripped = part.replaceAll("\\[.*?\\]", "");
+        if (!stripped.isEmpty()) {
+          normalized.add(stripped);
+        }
+      }
+    }
+    return normalized.equals(currentPath);
+  }
+
+  /**
    * Returns the original path expression.
    *
    * @return the original path expression

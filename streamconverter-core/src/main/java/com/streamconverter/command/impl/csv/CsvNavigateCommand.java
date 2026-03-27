@@ -24,7 +24,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
 
   private final CSVPath columnSelector;
   private final IRule rule;
-  private int columnIndex = -1;
 
   /**
    * Constructor for CSV navigation with column selector and transformation rule.
@@ -143,7 +142,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     String[] headers = parseCSVLine(headerLine);
 
     // Determine column index if selector is provided
-    columnIndex = resolveColumnIndex(headers, columnSelector);
+    int columnIndex = resolveColumnIndex(headers, columnSelector);
     if (columnIndex == -1) {
       throw new IllegalArgumentException("Column not found: " + columnSelector.toString());
     }

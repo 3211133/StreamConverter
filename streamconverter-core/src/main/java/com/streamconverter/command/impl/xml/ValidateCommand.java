@@ -125,7 +125,7 @@ public class ValidateCommand extends ConsumerCommand {
    *
    * @param inputStream 入力ストリーム
    * @throws IOException 入出力エラーが発生した場合
-   * @throws StreamProcessingException XMLバリデーションエラーが発生した場合
+   * @throws StreamProcessingException XXE防止設定の適用失敗またはXMLバリデーションエラーが発生した場合
    */
   @Override
   public void consume(InputStream inputStream) throws IOException {

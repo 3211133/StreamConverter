@@ -121,7 +121,10 @@ public class SecureXmlConfiguration {
   /**
    * 安全に設定されたTransformerFactoryを作成します
    *
+   * <p>XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）
+   *
    * @return 安全に設定されたTransformerFactory
+   * @throws IllegalStateException セキュリティ設定の適用に失敗した場合
    */
   public static TransformerFactory createSecureTransformerFactory() {
     TransformerFactory factory = TransformerFactory.newInstance();
@@ -130,25 +133,24 @@ public class SecureXmlConfiguration {
       // XMLTransform攻撃を防ぐための設定
       factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
       factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");
-    } catch (Exception e) {
-      logger.warn("Failed to set external access attributes for TransformerFactory", e);
-    }
-
-    // 機能制限
-    try {
+      // 機能制限
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     } catch (Exception e) {
-      logger.warn("Failed to enable secure processing feature", e);
+      throw new IllegalStateException(
+          "Failed to configure secure TransformerFactory: XXE protection could not be applied", e);
     }
 
-    securityLogger.info("Secure TransformerFactory created");
+    securityLogger.info("Secure TransformerFactory created with XXE protection");
     return factory;
   }
 
   /**
    * 安全に設定されたSchemaFactoryを作成します
    *
+   * <p>XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）
+   *
    * @return 安全に設定されたSchemaFactory
+   * @throws IllegalStateException セキュリティ設定の適用に失敗した場合
    */
   public static SchemaFactory createSecureSchemaFactory() {
     SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
@@ -157,18 +159,14 @@ public class SecureXmlConfiguration {
       // 外部リソースアクセスを制限
       factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
       factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
-    } catch (Exception e) {
-      logger.warn("Failed to set external access properties for SchemaFactory", e);
-    }
-
-    // セキュアプロセシング機能を有効化
-    try {
+      // セキュアプロセシング機能を有効化
       factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
     } catch (Exception e) {
-      logger.warn("Failed to enable secure processing feature for SchemaFactory", e);
+      throw new IllegalStateException(
+          "Failed to configure secure SchemaFactory: XXE protection could not be applied", e);
     }
 
-    securityLogger.info("Secure SchemaFactory created");
+    securityLogger.info("Secure SchemaFactory created with XXE protection");
     return factory;
   }
 
@@ -210,9 +208,15 @@ class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {
   }
 
   @Override
-  public void error(org.xml.sax.SAXParseException exception) {
-    logger.debug("XML parsing error (details suppressed for security)");
+  public void error(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {
+    // セキュリティコンテキストでは回復可能エラーも失敗として扱う（不正XMLを後続処理に渡さない）
+    // 内部ログには行・列情報を記録するが、外部エラーメッセージには詳細を含めない
+    logger.warn(
+        "XML parsing error at line {}, column {}",
+        exception.getLineNumber(),
+        exception.getColumnNumber());
     securityLogger.warn("XML parsing error detected during secure processing");
+    throw new org.xml.sax.SAXException("XML processing failed: parsing error detected", exception);
   }
 
   @Override

@@ -411,6 +411,15 @@ class StreamConverterTest {
   }
 
   @Test
+  @DisplayName("'Write end dead' message with empty stack trace is recognized as pipe-broken")
+  void testWriteEndDeadMessageTreatedAsSecondaryCause() {
+    IOException ex = emptyStackTraceIOException("Write end dead");
+    assertTrue(
+        StreamConverter.isPipedStreamIOException(ex),
+        "'Write end dead' with empty stack trace should be treated as pipe-broken");
+  }
+
+  @Test
   @DisplayName("null message with empty stack trace is NOT treated as pipe-broken")
   void testNullMessageIOExceptionIsNotTreatedAsPipeBroken() {
     IOException ex = emptyStackTraceIOException(null);

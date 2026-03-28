@@ -365,121 +365,67 @@ class StreamConverterTest {
 
   // -------------------------------------------------------------------------
   // isPipedStreamIOException メッセージマッチングのカバレッジテスト
+  // スタックトレースが省略された IOException（-XX:+OmitStackTraceInFastThrow 相当）を
+  // 直接 isPipedStreamIOException() に渡し、メッセージフォールバックパスを検証する。
+  // isPipedStreamIOException は package-private なので同パッケージから直接呼び出せる。
   // -------------------------------------------------------------------------
 
+  /**
+   * スタックトレースを空にした IOException を生成するヘルパー。
+   *
+   * <p>{@code setStackTrace(new StackTraceElement[0])} で空配列を設定することで、 {@code getStackTrace()}
+   * が空配列を返す状態を作り、メッセージフォールバックパスを検証する。
+   */
+  private static IOException emptyStackTraceIOException(String message) {
+    IOException ex = new IOException(message);
+    ex.setStackTrace(new StackTraceElement[0]);
+    return ex;
+  }
+
   @Test
-  @DisplayName("'Pipe closed' IOException is treated as pipe-broken secondary cause")
+  @DisplayName("'Pipe closed' message with empty stack trace is recognized as pipe-broken")
   void testPipeClosedMessageTreatedAsSecondaryCause() {
-    // upstream が "Pipe closed" メッセージの IOException をスローする場合、
-    // downstream の失敗が根本原因として伝播することを確認する。
-    IStreamCommand upstream =
-        (in, out) -> {
-          throw new IOException("Pipe closed");
-        };
-    IStreamCommand downstream =
-        (in, out) -> {
-          throw new RuntimeException("actual root cause");
-        };
-
-    StreamConverter converter = StreamConverter.create(upstream, downstream);
-    InputStream input = new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8));
-    StreamProcessingException ex =
-        assertThrows(
-            StreamProcessingException.class,
-            () -> converter.run(input, new ByteArrayOutputStream()));
-    String fullMessage =
-        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
+    // setStackTrace([]) で空スタックトレース → メッセージフォールバックで "Pipe closed" を検出
+    IOException ex = emptyStackTraceIOException("Pipe closed");
     assertTrue(
-        fullMessage.contains("actual root cause"),
-        "Root cause should be downstream failure, got: " + fullMessage);
+        StreamConverter.isPipedStreamIOException(ex),
+        "'Pipe closed' with empty stack trace should be treated as pipe-broken");
   }
 
   @Test
-  @DisplayName("'Pipe broken' IOException is treated as pipe-broken secondary cause")
+  @DisplayName("'Pipe broken' message with empty stack trace is recognized as pipe-broken")
   void testPipeBrokenMessageTreatedAsSecondaryCause() {
-    IStreamCommand upstream =
-        (in, out) -> {
-          throw new IOException("Pipe broken");
-        };
-    IStreamCommand downstream =
-        (in, out) -> {
-          throw new RuntimeException("actual root cause");
-        };
-
-    StreamConverter converter = StreamConverter.create(upstream, downstream);
-    InputStream input = new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8));
-    StreamProcessingException ex =
-        assertThrows(
-            StreamProcessingException.class,
-            () -> converter.run(input, new ByteArrayOutputStream()));
-    String fullMessage =
-        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
+    IOException ex = emptyStackTraceIOException("Pipe broken");
     assertTrue(
-        fullMessage.contains("actual root cause"),
-        "Root cause should be downstream failure, got: " + fullMessage);
+        StreamConverter.isPipedStreamIOException(ex),
+        "'Pipe broken' with empty stack trace should be treated as pipe-broken");
   }
 
   @Test
-  @DisplayName("'Read end dead' IOException is treated as pipe-broken secondary cause")
+  @DisplayName("'Read end dead' message with empty stack trace is recognized as pipe-broken")
   void testReadEndDeadMessageTreatedAsSecondaryCause() {
-    IStreamCommand upstream =
-        (in, out) -> {
-          throw new IOException("Read end dead");
-        };
-    IStreamCommand downstream =
-        (in, out) -> {
-          throw new RuntimeException("actual root cause");
-        };
-
-    StreamConverter converter = StreamConverter.create(upstream, downstream);
-    InputStream input = new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8));
-    StreamProcessingException ex =
-        assertThrows(
-            StreamProcessingException.class,
-            () -> converter.run(input, new ByteArrayOutputStream()));
-    String fullMessage =
-        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
+    IOException ex = emptyStackTraceIOException("Read end dead");
     assertTrue(
-        fullMessage.contains("actual root cause"),
-        "Root cause should be downstream failure, got: " + fullMessage);
+        StreamConverter.isPipedStreamIOException(ex),
+        "'Read end dead' with empty stack trace should be treated as pipe-broken");
   }
 
   @Test
-  @DisplayName("IOException with null message is NOT treated as pipe-broken")
+  @DisplayName("null message with empty stack trace is NOT treated as pipe-broken")
   void testNullMessageIOExceptionIsNotTreatedAsPipeBroken() {
-    // getMessage() が null の IOException はパイプ破損として扱わない
-    IStreamCommand upstream =
-        (in, out) -> {
-          throw new IOException((String) null);
-        };
-
-    StreamConverter converter = StreamConverter.create(upstream);
-    InputStream input = new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8));
-    StreamProcessingException ex =
-        assertThrows(
-            StreamProcessingException.class,
-            () -> converter.run(input, new ByteArrayOutputStream()));
-    // null メッセージの IOException は pipe 破損とみなされないため、そのまま根本原因として返る
-    assertNotNull(ex);
+    IOException ex = emptyStackTraceIOException(null);
+    assertFalse(
+        StreamConverter.isPipedStreamIOException(ex),
+        "null message should not be treated as pipe-broken");
   }
 
   @Test
   @DisplayName("Unrelated IOException message is NOT treated as pipe-broken")
   void testUnrelatedIOExceptionIsNotTreatedAsPipeBroken() {
-    // 無関係なメッセージの IOException はパイプ破損として扱わない（誤検知なし）
-    IStreamCommand upstream =
-        (in, out) -> {
-          throw new IOException("File not found");
-        };
-
-    StreamConverter converter = StreamConverter.create(upstream);
-    InputStream input = new ByteArrayInputStream("x".getBytes(StandardCharsets.UTF_8));
-    StreamProcessingException ex =
-        assertThrows(
-            StreamProcessingException.class,
-            () -> converter.run(input, new ByteArrayOutputStream()));
-    assertTrue(
-        ex.getMessage() != null || ex.getCause() != null,
-        "Non-pipe IOException should be reported as root cause");
+    // 通常スタックトレースを持つ IOException（PipedInputStream/PipedOutputStream 以外）は false
+    IOException ex = new IOException("File not found");
+    assertFalse(
+        StreamConverter.isPipedStreamIOException(ex),
+        "Unrelated IOException should not be treated as pipe-broken");
   }
 }

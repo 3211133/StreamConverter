@@ -353,8 +353,12 @@ public class StreamConverter {
   /**
    * IOException が PipedInputStream/PipedOutputStream から送出されたものかを判定する。
    *
-   * <p>JDK が出力するパイプ破損メッセージ（英語固定・ロケール非依存）で判定する。 スタックトレースは -XX:+OmitStackTraceInFastThrow
+   * <p>HotSpot JDK が出力するパイプ破損メッセージ（英語固定・ロケール非依存）で判定する。 スタックトレースは -XX:+OmitStackTraceInFastThrow
    * によって省略される場合があるため使用しない。
+   *
+   * <p><strong>既知の制限:</strong> IBM J9・GraalVM 等の非 HotSpot JDK ではパイプエラーメッセージが異なる可能性がある。
+   * その場合、パイプ破損が検出されず二次エラーが根本原因として報告されることがある。 また、アプリケーションが同一文字列を持つ {@link IOException}
+   * を生成した場合は誤検知となる。
    */
   private static boolean isPipedStreamIOException(IOException e) {
     String msg = e.getMessage();

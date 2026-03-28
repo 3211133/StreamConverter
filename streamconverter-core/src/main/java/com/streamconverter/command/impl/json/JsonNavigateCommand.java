@@ -10,7 +10,6 @@ import com.streamconverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -77,8 +76,6 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
       processJsonStreamWithPath(parser, generator);
 
       generator.flush();
-    } catch (com.fasterxml.jackson.core.JsonParseException e) {
-      handleJsonParseException(outputStream, e);
     }
   }
 
@@ -152,12 +149,5 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     // Use matchesIgnoringArraySyntax so that paths like $.orders[*].product_code
     // correctly match the streaming currentPath ["orders", "product_code"].
     return treePath.matchesIgnoringArraySyntax(currentPath);
-  }
-
-  /** Handle JSON parsing exceptions */
-  private void handleJsonParseException(OutputStream outputStream, Exception e) throws IOException {
-    String errorMessage = String.format("JSON parsing error: %s", e.getMessage());
-    outputStream.write(errorMessage.getBytes(StandardCharsets.UTF_8));
-    outputStream.flush();
   }
 }

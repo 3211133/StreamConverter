@@ -1,5 +1,6 @@
 package com.streamconverter.analysis;
 
+import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -7,7 +8,6 @@ import java.nio.file.Paths;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.w3c.dom.Document;
@@ -88,7 +88,7 @@ public class PmdReportConverter {
   }
 
   private List<PmdViolation> parseXmlReport(Path xmlPath) throws Exception {
-    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilder();
     Document doc = builder.parse(xmlPath.toFile());
 
     NodeList fileNodes = doc.getElementsByTagName("file");

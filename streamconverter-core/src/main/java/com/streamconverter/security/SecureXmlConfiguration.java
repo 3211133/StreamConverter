@@ -48,24 +48,16 @@ public class SecureXmlConfiguration {
       throws ParserConfigurationException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-    // XXE攻撃防止設定
-    try {
-      // DOCTYPE宣言を無効化
-      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-      securityLogger.debug("DOCTYPE declarations disabled");
-    } catch (ParserConfigurationException e) {
-      logger.warn("Failed to disable DOCTYPE declarations", e);
-    }
+    // XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）
+    // DOCTYPE宣言を無効化
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    securityLogger.debug("DOCTYPE declarations disabled");
 
-    try {
-      // 外部一般エンティティを無効化
-      factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      // 外部パラメータエンティティを無効化
-      factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-      securityLogger.debug("External entities disabled");
-    } catch (ParserConfigurationException e) {
-      logger.warn("Failed to disable external entities", e);
-    }
+    // 外部一般エンティティを無効化
+    factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    // 外部パラメータエンティティを無効化
+    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    securityLogger.debug("External entities disabled");
 
     // 追加のセキュリティ設定
     factory.setNamespaceAware(true);

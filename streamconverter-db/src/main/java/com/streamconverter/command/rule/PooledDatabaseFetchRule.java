@@ -1,5 +1,6 @@
 package com.streamconverter.command.rule;
 
+import com.streamconverter.StreamProcessingException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -220,7 +221,8 @@ public class PooledDatabaseFetchRule implements IRule {
 
     } catch (SQLException e) {
       logger.error("プール接続でのデータベース操作中にエラーが発生しました: {}", e.getMessage(), e);
-      return "ERROR: " + e.getMessage();
+      throw new StreamProcessingException(
+          "データベースフェッチに失敗しました: " + e.getMessage(), e);
     } finally {
       // リソースのクローズ（接続は自動的にプールに返却される）
       closeResources(resultSet, statement, connection);

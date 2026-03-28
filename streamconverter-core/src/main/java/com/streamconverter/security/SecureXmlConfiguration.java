@@ -62,8 +62,18 @@ public class SecureXmlConfiguration {
     securityLogger.debug("External entities disabled");
 
     // JAXP標準の外部リソースアクセス制限
-    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+    // setAttribute は未サポート属性時に IllegalArgumentException を投げる可能性があるため
+    // ParserConfigurationException にラップして fail-fast を維持する
+    try {
+      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+    } catch (IllegalArgumentException e) {
+      ParserConfigurationException pce =
+          new ParserConfigurationException(
+              "Failed to configure secure XML external access attributes");
+      pce.initCause(e);
+      throw pce;
+    }
 
     // 追加のセキュリティ設定
     factory.setNamespaceAware(true);

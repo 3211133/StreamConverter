@@ -120,7 +120,7 @@ public class PooledDatabaseFetchRule implements IRule {
    */
   private String sanitizeInput(String input) {
     if (input == null) {
-      return null;
+      throw new IllegalArgumentException("Input parameter cannot be null");
     }
 
     // 危険な文字の除去/エスケープ

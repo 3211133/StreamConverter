@@ -353,16 +353,18 @@ public class StreamConverter {
   /**
    * IOException が PipedInputStream/PipedOutputStream から送出されたものかを判定する。
    *
-   * <p>JDK のロケールに依存しないようにスタックトレースのクラス名で判定する。
+   * <p>JDK が出力するパイプ破損メッセージ（英語固定・ロケール非依存）で判定する。 スタックトレースは -XX:+OmitStackTraceInFastThrow
+   * によって省略される場合があるため使用しない。
    */
   private static boolean isPipedStreamIOException(IOException e) {
-    for (StackTraceElement frame : e.getStackTrace()) {
-      String cls = frame.getClassName();
-      if (cls.equals("java.io.PipedInputStream") || cls.equals("java.io.PipedOutputStream")) {
-        return true;
-      }
+    String msg = e.getMessage();
+    if (msg == null) {
+      return false;
     }
-    return false;
+    return msg.contains("Pipe closed")
+        || msg.contains("Pipe broken")
+        || msg.contains("Read end dead")
+        || msg.contains("Write end dead");
   }
 
   /** 失敗時に残りのfuturesをキャンセルする */

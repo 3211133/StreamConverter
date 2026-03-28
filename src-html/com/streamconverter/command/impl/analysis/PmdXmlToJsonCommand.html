@@ -17,13 +17,13 @@
 <span class="source-line-no">004</span><span id="line-4">import com.fasterxml.jackson.databind.SerializationFeature;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.streamconverter.command.AbstractStreamCommand;</span>
 <span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.impl.analysis.PmdXmlToMarkdownCommand.PmdViolation;</span>
-<span class="source-line-no">007</span><span id="line-7">import java.io.IOException;</span>
-<span class="source-line-no">008</span><span id="line-8">import java.io.InputStream;</span>
-<span class="source-line-no">009</span><span id="line-9">import java.io.OutputStream;</span>
-<span class="source-line-no">010</span><span id="line-10">import java.time.Instant;</span>
-<span class="source-line-no">011</span><span id="line-11">import java.util.*;</span>
-<span class="source-line-no">012</span><span id="line-12">import javax.xml.parsers.DocumentBuilder;</span>
-<span class="source-line-no">013</span><span id="line-13">import javax.xml.parsers.DocumentBuilderFactory;</span>
+<span class="source-line-no">007</span><span id="line-7">import com.streamconverter.security.SecureXmlConfiguration;</span>
+<span class="source-line-no">008</span><span id="line-8">import java.io.IOException;</span>
+<span class="source-line-no">009</span><span id="line-9">import java.io.InputStream;</span>
+<span class="source-line-no">010</span><span id="line-10">import java.io.OutputStream;</span>
+<span class="source-line-no">011</span><span id="line-11">import java.time.Instant;</span>
+<span class="source-line-no">012</span><span id="line-12">import java.util.*;</span>
+<span class="source-line-no">013</span><span id="line-13">import javax.xml.parsers.DocumentBuilder;</span>
 <span class="source-line-no">014</span><span id="line-14">import org.w3c.dom.Document;</span>
 <span class="source-line-no">015</span><span id="line-15">import org.w3c.dom.Element;</span>
 <span class="source-line-no">016</span><span id="line-16">import org.w3c.dom.NodeList;</span>
@@ -126,7 +126,7 @@
 <span class="source-line-no">113</span><span id="line-113"></span>
 <span class="source-line-no">114</span><span id="line-114">  /** PMD XML ストリームからバイオレーション情報を解析 */</span>
 <span class="source-line-no">115</span><span id="line-115">  private List&lt;PmdViolation&gt; parseXmlStream(InputStream input) throws Exception {</span>
-<span class="source-line-no">116</span><span id="line-116">    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();</span>
+<span class="source-line-no">116</span><span id="line-116">    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilderForStream(input);</span>
 <span class="source-line-no">117</span><span id="line-117">    Document doc = builder.parse(input);</span>
 <span class="source-line-no">118</span><span id="line-118"></span>
 <span class="source-line-no">119</span><span id="line-119">    NodeList fileNodes = doc.getElementsByTagName("file");</span>

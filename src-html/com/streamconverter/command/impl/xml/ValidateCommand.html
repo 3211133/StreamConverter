@@ -169,23 +169,17 @@
 <span class="source-line-no">156</span><span id="line-156">   *</span>
 <span class="source-line-no">157</span><span id="line-157">   * @param validator 設定対象のValidator</span>
 <span class="source-line-no">158</span><span id="line-158">   */</span>
-<span class="source-line-no">159</span><span id="line-159">  private void configureSecureValidator(Validator validator) {</span>
-<span class="source-line-no">160</span><span id="line-160">    try {</span>
-<span class="source-line-no">161</span><span id="line-161">      // XXE攻撃防止設定</span>
-<span class="source-line-no">162</span><span id="line-162">      validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);</span>
-<span class="source-line-no">163</span><span id="line-163"></span>
-<span class="source-line-no">164</span><span id="line-164">      // 外部リソースアクセスを無効化</span>
-<span class="source-line-no">165</span><span id="line-165">      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");</span>
-<span class="source-line-no">166</span><span id="line-166">      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");</span>
-<span class="source-line-no">167</span><span id="line-167"></span>
-<span class="source-line-no">168</span><span id="line-168">      logger.debug("Secure XML processing features configured for Validator");</span>
-<span class="source-line-no">169</span><span id="line-169"></span>
-<span class="source-line-no">170</span><span id="line-170">    } catch (Exception e) {</span>
-<span class="source-line-no">171</span><span id="line-171">      logger.warn("Could not configure all security features for Validator: {}", e.getMessage());</span>
-<span class="source-line-no">172</span><span id="line-172">      // 警告レベルで記録し、処理は継続</span>
-<span class="source-line-no">173</span><span id="line-173">    }</span>
-<span class="source-line-no">174</span><span id="line-174">  }</span>
-<span class="source-line-no">175</span><span id="line-175">}</span>
+<span class="source-line-no">159</span><span id="line-159">  private void configureSecureValidator(Validator validator) throws SAXException {</span>
+<span class="source-line-no">160</span><span id="line-160">    // XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）</span>
+<span class="source-line-no">161</span><span id="line-161">    validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);</span>
+<span class="source-line-no">162</span><span id="line-162"></span>
+<span class="source-line-no">163</span><span id="line-163">    // 外部リソースアクセスを無効化</span>
+<span class="source-line-no">164</span><span id="line-164">    validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");</span>
+<span class="source-line-no">165</span><span id="line-165">    validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");</span>
+<span class="source-line-no">166</span><span id="line-166"></span>
+<span class="source-line-no">167</span><span id="line-167">    logger.debug("Secure XML processing features configured for Validator");</span>
+<span class="source-line-no">168</span><span id="line-168">  }</span>
+<span class="source-line-no">169</span><span id="line-169">}</span>
 
 
 

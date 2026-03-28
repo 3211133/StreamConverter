@@ -57,7 +57,13 @@ public class SecureXmlConfiguration {
     factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
     // 外部パラメータエンティティを無効化
     factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    // 外部DTDロードを無効化
+    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
     securityLogger.debug("External entities disabled");
+
+    // JAXP標準の外部リソースアクセス制限
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
     // 追加のセキュリティ設定
     factory.setNamespaceAware(true);

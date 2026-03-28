@@ -113,7 +113,7 @@ public class PmdXmlToJsonCommand extends AbstractStreamCommand {
 
   /** PMD XML ストリームからバイオレーション情報を解析 */
   private List<PmdViolation> parseXmlStream(InputStream input) throws Exception {
-    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilder();
+    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilderForStream(input);
     Document doc = builder.parse(input);
 
     NodeList fileNodes = doc.getElementsByTagName("file");

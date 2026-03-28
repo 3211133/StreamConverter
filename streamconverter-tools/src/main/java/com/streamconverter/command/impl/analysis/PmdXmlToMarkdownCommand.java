@@ -70,7 +70,7 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
    * @throws Exception XML解析エラーの場合
    */
   private List<PmdViolation> parseXmlStream(InputStream input) throws Exception {
-    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilder();
+    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilderForStream(input);
     Document doc = builder.parse(input);
 
     NodeList fileNodes = doc.getElementsByTagName("file");

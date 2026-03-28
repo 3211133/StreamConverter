@@ -81,7 +81,10 @@ public class PmdXmlToCsvCommand extends AbstractStreamCommand {
    * @throws Exception XML解析エラーの場合
    */
   private List<PmdViolation> parseXmlStream(InputStream input) throws Exception {
-    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilder();
+    if (input == null) {
+      throw new IllegalArgumentException("PMD XML input stream must not be null");
+    }
+    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilderForStream(input);
     Document doc = builder.parse(input);
 
     NodeList fileNodes = doc.getElementsByTagName("file");

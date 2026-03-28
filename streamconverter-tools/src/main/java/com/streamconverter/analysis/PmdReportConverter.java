@@ -88,8 +88,16 @@ public class PmdReportConverter {
   }
 
   private List<PmdViolation> parseXmlReport(Path xmlPath) throws Exception {
-    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilder();
-    Document doc = builder.parse(xmlPath.toFile());
+    try (java.io.InputStream xmlStream = Files.newInputStream(xmlPath)) {
+      return parseXmlReportFromStream(xmlStream);
+    }
+  }
+
+  private List<PmdViolation> parseXmlReportFromStream(java.io.InputStream xmlStream)
+      throws Exception {
+    DocumentBuilder builder =
+        SecureXmlConfiguration.createSecureDocumentBuilderForStream(xmlStream);
+    Document doc = builder.parse(xmlStream);
 
     NodeList fileNodes = doc.getElementsByTagName("file");
     List<PmdViolation> violations = new ArrayList<>();

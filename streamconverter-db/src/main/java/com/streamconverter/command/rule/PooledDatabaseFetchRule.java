@@ -116,11 +116,12 @@ public class PooledDatabaseFetchRule implements IRule {
    * 入力パラメータをサニタイズします
    *
    * @param input サニタイズ対象の入力
-   * @return サニタイズされた入力
+   * @return サニタイズされた入力（非null）
+   * @throws IllegalArgumentException inputがnullの場合
    */
   private String sanitizeInput(String input) {
     if (input == null) {
-      return null;
+      throw new IllegalArgumentException("Input parameter cannot be null");
     }
 
     // 危険な文字の除去/エスケープ
@@ -147,6 +148,8 @@ public class PooledDatabaseFetchRule implements IRule {
    *
    * @param input 変換対象の文字列（クエリパラメータとして使用）
    * @return クエリ結果の先頭値、または空文字列（結果がない場合）
+   * @throws StreamProcessingException SQLExceptionが発生した場合
+   * @throws IllegalArgumentException inputがnullの場合（sanitizeInput経由）
    */
   @Override
   public String apply(String input) {
@@ -165,7 +168,7 @@ public class PooledDatabaseFetchRule implements IRule {
       // 入力文字列をパラメータとして設定（クエリに「?」プレースホルダーがある場合）
       if (query.contains("?") && input != null && !input.isEmpty()) {
         String sanitizedInput = sanitizeInput(input);
-        if (sanitizedInput == null || sanitizedInput.isEmpty()) {
+        if (sanitizedInput.isEmpty()) {
           logger.warn(
               "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",
               input);

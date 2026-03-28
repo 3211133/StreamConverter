@@ -353,16 +353,35 @@ public class StreamConverter {
   /**
    * IOException が PipedInputStream/PipedOutputStream から送出されたものかを判定する。
    *
-   * <p>JDK のロケールに依存しないようにスタックトレースのクラス名で判定する。
+   * <p>スタックトレースが存在する場合は {@code PipedInputStream}/{@code PipedOutputStream}
+   * クラス名で判定する（JDK実装非依存・最も確実）。スタックトレースが -XX:+OmitStackTraceInFastThrow によって省略されている場合は、HotSpot JDK
+   * が出力する パイプ破損メッセージ文字列（英語固定・ロケール非依存）にフォールバックする。
+   *
+   * <p><strong>既知の制限:</strong> スタックトレース省略かつ非 HotSpot JDK（IBM J9・GraalVM 等）の
+   * 環境ではメッセージが異なる可能性があり、パイプ破損の検知漏れが起きることがある。 また、アプリケーションが同一メッセージ文字列を持つ {@link IOException}
+   * を生成した場合は誤検知となる。
    */
-  private static boolean isPipedStreamIOException(IOException e) {
-    for (StackTraceElement frame : e.getStackTrace()) {
-      String cls = frame.getClassName();
-      if (cls.equals("java.io.PipedInputStream") || cls.equals("java.io.PipedOutputStream")) {
-        return true;
+  static boolean isPipedStreamIOException(IOException e) {
+    StackTraceElement[] frames = e.getStackTrace();
+    if (frames != null && frames.length > 0) {
+      // スタックトレースが存在する場合はクラス名で判定（最も確実）
+      for (StackTraceElement frame : frames) {
+        String cls = frame.getClassName();
+        if (cls.equals("java.io.PipedInputStream") || cls.equals("java.io.PipedOutputStream")) {
+          return true;
+        }
       }
+      return false;
     }
-    return false;
+    // スタックトレースが省略されている場合はメッセージ文字列にフォールバック
+    String msg = e.getMessage();
+    if (msg == null) {
+      return false;
+    }
+    return msg.contains("Pipe closed")
+        || msg.contains("Pipe broken")
+        || msg.contains("Read end dead")
+        || msg.contains("Write end dead");
   }
 
   /** 失敗時に残りのfuturesをキャンセルする */

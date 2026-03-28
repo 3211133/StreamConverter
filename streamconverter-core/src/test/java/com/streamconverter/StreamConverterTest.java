@@ -362,4 +362,79 @@ class StreamConverterTest {
     // 出力サイズが入力サイズと一致することを確認
     assertEquals(testDataSize, outputStream.size(), "Output size should match input size");
   }
+
+  // -------------------------------------------------------------------------
+  // isPipedStreamIOException メッセージマッチングのカバレッジテスト
+  // スタックトレースが省略された IOException（-XX:+OmitStackTraceInFastThrow 相当）を
+  // 直接 isPipedStreamIOException() に渡し、メッセージフォールバックパスを検証する。
+  // isPipedStreamIOException は package-private なので同パッケージから直接呼び出せる。
+  // -------------------------------------------------------------------------
+
+  /**
+   * スタックトレースを空にした IOException を生成するヘルパー。
+   *
+   * <p>{@code setStackTrace(new StackTraceElement[0])} で空配列を設定することで、 {@code getStackTrace()}
+   * が空配列を返す状態を作り、メッセージフォールバックパスを検証する。
+   */
+  private static IOException emptyStackTraceIOException(String message) {
+    IOException ex = new IOException(message);
+    ex.setStackTrace(new StackTraceElement[0]);
+    return ex;
+  }
+
+  @Test
+  @DisplayName("'Pipe closed' message with empty stack trace is recognized as pipe-broken")
+  void testPipeClosedMessageTreatedAsSecondaryCause() {
+    // setStackTrace([]) で空スタックトレース → メッセージフォールバックで "Pipe closed" を検出
+    IOException ex = emptyStackTraceIOException("Pipe closed");
+    assertTrue(
+        StreamConverter.isPipedStreamIOException(ex),
+        "'Pipe closed' with empty stack trace should be treated as pipe-broken");
+  }
+
+  @Test
+  @DisplayName("'Pipe broken' message with empty stack trace is recognized as pipe-broken")
+  void testPipeBrokenMessageTreatedAsSecondaryCause() {
+    IOException ex = emptyStackTraceIOException("Pipe broken");
+    assertTrue(
+        StreamConverter.isPipedStreamIOException(ex),
+        "'Pipe broken' with empty stack trace should be treated as pipe-broken");
+  }
+
+  @Test
+  @DisplayName("'Read end dead' message with empty stack trace is recognized as pipe-broken")
+  void testReadEndDeadMessageTreatedAsSecondaryCause() {
+    IOException ex = emptyStackTraceIOException("Read end dead");
+    assertTrue(
+        StreamConverter.isPipedStreamIOException(ex),
+        "'Read end dead' with empty stack trace should be treated as pipe-broken");
+  }
+
+  @Test
+  @DisplayName("'Write end dead' message with empty stack trace is recognized as pipe-broken")
+  void testWriteEndDeadMessageTreatedAsSecondaryCause() {
+    IOException ex = emptyStackTraceIOException("Write end dead");
+    assertTrue(
+        StreamConverter.isPipedStreamIOException(ex),
+        "'Write end dead' with empty stack trace should be treated as pipe-broken");
+  }
+
+  @Test
+  @DisplayName("null message with empty stack trace is NOT treated as pipe-broken")
+  void testNullMessageIOExceptionIsNotTreatedAsPipeBroken() {
+    IOException ex = emptyStackTraceIOException(null);
+    assertFalse(
+        StreamConverter.isPipedStreamIOException(ex),
+        "null message should not be treated as pipe-broken");
+  }
+
+  @Test
+  @DisplayName("Unrelated IOException message is NOT treated as pipe-broken")
+  void testUnrelatedIOExceptionIsNotTreatedAsPipeBroken() {
+    // 通常スタックトレースを持つ IOException（PipedInputStream/PipedOutputStream 以外）は false
+    IOException ex = new IOException("File not found");
+    assertFalse(
+        StreamConverter.isPipedStreamIOException(ex),
+        "Unrelated IOException should not be treated as pipe-broken");
+  }
 }

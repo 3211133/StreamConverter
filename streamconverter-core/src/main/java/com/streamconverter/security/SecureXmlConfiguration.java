@@ -48,24 +48,22 @@ public class SecureXmlConfiguration {
       throws ParserConfigurationException {
     DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
 
-    // XXE攻撃防止設定
-    try {
-      // DOCTYPE宣言を無効化
-      factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
-      securityLogger.debug("DOCTYPE declarations disabled");
-    } catch (ParserConfigurationException e) {
-      logger.warn("Failed to disable DOCTYPE declarations", e);
-    }
+    // XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）
+    // DOCTYPE宣言を無効化
+    factory.setFeature("http://apache.org/xml/features/disallow-doctype-decl", true);
+    securityLogger.debug("DOCTYPE declarations disabled");
 
-    try {
-      // 外部一般エンティティを無効化
-      factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
-      // 外部パラメータエンティティを無効化
-      factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
-      securityLogger.debug("External entities disabled");
-    } catch (ParserConfigurationException e) {
-      logger.warn("Failed to disable external entities", e);
-    }
+    // 外部一般エンティティを無効化
+    factory.setFeature("http://xml.org/sax/features/external-general-entities", false);
+    // 外部パラメータエンティティを無効化
+    factory.setFeature("http://xml.org/sax/features/external-parameter-entities", false);
+    // 外部DTDロードを無効化
+    factory.setFeature("http://apache.org/xml/features/nonvalidating/load-external-dtd", false);
+    securityLogger.debug("External entities disabled");
+
+    // JAXP標準の外部リソースアクセス制限
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
     // 追加のセキュリティ設定
     factory.setNamespaceAware(true);

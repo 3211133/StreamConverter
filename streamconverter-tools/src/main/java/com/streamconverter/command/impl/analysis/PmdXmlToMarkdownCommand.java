@@ -1,6 +1,7 @@
 package com.streamconverter.command.impl.analysis;
 
 import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -8,7 +9,6 @@ import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -70,7 +70,7 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
    * @throws Exception XML解析エラーの場合
    */
   private List<PmdViolation> parseXmlStream(InputStream input) throws Exception {
-    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilderForStream(input);
     Document doc = builder.parse(input);
 
     NodeList fileNodes = doc.getElementsByTagName("file");

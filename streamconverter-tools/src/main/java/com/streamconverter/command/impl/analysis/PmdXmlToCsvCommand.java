@@ -4,12 +4,12 @@ import com.fasterxml.jackson.dataformat.csv.CsvMapper;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.impl.analysis.PmdXmlToMarkdownCommand.PmdViolation;
+import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.*;
 import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -81,7 +81,10 @@ public class PmdXmlToCsvCommand extends AbstractStreamCommand {
    * @throws Exception XML解析エラーの場合
    */
   private List<PmdViolation> parseXmlStream(InputStream input) throws Exception {
-    DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
+    if (input == null) {
+      throw new IllegalArgumentException("PMD XML input stream must not be null");
+    }
+    DocumentBuilder builder = SecureXmlConfiguration.createSecureDocumentBuilderForStream(input);
     Document doc = builder.parse(input);
 
     NodeList fileNodes = doc.getElementsByTagName("file");

@@ -1,7 +1,10 @@
 package com.streamconverter.command.rule;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
+
+import com.streamconverter.StreamProcessingException;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -277,8 +280,10 @@ public class PooledDatabaseFetchRuleIntegrationTest {
     // プールをシャットダウン
     testPool.close();
 
-    // シャットダウン後はエラーになることを確認
-    result = rule.apply("2");
-    assertTrue(result.startsWith("ERROR"), "Should return error after pool shutdown");
+    // シャットダウン後は StreamProcessingException がスローされることを確認
+    assertThrows(
+        StreamProcessingException.class,
+        () -> rule.apply("2"),
+        "Should throw StreamProcessingException after pool shutdown");
   }
 }

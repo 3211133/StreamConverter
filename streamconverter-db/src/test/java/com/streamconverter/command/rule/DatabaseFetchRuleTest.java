@@ -1,9 +1,12 @@
 package com.streamconverter.command.rule;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
+
+import com.streamconverter.StreamProcessingException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -202,11 +205,11 @@ public class DatabaseFetchRuleTest {
       // テスト対象のインスタンスを作成
       DatabaseFetchRule rule = new DatabaseFetchRule(databaseUrl, query);
 
-      // テスト実行
-      String result = rule.apply(input);
-
-      // 結果の検証
-      assertEquals("ERROR: " + errorMessage, result, "SQLエラーが発生した場合はエラーメッセージが返されること");
+      // SQLエラーは StreamProcessingException としてスローされることを検証
+      assertThrows(
+          StreamProcessingException.class,
+          () -> rule.apply(input),
+          "SQLエラーが発生した場合は StreamProcessingException がスローされること");
     }
   }
 

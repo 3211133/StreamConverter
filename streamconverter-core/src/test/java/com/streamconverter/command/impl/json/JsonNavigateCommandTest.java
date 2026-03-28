@@ -2,6 +2,7 @@ package com.streamconverter.command.impl.json;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.streamconverter.command.rule.PassThroughRule;
@@ -81,16 +82,13 @@ class JsonNavigateCommandTest {
 
   @Test
   void testInvalidJsonInput() throws IOException {
-    // JsonNavigateCommand writes a descriptive error message to the output stream
-    // rather than throwing an exception (tolerant processing design).
+    // JsonNavigateCommand propagates JsonParseException as IOException for invalid input.
     String invalidJson = "{invalid json}";
     InputStream inputStream =
         new ByteArrayInputStream(invalidJson.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
-    assertDoesNotThrow(() -> command.execute(inputStream, outputStream));
-    String result = outputStream.toString(StandardCharsets.UTF_8);
-    assertTrue(result.contains("JSON parsing error"), "Invalid input should produce error message");
+    assertThrows(IOException.class, () -> command.execute(inputStream, outputStream));
   }
 
   @Test

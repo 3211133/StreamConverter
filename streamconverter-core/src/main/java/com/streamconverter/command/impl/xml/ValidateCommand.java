@@ -156,20 +156,14 @@ public class ValidateCommand extends ConsumerCommand {
    *
    * @param validator 設定対象のValidator
    */
-  private void configureSecureValidator(Validator validator) {
-    try {
-      // XXE攻撃防止設定
-      validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
+  private void configureSecureValidator(Validator validator) throws SAXException {
+    // XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）
+    validator.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);
 
-      // 外部リソースアクセスを無効化
-      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
-      validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
+    // 外部リソースアクセスを無効化
+    validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
+    validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
-      logger.debug("Secure XML processing features configured for Validator");
-
-    } catch (Exception e) {
-      logger.warn("Could not configure all security features for Validator: {}", e.getMessage());
-      // 警告レベルで記録し、処理は継続
-    }
+    logger.debug("Secure XML processing features configured for Validator");
   }
 }

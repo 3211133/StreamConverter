@@ -1,5 +1,6 @@
 package com.streamconverter.command.rule;
 
+import com.streamconverter.StreamProcessingException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -247,7 +248,8 @@ public class DatabaseFetchRule implements IRule {
       }
     } catch (SQLException e) {
       logger.error("データベース操作中にエラーが発生しました: {}", e.getMessage(), e);
-      return "ERROR: " + e.getMessage();
+      throw new StreamProcessingException(
+          "データベースフェッチに失敗しました: " + e.getMessage(), e);
     }
   }
 }

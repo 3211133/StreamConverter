@@ -125,7 +125,6 @@ public class StreamProcessingController {
               log.warn("Invalid pipeline config: {}", e.getMessage());
               return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
             })
-        .doOnError(e -> log.error("Pipeline processing failed: {}", e.getMessage(), e))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 

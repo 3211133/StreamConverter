@@ -2,6 +2,7 @@ package com.streamconverter.web;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -174,7 +175,7 @@ public class StreamProcessingController {
           "Pipeline config exceeds maximum length of " + MAX_PIPELINE_CONFIG_LENGTH);
     }
 
-    String[] commandConfigs = config.split(",");
+    String[] commandConfigs = config.split(",", -1);
     if (commandConfigs.length > MAX_PIPELINE_COMMANDS) {
       throw new IllegalArgumentException(
           "Pipeline config exceeds maximum command count of " + MAX_PIPELINE_COMMANDS);
@@ -195,7 +196,7 @@ public class StreamProcessingController {
       }
 
       commands[i] =
-          switch (commandType.toLowerCase()) {
+          switch (commandType.toLowerCase(Locale.ROOT)) {
             case "csv" -> CsvNavigateCommand.create(CSVPath.of(parameter), new PassThroughRule());
             case "json" -> JsonNavigateCommand.create(
                 TreePath.fromJson(parameter), new PassThroughRule());

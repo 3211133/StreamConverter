@@ -61,6 +61,7 @@ public class StreamProcessingController {
                         inputData,
                         CsvNavigateCommand.create(
                             CSVPath.of(columnName), new PassThroughRule()))))
+        .doOnError(e -> log.error("CSV extraction failed: {}", e.getMessage(), e))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 
@@ -88,6 +89,7 @@ public class StreamProcessingController {
                         inputData,
                         JsonNavigateCommand.create(
                             TreePath.fromJson(jsonPath), new PassThroughRule()))))
+        .doOnError(e -> log.error("JSON extraction failed: {}", e.getMessage(), e))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 
@@ -123,6 +125,7 @@ public class StreamProcessingController {
               log.warn("Invalid pipeline config: {}", e.getMessage());
               return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
             })
+        .doOnError(e -> log.error("Pipeline processing failed: {}", e.getMessage(), e))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 

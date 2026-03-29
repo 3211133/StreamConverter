@@ -91,6 +91,10 @@ public class StreamProcessingController {
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 
+  private static final int MAX_PIPELINE_CONFIG_LENGTH = 1000;
+  private static final int MAX_PIPELINE_COMMANDS = 10;
+  private static final int MAX_PARAMETER_LENGTH = 500;
+
   /**
    * Process data stream with custom command pipeline.
    *
@@ -106,14 +110,19 @@ public class StreamProcessingController {
       @RequestBody Flux<DataBuffer> inputData,
       @RequestHeader("X-Pipeline-Config") String pipelineConfig) {
 
-    log.info("Processing with pipeline config: {}", pipelineConfig);
-
     return Mono
-        .fromCallable(
-            () ->
-                ResponseEntity.ok(
-                    processWithStreamConverter(
-                        inputData, buildPipelineFromConfig(pipelineConfig))))
+        .fromCallable(() -> buildPipelineFromConfig(pipelineConfig))
+        .map(
+            commands -> {
+              log.info("Processing pipeline with {} commands", commands.length);
+              return ResponseEntity.ok(processWithStreamConverter(inputData, commands));
+            })
+        .onErrorResume(
+            IllegalArgumentException.class,
+            e -> {
+              log.warn("Invalid pipeline config: {}", e.getMessage());
+              return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+            })
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
   }
 
@@ -154,10 +163,6 @@ public class StreamProcessingController {
                 executor))
         .doFinally(signalType -> executor.shutdown());
   }
-
-  private static final int MAX_PIPELINE_CONFIG_LENGTH = 1000;
-  private static final int MAX_PIPELINE_COMMANDS = 10;
-  private static final int MAX_PARAMETER_LENGTH = 500;
 
   /**
    * Builds a pipeline from configuration string.

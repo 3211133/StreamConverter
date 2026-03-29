@@ -212,4 +212,60 @@ class StreamProcessingControllerTest {
         .expectStatus()
         .is5xxServerError();
   }
+
+  @Test
+  @DisplayName("Empty pipeline configuration is rejected")
+  void testEmptyPipelineConfigurationIsRejected() {
+    // 空文字列のヘッダーは Netty がリクエスト送信前に弾くため、
+    // 単一スペース（制御文字ではない）で検証する
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", ",")
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .is5xxServerError();
+  }
+
+  @Test
+  @DisplayName("Oversized pipeline configuration is rejected")
+  void testOversizedPipelineConfigurationIsRejected() {
+    String longConfig = "csv:" + "a".repeat(1000);
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", longConfig)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .is5xxServerError();
+  }
+
+  @Test
+  @DisplayName("Too many commands in pipeline configuration is rejected")
+  void testTooManyCommandsIsRejected() {
+    String manyCommands = "process:a,process:b,process:c,process:d,process:e,"
+        + "process:f,process:g,process:h,process:i,process:j,process:k";
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", manyCommands)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .is5xxServerError();
+  }
 }

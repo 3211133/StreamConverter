@@ -61,7 +61,9 @@ public class SendHttpCommand extends AbstractStreamCommand {
             .clientConnector(new ReactorClientHttpConnector(httpClient))
             .codecs(
                 configurer ->
-                    configurer.defaultCodecs().maxInMemorySize(-1)) // Unlimited for streaming
+                    // 1 MB limit for error response bodies (used by onStatus bodyToMono).
+                    // The streaming response path (bodyToFlux) bypasses this buffer entirely.
+                    configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
             .build();
   }
 

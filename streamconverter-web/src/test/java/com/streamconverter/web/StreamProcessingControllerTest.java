@@ -308,17 +308,16 @@ class StreamProcessingControllerTest {
   }
 
   @Test
-  @DisplayName("Empty pipeline configuration is rejected")
-  void testEmptyPipelineConfigurationIsRejected() {
-    // 空文字列のヘッダーは Netty がリクエスト送信前に弾くため、
-    // 単一スペース（制御文字ではない）で検証する
+  @DisplayName("Trailing comma produces empty command type and is rejected")
+  void testTrailingCommaIsRejected() {
+    // "csv:name," のように末尾にカンマがあると空のコマンド型セグメントが生まれる
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
 
     webTestClient()
         .post()
         .uri("/api/v1/stream/process")
-        .header("X-Pipeline-Config", ",")
+        .header("X-Pipeline-Config", "csv:name,")
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(Flux.just(dataBuffer), DataBuffer.class)
         .exchange()

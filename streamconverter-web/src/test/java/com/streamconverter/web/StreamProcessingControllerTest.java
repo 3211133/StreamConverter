@@ -196,7 +196,7 @@ class StreamProcessingControllerTest {
   }
 
   @Test
-  @DisplayName("Invalid pipeline configuration test")
+  @DisplayName("Invalid pipeline configuration returns 400")
   void testInvalidPipelineConfiguration() {
     String csvData = TestUtils.createTestData("name,age,city", "John,30,NYC", "");
     DataBuffer dataBuffer =
@@ -210,6 +210,100 @@ class StreamProcessingControllerTest {
         .body(Flux.just(dataBuffer), DataBuffer.class)
         .exchange()
         .expectStatus()
-        .is5xxServerError();
+        .isBadRequest();
+  }
+
+  @Test
+  @DisplayName("Trailing comma produces empty command type and returns 400")
+  void testTrailingCommaIsRejected() {
+    // "csv:name," のように末尾にカンマがあると空のコマンド型セグメントが生まれる
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", "csv:name,")
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
+  @Test
+  @DisplayName("Oversized pipeline configuration returns 400")
+  void testOversizedPipelineConfigurationIsRejected() {
+    String longConfig = "csv:" + "a".repeat(1000);
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", longConfig)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
+  @Test
+  @DisplayName("Too many commands in pipeline configuration returns 400")
+  void testTooManyCommandsIsRejected() {
+    String manyCommands = "process:a,process:b,process:c,process:d,process:e,"
+        + "process:f,process:g,process:h,process:i,process:j,process:k";
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", manyCommands)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
+  @Test
+  @DisplayName("Exactly 10 commands in pipeline is accepted")
+  void testExactlyMaxCommandsIsAccepted() {
+    // 上限ちょうど10件は受け入れられることを確認（境界値テスト）
+    String tenCommands = "process:a,process:b,process:c,process:d,process:e,"
+        + "process:f,process:g,process:h,process:i,process:j";
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", tenCommands)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isOk();
+  }
+
+  @Test
+  @DisplayName("Parameter exceeding max length returns 400")
+  void testOversizedParameterIsRejected() {
+    // パラメータが501文字を超える場合は拒否される
+    String longParam = "csv:" + "a".repeat(501);
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", longParam)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
   }
 }

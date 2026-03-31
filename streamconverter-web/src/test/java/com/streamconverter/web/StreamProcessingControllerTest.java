@@ -289,9 +289,28 @@ class StreamProcessingControllerTest {
   }
 
   @Test
-  @DisplayName("Parameter exceeding max length returns 400")
+  @DisplayName("Parameter of exactly max length is accepted")
+  void testExactlyMaxParameterLengthIsAccepted() {
+    // パラメータがちょうど500文字は受け入れられることを確認（境界値テスト）
+    String maxParam = "process:" + "a".repeat(500);
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", maxParam)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isOk();
+  }
+
+  @Test
+  @DisplayName("Parameter exceeding max length by 1 returns 400")
   void testOversizedParameterIsRejected() {
-    // パラメータが501文字を超える場合は拒否される
+    // パラメータが500文字を超える場合（501文字）は拒否される
     String longParam = "csv:" + "a".repeat(501);
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
@@ -300,6 +319,42 @@ class StreamProcessingControllerTest {
         .post()
         .uri("/api/v1/stream/process")
         .header("X-Pipeline-Config", longParam)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
+  @Test
+  @DisplayName("csv command with empty parameter returns 400")
+  void testCsvWithEmptyParameterIsRejected() {
+    // "csv:" のようにパラメータが空の場合は拒否される
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", "csv:")
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
+  @Test
+  @DisplayName("json command with empty parameter returns 400")
+  void testJsonWithEmptyParameterIsRejected() {
+    // "json:" のようにパラメータが空の場合は拒否される
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/process")
+        .header("X-Pipeline-Config", "json:")
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(Flux.just(dataBuffer), DataBuffer.class)
         .exchange()

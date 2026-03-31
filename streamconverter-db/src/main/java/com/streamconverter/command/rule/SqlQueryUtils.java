@@ -1,5 +1,6 @@
 package com.streamconverter.command.rule;
 
+import java.util.Locale;
 import java.util.regex.Pattern;
 import org.slf4j.Logger;
 
@@ -34,7 +35,7 @@ final class SqlQueryUtils {
     }
 
     // SELECTクエリのみ許可
-    if (!queryString.trim().toLowerCase().startsWith("select")) {
+    if (!queryString.trim().toLowerCase(Locale.ROOT).startsWith("select")) {
       throw new SecurityException("Only SELECT queries are allowed: " + queryString);
     }
 

@@ -224,10 +224,6 @@ public class SendHttpCommand extends AbstractStreamCommand {
       String errorMessage = "HTTP request failed: " + url + " - " + e.getMessage();
       logger.error(errorMessage, e);
       throw new IOException(errorMessage, e);
-    } catch (Exception e) {
-      String errorMessage = "HTTP request failed: " + url;
-      logger.error(errorMessage, e);
-      throw new IOException(errorMessage, e);
     }
   }
 }

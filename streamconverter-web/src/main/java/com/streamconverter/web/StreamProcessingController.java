@@ -37,6 +37,10 @@ public class StreamProcessingController {
 
   private static final Logger log = LoggerFactory.getLogger(StreamProcessingController.class);
 
+  private static final int MAX_PIPELINE_CONFIG_LENGTH = 1000;
+  private static final int MAX_PIPELINE_COMMANDS = 10;
+  private static final int MAX_PARAMETER_LENGTH = 500;
+
   /**
    * Process data stream with CSV extraction.
    *
@@ -61,8 +65,11 @@ public class StreamProcessingController {
                         inputData,
                         CsvNavigateCommand.create(
                             CSVPath.of(columnName), new PassThroughRule()))))
-        .doOnError(e -> log.error("CSV extraction failed: {}", e.getMessage(), e))
-        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        .onErrorResume(
+            e -> {
+              log.error("CSV extraction failed: {}", e.getMessage(), e);
+              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            });
   }
 
   /**
@@ -89,13 +96,12 @@ public class StreamProcessingController {
                         inputData,
                         JsonNavigateCommand.create(
                             TreePath.fromJson(jsonPath), new PassThroughRule()))))
-        .doOnError(e -> log.error("JSON extraction failed: {}", e.getMessage(), e))
-        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        .onErrorResume(
+            e -> {
+              log.error("JSON extraction failed: {}", e.getMessage(), e);
+              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            });
   }
-
-  private static final int MAX_PIPELINE_CONFIG_LENGTH = 1000;
-  private static final int MAX_PIPELINE_COMMANDS = 10;
-  private static final int MAX_PARAMETER_LENGTH = 500;
 
   /**
    * Process data stream with custom command pipeline.
@@ -125,8 +131,11 @@ public class StreamProcessingController {
               log.warn("Invalid pipeline config: {}", e.getMessage());
               return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
             })
-        .doOnError(e -> log.error("Pipeline processing failed: {}", e.getMessage(), e))
-        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        .onErrorResume(
+            e -> {
+              log.error("Pipeline processing failed: {}", e.getMessage(), e);
+              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            });
   }
 
   /**
@@ -205,9 +214,18 @@ public class StreamProcessingController {
 
       commands[i] =
           switch (commandType.toLowerCase(Locale.ROOT)) {
-            case "csv" -> CsvNavigateCommand.create(CSVPath.of(parameter), new PassThroughRule());
-            case "json" -> JsonNavigateCommand.create(
-                TreePath.fromJson(parameter), new PassThroughRule());
+            case "csv" -> {
+              if (parameter.isEmpty()) {
+                throw new IllegalArgumentException("csv command requires a column name at index " + i);
+              }
+              yield CsvNavigateCommand.create(CSVPath.of(parameter), new PassThroughRule());
+            }
+            case "json" -> {
+              if (parameter.isEmpty()) {
+                throw new IllegalArgumentException("json command requires a path at index " + i);
+              }
+              yield JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());
+            }
             case "process" -> (IStreamCommand) (in, out) -> in.transferTo(out);
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
           };

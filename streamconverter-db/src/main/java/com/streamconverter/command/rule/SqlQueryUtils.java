@@ -12,9 +12,9 @@ import org.slf4j.Logger;
 final class SqlQueryUtils {
 
   /** SQLインジェクション攻撃を検出するパターン（SELECT以外の危険なSQL文） */
-  static final Pattern SQL_INJECTION_PATTERN =
+  private static final Pattern SQL_INJECTION_PATTERN =
       Pattern.compile(
-          "(?i).*(union|insert|update|delete|drop|create|alter|exec|execute|sp_|xp_).*",
+          ".*(union|insert|update|delete|drop|create|alter|exec|execute|sp_|xp_).*",
           Pattern.CASE_INSENSITIVE);
 
   private SqlQueryUtils() {}
@@ -44,8 +44,10 @@ final class SqlQueryUtils {
           "Query contains potentially dangerous SQL commands: " + queryString);
     }
 
-    // セミコロンによる複数文の実行を防止
-    if (queryString.contains(";") && !queryString.trim().endsWith(";")) {
+    // セミコロンによる複数文の実行を防止（末尾の1個のみ許可）
+    String stripped = queryString.trim();
+    String withoutTrailingSemicolon = stripped.endsWith(";") ? stripped.substring(0, stripped.length() - 1) : stripped;
+    if (withoutTrailingSemicolon.contains(";")) {
       throw new SecurityException("Multiple SQL statements are not allowed: " + queryString);
     }
 
@@ -66,10 +68,10 @@ final class SqlQueryUtils {
       throw new IllegalArgumentException("Input parameter cannot be null");
     }
 
-    // 危険な文字の除去/エスケープ
+    // PreparedStatement がパラメータバインディングを担うため、シングルクォートエスケープは行わない。
+    // ここでは PreparedStatement を通じないコンテキスト向けに残存する危険パターンのみ除去する。
     String sanitized =
         input
-            .replace("'", "''") // シングルクォートのエスケープ
             .replace("--", "") // SQLコメントの除去
             .replace("/*", "") // ブロックコメント開始の除去
             .replace("*/", ""); // ブロックコメント終了の除去

@@ -197,6 +197,12 @@ public class DatabaseFetchRule implements IRule {
       }
     } catch (SQLException e) {
       logger.error("データベース操作中にエラーが発生しました: {}", e.getMessage(), e);
+      Throwable[] suppressed = e.getSuppressed();
+      if (suppressed != null) {
+        for (Throwable s : suppressed) {
+          logger.error("クローズ中に追加のエラーが発生しました: {}", s.getMessage(), s);
+        }
+      }
       throw new StreamProcessingException(
           "データベースフェッチに失敗しました: " + e.getMessage(), e);
     }

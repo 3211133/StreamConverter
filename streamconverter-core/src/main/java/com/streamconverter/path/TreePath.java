@@ -112,6 +112,15 @@ public class TreePath implements IPath<List<String>> {
     return originalPath;
   }
 
+  /**
+   * 2つのTreePathが等しいかどうかをセグメントリストで比較する。
+   *
+   * <p>注意: 元のパス文字列（{@link #toString()} の値）が異なっていても、 セグメントに展開した結果が同じであれば等しいとみなす。 例えば {@code
+   * "$.user.name"} と {@code "user.name"} がパース後に同じセグメントになる場合、 等しいと判定される。
+   *
+   * @param obj 比較対象のオブジェクト
+   * @return セグメントリストが等しい場合true
+   */
   @Override
   public boolean equals(Object obj) {
     if (this == obj) return true;
@@ -120,6 +129,11 @@ public class TreePath implements IPath<List<String>> {
     return segments.equals(treePath.segments);
   }
 
+  /**
+   * セグメントリストに基づくハッシュコードを返す。
+   *
+   * @return ハッシュコード
+   */
   @Override
   public int hashCode() {
     return segments.hashCode();

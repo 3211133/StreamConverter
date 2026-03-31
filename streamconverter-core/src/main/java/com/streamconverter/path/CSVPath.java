@@ -69,11 +69,31 @@ public class CSVPath extends AbstractPath<Integer> {
     return new CSVPath(selectorList);
   }
 
+  /**
+   * 検証・正規化処理のフック。
+   *
+   * <p>{@link AbstractPath#AbstractPath(String)} コンストラクタから呼び出されるが、 CSVPathでは検証をファクトリメソッド（{@link
+   * #of(String)} / {@code create}）側で行うため、 コンストラクタ内スロー（CT_CONSTRUCTOR_THROW）を避けるためにここでは何もしない。
+   *
+   * @param rawSelector 生のセレクター文字列（未使用）
+   */
   @Override
   protected void validateAndNormalize(String rawSelector) {
     // Validation is performed in factory methods (of/create) to avoid CT_CONSTRUCTOR_THROW
   }
 
+  /**
+   * 指定された列インデックスがこのパスにマッチするかどうかを判定する（OR条件）。
+   *
+   * <p>いずれかのセレクターがインデックスに一致すれば {@code true} を返す。
+   *
+   * <p><b>注意:</b> このメソッドは数値インデックス指定セレクター（例: {@code "0"}, {@code "1:3"}）に対してのみ 機能する。列名指定セレクター（例:
+   * {@code "name"}, {@code "userId"}）は常に {@code false} を返す。 列名での一致判定には {@link #matches(String[],
+   * int)} を使用すること。
+   *
+   * @param columnIndex 判定対象の列インデックス（0始まり）。nullまたは負値の場合はfalse
+   * @return いずれかのセレクターが一致する場合true
+   */
   @Override
   public boolean matches(Integer columnIndex) {
     if (columnIndex == null || columnIndex < 0) {
@@ -181,6 +201,13 @@ public class CSVPath extends AbstractPath<Integer> {
     }
   }
 
+  /**
+   * このパスの文字列表現を返す。
+   *
+   * <p>セレクターが1つの場合はその値をそのまま返し、複数の場合はカンマ区切りで結合する。
+   *
+   * @return セレクターの文字列表現
+   */
   @Override
   public String toString() {
     if (selectors.size() == 1) {

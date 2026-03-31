@@ -411,6 +411,7 @@ public class LargeDataGenerator {
         buffer = chunkBytes;
         bytesGenerated += chunkBytes.length;
       } catch (Exception e) {
+        LOG.warn("Unexpected error while encoding chunk to bytes; treating as end of document", e);
         buffer = new byte[0];
         isDocumentComplete = true;
       }

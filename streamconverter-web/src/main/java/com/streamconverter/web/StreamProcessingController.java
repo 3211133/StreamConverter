@@ -41,6 +41,12 @@ public class StreamProcessingController {
   private static final int MAX_PIPELINE_COMMANDS = 10;
   private static final int MAX_PARAMETER_LENGTH = 500;
 
+  private static final String CMD_CSV = "csv";
+  private static final String CMD_JSON = "json";
+  private static final String CMD_PROCESS = "process";
+
+  private static final PassThroughRule PASS_THROUGH = new PassThroughRule();
+
   /**
    * Process data stream with CSV extraction.
    *
@@ -64,7 +70,7 @@ public class StreamProcessingController {
                     processWithStreamConverter(
                         inputData,
                         CsvNavigateCommand.create(
-                            CSVPath.of(columnName), new PassThroughRule()))))
+                            CSVPath.of(columnName), PASS_THROUGH))))
         .onErrorResume(
             e -> {
               log.error("CSV extraction failed: {}", e.getMessage(), e);
@@ -95,7 +101,7 @@ public class StreamProcessingController {
                     processWithStreamConverter(
                         inputData,
                         JsonNavigateCommand.create(
-                            TreePath.fromJson(jsonPath), new PassThroughRule()))))
+                            TreePath.fromJson(jsonPath), PASS_THROUGH))))
         .onErrorResume(
             e -> {
               log.error("JSON extraction failed: {}", e.getMessage(), e);
@@ -214,19 +220,19 @@ public class StreamProcessingController {
 
       commands[i] =
           switch (commandType.toLowerCase(Locale.ROOT)) {
-            case "csv" -> {
+            case CMD_CSV -> {
               if (parameter.isEmpty()) {
                 throw new IllegalArgumentException("csv command requires a column name at index " + i);
               }
-              yield CsvNavigateCommand.create(CSVPath.of(parameter), new PassThroughRule());
+              yield CsvNavigateCommand.create(CSVPath.of(parameter), PASS_THROUGH);
             }
-            case "json" -> {
+            case CMD_JSON -> {
               if (parameter.isEmpty()) {
                 throw new IllegalArgumentException("json command requires a path at index " + i);
               }
-              yield JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());
+              yield JsonNavigateCommand.create(TreePath.fromJson(parameter), PASS_THROUGH);
             }
-            case "process" -> (IStreamCommand) (in, out) -> in.transferTo(out);
+            case CMD_PROCESS -> (IStreamCommand) (in, out) -> in.transferTo(out);
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
           };
     }

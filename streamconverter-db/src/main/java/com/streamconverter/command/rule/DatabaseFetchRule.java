@@ -44,12 +44,6 @@ import org.slf4j.LoggerFactory;
 public class DatabaseFetchRule implements IRule {
   private static final Logger logger = LoggerFactory.getLogger(DatabaseFetchRule.class);
 
-  /** SQLインジェクション攻撃を検出するパターン（SELECT以外の危険なSQL文） */
-  private static final Pattern SQL_INJECTION_PATTERN =
-      Pattern.compile(
-          "(?i).*(union|insert|update|delete|drop|create|alter|exec|execute|sp_|xp_).*",
-          Pattern.CASE_INSENSITIVE);
-
   /** 許可されるデータベースURLスキーマ（テスト用のmockも含む） */
   private static final Pattern ALLOWED_DB_SCHEME_PATTERN =
       Pattern.compile(
@@ -120,56 +114,11 @@ public class DatabaseFetchRule implements IRule {
    * @throws SecurityException SQLインジェクションが検出された場合
    */
   private String validateQuery(String queryString) {
-    if (queryString.isEmpty()) {
-      throw new IllegalArgumentException("Query cannot be empty");
-    }
-
-    // SELECTクエリのみ許可
-    if (!queryString.trim().toLowerCase().startsWith("select")) {
-      throw new SecurityException("Only SELECT queries are allowed: " + queryString);
-    }
-
-    // SQLインジェクション攻撃の検出（パターンマッチング使用）
-    if (SQL_INJECTION_PATTERN.matcher(queryString).matches()) {
-      throw new SecurityException(
-          "Query contains potentially dangerous SQL commands: " + queryString);
-    }
-
-    // セミコロンによる複数文の実行を防止
-    if (queryString.contains(";") && !queryString.trim().endsWith(";")) {
-      throw new SecurityException("Multiple SQL statements are not allowed: " + queryString);
-    }
-
-    logger.debug("Query validation passed, length: {}", queryString.length());
-    return queryString;
+    return SqlQueryUtils.validateQuery(queryString, logger);
   }
 
-  /**
-   * 入力パラメータをサニタイズします
-   *
-   * @param input サニタイズ対象の入力
-   * @return サニタイズされた入力
-   */
   private String sanitizeInput(String input) {
-    if (input == null) {
-      throw new IllegalArgumentException("Input parameter cannot be null");
-    }
-
-    // 危険な文字の除去/エスケープ
-    String sanitized =
-        input
-            .replace("'", "''") // シングルクォートのエスケープ
-            .replace("--", "") // SQLコメントの除去
-            .replace("/*", "") // ブロックコメント開始の除去
-            .replace("*/", ""); // ブロックコメント終了の除去
-
-    // 極端に長い入力の制限
-    if (sanitized.length() > 1000) {
-      logger.warn("Input parameter is extremely long, truncating: length={}", sanitized.length());
-      sanitized = sanitized.substring(0, 1000);
-    }
-
-    return sanitized;
+    return SqlQueryUtils.sanitizeInput(input, logger);
   }
 
   /**
@@ -248,6 +197,12 @@ public class DatabaseFetchRule implements IRule {
       }
     } catch (SQLException e) {
       logger.error("データベース操作中にエラーが発生しました: {}", e.getMessage(), e);
+      Throwable[] suppressed = e.getSuppressed();
+      if (suppressed != null) {
+        for (Throwable s : suppressed) {
+          logger.error("クローズ中に追加のエラーが発生しました: {}", s.getMessage(), s);
+        }
+      }
       throw new StreamProcessingException(
           "データベースフェッチに失敗しました: " + e.getMessage(), e);
     }

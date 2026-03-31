@@ -166,11 +166,6 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     throw new IOException("Invalid XML format", e);
   }
 
-  @FunctionalInterface
-  private interface CharacterDataProcessor {
-    String process(XMLEvent event, String data);
-  }
-
   private void closeResources(XMLEventReader eventReader, XMLEventWriter eventWriter) {
     if (eventReader != null) {
       try {

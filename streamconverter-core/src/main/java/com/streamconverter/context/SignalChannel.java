@@ -11,9 +11,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p><b>設計方針:</b>
  *
  * <ul>
- *   <li>後段コマンドはブロッキング待機を行わず、処理ループを継続しながら {@link #poll()} でシグナルの有無を確認する（割り込み型）。
+ *   <li>後段コマンドはブロッキング待機を行わず、処理ループを継続しながら {@link #peek()} でシグナルの有無を確認する（割り込み型）。
  *   <li>シグナルは上書き可能。後から送られた強いシグナルで以前のシグナルを上書きできる。
- *   <li>一度送られたシグナルは {@link #poll()} で何度でも確認できる（消費しない）。
+ *   <li>一度送られたシグナルは {@link #peek()} で何度でも確認できる（消費しない）。
  * </ul>
  *
  * <p>使用例（前段コマンド）:
@@ -29,7 +29,7 @@ import java.util.concurrent.atomic.AtomicReference;
  *
  * <pre>{@code
  * // 処理ループ内でシグナルを確認（ブロッキングなし）
- * channel.poll().ifPresent(signal -> {
+ * channel.peek().ifPresent(signal -> {
  *     switch (signal) {
  *         case PipelineSignal.Skip s -> { /* スキップ処理 *&#47; }
  *     }
@@ -77,7 +77,7 @@ public final class SignalChannel {
    *
    * @return シグナルが届いている場合はそれを含む Optional、未着の場合は empty
    */
-  public Optional<PipelineSignal> poll() {
+  public Optional<PipelineSignal> peek() {
     return Optional.ofNullable(signal.get());
   }
 
@@ -85,6 +85,8 @@ public final class SignalChannel {
    * シグナルをリセットする（未着状態に戻す）。
    *
    * <p>前段コマンドが複数回シグナルを送る場合、シグナルを処理済みにして 次の単位では「シグナルなし」状態に戻したい場合に使用する。
+   *
+   * <p><b>責任者:</b> リセットは原則として <b>前段コマンド</b> が行う。 後段コマンドが呼ぶと、前段が次の送信前にリセットを期待していないタイミングで シグナルが消え、意図したシグナルが後段に届かない競合状態が生じる可能性がある。
    *
    * <p>例: 明細1件ごとにシグナルの有無を判定するとき、 表示対象の明細を送る前に前段がリセットし、後段が正しく判定できるようにする。
    */

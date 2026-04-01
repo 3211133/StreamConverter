@@ -8,36 +8,36 @@ import org.junit.jupiter.api.Test;
 class SignalChannelTest {
 
   @Test
-  void pollReturnsEmptyWhenNoSignalSent() {
+  void peekReturnsEmptyWhenNoSignalSent() {
     PipelineContext ctx = new PipelineContext();
     SignalChannel channel = ctx.prepareSignalChannel("test");
 
-    assertEquals(Optional.empty(), channel.poll());
+    assertEquals(Optional.empty(), channel.peek());
   }
 
   @Test
-  void pollReturnsSignalAfterSend() {
+  void peekReturnsSignalAfterSend() {
     PipelineContext ctx = new PipelineContext();
     SignalChannel channel = ctx.prepareSignalChannel("test");
 
     channel.send(new PipelineSignal.Skip("test reason"));
 
-    Optional<PipelineSignal> result = channel.poll();
+    Optional<PipelineSignal> result = channel.peek();
     assertTrue(result.isPresent());
     assertInstanceOf(PipelineSignal.Skip.class, result.get());
     assertEquals("test reason", ((PipelineSignal.Skip) result.get()).reason());
   }
 
   @Test
-  void pollCanBeCalledMultipleTimes() {
+  void peekCanBeCalledMultipleTimes() {
     PipelineContext ctx = new PipelineContext();
     SignalChannel channel = ctx.prepareSignalChannel("test");
     channel.send(new PipelineSignal.Skip("some reason"));
 
     // シグナルは消費されず何度でも確認できる
-    assertTrue(channel.poll().isPresent());
-    assertTrue(channel.poll().isPresent());
-    assertTrue(channel.poll().isPresent());
+    assertTrue(channel.peek().isPresent());
+    assertTrue(channel.peek().isPresent());
+    assertTrue(channel.peek().isPresent());
   }
 
   @Test
@@ -48,7 +48,7 @@ class SignalChannelTest {
     channel.send(new PipelineSignal.Skip("first"));
     channel.send(new PipelineSignal.Skip("second"));
 
-    Optional<PipelineSignal> result = channel.poll();
+    Optional<PipelineSignal> result = channel.peek();
     assertTrue(result.isPresent());
     assertInstanceOf(PipelineSignal.Skip.class, result.get());
     assertEquals("second", ((PipelineSignal.Skip) result.get()).reason());
@@ -60,6 +60,11 @@ class SignalChannelTest {
     SignalChannel channel = ctx.prepareSignalChannel("test");
 
     assertThrows(IllegalArgumentException.class, () -> channel.send(null));
+  }
+
+  @Test
+  void skipWithNullReasonThrowsNullPointerException() {
+    assertThrows(NullPointerException.class, () -> new PipelineSignal.Skip(null));
   }
 
   @Test
@@ -79,10 +84,10 @@ class SignalChannelTest {
   }
 
   @Test
-  void getSignalChannelReturnsNullWhenContextNotSet() {
+  void getSignalChannelThrowsWhenContextNotSet() {
     PipelineContext.clear();
 
-    assertNull(PipelineContext.getSignalChannel("any-id"));
+    assertThrows(IllegalStateException.class, () -> PipelineContext.getSignalChannel("any-id"));
   }
 
   @Test
@@ -95,6 +100,7 @@ class SignalChannelTest {
     PipelineContext ctx = new PipelineContext();
     PipelineContext.set(ctx);
     try {
+      // コンテキストは設定済みだがチャネルが未登録 → null を返す
       assertNull(PipelineContext.getSignalChannel("not-registered"));
     } finally {
       PipelineContext.clear();
@@ -129,7 +135,7 @@ class SignalChannelTest {
 
     channel.reset();
 
-    assertEquals(Optional.empty(), channel.poll());
+    assertEquals(Optional.empty(), channel.peek());
   }
 
   @Test
@@ -139,6 +145,6 @@ class SignalChannelTest {
 
     channel.reset();
 
-    assertEquals(Optional.empty(), channel.poll());
+    assertEquals(Optional.empty(), channel.peek());
   }
 }

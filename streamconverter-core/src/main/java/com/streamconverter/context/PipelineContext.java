@@ -144,7 +144,7 @@ public final class PipelineContext {
    *
    * StreamConverter.create(
    *     new FilterCommand(ch),    // 前段: ch.send(new PipelineSignal.Skip("..."))
-   *     new TransformCommand(ch)  // 後段: ch.poll() で割り込み確認
+   *     new TransformCommand(ch)  // 後段: ch.peek() で割り込み確認
    * ).run(input, output, ctx);
    * }</pre>
    *
@@ -162,11 +162,12 @@ public final class PipelineContext {
   /**
    * 現在のスレッドに紐づくPipelineContextから、指定IDのSignalChannelを取得する。
    *
-   * <p>PipelineContext未設定のスレッドから呼ばれた場合、またはチャネルが未登録の場合は {@code null} を返す。
+   * <p>チャネルが未登録の場合は {@code null} を返す。
    *
    * @param channelId チャネルID
-   * @return SignalChannel。未設定または未登録の場合は null
+   * @return SignalChannel。未登録の場合は null
    * @throws IllegalArgumentException channelId が null の場合
+   * @throws IllegalStateException 現在のスレッドに PipelineContext が設定されていない場合
    */
   public static SignalChannel getSignalChannel(String channelId) {
     if (channelId == null) {
@@ -174,7 +175,7 @@ public final class PipelineContext {
     }
     PipelineContext ctx = HOLDER.get();
     if (ctx == null) {
-      return null;
+      throw new IllegalStateException("PipelineContext is not set on this thread");
     }
     return ctx.signalChannels.get(channelId);
   }

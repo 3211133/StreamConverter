@@ -61,7 +61,9 @@ public class SendHttpCommand extends AbstractStreamCommand {
             .clientConnector(new ReactorClientHttpConnector(httpClient))
             .codecs(
                 configurer ->
-                    configurer.defaultCodecs().maxInMemorySize(-1)) // Unlimited for streaming
+                    // 1 MB limit for error response bodies (used by onStatus bodyToMono).
+                    // The streaming response path (bodyToFlux) bypasses this buffer entirely.
+                    configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
             .build();
   }
 
@@ -220,10 +222,6 @@ public class SendHttpCommand extends AbstractStreamCommand {
     } catch (RuntimeException e) {
       // WebClient error responses are wrapped in RuntimeException
       String errorMessage = "HTTP request failed: " + url + " - " + e.getMessage();
-      logger.error(errorMessage, e);
-      throw new IOException(errorMessage, e);
-    } catch (Exception e) {
-      String errorMessage = "HTTP request failed: " + url;
       logger.error(errorMessage, e);
       throw new IOException(errorMessage, e);
     }

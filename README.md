@@ -39,7 +39,7 @@ import com.streamconverter.command.rule.impl.string.TrimRule;
 import com.streamconverter.path.CSVPath;
 
 StreamConverter converter = StreamConverter.create(
-    CsvNavigateCommand.create(CSVPath.fromHeaderName("name"), new TrimRule()));
+    CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule()));
 
 converter.run(inputStream, outputStream);
 ```

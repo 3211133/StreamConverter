@@ -4,7 +4,7 @@
 
 ```java
 StreamConverter converter = StreamConverter.create(
-    CsvNavigateCommand.create(CSVPath.fromHeaderName("name"), new TrimRule())
+    CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule())
 );
 converter.run(inputStream, outputStream);
 ```
@@ -22,8 +22,8 @@ converter.run(inputStream, outputStream);
 
 ```java
 StreamConverter converter = StreamConverter.create(
-    LineEndingNormalizeCommand.create(LineEndingType.LF),
-    CharacterConvertCommand.create(Charset.forName("UTF-8"), Charset.forName("Shift_JIS"))
+    new LineEndingNormalizeCommand(LineEndingType.UNIX),
+    CharacterConvertCommand.create("UTF-8", "Shift_JIS")
 );
 converter.run(inputStream, outputStream);
 ```

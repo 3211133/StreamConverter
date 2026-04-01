@@ -19,9 +19,9 @@ import java.util.concurrent.atomic.AtomicReference;
  * <p>使用例（前段コマンド）:
  *
  * <pre>{@code
- * // バリデーション失敗時にシグナルを送信
- * if (!isValid(record)) {
- *     channel.send(new PipelineSignal.Abort("validation failed: " + errorMsg));
+ * // 非表示フィルタ適用後にシグナルを送信
+ * if (!isVisible(record)) {
+ *     channel.send(new PipelineSignal.Skip("non-visible item filtered"));
  * }
  * }</pre>
  *
@@ -31,8 +31,7 @@ import java.util.concurrent.atomic.AtomicReference;
  * // 処理ループ内でシグナルを確認（ブロッキングなし）
  * channel.poll().ifPresent(signal -> {
  *     switch (signal) {
- *         case PipelineSignal.Skip s  -> { /* スキップ処理 *&#47; }
- *         case PipelineSignal.Abort s -> throw new StreamProcessingException(s.reason());
+ *         case PipelineSignal.Skip s -> { /* スキップ処理 *&#47; }
  *     }
  * });
  * }</pre>

@@ -143,8 +143,8 @@ public final class PipelineContext {
    * SignalChannel ch = ctx.prepareSignalChannel("validation");
    *
    * StreamConverter.create(
-   *     new ValidatorCommand(ch),    // 前段: ch.send(new PipelineSignal.Abort("..."))
-   *     new TransformCommand(ch)     // 後段: ch.poll() で割り込み確認
+   *     new FilterCommand(ch),    // 前段: ch.send(new PipelineSignal.Skip("..."))
+   *     new TransformCommand(ch)  // 後段: ch.poll() で割り込み確認
    * ).run(input, output, ctx);
    * }</pre>
    *

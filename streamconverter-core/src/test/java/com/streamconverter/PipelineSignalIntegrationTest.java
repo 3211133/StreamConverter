@@ -78,65 +78,6 @@ class PipelineSignalIntegrationTest {
     }
   }
 
-  /** Abortシグナルを送る前段コマンド */
-  static class AbortSendingCommand extends AbstractStreamCommand {
-    private final SignalChannel channel;
-
-    AbortSendingCommand(SignalChannel channel) {
-      this.channel = channel;
-    }
-
-    @Override
-    public void execute(InputStream in, OutputStream out) throws IOException {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-      PrintWriter writer =
-          new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
-      String line;
-      int lineNum = 0;
-      while ((line = reader.readLine()) != null) {
-        lineNum++;
-        if (lineNum == 2) {
-          channel.send(new PipelineSignal.Abort("fatal error at line 2"));
-        }
-        writer.println(line);
-      }
-      writer.flush();
-    }
-  }
-
-  /** Abortシグナルを受け取ったら StreamProcessingException を投げる後段コマンド */
-  static class AbortAwareCommand extends AbstractStreamCommand {
-    private final SignalChannel channel;
-
-    AbortAwareCommand(SignalChannel channel) {
-      this.channel = channel;
-    }
-
-    @Override
-    public void execute(InputStream in, OutputStream out) throws IOException {
-      BufferedReader reader = new BufferedReader(new InputStreamReader(in, StandardCharsets.UTF_8));
-      PrintWriter writer =
-          new PrintWriter(new OutputStreamWriter(out, StandardCharsets.UTF_8), true);
-      String line;
-      while ((line = reader.readLine()) != null) {
-        channel
-            .poll()
-            .ifPresent(
-                signal -> {
-                  switch (signal) {
-                    case PipelineSignal.Abort s ->
-                        throw new StreamProcessingException("Aborted: " + s.reason());
-                    case PipelineSignal.Skip s -> {
-                      /* ignore */
-                    }
-                  }
-                });
-        writer.println(line);
-      }
-      writer.flush();
-    }
-  }
-
   @Test
   void skipSignalCausesDownstreamBehaviorChange() throws IOException {
     // シグナルを最初から設定済みにして（事前設定パターン）、後段が確実にSkipを受け取るテスト
@@ -182,29 +123,6 @@ class PipelineSignalIntegrationTest {
   }
 
   @Test
-  void abortSignalStopsPipeline() {
-    String input = "line1\nline2\nline3\n";
-    PipelineContext ctx = new PipelineContext();
-    SignalChannel channel = ctx.prepareSignalChannel("test");
-
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
-    StreamProcessingException ex =
-        assertThrows(
-            StreamProcessingException.class,
-            () ->
-                StreamConverter.create(
-                        new AbortSendingCommand(channel), new AbortAwareCommand(channel))
-                    .run(
-                        new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8)),
-                        output,
-                        ctx));
-
-    assertTrue(
-        ex.getMessage().contains("Aborted") || ex.getCause() != null,
-        "Exception should originate from Abort signal");
-  }
-
-  @Test
   void noSignalMeansDefaultBehavior() throws IOException {
     // シグナルを一切送らないパイプライン
     String input = "line1\nline2\n";
@@ -225,17 +143,16 @@ class PipelineSignalIntegrationTest {
 
   @Test
   void laterSignalOverwritesEarlier() throws IOException {
-    // 前段が最初にSkipを送り、その後Abortで上書きする
+    // 前段が2つのSkipを送った場合、後のシグナルで上書きされる
     PipelineContext ctx = new PipelineContext();
     SignalChannel channel = ctx.prepareSignalChannel("test");
     channel.send(new PipelineSignal.Skip("first"));
-    channel.send(new PipelineSignal.Abort("second"));
+    channel.send(new PipelineSignal.Skip("second"));
 
-    // 後段はAbortを受け取る
     PipelineSignal signal = channel.poll().orElse(null);
     assertNotNull(signal);
-    assertInstanceOf(PipelineSignal.Abort.class, signal);
-    assertEquals("second", ((PipelineSignal.Abort) signal).reason());
+    assertInstanceOf(PipelineSignal.Skip.class, signal);
+    assertEquals("second", ((PipelineSignal.Skip) signal).reason());
   }
 
   @Test

@@ -32,7 +32,7 @@ class SignalChannelTest {
   void pollCanBeCalledMultipleTimes() {
     PipelineContext ctx = new PipelineContext();
     SignalChannel channel = ctx.prepareSignalChannel("test");
-    channel.send(new PipelineSignal.Abort("fatal error"));
+    channel.send(new PipelineSignal.Skip("some reason"));
 
     // シグナルは消費されず何度でも確認できる
     assertTrue(channel.poll().isPresent());
@@ -46,12 +46,12 @@ class SignalChannelTest {
     SignalChannel channel = ctx.prepareSignalChannel("test");
 
     channel.send(new PipelineSignal.Skip("first"));
-    channel.send(new PipelineSignal.Abort("second"));
+    channel.send(new PipelineSignal.Skip("second"));
 
     Optional<PipelineSignal> result = channel.poll();
     assertTrue(result.isPresent());
-    assertInstanceOf(PipelineSignal.Abort.class, result.get());
-    assertEquals("second", ((PipelineSignal.Abort) result.get()).reason());
+    assertInstanceOf(PipelineSignal.Skip.class, result.get());
+    assertEquals("second", ((PipelineSignal.Skip) result.get()).reason());
   }
 
   @Test

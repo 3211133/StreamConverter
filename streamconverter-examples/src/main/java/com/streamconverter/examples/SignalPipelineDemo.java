@@ -1,21 +1,16 @@
 package com.streamconverter.examples;
 
 import com.streamconverter.StreamConverter;
-import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.context.PipelineContext;
 import com.streamconverter.context.PipelineSignal;
 import com.streamconverter.context.SignalChannel;
 import com.streamconverter.security.SecureXmlConfiguration;
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.io.StringReader;
 import java.nio.charset.StandardCharsets;
 import javax.xml.stream.XMLInputFactory;
@@ -30,16 +25,12 @@ import org.slf4j.LoggerFactory;
 /**
  * SignalChannelを使ったコマンド間連携のデモ。
  *
- * <p>2つのシナリオを示す：
+ * <p>XML明細の非表示フィルタ（Skip）シナリオを示す：
  *
- * <ol>
- *   <li><b>シナリオ1: バリデーション失敗→後段中断（Abort）</b><br>
- *       前段がCSVの必須列をチェックし、不正データを検出したら {@link PipelineSignal.Abort} を送信する。 後段は各行処理前に {@link
- *       SignalChannel#poll()} を確認し、Abort受信時に処理を中断する。
- *   <li><b>シナリオ2: XML明細の非表示フィルタ（Skip）</b><br>
- *       前段が各 {@code <明細>} 要素を1件バッファし、表示フラグを確認して非表示明細を除去した後に {@link PipelineSignal.Skip}
- *       を送信する。後段はチャンク単位で {@link SignalChannel#poll()} を確認し、 Skipシグナルがあれば「フィルタが発生した」という事実を監査ログに記録する。
- * </ol>
+ * <ul>
+ *   <li>前段が各 {@code <明細>} 要素を1件バッファし、表示フラグを確認して非表示明細を除去した後に {@link PipelineSignal.Skip} を送信する。
+ *   <li>後段はチャンク単位で {@link SignalChannel#poll()} を確認し、 Skipシグナルがあれば「フィルタが発生した」という事実を監査ログに記録する。
+ * </ul>
  */
 public class SignalPipelineDemo {
 
@@ -55,7 +46,6 @@ public class SignalPipelineDemo {
     logger.info("==========================");
 
     try {
-      demonstrateAbortOnValidationFailure();
       demonstrateXmlVisibilityFilter();
     } catch (Exception e) {
       logger.error("Demo failed: {}", e.getMessage(), e);
@@ -63,144 +53,11 @@ public class SignalPipelineDemo {
   }
 
   // ---------------------------------------------------------------------------
-  // シナリオ1: バリデーション失敗→後段中断（Abort）
+  // XML明細の非表示フィルタ（Skip）
   // ---------------------------------------------------------------------------
 
   /**
-   * シナリオ1のデモ。
-   *
-   * <p>CSV入力の2行目に必須列 {@code id} が欠けており、前段バリデーターが {@link PipelineSignal.Abort} を送信する。
-   * 後段は1行目を処理した後、2行目の処理前にAbortを検出してパイプラインを停止する。
-   */
-  static void demonstrateAbortOnValidationFailure() throws IOException {
-    logger.info("\n--- シナリオ1: バリデーション失敗→後段中断（Abort） ---");
-
-    String csv =
-        "id,name,price\n"
-            + "1,りんご,100\n"
-            + ",バナナ,200\n" // id が空 → バリデーション失敗
-            + "3,みかん,150\n";
-
-    PipelineContext ctx = new PipelineContext();
-    SignalChannel channel = ctx.prepareSignalChannel("csv-validation");
-
-    try {
-      StreamConverter.create(
-              new CsvRequiredColumnValidator(channel, "id"), new CsvAbortAwareEchoCommand(channel))
-          .run(
-              new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)),
-              new ByteArrayOutputStream(),
-              ctx);
-      logger.info("（シグナルなしで正常終了）");
-    } catch (StreamProcessingException e) {
-      logger.info("パイプライン停止: {}", e.getMessage());
-    }
-  }
-
-  /**
-   * 前段コマンド: CSVの指定列が空の行を検出したら {@link PipelineSignal.Abort} を送信する。
-   *
-   * <p>シグナル送信後もCSVをそのまま後段に流し続けるため、前段自体はブロックしない。 後段が次の行の処理前にAbortを検出してパイプラインを停止する。
-   */
-  static class CsvRequiredColumnValidator extends AbstractStreamCommand {
-
-    private final SignalChannel channel;
-    private final String requiredColumn;
-
-    CsvRequiredColumnValidator(SignalChannel channel, String requiredColumn) {
-      this.channel = channel;
-      this.requiredColumn = requiredColumn;
-    }
-
-    @Override
-    public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-      BufferedReader reader =
-          new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-      PrintWriter writer =
-          new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
-
-      String headerLine = reader.readLine();
-      if (headerLine == null) {
-        return;
-      }
-      writer.println(headerLine);
-
-      String[] headers = headerLine.split(",");
-      int targetIndex = -1;
-      for (int i = 0; i < headers.length; i++) {
-        if (headers[i].trim().equals(requiredColumn)) {
-          targetIndex = i;
-          break;
-        }
-      }
-
-      String line;
-      int lineNum = 1;
-      while ((line = reader.readLine()) != null) {
-        lineNum++;
-        if (targetIndex >= 0) {
-          String[] cols = line.split(",", -1);
-          if (targetIndex >= cols.length || cols[targetIndex].trim().isEmpty()) {
-            log.warn(
-                "Line {}: required column '{}' is empty, sending Abort", lineNum, requiredColumn);
-            channel.send(
-                new PipelineSignal.Abort(
-                    "Line " + lineNum + ": '" + requiredColumn + "' is empty"));
-          }
-        }
-        // バリデーション結果に関わらず後段にデータを流す（後段が判断する）
-        writer.println(line);
-      }
-      writer.flush();
-    }
-  }
-
-  /**
-   * 後段コマンド: 各行の処理前に {@link SignalChannel#poll()} を確認し、 {@link PipelineSignal.Abort} を受け取ったら処理を中断する。
-   *
-   * <p>処理を止めずにストリームを読み進めながら、シグナルを割り込みとして受け取る設計。
-   */
-  static class CsvAbortAwareEchoCommand extends AbstractStreamCommand {
-
-    private final SignalChannel channel;
-
-    CsvAbortAwareEchoCommand(SignalChannel channel) {
-      this.channel = channel;
-    }
-
-    @Override
-    public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-      BufferedReader reader =
-          new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
-      PrintWriter writer =
-          new PrintWriter(new OutputStreamWriter(outputStream, StandardCharsets.UTF_8), true);
-
-      String line;
-      while ((line = reader.readLine()) != null) {
-        // 各行の処理前にシグナル確認（割り込み）
-        channel
-            .poll()
-            .ifPresent(
-                signal -> {
-                  switch (signal) {
-                    case PipelineSignal.Abort s ->
-                        throw new StreamProcessingException("Processing aborted: " + s.reason());
-                    case PipelineSignal.Skip s ->
-                        log.info("Skip signal received (ignored in this command): {}", s.reason());
-                  }
-                });
-        writer.println("[processed] " + line);
-      }
-      writer.flush();
-    }
-  }
-
-  // ---------------------------------------------------------------------------
-  // シナリオ2: XML明細の非表示フィルタ（Skip）
-  // ---------------------------------------------------------------------------
-
-  /**
-   * シナリオ2のデモ。
+   * XML明細の非表示フィルタデモ。
    *
    * <p>前段コマンドがXMLから非表示（{@code <表示フラグ>false}）の明細を除去して後段に流す。 除去を実施した後に {@link PipelineSignal.Skip}
    * シグナルを送信することで、 後段コマンドは「フィルタが発生した」という事実を割り込みで検知できる。
@@ -212,7 +69,7 @@ public class SignalPipelineDemo {
    * 前段がフィルタ完了後にシグナルを送ることで、後段がその事実を次の処理単位で検知できる。
    */
   static void demonstrateXmlVisibilityFilter() throws IOException {
-    logger.info("\n--- シナリオ2: XML明細の非表示フィルタ（Skip） ---");
+    logger.info("\n--- XML明細の非表示フィルタ（Skip） ---");
 
     String xml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
@@ -413,7 +270,8 @@ public class SignalPipelineDemo {
   /**
    * 後段コマンド: XMLをそのまま出力しながら、{@link PipelineSignal.Skip} シグナルを確認する。
    *
-   * <p>前段がフィルタを適用した場合（非表示明細を除去した場合）、 Skipシグナルを受け取ることで「フィルタが発生した」という事実を検知し、 監査ログを出力する。
+   * <p>前段がフィルタを適用した場合（非表示明細を除去した場合）、 Skipシグナルを受け取ることで「フィルタが発生した」という事実を検知し、
+   * 監査ログを出力する。シグナルは消費されないため、最初に確認したタイミングで一度だけ処理する。
    */
   static class FilterAwareAuditCommand extends AbstractStreamCommand {
 
@@ -425,8 +283,6 @@ public class SignalPipelineDemo {
 
     @Override
     public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-      // XMLをそのまま転送しながらシグナルを確認
-      // シグナルは消費されないため、最初に確認したタイミングで一度だけ処理する
       byte[] buf = new byte[8192];
       int len;
       boolean auditLogged = false;
@@ -439,8 +295,6 @@ public class SignalPipelineDemo {
                     switch (signal) {
                       case PipelineSignal.Skip s ->
                           log.info("[AUDIT] Filter was applied upstream: {}", s.reason());
-                      case PipelineSignal.Abort s ->
-                          throw new StreamProcessingException("Upstream aborted: " + s.reason());
                     }
                   });
           if (channel.poll().isPresent()) {

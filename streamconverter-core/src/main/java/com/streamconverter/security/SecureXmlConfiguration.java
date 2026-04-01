@@ -216,9 +216,9 @@ class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {
   /**
    * XML解析の警告を処理する。
    *
-   * <p>セキュリティ上の理由から詳細は抑制し、DEBUGレベルでのみ記録する。
+   * <p>セキュリティ上の理由から詳細は抑制し、内部ロガーにはDEBUGレベルで一般的なメッセージのみを記録する。 セキュリティロガーにはWARNレベルで警告発生を記録する。
    *
-   * @param exception 発生した警告の詳細
+   * @param exception 発生した警告の詳細（ログには詳細情報を含めない）
    */
   @Override
   public void warning(org.xml.sax.SAXParseException exception) {

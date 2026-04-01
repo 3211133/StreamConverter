@@ -72,14 +72,15 @@ public class CSVPath extends AbstractPath<Integer> {
   /**
    * 検証・正規化処理のフック。
    *
-   * <p>{@link AbstractPath#AbstractPath(String)} コンストラクタから呼び出されるが、 CSVPathでは検証をファクトリメソッド（{@link
-   * #of(String)} / {@code create}）側で行うため、 コンストラクタ内スロー（CT_CONSTRUCTOR_THROW）を避けるためにここでは何もしない。
+   * <p>{@link AbstractPath#AbstractPath(String)} コンストラクタから呼び出されるが、CSVPathでは検証を ファクトリメソッド（{@link
+   * #of(String)} / {@link #of(java.util.List)}）側で行うため、
+   * コンストラクタ内スロー（CT_CONSTRUCTOR_THROW）を避けるためにここでは何もしない。
    *
    * @param rawSelector 生のセレクター文字列（未使用）
    */
   @Override
   protected void validateAndNormalize(String rawSelector) {
-    // Validation is performed in factory methods (of/create) to avoid CT_CONSTRUCTOR_THROW
+    // Validation is performed in factory methods (of(...)) to avoid CT_CONSTRUCTOR_THROW
   }
 
   /**

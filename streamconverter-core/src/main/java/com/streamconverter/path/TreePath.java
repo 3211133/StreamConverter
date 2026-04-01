@@ -115,8 +115,8 @@ public class TreePath implements IPath<List<String>> {
   /**
    * 2つのTreePathが等しいかどうかをセグメントリストで比較する。
    *
-   * <p>注意: 元のパス文字列（{@link #toString()} の値）が異なっていても、 セグメントに展開した結果が同じであれば等しいとみなす。 例えば {@code
-   * "$.user.name"} と {@code "user.name"} がパース後に同じセグメントになる場合、 等しいと判定される。
+   * <p>注意: 元のパス文字列（{@link #toString()} の値）が異なっていても、セグメントに展開した結果が同じであれば等しいとみなす。 例えば JSONスタイルの {@code
+   * "$.user.name"} と XMLスタイルの {@code "user/name"} がパース後に同じセグメントになる場合、 等しいと判定される。
    *
    * @param obj 比較対象のオブジェクト
    * @return セグメントリストが等しい場合true

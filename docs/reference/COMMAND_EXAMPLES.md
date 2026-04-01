@@ -2,7 +2,7 @@
 
 現行 API（`StreamConverter.create(...)` + `void run(...)`）のサンプルです。
 
-## CSV 列抽出
+## CSV 列変換/ナビゲーション
 
 ```java
 import com.streamconverter.StreamConverter;

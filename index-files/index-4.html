@@ -91,7 +91,9 @@ loadScripts(document, 'script');</script>
 <div class="block">データソース情報を設定</div>
 </dd>
 <dt><a href="../com/streamconverter/logging/PipelineContextTurboFilter.html#decide(org.slf4j.Marker,ch.qos.logback.classic.Logger,ch.qos.logback.classic.Level,java.lang.String,java.lang.Object%5B%5D,java.lang.Throwable)" class="member-name-link">decide(Marker, Logger, Level, String, Object[], Throwable)</a> - Method in class com.streamconverter.logging.<a href="../com/streamconverter/logging/PipelineContextTurboFilter.html" title="class in com.streamconverter.logging">PipelineContextTurboFilter</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">ログイベント発生直前に <a href="../com/streamconverter/context/PipelineContext.html#syncToMDC()"><code>PipelineContext.syncToMDC()</code></a> を呼び出し、 パイプライン共有値を呼び出しスレッドのMDCへ反映する。</div>
+</dd>
 <dt><a href="../com/streamconverter/analysis/PmdReportConverter.PmdViolation.html#description()" class="member-name-link">description()</a> - Method in record class com.streamconverter.analysis.<a href="../com/streamconverter/analysis/PmdReportConverter.PmdViolation.html" title="class in com.streamconverter.analysis">PmdReportConverter.PmdViolation</a></dt>
 <dd>
 <div class="block">Returns the value of the <a href="../com/streamconverter/analysis/PmdReportConverter.PmdViolation.html#param-description"><code>description</code></a> record component.</div>

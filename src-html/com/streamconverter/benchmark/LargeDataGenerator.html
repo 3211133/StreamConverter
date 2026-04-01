@@ -424,25 +424,26 @@
 <span class="source-line-no">411</span><span id="line-411">        buffer = chunkBytes;</span>
 <span class="source-line-no">412</span><span id="line-412">        bytesGenerated += chunkBytes.length;</span>
 <span class="source-line-no">413</span><span id="line-413">      } catch (Exception e) {</span>
-<span class="source-line-no">414</span><span id="line-414">        buffer = new byte[0];</span>
-<span class="source-line-no">415</span><span id="line-415">        isDocumentComplete = true;</span>
-<span class="source-line-no">416</span><span id="line-416">      }</span>
-<span class="source-line-no">417</span><span id="line-417">      bufferPosition = 0;</span>
-<span class="source-line-no">418</span><span id="line-418">    }</span>
-<span class="source-line-no">419</span><span id="line-419"></span>
-<span class="source-line-no">420</span><span id="line-420">    private int calculateFooterSize() {</span>
-<span class="source-line-no">421</span><span id="line-421">      switch (format) {</span>
-<span class="source-line-no">422</span><span id="line-422">        case "XML":</span>
-<span class="source-line-no">423</span><span id="line-423">          return "&lt;/orders&gt;\n".getBytes(StandardCharsets.UTF_8).length;</span>
-<span class="source-line-no">424</span><span id="line-424">        case "JSON":</span>
-<span class="source-line-no">425</span><span id="line-425">          return "\n  ]\n}\n".getBytes(StandardCharsets.UTF_8).length;</span>
-<span class="source-line-no">426</span><span id="line-426">        case "CSV":</span>
-<span class="source-line-no">427</span><span id="line-427">        default:</span>
-<span class="source-line-no">428</span><span id="line-428">          return 0;</span>
-<span class="source-line-no">429</span><span id="line-429">      }</span>
-<span class="source-line-no">430</span><span id="line-430">    }</span>
-<span class="source-line-no">431</span><span id="line-431">  }</span>
-<span class="source-line-no">432</span><span id="line-432">}</span>
+<span class="source-line-no">414</span><span id="line-414">        LOG.warn("Unexpected error while encoding chunk to bytes; treating as end of document", e);</span>
+<span class="source-line-no">415</span><span id="line-415">        buffer = new byte[0];</span>
+<span class="source-line-no">416</span><span id="line-416">        isDocumentComplete = true;</span>
+<span class="source-line-no">417</span><span id="line-417">      }</span>
+<span class="source-line-no">418</span><span id="line-418">      bufferPosition = 0;</span>
+<span class="source-line-no">419</span><span id="line-419">    }</span>
+<span class="source-line-no">420</span><span id="line-420"></span>
+<span class="source-line-no">421</span><span id="line-421">    private int calculateFooterSize() {</span>
+<span class="source-line-no">422</span><span id="line-422">      switch (format) {</span>
+<span class="source-line-no">423</span><span id="line-423">        case "XML":</span>
+<span class="source-line-no">424</span><span id="line-424">          return "&lt;/orders&gt;\n".getBytes(StandardCharsets.UTF_8).length;</span>
+<span class="source-line-no">425</span><span id="line-425">        case "JSON":</span>
+<span class="source-line-no">426</span><span id="line-426">          return "\n  ]\n}\n".getBytes(StandardCharsets.UTF_8).length;</span>
+<span class="source-line-no">427</span><span id="line-427">        case "CSV":</span>
+<span class="source-line-no">428</span><span id="line-428">        default:</span>
+<span class="source-line-no">429</span><span id="line-429">          return 0;</span>
+<span class="source-line-no">430</span><span id="line-430">      }</span>
+<span class="source-line-no">431</span><span id="line-431">    }</span>
+<span class="source-line-no">432</span><span id="line-432">  }</span>
+<span class="source-line-no">433</span><span id="line-433">}</span>
 
 
 

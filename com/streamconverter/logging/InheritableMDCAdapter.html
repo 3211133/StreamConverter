@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <dd><code>org.slf4j.spi.MDCAdapter</code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-21">InheritableMDCAdapter</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-27">InheritableMDCAdapter</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements org.slf4j.spi.MDCAdapter</span></div>
 <div class="block">MDCAdapter implementation that propagates MDC context to child threads via
@@ -105,7 +105,12 @@ implements org.slf4j.spi.MDCAdapter</span></div>
  automatically inherit a copy of the parent's MDC context map.
 
  <p>Use <a href="MDCInitializer.html#initialize()"><code>MDCInitializer.initialize()</code></a> at application startup (before the first log call) to
- install this adapter.</div>
+ install this adapter.
+
+ <p><b>Thread safety:</b> Each thread holds its own independent copy of the context map via <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/InheritableThreadLocal.html" title="class or interface in java.lang" class="external-link"><code>InheritableThreadLocal</code></a>. Child threads receive a shallow copy (snapshot) of the parent's map at
+ creation time; subsequent changes in the parent are not reflected in already-running children,
+ and vice versa. Individual per-thread maps are not synchronized, which is safe as long as each
+ map is accessed only by its owning thread — which is the normal MDC usage pattern.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -137,36 +142,56 @@ implements org.slf4j.spi.MDCAdapter</span></div>
 <div class="table-header col-last">Description</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clear()" class="member-name-link">clear</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">現在のスレッドのMDCコンテキスト（マップおよびDeque）をすべてクリアする。</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#clearDequeByKey(java.lang.String)" class="member-name-link">clearDequeByKey</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">指定キーのDequeの全要素をクリアする。</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#get(java.lang.String)" class="member-name-link">get</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">現在のスレッドのMDCコンテキストから指定キーの値を取得する。</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCopyOfContextMap()" class="member-name-link">getCopyOfContextMap</a>()</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">現在のスレッドのMDCコンテキストのコピーを返す。</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Deque.html" title="class or interface in java.util" class="external-link">Deque</a><wbr>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#getCopyOfDequeByKey(java.lang.String)" class="member-name-link">getCopyOfDequeByKey</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">指定キーのDequeのコピーを返す。</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#popByKey(java.lang.String)" class="member-name-link">popByKey</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">指定キーのDequeスタックから先頭の値をポップして返す。</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#pushByKey(java.lang.String,java.lang.String)" class="member-name-link">pushByKey</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">指定キーのDequeスタックに値をプッシュする。</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#put(java.lang.String,java.lang.String)" class="member-name-link">put</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;val)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">現在のスレッドのMDCコンテキストにキーと値を設定する。</div>
+</div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#remove(java.lang.String)" class="member-name-link">remove</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">現在のスレッドのMDCコンテキストから指定キーを削除する。</div>
+</div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#setContextMap(java.util.Map)" class="member-name-link">setContextMap</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;contextMap)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">現在のスレッドのMDCコンテキストを指定されたマップで置き換える。</div>
+</div>
 </div>
 </div>
 </div>
@@ -187,7 +212,7 @@ implements org.slf4j.spi.MDCAdapter</span></div>
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>InheritableMDCAdapter</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-24">InheritableMDCAdapter</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-30">InheritableMDCAdapter</a></span>()</div>
 <div class="block">Constructs a new InheritableMDCAdapter.</div>
 </section>
 </li>
@@ -202,38 +227,61 @@ implements org.slf4j.spi.MDCAdapter</span></div>
 <li>
 <section class="detail" id="put(java.lang.String,java.lang.String)">
 <h3>put</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-47">put</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-63">put</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;val)</span></div>
+<div class="block">現在のスレッドのMDCコンテキストにキーと値を設定する。
+
+ <p>このメソッド呼び出し後に起動された子スレッドは、このエントリを自動継承する （<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/InheritableThreadLocal.html" title="class or interface in java.lang" class="external-link"><code>InheritableThreadLocal</code></a>
+ による）。ただし、既に起動済みの子スレッドには反映されない。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>put</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
+<dt>Parameters:</dt>
+<dd><code>key</code> - MDCキー名。nullの場合は <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> をスロー</dd>
+<dd><code>val</code> - 設定する値</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - keyがnullの場合</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="get(java.lang.String)">
 <h3>get</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-58">get</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-80">get</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="block">現在のスレッドのMDCコンテキストから指定キーの値を取得する。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>get</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
+<dt>Parameters:</dt>
+<dd><code>key</code> - MDCキー名</dd>
+<dt>Returns:</dt>
+<dd>設定されている値。キーが存在しないかkeyがnullの場合はnull</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="remove(java.lang.String)">
 <h3>remove</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-64">remove</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-94">remove</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="block">現在のスレッドのMDCコンテキストから指定キーを削除する。
+
+ <p>削除後にコンテキストが空になった場合は <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/InheritableThreadLocal.html" title="class or interface in java.lang" class="external-link"><code>InheritableThreadLocal</code></a> 自体を解放する。 Dequeスタック（<a href="#pushByKey(java.lang.String,java.lang.String)"><code>pushByKey(java.lang.String, java.lang.String)</code></a>/<a href="#popByKey(java.lang.String)"><code>popByKey(java.lang.String)</code></a>）には影響しない。 Dequeを含む全エントリのクリアには <a href="#clear()"><code>clear()</code></a> を使用すること。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>remove</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
+<dt>Parameters:</dt>
+<dd><code>key</code> - 削除するMDCキー名</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="clear()">
 <h3>clear</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-75">clear</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-111">clear</a></span>()</div>
+<div class="block">現在のスレッドのMDCコンテキスト（マップおよびDeque）をすべてクリアする。
+
+ <p><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/InheritableThreadLocal.html" title="class or interface in java.lang" class="external-link"><code>InheritableThreadLocal</code></a> のエントリを解放するため、このメソッド呼び出し後に 生成される子スレッドにはコンテキストが継承されない。
+ なお、既に起動済みの子スレッドが保持するコピーには影響しない。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>clear</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
@@ -243,61 +291,96 @@ implements org.slf4j.spi.MDCAdapter</span></div>
 <li>
 <section class="detail" id="getCopyOfContextMap()">
 <h3>getCopyOfContextMap</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-81">getCopyOfContextMap</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-124">getCopyOfContextMap</a></span>()</div>
+<div class="block">現在のスレッドのMDCコンテキストのコピーを返す。
+
+ <p>返されたマップはスナップショットであり、以降の変更は反映されない。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>getCopyOfContextMap</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
+<dt>Returns:</dt>
+<dd>MDCコンテキストのコピー。コンテキストが未設定の場合はnull</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="setContextMap(java.util.Map)">
 <h3>setContextMap</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-87">setContextMap</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;contextMap)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-137">setContextMap</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Map.html" title="class or interface in java.util" class="external-link">Map</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>,<wbr><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;contextMap)</span></div>
+<div class="block">現在のスレッドのMDCコンテキストを指定されたマップで置き換える。
+
+ <p>nullを渡すとコンテキストをクリアする。子スレッドへの継承も更新後の内容になる。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>setContextMap</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
+<dt>Parameters:</dt>
+<dd><code>contextMap</code> - 新しいMDCコンテキスト。nullの場合はクリア</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="pushByKey(java.lang.String,java.lang.String)">
 <h3>pushByKey</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-96">pushByKey</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-154">pushByKey</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</span></div>
+<div class="block">指定キーのDequeスタックに値をプッシュする。
+
+ <p>keyがnullの場合は何もしない。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>pushByKey</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
+<dt>Parameters:</dt>
+<dd><code>key</code> - Dequeのキー名</dd>
+<dd><code>value</code> - プッシュする値</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="popByKey(java.lang.String)">
 <h3>popByKey</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-107">popByKey</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-173">popByKey</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="block">指定キーのDequeスタックから先頭の値をポップして返す。
+
+ <p>keyがnullまたはDequeが存在しない場合はnullを返す。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>popByKey</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
+<dt>Parameters:</dt>
+<dd><code>key</code> - Dequeのキー名</dd>
+<dt>Returns:</dt>
+<dd>ポップした値。キーが存在しないかkeyがnullの場合はnull</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="getCopyOfDequeByKey(java.lang.String)">
 <h3>getCopyOfDequeByKey</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Deque.html" title="class or interface in java.util" class="external-link">Deque</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-116">getCopyOfDequeByKey</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Deque.html" title="class or interface in java.util" class="external-link">Deque</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-190">getCopyOfDequeByKey</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="block">指定キーのDequeのコピーを返す。
+
+ <p>返されたDequeはスナップショットであり、以降の変更は反映されない。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>getCopyOfDequeByKey</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
+<dt>Parameters:</dt>
+<dd><code>key</code> - Dequeのキー名</dd>
+<dt>Returns:</dt>
+<dd>Dequeのコピー。キーが存在しない場合はnull</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="clearDequeByKey(java.lang.String)">
 <h3>clearDequeByKey</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-124">clearDequeByKey</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/InheritableMDCAdapter.html#line-205">clearDequeByKey</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="block">指定キーのDequeの全要素をクリアする。
+
+ <p>keyがnullまたはDequeが存在しない場合は何もしない。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>clearDequeByKey</code>&nbsp;in interface&nbsp;<code>org.slf4j.spi.MDCAdapter</code></dd>
+<dt>Parameters:</dt>
+<dd><code>key</code> - クリアするDequeのキー名</dd>
 </dl>
 </section>
 </li>

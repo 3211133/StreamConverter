@@ -137,7 +137,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/DocumentBuilder.html" title="class or interface in javax.xml.parsers" class="external-link">DocumentBuilder</a></code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createSecureDocumentBuilderForStream(java.io.InputStream)" class="member-name-link">createSecureDocumentBuilderForStream</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</code></div>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
-<div class="block">InputStreamからのXML読み込みを安全に行います</div>
+<div class="block">ストリーム処理用に安全なDocumentBuilderを作成します。</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/validation/SchemaFactory.html" title="class or interface in javax.xml.validation" class="external-link">SchemaFactory</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createSecureSchemaFactory()" class="member-name-link">createSecureSchemaFactory</a>()</code></div>
@@ -243,16 +243,20 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createSecureDocumentBuilderForStream(java.io.InputStream)">
 <h3>createSecureDocumentBuilderForStream</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/DocumentBuilder.html" title="class or interface in javax.xml.parsers" class="external-link">DocumentBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-180">createSecureDocumentBuilderForStream</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</span>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/DocumentBuilder.html" title="class or interface in javax.xml.parsers" class="external-link">DocumentBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-184">createSecureDocumentBuilderForStream</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</span>
                                                             throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/ParserConfigurationException.html" title="class or interface in javax.xml.parsers" class="external-link">ParserConfigurationException</a></span></div>
-<div class="block">InputStreamからのXML読み込みを安全に行います</div>
+<div class="block">ストリーム処理用に安全なDocumentBuilderを作成します。
+
+ <p>引数の <code>inputStream</code> はnullチェックにのみ使用され、実際のXML解析はこのメソッド内では行いません。 返された <code>
+ DocumentBuilder</code> を使って呼び出し元が解析を行います。</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>inputStream</code> - 読み込み対象のInputStream</dd>
+<dd><code>inputStream</code> - nullチェック対象のInputStream（nullの場合は <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link"><code>IllegalArgumentException</code></a> をスロー）</dd>
 <dt>Returns:</dt>
-<dd>安全に解析されたDocumentBuilder</dd>
+<dd>ストリーム処理用に安全に設定されたDocumentBuilder</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/ParserConfigurationException.html" title="class or interface in javax.xml.parsers" class="external-link">ParserConfigurationException</a></code> - XML設定エラーが発生した場合</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - inputStreamがnullの場合</dd>
 </dl>
 </section>
 </li>

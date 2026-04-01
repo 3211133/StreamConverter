@@ -154,7 +154,9 @@ loadScripts(document, 'script');</script>
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;format,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>[]&nbsp;params,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;t)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">&nbsp;</div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">ログイベント発生直前に <a href="../context/PipelineContext.html#syncToMDC()"><code>PipelineContext.syncToMDC()</code></a> を呼び出し、 パイプライン共有値を呼び出しスレッドのMDCへ反映する。</div>
+</div>
 </div>
 </div>
 </div>
@@ -195,15 +197,31 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="decide(org.slf4j.Marker,ch.qos.logback.classic.Logger,ch.qos.logback.classic.Level,java.lang.String,java.lang.Object[],java.lang.Throwable)">
 <h3>decide</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">ch.qos.logback.core.spi.FilterReply</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/PipelineContextTurboFilter.html#line-24">decide</a></span><wbr><span class="parameters">(org.slf4j.Marker&nbsp;marker,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">ch.qos.logback.core.spi.FilterReply</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/logging/PipelineContextTurboFilter.html#line-41">decide</a></span><wbr><span class="parameters">(org.slf4j.Marker&nbsp;marker,
  ch.qos.logback.classic.Logger&nbsp;logger,
  ch.qos.logback.classic.Level&nbsp;level,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;format,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>[]&nbsp;params,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Throwable.html" title="class or interface in java.lang" class="external-link">Throwable</a>&nbsp;t)</span></div>
+<div class="block">ログイベント発生直前に <a href="../context/PipelineContext.html#syncToMDC()"><code>PipelineContext.syncToMDC()</code></a> を呼び出し、 パイプライン共有値を呼び出しスレッドのMDCへ反映する。
+
+ <p>フィルタリングは行わず、常に <code>FilterReply.NEUTRAL</code> を返す。
+
+ <p>このフィルタはログを発生させたスレッドと同一スレッドで実行されるため、 <a href="../context/PipelineContext.html#syncToMDC()"><code>PipelineContext.syncToMDC()</code></a>
+ によりそのスレッドのMDCのみが更新される。 これは <a href="../context/PipelineContext.html" title="class in com.streamconverter.context"><code>PipelineContext</code></a> が <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/ThreadLocal.html" title="class or interface in java.lang" class="external-link"><code>ThreadLocal</code></a> ベースであるための前提条件であり、
+ TurboFilter の仕様（ログ発生スレッドでの同期実行）により保証されている。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code>decide</code>&nbsp;in class&nbsp;<code>ch.qos.logback.classic.turbo.TurboFilter</code></dd>
+<dt>Parameters:</dt>
+<dd><code>marker</code> - ログマーカー（未使用）</dd>
+<dd><code>logger</code> - ログ出力元ロガー（未使用）</dd>
+<dd><code>level</code> - ログレベル（未使用）</dd>
+<dd><code>format</code> - メッセージフォーマット（未使用）</dd>
+<dd><code>params</code> - メッセージパラメータ（未使用）</dd>
+<dd><code>t</code> - 例外（未使用）</dd>
+<dt>Returns:</dt>
+<dd>常に <code>FilterReply.NEUTRAL</code></dd>
 </dl>
 </section>
 </li>

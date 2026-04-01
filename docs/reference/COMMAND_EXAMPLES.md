@@ -21,11 +21,10 @@ converter.run(inputStream, outputStream);
 ```java
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.impl.json.JsonFilterCommand;
-import com.streamconverter.command.rule.PassThroughRule;
 import com.streamconverter.path.TreePath;
 
 StreamConverter converter = StreamConverter.create(
-    JsonFilterCommand.create(TreePath.fromJson("$.user.active"), new PassThroughRule())
+    JsonFilterCommand.create(TreePath.fromJson("$.user.active"))
 );
 converter.run(inputStream, outputStream);
 ```
@@ -36,9 +35,11 @@ converter.run(inputStream, outputStream);
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.impl.xml.ConvertCommand;
 import com.streamconverter.command.impl.xml.ValidateCommand;
+import com.streamconverter.command.rule.impl.string.TrimRule;
+import com.streamconverter.path.TreePath;
 
 StreamConverter converter = StreamConverter.create(
-    ConvertCommand.create("transform.xslt"),
+    ConvertCommand.create(new TrimRule(), TreePath.fromXml("root/element")),
     ValidateCommand.create("schema.xsd")
 );
 converter.run(inputStream, outputStream);

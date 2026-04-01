@@ -19,11 +19,15 @@ StreamConverter の処理を HTTP 経由で利用するための Spring Boot Web
 ### ヘルスチェック
 `GET /api/v1/stream/health`
 
-### CSV 抽出
+### CSV ナビゲーション（構造保持）
 `POST /api/v1/stream/csv/extract?columnName=name`
 
-### JSON 抽出
+指定列に `PassThroughRule` を適用しながら CSV 構造全体を出力します（列のみを抽出するのではありません）。
+
+### JSON ナビゲーション（構造保持）
 `POST /api/v1/stream/json/extract?jsonPath=$.user.name`
+
+指定パスに `PassThroughRule` を適用しながら JSON 構造全体を出力します（パスの値のみを抽出するのではありません）。
 
 ### パイプライン処理
 `POST /api/v1/stream/process`

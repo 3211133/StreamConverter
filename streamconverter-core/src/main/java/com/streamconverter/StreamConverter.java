@@ -218,7 +218,10 @@ public class StreamConverter {
                       try {
                         commandOutput.close();
                       } catch (IOException ignored) {
-                        // ignored
+                        // PipedOutputStream.close() may fail if the reader side has already closed
+                        // (or the pipe is broken for other reasons — see isPipedStreamIOException).
+                        // The command has already finished (exceptionally), so this secondary
+                        // failure is safe to ignore.
                       }
                     }
                     // Already a StreamProcessingException — re-throw as-is to avoid double-wrapping
@@ -228,7 +231,10 @@ public class StreamConverter {
                       try {
                         commandOutput.close();
                       } catch (IOException ignored) {
-                        // ignored
+                        // PipedOutputStream.close() may fail if the reader side has already closed
+                        // (or the pipe is broken for other reasons — see isPipedStreamIOException).
+                        // The command has already finished (exceptionally), so this secondary
+                        // failure is safe to ignore.
                       }
                     }
                     throw new StreamProcessingException(
@@ -238,7 +244,10 @@ public class StreamConverter {
                       try {
                         commandOutput.close();
                       } catch (IOException ignored) {
-                        // ignored
+                        // PipedOutputStream.close() may fail if the reader side has already closed
+                        // (or the pipe is broken for other reasons — see isPipedStreamIOException).
+                        // The command has already finished (exceptionally), so this secondary
+                        // failure is safe to ignore.
                       }
                     }
                     throw e;

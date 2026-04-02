@@ -84,18 +84,36 @@ loadScripts(document, 'script');</script>
 </dd>
 <dt><a href="../com/streamconverter/examples/PerformanceOptimizationExamples.html#%3Cinit%3E()" class="member-name-link">PerformanceOptimizationExamples()</a> - Constructor for class com.streamconverter.examples.<a href="../com/streamconverter/examples/PerformanceOptimizationExamples.html" title="class in com.streamconverter.examples">PerformanceOptimizationExamples</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/streamconverter/PipeAbortedException.html" class="type-name-link" title="class in com.streamconverter">PipeAbortedException</a> - Exception Class in <a href="../com/streamconverter/package-summary.html">com.streamconverter</a></dt>
+<dd>
+<div class="block">対向コマンドの異常終了により、パイプへの read/write が継続不可能になったことを示す例外。</div>
+</dd>
+<dt><a href="../com/streamconverter/PipeAbortedException.html#%3Cinit%3E()" class="member-name-link">PipeAbortedException()</a> - Constructor for exception class com.streamconverter.<a href="../com/streamconverter/PipeAbortedException.html" title="class in com.streamconverter">PipeAbortedException</a></dt>
+<dd>
+<div class="block">対向コマンドの異常終了を示す例外を作成する。</div>
+</dd>
 <dt><a href="../com/streamconverter/context/PipelineContext.html" class="type-name-link" title="class in com.streamconverter.context">PipelineContext</a> - Class in <a href="../com/streamconverter/context/package-summary.html">com.streamconverter.context</a></dt>
 <dd>
 <div class="block">パイプライン内でコマンド間の共有値を管理するコンテキスト。</div>
 </dd>
 <dt><a href="../com/streamconverter/context/PipelineContext.html#%3Cinit%3E()" class="member-name-link">PipelineContext()</a> - Constructor for class com.streamconverter.context.<a href="../com/streamconverter/context/PipelineContext.html" title="class in com.streamconverter.context">PipelineContext</a></dt>
-<dd>&nbsp;</dd>
+<dd>
+<div class="block">パイプラインコンテキストを新規作成する。</div>
+</dd>
 <dt><a href="../com/streamconverter/logging/PipelineContextTurboFilter.html" class="type-name-link" title="class in com.streamconverter.logging">PipelineContextTurboFilter</a> - Class in <a href="../com/streamconverter/logging/package-summary.html">com.streamconverter.logging</a></dt>
 <dd>
 <div class="block">ログ出力直前にPipelineContextの共有値をMDCへ同期するTurboFilter。</div>
 </dd>
 <dt><a href="../com/streamconverter/logging/PipelineContextTurboFilter.html#%3Cinit%3E()" class="member-name-link">PipelineContextTurboFilter()</a> - Constructor for class com.streamconverter.logging.<a href="../com/streamconverter/logging/PipelineContextTurboFilter.html" title="class in com.streamconverter.logging">PipelineContextTurboFilter</a></dt>
 <dd>&nbsp;</dd>
+<dt><a href="../com/streamconverter/context/PipelineSignal.html" class="type-name-link" title="interface in com.streamconverter.context">PipelineSignal</a> - Interface in <a href="../com/streamconverter/context/package-summary.html">com.streamconverter.context</a></dt>
+<dd>
+<div class="block">パイプライン内のコマンド間で送受信できるシグナルの基底型。</div>
+</dd>
+<dt><a href="../com/streamconverter/context/PipelineSignal.Skip.html" class="type-name-link" title="class in com.streamconverter.context">PipelineSignal.Skip</a> - Record Class in <a href="../com/streamconverter/context/package-summary.html">com.streamconverter.context</a></dt>
+<dd>
+<div class="block">後続処理のスキップを要求するシグナル。</div>
+</dd>
 <dt><a href="../com/streamconverter/command/impl/analysis/PmdXmlToJsonCommand.PmdJsonReport.html#%3Cinit%3E(com.streamconverter.command.impl.analysis.PmdXmlToJsonCommand.PmdJsonSummary,java.util.List)" class="member-name-link">PmdJsonReport(PmdXmlToJsonCommand.PmdJsonSummary, List&lt;PmdXmlToMarkdownCommand.PmdViolation&gt;)</a> - Constructor for record class com.streamconverter.command.impl.analysis.<a href="../com/streamconverter/command/impl/analysis/PmdXmlToJsonCommand.PmdJsonReport.html" title="class in com.streamconverter.command.impl.analysis">PmdXmlToJsonCommand.PmdJsonReport</a></dt>
 <dd>
 <div class="block">Creates an instance of a <code>PmdJsonReport</code> record class.</div>
@@ -160,6 +178,10 @@ loadScripts(document, 'script');</script>
 <dd>
 <div class="block">PMD違反情報を表すレコードクラス</div>
 </dd>
+<dt><a href="../com/streamconverter/context/SignalChannel.html#poll()" class="member-name-link">poll()</a> - Method in class com.streamconverter.context.<a href="../com/streamconverter/context/SignalChannel.html" title="class in com.streamconverter.context">SignalChannel</a></dt>
+<dd>
+<div class="block">シグナルを非ブロッキングで確認する。</div>
+</dd>
 <dt><a href="../com/streamconverter/command/rule/PooledDatabaseFetchRule.html" class="type-name-link" title="class in com.streamconverter.command.rule">PooledDatabaseFetchRule</a> - Class in <a href="../com/streamconverter/command/rule/package-summary.html">com.streamconverter.command.rule</a></dt>
 <dd>
 <div class="block">HikariCP対応のデータベースフェッチルール</div>
@@ -171,6 +193,10 @@ loadScripts(document, 'script');</script>
 <dt><a href="../com/streamconverter/logging/InheritableMDCAdapter.html#popByKey(java.lang.String)" class="member-name-link">popByKey(String)</a> - Method in class com.streamconverter.logging.<a href="../com/streamconverter/logging/InheritableMDCAdapter.html" title="class in com.streamconverter.logging">InheritableMDCAdapter</a></dt>
 <dd>
 <div class="block">指定キーのDequeスタックから先頭の値をポップして返す。</div>
+</dd>
+<dt><a href="../com/streamconverter/context/PipelineContext.html#prepareSignalChannel(java.lang.String)" class="member-name-link">prepareSignalChannel(String)</a> - Method in class com.streamconverter.context.<a href="../com/streamconverter/context/PipelineContext.html" title="class in com.streamconverter.context">PipelineContext</a></dt>
+<dd>
+<div class="block">指定IDのSignalChannelを事前登録する。</div>
 </dd>
 <dt><a href="../com/streamconverter/command/impl/LineEndingNormalizeCommand.LineEndingType.html#PRESERVE_INPUT" class="member-name-link">PRESERVE_INPUT</a> - Enum constant in enum class com.streamconverter.command.impl.<a href="../com/streamconverter/command/impl/LineEndingNormalizeCommand.LineEndingType.html" title="enum class in com.streamconverter.command.impl">LineEndingNormalizeCommand.LineEndingType</a></dt>
 <dd>

@@ -83,6 +83,7 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
+<li class="circle">com.streamconverter.<a href="com/streamconverter/AbortablePipedStream.html" class="type-name-link" title="class in com.streamconverter">AbortablePipedStream</a> (implements java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/AutoCloseable.html" title="class or interface in java.lang" class="external-link">AutoCloseable</a>)</li>
 <li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/AbstractPath.html" class="type-name-link" title="class in com.streamconverter.path">AbstractPath</a>&lt;T&gt; (implements com.streamconverter.path.<a href="com/streamconverter/path/IPath.html" title="interface in com.streamconverter.path">IPath</a>&lt;T&gt;)
 <ul>
 <li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/CSVPath.html" class="type-name-link" title="class in com.streamconverter.path">CSVPath</a></li>
@@ -150,6 +151,8 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.streamconverter.benchmark.<a href="com/streamconverter/benchmark/ResourceUsage.html" class="type-name-link" title="class in com.streamconverter.benchmark">ResourceUsage</a></li>
 <li class="circle">com.streamconverter.security.<a href="com/streamconverter/security/SecureXmlConfiguration.html" class="type-name-link" title="class in com.streamconverter.security">SecureXmlConfiguration</a></li>
 <li class="circle">com.streamconverter.security.<a href="com/streamconverter/security/SecureXPathValidator.html" class="type-name-link" title="class in com.streamconverter.security">SecureXPathValidator</a></li>
+<li class="circle">com.streamconverter.context.<a href="com/streamconverter/context/SignalChannel.html" class="type-name-link" title="class in com.streamconverter.context">SignalChannel</a></li>
+<li class="circle">com.streamconverter.examples.<a href="com/streamconverter/examples/SignalPipelineDemo.html" class="type-name-link" title="class in com.streamconverter.examples">SignalPipelineDemo</a></li>
 <li class="circle">com.streamconverter.command.rule.impl.casing.<a href="com/streamconverter/command/rule/impl/casing/SnakeToCamelCaseRule.html" class="type-name-link" title="class in com.streamconverter.command.rule.impl.casing">SnakeToCamelCaseRule</a> (implements com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>)</li>
 <li class="circle">com.streamconverter.command.rule.impl.casing.<a href="com/streamconverter/command/rule/impl/casing/SnakeToCamelCaseRule.Builder.html" class="type-name-link" title="class in com.streamconverter.command.rule.impl.casing">SnakeToCamelCaseRule.Builder</a></li>
 <li class="circle">com.streamconverter.<a href="com/streamconverter/StreamConverter.html" class="type-name-link" title="class in com.streamconverter">StreamConverter</a></li>
@@ -160,6 +163,11 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Exception.html" class="type-name-link external-link" title="class or interface in java.lang">Exception</a>
 <ul>
+<li class="circle">java.io.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" class="type-name-link external-link" title="class or interface in java.io">IOException</a>
+<ul>
+<li class="circle">com.streamconverter.<a href="com/streamconverter/PipeAbortedException.html" class="type-name-link" title="class in com.streamconverter">PipeAbortedException</a></li>
+</ul>
+</li>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/RuntimeException.html" class="type-name-link external-link" title="class or interface in java.lang">RuntimeException</a>
 <ul>
 <li class="circle">com.streamconverter.<a href="com/streamconverter/StreamProcessingException.html" class="type-name-link" title="class in com.streamconverter">StreamProcessingException</a></li>
@@ -184,6 +192,7 @@ loadScripts(document, 'script');</script>
 <li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/IPath.html" class="type-name-link" title="interface in com.streamconverter.path">IPath</a>&lt;T&gt;</li>
 <li class="circle">com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" class="type-name-link" title="interface in com.streamconverter.command.rule">IRule</a></li>
 <li class="circle">com.streamconverter.command.<a href="com/streamconverter/command/IStreamCommand.html" class="type-name-link" title="interface in com.streamconverter.command">IStreamCommand</a></li>
+<li class="circle">com.streamconverter.context.<a href="com/streamconverter/context/PipelineSignal.html" class="type-name-link" title="interface in com.streamconverter.context">PipelineSignal</a></li>
 </ul>
 </section>
 <section class="hierarchy">
@@ -207,6 +216,7 @@ loadScripts(document, 'script');</script>
 <ul>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" class="type-name-link external-link" title="class or interface in java.lang">Record</a>
 <ul>
+<li class="circle">com.streamconverter.context.<a href="com/streamconverter/context/PipelineSignal.Skip.html" class="type-name-link" title="class in com.streamconverter.context">PipelineSignal.Skip</a> (implements com.streamconverter.context.<a href="com/streamconverter/context/PipelineSignal.html" title="interface in com.streamconverter.context">PipelineSignal</a>)</li>
 <li class="circle">com.streamconverter.analysis.<a href="com/streamconverter/analysis/PmdReportConverter.PmdViolation.html" class="type-name-link" title="class in com.streamconverter.analysis">PmdReportConverter.PmdViolation</a></li>
 <li class="circle">com.streamconverter.command.impl.analysis.<a href="com/streamconverter/command/impl/analysis/PmdXmlToJsonCommand.PmdJsonReport.html" class="type-name-link" title="class in com.streamconverter.command.impl.analysis">PmdXmlToJsonCommand.PmdJsonReport</a></li>
 <li class="circle">com.streamconverter.command.impl.analysis.<a href="com/streamconverter/command/impl/analysis/PmdXmlToJsonCommand.PmdJsonSummary.html" class="type-name-link" title="class in com.streamconverter.command.impl.analysis">PmdXmlToJsonCommand.PmdJsonSummary</a></li>

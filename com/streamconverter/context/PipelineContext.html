@@ -130,7 +130,9 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Constructor</div>
 <div class="table-header col-last">Description</div>
 <div class="col-constructor-name even-row-color"><code><a href="#%3Cinit%3E()" class="member-name-link">PipelineContext</a>()</code></div>
-<div class="col-last even-row-color">&nbsp;</div>
+<div class="col-last even-row-color">
+<div class="block">パイプラインコンテキストを新規作成する。</div>
+</div>
 </div>
 </section>
 </li>
@@ -139,7 +141,7 @@ loadScripts(document, 'script');</script>
 <section class="method-summary" id="method-summary">
 <h2>Method Summary</h2>
 <div id="method-summary-table">
-<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
+<div class="table-tabs" role="tablist" aria-orientation="horizontal"><button id="method-summary-table-tab0" role="tab" aria-selected="true" aria-controls="method-summary-table.tabpanel" tabindex="0" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table', 3)" class="active-table-tab">All Methods</button><button id="method-summary-table-tab1" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab1', 3)" class="table-tab">Static Methods</button><button id="method-summary-table-tab2" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab2', 3)" class="table-tab">Instance Methods</button><button id="method-summary-table-tab4" role="tab" aria-selected="false" aria-controls="method-summary-table.tabpanel" tabindex="-1" onkeydown="switchTab(event)" onclick="show('method-summary-table', 'method-summary-table-tab4', 3)" class="table-tab">Concrete Methods</button></div>
 <div id="method-summary-table.tabpanel" role="tabpanel" aria-labelledby="method-summary-table-tab0">
 <div class="summary-table three-column-summary">
 <div class="table-header col-first">Modifier and Type</div>
@@ -154,6 +156,16 @@ loadScripts(document, 'script');</script>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getShared(java.lang.String)" class="member-name-link">getShared</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">共有値を取得する。</div>
+</div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="SignalChannel.html" title="class in com.streamconverter.context">SignalChannel</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#getSignalChannel(java.lang.String)" class="member-name-link">getSignalChannel</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;channelId)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">現在のスレッドに紐づくPipelineContextから、指定IDのSignalChannelを取得する。</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="SignalChannel.html" title="class in com.streamconverter.context">SignalChannel</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#prepareSignalChannel(java.lang.String)" class="member-name-link">prepareSignalChannel</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;channelId)</code></div>
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
+<div class="block">指定IDのSignalChannelを事前登録する。</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#putShared(java.lang.String,java.lang.String)" class="member-name-link">putShared</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
@@ -191,7 +203,8 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>PipelineContext</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-36">PipelineContext</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-39">PipelineContext</a></span>()</div>
+<div class="block">パイプラインコンテキストを新規作成する。</div>
 </section>
 </li>
 </ul>
@@ -205,7 +218,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="putShared(java.lang.String,java.lang.String)">
 <h3>putShared</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-51">putShared</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-55">putShared</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;value)</span></div>
 <div class="block">共有値を設定し、呼び出しスレッドのMDCにも即座に反映する。
 
@@ -222,7 +235,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="getShared(java.lang.String)">
 <h3>getShared</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-74">getShared</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-78">getShared</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;key)</span></div>
 <div class="block">共有値を取得する。</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -235,7 +248,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="syncToMDC()">
 <h3>syncToMDC</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-87">syncToMDC</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-91">syncToMDC</a></span>()</div>
 <div class="block">全共有値を呼び出しスレッドのMDCにマージする。
 
  <p>PipelineContextが未設定の場合は何もしない。</div>
@@ -244,7 +257,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="set(com.streamconverter.context.PipelineContext)">
 <h3>set</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-120">set</a></span><wbr><span class="parameters">(<a href="PipelineContext.html" title="class in com.streamconverter.context">PipelineContext</a>&nbsp;context)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-124">set</a></span><wbr><span class="parameters">(<a href="PipelineContext.html" title="class in com.streamconverter.context">PipelineContext</a>&nbsp;context)</span></div>
 <div class="block">現在のスレッドにPipelineContextを設定する。
 
  <p>StreamConverterがパイプラインの各コマンドスレッドで呼び出す。</div>
@@ -257,8 +270,54 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="clear()">
 <h3>clear</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-125">clear</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-129">clear</a></span>()</div>
 <div class="block">現在のスレッドからPipelineContextをクリアする。</div>
+</section>
+</li>
+<li>
+<section class="detail" id="prepareSignalChannel(java.lang.String)">
+<h3>prepareSignalChannel</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="SignalChannel.html" title="class in com.streamconverter.context">SignalChannel</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-155">prepareSignalChannel</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;channelId)</span></div>
+<div class="block">指定IDのSignalChannelを事前登録する。
+
+ <p><a href="../StreamConverter.html#run(java.io.InputStream,java.io.OutputStream,com.streamconverter.context.PipelineContext)"><code>StreamConverter.run(java.io.InputStream, java.io.OutputStream, PipelineContext)</code></a> 呼び出し前に、コマンド間で共有するチャネルを確立するために使用する。 同じIDで複数回呼んだ場合は既存のチャネルを返す。
+
+ <p>使用例:
+
+ <pre><code>
+ PipelineContext ctx = new PipelineContext();
+ SignalChannel ch = ctx.prepareSignalChannel("validation");
+
+ StreamConverter.create(
+     new FilterCommand(ch),    // 前段: ch.send(new PipelineSignal.Skip("..."))
+     new TransformCommand(ch)  // 後段: ch.poll() で割り込み確認
+ ).run(input, output, ctx);
+ </code></pre></div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>channelId</code> - チャネルID</dd>
+<dt>Returns:</dt>
+<dd>新規または既存の SignalChannel</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - channelId が null の場合</dd>
+</dl>
+</section>
+</li>
+<li>
+<section class="detail" id="getSignalChannel(java.lang.String)">
+<h3>getSignalChannel</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="SignalChannel.html" title="class in com.streamconverter.context">SignalChannel</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineContext.html#line-171">getSignalChannel</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;channelId)</span></div>
+<div class="block">現在のスレッドに紐づくPipelineContextから、指定IDのSignalChannelを取得する。
+
+ <p>PipelineContext未設定のスレッドから呼ばれた場合、またはチャネルが未登録の場合は <code>null</code> を返す。</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>channelId</code> - チャネルID</dd>
+<dt>Returns:</dt>
+<dd>SignalChannel。未設定または未登録の場合は null</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - channelId が null の場合</dd>
+</dl>
 </section>
 </li>
 </ul>

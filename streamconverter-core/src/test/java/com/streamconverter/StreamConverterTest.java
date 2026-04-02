@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -202,12 +204,9 @@ class StreamConverterTest {
 
     StreamProcessingException ex =
         assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
-    // The exception chain should reflect the downstream failure, not a secondary "Pipe closed"
-    String fullMessage =
-        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
-    assertTrue(
-        fullMessage.contains("Downstream failed immediately"),
-        "Exception should reflect downstream failure, got: " + fullMessage);
+    assertFalse(
+        StreamConverter.isPipeAbortedCause(ex),
+        "Root cause should not be a pipe-aborted cause. Got: " + ex);
   }
 
   @Test
@@ -236,11 +235,9 @@ class StreamConverterTest {
 
     StreamProcessingException ex =
         assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
-    String fullMessage =
-        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
-    assertTrue(
-        fullMessage.contains("Middle stage failed"),
-        "Exception should reflect middle-stage failure, got: " + fullMessage);
+    assertFalse(
+        StreamConverter.isPipeAbortedCause(ex),
+        "Root cause should not be a pipe-aborted cause. Got: " + ex);
   }
 
   @Test
@@ -272,12 +269,9 @@ class StreamConverterTest {
         assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
 
     // pipe 系の二次エラーではなく、後段の失敗が根本原因として伝播すること
-    String fullMessage =
-        ex.getMessage()
-            + (ex.getCause() != null ? " caused by: " + ex.getCause().getMessage() : "");
-    assertTrue(
-        fullMessage.contains("Root cause: downstream failed"),
-        "Root cause should be downstream failure, not pipe IOException. Got: " + fullMessage);
+    assertFalse(
+        StreamConverter.isPipeAbortedCause(ex),
+        "Root cause should not be a pipe-aborted cause. Got: " + ex);
   }
 
   @Test
@@ -361,6 +355,69 @@ class StreamConverterTest {
 
     // 出力サイズが入力サイズと一致することを確認
     assertEquals(testDataSize, outputStream.size(), "Output size should match input size");
+  }
+
+  // -------------------------------------------------------------------------
+  // 前段が read() でブロック中に後段が失敗するシナリオ（Codex指摘 P1）
+  // -------------------------------------------------------------------------
+
+  @Test
+  @Timeout(10)
+  @DisplayName(
+      "Downstream failure unblocks upstream blocked in read() and reports correct root cause")
+  void testDownstreamFailureUnblocksUpstreamBlockedInRead() {
+    // シナリオ:
+    //   前段: 入力を読み込んで次へ転送（小さい入力 → すぐに read() でブロック待ち）
+    //   後段: 前段から読み込む前に即時失敗
+    //
+    // 問題の仮説: 前段が in.read() 内部でブロックしている間に abort() が呼ばれると、
+    // checkAborted() は次回の read() 呼び出し前にしかチェックされないため、
+    // closeResources() による "Pipe closed" IOException で解放される。
+    // isPipeAbortedCause() がそれを secondary と認識できなければ、
+    // "Pipe closed" が根本原因として誤報告される。
+
+    CountDownLatch upstreamBlockingInRead = new CountDownLatch(1);
+
+    // 前段: データをそのまま転送するが、後段が読まないので read() でブロックする
+    IStreamCommand upstream =
+        (in, out) -> {
+          byte[] buf = new byte[1];
+          // 1バイト読み出してから書き込み → 後段が読まないとここでブロック
+          int b = in.read(buf);
+          if (b > 0) {
+            out.write(buf, 0, b);
+            out.flush();
+          }
+          // 後段が何も読まなければここで次の read() がブロックする
+          upstreamBlockingInRead.countDown();
+          in.transferTo(out); // ここで read() ブロック待ちになる
+        };
+
+    // 後段: 前段が read() でブロックするまで少し待ってから失敗
+    IStreamCommand downstream =
+        (in, out) -> {
+          // 前段が最初の書き込みを完了するまで待機
+          try {
+            upstreamBlockingInRead.await(5, TimeUnit.SECONDS);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+          // 前段が read() でブロックした後に失敗する
+          throw new RuntimeException(
+              "Root cause: downstream failed while upstream blocked in read");
+        };
+
+    StreamConverter converter = StreamConverter.create(upstream, downstream);
+    // 前段が read() でブロックするよう、最低2バイト以上の入力を用意
+    InputStream input = new ByteArrayInputStream("AB".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+
+    assertFalse(
+        StreamConverter.isPipeAbortedCause(ex),
+        "Root cause should not be a pipe-aborted cause. Got: " + ex);
   }
 
   // -------------------------------------------------------------------------

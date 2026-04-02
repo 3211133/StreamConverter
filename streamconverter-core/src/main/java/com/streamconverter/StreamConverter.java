@@ -282,27 +282,32 @@ public class StreamConverter {
             });
       }
 
-      // すべてのタスクの完了を待機。
-      // 前段コマンドの待機中に後段が失敗していれば exceptionally ハンドラがパイプをクローズし、
-      // 前段の書き込みブロックを IOException で即解放する。
-      for (int i = 0; i < futures.size(); i++) {
-        try {
-          futures.get(i).get();
-        } catch (ExecutionException e) {
-          // findFirstFailureCause より先に cancel すると、後段 future が isCancelled() になり
-          // 根本原因が取得できなくなるため、先に根本原因を特定してからキャンセルする
-          Throwable cause = findFirstFailureCause(futures, e.getCause());
-          cancelRemainingFutures(futures, i + 1);
-          if (cause instanceof Error err) throw err;
-          if (cause instanceof StreamProcessingException spe) throw spe;
-          if (cause instanceof IOException ioe) throw ioe;
-          if (cause instanceof RuntimeException re) throw re;
-          throw new StreamProcessingException("Unexpected error during command execution", cause);
-        } catch (InterruptedException e) {
-          cancelRemainingFutures(futures, i);
-          Thread.currentThread().interrupt();
-          throw new StreamProcessingException("Pipeline execution was interrupted", e);
+      // 全タスクの完了を待機してから根本原因を収集する。
+      // abort() による物理クローズで各コマンドが順不同で完了するため、
+      // 全完了後に走査することでレースコンディションを回避する。
+      try {
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+      } catch (ExecutionException e) {
+        // いずれかが失敗した場合は全件走査して根本原因を収集する
+        List<Throwable> rootCauses = collectRootCauses(futures);
+        if (rootCauses.isEmpty()) {
+          // 全件 PipeAbortedException の場合（通常起こらない）
+          throw new StreamProcessingException(
+              "Unexpected error during command execution", e.getCause());
         }
+        Throwable primary = rootCauses.get(0);
+        for (int i = 1; i < rootCauses.size(); i++) {
+          primary.addSuppressed(rootCauses.get(i));
+        }
+        if (primary instanceof Error err) throw err;
+        if (primary instanceof StreamProcessingException spe) throw spe;
+        if (primary instanceof IOException ioe) throw ioe;
+        if (primary instanceof RuntimeException re) throw re;
+        throw new StreamProcessingException("Unexpected error during command execution", primary);
+      } catch (InterruptedException e) {
+        cancelRemainingFutures(futures, 0);
+        Thread.currentThread().interrupt();
+        throw new StreamProcessingException("Pipeline execution was interrupted", e);
       }
 
       if (LOG.isInfoEnabled()) {
@@ -316,37 +321,29 @@ public class StreamConverter {
   }
 
   /**
-   * 完了済みの futures から最も根本的な失敗原因を取得する。
+   * 全 futures から根本原因（{@link PipeAbortedException} でない失敗）を全件収集して返す。
    *
-   * <p>{@link PipeAbortedException} は対向コマンドの異常終了に巻き込まれた二次的な失敗であるため、 非 {@link PipeAbortedException}
-   * の失敗を優先して返す。 既に完了済みの future のみを走査し、ブロックしない。
+   * <p>呼び出し前に全 futures が完了済みであること。
    */
-  private Throwable findFirstFailureCause(
-      List<CompletableFuture<Void>> futures, Throwable fallback) {
-    Throwable pipeAbortedFallback = null;
+  private List<Throwable> collectRootCauses(List<CompletableFuture<Void>> futures) {
+    List<Throwable> rootCauses = new ArrayList<>();
     for (CompletableFuture<Void> f : futures) {
-      // 未完了またはキャンセル済みの future はスキップする
-      if (!f.isDone() || f.isCancelled()) {
+      if (!f.isCompletedExceptionally()) {
         continue;
       }
-      if (f.isCompletedExceptionally()) {
-        try {
-          f.get();
-        } catch (ExecutionException ee) {
-          Throwable cause = ee.getCause();
-          if (!isPipeAbortedCause(cause)) {
-            return cause;
-          }
-          if (pipeAbortedFallback == null) {
-            pipeAbortedFallback = cause;
-          }
-        } catch (InterruptedException ie) {
-          Thread.currentThread().interrupt();
-          return ie;
+      try {
+        f.get();
+      } catch (ExecutionException ee) {
+        Throwable cause = ee.getCause();
+        if (!isPipeAbortedCause(cause)) {
+          rootCauses.add(cause);
         }
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        rootCauses.add(ie);
       }
     }
-    return pipeAbortedFallback != null ? pipeAbortedFallback : fallback;
+    return rootCauses;
   }
 
   /**

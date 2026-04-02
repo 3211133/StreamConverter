@@ -109,19 +109,34 @@ public final class AbortablePipedStream implements AutoCloseable {
     @Override
     public void write(int b) throws IOException {
       checkAborted();
-      out.write(b);
+      try {
+        out.write(b);
+      } catch (IOException e) {
+        checkAborted();
+        throw e;
+      }
     }
 
     @Override
     public void write(byte[] b, int off, int len) throws IOException {
       checkAborted();
-      out.write(b, off, len);
+      try {
+        out.write(b, off, len);
+      } catch (IOException e) {
+        checkAborted();
+        throw e;
+      }
     }
 
     @Override
     public void flush() throws IOException {
       checkAborted();
-      out.flush();
+      try {
+        out.flush();
+      } catch (IOException e) {
+        checkAborted();
+        throw e;
+      }
     }
 
     @Override
@@ -135,13 +150,23 @@ public final class AbortablePipedStream implements AutoCloseable {
     @Override
     public int read() throws IOException {
       checkAborted();
-      return in.read();
+      try {
+        return in.read();
+      } catch (IOException e) {
+        checkAborted();
+        throw e;
+      }
     }
 
     @Override
     public int read(byte[] b, int off, int len) throws IOException {
       checkAborted();
-      return in.read(b, off, len);
+      try {
+        return in.read(b, off, len);
+      } catch (IOException e) {
+        checkAborted();
+        throw e;
+      }
     }
 
     @Override

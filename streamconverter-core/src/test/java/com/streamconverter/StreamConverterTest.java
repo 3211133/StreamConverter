@@ -12,6 +12,8 @@ import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -202,12 +204,9 @@ class StreamConverterTest {
 
     StreamProcessingException ex =
         assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
-    // The exception chain should reflect the downstream failure, not a secondary "Pipe closed"
-    String fullMessage =
-        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
-    assertTrue(
-        fullMessage.contains("Downstream failed immediately"),
-        "Exception should reflect downstream failure, got: " + fullMessage);
+    assertFalse(
+        StreamConverter.isPipeAbortedCause(ex),
+        "Root cause should not be a pipe-aborted cause. Got: " + ex);
   }
 
   @Test
@@ -236,11 +235,9 @@ class StreamConverterTest {
 
     StreamProcessingException ex =
         assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
-    String fullMessage =
-        ex.getMessage() + (ex.getCause() != null ? " " + ex.getCause().getMessage() : "");
-    assertTrue(
-        fullMessage.contains("Middle stage failed"),
-        "Exception should reflect middle-stage failure, got: " + fullMessage);
+    assertFalse(
+        StreamConverter.isPipeAbortedCause(ex),
+        "Root cause should not be a pipe-aborted cause. Got: " + ex);
   }
 
   @Test
@@ -248,15 +245,15 @@ class StreamConverterTest {
   @DisplayName(
       "Pipe IOException from upstream is not reported as root cause when downstream fails first")
   void testPipeIOExceptionFromUpstreamIsNotRootCause() {
-    // 後段が即時失敗 → 前段が PipedOutputStream への書き込みで IOException を受ける。
-    // isPipeBrokenCause() が pipe 系 IOException を secondary として除外し、
+    // 後段が即時失敗 → 前段が出力ストリームへの書き込みで PipeAbortedException を受ける。
+    // isPipeAbortedCause() が PipeAbortedException を secondary として除外し、
     // 後段の失敗が根本原因として返ることを確認する。
     IStreamCommand upstream =
         (in, out) -> {
           byte[] chunk = new byte[65536];
           Arrays.fill(chunk, (byte) 'A');
           for (int i = 0; i < 1000; i++) {
-            out.write(chunk); // 後段失敗後に PipedOutputStream から IOException が来る
+            out.write(chunk); // 後段失敗後に PipeAbortedException が来る
           }
         };
     IStreamCommand downstream =
@@ -272,12 +269,9 @@ class StreamConverterTest {
         assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
 
     // pipe 系の二次エラーではなく、後段の失敗が根本原因として伝播すること
-    String fullMessage =
-        ex.getMessage()
-            + (ex.getCause() != null ? " caused by: " + ex.getCause().getMessage() : "");
-    assertTrue(
-        fullMessage.contains("Root cause: downstream failed"),
-        "Root cause should be downstream failure, not pipe IOException. Got: " + fullMessage);
+    assertFalse(
+        StreamConverter.isPipeAbortedCause(ex),
+        "Root cause should not be a pipe-aborted cause. Got: " + ex);
   }
 
   @Test
@@ -364,77 +358,108 @@ class StreamConverterTest {
   }
 
   // -------------------------------------------------------------------------
-  // isPipedStreamIOException メッセージマッチングのカバレッジテスト
-  // スタックトレースが省略された IOException（-XX:+OmitStackTraceInFastThrow 相当）を
-  // 直接 isPipedStreamIOException() に渡し、メッセージフォールバックパスを検証する。
-  // isPipedStreamIOException は package-private なので同パッケージから直接呼び出せる。
+  // 前段が read() でブロック中に後段が失敗するシナリオ（Codex指摘 P1）
   // -------------------------------------------------------------------------
 
-  /**
-   * スタックトレースを空にした IOException を生成するヘルパー。
-   *
-   * <p>{@code setStackTrace(new StackTraceElement[0])} で空配列を設定することで、 {@code getStackTrace()}
-   * が空配列を返す状態を作り、メッセージフォールバックパスを検証する。
-   */
-  private static IOException emptyStackTraceIOException(String message) {
-    IOException ex = new IOException(message);
-    ex.setStackTrace(new StackTraceElement[0]);
-    return ex;
-  }
-
   @Test
-  @DisplayName("'Pipe closed' message with empty stack trace is recognized as pipe-broken")
-  void testPipeClosedMessageTreatedAsSecondaryCause() {
-    // setStackTrace([]) で空スタックトレース → メッセージフォールバックで "Pipe closed" を検出
-    IOException ex = emptyStackTraceIOException("Pipe closed");
-    assertTrue(
-        StreamConverter.isPipedStreamIOException(ex),
-        "'Pipe closed' with empty stack trace should be treated as pipe-broken");
-  }
+  @Timeout(10)
+  @DisplayName(
+      "Downstream failure unblocks upstream blocked in read() and reports correct root cause")
+  void testDownstreamFailureUnblocksUpstreamBlockedInRead() {
+    // シナリオ:
+    //   前段: 入力を読み込んで次へ転送（小さい入力 → すぐに read() でブロック待ち）
+    //   後段: 前段から読み込む前に即時失敗
+    //
+    // 問題の仮説: 前段が in.read() 内部でブロックしている間に abort() が呼ばれると、
+    // checkAborted() は次回の read() 呼び出し前にしかチェックされないため、
+    // closeResources() による "Pipe closed" IOException で解放される。
+    // isPipeAbortedCause() がそれを secondary と認識できなければ、
+    // "Pipe closed" が根本原因として誤報告される。
 
-  @Test
-  @DisplayName("'Pipe broken' message with empty stack trace is recognized as pipe-broken")
-  void testPipeBrokenMessageTreatedAsSecondaryCause() {
-    IOException ex = emptyStackTraceIOException("Pipe broken");
-    assertTrue(
-        StreamConverter.isPipedStreamIOException(ex),
-        "'Pipe broken' with empty stack trace should be treated as pipe-broken");
-  }
+    CountDownLatch upstreamBlockingInRead = new CountDownLatch(1);
 
-  @Test
-  @DisplayName("'Read end dead' message with empty stack trace is recognized as pipe-broken")
-  void testReadEndDeadMessageTreatedAsSecondaryCause() {
-    IOException ex = emptyStackTraceIOException("Read end dead");
-    assertTrue(
-        StreamConverter.isPipedStreamIOException(ex),
-        "'Read end dead' with empty stack trace should be treated as pipe-broken");
-  }
+    // 前段: データをそのまま転送するが、後段が読まないので read() でブロックする
+    IStreamCommand upstream =
+        (in, out) -> {
+          byte[] buf = new byte[1];
+          // 1バイト読み出してから書き込み → 後段が読まないとここでブロック
+          int b = in.read(buf);
+          if (b > 0) {
+            out.write(buf, 0, b);
+            out.flush();
+          }
+          // 後段が何も読まなければここで次の read() がブロックする
+          upstreamBlockingInRead.countDown();
+          in.transferTo(out); // ここで read() ブロック待ちになる
+        };
 
-  @Test
-  @DisplayName("'Write end dead' message with empty stack trace is recognized as pipe-broken")
-  void testWriteEndDeadMessageTreatedAsSecondaryCause() {
-    IOException ex = emptyStackTraceIOException("Write end dead");
-    assertTrue(
-        StreamConverter.isPipedStreamIOException(ex),
-        "'Write end dead' with empty stack trace should be treated as pipe-broken");
-  }
+    // 後段: 前段が read() でブロックするまで少し待ってから失敗
+    IStreamCommand downstream =
+        (in, out) -> {
+          // 前段が最初の書き込みを完了するまで待機
+          try {
+            upstreamBlockingInRead.await(5, TimeUnit.SECONDS);
+          } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+          }
+          // 前段が read() でブロックした後に失敗する
+          throw new RuntimeException(
+              "Root cause: downstream failed while upstream blocked in read");
+        };
 
-  @Test
-  @DisplayName("null message with empty stack trace is NOT treated as pipe-broken")
-  void testNullMessageIOExceptionIsNotTreatedAsPipeBroken() {
-    IOException ex = emptyStackTraceIOException(null);
+    StreamConverter converter = StreamConverter.create(upstream, downstream);
+    // 前段が read() でブロックするよう、最低2バイト以上の入力を用意
+    InputStream input = new ByteArrayInputStream("AB".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+
     assertFalse(
-        StreamConverter.isPipedStreamIOException(ex),
-        "null message should not be treated as pipe-broken");
+        StreamConverter.isPipeAbortedCause(ex),
+        "Root cause should not be a pipe-aborted cause. Got: " + ex);
+  }
+
+  // -------------------------------------------------------------------------
+  // isPipeAbortedCause のカバレッジテスト
+  // -------------------------------------------------------------------------
+
+  @Test
+  @DisplayName("PipeAbortedException is recognized as pipe-aborted cause")
+  void testPipeAbortedExceptionIsSecondaryCause() {
+    PipeAbortedException ex = new PipeAbortedException();
+    assertTrue(
+        StreamConverter.isPipeAbortedCause(ex),
+        "PipeAbortedException should be treated as pipe-aborted cause");
   }
 
   @Test
-  @DisplayName("Unrelated IOException message is NOT treated as pipe-broken")
-  void testUnrelatedIOExceptionIsNotTreatedAsPipeBroken() {
-    // 通常スタックトレースを持つ IOException（PipedInputStream/PipedOutputStream 以外）は false
+  @DisplayName(
+      "StreamProcessingException wrapping PipeAbortedException is recognized as pipe-aborted cause")
+  void testWrappedPipeAbortedExceptionIsSecondaryCause() {
+    PipeAbortedException inner = new PipeAbortedException();
+    StreamProcessingException ex = new StreamProcessingException("wrapped", inner);
+    assertTrue(
+        StreamConverter.isPipeAbortedCause(ex),
+        "StreamProcessingException wrapping PipeAbortedException should be treated as pipe-aborted cause");
+  }
+
+  @Test
+  @DisplayName("Unrelated IOException is NOT treated as pipe-aborted cause")
+  void testUnrelatedIOExceptionIsNotPipeAbortedCause() {
     IOException ex = new IOException("File not found");
     assertFalse(
-        StreamConverter.isPipedStreamIOException(ex),
-        "Unrelated IOException should not be treated as pipe-broken");
+        StreamConverter.isPipeAbortedCause(ex),
+        "Unrelated IOException should not be treated as pipe-aborted cause");
+  }
+
+  @Test
+  @DisplayName("StreamProcessingException wrapping unrelated IOException is NOT pipe-aborted cause")
+  void testWrappedUnrelatedIOExceptionIsNotPipeAbortedCause() {
+    IOException inner = new IOException("File not found");
+    StreamProcessingException ex = new StreamProcessingException("wrapped", inner);
+    assertFalse(
+        StreamConverter.isPipeAbortedCause(ex),
+        "StreamProcessingException wrapping unrelated IOException should not be treated as pipe-aborted cause");
   }
 }

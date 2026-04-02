@@ -35,9 +35,13 @@ import org.slf4j.MDC;
  */
 public final class PipelineContext {
 
+  /** パイプラインコンテキストを新規作成する。 */
+  public PipelineContext() {}
+
   private static final ThreadLocal<PipelineContext> HOLDER = new ThreadLocal<>();
 
   private final ConcurrentHashMap<String, String> sharedValues = new ConcurrentHashMap<>();
+  private final ConcurrentHashMap<String, SignalChannel> signalChannels = new ConcurrentHashMap<>();
 
   /**
    * 共有値を設定し、呼び出しスレッドのMDCにも即座に反映する。
@@ -124,5 +128,54 @@ public final class PipelineContext {
   /** 現在のスレッドからPipelineContextをクリアする。 */
   public static void clear() {
     HOLDER.remove();
+  }
+
+  /**
+   * 指定IDのSignalChannelを事前登録する。
+   *
+   * <p>{@link com.streamconverter.StreamConverter#run(java.io.InputStream, java.io.OutputStream,
+   * PipelineContext)} 呼び出し前に、コマンド間で共有するチャネルを確立するために使用する。 同じIDで複数回呼んだ場合は既存のチャネルを返す。
+   *
+   * <p>使用例:
+   *
+   * <pre>{@code
+   * PipelineContext ctx = new PipelineContext();
+   * SignalChannel ch = ctx.prepareSignalChannel("validation");
+   *
+   * StreamConverter.create(
+   *     new FilterCommand(ch),    // 前段: ch.send(new PipelineSignal.Skip("..."))
+   *     new TransformCommand(ch)  // 後段: ch.poll() で割り込み確認
+   * ).run(input, output, ctx);
+   * }</pre>
+   *
+   * @param channelId チャネルID
+   * @return 新規または既存の SignalChannel
+   * @throws IllegalArgumentException channelId が null の場合
+   */
+  public SignalChannel prepareSignalChannel(String channelId) {
+    if (channelId == null) {
+      throw new IllegalArgumentException("channelId must not be null");
+    }
+    return signalChannels.computeIfAbsent(channelId, SignalChannel::new);
+  }
+
+  /**
+   * 現在のスレッドに紐づくPipelineContextから、指定IDのSignalChannelを取得する。
+   *
+   * <p>PipelineContext未設定のスレッドから呼ばれた場合、またはチャネルが未登録の場合は {@code null} を返す。
+   *
+   * @param channelId チャネルID
+   * @return SignalChannel。未設定または未登録の場合は null
+   * @throws IllegalArgumentException channelId が null の場合
+   */
+  public static SignalChannel getSignalChannel(String channelId) {
+    if (channelId == null) {
+      throw new IllegalArgumentException("channelId must not be null");
+    }
+    PipelineContext ctx = HOLDER.get();
+    if (ctx == null) {
+      return null;
+    }
+    return ctx.signalChannels.get(channelId);
   }
 }

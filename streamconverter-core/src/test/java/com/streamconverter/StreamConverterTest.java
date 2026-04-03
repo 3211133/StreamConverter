@@ -444,7 +444,6 @@ class StreamConverterTest {
         "StreamProcessingException wrapping PipeAbortedException should be treated as pipe-aborted cause");
   }
 
-
   @Test
   @DisplayName("Unrelated IOException is NOT treated as pipe-aborted cause")
   void testUnrelatedIOExceptionIsNotPipeAbortedCause() {

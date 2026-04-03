@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.nio.charset.StandardCharsets;
@@ -13,103 +14,87 @@ import org.junit.jupiter.api.Test;
 
 class JacocoXmlToModuleSlocCommandTest {
 
-  private static final String JACOCO_XML =
+  private static final String JACOCO_XML_CORE =
       """
       <?xml version="1.0" encoding="UTF-8"?>
-      <report name="test">
+      <report name="streamconverter-core">
         <counter type="LINE" missed="50" covered="100"/>
         <counter type="BRANCH" missed="10" covered="20"/>
+      </report>
+      """;
+
+  private static final String JACOCO_XML_DB =
+      """
+      <report name="streamconverter-db">
+        <counter type="LINE" missed="5" covered="30"/>
       </report>
       """;
 
   private static final String JACOCO_XML_NO_LINE_COUNTER =
       """
       <?xml version="1.0" encoding="UTF-8"?>
-      <report name="test">
+      <report name="no-line-module">
         <counter type="BRANCH" missed="10" covered="20"/>
       </report>
       """;
 
   @Test
-  void parseSingleXml_extractsLineCounter() throws Exception {
-    var cmd = new JacocoXmlToModuleSlocCommand("core");
-    var input = new ByteArrayInputStream(JACOCO_XML.getBytes(StandardCharsets.UTF_8));
+  void singleReport_extractsModuleNameAndLineCounter() throws Exception {
     var output = new ByteArrayOutputStream();
-
-    cmd.execute(input, output);
+    new JacocoXmlToModuleSlocCommand()
+        .execute(
+            new ByteArrayInputStream(JACOCO_XML_CORE.getBytes(StandardCharsets.UTF_8)), output);
 
     List<ModuleSloc> results = deserialize(output);
     assertEquals(1, results.size());
     var sloc = results.get(0);
-    assertEquals("core", sloc.name());
+    assertEquals("streamconverter-core", sloc.name());
     assertEquals(150, sloc.lines());
     assertEquals(100, sloc.covered());
     assertEquals(50, sloc.missed());
   }
 
   @Test
-  void parseSingleXml_noLineCounter_returnsFallback() throws Exception {
-    var cmd = new JacocoXmlToModuleSlocCommand("empty-module");
-    var input =
-        new ByteArrayInputStream(JACOCO_XML_NO_LINE_COUNTER.getBytes(StandardCharsets.UTF_8));
+  void multipleReports_processesAllModules() throws Exception {
+    // ModuleXmlConcatCommand の出力形式：最初のXML宣言のみ保持し、2つ目以降は除去して連結
+    String multiXml = JACOCO_XML_CORE + JACOCO_XML_DB;
+
     var output = new ByteArrayOutputStream();
-
-    cmd.execute(input, output);
-
-    List<ModuleSloc> results = deserialize(output);
-    assertEquals(1, results.size());
-    var sloc = results.get(0);
-    assertEquals("empty-module", sloc.name());
-    assertEquals(0, sloc.lines());
-  }
-
-  @Test
-  void parseMultiXml_processesAllModules() throws Exception {
-    String multiXml =
-        ModuleXmlConcatCommand.MODULE_HEADER_PREFIX
-            + "module-a\n"
-            + JACOCO_XML
-            + ModuleXmlConcatCommand.MODULE_HEADER_PREFIX
-            + "module-b\n"
-            + JACOCO_XML_NO_LINE_COUNTER;
-
-    var cmd = new JacocoXmlToModuleSlocCommand();
-    var input = new ByteArrayInputStream(multiXml.getBytes(StandardCharsets.UTF_8));
-    var output = new ByteArrayOutputStream();
-
-    cmd.execute(input, output);
+    new JacocoXmlToModuleSlocCommand()
+        .execute(new ByteArrayInputStream(multiXml.getBytes(StandardCharsets.UTF_8)), output);
 
     List<ModuleSloc> results = deserialize(output);
     assertEquals(2, results.size());
-    assertEquals("module-a", results.get(0).name());
+    assertEquals("streamconverter-core", results.get(0).name());
     assertEquals(150, results.get(0).lines());
-    assertEquals("module-b", results.get(1).name());
-    assertEquals(0, results.get(1).lines());
+    assertEquals("streamconverter-db", results.get(1).name());
+    assertEquals(35, results.get(1).lines());
   }
 
   @Test
-  void parseMultiXml_lastModuleIsFlushed() throws Exception {
-    // 最後のモジュールが正しく出力に含まれることを確認
-    String multiXml = ModuleXmlConcatCommand.MODULE_HEADER_PREFIX + "only-module\n" + JACOCO_XML;
-
-    var cmd = new JacocoXmlToModuleSlocCommand();
-    var input = new ByteArrayInputStream(multiXml.getBytes(StandardCharsets.UTF_8));
+  void noLineCounter_emitsZeroSloc() throws Exception {
     var output = new ByteArrayOutputStream();
-
-    cmd.execute(input, output);
+    new JacocoXmlToModuleSlocCommand()
+        .execute(
+            new ByteArrayInputStream(JACOCO_XML_NO_LINE_COUNTER.getBytes(StandardCharsets.UTF_8)),
+            output);
 
     List<ModuleSloc> results = deserialize(output);
     assertEquals(1, results.size());
-    assertEquals("only-module", results.get(0).name());
+    assertEquals("no-line-module", results.get(0).name());
+    assertEquals(0, results.get(0).lines());
   }
 
   @Test
-  void parseSingleXml_invalidXml_throwsIOException() {
-    var cmd = new JacocoXmlToModuleSlocCommand("bad-module");
-    var input = new ByteArrayInputStream("not xml at all <<<".getBytes(StandardCharsets.UTF_8));
+  void invalidXml_throwsIOException() {
     var output = new ByteArrayOutputStream();
-
-    assertThrows(IOException.class, () -> cmd.execute(input, output));
+    assertThrows(
+        IOException.class,
+        () ->
+            new JacocoXmlToModuleSlocCommand()
+                .execute(
+                    new ByteArrayInputStream("not xml <<<".getBytes(StandardCharsets.UTF_8)),
+                    output));
   }
 
   private List<ModuleSloc> deserialize(ByteArrayOutputStream output) throws Exception {
@@ -119,7 +104,7 @@ class JacocoXmlToModuleSlocCommandTest {
       while (true) {
         result.add((ModuleSloc) ois.readObject());
       }
-    } catch (java.io.EOFException e) {
+    } catch (EOFException e) {
       // 終端
     }
     return result;

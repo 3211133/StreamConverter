@@ -7,10 +7,9 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
+import java.util.TreeMap;
 
 /**
  * {@link PmdViolation} オブジェクトのストリームを AI 可読性の高い Markdown 形式に変換するコマンド。
@@ -18,22 +17,28 @@ import java.util.stream.Collectors;
  * <p>入力: {@link PmdXmlToViolationsCommand} が出力する {@link java.io.ObjectOutputStream} ストリーム
  *
  * <p>出力: Markdown レポート（ルール別統計・ファイル別統計・優先度分布）
+ *
+ * <p>違反オブジェクトは1件読むたびにカウントに加算して捨てるため、件数によらずカウント用の Map のみメモリに保持する。
  */
 public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
-    List<PmdViolation> violations = readAll(input);
-    String report = generateMarkdownReport(violations);
+    Stats stats = collectStats(input);
+    String report = generateMarkdownReport(stats);
     output.write(report.getBytes("UTF-8"));
   }
 
-  private List<PmdViolation> readAll(InputStream input) throws IOException {
-    List<PmdViolation> result = new ArrayList<>();
+  private Stats collectStats(InputStream input) throws IOException {
+    Stats stats = new Stats();
     try (ObjectInputStream ois = new ObjectInputStream(input)) {
       while (true) {
         try {
-          result.add((PmdViolation) ois.readObject());
+          PmdViolation v = (PmdViolation) ois.readObject();
+          stats.totalViolations++;
+          stats.ruleCount.merge(v.rule(), new RuleStat(v.ruleset(), 1L), RuleStat::add);
+          stats.fileCount.merge(v.file(), 1L, Long::sum);
+          stats.priorityCount.merge(v.priority(), 1L, Long::sum);
         } catch (EOFException e) {
           break;
         } catch (ClassNotFoundException | ClassCastException e) {
@@ -41,60 +46,49 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
         }
       }
     }
-    return result;
+    return stats;
   }
 
-  private String generateMarkdownReport(List<PmdViolation> violations) {
+  private String generateMarkdownReport(Stats stats) {
     StringBuilder md = new StringBuilder();
     md.append("# PMD Code Quality Analysis Report\n\n");
     md.append("**Generated**: ").append(Instant.now()).append("\n");
-    md.append("**Total Violations**: ").append(violations.size()).append("\n\n");
+    md.append("**Total Violations**: ").append(stats.totalViolations).append("\n\n");
 
-    generateTopRulesSection(md, violations);
-    generateFileStatisticsSection(md, violations);
-    generatePriorityDistributionSection(md, violations);
+    generateTopRulesSection(md, stats);
+    generateFileStatisticsSection(md, stats);
+    generatePriorityDistributionSection(md, stats);
 
     return md.toString();
   }
 
-  private void generateTopRulesSection(StringBuilder md, List<PmdViolation> violations) {
-    Map<String, Long> ruleStats =
-        violations.stream()
-            .collect(Collectors.groupingBy(PmdViolation::rule, Collectors.counting()));
-
+  private void generateTopRulesSection(StringBuilder md, Stats stats) {
     md.append("## \uD83C\uDFAF Top Code Smell Rules\n\n");
     md.append("| Rank | Rule | Count | Category |\n");
     md.append("|------|------|-------|----------|\n");
 
     int[] rank = {1};
-    ruleStats.entrySet().stream()
-        .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
+    stats.ruleCount.entrySet().stream()
+        .sorted(
+            Map.Entry.<String, RuleStat>comparingByValue((a, b) -> Long.compare(b.count, a.count)))
         .limit(20)
         .forEach(
-            entry -> {
-              String category =
-                  violations.stream()
-                      .filter(v -> v.rule().equals(entry.getKey()))
-                      .findFirst()
-                      .map(PmdViolation::ruleset)
-                      .orElse("Unknown");
-              md.append(
-                  String.format(
-                      "| %d | %s | %d | %s |\n",
-                      rank[0]++, entry.getKey(), entry.getValue(), category));
-            });
+            entry ->
+                md.append(
+                    String.format(
+                        "| %d | %s | %d | %s |\n",
+                        rank[0]++,
+                        entry.getKey(),
+                        entry.getValue().count,
+                        entry.getValue().category)));
   }
 
-  private void generateFileStatisticsSection(StringBuilder md, List<PmdViolation> violations) {
-    Map<String, Long> fileStats =
-        violations.stream()
-            .collect(Collectors.groupingBy(PmdViolation::file, Collectors.counting()));
-
+  private void generateFileStatisticsSection(StringBuilder md, Stats stats) {
     md.append("\n## \uD83D\uDCC1 Files with Most Issues\n\n");
     md.append("| File | Violations |\n");
     md.append("|------|------------|\n");
 
-    fileStats.entrySet().stream()
+    stats.fileCount.entrySet().stream()
         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
         .limit(15)
         .forEach(
@@ -105,30 +99,35 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
                         entry.getKey().replaceAll(".*/(\\w+\\.java)", "$1"), entry.getValue())));
   }
 
-  private void generatePriorityDistributionSection(
-      StringBuilder md, List<PmdViolation> violations) {
-    Map<Integer, Long> priorityStats =
-        violations.stream()
-            .collect(Collectors.groupingBy(PmdViolation::priority, Collectors.counting()));
-
+  private void generatePriorityDistributionSection(StringBuilder md, Stats stats) {
     md.append("\n## \u26A1 Priority Distribution\n\n");
     md.append("| Priority | Count | Description |\n");
     md.append("|----------|-------|-------------|\n");
 
-    priorityStats.entrySet().stream()
-        .sorted(Map.Entry.comparingByKey())
-        .forEach(
-            entry -> {
-              String desc =
-                  switch (entry.getKey()) {
-                    case 1 -> "\uD83D\uDD34 High - Critical issues";
-                    case 2 -> "\uD83D\uDFE1 Medium - Important issues";
-                    case 3 -> "\uD83D\uDFE2 Low - Minor issues";
-                    case 4 -> "\u2139\uFE0F Info - Informational";
-                    default -> "\u2753 Unknown";
-                  };
-              md.append(
-                  String.format("| %d | %d | %s |\n", entry.getKey(), entry.getValue(), desc));
-            });
+    stats.priorityCount.forEach(
+        (priority, count) -> {
+          String desc =
+              switch (priority) {
+                case 1 -> "\uD83D\uDD34 High - Critical issues";
+                case 2 -> "\uD83D\uDFE1 Medium - Important issues";
+                case 3 -> "\uD83D\uDFE2 Low - Minor issues";
+                case 4 -> "\u2139\uFE0F Info - Informational";
+                default -> "\u2753 Unknown";
+              };
+          md.append(String.format("| %d | %d | %s |\n", priority, count, desc));
+        });
+  }
+
+  private static class Stats {
+    int totalViolations = 0;
+    final Map<String, RuleStat> ruleCount = new LinkedHashMap<>();
+    final Map<String, Long> fileCount = new LinkedHashMap<>();
+    final Map<Integer, Long> priorityCount = new TreeMap<>();
+  }
+
+  private record RuleStat(String category, long count) {
+    static RuleStat add(RuleStat a, RuleStat b) {
+      return new RuleStat(a.category, a.count + b.count);
+    }
   }
 }

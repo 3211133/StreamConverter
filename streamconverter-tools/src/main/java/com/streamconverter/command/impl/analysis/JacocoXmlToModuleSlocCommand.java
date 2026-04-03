@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
 
 /**
@@ -113,10 +114,21 @@ public class JacocoXmlToModuleSlocCommand extends AbstractStreamCommand {
       } finally {
         reader.close();
       }
-    } catch (Exception e) {
+    } catch (XMLStreamException e) {
       throw new IOException(
           "Failed to parse JaCoCo XML for module " + moduleName + ": " + e.getMessage(), e);
+    } catch (NumberFormatException e) {
+      throw new IOException(
+          "Invalid LINE counter attribute in JaCoCo XML for module "
+              + moduleName
+              + ": "
+              + e.getMessage(),
+          e);
     }
+    log.warn(
+        "No LINE counter found in JaCoCo report for module '{}'. "
+            + "Check JaCoCo XML format or coverage configuration.",
+        moduleName);
     return new ModuleSloc(moduleName, 0, 0, 0);
   }
 }

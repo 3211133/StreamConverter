@@ -20,8 +20,9 @@ import java.util.List;
  *
  * <ol>
  *   <li>{@link ModuleXmlConcatCommand} — モジュール名→XML連結ストリーム
- *   <li>{@link JacocoXmlToLineCounterCsvCommand} — XML→CSV行
- *   <li>{@link SlocCsvAggregateCommand} — CSV集約・合計行追加
+ *   <li>{@link com.streamconverter.command.impl.analysis.JacocoXmlToModuleSlocCommand} —
+ *       XML→ModuleSloc オブジェクト
+ *   <li>{@link com.streamconverter.command.impl.analysis.SlocAggregateCommand} — 集約・合計行追加
  *   <li>{@link SlocReportFormatCommand} — 整形出力
  * </ol>
  *

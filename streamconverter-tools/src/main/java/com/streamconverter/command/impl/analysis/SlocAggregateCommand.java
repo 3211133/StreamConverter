@@ -45,8 +45,8 @@ public class SlocAggregateCommand extends AbstractStreamCommand {
           result.add((ModuleSloc) ois.readObject());
         } catch (EOFException e) {
           break;
-        } catch (ClassNotFoundException e) {
-          throw new IOException("Unexpected object type in stream", e);
+        } catch (ClassNotFoundException | ClassCastException e) {
+          throw new IOException("Unexpected object type in stream: expected ModuleSloc", e);
         }
       }
     }

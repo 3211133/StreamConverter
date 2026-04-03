@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -48,15 +49,21 @@ public class ModuleXmlConcatCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
+    Path normalizedRoot = projectRoot.toAbsolutePath().normalize();
+    PrintWriter headerWriter =
+        new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8));
     try (BufferedReader reader =
-            new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8));
-        PrintWriter headerWriter = new PrintWriter(output)) {
+        new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
       String moduleName;
       while ((moduleName = reader.readLine()) != null) {
         if (moduleName.isBlank()) {
           continue;
         }
-        Path xmlPath = projectRoot.resolve(moduleName).resolve(JACOCO_XML_PATH);
+        Path xmlPath = normalizedRoot.resolve(moduleName).resolve(JACOCO_XML_PATH).normalize();
+        if (!xmlPath.startsWith(normalizedRoot)) {
+          log.warn("path traversal detected, skipping: {}", moduleName);
+          continue;
+        }
         if (!Files.exists(xmlPath)) {
           log.warn("report not found, skipping: {}", xmlPath);
           continue;

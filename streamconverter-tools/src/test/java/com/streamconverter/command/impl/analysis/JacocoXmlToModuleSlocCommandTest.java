@@ -14,29 +14,22 @@ import org.junit.jupiter.api.Test;
 
 class JacocoXmlToModuleSlocCommandTest {
 
+  // ModuleXmlConcatCommand は XML宣言・DOCTYPE宣言を除去して <report> 要素のみ渡す
   private static final String JACOCO_XML_CORE =
-      """
-      <?xml version="1.0" encoding="UTF-8"?>
-      <report name="streamconverter-core">
-        <counter type="LINE" missed="50" covered="100"/>
-        <counter type="BRANCH" missed="10" covered="20"/>
-      </report>
-      """;
+      "<report name=\"streamconverter-core\">"
+          + "<counter type=\"LINE\" missed=\"50\" covered=\"100\"/>"
+          + "<counter type=\"BRANCH\" missed=\"10\" covered=\"20\"/>"
+          + "</report>\n";
 
   private static final String JACOCO_XML_DB =
-      """
-      <report name="streamconverter-db">
-        <counter type="LINE" missed="5" covered="30"/>
-      </report>
-      """;
+      "<report name=\"streamconverter-db\">"
+          + "<counter type=\"LINE\" missed=\"5\" covered=\"30\"/>"
+          + "</report>\n";
 
   private static final String JACOCO_XML_NO_LINE_COUNTER =
-      """
-      <?xml version="1.0" encoding="UTF-8"?>
-      <report name="no-line-module">
-        <counter type="BRANCH" missed="10" covered="20"/>
-      </report>
-      """;
+      "<report name=\"no-line-module\">"
+          + "<counter type=\"BRANCH\" missed=\"10\" covered=\"20\"/>"
+          + "</report>\n";
 
   @Test
   void singleReport_extractsModuleNameAndLineCounter() throws Exception {

@@ -12,13 +12,13 @@ import org.junit.jupiter.api.io.TempDir;
 
 class SlocCounterTest {
 
+  // 実際の JaCoCo 形式に合わせて <?xml?> + <!DOCTYPE> を含む
   private static final String JACOCO_XML =
-      """
-      <?xml version="1.0" encoding="UTF-8"?>
-      <report name="my-module">
-        <counter type="LINE" missed="30" covered="70"/>
-      </report>
-      """;
+      "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>"
+          + "<!DOCTYPE report PUBLIC \"-//JACOCO//DTD Report 1.1//EN\" \"report.dtd\">"
+          + "<report name=\"my-module\">"
+          + "<counter type=\"LINE\" missed=\"30\" covered=\"70\"/>"
+          + "</report>\n";
 
   @Test
   void run_producesReportForValidModule(@TempDir Path tempDir) throws Exception {

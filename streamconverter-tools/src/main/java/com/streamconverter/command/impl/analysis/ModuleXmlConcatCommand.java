@@ -1,10 +1,9 @@
 package com.streamconverter.command.impl.analysis;
 
 import com.streamconverter.command.AbstractStreamCommand;
-import java.io.BufferedReader;
+import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
@@ -21,17 +20,15 @@ import java.nio.file.Path;
  * ...
  * </pre>
  *
- * <p>出力: 各モジュールの JaCoCo XML をそのまま連結したストリーム。XML 宣言（{@code <?xml ...?>}）は
- * 最初のモジュール以外では除去して連結する。結果は複数のルート要素を持つ Well-formed ではない XML となるが、 {@link
- * JacocoXmlToModuleSlocCommand} が使用する {@link javax.xml.stream.XMLStreamReader}
- * は複数ルート要素を順に読み進めることができるため実用上は問題ない。
+ * <p>出力: 各モジュールの {@code <report>} 要素を連結したストリーム。XML宣言・DOCTYPE宣言は全モジュールで除去し、 先頭に {@code <?xml
+ * version="1.0" encoding="UTF-8"?>} を1つだけ付与する。結果は複数のルート要素を持つ Well-formed ではない XML となるが、{@link
+ * JacocoXmlToModuleSlocCommand} が {@code <jacoco-reports>} ラッパーで包んでパースするため実用上は問題ない。
  *
- * <p><b>YAGNI:</b> 厳密な Well-formed XML が必要になった場合は、ラッパー要素（例: {@code <jacoco-reports>}）で包む対応が容易にできる。
+ * <p><b>YAGNI:</b> 厳密な Well-formed XML が必要になった場合は、ラッパー要素で包む対応が容易にできる。
  */
 public class ModuleXmlConcatCommand extends AbstractStreamCommand {
 
-  private static final String JACOCO_XML_PATH = "build/reports/jacoco/test/jacocoTestReport.xml";
-  private static final String XML_DECLARATION_PREFIX = "<?xml";
+  static final String JACOCO_XML_PATH = "build/reports/jacoco/test/jacocoTestReport.xml";
 
   private final Path projectRoot;
 
@@ -46,8 +43,8 @@ public class ModuleXmlConcatCommand extends AbstractStreamCommand {
   public void execute(InputStream input, OutputStream output) throws IOException {
     Path normalizedRoot = projectRoot.toAbsolutePath().normalize();
     boolean first = true;
-    try (BufferedReader reader =
-        new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
+    try (var reader =
+        new java.io.BufferedReader(new java.io.InputStreamReader(input, StandardCharsets.UTF_8))) {
       String moduleName;
       while ((moduleName = reader.readLine()) != null) {
         if (moduleName.isBlank()) {
@@ -62,32 +59,58 @@ public class ModuleXmlConcatCommand extends AbstractStreamCommand {
           log.warn("report not found, skipping: {}", xmlPath);
           continue;
         }
-        if (first) {
-          Files.copy(xmlPath, output);
-          first = false;
-        } else {
-          writeWithoutXmlDeclaration(xmlPath, output);
-        }
+        first = false;
+        writeReportOnly(xmlPath, output);
         output.write('\n');
         output.flush();
       }
     }
   }
 
-  private void writeWithoutXmlDeclaration(Path xmlPath, OutputStream output) throws IOException {
-    try (BufferedReader reader =
-        new BufferedReader(
-            new java.io.InputStreamReader(Files.newInputStream(xmlPath), StandardCharsets.UTF_8))) {
-      String line;
-      boolean skippedDeclaration = false;
-      while ((line = reader.readLine()) != null) {
-        if (!skippedDeclaration && line.stripLeading().startsWith(XML_DECLARATION_PREFIX)) {
-          skippedDeclaration = true;
-          continue;
-        }
-        output.write(line.getBytes(StandardCharsets.UTF_8));
-        output.write('\n');
+  /**
+   * JaCoCo XML ファイルから XML宣言・DOCTYPE宣言を除去して {@code <report>} 要素のみ書き出す。
+   *
+   * <p>JaCoCo の出力は {@code <?xml...?><!DOCTYPE...><report...>} が1行に連結されているため、 バイト単位で {@code <}
+   * を探しながら宣言部分をスキップする。
+   */
+  private void writeReportOnly(Path xmlPath, OutputStream output) throws IOException {
+    try (InputStream in = new BufferedInputStream(Files.newInputStream(xmlPath))) {
+      skipPrologues(in);
+      in.transferTo(output);
+    }
+  }
+
+  /** ストリーム先頭の {@code <?...?>} および {@code <!...>} を全てスキップし、最初の {@code <[a-zA-Z]} の直前まで読み進める。 */
+  private void skipPrologues(InputStream in) throws IOException {
+    while (true) {
+      in.mark(2);
+      int c1 = in.read();
+      if (c1 != '<') {
+        if (c1 != -1) in.reset();
+        return;
       }
+      int c2 = in.read();
+      if (c2 == '?') {
+        // <?...?> をスキップ
+        skipUntil(in, '?', '>');
+      } else if (c2 == '!') {
+        // <!...> をスキップ
+        skipUntil(in, '\0', '>');
+      } else {
+        // 通常の要素開始タグ — 巻き戻して返す
+        in.reset();
+        return;
+      }
+    }
+  }
+
+  /** {@code end} の直前が {@code pre}（'\0' は任意）になるまで読み飛ばす。 */
+  private void skipUntil(InputStream in, char pre, char end) throws IOException {
+    int prev = -1;
+    int cur;
+    while ((cur = in.read()) != -1) {
+      if (cur == end && (pre == '\0' || prev == pre)) return;
+      prev = cur;
     }
   }
 }

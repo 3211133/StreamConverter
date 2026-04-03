@@ -191,7 +191,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <li>
 <section class="detail" id="&lt;init&gt;(int)">
 <h3>AbortablePipedStream</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-43">AbortablePipedStream</a></span><wbr><span class="parameters">(int&nbsp;bufferSize)</span>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-45">AbortablePipedStream</a></span><wbr><span class="parameters">(int&nbsp;bufferSize)</span>
                      throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">指定バッファサイズで PipedStream ペアを生成する。</div>
 <dl class="notes">
@@ -214,29 +214,37 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <li>
 <section class="detail" id="outputStream()">
 <h3>outputStream</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a></span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-56">outputStream</a></span>()</div>
-<div class="block">書き込み側のラッパーを返す（前段コマンドに渡す）。</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a></span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-61">outputStream</a></span>()</div>
+<div class="block">書き込み側のラッパーを返す（前段コマンドに渡す）。
+
+ <p>このパイプは書き込み側を1つのコマンドのみが使用することを想定しており、 2回目の呼び出しは <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a> を投げる。</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>前段コマンド用の OutputStream</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - 2回目以降の呼び出しの場合</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="inputStream()">
 <h3>inputStream</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a></span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-65">inputStream</a></span>()</div>
-<div class="block">読み込み側のラッパーを返す（後段コマンドに渡す）。</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a></span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-76">inputStream</a></span>()</div>
+<div class="block">読み込み側のラッパーを返す（後段コマンドに渡す）。
+
+ <p>このパイプは読み込み側を1つのコマンドのみが使用することを想定しており、 2回目の呼び出しは <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link"><code>IllegalStateException</code></a> を投げる。</div>
 <dl class="notes">
 <dt>Returns:</dt>
 <dd>後段コマンド用の InputStream</dd>
+<dt>Throws:</dt>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalStateException.html" title="class or interface in java.lang" class="external-link">IllegalStateException</a></code> - 2回目以降の呼び出しの場合</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="abort()">
 <h3>abort</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-78">abort</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-92">abort</a></span>()</div>
 <div class="block">このパイプを abort 済みとしてマークする。
 
  <p>以降の read()/write()/flush() 呼び出しが <a href="PipeAbortedException.html" title="class in com.streamconverter"><code>PipeAbortedException</code></a> を投げるようになる。 パイプのクローズは <a href="StreamConverter.html" title="class in com.streamconverter"><code>StreamConverter</code></a> の <code>closeResources()</code> が担うため、 このメソッドはフラグのセットのみを行う。
@@ -248,7 +256,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <li>
 <section class="detail" id="close()">
 <h3>close</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-87">close</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/AbortablePipedStream.html#line-101">close</a></span>()
            throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">パイプを正常にクローズする。
 

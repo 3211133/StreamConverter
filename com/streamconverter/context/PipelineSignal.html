@@ -92,13 +92,13 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="PipelineSignal.Skip.html" title="class in com.streamconverter.context">PipelineSignal.Skip</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public sealed interface </span><span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.html#line-26">PipelineSignal</a></span>
+<div class="type-signature"><span class="modifiers">public sealed interface </span><span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.html#line-28">PipelineSignal</a></span>
 <span class="permits">permits <a href="PipelineSignal.Skip.html" title="class in com.streamconverter.context">PipelineSignal.Skip</a></span></div>
 <div class="block">パイプライン内のコマンド間で送受信できるシグナルの基底型。
 
- <p>前段コマンドが <a href="SignalChannel.html#send(com.streamconverter.context.PipelineSignal)"><code>SignalChannel.send(PipelineSignal)</code></a> でシグナルを送信し、 後段コマンドが処理ループ内で <a href="SignalChannel.html#poll()"><code>SignalChannel.poll()</code></a> を呼び出すことで、 ブロッキングなしに割り込み型の動作変更を実現する。
+ <p>前段コマンドが <a href="SignalChannel.html#send(com.streamconverter.context.PipelineSignal)"><code>SignalChannel.send(PipelineSignal)</code></a> でシグナルを送信し、 後段コマンドが処理ループ内で <a href="SignalChannel.html#peek()"><code>SignalChannel.peek()</code></a> を呼び出すことで、 ブロッキングなしに割り込み型の動作変更を実現する。
 
- <p>sealed interface により、受信側は switch 式でシグナル種別を網羅的に処理できる。 シグナルが届いていない場合（<code>poll()</code> が空の Optional
+ <p>sealed interface により、受信側は switch 式でシグナル種別を網羅的に処理できる。 シグナルが届いていない場合（<code>peek()</code> が空の Optional
  を返す）は通常処理継続とみなす。
 
  <p>パイプライン全体の中断が必要な場合は、シグナルではなく <a href="../StreamProcessingException.html" title="class in com.streamconverter"><code>StreamProcessingException</code></a> を直接スローすること。
@@ -106,7 +106,7 @@ loadScripts(document, 'script');</script>
  <p>使用例（後段コマンドの処理ループ内）:
 
  <pre><code>
- channel.poll().ifPresent(signal -&gt; {
+ channel.peek().ifPresent(signal -&gt; {
      switch (signal) {
          case PipelineSignal.Skip s -&gt; log.info("Skipping: {}", s.reason());
      }

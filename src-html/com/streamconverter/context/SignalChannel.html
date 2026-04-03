@@ -24,9 +24,9 @@
 <span class="source-line-no">011</span><span id="line-11"> * &lt;p&gt;&lt;b&gt;設計方針:&lt;/b&gt;</span>
 <span class="source-line-no">012</span><span id="line-12"> *</span>
 <span class="source-line-no">013</span><span id="line-13"> * &lt;ul&gt;</span>
-<span class="source-line-no">014</span><span id="line-14"> *   &lt;li&gt;後段コマンドはブロッキング待機を行わず、処理ループを継続しながら {@link #poll()} でシグナルの有無を確認する（割り込み型）。</span>
+<span class="source-line-no">014</span><span id="line-14"> *   &lt;li&gt;後段コマンドはブロッキング待機を行わず、処理ループを継続しながら {@link #peek()} でシグナルの有無を確認する（割り込み型）。</span>
 <span class="source-line-no">015</span><span id="line-15"> *   &lt;li&gt;シグナルは上書き可能。後から送られた強いシグナルで以前のシグナルを上書きできる。</span>
-<span class="source-line-no">016</span><span id="line-16"> *   &lt;li&gt;一度送られたシグナルは {@link #poll()} で何度でも確認できる（消費しない）。</span>
+<span class="source-line-no">016</span><span id="line-16"> *   &lt;li&gt;一度送られたシグナルは {@link #peek()} で何度でも確認できる（消費しない）。</span>
 <span class="source-line-no">017</span><span id="line-17"> * &lt;/ul&gt;</span>
 <span class="source-line-no">018</span><span id="line-18"> *</span>
 <span class="source-line-no">019</span><span id="line-19"> * &lt;p&gt;使用例（前段コマンド）:</span>
@@ -42,7 +42,7 @@
 <span class="source-line-no">029</span><span id="line-29"> *</span>
 <span class="source-line-no">030</span><span id="line-30"> * &lt;pre&gt;{@code</span>
 <span class="source-line-no">031</span><span id="line-31"> * // 処理ループ内でシグナルを確認（ブロッキングなし）</span>
-<span class="source-line-no">032</span><span id="line-32"> * channel.poll().ifPresent(signal -&gt; {</span>
+<span class="source-line-no">032</span><span id="line-32"> * channel.peek().ifPresent(signal -&gt; {</span>
 <span class="source-line-no">033</span><span id="line-33"> *     switch (signal) {</span>
 <span class="source-line-no">034</span><span id="line-34"> *         case PipelineSignal.Skip s -&gt; { /* スキップ処理 *&amp;#47; }</span>
 <span class="source-line-no">035</span><span id="line-35"> *     }</span>
@@ -90,7 +90,7 @@
 <span class="source-line-no">077</span><span id="line-77">   *</span>
 <span class="source-line-no">078</span><span id="line-78">   * @return シグナルが届いている場合はそれを含む Optional、未着の場合は empty</span>
 <span class="source-line-no">079</span><span id="line-79">   */</span>
-<span class="source-line-no">080</span><span id="line-80">  public Optional&lt;PipelineSignal&gt; poll() {</span>
+<span class="source-line-no">080</span><span id="line-80">  public Optional&lt;PipelineSignal&gt; peek() {</span>
 <span class="source-line-no">081</span><span id="line-81">    return Optional.ofNullable(signal.get());</span>
 <span class="source-line-no">082</span><span id="line-82">  }</span>
 <span class="source-line-no">083</span><span id="line-83"></span>
@@ -99,21 +99,23 @@
 <span class="source-line-no">086</span><span id="line-86">   *</span>
 <span class="source-line-no">087</span><span id="line-87">   * &lt;p&gt;前段コマンドが複数回シグナルを送る場合、シグナルを処理済みにして 次の単位では「シグナルなし」状態に戻したい場合に使用する。</span>
 <span class="source-line-no">088</span><span id="line-88">   *</span>
-<span class="source-line-no">089</span><span id="line-89">   * &lt;p&gt;例: 明細1件ごとにシグナルの有無を判定するとき、 表示対象の明細を送る前に前段がリセットし、後段が正しく判定できるようにする。</span>
-<span class="source-line-no">090</span><span id="line-90">   */</span>
-<span class="source-line-no">091</span><span id="line-91">  public void reset() {</span>
-<span class="source-line-no">092</span><span id="line-92">    signal.set(null);</span>
-<span class="source-line-no">093</span><span id="line-93">  }</span>
-<span class="source-line-no">094</span><span id="line-94"></span>
-<span class="source-line-no">095</span><span id="line-95">  /**</span>
-<span class="source-line-no">096</span><span id="line-96">   * チャネルIDを返す。</span>
-<span class="source-line-no">097</span><span id="line-97">   *</span>
-<span class="source-line-no">098</span><span id="line-98">   * @return チャネルID</span>
-<span class="source-line-no">099</span><span id="line-99">   */</span>
-<span class="source-line-no">100</span><span id="line-100">  public String channelId() {</span>
-<span class="source-line-no">101</span><span id="line-101">    return channelId;</span>
-<span class="source-line-no">102</span><span id="line-102">  }</span>
-<span class="source-line-no">103</span><span id="line-103">}</span>
+<span class="source-line-no">089</span><span id="line-89">   * &lt;p&gt;&lt;b&gt;責任者:&lt;/b&gt; リセットは原則として &lt;b&gt;前段コマンド&lt;/b&gt; が行う。 後段コマンドが呼ぶと、前段が次の送信前にリセットを期待していないタイミングで シグナルが消え、意図したシグナルが後段に届かない競合状態が生じる可能性がある。</span>
+<span class="source-line-no">090</span><span id="line-90">   *</span>
+<span class="source-line-no">091</span><span id="line-91">   * &lt;p&gt;例: 明細1件ごとにシグナルの有無を判定するとき、 表示対象の明細を送る前に前段がリセットし、後段が正しく判定できるようにする。</span>
+<span class="source-line-no">092</span><span id="line-92">   */</span>
+<span class="source-line-no">093</span><span id="line-93">  public void reset() {</span>
+<span class="source-line-no">094</span><span id="line-94">    signal.set(null);</span>
+<span class="source-line-no">095</span><span id="line-95">  }</span>
+<span class="source-line-no">096</span><span id="line-96"></span>
+<span class="source-line-no">097</span><span id="line-97">  /**</span>
+<span class="source-line-no">098</span><span id="line-98">   * チャネルIDを返す。</span>
+<span class="source-line-no">099</span><span id="line-99">   *</span>
+<span class="source-line-no">100</span><span id="line-100">   * @return チャネルID</span>
+<span class="source-line-no">101</span><span id="line-101">   */</span>
+<span class="source-line-no">102</span><span id="line-102">  public String channelId() {</span>
+<span class="source-line-no">103</span><span id="line-103">    return channelId;</span>
+<span class="source-line-no">104</span><span id="line-104">  }</span>
+<span class="source-line-no">105</span><span id="line-105">}</span>
 
 
 

@@ -100,9 +100,9 @@ loadScripts(document, 'script');</script>
  <p><b>設計方針:</b>
 
  <ul>
-   <li>後段コマンドはブロッキング待機を行わず、処理ループを継続しながら <a href="#poll()"><code>poll()</code></a> でシグナルの有無を確認する（割り込み型）。
+   <li>後段コマンドはブロッキング待機を行わず、処理ループを継続しながら <a href="#peek()"><code>peek()</code></a> でシグナルの有無を確認する（割り込み型）。
    <li>シグナルは上書き可能。後から送られた強いシグナルで以前のシグナルを上書きできる。
-   <li>一度送られたシグナルは <a href="#poll()"><code>poll()</code></a> で何度でも確認できる（消費しない）。
+   <li>一度送られたシグナルは <a href="#peek()"><code>peek()</code></a> で何度でも確認できる（消費しない）。
  </ul>
 
  <p>使用例（前段コマンド）:
@@ -118,7 +118,7 @@ loadScripts(document, 'script');</script>
 
  <pre><code>
  // 処理ループ内でシグナルを確認（ブロッキングなし）
- channel.poll().ifPresent(signal -&gt; {
+ channel.peek().ifPresent(signal -&gt; {
      switch (signal) {
          case PipelineSignal.Skip s -&gt; { /* スキップ処理 *&amp;#47; }
      }
@@ -153,7 +153,7 @@ loadScripts(document, 'script');</script>
 <div class="block">チャネルIDを返す。</div>
 </div>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a><wbr>&lt;<a href="PipelineSignal.html" title="interface in com.streamconverter.context">PipelineSignal</a>&gt;</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#poll()" class="member-name-link">poll</a>()</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#peek()" class="member-name-link">peek</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">シグナルを非ブロッキングで確認する。</div>
 </div>
@@ -200,9 +200,9 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
-<section class="detail" id="poll()">
-<h3>poll</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="PipelineSignal.html" title="interface in com.streamconverter.context">PipelineSignal</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/SignalChannel.html#line-80">poll</a></span>()</div>
+<section class="detail" id="peek()">
+<h3>peek</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html" title="class or interface in java.util" class="external-link">Optional</a>&lt;<a href="PipelineSignal.html" title="interface in com.streamconverter.context">PipelineSignal</a>&gt;</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/SignalChannel.html#line-80">peek</a></span>()</div>
 <div class="block">シグナルを非ブロッキングで確認する。
 
  <p>シグナルが届いていれば返す。届いていなければ <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Optional.html#empty()" title="class or interface in java.util" class="external-link"><code>Optional.empty()</code></a> を返す。 シグナルは消費されず、何度でも確認できる。</div>
@@ -215,10 +215,12 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="reset()">
 <h3>reset</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/SignalChannel.html#line-91">reset</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/SignalChannel.html#line-93">reset</a></span>()</div>
 <div class="block">シグナルをリセットする（未着状態に戻す）。
 
  <p>前段コマンドが複数回シグナルを送る場合、シグナルを処理済みにして 次の単位では「シグナルなし」状態に戻したい場合に使用する。
+
+ <p><b>責任者:</b> リセットは原則として <b>前段コマンド</b> が行う。 後段コマンドが呼ぶと、前段が次の送信前にリセットを期待していないタイミングで シグナルが消え、意図したシグナルが後段に届かない競合状態が生じる可能性がある。
 
  <p>例: 明細1件ごとにシグナルの有無を判定するとき、 表示対象の明細を送る前に前段がリセットし、後段が正しく判定できるようにする。</div>
 </section>
@@ -226,7 +228,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="channelId()">
 <h3>channelId</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/SignalChannel.html#line-100">channelId</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/SignalChannel.html#line-102">channelId</a></span>()</div>
 <div class="block">チャネルIDを返す。</div>
 <dl class="notes">
 <dt>Returns:</dt>

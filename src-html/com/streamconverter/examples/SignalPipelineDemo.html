@@ -42,7 +42,7 @@
 <span class="source-line-no">029</span><span id="line-29"> *</span>
 <span class="source-line-no">030</span><span id="line-30"> * &lt;ul&gt;</span>
 <span class="source-line-no">031</span><span id="line-31"> *   &lt;li&gt;前段が各 {@code &lt;明細&gt;} 要素を1件バッファし、表示フラグを確認して非表示明細を除去した後に {@link PipelineSignal.Skip} を送信する。</span>
-<span class="source-line-no">032</span><span id="line-32"> *   &lt;li&gt;後段はチャンク単位で {@link SignalChannel#poll()} を確認し、 Skipシグナルがあれば「フィルタが発生した」という事実を監査ログに記録する。</span>
+<span class="source-line-no">032</span><span id="line-32"> *   &lt;li&gt;後段はチャンク単位で {@link SignalChannel#peek()} を確認し、 Skipシグナルがあれば「フィルタが発生した」という事実を監査ログに記録する。</span>
 <span class="source-line-no">033</span><span id="line-33"> * &lt;/ul&gt;</span>
 <span class="source-line-no">034</span><span id="line-34"> */</span>
 <span class="source-line-no">035</span><span id="line-35">public class SignalPipelineDemo {</span>
@@ -302,7 +302,7 @@
 <span class="source-line-no">289</span><span id="line-289">      while ((len = inputStream.read(buf)) != -1) {</span>
 <span class="source-line-no">290</span><span id="line-290">        if (!auditLogged) {</span>
 <span class="source-line-no">291</span><span id="line-291">          channel</span>
-<span class="source-line-no">292</span><span id="line-292">              .poll()</span>
+<span class="source-line-no">292</span><span id="line-292">              .peek()</span>
 <span class="source-line-no">293</span><span id="line-293">              .ifPresent(</span>
 <span class="source-line-no">294</span><span id="line-294">                  signal -&gt; {</span>
 <span class="source-line-no">295</span><span id="line-295">                    switch (signal) {</span>
@@ -310,7 +310,7 @@
 <span class="source-line-no">297</span><span id="line-297">                          log.info("[AUDIT] Filter was applied upstream: {}", s.reason());</span>
 <span class="source-line-no">298</span><span id="line-298">                    }</span>
 <span class="source-line-no">299</span><span id="line-299">                  });</span>
-<span class="source-line-no">300</span><span id="line-300">          if (channel.poll().isPresent()) {</span>
+<span class="source-line-no">300</span><span id="line-300">          if (channel.peek().isPresent()) {</span>
 <span class="source-line-no">301</span><span id="line-301">            auditLogged = true;</span>
 <span class="source-line-no">302</span><span id="line-302">          }</span>
 <span class="source-line-no">303</span><span id="line-303">        }</span>

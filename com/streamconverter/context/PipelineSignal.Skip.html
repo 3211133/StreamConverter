@@ -105,7 +105,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="PipelineSignal.html" title="interface in com.streamconverter.context">PipelineSignal</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.html#line-35">PipelineSignal.Skip</a></span>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;reason)
+<div class="type-signature"><span class="modifiers">public static record </span><span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.html#line-37">PipelineSignal.Skip</a></span>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;reason)
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Record.html" title="class or interface in java.lang" class="external-link">Record</a>
 implements <a href="PipelineSignal.html" title="interface in com.streamconverter.context">PipelineSignal</a></span></div>
 <div class="block">後続処理のスキップを要求するシグナル。
@@ -189,7 +189,7 @@ implements <a href="PipelineSignal.html" title="interface in com.streamconverter
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String)">
 <h3>Skip</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-35">Skip</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;reason)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-38">Skip</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;reason)</span></div>
 <div class="block">Creates an instance of a <code>Skip</code> record class.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -208,7 +208,7 @@ implements <a href="PipelineSignal.html" title="interface in com.streamconverter
 <li>
 <section class="detail" id="toString()">
 <h3>toString</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-35">toString</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-37">toString</a></span>()</div>
 <div class="block">Returns a string representation of this record class. The representation contains the name of the class, followed by the name and value of each of the record components.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
@@ -221,7 +221,7 @@ implements <a href="PipelineSignal.html" title="interface in com.streamconverter
 <li>
 <section class="detail" id="hashCode()">
 <h3>hashCode</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-35">hashCode</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-37">hashCode</a></span>()</div>
 <div class="block">Returns a hash code value for this object. The value is derived from the hash code of each of the record components.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
@@ -234,7 +234,7 @@ implements <a href="PipelineSignal.html" title="interface in com.streamconverter
 <li>
 <section class="detail" id="equals(java.lang.Object)">
 <h3>equals</h3>
-<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-35">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;o)</span></div>
+<div class="member-signature"><span class="modifiers">public final</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-37">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;o)</span></div>
 <div class="block">Indicates whether some other object is "equal to" this one. The objects are equal if the other object is of the same class and if all the record components are equal. All components in this record class are compared with <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/Objects.html#equals(java.lang.Object,java.lang.Object)" title="class or interface in java.util" class="external-link"><code>Objects::equals(Object,Object)</code></a>.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
@@ -249,7 +249,7 @@ implements <a href="PipelineSignal.html" title="interface in com.streamconverter
 <li>
 <section class="detail" id="reason()">
 <h3>reason</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-35">reason</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/context/PipelineSignal.Skip.html#line-37">reason</a></span>()</div>
 <div class="block">Returns the value of the <a href="#param-reason"><code>reason</code></a> record component.</div>
 <dl class="notes">
 <dt>Returns:</dt>

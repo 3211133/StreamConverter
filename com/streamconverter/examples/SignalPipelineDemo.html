@@ -99,7 +99,7 @@ loadScripts(document, 'script');</script>
 
  <ul>
    <li>前段が各 <code>&lt;明細&gt;</code> 要素を1件バッファし、表示フラグを確認して非表示明細を除去した後に <a href="../context/PipelineSignal.Skip.html" title="class in com.streamconverter.context"><code>PipelineSignal.Skip</code></a> を送信する。
-   <li>後段はチャンク単位で <a href="../context/SignalChannel.html#poll()"><code>SignalChannel.poll()</code></a> を確認し、 Skipシグナルがあれば「フィルタが発生した」という事実を監査ログに記録する。
+   <li>後段はチャンク単位で <a href="../context/SignalChannel.html#peek()"><code>SignalChannel.peek()</code></a> を確認し、 Skipシグナルがあれば「フィルタが発生した」という事実を監査ログに記録する。
  </ul></div>
 </section>
 <section class="summary">

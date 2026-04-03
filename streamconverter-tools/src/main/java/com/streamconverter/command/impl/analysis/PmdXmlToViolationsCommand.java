@@ -13,8 +13,7 @@ import java.io.OutputStream;
  *
  * <p>出力: {@link ObjectOutputStream} で {@link PmdViolation} を順次 writeObject
  *
- * <p>後続コマンド（{@link PmdXmlToMarkdownCommand}・{@link PmdXmlToJsonCommand}・{@link
- * PmdXmlToCsvCommand}）は {@link java.io.ObjectInputStream} で受け取る。
+ * <p>後続コマンド（{@link PmdXmlToMarkdownCommand} など）は {@link java.io.ObjectInputStream} で受け取る。
  */
 public class PmdXmlToViolationsCommand extends AbstractStreamCommand {
 

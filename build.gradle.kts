@@ -17,7 +17,7 @@ plugins {
     id("com.github.spotbugs") version "6.4.8"
     id("com.diffplug.spotless") version "8.3.0"
     id("info.solidsoft.pitest") version "1.19.0"
-    id("org.springframework.boot") version "4.0.3"
+    id("org.springframework.boot") version "4.0.5"
     id("io.spring.dependency-management") version "1.1.7"
 }
 

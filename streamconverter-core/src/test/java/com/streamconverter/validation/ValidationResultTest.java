@@ -357,6 +357,46 @@ public class ValidationResultTest {
   }
 
   @Test
+  @DisplayName("Builder validation - failure without errors auto-adds message")
+  void testBuilderFailureWithoutErrorsAddsAutoMessage() {
+    ValidationResult result =
+        ValidationResult.builder()
+            .validationType("JSON")
+            .schemaPath("test.json")
+            .success(false)
+            .build();
+
+    assertFalse(result.isValid());
+    assertEquals(1, result.getErrors().size());
+    assertEquals("Validation failed (no specific error message)", result.getErrors().get(0));
+  }
+
+  @Test
+  @DisplayName("equals returns false for null and different types")
+  void testEqualsWithNullAndDifferentTypes() {
+    ValidationResult result =
+        ValidationResult.builder()
+            .validationType("JSON")
+            .schemaPath("test.json")
+            .success(true)
+            .build();
+
+    assertNotEquals(result, null);
+    assertNotEquals(result, "a string");
+    assertNotEquals(result, 42);
+  }
+
+  @Test
+  @DisplayName("failure factory method with null errors list")
+  void testFailureFactoryMethodWithNullErrors() {
+    ValidationResult result = ValidationResult.failure("JSON", "test.json", null, 100L);
+
+    assertFalse(result.isValid());
+    // null errors list → errors が空 → auto message が追加される
+    assertEquals(1, result.getErrors().size());
+  }
+
+  @Test
   @DisplayName("Validation result equality and hash code")
   void testValidationResultEqualityAndHashCode() {
     Instant now = Instant.now();

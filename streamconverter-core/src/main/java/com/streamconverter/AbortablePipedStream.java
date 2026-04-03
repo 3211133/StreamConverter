@@ -32,6 +32,8 @@ public final class AbortablePipedStream implements AutoCloseable {
   private final PipedOutputStream out;
   private final PipedInputStream in;
   private final AtomicBoolean aborted = new AtomicBoolean(false);
+  private final AtomicBoolean outputStreamIssued = new AtomicBoolean(false);
+  private final AtomicBoolean inputStreamIssued = new AtomicBoolean(false);
 
   /**
    * 指定バッファサイズで PipedStream ペアを生成する。
@@ -51,18 +53,30 @@ public final class AbortablePipedStream implements AutoCloseable {
   /**
    * 書き込み側のラッパーを返す（前段コマンドに渡す）。
    *
+   * <p>このパイプは書き込み側を1つのコマンドのみが使用することを想定しており、 2回目の呼び出しは {@link IllegalStateException} を投げる。
+   *
    * @return 前段コマンド用の OutputStream
+   * @throws IllegalStateException 2回目以降の呼び出しの場合
    */
   public OutputStream outputStream() {
+    if (!outputStreamIssued.compareAndSet(false, true)) {
+      throw new IllegalStateException("outputStream() has already been called on this pipe");
+    }
     return new AbortableOutputStream();
   }
 
   /**
    * 読み込み側のラッパーを返す（後段コマンドに渡す）。
    *
+   * <p>このパイプは読み込み側を1つのコマンドのみが使用することを想定しており、 2回目の呼び出しは {@link IllegalStateException} を投げる。
+   *
    * @return 後段コマンド用の InputStream
+   * @throws IllegalStateException 2回目以降の呼び出しの場合
    */
   public InputStream inputStream() {
+    if (!inputStreamIssued.compareAndSet(false, true)) {
+      throw new IllegalStateException("inputStream() has already been called on this pipe");
+    }
     return new AbortableInputStream();
   }
 

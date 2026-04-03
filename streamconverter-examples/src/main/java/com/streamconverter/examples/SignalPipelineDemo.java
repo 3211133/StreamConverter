@@ -29,7 +29,7 @@ import org.slf4j.LoggerFactory;
  *
  * <ul>
  *   <li>前段が各 {@code <明細>} 要素を1件バッファし、表示フラグを確認して非表示明細を除去した後に {@link PipelineSignal.Skip} を送信する。
- *   <li>後段はチャンク単位で {@link SignalChannel#poll()} を確認し、 Skipシグナルがあれば「フィルタが発生した」という事実を監査ログに記録する。
+ *   <li>後段はチャンク単位で {@link SignalChannel#peek()} を確認し、 Skipシグナルがあれば「フィルタが発生した」という事実を監査ログに記録する。
  * </ul>
  */
 public class SignalPipelineDemo {
@@ -289,7 +289,7 @@ public class SignalPipelineDemo {
       while ((len = inputStream.read(buf)) != -1) {
         if (!auditLogged) {
           channel
-              .poll()
+              .peek()
               .ifPresent(
                   signal -> {
                     switch (signal) {
@@ -297,7 +297,7 @@ public class SignalPipelineDemo {
                           log.info("[AUDIT] Filter was applied upstream: {}", s.reason());
                     }
                   });
-          if (channel.poll().isPresent()) {
+          if (channel.peek().isPresent()) {
             auditLogged = true;
           }
         }

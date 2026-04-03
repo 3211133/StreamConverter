@@ -67,7 +67,7 @@ class PipelineSignalIntegrationTest {
       String line;
       while ((line = reader.readLine()) != null) {
         boolean shouldSkip =
-            channel.poll().map(s -> s instanceof PipelineSignal.Skip).orElse(false);
+            channel.peek().map(s -> s instanceof PipelineSignal.Skip).orElse(false);
         if (shouldSkip) {
           writer.println("[skipped] " + line);
         } else {
@@ -149,7 +149,7 @@ class PipelineSignalIntegrationTest {
     channel.send(new PipelineSignal.Skip("first"));
     channel.send(new PipelineSignal.Skip("second"));
 
-    PipelineSignal signal = channel.poll().orElse(null);
+    PipelineSignal signal = channel.peek().orElse(null);
     assertNotNull(signal);
     assertInstanceOf(PipelineSignal.Skip.class, signal);
     assertEquals("second", ((PipelineSignal.Skip) signal).reason());

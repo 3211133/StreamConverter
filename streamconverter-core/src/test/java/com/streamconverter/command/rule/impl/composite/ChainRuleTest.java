@@ -170,6 +170,35 @@ class ChainRuleTest {
   }
 
   @Test
+  void testInsertRuleOutOfBoundsThrowsException() {
+    ChainRule.Builder builder = ChainRule.builder().addRule(new TrimRule());
+    assertThrows(IndexOutOfBoundsException.class, () -> builder.insertRule(5, new LowerCaseRule()));
+    assertThrows(
+        IndexOutOfBoundsException.class, () -> builder.insertRule(-1, new LowerCaseRule()));
+  }
+
+  @Test
+  void testInsertRuleAtBoundaries() {
+    ChainRule.Builder builder =
+        ChainRule.builder().addRule(new TrimRule()).addRule(new LowerCaseRule());
+
+    // 先頭への挿入
+    builder.insertRule(0, CamelToSnakeCaseRule.create());
+    assertEquals(3, builder.size());
+
+    // 末尾への挿入（size() == 現在のサイズ）
+    builder.insertRule(builder.size(), new TrimRule());
+    assertEquals(4, builder.size());
+  }
+
+  @Test
+  void testInsertNullRuleIsIgnored() {
+    ChainRule.Builder builder = ChainRule.builder().addRule(new TrimRule());
+    builder.insertRule(0, null);
+    assertEquals(1, builder.size());
+  }
+
+  @Test
   void testCustomRule() {
     // Create custom rule for testing
     IRule doubleRule = input -> input != null ? input + input : null;

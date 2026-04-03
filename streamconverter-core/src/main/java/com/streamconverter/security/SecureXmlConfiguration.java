@@ -171,11 +171,15 @@ public class SecureXmlConfiguration {
   }
 
   /**
-   * InputStreamからのXML読み込みを安全に行います
+   * ストリーム処理用に安全なDocumentBuilderを作成します。
    *
-   * @param inputStream 読み込み対象のInputStream
-   * @return 安全に解析されたDocumentBuilder
+   * <p>引数の {@code inputStream} はnullチェックにのみ使用され、実際のXML解析はこのメソッド内では行いません。 返された {@code
+   * DocumentBuilder} を使って呼び出し元が解析を行います。
+   *
+   * @param inputStream nullチェック対象のInputStream（nullの場合は {@link IllegalArgumentException} をスロー）
+   * @return ストリーム処理用に安全に設定されたDocumentBuilder
    * @throws ParserConfigurationException XML設定エラーが発生した場合
+   * @throws IllegalArgumentException inputStreamがnullの場合
    */
   public static DocumentBuilder createSecureDocumentBuilderForStream(InputStream inputStream)
       throws ParserConfigurationException {
@@ -195,22 +199,43 @@ public class SecureXmlConfiguration {
   }
 }
 
-/** セキュリティを考慮したXMLエラーハンドラー 詳細なエラー情報の漏洩を防ぐため、一般的なエラーメッセージのみを提供 */
+/**
+ * セキュリティを考慮したXMLエラーハンドラー。
+ *
+ * <p>詳細なエラー情報の外部漏洩を防ぐため、外部向けメッセージには一般的な内容のみを使用する。 内部ログには行・列情報を記録し、デバッグを可能にする。
+ *
+ * <p>このクラスは {@link
+ * SecureXmlConfiguration#createSecureDocumentBuilderForStream(java.io.InputStream)}
+ * 内部での使用を想定してpackage-privateとしており、外部から直接インスタンス化されることを想定していない。
+ */
 class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {
   private static final Logger logger = LoggerFactory.getLogger(SecurityAwareErrorHandler.class);
   private static final Logger securityLogger =
       LoggerFactory.getLogger("com.streamConverter.security");
 
+  /**
+   * XML解析の警告を処理する。
+   *
+   * <p>セキュリティ上の理由から詳細は抑制し、内部ロガーにはDEBUGレベルで一般的なメッセージのみを記録する。 セキュリティロガーにはWARNレベルで警告発生を記録する。
+   *
+   * @param exception 発生した警告の詳細（ログには詳細情報を含めない）
+   */
   @Override
   public void warning(org.xml.sax.SAXParseException exception) {
     logger.debug("XML parsing warning (details suppressed for security)");
     securityLogger.warn("XML parsing warning detected during secure processing");
   }
 
+  /**
+   * XML解析の回復可能エラーを処理する。
+   *
+   * <p>セキュリティコンテキストでは回復可能エラーも失敗として扱う（不正XMLを後続処理に渡さない）。 内部ログには行・列情報を記録するが、外部エラーメッセージには詳細を含めない。
+   *
+   * @param exception 発生したエラーの詳細
+   * @throws org.xml.sax.SAXException 常にスローし、XML処理を中断する
+   */
   @Override
   public void error(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {
-    // セキュリティコンテキストでは回復可能エラーも失敗として扱う（不正XMLを後続処理に渡さない）
-    // 内部ログには行・列情報を記録するが、外部エラーメッセージには詳細を含めない
     logger.warn(
         "XML parsing error at line {}, column {}",
         exception.getLineNumber(),
@@ -219,6 +244,14 @@ class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {
     throw new org.xml.sax.SAXException("XML processing failed: parsing error detected", exception);
   }
 
+  /**
+   * XML解析の致命的エラーを処理する。
+   *
+   * <p>セキュリティ制約違反とみなし、詳細情報を外部に漏らさずに処理を中断する。
+   *
+   * @param exception 発生した致命的エラーの詳細
+   * @throws org.xml.sax.SAXException 常にスローし、XML処理を中断する
+   */
   @Override
   public void fatalError(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {
     securityLogger.error("Fatal XML parsing error detected during secure processing");

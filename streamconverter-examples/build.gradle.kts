@@ -88,6 +88,13 @@ tasks.register<JavaExec>("runBasicUsageExamples") {
     mainClass.set("com.streamconverter.examples.docs.BasicUsageExamples")
 }
 
+tasks.register<JavaExec>("runSignalPipelineDemo") {
+    group = "application"
+    description = "Run SignalPipeline Demo (SignalChannel command-to-command messaging)"
+    classpath = sourceSets.main.get().runtimeClasspath
+    mainClass.set("com.streamconverter.examples.SignalPipelineDemo")
+}
+
 // Spotless configuration for code formatting
 spotless {
     java {

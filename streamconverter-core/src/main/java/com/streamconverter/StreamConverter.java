@@ -5,8 +5,6 @@ import com.streamconverter.context.PipelineContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.PipedInputStream;
-import java.io.PipedOutputStream;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
@@ -148,11 +146,38 @@ public class StreamConverter {
    * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
    */
   public void run(InputStream inputStream, OutputStream outputStream) throws IOException {
+    run(inputStream, outputStream, new PipelineContext());
+  }
+
+  /**
+   * 外部で構築したPipelineContextを使用して、非同期並列処理でストリームを変換する。
+   *
+   * <p>コマンド間でシグナルを送受信する {@link com.streamconverter.context.SignalChannel} を使用する場合は、 事前に {@link
+   * PipelineContext#prepareSignalChannel(String)} でチャネルを登録してから このメソッドを呼び出す。
+   *
+   * <p>使用例:
+   *
+   * <pre>{@code
+   * PipelineContext ctx = new PipelineContext();
+   * SignalChannel ch = ctx.prepareSignalChannel("validation");
+   *
+   * StreamConverter.create(
+   *     new ValidatorCommand(ch),
+   *     new TransformCommand(ch)
+   * ).run(input, output, ctx);
+   * }</pre>
+   *
+   * @param inputStream 処理対象の入力ストリーム
+   * @param outputStream 処理結果を書き込む出力ストリーム
+   * @param pipelineContext 使用するPipelineContext
+   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
+   */
+  public void run(
+      InputStream inputStream, OutputStream outputStream, PipelineContext pipelineContext)
+      throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
-
-    // パイプライン内コマンド間で共有値を伝搬するためのコンテキスト
-    PipelineContext pipelineContext = new PipelineContext();
+    Objects.requireNonNull(pipelineContext);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Starting StreamConverter with {} commands", commands.size());
@@ -173,6 +198,7 @@ public class StreamConverter {
     // CopyOnWriteArrayList: パイプライン構築中（メインスレッド）と
     // 失敗時のクローズ処理（ワーカースレッド）が並行して安全にアクセスできるようにする
     List<AutoCloseable> resources = new CopyOnWriteArrayList<>();
+    List<AbortablePipedStream> pipes = new CopyOnWriteArrayList<>();
 
     try (AutoCloseableExecutorService executor =
         new AutoCloseableExecutorService(createOptimalExecutor())) {
@@ -185,17 +211,18 @@ public class StreamConverter {
         final InputStream commandInput = currentInput;
         final OutputStream commandOutput;
 
+        final AbortablePipedStream pipe;
         if (i == this.commands.size() - 1) {
           // 最後のコマンド
           commandOutput = outputStream;
+          pipe = null;
         } else {
-          // 中間コマンド: 次のコマンド用にPipedStreamペア作成
-          PipedOutputStream pipedOut = new PipedOutputStream();
-          PipedInputStream pipedIn = new PipedInputStream(pipedOut, DEFAULT_BUFFER_SIZE);
-          resources.add(pipedOut);
-          resources.add(pipedIn);
-          commandOutput = pipedOut;
-          currentInput = pipedIn;
+          // 中間コマンド: 次のコマンド用にAbortablePipedStreamペア作成
+          pipe = new AbortablePipedStream(DEFAULT_BUFFER_SIZE);
+          resources.add(pipe);
+          pipes.add(pipe);
+          commandOutput = pipe.outputStream();
+          currentInput = pipe.inputStream();
         }
 
         // 各コマンドを非同期実行
@@ -208,39 +235,27 @@ public class StreamConverter {
                     // コマンド実行（ロギングはコンストラクタ時にwithLogging()でラップ済み）
                     command.execute(commandInput, commandOutput);
 
-                    // 中間の PipedOutputStream は実行完了後にクローズする必要がある
-                    if (commandOutput instanceof PipedOutputStream) {
-                      commandOutput.close();
+                    // 中間コマンドの出力側を閉じて後段コマンドに EOF を通知する
+                    if (pipe != null) {
+                      try {
+                        commandOutput.close();
+                      } catch (IOException closeEx) {
+                        abortAllPipes(pipes);
+                        throw new StreamProcessingException(
+                            "Failed to close output stream of command: " + commandName, closeEx);
+                      }
                     }
 
                   } catch (StreamProcessingException e) {
-                    if (commandOutput instanceof PipedOutputStream) {
-                      try {
-                        commandOutput.close();
-                      } catch (IOException ignored) {
-                        // ignored
-                      }
-                    }
+                    abortAllPipes(pipes);
                     // Already a StreamProcessingException — re-throw as-is to avoid double-wrapping
                     throw e;
                   } catch (IOException | RuntimeException e) {
-                    if (commandOutput instanceof PipedOutputStream) {
-                      try {
-                        commandOutput.close();
-                      } catch (IOException ignored) {
-                        // ignored
-                      }
-                    }
+                    abortAllPipes(pipes);
                     throw new StreamProcessingException(
                         "Command execution failed: " + commandName + " - " + e.getMessage(), e);
                   } catch (Error e) {
-                    if (commandOutput instanceof PipedOutputStream) {
-                      try {
-                        commandOutput.close();
-                      } catch (IOException ignored) {
-                        // ignored
-                      }
-                    }
+                    abortAllPipes(pipes);
                     throw e;
                   } finally {
                     PipelineContext.clear();
@@ -258,32 +273,41 @@ public class StreamConverter {
       for (CompletableFuture<Void> future : futures) {
         future.exceptionally(
             t -> {
-              closeResources(resources);
+              try {
+                closeResources(resources);
+              } catch (RuntimeException ex) {
+                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);
+              }
               return null;
             });
       }
 
-      // すべてのタスクの完了を待機。
-      // 前段コマンドの待機中に後段が失敗していれば exceptionally ハンドラがパイプをクローズし、
-      // 前段の書き込みブロックを IOException で即解放する。
-      for (int i = 0; i < futures.size(); i++) {
-        try {
-          futures.get(i).get();
-        } catch (ExecutionException e) {
-          // findFirstFailureCause より先に cancel すると、後段 future が isCancelled() になり
-          // 根本原因が取得できなくなるため、先に根本原因を特定してからキャンセルする
-          Throwable cause = findFirstFailureCause(futures, e.getCause());
-          cancelRemainingFutures(futures, i + 1);
-          if (cause instanceof Error err) throw err;
-          if (cause instanceof StreamProcessingException spe) throw spe;
-          if (cause instanceof IOException ioe) throw ioe;
-          if (cause instanceof RuntimeException re) throw re;
-          throw new StreamProcessingException("Unexpected error during command execution", cause);
-        } catch (InterruptedException e) {
-          cancelRemainingFutures(futures, i);
-          Thread.currentThread().interrupt();
-          throw new StreamProcessingException("Pipeline execution was interrupted", e);
+      // 全タスクの完了を待機してから根本原因を収集する。
+      // abort() による物理クローズで各コマンドが順不同で完了するため、
+      // 全完了後に走査することでレースコンディションを回避する。
+      try {
+        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+      } catch (ExecutionException e) {
+        // いずれかが失敗した場合は全件走査して根本原因を収集する
+        List<Throwable> rootCauses = collectRootCauses(futures);
+        if (rootCauses.isEmpty()) {
+          // 全件 PipeAbortedException の場合（通常起こらない）
+          throw new StreamProcessingException(
+              "Unexpected error during command execution", e.getCause());
         }
+        Throwable primary = rootCauses.get(0);
+        for (int i = 1; i < rootCauses.size(); i++) {
+          primary.addSuppressed(rootCauses.get(i));
+        }
+        if (primary instanceof Error err) throw err;
+        if (primary instanceof StreamProcessingException spe) throw spe;
+        if (primary instanceof IOException ioe) throw ioe;
+        if (primary instanceof RuntimeException re) throw re;
+        throw new StreamProcessingException("Unexpected error during command execution", primary);
+      } catch (InterruptedException e) {
+        cancelRemainingFutures(futures, 0);
+        Thread.currentThread().interrupt();
+        throw new StreamProcessingException("Pipeline execution was interrupted", e);
       }
 
       if (LOG.isInfoEnabled()) {
@@ -297,91 +321,56 @@ public class StreamConverter {
   }
 
   /**
-   * 完了済みの futures から最も根本的な失敗原因を取得する。
+   * 全 futures から根本原因（{@link PipeAbortedException} でない失敗）を全件収集して返す。
    *
-   * <p>パイプ破損による二次的な IOException（PipedInputStream/PipedOutputStream 起因）を避け、
-   * 本来の原因（後段コマンドの失敗など）を優先して返す。 既に完了済みの future のみを走査し、ブロックしない。 非パイプ系の失敗が見つかれば即座に返し、全てパイプ系または未完了の場合は
-   * fallback を返す。
+   * <p>呼び出し前に全 futures が完了済みであること。
    */
-  private Throwable findFirstFailureCause(
-      List<CompletableFuture<Void>> futures, Throwable fallback) {
-    Throwable ioFallback = null;
+  private List<Throwable> collectRootCauses(List<CompletableFuture<Void>> futures) {
+    List<Throwable> rootCauses = new ArrayList<>();
     for (CompletableFuture<Void> f : futures) {
-      // 未完了またはキャンセル済みの future はスキップする
-      if (!f.isDone() || f.isCancelled()) {
+      if (!f.isCompletedExceptionally()) {
         continue;
       }
-      if (f.isCompletedExceptionally()) {
-        try {
-          f.get();
-        } catch (ExecutionException ee) {
-          Throwable cause = ee.getCause();
-          if (!isPipeBrokenCause(cause)) {
-            return cause;
-          }
-          if (ioFallback == null) {
-            ioFallback = cause;
-          }
-        } catch (InterruptedException ie) {
-          Thread.currentThread().interrupt();
-          return ie;
+      try {
+        f.get();
+      } catch (ExecutionException ee) {
+        Throwable cause = ee.getCause();
+        if (!isPipeAbortedCause(cause)) {
+          rootCauses.add(cause);
         }
+      } catch (InterruptedException ie) {
+        Thread.currentThread().interrupt();
+        rootCauses.add(ie);
       }
     }
-    return ioFallback != null ? ioFallback : fallback;
+    return rootCauses;
   }
 
   /**
-   * パイプ破損による二次的な失敗かどうかを判定する。
+   * 対向コマンドの異常終了に巻き込まれた二次的な失敗かどうかを判定する。
    *
-   * <p>後段コマンドの失敗に起因して前段が PipedOutputStream/PipedInputStream の IOException で失敗する場合、その例外はラップされた
-   * StreamProcessingException として現れる。 ロケール依存のメッセージ文字列ではなく、スタックトレースのクラス名で判定する。
+   * <p>{@link PipeAbortedException} は {@link AbortablePipedStream#abort()} で設定される
+   * 型付き例外であり、二次的失敗と明示的に識別できる。
    */
-  private static boolean isPipeBrokenCause(Throwable cause) {
-    // 直接の cause が pipe 系 IO エラー
-    if (cause instanceof IOException && isPipedStreamIOException((IOException) cause)) {
+  static boolean isPipeAbortedCause(Throwable cause) {
+    if (cause instanceof PipeAbortedException) {
       return true;
     }
-    // StreamProcessingException にラップされた pipe 系エラー
     if (cause instanceof StreamProcessingException) {
-      Throwable inner = cause.getCause();
-      return inner instanceof IOException && isPipedStreamIOException((IOException) inner);
+      return cause.getCause() instanceof PipeAbortedException;
     }
     return false;
   }
 
   /**
-   * IOException が PipedInputStream/PipedOutputStream から送出されたものかを判定する。
+   * すべてのパイプを abort して、ブロック中の read/write を {@link PipeAbortedException} で解放する。
    *
-   * <p>スタックトレースが存在する場合は {@code PipedInputStream}/{@code PipedOutputStream}
-   * クラス名で判定する（JDK実装非依存・最も確実）。スタックトレースが -XX:+OmitStackTraceInFastThrow によって省略されている場合は、HotSpot JDK
-   * が出力する パイプ破損メッセージ文字列（英語固定・ロケール非依存）にフォールバックする。
-   *
-   * <p><strong>既知の制限:</strong> スタックトレース省略かつ非 HotSpot JDK（IBM J9・GraalVM 等）の
-   * 環境ではメッセージが異なる可能性があり、パイプ破損の検知漏れが起きることがある。 また、アプリケーションが同一メッセージ文字列を持つ {@link IOException}
-   * を生成した場合は誤検知となる。
+   * @param pipes abort 対象のパイプリスト
    */
-  static boolean isPipedStreamIOException(IOException e) {
-    StackTraceElement[] frames = e.getStackTrace();
-    if (frames != null && frames.length > 0) {
-      // スタックトレースが存在する場合はクラス名で判定（最も確実）
-      for (StackTraceElement frame : frames) {
-        String cls = frame.getClassName();
-        if (cls.equals("java.io.PipedInputStream") || cls.equals("java.io.PipedOutputStream")) {
-          return true;
-        }
-      }
-      return false;
+  private void abortAllPipes(List<AbortablePipedStream> pipes) {
+    for (AbortablePipedStream p : pipes) {
+      p.abort();
     }
-    // スタックトレースが省略されている場合はメッセージ文字列にフォールバック
-    String msg = e.getMessage();
-    if (msg == null) {
-      return false;
-    }
-    return msg.contains("Pipe closed")
-        || msg.contains("Pipe broken")
-        || msg.contains("Read end dead")
-        || msg.contains("Write end dead");
   }
 
   /** 失敗時に残りのfuturesをキャンセルする */
@@ -401,9 +390,7 @@ public class StreamConverter {
       try {
         resource.close();
       } catch (Exception e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Failed to close resource: {}", e.getMessage());
-        }
+        LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
       }
     }
   }

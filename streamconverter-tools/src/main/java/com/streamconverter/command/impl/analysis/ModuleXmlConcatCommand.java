@@ -6,8 +6,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -23,20 +21,17 @@ import java.nio.file.Path;
  * ...
  * </pre>
  *
- * <p>出力: 各 XML の前にモジュール名ヘッダーを付加した連結ストリーム
+ * <p>出力: 各モジュールの JaCoCo XML をそのまま連結したストリーム。XML 宣言（{@code <?xml ...?>}）は
+ * 最初のモジュール以外では除去して連結する。結果は複数のルート要素を持つ Well-formed ではない XML となるが、 {@link
+ * JacocoXmlToModuleSlocCommand} が使用する {@link javax.xml.stream.XMLStreamReader}
+ * は複数ルート要素を順に読み進めることができるため実用上は問題ない。
  *
- * <pre>
- * #module:streamconverter-core
- * &lt;?xml ...&gt;...&lt;/report&gt;
- * #module:streamconverter-db
- * &lt;?xml ...&gt;...&lt;/report&gt;
- * ...
- * </pre>
+ * <p><b>YAGNI:</b> 厳密な Well-formed XML が必要になった場合は、ラッパー要素（例: {@code <jacoco-reports>}）で包む対応が容易にできる。
  */
 public class ModuleXmlConcatCommand extends AbstractStreamCommand {
 
-  static final String MODULE_HEADER_PREFIX = "#module:";
   private static final String JACOCO_XML_PATH = "build/reports/jacoco/test/jacocoTestReport.xml";
+  private static final String XML_DECLARATION_PREFIX = "<?xml";
 
   private final Path projectRoot;
 
@@ -50,8 +45,7 @@ public class ModuleXmlConcatCommand extends AbstractStreamCommand {
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
     Path normalizedRoot = projectRoot.toAbsolutePath().normalize();
-    PrintWriter headerWriter =
-        new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8));
+    boolean first = true;
     try (BufferedReader reader =
         new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
       String moduleName;
@@ -68,11 +62,31 @@ public class ModuleXmlConcatCommand extends AbstractStreamCommand {
           log.warn("report not found, skipping: {}", xmlPath);
           continue;
         }
-        headerWriter.println(MODULE_HEADER_PREFIX + moduleName);
-        headerWriter.flush();
-        Files.copy(xmlPath, output);
+        if (first) {
+          Files.copy(xmlPath, output);
+          first = false;
+        } else {
+          writeWithoutXmlDeclaration(xmlPath, output);
+        }
         output.write('\n');
         output.flush();
+      }
+    }
+  }
+
+  private void writeWithoutXmlDeclaration(Path xmlPath, OutputStream output) throws IOException {
+    try (BufferedReader reader =
+        new BufferedReader(
+            new java.io.InputStreamReader(Files.newInputStream(xmlPath), StandardCharsets.UTF_8))) {
+      String line;
+      boolean skippedDeclaration = false;
+      while ((line = reader.readLine()) != null) {
+        if (!skippedDeclaration && line.stripLeading().startsWith(XML_DECLARATION_PREFIX)) {
+          skippedDeclaration = true;
+          continue;
+        }
+        output.write(line.getBytes(StandardCharsets.UTF_8));
+        output.write('\n');
       }
     }
   }

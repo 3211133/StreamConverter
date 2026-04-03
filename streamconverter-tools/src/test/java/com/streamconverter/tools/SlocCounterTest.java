@@ -15,7 +15,7 @@ class SlocCounterTest {
   private static final String JACOCO_XML =
       """
       <?xml version="1.0" encoding="UTF-8"?>
-      <report name="test">
+      <report name="my-module">
         <counter type="LINE" missed="30" covered="70"/>
       </report>
       """;

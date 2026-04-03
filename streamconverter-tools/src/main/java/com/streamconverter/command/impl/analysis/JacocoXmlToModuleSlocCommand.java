@@ -25,7 +25,7 @@ import javax.xml.stream.XMLStreamReader;
  * XML として扱う。ラッパー要素名は JaCoCo の仕様に依存しない独自名を使用している。 {@link ModuleXmlConcatCommand} が XML宣言・DOCTYPE宣言を
  * 除去した上で {@code <report>} 要素だけを渡すため、ここでは宣言の除去は不要。
  *
- * <p><b>YAGNI:</b> JaCoCo のルート要素名が変わった場合でも、ラッパー要素名は独立しているため影響を受けない。
+ * <p>ラッパー要素名は JaCoCo の仕様に依存しない独自名のため、JaCoCo のルート要素名が変わっても影響を受けない。
  */
 public class JacocoXmlToModuleSlocCommand extends AbstractStreamCommand {
 

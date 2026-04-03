@@ -18,6 +18,10 @@ import java.util.Locale;
  * <p>入力: {@link SlocAggregateCommand} が出力する {@link java.io.ObjectOutputStream} ストリーム （各モジュールの
  * {@link ModuleSloc} + name="Total" の合計行）
  *
+ * <p><b>セキュリティ前提:</b> 入力ストリームは同一 JVM 内の前段コマンド（{@link SlocAggregateCommand}）が
+ * 書き出したものであり、外部入力を直接受け取らない。予期しない型が含まれる場合は {@link ClassNotFoundException} / {@link
+ * ClassCastException} を {@link java.io.IOException} に変換して伝播する。
+ *
  * <p>出力例:
  *
  * <pre>

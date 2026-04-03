@@ -63,6 +63,8 @@ public class JacocoXmlToModuleSlocCommand extends AbstractStreamCommand {
     try (BufferedReader reader =
         new BufferedReader(new InputStreamReader(input, StandardCharsets.UTF_8))) {
       String currentModule = null;
+      // 1モジュール分のXML行をバッファ。モジュール境界（#module:ヘッダー）で区切られており、
+      // バッファは常に1モジュール分のみ保持する。モジュール間のストリーミングは維持される。
       List<String> xmlLines = new ArrayList<>();
 
       String line;

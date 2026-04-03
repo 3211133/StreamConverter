@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("jacoco")
 }
 
 description = "StreamConverter HTTP module - SendHttpCommand for HTTP stream processing"
@@ -50,4 +51,13 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     jvmArgs("-Xmx2g", "-Xms1g", "-Dfile.encoding=UTF-8")
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
+    }
 }

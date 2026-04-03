@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("jacoco")
     id("application")
     id("com.diffplug.spotless") version "8.3.0"
     id("org.springframework.boot") version "4.0.3"
@@ -45,10 +46,10 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.21.0")
     
     // JSON processing with Jackson
-    implementation("com.fasterxml.jackson.core:jackson-core:2.21.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.21.1")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.20.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.20.2")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.20.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.20.2")
 }
 
 // Benchmark tasks
@@ -137,11 +138,38 @@ tasks.test {
         events("skipped", "failed")
         showStandardStreams = true
     }
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
+    }
 }
 
 // Main class configuration - DatabaseInspector as default
 application {
-    mainClass.set("com.streamconverter.tools.DatabaseInspector")
+    mainClass.set(project.findProperty("mainClass")?.toString() ?: "com.streamconverter.tools.DatabaseInspector")
+}
+
+tasks.register<JavaExec>("slocCount") {
+    group = "analysis"
+    description = "Count SLOC across all modules from JaCoCo reports"
+    classpath = configurations["runtimeClasspath"] + sourceSets.main.get().output
+    mainClass.set("com.streamconverter.tools.SlocCounter")
+    workingDir = rootProject.projectDir
+
+    // JaCoCo が設定されているサブプロジェクトのテスト＆レポート生成タスクに依存
+    // test タスクが finalizedBy(jacocoTestReport) を持つため、test に依存するだけで XML が生成される
+    val jacocoModules = rootProject.subprojects.filter { sub ->
+        sub.plugins.hasPlugin("jacoco")
+    }
+    dependsOn(jacocoModules.map { "${it.path}:test" })
+
+    // モジュール名を引数として渡す
+    args = jacocoModules.map { it.name }
 }
 
 // spotlessCheck タスクを無効化

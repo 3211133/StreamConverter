@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("jacoco")
 }
 
 description = "StreamConverter DB module - Database fetch rules for stream transformation"
@@ -49,4 +50,13 @@ tasks.test {
         excludeTags("performance")
     }
     jvmArgs("-Xmx2g", "-Xms1g", "-Dfile.encoding=UTF-8")
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
+    }
 }

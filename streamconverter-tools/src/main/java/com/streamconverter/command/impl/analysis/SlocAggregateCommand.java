@@ -17,6 +17,10 @@ import java.util.List;
  *
  * <p>出力: 各 {@link ModuleSloc} + 合計を表す {@link ModuleSloc}("Total", ...) を {@link ObjectOutputStream}
  * で書き出す
+ *
+ * <p><b>セキュリティ前提:</b> 入力ストリームは同一 JVM 内の前段コマンド（{@link
+ * JacocoXmlToModuleSlocCommand}）が書き出したものであり、外部入力を直接受け取らない。予期しない型が 含まれる場合は {@link
+ * ClassNotFoundException} / {@link ClassCastException} を {@link java.io.IOException} に変換して伝播する。
  */
 public class SlocAggregateCommand extends AbstractStreamCommand {
 

@@ -163,6 +163,13 @@ tasks.register<JavaExec>("slocCount") {
 
     // JaCoCo が設定されているサブプロジェクトのテスト＆レポート生成タスクに依存
     // test タスクが finalizedBy(jacocoTestReport) を持つため、test に依存するだけで XML が生成される
+    //
+    // 対象モジュールの制約:
+    //   - jacoco プラグイン適用済みモジュール（streamconverter-core, streamconverter-tools）のみを対象とする
+    //   - streamconverter-db / streamconverter-http / streamconverter-web 等は jacoco 未適用のため集計対象外
+    //   - streamconverter-core は Linux 環境でのみ jacocoTestReport が有効（core/build.gradle.kts 参照）。
+    //     macOS/Windows では XML が生成されないためそのモジュールの SLOC は 0 扱いになる。
+    //     ローカル開発でも正確な全体集計が必要な場合は Linux 環境（CI）で実行すること。
     val jacocoModules = rootProject.subprojects.filter { sub ->
         sub.plugins.hasPlugin("jacoco")
     }

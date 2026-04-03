@@ -1,24 +1,19 @@
 # Web API
 
-## このドキュメントの基礎資料
-このドキュメントは以下の資料を基に作成されています：
-- [WEB_API.md](../WEB_API.md) - Web API の詳細仕様とエンドポイント
-
 ## What
-The Web API exposes StreamConverter capabilities over HTTP using Spring Boot.
+Web API は StreamConverter を HTTP から呼び出すための Spring Boot WebFlux インターフェースです。
 
 ## Why
-It allows remote systems to process streams without embedding the library, enabling integration with other services.
+ライブラリを直接組み込まなくても、外部システムからストリーム変換を利用できます。
 
 ## How
-1. Start the server with `./gradlew bootRun`.
-2. Use endpoints such as `/api/v1/stream/csv/extract` or `/api/v1/stream/json/extract`.
-3. Chain multiple commands by supplying an `X-Pipeline-Config` header.
+1. `./gradlew :streamconverter-web:bootRun` で起動します。
+2. `/api/v1/stream/csv/extract` や `/api/v1/stream/json/extract` を呼び出します。
+3. `X-Pipeline-Config` ヘッダーで複数コマンドを連結できます。
 
 ## See also
+- [Web API 詳細ガイド](../WEB_API.md)
 - [Architecture](architecture.md)
 - [Logging](logging.md)
 - [Validation](validation.md)
 - [Handbook index](README.md)
-
-Further endpoint examples are in the [original Web API guide](../WEB_API.md).

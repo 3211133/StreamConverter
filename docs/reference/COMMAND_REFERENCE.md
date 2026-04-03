@@ -94,7 +94,7 @@ SpotBugs 静的解析を実行します。
 ## Web Module Commands
 
 ### `./gradlew :streamconverter-web:bootRun`
-Spring Boot アプリケーションを起動します。
+Web モジュールの Spring Boot アプリケーションを起動します。
 
 デフォルトポート: `http://localhost:8080`
 
@@ -102,13 +102,12 @@ Spring Boot アプリケーションを起動します。
 
 ```bash
 # 基本的な使用例を実行
-./gradlew runQuickStart
-./gradlew runAutoLoggingDemo
-./gradlew runContextDemo
-./gradlew runMDC
-./gradlew runDataProcessing
-./gradlew runDirectApiDemo
-./gradlew runDemo
+./gradlew :streamconverter-examples:runQuickStart
+./gradlew :streamconverter-examples:runMDC
+./gradlew :streamconverter-examples:runComplexPipeline
+./gradlew :streamconverter-examples:runValidationExample
+./gradlew :streamconverter-examples:runDatabaseRuleDemo
+./gradlew :streamconverter-examples:runBasicUsageExamples
 ```
 
 ## Git Commands

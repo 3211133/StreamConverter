@@ -2,6 +2,7 @@ package com.streamconverter.web;
 
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -36,6 +37,10 @@ public class StreamProcessingController {
 
   private static final Logger log = LoggerFactory.getLogger(StreamProcessingController.class);
 
+  private static final int MAX_PIPELINE_CONFIG_LENGTH = 1000;
+  private static final int MAX_PIPELINE_COMMANDS = 10;
+  private static final int MAX_PARAMETER_LENGTH = 500;
+
   /**
    * Process data stream with CSV extraction.
    *
@@ -60,7 +65,11 @@ public class StreamProcessingController {
                         inputData,
                         CsvNavigateCommand.create(
                             CSVPath.of(columnName), new PassThroughRule()))))
-        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        .onErrorResume(
+            e -> {
+              log.error("CSV extraction failed: {}", e.getMessage(), e);
+              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            });
   }
 
   /**
@@ -87,7 +96,11 @@ public class StreamProcessingController {
                         inputData,
                         JsonNavigateCommand.create(
                             TreePath.fromJson(jsonPath), new PassThroughRule()))))
-        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        .onErrorResume(
+            e -> {
+              log.error("JSON extraction failed: {}", e.getMessage(), e);
+              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            });
   }
 
   /**
@@ -105,15 +118,24 @@ public class StreamProcessingController {
       @RequestBody Flux<DataBuffer> inputData,
       @RequestHeader("X-Pipeline-Config") String pipelineConfig) {
 
-    log.info("Processing with pipeline config: {}", pipelineConfig);
-
     return Mono
-        .fromCallable(
-            () ->
-                ResponseEntity.ok(
-                    processWithStreamConverter(
-                        inputData, buildPipelineFromConfig(pipelineConfig))))
-        .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+        .fromCallable(() -> buildPipelineFromConfig(pipelineConfig))
+        .map(
+            commands -> {
+              log.info("Processing pipeline with {} commands", commands.length);
+              return ResponseEntity.ok(processWithStreamConverter(inputData, commands));
+            })
+        .onErrorResume(
+            IllegalArgumentException.class,
+            e -> {
+              log.warn("Invalid pipeline config: {}", e.getMessage());
+              return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
+            })
+        .onErrorResume(
+            e -> {
+              log.error("Pipeline processing failed: {}", e.getMessage(), e);
+              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
+            });
   }
 
   /**
@@ -159,20 +181,51 @@ public class StreamProcessingController {
    *
    * @param config pipeline configuration (e.g., "csv:name,json:$.result,process:validator")
    * @return array of stream commands
+   * @throws IllegalArgumentException config が null/空/長すぎる、またはコマンド数・パラメータが不正な場合
    */
   private IStreamCommand[] buildPipelineFromConfig(String config) {
-    String[] commandConfigs = config.split(",");
+    if (config == null || config.isBlank()) {
+      throw new IllegalArgumentException("Pipeline config must not be null or blank");
+    }
+    if (config.length() > MAX_PIPELINE_CONFIG_LENGTH) {
+      throw new IllegalArgumentException(
+          "Pipeline config exceeds maximum length of " + MAX_PIPELINE_CONFIG_LENGTH);
+    }
+
+    String[] commandConfigs = config.split(",", -1);
+    if (commandConfigs.length > MAX_PIPELINE_COMMANDS) {
+      throw new IllegalArgumentException(
+          "Pipeline config exceeds maximum command count of " + MAX_PIPELINE_COMMANDS);
+    }
+
     IStreamCommand[] commands = new IStreamCommand[commandConfigs.length];
 
     for (int i = 0; i < commandConfigs.length; i++) {
       String[] parts = commandConfigs[i].split(":", 2);
       String commandType = parts[0].trim();
+      if (commandType.isEmpty()) {
+        throw new IllegalArgumentException("Command type must not be empty at index " + i);
+      }
       String parameter = parts.length > 1 ? parts[1].trim() : "";
+      if (parameter.length() > MAX_PARAMETER_LENGTH) {
+        throw new IllegalArgumentException(
+            "Parameter exceeds maximum length of " + MAX_PARAMETER_LENGTH + " at index " + i);
+      }
 
       commands[i] =
-          switch (commandType.toLowerCase()) {
-            case "csv" -> CsvNavigateCommand.create(CSVPath.of(parameter), new PassThroughRule());
-            case "json" -> JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());
+          switch (commandType.toLowerCase(Locale.ROOT)) {
+            case "csv" -> {
+              if (parameter.isEmpty()) {
+                throw new IllegalArgumentException("csv command requires a column name at index " + i);
+              }
+              yield CsvNavigateCommand.create(CSVPath.of(parameter), new PassThroughRule());
+            }
+            case "json" -> {
+              if (parameter.isEmpty()) {
+                throw new IllegalArgumentException("json command requires a path at index " + i);
+              }
+              yield JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());
+            }
             case "process" -> (IStreamCommand) (in, out) -> in.transferTo(out);
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
           };

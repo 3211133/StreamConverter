@@ -36,12 +36,12 @@ public class SlocReportFormatCommand extends AbstractStreamCommand {
 
   private static final int MODULE_COL_WIDTH = 25;
   private static final int LINES_COL_WIDTH = 6;
-  private static final NumberFormat NUMBER_FORMAT = NumberFormat.getInstance(Locale.US);
 
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
     List<ModuleSloc> rows = readAll(input);
     String separator = "  " + "─".repeat(MODULE_COL_WIDTH + LINES_COL_WIDTH + 1);
+    NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
 
     try (PrintWriter writer = new PrintWriter(output)) {
       writer.println("=== SLOC Report ===");
@@ -53,7 +53,7 @@ public class SlocReportFormatCommand extends AbstractStreamCommand {
         writer.printf(
             "  %-" + MODULE_COL_WIDTH + "s %" + LINES_COL_WIDTH + "s%n",
             sloc.name(),
-            NUMBER_FORMAT.format(sloc.lines()));
+            numberFormat.format(sloc.lines()));
       }
     }
   }
@@ -66,8 +66,8 @@ public class SlocReportFormatCommand extends AbstractStreamCommand {
           result.add((ModuleSloc) ois.readObject());
         } catch (EOFException e) {
           break;
-        } catch (ClassNotFoundException e) {
-          throw new IOException("Unexpected object type in stream", e);
+        } catch (ClassNotFoundException | ClassCastException e) {
+          throw new IOException("Unexpected object type in stream: expected ModuleSloc", e);
         }
       }
     }

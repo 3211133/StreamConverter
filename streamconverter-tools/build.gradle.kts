@@ -46,7 +46,8 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.21.0")
     
     // JSON processing with Jackson
-    // jackson-annotations は Spring Boot BOM が 2.20 に固定するため明示的に 2.21 を指定
+    implementation("com.fasterxml.jackson.core:jackson-core:2.21.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
     implementation("com.fasterxml.jackson.core:jackson-core:2.21.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1")

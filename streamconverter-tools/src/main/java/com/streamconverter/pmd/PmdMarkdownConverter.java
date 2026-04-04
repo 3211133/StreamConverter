@@ -13,6 +13,8 @@ import java.nio.file.Paths;
 public class PmdMarkdownConverter {
 
   /**
+   * CLI エントリポイント。PMD XML を Markdown レポートに変換して出力ファイルに書き込む。
+   *
    * @param args args[0]: PMD XML ファイルパス、args[1]: 出力 Markdown ファイルパス
    */
   public static void main(String[] args) throws IOException {

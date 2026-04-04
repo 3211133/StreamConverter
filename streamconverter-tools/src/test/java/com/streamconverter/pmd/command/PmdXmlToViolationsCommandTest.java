@@ -78,6 +78,30 @@ class PmdXmlToViolationsCommandTest {
   }
 
   @Test
+  void nonStreamconverterPath_returnsFullPath() throws Exception {
+    // streamconverter- を含まないパスはフルパスのまま返ること（仕様文書化）
+    String xml =
+        """
+        <?xml version="1.0" encoding="UTF-8"?>
+        <pmd>
+          <file name="/home/user/other-project/src/Foo.java">
+            <violation beginline="1" rule="UnusedVariable" ruleset="Best Practices"
+                       priority="3" class="Foo" method="bar" variable="x">
+              Avoid unused variables.
+            </violation>
+          </file>
+        </pmd>
+        """;
+    var output = new ByteArrayOutputStream();
+    new PmdXmlToViolationsCommand()
+        .execute(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), output);
+
+    List<PmdViolation> violations = deserialize(output);
+    assertEquals(1, violations.size());
+    assertEquals("/home/user/other-project/src/Foo.java", violations.get(0).file());
+  }
+
+  @Test
   void emptyPmdXml_producesNoViolations() throws Exception {
     String emptyXml =
         """

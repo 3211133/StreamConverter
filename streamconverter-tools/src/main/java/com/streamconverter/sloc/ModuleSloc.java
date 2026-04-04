@@ -16,4 +16,30 @@ import java.io.Serializable;
  */
 public record ModuleSloc(String name, int lines, int covered, int missed) implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
+
+  /** 合計行を表す {@link #name()} の標準値。 */
+  public static final String TOTAL_NAME = "Total";
+
+  public ModuleSloc {
+    if (name == null || name.isBlank()) {
+      throw new IllegalArgumentException("name must not be null or blank");
+    }
+    if (covered < 0) {
+      throw new IllegalArgumentException("covered must be >= 0, got: " + covered);
+    }
+    if (missed < 0) {
+      throw new IllegalArgumentException("missed must be >= 0, got: " + missed);
+    }
+    if (lines != missed + covered) {
+      throw new IllegalArgumentException(
+          "lines must equal missed + covered ("
+              + missed
+              + " + "
+              + covered
+              + " = "
+              + (missed + covered)
+              + "), got: "
+              + lines);
+    }
+  }
 }

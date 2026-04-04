@@ -4,6 +4,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -60,6 +61,18 @@ class ModuleXmlConcatCommandTest {
     // 両モジュールの <report> が含まれる
     assertTrue(result.contains("<report name=\"module-a\">"));
     assertTrue(result.contains("<report name=\"module-b\">"));
+  }
+
+  @Test
+  void pathTraversal_throwsIOException(@TempDir Path tempDir) throws Exception {
+    var output = new ByteArrayOutputStream();
+    assertThrows(
+        IOException.class,
+        () ->
+            new ModuleXmlConcatCommand(tempDir)
+                .execute(
+                    new ByteArrayInputStream("../evil-module\n".getBytes(StandardCharsets.UTF_8)),
+                    output));
   }
 
   @Test

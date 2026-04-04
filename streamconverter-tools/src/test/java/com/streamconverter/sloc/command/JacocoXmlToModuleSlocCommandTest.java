@@ -91,6 +91,20 @@ class JacocoXmlToModuleSlocCommandTest {
                     output));
   }
 
+  @Test
+  void invalidCounterAttribute_throwsIOException() {
+    String xml =
+        "<report name=\"bad-module\">"
+            + "<counter type=\"LINE\" missed=\"not-a-number\" covered=\"100\"/>"
+            + "</report>";
+    var output = new ByteArrayOutputStream();
+    assertThrows(
+        IOException.class,
+        () ->
+            new JacocoXmlToModuleSlocCommand()
+                .execute(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), output));
+  }
+
   private List<ModuleSloc> deserialize(ByteArrayOutputStream output) throws Exception {
     var ois = new ObjectInputStream(new ByteArrayInputStream(output.toByteArray()));
     List<ModuleSloc> result = new ArrayList<>();

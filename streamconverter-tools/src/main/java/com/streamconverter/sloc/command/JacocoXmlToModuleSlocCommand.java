@@ -50,8 +50,9 @@ public class JacocoXmlToModuleSlocCommand extends AbstractStreamCommand {
       }
     } catch (IOException e) {
       throw e;
-    } catch (Exception e) {
-      throw new IOException("Failed to parse JaCoCo XML: " + e.getMessage(), e);
+    } catch (XMLStreamException e) {
+      throw new IOException(
+          "Failed to parse JaCoCo XML at " + e.getLocation() + ": " + e.getMessage(), e);
     }
   }
 

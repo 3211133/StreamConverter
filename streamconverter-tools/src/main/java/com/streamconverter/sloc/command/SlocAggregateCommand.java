@@ -46,7 +46,7 @@ public class SlocAggregateCommand extends AbstractStreamCommand {
           throw new IOException("Unexpected object type in stream: expected ModuleSloc", e);
         }
       }
-      oos.writeObject(new ModuleSloc("Total", totalLines, totalCovered, totalMissed));
+      oos.writeObject(new ModuleSloc(ModuleSloc.TOTAL_NAME, totalLines, totalCovered, totalMissed));
     }
   }
 }

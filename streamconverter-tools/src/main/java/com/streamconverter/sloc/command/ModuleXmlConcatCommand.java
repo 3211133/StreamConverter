@@ -51,8 +51,11 @@ public class ModuleXmlConcatCommand extends AbstractStreamCommand {
         }
         Path xmlPath = normalizedRoot.resolve(moduleName).resolve(JACOCO_XML_PATH).normalize();
         if (!xmlPath.startsWith(normalizedRoot)) {
-          log.warn("path traversal detected, skipping: {}", moduleName);
-          continue;
+          log.error(
+              "Path traversal detected: resolved path '{}' escapes project root '{}' — aborting",
+              xmlPath,
+              normalizedRoot);
+          throw new IOException("Path traversal detected: resolved path escapes project root");
         }
         if (!Files.exists(xmlPath)) {
           log.warn("report not found, skipping: {}", xmlPath);

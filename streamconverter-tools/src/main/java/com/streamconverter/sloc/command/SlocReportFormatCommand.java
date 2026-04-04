@@ -52,7 +52,7 @@ public class SlocReportFormatCommand extends AbstractStreamCommand {
       writer.println("=== SLOC Report ===");
       writer.println();
       for (ModuleSloc sloc : rows) {
-        if ("Total".equals(sloc.name())) {
+        if (ModuleSloc.TOTAL_NAME.equals(sloc.name())) {
           writer.println(separator);
         }
         writer.printf(

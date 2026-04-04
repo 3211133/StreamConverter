@@ -31,4 +31,13 @@ public record PmdViolation(
     String variable)
     implements Serializable {
   @Serial private static final long serialVersionUID = 1L;
+
+  public PmdViolation {
+    if (line < 0) {
+      throw new IllegalArgumentException("line must be >= 0, got: " + line);
+    }
+    if (priority < 0 || priority > 5) {
+      throw new IllegalArgumentException("priority must be 0-5, got: " + priority);
+    }
+  }
 }

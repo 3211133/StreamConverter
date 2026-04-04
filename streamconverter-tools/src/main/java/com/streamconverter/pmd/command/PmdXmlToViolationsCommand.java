@@ -37,8 +37,9 @@ public class PmdXmlToViolationsCommand extends AbstractStreamCommand {
       }
     } catch (IOException e) {
       throw e;
-    } catch (Exception e) {
-      throw new IOException("Failed to parse PMD XML: " + e.getMessage(), e);
+    } catch (XMLStreamException e) {
+      throw new IOException(
+          "Failed to parse PMD XML at " + e.getLocation() + ": " + e.getMessage(), e);
     }
   }
 
@@ -63,14 +64,17 @@ public class PmdXmlToViolationsCommand extends AbstractStreamCommand {
         } else if ("violation".equals(localName) && currentFile != null) {
           currentRule = reader.getAttributeValue(null, "rule");
           currentRuleset = reader.getAttributeValue(null, "ruleset");
-          currentLine = parseIntOrZero(reader.getAttributeValue(null, "beginline"));
-          currentPriority = parseIntOrZero(reader.getAttributeValue(null, "priority"));
+          currentLine =
+              parseIntOrZero(reader.getAttributeValue(null, "beginline"), "beginline", currentFile);
+          currentPriority =
+              parseIntOrZero(reader.getAttributeValue(null, "priority"), "priority", currentFile);
           currentClass = nullToEmpty(reader.getAttributeValue(null, "class"));
           currentMethod = nullToEmpty(reader.getAttributeValue(null, "method"));
           currentVariable = nullToEmpty(reader.getAttributeValue(null, "variable"));
           currentDescription = new StringBuilder();
         }
-      } else if (event == XMLStreamConstants.CHARACTERS && currentDescription != null) {
+      } else if ((event == XMLStreamConstants.CHARACTERS || event == XMLStreamConstants.CDATA)
+          && currentDescription != null) {
         currentDescription.append(reader.getText());
       } else if (event == XMLStreamConstants.END_ELEMENT) {
         String localName = reader.getLocalName();
@@ -108,13 +112,18 @@ public class PmdXmlToViolationsCommand extends AbstractStreamCommand {
     return idx >= 0 ? fullPath.substring(idx) : fullPath;
   }
 
-  private static int parseIntOrZero(String value) {
+  private int parseIntOrZero(String value, String attributeName, String context) {
     if (value == null || value.isEmpty()) {
       return 0;
     }
     try {
       return Integer.parseInt(value);
     } catch (NumberFormatException e) {
+      log.warn(
+          "Invalid integer for attribute '{}' in '{}': '{}' — defaulting to 0",
+          attributeName,
+          context,
+          value);
       return 0;
     }
   }

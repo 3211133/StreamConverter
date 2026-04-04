@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -27,7 +28,7 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
   public void execute(InputStream input, OutputStream output) throws IOException {
     Stats stats = collectStats(input);
     String report = generateMarkdownReport(stats);
-    output.write(report.getBytes("UTF-8"));
+    output.write(report.getBytes(StandardCharsets.UTF_8));
   }
 
   private Stats collectStats(InputStream input) throws IOException {

@@ -48,6 +48,22 @@ class SlocAggregateCommandTest {
     assertEquals(200, total.lines());
   }
 
+  @Test
+  void emptyInput_onlyTotalIsEmitted() throws Exception {
+    var input = serialize(List.of());
+    var output = new ByteArrayOutputStream();
+
+    new SlocAggregateCommand().execute(new ByteArrayInputStream(input), output);
+
+    List<ModuleSloc> results = deserialize(output);
+    assertEquals(1, results.size());
+    var total = results.get(0);
+    assertEquals("Total", total.name());
+    assertEquals(0, total.lines());
+    assertEquals(0, total.covered());
+    assertEquals(0, total.missed());
+  }
+
   private byte[] serialize(List<ModuleSloc> modules) throws Exception {
     var baos = new ByteArrayOutputStream();
     try (var oos = new ObjectOutputStream(baos)) {

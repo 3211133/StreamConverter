@@ -152,15 +152,6 @@ public class StreamConverter {
   /**
    * 外部で構築したPipelineContextを使用して、非同期並列処理でストリームを変換する。
    *
-   * <p>使用例:
-   *
-   * <pre>{@code
-   * PipelineContext ctx = new PipelineContext();
-   * PipelineContext.putShared("key", "value");
-   *
-   * StreamConverter.create(command1, command2).run(input, output, ctx);
-   * }</pre>
-   *
    * @param inputStream 処理対象の入力ストリーム
    * @param outputStream 処理結果を書き込む出力ストリーム
    * @param pipelineContext 使用するPipelineContext

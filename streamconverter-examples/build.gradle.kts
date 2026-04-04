@@ -27,14 +27,10 @@ repositories {
 dependencies {
     // Core module dependency
     implementation(project(":streamconverter-core"))
-    implementation(project(":streamconverter-db"))
-    
+
     // SLF4J logging (needed by examples)
     implementation("org.slf4j:slf4j-api")
     implementation("ch.qos.logback:logback-classic")
-    
-    // H2 database for examples that use databases
-    implementation("com.h2database:h2:2.4.240")
     
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
@@ -47,52 +43,33 @@ dependencies {
 }
 
 // Custom tasks for running examples
-tasks.register<JavaExec>("runQuickStart") {
+tasks.register<JavaExec>("runPipelineBasics") {
     group = "application"
-    description = "Run QuickStart example"
+    description = "例1: IStreamCommand と StreamConverter の仕組み（ラムダ・クラス・組み込みコマンド）"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.QuickStart")
+    mainClass.set("com.streamconverter.examples.PipelineBasicsExample")
 }
 
-tasks.register<JavaExec>("runMDC") {
+tasks.register<JavaExec>("runNavigateAndRule") {
     group = "application"
-    description = "Run MDC Multi-Thread Example"
+    description = "例2: Navigate系コマンド × IRule（CSV/JSON/XML、組み込み・ラムダ・カスタムRule）"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.StreamConverterMDCDemo")
+    mainClass.set("com.streamconverter.examples.NavigateAndRuleExample")
 }
 
-// Optional helpers for specific examples (kept minimal)
-tasks.register<JavaExec>("runComplexPipeline") {
+tasks.register<JavaExec>("runPipelineContext") {
     group = "application"
-    description = "Run Complex Pipeline Example"
+    description = "例3: PipelineContext によるスレッド間値共有と MDC 伝搬"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.ComplexPipelineExample")
-}
-tasks.register<JavaExec>("runValidationExample") {
-    group = "application"
-    description = "Run Validation Example"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.ValidationExample")
-}
-tasks.register<JavaExec>("runDatabaseRuleDemo") {
-    group = "application"
-    description = "Run Database Rule Demo"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.DatabaseRuleDemo")
+    mainClass.set("com.streamconverter.examples.PipelineContextExample")
 }
 
-tasks.register<JavaExec>("runBasicUsageExamples") {
-    group = "application"
-    description = "Run BasicUsageExamples (docs examples)"
-    classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.docs.BasicUsageExamples")
-}
 
-tasks.register<JavaExec>("runSignalPipelineDemo") {
+tasks.register<JavaExec>("runValidationPipeline") {
     group = "application"
-    description = "Run SignalPipeline Demo (SignalChannel command-to-command messaging)"
+    description = "例5: ConsumerCommand × FileBufferCommand による安全なパイプライン"
     classpath = sourceSets.main.get().runtimeClasspath
-    mainClass.set("com.streamconverter.examples.SignalPipelineDemo")
+    mainClass.set("com.streamconverter.examples.ValidationPipelineExample")
 }
 
 // Spotless configuration for code formatting
@@ -120,7 +97,7 @@ tasks.test {
 
 // Main class configuration for default application task
 application {
-    mainClass.set("com.streamconverter.examples.QuickStart")
+    mainClass.set("com.streamconverter.examples.PipelineBasicsExample")
 }
 
 // spotlessCheck タスクを無効化

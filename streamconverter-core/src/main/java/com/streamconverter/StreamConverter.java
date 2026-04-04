@@ -152,19 +152,13 @@ public class StreamConverter {
   /**
    * 外部で構築したPipelineContextを使用して、非同期並列処理でストリームを変換する。
    *
-   * <p>コマンド間でシグナルを送受信する {@link com.streamconverter.context.SignalChannel} を使用する場合は、 事前に {@link
-   * PipelineContext#prepareSignalChannel(String)} でチャネルを登録してから このメソッドを呼び出す。
-   *
    * <p>使用例:
    *
    * <pre>{@code
    * PipelineContext ctx = new PipelineContext();
-   * SignalChannel ch = ctx.prepareSignalChannel("validation");
+   * PipelineContext.putShared("key", "value");
    *
-   * StreamConverter.create(
-   *     new ValidatorCommand(ch),
-   *     new TransformCommand(ch)
-   * ).run(input, output, ctx);
+   * StreamConverter.create(command1, command2).run(input, output, ctx);
    * }</pre>
    *
    * @param inputStream 処理対象の入力ストリーム

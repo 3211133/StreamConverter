@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("jacoco")
     id("application")
     id("com.diffplug.spotless") version "8.3.0"
     id("org.springframework.boot") version "4.0.5"
@@ -45,6 +46,8 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.21.0")
     
     // JSON processing with Jackson
+    // jackson-annotations は Spring Boot BOM が 2.20 に固定するため明示的に 2.21 を指定
+    implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
     implementation("com.fasterxml.jackson.core:jackson-core:2.21.1")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.0")
@@ -137,11 +140,45 @@ tasks.test {
         events("skipped", "failed")
         showStandardStreams = true
     }
+    finalizedBy(tasks.jacocoTestReport)
+}
+
+tasks.jacocoTestReport {
+    reports {
+        html.required.set(true)
+        xml.required.set(true)
+        csv.required.set(false)
+    }
 }
 
 // Main class configuration - DatabaseInspector as default
 application {
-    mainClass.set("com.streamconverter.tools.DatabaseInspector")
+    mainClass.set(project.findProperty("mainClass")?.toString() ?: "com.streamconverter.tools.DatabaseInspector")
+}
+
+tasks.register<JavaExec>("slocCount") {
+    group = "analysis"
+    description = "Count SLOC across all modules from JaCoCo reports"
+    classpath = configurations["runtimeClasspath"] + sourceSets.main.get().output
+    mainClass.set("com.streamconverter.sloc.SlocCounter")
+    workingDir = rootProject.projectDir
+
+    // JaCoCo が設定されているサブプロジェクトのテスト＆レポート生成タスクに依存
+    // test タスクが finalizedBy(jacocoTestReport) を持つため、test に依存するだけで XML が生成される
+    //
+    // 対象モジュールの制約:
+    //   - jacoco プラグイン適用済みモジュール（streamconverter-core, streamconverter-tools）のみを対象とする
+    //   - streamconverter-db / streamconverter-http / streamconverter-web 等は jacoco 未適用のため集計対象外
+    //   - streamconverter-core は Linux 環境でのみ jacocoTestReport が有効（core/build.gradle.kts 参照）。
+    //     macOS/Windows では XML が生成されないためそのモジュールの SLOC は 0 扱いになる。
+    //     ローカル開発でも正確な全体集計が必要な場合は Linux 環境（CI）で実行すること。
+    val jacocoModules = rootProject.subprojects.filter { sub ->
+        sub.plugins.hasPlugin("jacoco")
+    }
+    dependsOn(jacocoModules.map { "${it.path}:test" })
+
+    // モジュール名を引数として渡す
+    args = jacocoModules.map { it.name }
 }
 
 // spotlessCheck タスクを無効化

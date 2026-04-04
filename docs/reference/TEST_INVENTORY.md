@@ -226,19 +226,7 @@
 
 ### 6. Example and Demo Tests
 
-#### `examples/QuickStartTest.java` 🟡 基本レベル
-- **@Test Methods**: 2
-- **Coverage**: QuickStart例機能
-- **Tests**:
-  - `testQuickStartRunsWithoutError()` - エラーなし実行
-  - `testQuickStartProducesOutput()` - 出力生成検証
-
-#### `demo/StreamConverterDemoTest.java` 🟡 基本レベル
-- **@Test Methods**: 2
-- **Coverage**: デモアプリケーション機能
-- **Tests**:
-  - `testDemoRunsWithoutError()` - エラーなし実行
-  - `testDemoProducesOutput()` - 出力生成検証
+`streamconverter-examples` モジュールの例（`PipelineBasicsExample` など）は実行確認用であり、自動テストはない。
 
 ---
 
@@ -279,9 +267,6 @@
 - `MeasuredInputStreamTest.java` - 入力ストリーム測定
 - `MeasuredOutputStreamTest.java` - 出力ストリーム測定
 
-#### 5. 新機能例のテスト - ❌ 欠如
-- `ValidationExampleTest.java` - バリデーション例テスト
-- `ComplexPipelineExampleTest.java` - 複雑パイプライン例テスト
 
 ---
 

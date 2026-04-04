@@ -101,13 +101,11 @@ Web モジュールの Spring Boot アプリケーションを起動します。
 ## Example Commands
 
 ```bash
-# 基本的な使用例を実行
-./gradlew :streamconverter-examples:runQuickStart
-./gradlew :streamconverter-examples:runMDC
-./gradlew :streamconverter-examples:runComplexPipeline
-./gradlew :streamconverter-examples:runValidationExample
-./gradlew :streamconverter-examples:runDatabaseRuleDemo
-./gradlew :streamconverter-examples:runBasicUsageExamples
+# 使用例を実行
+./gradlew :streamconverter-examples:runPipelineBasics
+./gradlew :streamconverter-examples:runNavigateAndRule
+./gradlew :streamconverter-examples:runPipelineContext
+./gradlew :streamconverter-examples:runValidationPipeline
 ```
 
 ## Git Commands

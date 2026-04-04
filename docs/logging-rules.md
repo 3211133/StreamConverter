@@ -16,12 +16,6 @@
 - `LoggingTest` - テストクラス
 
 #### System.out/err使用クラス (要改善)
-- `QuickStart` - 実行状況と結果出力
-- `ComplexXmlProcessingPipeline` - パフォーマンス情報と処理結果
-- `EnterpriseIntegrationPatterns` - 実行例とパフォーマンス情報
-- `PerformanceOptimizationExamples` - パフォーマンス測定結果
-- `DataProcessingExamples` - データ処理例の出力
-- `StreamConverterDemo` - デモ実行結果
 - `Main` - アプリケーション実行メッセージ
 - `MemoryEfficiencyTest` - テスト実行結果
 - `ValidateCommand` - 詳細未確認

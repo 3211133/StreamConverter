@@ -1,4 +1,4 @@
-package com.streamconverter.command.impl.analysis;
+package com.streamconverter.pmd;
 
 import java.io.Serial;
 import java.io.Serializable;

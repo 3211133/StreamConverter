@@ -1,4 +1,4 @@
-package com.streamconverter.command.impl.analysis;
+package com.streamconverter.sloc.command;
 
 import static org.junit.jupiter.api.Assertions.*;
 

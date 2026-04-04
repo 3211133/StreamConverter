@@ -1,7 +1,8 @@
-package com.streamconverter.command.impl.analysis;
+package com.streamconverter.pmd.command;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.streamconverter.pmd.PmdViolation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.EOFException;

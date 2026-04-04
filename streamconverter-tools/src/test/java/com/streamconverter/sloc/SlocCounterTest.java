@@ -1,4 +1,4 @@
-package com.streamconverter.tools;
+package com.streamconverter.sloc;
 
 import static org.junit.jupiter.api.Assertions.*;
 

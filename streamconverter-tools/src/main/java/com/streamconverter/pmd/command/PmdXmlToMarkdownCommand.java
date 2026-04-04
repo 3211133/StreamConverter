@@ -1,6 +1,7 @@
-package com.streamconverter.command.impl.analysis;
+package com.streamconverter.pmd.command;
 
 import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.pmd.PmdViolation;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;

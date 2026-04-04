@@ -1,6 +1,7 @@
-package com.streamconverter.command.impl.analysis;
+package com.streamconverter.sloc.command;
 
 import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.sloc.ModuleSloc;
 import java.io.EOFException;
 import java.io.IOException;
 import java.io.InputStream;

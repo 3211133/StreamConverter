@@ -1,10 +1,10 @@
-package com.streamconverter.tools;
+package com.streamconverter.sloc;
 
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.impl.analysis.JacocoXmlToModuleSlocCommand;
-import com.streamconverter.command.impl.analysis.ModuleXmlConcatCommand;
-import com.streamconverter.command.impl.analysis.SlocAggregateCommand;
-import com.streamconverter.command.impl.analysis.SlocReportFormatCommand;
+import com.streamconverter.sloc.command.JacocoXmlToModuleSlocCommand;
+import com.streamconverter.sloc.command.ModuleXmlConcatCommand;
+import com.streamconverter.sloc.command.SlocAggregateCommand;
+import com.streamconverter.sloc.command.SlocReportFormatCommand;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -20,9 +20,8 @@ import java.util.List;
  *
  * <ol>
  *   <li>{@link ModuleXmlConcatCommand} — モジュール名→XML連結ストリーム
- *   <li>{@link com.streamconverter.command.impl.analysis.JacocoXmlToModuleSlocCommand} —
- *       XML→ModuleSloc オブジェクト
- *   <li>{@link com.streamconverter.command.impl.analysis.SlocAggregateCommand} — 集約・合計行追加
+ *   <li>{@link JacocoXmlToModuleSlocCommand} — XML→ModuleSloc オブジェクト
+ *   <li>{@link SlocAggregateCommand} — 集約・合計行追加
  *   <li>{@link SlocReportFormatCommand} — 整形出力
  * </ol>
  *

@@ -160,7 +160,7 @@ tasks.register<JavaExec>("slocCount") {
     group = "analysis"
     description = "Count SLOC across all modules from JaCoCo reports"
     classpath = configurations["runtimeClasspath"] + sourceSets.main.get().output
-    mainClass.set("com.streamconverter.tools.SlocCounter")
+    mainClass.set("com.streamconverter.sloc.SlocCounter")
     workingDir = rootProject.projectDir
 
     // JaCoCo が設定されているサブプロジェクトのテスト＆レポート生成タスクに依存

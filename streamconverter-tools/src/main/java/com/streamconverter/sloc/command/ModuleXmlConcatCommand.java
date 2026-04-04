@@ -1,4 +1,4 @@
-package com.streamconverter.command.impl.analysis;
+package com.streamconverter.sloc.command;
 
 import com.streamconverter.command.AbstractStreamCommand;
 import java.io.BufferedInputStream;
@@ -42,7 +42,6 @@ public class ModuleXmlConcatCommand extends AbstractStreamCommand {
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
     Path normalizedRoot = projectRoot.toAbsolutePath().normalize();
-    boolean first = true;
     try (var reader =
         new java.io.BufferedReader(new java.io.InputStreamReader(input, StandardCharsets.UTF_8))) {
       String moduleName;
@@ -59,7 +58,6 @@ public class ModuleXmlConcatCommand extends AbstractStreamCommand {
           log.warn("report not found, skipping: {}", xmlPath);
           continue;
         }
-        first = false;
         writeReportOnly(xmlPath, output);
         output.write('\n');
         output.flush();

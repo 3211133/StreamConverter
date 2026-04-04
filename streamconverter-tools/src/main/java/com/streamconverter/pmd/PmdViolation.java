@@ -13,7 +13,7 @@ import java.io.Serializable;
  * @param line 違反行番号
  * @param rule ルール名
  * @param ruleset ルールセット名
- * @param priority 優先度（1=高〜5=低）
+ * @param priority 優先度（0=未定義、1=高〜5=低）
  * @param description 違反の説明
  * @param className クラス名
  * @param method メソッド名

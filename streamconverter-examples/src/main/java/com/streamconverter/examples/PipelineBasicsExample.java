@@ -59,7 +59,7 @@ public class PipelineBasicsExample {
         (in, out) -> {
           String text = new String(in.readAllBytes(), StandardCharsets.UTF_8);
           StringBuilder sb = new StringBuilder();
-          for (String line : text.split("\n", -1)) {
+          for (String line : text.split("\n")) {
             sb.append(line.stripTrailing().stripLeading()).append("\n");
           }
           out.write(sb.toString().getBytes(StandardCharsets.UTF_8));

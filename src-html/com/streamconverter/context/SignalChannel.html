@@ -99,23 +99,24 @@
 <span class="source-line-no">086</span><span id="line-86">   *</span>
 <span class="source-line-no">087</span><span id="line-87">   * &lt;p&gt;前段コマンドが複数回シグナルを送る場合、シグナルを処理済みにして 次の単位では「シグナルなし」状態に戻したい場合に使用する。</span>
 <span class="source-line-no">088</span><span id="line-88">   *</span>
-<span class="source-line-no">089</span><span id="line-89">   * &lt;p&gt;&lt;b&gt;責任者:&lt;/b&gt; リセットは原則として &lt;b&gt;前段コマンド&lt;/b&gt; が行う。 後段コマンドが呼ぶと、前段が次の送信前にリセットを期待していないタイミングで シグナルが消え、意図したシグナルが後段に届かない競合状態が生じる可能性がある。</span>
-<span class="source-line-no">090</span><span id="line-90">   *</span>
-<span class="source-line-no">091</span><span id="line-91">   * &lt;p&gt;例: 明細1件ごとにシグナルの有無を判定するとき、 表示対象の明細を送る前に前段がリセットし、後段が正しく判定できるようにする。</span>
-<span class="source-line-no">092</span><span id="line-92">   */</span>
-<span class="source-line-no">093</span><span id="line-93">  public void reset() {</span>
-<span class="source-line-no">094</span><span id="line-94">    signal.set(null);</span>
-<span class="source-line-no">095</span><span id="line-95">  }</span>
-<span class="source-line-no">096</span><span id="line-96"></span>
-<span class="source-line-no">097</span><span id="line-97">  /**</span>
-<span class="source-line-no">098</span><span id="line-98">   * チャネルIDを返す。</span>
-<span class="source-line-no">099</span><span id="line-99">   *</span>
-<span class="source-line-no">100</span><span id="line-100">   * @return チャネルID</span>
-<span class="source-line-no">101</span><span id="line-101">   */</span>
-<span class="source-line-no">102</span><span id="line-102">  public String channelId() {</span>
-<span class="source-line-no">103</span><span id="line-103">    return channelId;</span>
-<span class="source-line-no">104</span><span id="line-104">  }</span>
-<span class="source-line-no">105</span><span id="line-105">}</span>
+<span class="source-line-no">089</span><span id="line-89">   * &lt;p&gt;&lt;b&gt;責任者:&lt;/b&gt; リセットは原則として &lt;b&gt;前段コマンド&lt;/b&gt; が行う。 後段コマンドが呼ぶと、前段が次の送信前にリセットを期待していないタイミングで</span>
+<span class="source-line-no">090</span><span id="line-90">   * シグナルが消え、意図したシグナルが後段に届かない競合状態が生じる可能性がある。</span>
+<span class="source-line-no">091</span><span id="line-91">   *</span>
+<span class="source-line-no">092</span><span id="line-92">   * &lt;p&gt;例: 明細1件ごとにシグナルの有無を判定するとき、 表示対象の明細を送る前に前段がリセットし、後段が正しく判定できるようにする。</span>
+<span class="source-line-no">093</span><span id="line-93">   */</span>
+<span class="source-line-no">094</span><span id="line-94">  public void reset() {</span>
+<span class="source-line-no">095</span><span id="line-95">    signal.set(null);</span>
+<span class="source-line-no">096</span><span id="line-96">  }</span>
+<span class="source-line-no">097</span><span id="line-97"></span>
+<span class="source-line-no">098</span><span id="line-98">  /**</span>
+<span class="source-line-no">099</span><span id="line-99">   * チャネルIDを返す。</span>
+<span class="source-line-no">100</span><span id="line-100">   *</span>
+<span class="source-line-no">101</span><span id="line-101">   * @return チャネルID</span>
+<span class="source-line-no">102</span><span id="line-102">   */</span>
+<span class="source-line-no">103</span><span id="line-103">  public String channelId() {</span>
+<span class="source-line-no">104</span><span id="line-104">    return channelId;</span>
+<span class="source-line-no">105</span><span id="line-105">  }</span>
+<span class="source-line-no">106</span><span id="line-106">}</span>
 
 
 

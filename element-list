@@ -1,9 +1,7 @@
 com.streamconverter
-com.streamconverter.analysis
 com.streamconverter.benchmark
 com.streamconverter.command
 com.streamconverter.command.impl
-com.streamconverter.command.impl.analysis
 com.streamconverter.command.impl.charcode
 com.streamconverter.command.impl.csv
 com.streamconverter.command.impl.json
@@ -17,7 +15,11 @@ com.streamconverter.examples
 com.streamconverter.examples.docs
 com.streamconverter.logging
 com.streamconverter.path
+com.streamconverter.pmd
+com.streamconverter.pmd.command
 com.streamconverter.security
+com.streamconverter.sloc
+com.streamconverter.sloc.command
 com.streamconverter.tools
 com.streamconverter.util
 com.streamconverter.validation

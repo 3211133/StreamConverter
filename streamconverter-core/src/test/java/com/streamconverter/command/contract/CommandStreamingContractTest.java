@@ -6,11 +6,8 @@ import com.streamconverter.command.IStreamCommand;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.reflect.Modifier;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
-import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
@@ -23,11 +20,27 @@ import org.junit.jupiter.api.DynamicTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestFactory;
 
+/**
+ * Contract test for stream-oriented commands.
+ *
+ * <p>The probe works by:
+ *
+ * <ol>
+ *   <li>feeding a command an input stream that returns an initial chunk and then blocks
+ *   <li>watching whether the command writes anything to the output stream while input is still
+ *       blocked
+ *   <li>releasing the rest of the input and requiring the command to complete
+ * </ol>
+ *
+ * <p>This test answers a narrow but important question: "does output begin before input
+ * completion?" It does not prove full memory safety, throughput, or correctness for arbitrary
+ * payloads. Commands classified as {@link StreamingExpectation#KNOWN_STREAMING_VIOLATION} are
+ * expected to have been run through this probe already; that status is not a placeholder for
+ * unverified work.
+ */
 class CommandStreamingContractTest {
 
-  private static final Path COMMAND_IMPL_ROOT =
-      Path.of("src/main/java/com/streamconverter/command/impl");
-  private static final String COMMAND_PACKAGE_PREFIX = "com.streamconverter.command.impl.";
+  private static final Path REPOSITORY_ROOT = Path.of("..").normalize();
   private static final String PROVIDER_PACKAGE_PREFIX = "com.streamconverter.command.contract.";
   private static final Duration FIRST_WRITE_TIMEOUT = Duration.ofSeconds(1);
   private static final Duration COMMAND_COMPLETION_TIMEOUT = Duration.ofSeconds(5);
@@ -50,21 +63,29 @@ class CommandStreamingContractTest {
   @TestFactory
   Stream<DynamicTest> allCommandsParticipateInStreamingContract() throws IOException {
     return discoverCommandClasses().stream()
+        .filter(CommandStreamingContractTest::hasProvider)
         .map(
             commandClass ->
                 DynamicTest.dynamicTest(
-                    commandClass.getSimpleName(),
-                    () -> verifyCommandStreamingContract(commandClass)));
+                    commandClass.simpleName(), () -> verifyCommandStreamingContract(commandClass)));
   }
 
-  private static void verifyCommandStreamingContract(Class<?> commandClass) throws Exception {
+  private static void verifyCommandStreamingContract(DiscoveredCommand commandClass)
+      throws Exception {
     CommandStreamingContractProvider provider = instantiateProvider(commandClass);
-    assertNotNull(provider, () -> "No provider available for " + commandClass.getName());
+    assertNotNull(provider, () -> "No provider available for " + commandClass.fqcn());
 
-    if (provider.expectation() == StreamingExpectation.EXEMPT_FROM_STREAMING_CONTRACT) {
+    if (!provider.supportsProbeExecution()) {
+      assertFalse(
+          provider.probeSkipReason().isBlank(),
+          () -> "Probe-skipped command must explain why: " + commandClass.fqcn());
+      return;
+    }
+
+    if (provider.expectation() != StreamingExpectation.STREAMING_COMPLIANT) {
       assertFalse(
           provider.exemptionReason().isBlank(),
-          () -> "Exempt command must explain why: " + commandClass.getName());
+          () -> "Non-compliant command must explain why: " + commandClass.fqcn());
     }
 
     BlockingProbeInputStream inputStream =
@@ -79,18 +100,18 @@ class CommandStreamingContractTest {
     AssertionError failure = null;
     try {
       wroteBeforeRelease = outputStream.awaitFirstWrite(FIRST_WRITE_TIMEOUT);
-      if (provider.expectation() == StreamingExpectation.MUST_WRITE_BEFORE_INPUT_COMPLETE) {
+      if (provider.expectation() == StreamingExpectation.STREAMING_COMPLIANT) {
         assertTrue(
             wroteBeforeRelease,
             () ->
-                commandClass.getSimpleName()
+                commandClass.simpleName()
                     + " did not start writing before the remaining input was released");
       } else {
         assertFalse(
             wroteBeforeRelease,
             () ->
-                commandClass.getSimpleName()
-                    + " started writing early but is marked exempt: "
+                commandClass.simpleName()
+                    + " started writing early but is marked as non-compliant: "
                     + provider.exemptionReason());
       }
     } catch (AssertionError e) {
@@ -120,7 +141,8 @@ class CommandStreamingContractTest {
     }
   }
 
-  private static void awaitCompletion(Class<?> commandClass, Future<?> future) throws Exception {
+  private static void awaitCompletion(DiscoveredCommand commandClass, Future<?> future)
+      throws Exception {
     try {
       future.get(COMMAND_COMPLETION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
     } catch (ExecutionException e) {
@@ -128,9 +150,9 @@ class CommandStreamingContractTest {
       if (cause instanceof Exception exception) {
         throw exception;
       }
-      throw new RuntimeException("Unexpected command failure for " + commandClass.getName(), cause);
+      throw new RuntimeException("Unexpected command failure for " + commandClass.fqcn(), cause);
     } catch (java.util.concurrent.TimeoutException e) {
-      fail(commandClass.getSimpleName() + " did not finish after the input was released");
+      fail(commandClass.simpleName() + " did not finish after the input was released");
     }
   }
 
@@ -138,13 +160,13 @@ class CommandStreamingContractTest {
     executor.shutdown();
   }
 
-  private static String missingProviderMessage(Class<?> commandClass) {
+  private static String missingProviderMessage(DiscoveredCommand commandClass) {
     try {
       instantiateProvider(commandClass);
       return null;
     } catch (ReflectiveOperationException e) {
       return "- "
-          + commandClass.getName()
+          + commandClass.fqcn()
           + " -> expected provider "
           + providerClassName(commandClass)
           + " ("
@@ -153,47 +175,33 @@ class CommandStreamingContractTest {
     }
   }
 
-  private static CommandStreamingContractProvider instantiateProvider(Class<?> commandClass)
-      throws ReflectiveOperationException {
+  private static boolean hasProvider(DiscoveredCommand commandClass) {
+    try {
+      instantiateProvider(commandClass);
+      return true;
+    } catch (ReflectiveOperationException e) {
+      return false;
+    }
+  }
+
+  private static CommandStreamingContractProvider instantiateProvider(
+      DiscoveredCommand commandClass) throws ReflectiveOperationException {
     Class<?> providerClass = Class.forName(providerClassName(commandClass));
     Object provider = providerClass.getDeclaredConstructor().newInstance();
     return (CommandStreamingContractProvider) provider;
   }
 
-  private static String providerClassName(Class<?> commandClass) {
-    return PROVIDER_PACKAGE_PREFIX + commandClass.getSimpleName() + "StreamingContractProvider";
+  private static String providerClassName(DiscoveredCommand commandClass) {
+    return PROVIDER_PACKAGE_PREFIX + commandClass.simpleName() + "StreamingContractProvider";
   }
 
-  private static List<Class<?>> discoverCommandClasses() throws IOException {
-    try (Stream<Path> pathStream = Files.walk(COMMAND_IMPL_ROOT)) {
-      return pathStream
-          .filter(Files::isRegularFile)
-          .filter(path -> path.getFileName().toString().endsWith("Command.java"))
-          .sorted(Comparator.naturalOrder())
-          .map(CommandStreamingContractTest::toCommandClassName)
-          .map(CommandStreamingContractTest::loadClass)
-          .filter(commandClass -> !Modifier.isAbstract(commandClass.getModifiers()))
-          .toList();
-    }
+  private static List<DiscoveredCommand> discoverCommandClasses() throws IOException {
+    return CommandImplementationDiscovery.discover(REPOSITORY_ROOT).stream()
+        .map(command -> new DiscoveredCommand(command.fqcn(), command.simpleName()))
+        .toList();
   }
 
-  private static String toCommandClassName(Path sourceFile) {
-    Path relative = COMMAND_IMPL_ROOT.relativize(sourceFile);
-    String suffix =
-        relative
-            .toString()
-            .replace(sourceFile.getFileSystem().getSeparator(), ".")
-            .replace(".java", "");
-    return COMMAND_PACKAGE_PREFIX + suffix;
-  }
-
-  private static Class<?> loadClass(String className) {
-    try {
-      return Class.forName(className);
-    } catch (ClassNotFoundException e) {
-      throw new IllegalStateException("Failed to load command class " + className, e);
-    }
-  }
+  private record DiscoveredCommand(String fqcn, String simpleName) {}
 
   private static final class BlockingProbeInputStream extends InputStream {
     private final byte[] data;

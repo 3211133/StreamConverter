@@ -55,6 +55,7 @@ dependencies {
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
+    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
@@ -62,9 +63,13 @@ dependencies {
     // Mockito の依存関係（テスト用）
     testImplementation("org.mockito:mockito-core:5.23.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.23.0")
+    testImplementation("org.springframework:spring-webflux")
+    testImplementation("org.springframework:spring-test")
 
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.1")
+    testImplementation(project(":streamconverter-http"))
+    testImplementation(project(":streamconverter-tools"))
 }
 
 // Spotless configuration for code formatting
@@ -217,4 +222,3 @@ tasks.spotbugsTest {
 tasks.named("check") {
     dependsOn("spotlessApply")
 }
-

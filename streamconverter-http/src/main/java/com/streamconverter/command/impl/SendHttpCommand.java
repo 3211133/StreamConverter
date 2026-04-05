@@ -36,7 +36,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
 
   private static final Logger logger = LoggerFactory.getLogger(SendHttpCommand.class);
 
-  private String url;
+  private final String url;
   private final WebClient webClient;
 
   /**
@@ -46,9 +46,24 @@ public class SendHttpCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException URLが無効な場合
    */
   public SendHttpCommand(String url) {
+    this(url, createDefaultWebClient());
+  }
+
+  /**
+   * カスタム {@link WebClient} を使用するコンストラクタ。
+   *
+   * <p>主にテストや特殊なHTTPクライアント設定のために使用する。URLの検証は通常コンストラクタと同様に適用する。
+   *
+   * @param url 送信先のURL
+   * @param webClient 使用するWebClient
+   */
+  public SendHttpCommand(String url, WebClient webClient) {
     super();
     this.url = validateAndSanitizeUrl(url);
+    this.webClient = Objects.requireNonNull(webClient, "webClient must not be null");
+  }
 
+  private static WebClient createDefaultWebClient() {
     // Simple HttpClient configuration for Netty 4.1.123.Final compatibility
     HttpClient httpClient =
         HttpClient.create()
@@ -56,15 +71,14 @@ public class SendHttpCommand extends AbstractStreamCommand {
             .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
             .keepAlive(false); // Disable keep-alive to avoid connection pool issues
 
-    this.webClient =
-        WebClient.builder()
-            .clientConnector(new ReactorClientHttpConnector(httpClient))
-            .codecs(
-                configurer ->
-                    // 1 MB limit for error response bodies (used by onStatus bodyToMono).
-                    // The streaming response path (bodyToFlux) bypasses this buffer entirely.
-                    configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
-            .build();
+    return WebClient.builder()
+        .clientConnector(new ReactorClientHttpConnector(httpClient))
+        .codecs(
+            configurer ->
+                // 1 MB limit for error response bodies (used by onStatus bodyToMono).
+                // The streaming response path (bodyToFlux) bypasses this buffer entirely.
+                configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
+        .build();
   }
 
   /**

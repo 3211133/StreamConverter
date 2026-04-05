@@ -44,6 +44,7 @@ dependencies {
     // JUnit 5
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
+    testImplementation("org.springframework:spring-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 }
 

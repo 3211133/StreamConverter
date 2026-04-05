@@ -35,6 +35,7 @@
 
 ## 🧪 Quality & Testing
 - **[reference/TESTING.md](reference/TESTING.md)**: テスト戦略と実行方法
+  ストリーミング契約テストの目的、判定分類、実行コマンドを含む
 - **[reference/TEST_INVENTORY.md](reference/TEST_INVENTORY.md)**: テストケース一覧
 - **[reference/MEMORY_EFFICIENCY_TEST_STRATEGY.md](reference/MEMORY_EFFICIENCY_TEST_STRATEGY.md)**: 大容量データ検証
 - **[reference/CROSS_PLATFORM_TEST_CONSIDERATIONS.md](reference/CROSS_PLATFORM_TEST_CONSIDERATIONS.md)**: マルチプラットフォーム対応

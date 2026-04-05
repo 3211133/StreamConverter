@@ -25,9 +25,11 @@ import java.util.List;
  * column selection
  */
 public class CsvFilterCommand extends AbstractStreamCommand {
+  private static final int DEFAULT_OUTPUT_BUFFER_SIZE_BYTES = 8 * 1024;
 
   private final CSVPath combinedSelector;
   private final boolean hasHeader;
+  private final int outputBufferSizeBytes;
 
   /**
    * Constructor for CSV filtering with single typed column selector.
@@ -36,9 +38,10 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @param hasHeader whether the CSV has a header row
    * @throws IllegalArgumentException if columnSelector is null
    */
-  private CsvFilterCommand(CSVPath columnSelector, boolean hasHeader) {
+  private CsvFilterCommand(CSVPath columnSelector, boolean hasHeader, int outputBufferSizeBytes) {
     this.combinedSelector = columnSelector;
     this.hasHeader = hasHeader;
+    this.outputBufferSizeBytes = validateOutputBufferSize(outputBufferSizeBytes);
   }
 
   /**
@@ -61,10 +64,25 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if columnSelector is null
    */
   public static CsvFilterCommand create(CSVPath columnSelector, boolean hasHeader) {
+    return create(columnSelector, hasHeader, DEFAULT_OUTPUT_BUFFER_SIZE_BYTES);
+  }
+
+  /**
+   * Factory method for CSV filtering with single typed column selector and configurable output
+   * buffer size.
+   *
+   * @param columnSelector the typed CSVPath to extract
+   * @param hasHeader whether the CSV has a header row
+   * @param outputBufferSizeBytes threshold at which buffered output is flushed downstream
+   * @return a CsvFilterCommand instance
+   * @throws IllegalArgumentException if columnSelector is null or outputBufferSizeBytes is invalid
+   */
+  public static CsvFilterCommand create(
+      CSVPath columnSelector, boolean hasHeader, int outputBufferSizeBytes) {
     if (columnSelector == null) {
       throw new IllegalArgumentException("Column selector cannot be null");
     }
-    return new CsvFilterCommand(columnSelector, hasHeader);
+    return new CsvFilterCommand(columnSelector, hasHeader, outputBufferSizeBytes);
   }
 
   @Override
@@ -89,21 +107,25 @@ public class CsvFilterCommand extends AbstractStreamCommand {
         return;
       }
 
+      int bufferedOutputBytes = 0;
+
       if (hasHeader) {
         columnIndices = mapColumnSelectorsToIndices(combinedSelector, firstRow);
         // Write filtered header
-        writeFilteredRow(csvWriter, firstRow, columnIndices);
+        bufferedOutputBytes += writeFilteredRow(csvWriter, firstRow, columnIndices);
       } else {
         // No header — column selectors must be numeric indices
         columnIndices = parseNumericColumnSelectors(combinedSelector, firstRow.length);
         // Write filtered first data row
-        writeFilteredRow(csvWriter, firstRow, columnIndices);
+        bufferedOutputBytes += writeFilteredRow(csvWriter, firstRow, columnIndices);
       }
+      bufferedOutputBytes = flushIfThresholdReached(csvWriter, bufferedOutputBytes);
 
       // Process remaining rows
       String[] row;
       while ((row = csvReader.readNext()) != null) {
-        writeFilteredRow(csvWriter, row, columnIndices);
+        bufferedOutputBytes += writeFilteredRow(csvWriter, row, columnIndices);
+        bufferedOutputBytes = flushIfThresholdReached(csvWriter, bufferedOutputBytes);
       }
 
       csvWriter.flush();
@@ -153,14 +175,51 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @param fields all field values
    * @param columnIndices indices of columns to include
    */
-  private void writeFilteredRow(CSVWriter csvWriter, String[] fields, List<Integer> columnIndices) {
+  private int writeFilteredRow(CSVWriter csvWriter, String[] fields, List<Integer> columnIndices) {
     String[] filteredRow = new String[columnIndices.size()];
+    int estimatedBytes = 2;
     for (int i = 0; i < columnIndices.size(); i++) {
       int columnIndex = columnIndices.get(i);
       filteredRow[i] = columnIndex < fields.length ? fields[columnIndex] : "";
+      estimatedBytes += estimateCsvFieldBytes(filteredRow[i]);
+      if (i + 1 < columnIndices.size()) {
+        estimatedBytes += 1;
+      }
     }
     // applyQuotesToAll=false: only quote fields that contain delimiters or quotes
     csvWriter.writeNext(filteredRow, false);
-    csvWriter.flushQuietly();
+    return estimatedBytes;
+  }
+
+  private int flushIfThresholdReached(CSVWriter csvWriter, int bufferedOutputBytes) {
+    if (bufferedOutputBytes >= outputBufferSizeBytes) {
+      csvWriter.flushQuietly();
+      return 0;
+    }
+    return bufferedOutputBytes;
+  }
+
+  private static int validateOutputBufferSize(int outputBufferSizeBytes) {
+    if (outputBufferSizeBytes <= 0) {
+      throw new IllegalArgumentException("outputBufferSizeBytes must be greater than zero");
+    }
+    return outputBufferSizeBytes;
+  }
+
+  private int estimateCsvFieldBytes(String field) {
+    int byteLength = field.getBytes(StandardCharsets.UTF_8).length;
+    if (field.indexOf(',') >= 0
+        || field.indexOf('"') >= 0
+        || field.indexOf('\r') >= 0
+        || field.indexOf('\n') >= 0) {
+      int quoteCount = 0;
+      for (int i = 0; i < field.length(); i++) {
+        if (field.charAt(i) == '"') {
+          quoteCount++;
+        }
+      }
+      return byteLength + quoteCount + 2;
+    }
+    return byteLength;
   }
 }

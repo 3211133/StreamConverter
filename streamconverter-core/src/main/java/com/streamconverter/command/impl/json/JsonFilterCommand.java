@@ -25,9 +25,11 @@ import java.util.List;
  * path expressions including wildcards ($[*].field, $.array[*].nested.field)
  */
 public class JsonFilterCommand extends AbstractStreamCommand {
+  private static final int DEFAULT_OUTPUT_BUFFER_SIZE_BYTES = 8 * 1024;
 
   private final IPath<List<String>> jsonPath;
   private final JsonFactory jsonFactory;
+  private final int outputBufferSizeBytes;
 
   /**
    * Constructor for JSON filtering with typed TreePath selector.
@@ -35,9 +37,10 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @param jsonPath the typed TreePath to extract data
    * @throws IllegalArgumentException if jsonPath is null
    */
-  private JsonFilterCommand(IPath<List<String>> jsonPath) {
+  private JsonFilterCommand(IPath<List<String>> jsonPath, int outputBufferSizeBytes) {
     this.jsonPath = jsonPath;
     this.jsonFactory = new JsonFactory();
+    this.outputBufferSizeBytes = validateOutputBufferSize(outputBufferSizeBytes);
   }
 
   /**
@@ -48,10 +51,23 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if jsonPath is null
    */
   public static JsonFilterCommand create(IPath<List<String>> jsonPath) {
+    return create(jsonPath, DEFAULT_OUTPUT_BUFFER_SIZE_BYTES);
+  }
+
+  /**
+   * Factory method for JSON filtering with typed path selector and configurable output buffer
+   * threshold.
+   *
+   * @param jsonPath the typed path to extract data
+   * @param outputBufferSizeBytes threshold at which buffered output is flushed downstream
+   * @return a JsonFilterCommand instance
+   * @throws IllegalArgumentException if jsonPath is null or outputBufferSizeBytes is invalid
+   */
+  public static JsonFilterCommand create(IPath<List<String>> jsonPath, int outputBufferSizeBytes) {
     if (jsonPath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
-    return new JsonFilterCommand(jsonPath);
+    return new JsonFilterCommand(jsonPath, outputBufferSizeBytes);
   }
 
   @Override
@@ -65,9 +81,9 @@ public class JsonFilterCommand extends AbstractStreamCommand {
 
       if (segments.isEmpty()) {
         // Root path "$": copy the entire document
-        copyValue(parser, generator);
+        copyValue(parser, generator, new EmissionState());
       } else {
-        extractPath(parser, generator, segments, 0);
+        extractPath(parser, generator, segments, 0, new EmissionState());
       }
 
       generator.flush();
@@ -185,12 +201,15 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @param segIdx current position in {@code segments}
    */
   private void extractPath(
-      JsonParser parser, JsonGenerator generator, List<PathSegment> segments, int segIdx)
+      JsonParser parser,
+      JsonGenerator generator,
+      List<PathSegment> segments,
+      int segIdx,
+      EmissionState emissionState)
       throws IOException {
 
     if (segIdx >= segments.size()) {
-      copyValue(parser, generator);
-      generator.flush();
+      copyValue(parser, generator, emissionState);
       return;
     }
 
@@ -214,7 +233,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       while ((t = parser.nextToken()) != null && t != JsonToken.END_OBJECT) {
         String name = parser.currentName();
         if (seg.field.equals(name)) {
-          extractPath(parser, generator, segments, segIdx + 1);
+          extractPath(parser, generator, segments, segIdx + 1, emissionState);
           found = true;
         } else {
           parser.nextToken();
@@ -235,9 +254,9 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       JsonToken elemToken;
       while ((elemToken = parser.nextToken()) != null && elemToken != JsonToken.END_ARRAY) {
         if (segIdx + 1 >= segments.size()) {
-          copyValue(parser, generator, elemToken);
+          copyValue(parser, generator, elemToken, emissionState);
         } else {
-          extractFromToken(parser, generator, segments, segIdx + 1, elemToken);
+          extractFromToken(parser, generator, segments, segIdx + 1, elemToken, emissionState);
         }
       }
       generator.writeEndArray();
@@ -253,7 +272,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       JsonToken arrToken;
       while ((arrToken = parser.nextToken()) != null && arrToken != JsonToken.END_ARRAY) {
         if (currentIdx == seg.index) {
-          extractPath(parser, generator, segments, segIdx + 1);
+          extractPath(parser, generator, segments, segIdx + 1, emissionState);
           found = true;
           JsonToken skipToken;
           while ((skipToken = parser.nextToken()) != null && skipToken != JsonToken.END_ARRAY) {
@@ -281,12 +300,12 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       JsonGenerator generator,
       List<PathSegment> segments,
       int segIdx,
-      JsonToken currentToken)
+      JsonToken currentToken,
+      EmissionState emissionState)
       throws IOException {
 
     if (segIdx >= segments.size()) {
-      copyValue(parser, generator, currentToken);
-      generator.flush();
+      copyValue(parser, generator, currentToken, emissionState);
       return;
     }
 
@@ -303,7 +322,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       while ((t2 = parser.nextToken()) != null && t2 != JsonToken.END_OBJECT) {
         String name = parser.currentName();
         if (seg.field.equals(name)) {
-          extractPath(parser, generator, segments, segIdx + 1);
+          extractPath(parser, generator, segments, segIdx + 1, emissionState);
           found = true;
         } else {
           parser.nextToken();
@@ -323,9 +342,9 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       JsonToken elemToken2;
       while ((elemToken2 = parser.nextToken()) != null && elemToken2 != JsonToken.END_ARRAY) {
         if (segIdx + 1 >= segments.size()) {
-          copyValue(parser, generator, elemToken2);
+          copyValue(parser, generator, elemToken2, emissionState);
         } else {
-          extractFromToken(parser, generator, segments, segIdx + 1, elemToken2);
+          extractFromToken(parser, generator, segments, segIdx + 1, elemToken2, emissionState);
         }
       }
       generator.writeEndArray();
@@ -340,7 +359,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       JsonToken arrToken2;
       while ((arrToken2 = parser.nextToken()) != null && arrToken2 != JsonToken.END_ARRAY) {
         if (currentIdx == seg.index) {
-          extractPath(parser, generator, segments, segIdx + 1);
+          extractPath(parser, generator, segments, segIdx + 1, emissionState);
           found = true;
           JsonToken skipToken2;
           while ((skipToken2 = parser.nextToken()) != null && skipToken2 != JsonToken.END_ARRAY) {
@@ -366,28 +385,31 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * Copy the next complete value from {@code parser} to {@code generator}. Advances the parser by
    * one token internally.
    */
-  private void copyValue(JsonParser parser, JsonGenerator generator) throws IOException {
+  private void copyValue(JsonParser parser, JsonGenerator generator, EmissionState emissionState)
+      throws IOException {
     JsonToken token = parser.nextToken();
     if (token == null) {
       generator.writeNull();
       return;
     }
-    copyValue(parser, generator, token);
+    copyValue(parser, generator, token, emissionState);
   }
 
   /**
    * Copy a complete value starting at {@code token} (already read) from {@code parser} to {@code
    * generator}.
    */
-  private void copyValue(JsonParser parser, JsonGenerator generator, JsonToken token)
+  private void copyValue(
+      JsonParser parser, JsonGenerator generator, JsonToken token, EmissionState emissionState)
       throws IOException {
+    long startOffset = currentOffset(parser);
     switch (token) {
       case START_OBJECT:
         generator.writeStartObject();
         JsonToken objToken;
         while ((objToken = parser.nextToken()) != null && objToken != JsonToken.END_OBJECT) {
           generator.writeFieldName(parser.currentName());
-          copyValue(parser, generator);
+          copyValue(parser, generator, emissionState);
         }
         generator.writeEndObject();
         break;
@@ -397,7 +419,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         while (true) {
           JsonToken t = parser.nextToken();
           if (t == JsonToken.END_ARRAY) break;
-          copyValue(parser, generator, t);
+          copyValue(parser, generator, t, emissionState);
         }
         generator.writeEndArray();
         break;
@@ -426,6 +448,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         generator.writeNull();
         break;
     }
+    emissionState.bufferedBytes += estimateBufferedBytes(startOffset, currentOffset(parser));
+    flushIfThresholdReached(generator, emissionState);
   }
 
   /**
@@ -458,5 +482,39 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         // Scalar values are self-contained – nothing more to skip
         break;
     }
+  }
+
+  private void flushIfThresholdReached(JsonGenerator generator, EmissionState emissionState)
+      throws IOException {
+    if (emissionState.bufferedBytes >= outputBufferSizeBytes) {
+      generator.flush();
+      emissionState.bufferedBytes = 0;
+    }
+  }
+
+  private static int validateOutputBufferSize(int outputBufferSizeBytes) {
+    if (outputBufferSizeBytes <= 0) {
+      throw new IllegalArgumentException("outputBufferSizeBytes must be greater than zero");
+    }
+    return outputBufferSizeBytes;
+  }
+
+  private static int estimateBufferedBytes(long startOffset, long endOffset) {
+    long consumedBytes = endOffset - startOffset;
+    if (consumedBytes <= 0L) {
+      return 1;
+    }
+    if (consumedBytes > Integer.MAX_VALUE) {
+      return Integer.MAX_VALUE;
+    }
+    return (int) consumedBytes;
+  }
+
+  private static long currentOffset(JsonParser parser) {
+    return Math.max(0L, parser.currentLocation().getByteOffset());
+  }
+
+  private static final class EmissionState {
+    private int bufferedBytes;
   }
 }

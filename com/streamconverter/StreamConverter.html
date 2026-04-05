@@ -132,13 +132,6 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">非同期並列処理でストリームを変換する。 メモリ効率を重視し、PipedStreamを使用して大容量ファイルに対応。</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#run(java.io.InputStream,java.io.OutputStream,com.streamconverter.context.PipelineContext)" class="member-name-link">run</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
- <a href="context/PipelineContext.html" title="class in com.streamconverter.context">PipelineContext</a>&nbsp;pipelineContext)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">外部で構築したPipelineContextを使用して、非同期並列処理でストリームを変換する。</div>
-</div>
 </div>
 </div>
 </div>
@@ -199,38 +192,6 @@ loadScripts(document, 'script');</script>
 <dt>Parameters:</dt>
 <dd><code>inputStream</code> - 処理対象の入力ストリーム</dd>
 <dd><code>outputStream</code> - 処理結果を書き込む出力ストリーム</dd>
-<dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - ストリーム処理中にI/Oエラーが発生した場合</dd>
-</dl>
-</section>
-</li>
-<li>
-<section class="detail" id="run(java.io.InputStream,java.io.OutputStream,com.streamconverter.context.PipelineContext)">
-<h3>run</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../src-html/com/streamconverter/StreamConverter.html#line-175">run</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
- <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream,
- <a href="context/PipelineContext.html" title="class in com.streamconverter.context">PipelineContext</a>&nbsp;pipelineContext)</span>
-         throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
-<div class="block">外部で構築したPipelineContextを使用して、非同期並列処理でストリームを変換する。
-
- <p>コマンド間でシグナルを送受信する <a href="context/SignalChannel.html" title="class in com.streamconverter.context"><code>SignalChannel</code></a> を使用する場合は、 事前に <a href="context/PipelineContext.html#prepareSignalChannel(java.lang.String)"><code>PipelineContext.prepareSignalChannel(String)</code></a> でチャネルを登録してから このメソッドを呼び出す。
-
- <p>使用例:
-
- <pre><code>
- PipelineContext ctx = new PipelineContext();
- SignalChannel ch = ctx.prepareSignalChannel("validation");
-
- StreamConverter.create(
-     new ValidatorCommand(ch),
-     new TransformCommand(ch)
- ).run(input, output, ctx);
- </code></pre></div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>inputStream</code> - 処理対象の入力ストリーム</dd>
-<dd><code>outputStream</code> - 処理結果を書き込む出力ストリーム</dd>
-<dd><code>pipelineContext</code> - 使用するPipelineContext</dd>
 <dt>Throws:</dt>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - ストリーム処理中にI/Oエラーが発生した場合</dd>
 </dl>

@@ -159,255 +159,225 @@
 <span class="source-line-no">146</span><span id="line-146">   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合</span>
 <span class="source-line-no">147</span><span id="line-147">   */</span>
 <span class="source-line-no">148</span><span id="line-148">  public void run(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">149</span><span id="line-149">    run(inputStream, outputStream, new PipelineContext());</span>
-<span class="source-line-no">150</span><span id="line-150">  }</span>
+<span class="source-line-no">149</span><span id="line-149">    Objects.requireNonNull(inputStream);</span>
+<span class="source-line-no">150</span><span id="line-150">    Objects.requireNonNull(outputStream);</span>
 <span class="source-line-no">151</span><span id="line-151"></span>
-<span class="source-line-no">152</span><span id="line-152">  /**</span>
-<span class="source-line-no">153</span><span id="line-153">   * 外部で構築したPipelineContextを使用して、非同期並列処理でストリームを変換する。</span>
-<span class="source-line-no">154</span><span id="line-154">   *</span>
-<span class="source-line-no">155</span><span id="line-155">   * &lt;p&gt;コマンド間でシグナルを送受信する {@link com.streamconverter.context.SignalChannel} を使用する場合は、 事前に {@link</span>
-<span class="source-line-no">156</span><span id="line-156">   * PipelineContext#prepareSignalChannel(String)} でチャネルを登録してから このメソッドを呼び出す。</span>
-<span class="source-line-no">157</span><span id="line-157">   *</span>
-<span class="source-line-no">158</span><span id="line-158">   * &lt;p&gt;使用例:</span>
-<span class="source-line-no">159</span><span id="line-159">   *</span>
-<span class="source-line-no">160</span><span id="line-160">   * &lt;pre&gt;{@code</span>
-<span class="source-line-no">161</span><span id="line-161">   * PipelineContext ctx = new PipelineContext();</span>
-<span class="source-line-no">162</span><span id="line-162">   * SignalChannel ch = ctx.prepareSignalChannel("validation");</span>
-<span class="source-line-no">163</span><span id="line-163">   *</span>
-<span class="source-line-no">164</span><span id="line-164">   * StreamConverter.create(</span>
-<span class="source-line-no">165</span><span id="line-165">   *     new ValidatorCommand(ch),</span>
-<span class="source-line-no">166</span><span id="line-166">   *     new TransformCommand(ch)</span>
-<span class="source-line-no">167</span><span id="line-167">   * ).run(input, output, ctx);</span>
-<span class="source-line-no">168</span><span id="line-168">   * }&lt;/pre&gt;</span>
-<span class="source-line-no">169</span><span id="line-169">   *</span>
-<span class="source-line-no">170</span><span id="line-170">   * @param inputStream 処理対象の入力ストリーム</span>
-<span class="source-line-no">171</span><span id="line-171">   * @param outputStream 処理結果を書き込む出力ストリーム</span>
-<span class="source-line-no">172</span><span id="line-172">   * @param pipelineContext 使用するPipelineContext</span>
-<span class="source-line-no">173</span><span id="line-173">   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合</span>
-<span class="source-line-no">174</span><span id="line-174">   */</span>
-<span class="source-line-no">175</span><span id="line-175">  public void run(</span>
-<span class="source-line-no">176</span><span id="line-176">      InputStream inputStream, OutputStream outputStream, PipelineContext pipelineContext)</span>
-<span class="source-line-no">177</span><span id="line-177">      throws IOException {</span>
-<span class="source-line-no">178</span><span id="line-178">    Objects.requireNonNull(inputStream);</span>
-<span class="source-line-no">179</span><span id="line-179">    Objects.requireNonNull(outputStream);</span>
-<span class="source-line-no">180</span><span id="line-180">    Objects.requireNonNull(pipelineContext);</span>
-<span class="source-line-no">181</span><span id="line-181"></span>
-<span class="source-line-no">182</span><span id="line-182">    if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">183</span><span id="line-183">      LOG.info("Starting StreamConverter with {} commands", commands.size());</span>
-<span class="source-line-no">184</span><span id="line-184">    }</span>
-<span class="source-line-no">185</span><span id="line-185"></span>
-<span class="source-line-no">186</span><span id="line-186">    executeCommands(inputStream, outputStream, pipelineContext);</span>
-<span class="source-line-no">187</span><span id="line-187"></span>
-<span class="source-line-no">188</span><span id="line-188">    if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">189</span><span id="line-189">      LOG.info("Completed StreamConverter pipeline");</span>
-<span class="source-line-no">190</span><span id="line-190">    }</span>
-<span class="source-line-no">191</span><span id="line-191">  }</span>
-<span class="source-line-no">192</span><span id="line-192"></span>
-<span class="source-line-no">193</span><span id="line-193">  /** コマンド（単一または複数）を並列実行 */</span>
-<span class="source-line-no">194</span><span id="line-194">  private void executeCommands(</span>
-<span class="source-line-no">195</span><span id="line-195">      InputStream inputStream, OutputStream outputStream, PipelineContext pipelineContext)</span>
-<span class="source-line-no">196</span><span id="line-196">      throws IOException {</span>
-<span class="source-line-no">197</span><span id="line-197">    List&lt;CompletableFuture&lt;Void&gt;&gt; futures = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">198</span><span id="line-198">    // CopyOnWriteArrayList: パイプライン構築中（メインスレッド）と</span>
-<span class="source-line-no">199</span><span id="line-199">    // 失敗時のクローズ処理（ワーカースレッド）が並行して安全にアクセスできるようにする</span>
-<span class="source-line-no">200</span><span id="line-200">    List&lt;AutoCloseable&gt; resources = new CopyOnWriteArrayList&lt;&gt;();</span>
-<span class="source-line-no">201</span><span id="line-201">    List&lt;AbortablePipedStream&gt; pipes = new CopyOnWriteArrayList&lt;&gt;();</span>
-<span class="source-line-no">202</span><span id="line-202"></span>
-<span class="source-line-no">203</span><span id="line-203">    try (AutoCloseableExecutorService executor =</span>
-<span class="source-line-no">204</span><span id="line-204">        new AutoCloseableExecutorService(createOptimalExecutor())) {</span>
-<span class="source-line-no">205</span><span id="line-205">      InputStream currentInput = inputStream;</span>
-<span class="source-line-no">206</span><span id="line-206"></span>
-<span class="source-line-no">207</span><span id="line-207">      // パイプライン構築</span>
-<span class="source-line-no">208</span><span id="line-208">      for (int i = 0; i &lt; this.commands.size(); i++) {</span>
-<span class="source-line-no">209</span><span id="line-209">        IStreamCommand command = this.commands.get(i);</span>
-<span class="source-line-no">210</span><span id="line-210">        final String commandName = this.commandNames.get(i);</span>
-<span class="source-line-no">211</span><span id="line-211">        final InputStream commandInput = currentInput;</span>
-<span class="source-line-no">212</span><span id="line-212">        final OutputStream commandOutput;</span>
-<span class="source-line-no">213</span><span id="line-213"></span>
-<span class="source-line-no">214</span><span id="line-214">        final AbortablePipedStream pipe;</span>
-<span class="source-line-no">215</span><span id="line-215">        if (i == this.commands.size() - 1) {</span>
-<span class="source-line-no">216</span><span id="line-216">          // 最後のコマンド</span>
-<span class="source-line-no">217</span><span id="line-217">          commandOutput = outputStream;</span>
-<span class="source-line-no">218</span><span id="line-218">          pipe = null;</span>
-<span class="source-line-no">219</span><span id="line-219">        } else {</span>
-<span class="source-line-no">220</span><span id="line-220">          // 中間コマンド: 次のコマンド用にAbortablePipedStreamペア作成</span>
-<span class="source-line-no">221</span><span id="line-221">          pipe = new AbortablePipedStream(DEFAULT_BUFFER_SIZE);</span>
-<span class="source-line-no">222</span><span id="line-222">          resources.add(pipe);</span>
-<span class="source-line-no">223</span><span id="line-223">          pipes.add(pipe);</span>
-<span class="source-line-no">224</span><span id="line-224">          commandOutput = pipe.outputStream();</span>
-<span class="source-line-no">225</span><span id="line-225">          currentInput = pipe.inputStream();</span>
-<span class="source-line-no">226</span><span id="line-226">        }</span>
-<span class="source-line-no">227</span><span id="line-227"></span>
-<span class="source-line-no">228</span><span id="line-228">        // 各コマンドを非同期実行</span>
-<span class="source-line-no">229</span><span id="line-229">        CompletableFuture&lt;Void&gt; future =</span>
-<span class="source-line-no">230</span><span id="line-230">            executor.runAsync(</span>
-<span class="source-line-no">231</span><span id="line-231">                () -&gt; {</span>
-<span class="source-line-no">232</span><span id="line-232">                  PipelineContext.set(pipelineContext);</span>
-<span class="source-line-no">233</span><span id="line-233"></span>
-<span class="source-line-no">234</span><span id="line-234">                  try {</span>
-<span class="source-line-no">235</span><span id="line-235">                    // コマンド実行（ロギングはコンストラクタ時にwithLogging()でラップ済み）</span>
-<span class="source-line-no">236</span><span id="line-236">                    command.execute(commandInput, commandOutput);</span>
-<span class="source-line-no">237</span><span id="line-237"></span>
-<span class="source-line-no">238</span><span id="line-238">                    // 中間コマンドの出力側を閉じて後段コマンドに EOF を通知する</span>
-<span class="source-line-no">239</span><span id="line-239">                    if (pipe != null) {</span>
-<span class="source-line-no">240</span><span id="line-240">                      try {</span>
-<span class="source-line-no">241</span><span id="line-241">                        commandOutput.close();</span>
-<span class="source-line-no">242</span><span id="line-242">                      } catch (IOException closeEx) {</span>
-<span class="source-line-no">243</span><span id="line-243">                        abortAllPipes(pipes);</span>
-<span class="source-line-no">244</span><span id="line-244">                        throw new StreamProcessingException(</span>
-<span class="source-line-no">245</span><span id="line-245">                            "Failed to close output stream of command: " + commandName, closeEx);</span>
-<span class="source-line-no">246</span><span id="line-246">                      }</span>
-<span class="source-line-no">247</span><span id="line-247">                    }</span>
-<span class="source-line-no">248</span><span id="line-248"></span>
-<span class="source-line-no">249</span><span id="line-249">                  } catch (StreamProcessingException e) {</span>
-<span class="source-line-no">250</span><span id="line-250">                    abortAllPipes(pipes);</span>
-<span class="source-line-no">251</span><span id="line-251">                    // Already a StreamProcessingException — re-throw as-is to avoid double-wrapping</span>
-<span class="source-line-no">252</span><span id="line-252">                    throw e;</span>
-<span class="source-line-no">253</span><span id="line-253">                  } catch (IOException | RuntimeException e) {</span>
-<span class="source-line-no">254</span><span id="line-254">                    abortAllPipes(pipes);</span>
-<span class="source-line-no">255</span><span id="line-255">                    throw new StreamProcessingException(</span>
-<span class="source-line-no">256</span><span id="line-256">                        "Command execution failed: " + commandName + " - " + e.getMessage(), e);</span>
-<span class="source-line-no">257</span><span id="line-257">                  } catch (Error e) {</span>
-<span class="source-line-no">258</span><span id="line-258">                    abortAllPipes(pipes);</span>
-<span class="source-line-no">259</span><span id="line-259">                    throw e;</span>
-<span class="source-line-no">260</span><span id="line-260">                  } finally {</span>
-<span class="source-line-no">261</span><span id="line-261">                    PipelineContext.clear();</span>
-<span class="source-line-no">262</span><span id="line-262">                    MDC.clear();</span>
-<span class="source-line-no">263</span><span id="line-263">                  }</span>
-<span class="source-line-no">264</span><span id="line-264">                });</span>
-<span class="source-line-no">265</span><span id="line-265"></span>
-<span class="source-line-no">266</span><span id="line-266">        futures.add(future);</span>
-<span class="source-line-no">267</span><span id="line-267">      }</span>
-<span class="source-line-no">268</span><span id="line-268"></span>
-<span class="source-line-no">269</span><span id="line-269">      // パイプライン構築完了後に exceptionally ハンドラを登録する。</span>
-<span class="source-line-no">270</span><span id="line-270">      // これにより resources リストへの add が全て終わった後にワーカーからクローズが呼ばれることが保証される。</span>
-<span class="source-line-no">271</span><span id="line-271">      // いずれかのコマンドが失敗したら、すべてのパイプをクローズして</span>
-<span class="source-line-no">272</span><span id="line-272">      // ブロック中の書き込みを IOException で即座に解放する。</span>
-<span class="source-line-no">273</span><span id="line-273">      for (CompletableFuture&lt;Void&gt; future : futures) {</span>
-<span class="source-line-no">274</span><span id="line-274">        future.exceptionally(</span>
-<span class="source-line-no">275</span><span id="line-275">            t -&gt; {</span>
-<span class="source-line-no">276</span><span id="line-276">              try {</span>
-<span class="source-line-no">277</span><span id="line-277">                closeResources(resources);</span>
-<span class="source-line-no">278</span><span id="line-278">              } catch (RuntimeException ex) {</span>
-<span class="source-line-no">279</span><span id="line-279">                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);</span>
-<span class="source-line-no">280</span><span id="line-280">              }</span>
-<span class="source-line-no">281</span><span id="line-281">              return null;</span>
-<span class="source-line-no">282</span><span id="line-282">            });</span>
-<span class="source-line-no">283</span><span id="line-283">      }</span>
-<span class="source-line-no">284</span><span id="line-284"></span>
-<span class="source-line-no">285</span><span id="line-285">      // 全タスクの完了を待機してから根本原因を収集する。</span>
-<span class="source-line-no">286</span><span id="line-286">      // abort() による物理クローズで各コマンドが順不同で完了するため、</span>
-<span class="source-line-no">287</span><span id="line-287">      // 全完了後に走査することでレースコンディションを回避する。</span>
-<span class="source-line-no">288</span><span id="line-288">      try {</span>
-<span class="source-line-no">289</span><span id="line-289">        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();</span>
-<span class="source-line-no">290</span><span id="line-290">      } catch (ExecutionException e) {</span>
-<span class="source-line-no">291</span><span id="line-291">        // いずれかが失敗した場合は全件走査して根本原因を収集する</span>
-<span class="source-line-no">292</span><span id="line-292">        List&lt;Throwable&gt; rootCauses = collectRootCauses(futures);</span>
-<span class="source-line-no">293</span><span id="line-293">        if (rootCauses.isEmpty()) {</span>
-<span class="source-line-no">294</span><span id="line-294">          // 全件 PipeAbortedException の場合（通常起こらない）</span>
-<span class="source-line-no">295</span><span id="line-295">          throw new StreamProcessingException(</span>
-<span class="source-line-no">296</span><span id="line-296">              "Unexpected error during command execution", e.getCause());</span>
-<span class="source-line-no">297</span><span id="line-297">        }</span>
-<span class="source-line-no">298</span><span id="line-298">        Throwable primary = rootCauses.get(0);</span>
-<span class="source-line-no">299</span><span id="line-299">        for (int i = 1; i &lt; rootCauses.size(); i++) {</span>
-<span class="source-line-no">300</span><span id="line-300">          primary.addSuppressed(rootCauses.get(i));</span>
-<span class="source-line-no">301</span><span id="line-301">        }</span>
-<span class="source-line-no">302</span><span id="line-302">        if (primary instanceof Error err) throw err;</span>
-<span class="source-line-no">303</span><span id="line-303">        if (primary instanceof StreamProcessingException spe) throw spe;</span>
-<span class="source-line-no">304</span><span id="line-304">        if (primary instanceof IOException ioe) throw ioe;</span>
-<span class="source-line-no">305</span><span id="line-305">        if (primary instanceof RuntimeException re) throw re;</span>
-<span class="source-line-no">306</span><span id="line-306">        throw new StreamProcessingException("Unexpected error during command execution", primary);</span>
-<span class="source-line-no">307</span><span id="line-307">      } catch (InterruptedException e) {</span>
-<span class="source-line-no">308</span><span id="line-308">        cancelRemainingFutures(futures, 0);</span>
-<span class="source-line-no">309</span><span id="line-309">        Thread.currentThread().interrupt();</span>
-<span class="source-line-no">310</span><span id="line-310">        throw new StreamProcessingException("Pipeline execution was interrupted", e);</span>
-<span class="source-line-no">311</span><span id="line-311">      }</span>
-<span class="source-line-no">312</span><span id="line-312"></span>
-<span class="source-line-no">313</span><span id="line-313">      if (LOG.isInfoEnabled()) {</span>
-<span class="source-line-no">314</span><span id="line-314">        LOG.info("All commands completed successfully");</span>
-<span class="source-line-no">315</span><span id="line-315">      }</span>
-<span class="source-line-no">316</span><span id="line-316"></span>
-<span class="source-line-no">317</span><span id="line-317">    } finally {</span>
-<span class="source-line-no">318</span><span id="line-318">      // リソースクリーンアップ</span>
-<span class="source-line-no">319</span><span id="line-319">      closeResources(resources);</span>
-<span class="source-line-no">320</span><span id="line-320">    }</span>
-<span class="source-line-no">321</span><span id="line-321">  }</span>
-<span class="source-line-no">322</span><span id="line-322"></span>
-<span class="source-line-no">323</span><span id="line-323">  /**</span>
-<span class="source-line-no">324</span><span id="line-324">   * 全 futures から根本原因（{@link PipeAbortedException} でない失敗）を全件収集して返す。</span>
-<span class="source-line-no">325</span><span id="line-325">   *</span>
-<span class="source-line-no">326</span><span id="line-326">   * &lt;p&gt;呼び出し前に全 futures が完了済みであること。</span>
-<span class="source-line-no">327</span><span id="line-327">   */</span>
-<span class="source-line-no">328</span><span id="line-328">  private List&lt;Throwable&gt; collectRootCauses(List&lt;CompletableFuture&lt;Void&gt;&gt; futures) {</span>
-<span class="source-line-no">329</span><span id="line-329">    List&lt;Throwable&gt; rootCauses = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">330</span><span id="line-330">    for (CompletableFuture&lt;Void&gt; f : futures) {</span>
-<span class="source-line-no">331</span><span id="line-331">      if (!f.isCompletedExceptionally()) {</span>
-<span class="source-line-no">332</span><span id="line-332">        continue;</span>
-<span class="source-line-no">333</span><span id="line-333">      }</span>
-<span class="source-line-no">334</span><span id="line-334">      try {</span>
-<span class="source-line-no">335</span><span id="line-335">        f.get();</span>
-<span class="source-line-no">336</span><span id="line-336">      } catch (ExecutionException ee) {</span>
-<span class="source-line-no">337</span><span id="line-337">        Throwable cause = ee.getCause();</span>
-<span class="source-line-no">338</span><span id="line-338">        if (!isPipeAbortedCause(cause)) {</span>
-<span class="source-line-no">339</span><span id="line-339">          rootCauses.add(cause);</span>
-<span class="source-line-no">340</span><span id="line-340">        }</span>
-<span class="source-line-no">341</span><span id="line-341">      } catch (InterruptedException ie) {</span>
-<span class="source-line-no">342</span><span id="line-342">        Thread.currentThread().interrupt();</span>
-<span class="source-line-no">343</span><span id="line-343">        rootCauses.add(ie);</span>
-<span class="source-line-no">344</span><span id="line-344">      }</span>
-<span class="source-line-no">345</span><span id="line-345">    }</span>
-<span class="source-line-no">346</span><span id="line-346">    return rootCauses;</span>
-<span class="source-line-no">347</span><span id="line-347">  }</span>
-<span class="source-line-no">348</span><span id="line-348"></span>
-<span class="source-line-no">349</span><span id="line-349">  /**</span>
-<span class="source-line-no">350</span><span id="line-350">   * 対向コマンドの異常終了に巻き込まれた二次的な失敗かどうかを判定する。</span>
-<span class="source-line-no">351</span><span id="line-351">   *</span>
-<span class="source-line-no">352</span><span id="line-352">   * &lt;p&gt;{@link PipeAbortedException} は {@link AbortablePipedStream#abort()} で設定される</span>
-<span class="source-line-no">353</span><span id="line-353">   * 型付き例外であり、二次的失敗と明示的に識別できる。</span>
-<span class="source-line-no">354</span><span id="line-354">   */</span>
-<span class="source-line-no">355</span><span id="line-355">  static boolean isPipeAbortedCause(Throwable cause) {</span>
-<span class="source-line-no">356</span><span id="line-356">    if (cause instanceof PipeAbortedException) {</span>
-<span class="source-line-no">357</span><span id="line-357">      return true;</span>
-<span class="source-line-no">358</span><span id="line-358">    }</span>
-<span class="source-line-no">359</span><span id="line-359">    if (cause instanceof StreamProcessingException) {</span>
-<span class="source-line-no">360</span><span id="line-360">      return cause.getCause() instanceof PipeAbortedException;</span>
-<span class="source-line-no">361</span><span id="line-361">    }</span>
-<span class="source-line-no">362</span><span id="line-362">    return false;</span>
-<span class="source-line-no">363</span><span id="line-363">  }</span>
-<span class="source-line-no">364</span><span id="line-364"></span>
-<span class="source-line-no">365</span><span id="line-365">  /**</span>
-<span class="source-line-no">366</span><span id="line-366">   * すべてのパイプを abort して、ブロック中の read/write を {@link PipeAbortedException} で解放する。</span>
-<span class="source-line-no">367</span><span id="line-367">   *</span>
-<span class="source-line-no">368</span><span id="line-368">   * @param pipes abort 対象のパイプリスト</span>
-<span class="source-line-no">369</span><span id="line-369">   */</span>
-<span class="source-line-no">370</span><span id="line-370">  private void abortAllPipes(List&lt;AbortablePipedStream&gt; pipes) {</span>
-<span class="source-line-no">371</span><span id="line-371">    for (AbortablePipedStream p : pipes) {</span>
-<span class="source-line-no">372</span><span id="line-372">      p.abort();</span>
-<span class="source-line-no">373</span><span id="line-373">    }</span>
-<span class="source-line-no">374</span><span id="line-374">  }</span>
-<span class="source-line-no">375</span><span id="line-375"></span>
-<span class="source-line-no">376</span><span id="line-376">  /** 失敗時に残りのfuturesをキャンセルする */</span>
-<span class="source-line-no">377</span><span id="line-377">  private void cancelRemainingFutures(List&lt;CompletableFuture&lt;Void&gt;&gt; futures, int fromIndex) {</span>
-<span class="source-line-no">378</span><span id="line-378">    for (int j = fromIndex; j &lt; futures.size(); j++) {</span>
-<span class="source-line-no">379</span><span id="line-379">      futures.get(j).cancel(true);</span>
-<span class="source-line-no">380</span><span id="line-380">    }</span>
-<span class="source-line-no">381</span><span id="line-381">  }</span>
-<span class="source-line-no">382</span><span id="line-382"></span>
-<span class="source-line-no">383</span><span id="line-383">  /**</span>
-<span class="source-line-no">384</span><span id="line-384">   * 使用したリソースを安全にクローズする</span>
-<span class="source-line-no">385</span><span id="line-385">   *</span>
-<span class="source-line-no">386</span><span id="line-386">   * @param resources クローズ対象のリソースリスト</span>
-<span class="source-line-no">387</span><span id="line-387">   */</span>
-<span class="source-line-no">388</span><span id="line-388">  private void closeResources(List&lt;AutoCloseable&gt; resources) {</span>
-<span class="source-line-no">389</span><span id="line-389">    for (AutoCloseable resource : resources) {</span>
-<span class="source-line-no">390</span><span id="line-390">      try {</span>
-<span class="source-line-no">391</span><span id="line-391">        resource.close();</span>
-<span class="source-line-no">392</span><span id="line-392">      } catch (Exception e) {</span>
-<span class="source-line-no">393</span><span id="line-393">        LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);</span>
-<span class="source-line-no">394</span><span id="line-394">      }</span>
-<span class="source-line-no">395</span><span id="line-395">    }</span>
-<span class="source-line-no">396</span><span id="line-396">  }</span>
-<span class="source-line-no">397</span><span id="line-397">}</span>
+<span class="source-line-no">152</span><span id="line-152">    if (LOG.isInfoEnabled()) {</span>
+<span class="source-line-no">153</span><span id="line-153">      LOG.info("Starting StreamConverter with {} commands", commands.size());</span>
+<span class="source-line-no">154</span><span id="line-154">    }</span>
+<span class="source-line-no">155</span><span id="line-155"></span>
+<span class="source-line-no">156</span><span id="line-156">    executeCommands(inputStream, outputStream, new PipelineContext());</span>
+<span class="source-line-no">157</span><span id="line-157"></span>
+<span class="source-line-no">158</span><span id="line-158">    if (LOG.isInfoEnabled()) {</span>
+<span class="source-line-no">159</span><span id="line-159">      LOG.info("Completed StreamConverter pipeline");</span>
+<span class="source-line-no">160</span><span id="line-160">    }</span>
+<span class="source-line-no">161</span><span id="line-161">  }</span>
+<span class="source-line-no">162</span><span id="line-162"></span>
+<span class="source-line-no">163</span><span id="line-163">  /** コマンド（単一または複数）を並列実行 */</span>
+<span class="source-line-no">164</span><span id="line-164">  private void executeCommands(</span>
+<span class="source-line-no">165</span><span id="line-165">      InputStream inputStream, OutputStream outputStream, PipelineContext pipelineContext)</span>
+<span class="source-line-no">166</span><span id="line-166">      throws IOException {</span>
+<span class="source-line-no">167</span><span id="line-167">    List&lt;CompletableFuture&lt;Void&gt;&gt; futures = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">168</span><span id="line-168">    // CopyOnWriteArrayList: パイプライン構築中（メインスレッド）と</span>
+<span class="source-line-no">169</span><span id="line-169">    // 失敗時のクローズ処理（ワーカースレッド）が並行して安全にアクセスできるようにする</span>
+<span class="source-line-no">170</span><span id="line-170">    List&lt;AutoCloseable&gt; resources = new CopyOnWriteArrayList&lt;&gt;();</span>
+<span class="source-line-no">171</span><span id="line-171">    List&lt;AbortablePipedStream&gt; pipes = new CopyOnWriteArrayList&lt;&gt;();</span>
+<span class="source-line-no">172</span><span id="line-172"></span>
+<span class="source-line-no">173</span><span id="line-173">    try (AutoCloseableExecutorService executor =</span>
+<span class="source-line-no">174</span><span id="line-174">        new AutoCloseableExecutorService(createOptimalExecutor())) {</span>
+<span class="source-line-no">175</span><span id="line-175">      InputStream currentInput = inputStream;</span>
+<span class="source-line-no">176</span><span id="line-176"></span>
+<span class="source-line-no">177</span><span id="line-177">      // パイプライン構築</span>
+<span class="source-line-no">178</span><span id="line-178">      for (int i = 0; i &lt; this.commands.size(); i++) {</span>
+<span class="source-line-no">179</span><span id="line-179">        IStreamCommand command = this.commands.get(i);</span>
+<span class="source-line-no">180</span><span id="line-180">        final String commandName = this.commandNames.get(i);</span>
+<span class="source-line-no">181</span><span id="line-181">        final InputStream commandInput = currentInput;</span>
+<span class="source-line-no">182</span><span id="line-182">        final OutputStream commandOutput;</span>
+<span class="source-line-no">183</span><span id="line-183"></span>
+<span class="source-line-no">184</span><span id="line-184">        final AbortablePipedStream pipe;</span>
+<span class="source-line-no">185</span><span id="line-185">        if (i == this.commands.size() - 1) {</span>
+<span class="source-line-no">186</span><span id="line-186">          // 最後のコマンド</span>
+<span class="source-line-no">187</span><span id="line-187">          commandOutput = outputStream;</span>
+<span class="source-line-no">188</span><span id="line-188">          pipe = null;</span>
+<span class="source-line-no">189</span><span id="line-189">        } else {</span>
+<span class="source-line-no">190</span><span id="line-190">          // 中間コマンド: 次のコマンド用にAbortablePipedStreamペア作成</span>
+<span class="source-line-no">191</span><span id="line-191">          pipe = new AbortablePipedStream(DEFAULT_BUFFER_SIZE);</span>
+<span class="source-line-no">192</span><span id="line-192">          resources.add(pipe);</span>
+<span class="source-line-no">193</span><span id="line-193">          pipes.add(pipe);</span>
+<span class="source-line-no">194</span><span id="line-194">          commandOutput = pipe.outputStream();</span>
+<span class="source-line-no">195</span><span id="line-195">          currentInput = pipe.inputStream();</span>
+<span class="source-line-no">196</span><span id="line-196">        }</span>
+<span class="source-line-no">197</span><span id="line-197"></span>
+<span class="source-line-no">198</span><span id="line-198">        // 各コマンドを非同期実行</span>
+<span class="source-line-no">199</span><span id="line-199">        CompletableFuture&lt;Void&gt; future =</span>
+<span class="source-line-no">200</span><span id="line-200">            executor.runAsync(</span>
+<span class="source-line-no">201</span><span id="line-201">                () -&gt; {</span>
+<span class="source-line-no">202</span><span id="line-202">                  PipelineContext.set(pipelineContext);</span>
+<span class="source-line-no">203</span><span id="line-203"></span>
+<span class="source-line-no">204</span><span id="line-204">                  try {</span>
+<span class="source-line-no">205</span><span id="line-205">                    // コマンド実行（ロギングはコンストラクタ時にwithLogging()でラップ済み）</span>
+<span class="source-line-no">206</span><span id="line-206">                    command.execute(commandInput, commandOutput);</span>
+<span class="source-line-no">207</span><span id="line-207"></span>
+<span class="source-line-no">208</span><span id="line-208">                    // 中間コマンドの出力側を閉じて後段コマンドに EOF を通知する</span>
+<span class="source-line-no">209</span><span id="line-209">                    if (pipe != null) {</span>
+<span class="source-line-no">210</span><span id="line-210">                      try {</span>
+<span class="source-line-no">211</span><span id="line-211">                        commandOutput.close();</span>
+<span class="source-line-no">212</span><span id="line-212">                      } catch (IOException closeEx) {</span>
+<span class="source-line-no">213</span><span id="line-213">                        abortAllPipes(pipes);</span>
+<span class="source-line-no">214</span><span id="line-214">                        throw new StreamProcessingException(</span>
+<span class="source-line-no">215</span><span id="line-215">                            "Failed to close output stream of command: " + commandName, closeEx);</span>
+<span class="source-line-no">216</span><span id="line-216">                      }</span>
+<span class="source-line-no">217</span><span id="line-217">                    }</span>
+<span class="source-line-no">218</span><span id="line-218"></span>
+<span class="source-line-no">219</span><span id="line-219">                  } catch (StreamProcessingException e) {</span>
+<span class="source-line-no">220</span><span id="line-220">                    abortAllPipes(pipes);</span>
+<span class="source-line-no">221</span><span id="line-221">                    // Already a StreamProcessingException — re-throw as-is to avoid double-wrapping</span>
+<span class="source-line-no">222</span><span id="line-222">                    throw e;</span>
+<span class="source-line-no">223</span><span id="line-223">                  } catch (IOException | RuntimeException e) {</span>
+<span class="source-line-no">224</span><span id="line-224">                    abortAllPipes(pipes);</span>
+<span class="source-line-no">225</span><span id="line-225">                    throw new StreamProcessingException(</span>
+<span class="source-line-no">226</span><span id="line-226">                        "Command execution failed: " + commandName + " - " + e.getMessage(), e);</span>
+<span class="source-line-no">227</span><span id="line-227">                  } catch (Error e) {</span>
+<span class="source-line-no">228</span><span id="line-228">                    abortAllPipes(pipes);</span>
+<span class="source-line-no">229</span><span id="line-229">                    throw e;</span>
+<span class="source-line-no">230</span><span id="line-230">                  } finally {</span>
+<span class="source-line-no">231</span><span id="line-231">                    PipelineContext.clear();</span>
+<span class="source-line-no">232</span><span id="line-232">                    MDC.clear();</span>
+<span class="source-line-no">233</span><span id="line-233">                  }</span>
+<span class="source-line-no">234</span><span id="line-234">                });</span>
+<span class="source-line-no">235</span><span id="line-235"></span>
+<span class="source-line-no">236</span><span id="line-236">        futures.add(future);</span>
+<span class="source-line-no">237</span><span id="line-237">      }</span>
+<span class="source-line-no">238</span><span id="line-238"></span>
+<span class="source-line-no">239</span><span id="line-239">      // パイプライン構築完了後に exceptionally ハンドラを登録する。</span>
+<span class="source-line-no">240</span><span id="line-240">      // これにより resources リストへの add が全て終わった後にワーカーからクローズが呼ばれることが保証される。</span>
+<span class="source-line-no">241</span><span id="line-241">      // いずれかのコマンドが失敗したら、すべてのパイプをクローズして</span>
+<span class="source-line-no">242</span><span id="line-242">      // ブロック中の書き込みを IOException で即座に解放する。</span>
+<span class="source-line-no">243</span><span id="line-243">      for (CompletableFuture&lt;Void&gt; future : futures) {</span>
+<span class="source-line-no">244</span><span id="line-244">        future.exceptionally(</span>
+<span class="source-line-no">245</span><span id="line-245">            t -&gt; {</span>
+<span class="source-line-no">246</span><span id="line-246">              try {</span>
+<span class="source-line-no">247</span><span id="line-247">                closeResources(resources);</span>
+<span class="source-line-no">248</span><span id="line-248">              } catch (RuntimeException ex) {</span>
+<span class="source-line-no">249</span><span id="line-249">                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);</span>
+<span class="source-line-no">250</span><span id="line-250">              }</span>
+<span class="source-line-no">251</span><span id="line-251">              return null;</span>
+<span class="source-line-no">252</span><span id="line-252">            });</span>
+<span class="source-line-no">253</span><span id="line-253">      }</span>
+<span class="source-line-no">254</span><span id="line-254"></span>
+<span class="source-line-no">255</span><span id="line-255">      // 全タスクの完了を待機してから根本原因を収集する。</span>
+<span class="source-line-no">256</span><span id="line-256">      // abort() による物理クローズで各コマンドが順不同で完了するため、</span>
+<span class="source-line-no">257</span><span id="line-257">      // 全完了後に走査することでレースコンディションを回避する。</span>
+<span class="source-line-no">258</span><span id="line-258">      try {</span>
+<span class="source-line-no">259</span><span id="line-259">        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();</span>
+<span class="source-line-no">260</span><span id="line-260">      } catch (ExecutionException e) {</span>
+<span class="source-line-no">261</span><span id="line-261">        // いずれかが失敗した場合は全件走査して根本原因を収集する</span>
+<span class="source-line-no">262</span><span id="line-262">        List&lt;Throwable&gt; rootCauses = collectRootCauses(futures);</span>
+<span class="source-line-no">263</span><span id="line-263">        if (rootCauses.isEmpty()) {</span>
+<span class="source-line-no">264</span><span id="line-264">          // 全件 PipeAbortedException の場合（通常起こらない）</span>
+<span class="source-line-no">265</span><span id="line-265">          throw new StreamProcessingException(</span>
+<span class="source-line-no">266</span><span id="line-266">              "Unexpected error during command execution", e.getCause());</span>
+<span class="source-line-no">267</span><span id="line-267">        }</span>
+<span class="source-line-no">268</span><span id="line-268">        Throwable primary = rootCauses.get(0);</span>
+<span class="source-line-no">269</span><span id="line-269">        for (int i = 1; i &lt; rootCauses.size(); i++) {</span>
+<span class="source-line-no">270</span><span id="line-270">          primary.addSuppressed(rootCauses.get(i));</span>
+<span class="source-line-no">271</span><span id="line-271">        }</span>
+<span class="source-line-no">272</span><span id="line-272">        if (primary instanceof Error err) throw err;</span>
+<span class="source-line-no">273</span><span id="line-273">        if (primary instanceof StreamProcessingException spe) throw spe;</span>
+<span class="source-line-no">274</span><span id="line-274">        if (primary instanceof IOException ioe) throw ioe;</span>
+<span class="source-line-no">275</span><span id="line-275">        if (primary instanceof RuntimeException re) throw re;</span>
+<span class="source-line-no">276</span><span id="line-276">        throw new StreamProcessingException("Unexpected error during command execution", primary);</span>
+<span class="source-line-no">277</span><span id="line-277">      } catch (InterruptedException e) {</span>
+<span class="source-line-no">278</span><span id="line-278">        cancelRemainingFutures(futures, 0);</span>
+<span class="source-line-no">279</span><span id="line-279">        Thread.currentThread().interrupt();</span>
+<span class="source-line-no">280</span><span id="line-280">        throw new StreamProcessingException("Pipeline execution was interrupted", e);</span>
+<span class="source-line-no">281</span><span id="line-281">      }</span>
+<span class="source-line-no">282</span><span id="line-282"></span>
+<span class="source-line-no">283</span><span id="line-283">      if (LOG.isInfoEnabled()) {</span>
+<span class="source-line-no">284</span><span id="line-284">        LOG.info("All commands completed successfully");</span>
+<span class="source-line-no">285</span><span id="line-285">      }</span>
+<span class="source-line-no">286</span><span id="line-286"></span>
+<span class="source-line-no">287</span><span id="line-287">    } finally {</span>
+<span class="source-line-no">288</span><span id="line-288">      // リソースクリーンアップ</span>
+<span class="source-line-no">289</span><span id="line-289">      closeResources(resources);</span>
+<span class="source-line-no">290</span><span id="line-290">    }</span>
+<span class="source-line-no">291</span><span id="line-291">  }</span>
+<span class="source-line-no">292</span><span id="line-292"></span>
+<span class="source-line-no">293</span><span id="line-293">  /**</span>
+<span class="source-line-no">294</span><span id="line-294">   * 全 futures から根本原因（{@link PipeAbortedException} でない失敗）を全件収集して返す。</span>
+<span class="source-line-no">295</span><span id="line-295">   *</span>
+<span class="source-line-no">296</span><span id="line-296">   * &lt;p&gt;呼び出し前に全 futures が完了済みであること。</span>
+<span class="source-line-no">297</span><span id="line-297">   */</span>
+<span class="source-line-no">298</span><span id="line-298">  private List&lt;Throwable&gt; collectRootCauses(List&lt;CompletableFuture&lt;Void&gt;&gt; futures) {</span>
+<span class="source-line-no">299</span><span id="line-299">    List&lt;Throwable&gt; rootCauses = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">300</span><span id="line-300">    for (CompletableFuture&lt;Void&gt; f : futures) {</span>
+<span class="source-line-no">301</span><span id="line-301">      if (!f.isCompletedExceptionally()) {</span>
+<span class="source-line-no">302</span><span id="line-302">        continue;</span>
+<span class="source-line-no">303</span><span id="line-303">      }</span>
+<span class="source-line-no">304</span><span id="line-304">      try {</span>
+<span class="source-line-no">305</span><span id="line-305">        f.get();</span>
+<span class="source-line-no">306</span><span id="line-306">      } catch (ExecutionException ee) {</span>
+<span class="source-line-no">307</span><span id="line-307">        Throwable cause = ee.getCause();</span>
+<span class="source-line-no">308</span><span id="line-308">        if (!isPipeAbortedCause(cause)) {</span>
+<span class="source-line-no">309</span><span id="line-309">          rootCauses.add(cause);</span>
+<span class="source-line-no">310</span><span id="line-310">        }</span>
+<span class="source-line-no">311</span><span id="line-311">      } catch (InterruptedException ie) {</span>
+<span class="source-line-no">312</span><span id="line-312">        Thread.currentThread().interrupt();</span>
+<span class="source-line-no">313</span><span id="line-313">        rootCauses.add(ie);</span>
+<span class="source-line-no">314</span><span id="line-314">      }</span>
+<span class="source-line-no">315</span><span id="line-315">    }</span>
+<span class="source-line-no">316</span><span id="line-316">    return rootCauses;</span>
+<span class="source-line-no">317</span><span id="line-317">  }</span>
+<span class="source-line-no">318</span><span id="line-318"></span>
+<span class="source-line-no">319</span><span id="line-319">  /**</span>
+<span class="source-line-no">320</span><span id="line-320">   * 対向コマンドの異常終了に巻き込まれた二次的な失敗かどうかを判定する。</span>
+<span class="source-line-no">321</span><span id="line-321">   *</span>
+<span class="source-line-no">322</span><span id="line-322">   * &lt;p&gt;{@link PipeAbortedException} は {@link AbortablePipedStream#abort()} で設定される</span>
+<span class="source-line-no">323</span><span id="line-323">   * 型付き例外であり、二次的失敗と明示的に識別できる。</span>
+<span class="source-line-no">324</span><span id="line-324">   */</span>
+<span class="source-line-no">325</span><span id="line-325">  static boolean isPipeAbortedCause(Throwable cause) {</span>
+<span class="source-line-no">326</span><span id="line-326">    if (cause instanceof PipeAbortedException) {</span>
+<span class="source-line-no">327</span><span id="line-327">      return true;</span>
+<span class="source-line-no">328</span><span id="line-328">    }</span>
+<span class="source-line-no">329</span><span id="line-329">    if (cause instanceof StreamProcessingException) {</span>
+<span class="source-line-no">330</span><span id="line-330">      return cause.getCause() instanceof PipeAbortedException;</span>
+<span class="source-line-no">331</span><span id="line-331">    }</span>
+<span class="source-line-no">332</span><span id="line-332">    return false;</span>
+<span class="source-line-no">333</span><span id="line-333">  }</span>
+<span class="source-line-no">334</span><span id="line-334"></span>
+<span class="source-line-no">335</span><span id="line-335">  /**</span>
+<span class="source-line-no">336</span><span id="line-336">   * すべてのパイプを abort して、ブロック中の read/write を {@link PipeAbortedException} で解放する。</span>
+<span class="source-line-no">337</span><span id="line-337">   *</span>
+<span class="source-line-no">338</span><span id="line-338">   * @param pipes abort 対象のパイプリスト</span>
+<span class="source-line-no">339</span><span id="line-339">   */</span>
+<span class="source-line-no">340</span><span id="line-340">  private void abortAllPipes(List&lt;AbortablePipedStream&gt; pipes) {</span>
+<span class="source-line-no">341</span><span id="line-341">    for (AbortablePipedStream p : pipes) {</span>
+<span class="source-line-no">342</span><span id="line-342">      p.abort();</span>
+<span class="source-line-no">343</span><span id="line-343">    }</span>
+<span class="source-line-no">344</span><span id="line-344">  }</span>
+<span class="source-line-no">345</span><span id="line-345"></span>
+<span class="source-line-no">346</span><span id="line-346">  /** 失敗時に残りのfuturesをキャンセルする */</span>
+<span class="source-line-no">347</span><span id="line-347">  private void cancelRemainingFutures(List&lt;CompletableFuture&lt;Void&gt;&gt; futures, int fromIndex) {</span>
+<span class="source-line-no">348</span><span id="line-348">    for (int j = fromIndex; j &lt; futures.size(); j++) {</span>
+<span class="source-line-no">349</span><span id="line-349">      futures.get(j).cancel(true);</span>
+<span class="source-line-no">350</span><span id="line-350">    }</span>
+<span class="source-line-no">351</span><span id="line-351">  }</span>
+<span class="source-line-no">352</span><span id="line-352"></span>
+<span class="source-line-no">353</span><span id="line-353">  /**</span>
+<span class="source-line-no">354</span><span id="line-354">   * 使用したリソースを安全にクローズする</span>
+<span class="source-line-no">355</span><span id="line-355">   *</span>
+<span class="source-line-no">356</span><span id="line-356">   * @param resources クローズ対象のリソースリスト</span>
+<span class="source-line-no">357</span><span id="line-357">   */</span>
+<span class="source-line-no">358</span><span id="line-358">  private void closeResources(List&lt;AutoCloseable&gt; resources) {</span>
+<span class="source-line-no">359</span><span id="line-359">    for (AutoCloseable resource : resources) {</span>
+<span class="source-line-no">360</span><span id="line-360">      try {</span>
+<span class="source-line-no">361</span><span id="line-361">        resource.close();</span>
+<span class="source-line-no">362</span><span id="line-362">      } catch (Exception e) {</span>
+<span class="source-line-no">363</span><span id="line-363">        LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);</span>
+<span class="source-line-no">364</span><span id="line-364">      }</span>
+<span class="source-line-no">365</span><span id="line-365">    }</span>
+<span class="source-line-no">366</span><span id="line-366">  }</span>
+<span class="source-line-no">367</span><span id="line-367">}</span>
 
 
 

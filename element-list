@@ -12,7 +12,6 @@ com.streamconverter.command.rule.impl.composite
 com.streamconverter.command.rule.impl.string
 com.streamconverter.context
 com.streamconverter.examples
-com.streamconverter.examples.docs
 com.streamconverter.logging
 com.streamconverter.path
 com.streamconverter.pmd

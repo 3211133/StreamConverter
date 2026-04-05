@@ -124,6 +124,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color">
 <div class="block">デフォルトコンストラクタ</div>
 </div>
+<div class="col-constructor-name odd-row-color"><code><a href="#%3Cinit%3E(java.lang.String,org.springframework.web.reactive.function.client.WebClient)" class="member-name-link">SendHttpCommand</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;url,
+ org.springframework.web.reactive.function.client.WebClient&nbsp;webClient)</code></div>
+<div class="col-last odd-row-color">
+<div class="block">カスタム <code>WebClient</code> を使用するコンストラクタ。</div>
+</div>
 </div>
 </section>
 </li>
@@ -177,6 +182,21 @@ loadScripts(document, 'script');</script>
 </dl>
 </section>
 </li>
+<li>
+<section class="detail" id="&lt;init&gt;(java.lang.String,org.springframework.web.reactive.function.client.WebClient)">
+<h3>SendHttpCommand</h3>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/SendHttpCommand.html#line-60">SendHttpCommand</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;url,
+ org.springframework.web.reactive.function.client.WebClient&nbsp;webClient)</span></div>
+<div class="block">カスタム <code>WebClient</code> を使用するコンストラクタ。
+
+ <p>主にテストや特殊なHTTPクライアント設定のために使用する。URLの検証は通常コンストラクタと同様に適用する。</div>
+<dl class="notes">
+<dt>Parameters:</dt>
+<dd><code>url</code> - 送信先のURL</dd>
+<dd><code>webClient</code> - 使用するWebClient</dd>
+</dl>
+</section>
+</li>
 </ul>
 </section>
 </li>
@@ -188,7 +208,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/SendHttpCommand.html#line-149">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/SendHttpCommand.html#line-163">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">ストリームを指定されたURLに送信します。</div>

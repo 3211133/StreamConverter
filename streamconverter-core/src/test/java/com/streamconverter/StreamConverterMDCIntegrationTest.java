@@ -64,7 +64,7 @@ class StreamConverterMDCIntegrationTest {
       if (lc.isInstance(factory)) {
         return (MDCAdapter) lc.getMethod("getMDCAdapter").invoke(factory);
       }
-    } catch (Exception ignored) {
+    } catch (ReflectiveOperationException ignored) {
       // Logback not on classpath
     }
     return null;
@@ -85,7 +85,7 @@ class StreamConverterMDCIntegrationTest {
         Method set = lc.getMethod("setMDCAdapter", MDCAdapter.class);
         set.invoke(factory, adapter);
       }
-    } catch (Exception ignored) {
+    } catch (ReflectiveOperationException ignored) {
       // Logback not on classpath
     }
   }

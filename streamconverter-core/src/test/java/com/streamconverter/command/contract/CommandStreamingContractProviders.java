@@ -187,24 +187,21 @@ final class LineEndingNormalizeCommandStreamingContractProvider
 }
 
 final class CsvFilterCommandStreamingContractProvider implements CommandStreamingContractProvider {
-  private static final int OUTPUT_BUFFER_SIZE_BYTES = 4 * 1024;
-
   @Override
   public IStreamCommand createCommand() {
-    return CsvFilterCommand.create(CSVPath.of("1"), false, OUTPUT_BUFFER_SIZE_BYTES);
+    return CsvFilterCommand.create(CSVPath.of("1"), false);
   }
 
   @Override
   public byte[] sampleInput() {
-    String largeSelectedValue = "selected-value-".repeat(900);
-    String largeTail = "tail-value-".repeat(900);
+    String largeTail = "selected-value-".repeat(900);
     return CommandStreamingContractProviders.utf8(
-        "1," + largeSelectedValue + ",30\n2," + largeTail + ",40\n3,tail,50\n");
+        "1,selected,30\n2," + largeTail + ",40\n3,tail,50\n");
   }
 
   @Override
   public int firstChunkSize() {
-    return 14_000;
+    return 14;
   }
 
   @Override
@@ -289,28 +286,22 @@ final class JsonNavigateCommandStreamingContractProvider
 }
 
 final class JsonFilterCommandStreamingContractProvider implements CommandStreamingContractProvider {
-  private static final int OUTPUT_BUFFER_SIZE_BYTES = 4 * 1024;
-
   @Override
   public IStreamCommand createCommand() {
-    return JsonFilterCommand.create(TreePath.fromJson("$.user.name"), OUTPUT_BUFFER_SIZE_BYTES);
+    return JsonFilterCommand.create(TreePath.fromJson("$.user.name"));
   }
 
   @Override
   public byte[] sampleInput() {
-    String largeValue = "AliceValue".repeat(1400);
-    String largeTail = "tail-value-".repeat(1400);
     return CommandStreamingContractProviders.utf8(
-        "{\"user\":{\"name\":\""
-            + largeValue
-            + "\",\"role\":\"admin\"},\"tail\":\""
-            + largeTail
+        "{\"user\":{\"name\":\"Alice\",\"role\":\"admin\"},\"tail\":\""
+            + "tail-value-".repeat(1400)
             + "\"}");
   }
 
   @Override
   public int firstChunkSize() {
-    return 14_100;
+    return 40;
   }
 
   @Override

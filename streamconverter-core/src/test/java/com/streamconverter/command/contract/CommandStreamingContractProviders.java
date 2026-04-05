@@ -369,23 +369,24 @@ final class XmlFilterCommandStreamingContractProvider implements CommandStreamin
 
   @Override
   public byte[] sampleInput() {
+    String largeFirstItem = "value-".repeat(1200);
+    String largeTail = "tail-".repeat(1200);
     return CommandStreamingContractProviders.utf8(
-        "<root><item>first</item><item>second</item><tail>done</tail></root>");
+        "<root><item>"
+            + largeFirstItem
+            + "</item><item>second</item><tail>"
+            + largeTail
+            + "</tail></root>");
   }
 
   @Override
   public int firstChunkSize() {
-    return 24;
+    return 7_400;
   }
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.KNOWN_STREAMING_VIOLATION;
-  }
-
-  @Override
-  public String exemptionReason() {
-    return "Current implementation accumulates extracted XML fragments before writing them.";
+    return StreamingExpectation.STREAMING_COMPLIANT;
   }
 }
 

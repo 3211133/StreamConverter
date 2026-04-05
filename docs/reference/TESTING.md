@@ -95,8 +95,6 @@ src/test/java/com/streamConverter/
 │   └── ExecutionContextTest.java         # 実行コンテキストテスト
 ├── demo/
 │   └── StreamConverterDemoTest.java      # デモ機能テスト
-├── examples/
-│   └── QuickStartTest.java               # クイックスタートテスト
 ├── pathHandler/
 │   └── FixedStaXPathHandlerTest.java     # XMLパスハンドラテスト
 └── validation/

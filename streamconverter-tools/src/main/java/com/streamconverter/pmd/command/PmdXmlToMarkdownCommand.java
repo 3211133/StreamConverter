@@ -98,7 +98,7 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
                 md.append(
                     String.format(
                         "| %s | %d |\n",
-                        entry.getKey().replaceAll(".*/(\\w+\\.java)", "$1"), entry.getValue())));
+                        entry.getKey().replaceAll(".*/([^/]+\\.java)", "$1"), entry.getValue())));
   }
 
   private void generatePriorityDistributionSection(StringBuilder md, Stats stats) {
@@ -110,10 +110,12 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
         (priority, count) -> {
           String desc =
               switch (priority) {
+                case 0 -> "\u2139\uFE0F Undefined - Priority not specified";
                 case 1 -> "\uD83D\uDD34 High - Critical issues";
                 case 2 -> "\uD83D\uDFE1 Medium - Important issues";
                 case 3 -> "\uD83D\uDFE2 Low - Minor issues";
                 case 4 -> "\u2139\uFE0F Info - Informational";
+                case 5 -> "\u2705 Very Low - Lowest priority issues";
                 default -> "\u2753 Unknown";
               };
           md.append(String.format("| %d | %d | %s |\n", priority, count, desc));

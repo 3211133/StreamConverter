@@ -46,11 +46,10 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter:5.23.0")
     
     // JSON processing with Jackson
+    // jackson-annotations は Spring Boot BOM が 2.20 に固定するため明示的に 2.21 を指定
     implementation("com.fasterxml.jackson.core:jackson-core:2.21.2")
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
-    implementation("com.fasterxml.jackson.core:jackson-core:2.21.1")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.21.1")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.2")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.21.1")
 }
@@ -173,13 +172,15 @@ tasks.register<JavaExec>("slocCount") {
     //   - streamconverter-core は Linux 環境でのみ jacocoTestReport が有効（core/build.gradle.kts 参照）。
     //     macOS/Windows では XML が生成されないためそのモジュールの SLOC は 0 扱いになる。
     //     ローカル開発でも正確な全体集計が必要な場合は Linux 環境（CI）で実行すること。
-    val jacocoModules = rootProject.subprojects.filter { sub ->
-        sub.plugins.hasPlugin("jacoco")
-    }
-    dependsOn(jacocoModules.map { "${it.path}:test" })
+    gradle.projectsEvaluated {
+        val jacocoModules = rootProject.subprojects.filter { sub ->
+            sub.plugins.hasPlugin("jacoco")
+        }
+        dependsOn(jacocoModules.map { "${it.path}:test" })
 
-    // モジュール名を引数として渡す
-    args = jacocoModules.map { it.name }
+        // モジュール名を引数として渡す
+        args = jacocoModules.map { it.name }
+    }
 }
 
 // spotlessCheck タスクを無効化

@@ -163,4 +163,11 @@ try {
 
 ---
 
-より多くの例は [BasicUsageExamples.java](../../streamconverter-examples/src/main/java/com/streamconverter/examples/docs/BasicUsageExamples.java)（コンパイル検証済み）を参照してください。
+より多くの例は `streamconverter-examples` モジュールを参照してください。
+
+| 例 | テーマ |
+|---|---|
+| `PipelineBasicsExample` | IStreamCommand（ラムダ・クラス・組み込み）の3段パイプライン |
+| `NavigateAndRuleExample` | CSV/JSON/XML × IRule（ラムダ・クラス・組み込み） |
+| `PipelineContextExample` | PipelineContext によるスレッド間値共有・MDC 伝搬 |
+| `ValidationPipelineExample` | ConsumerCommand × FileBufferCommand による逐次化 |

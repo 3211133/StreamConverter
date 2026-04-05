@@ -146,44 +146,14 @@ public class StreamConverter {
    * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
    */
   public void run(InputStream inputStream, OutputStream outputStream) throws IOException {
-    run(inputStream, outputStream, new PipelineContext());
-  }
-
-  /**
-   * 外部で構築したPipelineContextを使用して、非同期並列処理でストリームを変換する。
-   *
-   * <p>コマンド間でシグナルを送受信する {@link com.streamconverter.context.SignalChannel} を使用する場合は、 事前に {@link
-   * PipelineContext#prepareSignalChannel(String)} でチャネルを登録してから このメソッドを呼び出す。
-   *
-   * <p>使用例:
-   *
-   * <pre>{@code
-   * PipelineContext ctx = new PipelineContext();
-   * SignalChannel ch = ctx.prepareSignalChannel("validation");
-   *
-   * StreamConverter.create(
-   *     new ValidatorCommand(ch),
-   *     new TransformCommand(ch)
-   * ).run(input, output, ctx);
-   * }</pre>
-   *
-   * @param inputStream 処理対象の入力ストリーム
-   * @param outputStream 処理結果を書き込む出力ストリーム
-   * @param pipelineContext 使用するPipelineContext
-   * @throws IOException ストリーム処理中にI/Oエラーが発生した場合
-   */
-  public void run(
-      InputStream inputStream, OutputStream outputStream, PipelineContext pipelineContext)
-      throws IOException {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
-    Objects.requireNonNull(pipelineContext);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Starting StreamConverter with {} commands", commands.size());
     }
 
-    executeCommands(inputStream, outputStream, pipelineContext);
+    executeCommands(inputStream, outputStream, new PipelineContext());
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Completed StreamConverter pipeline");

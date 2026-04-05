@@ -7,7 +7,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
+import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
 import java.util.ArrayList;
 import java.util.List;
@@ -48,7 +50,8 @@ public class SlocReportFormatCommand extends AbstractStreamCommand {
     String separator = "  " + "─".repeat(MODULE_COL_WIDTH + LINES_COL_WIDTH + 1);
     NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
 
-    try (PrintWriter writer = new PrintWriter(output)) {
+    try (PrintWriter writer =
+        new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8))) {
       writer.println("=== SLOC Report ===");
       writer.println();
       for (ModuleSloc sloc : rows) {

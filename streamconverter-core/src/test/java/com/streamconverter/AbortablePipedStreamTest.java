@@ -167,7 +167,12 @@ class AbortablePipedStreamTest {
       pipe.outputStream();
       InputStream is = pipe.inputStream();
       pipe.abort();
-      assertThrows(PipeAbortedException.class, () -> is.read(new byte[4], 0, 4));
+      assertThrows(
+          PipeAbortedException.class,
+          () -> {
+            int readCount = is.read(new byte[4], 0, 4);
+            fail("Expected PipeAbortedException, but read returned " + readCount);
+          });
     }
   }
 

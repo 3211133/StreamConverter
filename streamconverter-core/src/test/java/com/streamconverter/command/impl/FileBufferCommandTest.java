@@ -67,29 +67,30 @@ class FileBufferCommandTest {
 
   @Test
   @DisplayName("Plain: temporary file is deleted even when IOException is thrown mid-read")
-  void testPlain_tempFileDeletedOnException(@TempDir Path tempDir) {
+  void testPlain_tempFileDeletedOnException(@TempDir Path tempDir) throws IOException {
     System.setProperty("java.io.tmpdir", tempDir.toString());
     try {
-      InputStream failingStream =
-          new InputStream() {
-            private int count = 0;
+      try (InputStream failingStream =
+              new InputStream() {
+                private int count = 0;
 
-            @Override
-            public int read(byte[] buf, int off, int len) throws IOException {
-              if (count++ > 2) throw new IOException("Simulated read failure");
-              buf[off] = 'X';
-              return 1;
-            }
+                @Override
+                public int read(byte[] buf, int off, int len) throws IOException {
+                  if (count++ > 2) throw new IOException("Simulated read failure");
+                  buf[off] = 'X';
+                  return 1;
+                }
 
-            @Override
-            public int read() throws IOException {
-              return 'X';
-            }
-          };
-
-      assertThrows(
-          IOException.class,
-          () -> FileBufferCommand.create().execute(failingStream, new ByteArrayOutputStream()));
+                @Override
+                public int read() throws IOException {
+                  return 'X';
+                }
+              };
+          ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+        assertThrows(
+            IOException.class,
+            () -> FileBufferCommand.create().execute(failingStream, outputStream));
+      }
 
       String[] remaining = tempDir.toFile().list((d, n) -> n.startsWith("streamconverter-"));
       assertEquals(
@@ -156,7 +157,7 @@ class FileBufferCommandTest {
 
     // readDecrypted() が outputStream.write() を呼んだ瞬間 = 暗号化書き込みが完全に終わった後。
     // その最初の write() で一時ファイルを横取りし、処理をブロックする。
-    OutputStream interceptingOutput =
+    try (OutputStream interceptingOutput =
         new OutputStream() {
           private boolean intercepted = false;
 
@@ -199,28 +200,28 @@ class FileBufferCommandTest {
               }
             }
           }
-        };
+        }) {
+      // 別スレッドで execute() を走らせる
+      Thread executor =
+          new Thread(
+              () -> {
+                try {
+                  FileBufferCommand.createEncrypted()
+                      .execute(new ByteArrayInputStream(input), interceptingOutput);
+                } catch (IOException e) {
+                  throw new RuntimeException(e);
+                }
+              });
+      executor.start();
 
-    // 別スレッドで execute() を走らせる
-    Thread executor =
-        new Thread(
-            () -> {
-              try {
-                FileBufferCommand.createEncrypted()
-                    .execute(new ByteArrayInputStream(input), interceptingOutput);
-              } catch (IOException e) {
-                throw new RuntimeException(e);
-              }
-            });
-    executor.start();
-
-    // 最初の write() が来るまで待ってからアンブロック（タイムアウト付き）
-    assertTrue(
-        firstWriteReceived.await(10, TimeUnit.SECONDS),
-        "Timed out waiting for encrypted output to be written");
-    writeMayProceed.countDown();
-    executor.join(10_000);
-    assertFalse(executor.isAlive(), "Executor thread did not finish in time");
+      // 最初の write() が来るまで待ってからアンブロック（タイムアウト付き）
+      assertTrue(
+          firstWriteReceived.await(10, TimeUnit.SECONDS),
+          "Timed out waiting for encrypted output to be written");
+      writeMayProceed.countDown();
+      executor.join(10_000);
+      assertFalse(executor.isAlive(), "Executor thread did not finish in time");
+    }
 
     byte[] fileBytes = capturedTempFileBytes.get();
     assertNotNull(fileBytes, "Temp file bytes should have been captured mid-execution");
@@ -325,7 +326,7 @@ class FileBufferCommandTest {
       field.setAccessible(true);
       java.util.IdentityHashMap<?, ?> hooks = (java.util.IdentityHashMap<?, ?>) field.get(null);
       return hooks.size();
-    } catch (Exception e) {
+    } catch (ReflectiveOperationException | RuntimeException e) {
       return -1;
     }
   }

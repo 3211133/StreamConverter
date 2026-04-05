@@ -61,7 +61,7 @@ class MDCInitializerTest {
         Method get = loggerContextClass.getMethod("getMDCAdapter");
         return (MDCAdapter) get.invoke(factory);
       }
-    } catch (Exception ignored) {
+    } catch (ReflectiveOperationException ignored) {
       // Logback not on classpath
     }
     return null;
@@ -76,7 +76,7 @@ class MDCInitializerTest {
         Method set = loggerContextClass.getMethod("setMDCAdapter", MDCAdapter.class);
         set.invoke(factory, adapter);
       }
-    } catch (Exception ignored) {
+    } catch (ReflectiveOperationException ignored) {
       // Logback not on classpath
     }
   }

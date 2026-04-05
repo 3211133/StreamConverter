@@ -189,19 +189,20 @@ final class LineEndingNormalizeCommandStreamingContractProvider
 final class CsvFilterCommandStreamingContractProvider implements CommandStreamingContractProvider {
   @Override
   public IStreamCommand createCommand() {
-    return CsvFilterCommand.create(CSVPath.of("1"), false);
+    return CsvFilterCommand.create(CSVPath.of("*"), false);
   }
 
   @Override
   public byte[] sampleInput() {
-    String largeTail = "selected-value-".repeat(900);
+    String largeFirstRow = "selected-value-".repeat(900);
+    String largeTail = "tail-value-".repeat(900);
     return CommandStreamingContractProviders.utf8(
-        "1,selected,30\n2," + largeTail + ",40\n3,tail,50\n");
+        "1," + largeFirstRow + ",30\n2," + largeTail + ",40\n3,tail,50\n");
   }
 
   @Override
   public int firstChunkSize() {
-    return 14;
+    return 14_000;
   }
 
   @Override
@@ -288,20 +289,23 @@ final class JsonNavigateCommandStreamingContractProvider
 final class JsonFilterCommandStreamingContractProvider implements CommandStreamingContractProvider {
   @Override
   public IStreamCommand createCommand() {
-    return JsonFilterCommand.create(TreePath.fromJson("$.user.name"));
+    return JsonFilterCommand.create(TreePath.fromJson("$.user"));
   }
 
   @Override
   public byte[] sampleInput() {
+    String largeValue = "AliceValue".repeat(1400);
     return CommandStreamingContractProviders.utf8(
-        "{\"user\":{\"name\":\"Alice\",\"role\":\"admin\"},\"tail\":\""
+        "{\"user\":{\"name\":\""
+            + largeValue
+            + "\",\"role\":\"admin\"},\"tail\":\""
             + "tail-value-".repeat(1400)
             + "\"}");
   }
 
   @Override
   public int firstChunkSize() {
-    return 40;
+    return 14_100;
   }
 
   @Override

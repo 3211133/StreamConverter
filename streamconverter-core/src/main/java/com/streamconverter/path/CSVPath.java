@@ -170,6 +170,9 @@ public class CSVPath extends AbstractPath<Integer> {
 
   /** 単一セレクターの列インデックス一致判定 */
   private boolean matchesSingleSelector(String selector, Integer columnIndex) {
+    if (isAllColumnsSelector(selector)) {
+      return true;
+    }
     int parsedIndex = parseAsIndex(selector);
     if (parsedIndex >= 0) {
       return parsedIndex == columnIndex;
@@ -179,6 +182,9 @@ public class CSVPath extends AbstractPath<Integer> {
 
   /** 単一セレクターのヘッダー一致判定 */
   private boolean matchesSingleSelector(String selector, String[] headers, int targetIndex) {
+    if (isAllColumnsSelector(selector)) {
+      return true;
+    }
     int parsedIndex = parseAsIndex(selector);
     if (parsedIndex >= 0) {
       // インデックス指定の場合
@@ -200,6 +206,10 @@ public class CSVPath extends AbstractPath<Integer> {
     } catch (NumberFormatException e) {
       return -1;
     }
+  }
+
+  private static boolean isAllColumnsSelector(String selector) {
+    return "*".equals(selector);
   }
 
   /**

@@ -161,6 +161,5 @@ public class CsvFilterCommand extends AbstractStreamCommand {
     }
     // applyQuotesToAll=false: only quote fields that contain delimiters or quotes
     csvWriter.writeNext(filteredRow, false);
-    csvWriter.flushQuietly();
   }
 }

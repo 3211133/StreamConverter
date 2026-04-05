@@ -109,6 +109,22 @@ class FilterCommandBasicTest {
   }
 
   @Test
+  void testCsvFilterCommand_AllColumnsSelector() throws IOException {
+    String csvInput = createTestData("name,age,city", "田中太郎,30,東京", "佐藤花子,25,大阪");
+
+    CsvFilterCommand command = CsvFilterCommand.create(CSVPath.of("*"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    String expected = createTestData("name,age,city", "田中太郎,30,東京", "佐藤花子,25,大阪", "");
+    assertEqualsIgnoreLineEndings(expected, result);
+  }
+
+  @Test
   void testXmlFilterCommand_SimpleElement() throws IOException {
     // Test data
     String xmlInput =

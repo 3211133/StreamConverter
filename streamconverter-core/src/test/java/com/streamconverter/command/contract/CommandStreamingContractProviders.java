@@ -661,25 +661,21 @@ final class SlocReportFormatCommandStreamingContractProvider
 
   @Override
   public byte[] sampleInput() {
+    String largeModuleName = "streamconverter-core-segment-".repeat(80);
     return CommandStreamingContractProviders.serializeObjects(
         List.of(
-            new ModuleSloc("streamconverter-core", 1869, 1500, 369),
+            new ModuleSloc(largeModuleName, 1869, 1500, 369),
             new ModuleSloc("streamconverter-tools", 1038, 900, 138),
             new ModuleSloc(ModuleSloc.TOTAL_NAME, 2907, 2400, 507)));
   }
 
   @Override
   public int firstChunkSize() {
-    return 192;
+    return 2_500;
   }
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.KNOWN_STREAMING_VIOLATION;
-  }
-
-  @Override
-  public String exemptionReason() {
-    return "SlocReportFormatCommand reads the whole ModuleSloc stream before formatting the final report.";
+    return StreamingExpectation.STREAMING_COMPLIANT;
   }
 }

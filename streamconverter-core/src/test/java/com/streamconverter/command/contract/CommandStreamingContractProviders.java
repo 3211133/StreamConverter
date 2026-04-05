@@ -516,12 +516,7 @@ final class PmdXmlToMarkdownCommandStreamingContractProvider
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.KNOWN_STREAMING_VIOLATION;
-  }
-
-  @Override
-  public String exemptionReason() {
-    return "PmdXmlToMarkdownCommand aggregates statistics for the whole stream before emitting the final report.";
+    return StreamingExpectation.STREAMING_COMPLIANT;
   }
 }
 

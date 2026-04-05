@@ -7,6 +7,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -26,9 +28,18 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
-    Stats stats = collectStats(input);
-    String report = generateMarkdownReport(stats);
-    output.write(report.getBytes(StandardCharsets.UTF_8));
+    try (Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
+      writer.write("# PMD Code Quality Analysis Report\n\n");
+      writer.flush();
+
+      Stats stats = collectStats(input);
+      try {
+        writeMarkdownBody(writer, stats);
+      } catch (UncheckedMarkdownWriteException e) {
+        throw (IOException) e.getCause();
+      }
+      writer.flush();
+    }
   }
 
   private Stats collectStats(InputStream input) throws IOException {
@@ -51,23 +62,19 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
     return stats;
   }
 
-  private String generateMarkdownReport(Stats stats) {
-    StringBuilder md = new StringBuilder();
-    md.append("# PMD Code Quality Analysis Report\n\n");
-    md.append("**Generated**: ").append(Instant.now()).append("\n");
-    md.append("**Total Violations**: ").append(stats.totalViolations).append("\n\n");
+  private void writeMarkdownBody(Writer writer, Stats stats) throws IOException {
+    writer.write("**Generated**: " + Instant.now() + "\n");
+    writer.write("**Total Violations**: " + stats.totalViolations + "\n\n");
 
-    generateTopRulesSection(md, stats);
-    generateFileStatisticsSection(md, stats);
-    generatePriorityDistributionSection(md, stats);
-
-    return md.toString();
+    generateTopRulesSection(writer, stats);
+    generateFileStatisticsSection(writer, stats);
+    generatePriorityDistributionSection(writer, stats);
   }
 
-  private void generateTopRulesSection(StringBuilder md, Stats stats) {
-    md.append("## \uD83C\uDFAF Top Code Smell Rules\n\n");
-    md.append("| Rank | Rule | Count | Category |\n");
-    md.append("|------|------|-------|----------|\n");
+  private void generateTopRulesSection(Writer writer, Stats stats) throws IOException {
+    writer.write("## \uD83C\uDFAF Top Code Smell Rules\n\n");
+    writer.write("| Rank | Rule | Count | Category |\n");
+    writer.write("|------|------|-------|----------|\n");
 
     int[] rank = {1};
     stats.ruleCount.entrySet().stream()
@@ -76,7 +83,8 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
         .limit(20)
         .forEach(
             entry ->
-                md.append(
+                writeUnchecked(
+                    writer,
                     String.format(
                         "| %d | %s | %d | %s |\n",
                         rank[0]++,
@@ -85,26 +93,27 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
                         entry.getValue().category)));
   }
 
-  private void generateFileStatisticsSection(StringBuilder md, Stats stats) {
-    md.append("\n## \uD83D\uDCC1 Files with Most Issues\n\n");
-    md.append("| File | Violations |\n");
-    md.append("|------|------------|\n");
+  private void generateFileStatisticsSection(Writer writer, Stats stats) throws IOException {
+    writer.write("\n## \uD83D\uDCC1 Files with Most Issues\n\n");
+    writer.write("| File | Violations |\n");
+    writer.write("|------|------------|\n");
 
     stats.fileCount.entrySet().stream()
         .sorted(Map.Entry.<String, Long>comparingByValue().reversed())
         .limit(15)
         .forEach(
             entry ->
-                md.append(
+                writeUnchecked(
+                    writer,
                     String.format(
                         "| %s | %d |\n",
                         entry.getKey().replaceAll(".*/([^/]+\\.java)", "$1"), entry.getValue())));
   }
 
-  private void generatePriorityDistributionSection(StringBuilder md, Stats stats) {
-    md.append("\n## \u26A1 Priority Distribution\n\n");
-    md.append("| Priority | Count | Description |\n");
-    md.append("|----------|-------|-------------|\n");
+  private void generatePriorityDistributionSection(Writer writer, Stats stats) throws IOException {
+    writer.write("\n## \u26A1 Priority Distribution\n\n");
+    writer.write("| Priority | Count | Description |\n");
+    writer.write("|----------|-------|-------------|\n");
 
     stats.priorityCount.forEach(
         (priority, count) -> {
@@ -118,8 +127,16 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
                 case 5 -> "\u2705 Very Low - Lowest priority issues";
                 default -> "\u2753 Unknown";
               };
-          md.append(String.format("| %d | %d | %s |\n", priority, count, desc));
+          writeUnchecked(writer, String.format("| %d | %d | %s |\n", priority, count, desc));
         });
+  }
+
+  private void writeUnchecked(Writer writer, String value) {
+    try {
+      writer.write(value);
+    } catch (IOException e) {
+      throw new UncheckedMarkdownWriteException(e);
+    }
   }
 
   private static class Stats {
@@ -132,6 +149,12 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
   private record RuleStat(String category, long count) {
     static RuleStat add(RuleStat a, RuleStat b) {
       return new RuleStat(a.category, a.count + b.count);
+    }
+  }
+
+  private static final class UncheckedMarkdownWriteException extends RuntimeException {
+    private UncheckedMarkdownWriteException(IOException cause) {
+      super(cause);
     }
   }
 }

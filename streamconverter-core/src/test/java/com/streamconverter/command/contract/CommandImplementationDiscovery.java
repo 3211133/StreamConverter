@@ -5,18 +5,15 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Comparator;
 import java.util.List;
-import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 final class CommandImplementationDiscovery {
   private static final Pattern PACKAGE_PATTERN =
       Pattern.compile("(?m)^\\s*package\\s+([\\w.]+)\\s*;");
-  private static final Pattern STREAM_COMMAND_CLASS_PATTERN =
+  private static final Pattern TOP_LEVEL_CLASS_PATTERN =
       Pattern.compile(
-          "(?ms)^(?:public\\s+)?(?:final\\s+)?(?:abstract\\s+)?class\\s+(\\w+)\\b"
-              + "(?:(?!\\{).|\\R)*?"
-              + "(?:extends\\s+(AbstractStreamCommand|ConsumerCommand)\\b|implements\\s+IStreamCommand\\b)");
+          "(?m)^\\s*(?:public\\s+)?(?:final\\s+)?(?:abstract\\s+)?class\\s+(\\w+)\\b([^\\{]*)\\{");
 
   private CommandImplementationDiscovery() {}
 
@@ -40,10 +37,6 @@ final class CommandImplementationDiscovery {
   private static DiscoveredCommand parseDiscoveredCommand(Path sourceFile) {
     try {
       String source = Files.readString(sourceFile);
-      if (looksAbstract(source)) {
-        return null;
-      }
-
       String packageName = extractPackageName(source);
       String simpleName = extractTopLevelCommandClassName(source);
       if (packageName == null || simpleName == null) {
@@ -56,18 +49,37 @@ final class CommandImplementationDiscovery {
     }
   }
 
-  private static boolean looksAbstract(String source) {
-    return source.matches("(?s).*\\babstract\\s+class\\b.*");
-  }
-
   private static String extractPackageName(String source) {
-    Matcher matcher = PACKAGE_PATTERN.matcher(source);
+    java.util.regex.Matcher matcher = PACKAGE_PATTERN.matcher(source);
     return matcher.find() ? matcher.group(1) : null;
   }
 
   private static String extractTopLevelCommandClassName(String source) {
-    Matcher matcher = STREAM_COMMAND_CLASS_PATTERN.matcher(source);
-    return matcher.find() ? matcher.group(1) : null;
+    java.util.regex.Matcher matcher = TOP_LEVEL_CLASS_PATTERN.matcher(source);
+    if (!matcher.find()) {
+      return null;
+    }
+
+    String className = matcher.group(1);
+    String classHeaderTail = matcher.group(2);
+    String classDeclaration = matcher.group(0);
+
+    if (classDeclaration.contains("abstract class")) {
+      return null;
+    }
+
+    if (!isStreamCommandDeclaration(classHeaderTail)) {
+      return null;
+    }
+
+    return className;
+  }
+
+  private static boolean isStreamCommandDeclaration(String classHeaderTail) {
+    return classHeaderTail.contains("extends AbstractStreamCommand")
+        || classHeaderTail.contains("extends ConsumerCommand")
+        || classHeaderTail.contains("implements IStreamCommand")
+        || classHeaderTail.contains(", IStreamCommand");
   }
 
   record DiscoveredCommand(String fqcn, String simpleName) {}

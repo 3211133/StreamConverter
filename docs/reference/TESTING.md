@@ -56,6 +56,23 @@ StreamConverterプロジェクトでは、以下の包括的なテストアプ�
 - **Mockito**: モックオブジェクトによる依存関係の分離
 - **Awaitility**: 非同期処理のテスト支援
 
+#### 6. **ストリーミング契約テスト (Streaming Contract Tests)**
+- **対象**: トップレベルの `IStreamCommand` / `AbstractStreamCommand` / `ConsumerCommand` 実装
+- **目的**: コマンドが「入力完了前に出力を開始するか」を機械的に確認し、非ストリーミング実装の混入を防ぐ
+- **検証方法**:
+  - 入力ストリームは最初のチャンクだけ返し、その後はブロックする
+  - 出力ストリームは最初の `write()` を検知する
+  - 入力がまだ止まっている間に出力が始まれば `STREAMING_COMPLIANT`
+  - 仕様上許可された全量バッファリングは `ALLOWED_FULL_BUFFERING`
+  - 実行して非準拠だったものは `KNOWN_STREAMING_VIOLATION`
+- **重要**:
+  - `KNOWN_STREAMING_VIOLATION` は「未確認」ではなく「実測済みの既知違反」
+  - このテストはメモリ安全性や性能全体を証明するものではなく、「出力開始タイミング」の契約を見ている
+- **実装場所**:
+  - `streamconverter-core/src/test/java/com/streamconverter/command/contract/CommandStreamingContractTest.java`
+  - `streamconverter-core/src/test/java/com/streamconverter/command/contract/CommandImplementationDiscovery.java`
+  - `streamconverter-core/src/test/java/com/streamconverter/command/contract/StreamingExpectation.java`
+
 ## 📁 テスト構造
 
 ### ディレクトリ構成
@@ -142,6 +159,10 @@ src/test/resources/
 
 # 並行テスト実行（パフォーマンス向上）
 ./gradlew test --parallel --max-workers=4
+
+# ストリーミング契約テスト
+./gradlew :streamconverter-core:test --tests com.streamconverter.command.contract.CommandStreamingContractTest
+./gradlew :streamconverter-core:test --tests com.streamconverter.command.contract.CommandImplementationDiscoveryTest
 ```
 
 ### 継続的インテグレーション

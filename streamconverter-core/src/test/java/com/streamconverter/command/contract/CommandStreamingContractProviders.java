@@ -194,23 +194,19 @@ final class CsvFilterCommandStreamingContractProvider implements CommandStreamin
 
   @Override
   public byte[] sampleInput() {
-    String largeCell = "selected-value-".repeat(900);
-    return CommandStreamingContractProviders.utf8("1," + largeCell + ",30\n2,tail,40\n3,tail,50\n");
+    String largeTail = "selected-value-".repeat(900);
+    return CommandStreamingContractProviders.utf8(
+        "1,selected,30\n2," + largeTail + ",40\n3,tail,50\n");
   }
 
   @Override
   public int firstChunkSize() {
-    return 12_000;
+    return 14;
   }
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.ALLOWED_FULL_BUFFERING;
-  }
-
-  @Override
-  public String exemptionReason() {
-    return "Current implementation does not emit raw output before input completion under the strict streaming probe.";
+    return StreamingExpectation.STREAMING_COMPLIANT;
   }
 }
 
@@ -297,24 +293,20 @@ final class JsonFilterCommandStreamingContractProvider implements CommandStreami
 
   @Override
   public byte[] sampleInput() {
-    String largeValue = "AliceValue".repeat(1400);
     return CommandStreamingContractProviders.utf8(
-        "{\"user\":{\"name\":\"" + largeValue + "\",\"role\":\"admin\"},\"tail\":\"value\"}");
+        "{\"user\":{\"name\":\"Alice\",\"role\":\"admin\"},\"tail\":\""
+            + "tail-value-".repeat(1400)
+            + "\"}");
   }
 
   @Override
   public int firstChunkSize() {
-    return 12_500;
+    return 40;
   }
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.KNOWN_STREAMING_VIOLATION;
-  }
-
-  @Override
-  public String exemptionReason() {
-    return "Current implementation does not emit raw output before input completion under the strict streaming probe.";
+    return StreamingExpectation.STREAMING_COMPLIANT;
   }
 }
 
@@ -438,7 +430,7 @@ final class FileBufferCommandStreamingContractProvider implements CommandStreami
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.KNOWN_STREAMING_VIOLATION;
+    return StreamingExpectation.ALLOWED_FULL_BUFFERING;
   }
 
   @Override

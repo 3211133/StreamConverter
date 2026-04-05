@@ -190,6 +190,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
 
     if (segIdx >= segments.size()) {
       copyValue(parser, generator);
+      generator.flush();
       return;
     }
 
@@ -285,6 +286,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
 
     if (segIdx >= segments.size()) {
       copyValue(parser, generator, currentToken);
+      generator.flush();
       return;
     }
 

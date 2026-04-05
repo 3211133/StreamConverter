@@ -44,11 +44,12 @@ class CommandStreamingContractTest {
   private static final String PROVIDER_PACKAGE_PREFIX = "com.streamconverter.command.contract.";
   private static final Duration FIRST_WRITE_TIMEOUT = Duration.ofSeconds(1);
   private static final Duration COMMAND_COMPLETION_TIMEOUT = Duration.ofSeconds(5);
+  private static final List<DiscoveredCommand> DISCOVERED_COMMANDS = discoverCommandClasses();
 
   @Test
-  void everyCommandImplementationHasAStreamingContractProvider() throws IOException {
+  void everyCommandImplementationHasAStreamingContractProvider() {
     List<String> missingProviders =
-        discoverCommandClasses().stream()
+        DISCOVERED_COMMANDS.stream()
             .map(CommandStreamingContractTest::missingProviderMessage)
             .filter(message -> message != null)
             .toList();
@@ -61,8 +62,8 @@ class CommandStreamingContractTest {
   }
 
   @TestFactory
-  Stream<DynamicTest> allCommandsParticipateInStreamingContract() throws IOException {
-    return discoverCommandClasses().stream()
+  Stream<DynamicTest> allCommandsParticipateInStreamingContract() {
+    return DISCOVERED_COMMANDS.stream()
         .filter(CommandStreamingContractTest::hasProvider)
         .map(
             commandClass ->
@@ -123,7 +124,7 @@ class CommandStreamingContractTest {
     try {
       awaitCompletion(commandClass, future);
     } finally {
-      shutdown(executor);
+      shutdown(executor, future);
     }
 
     if (failure != null) {
@@ -152,19 +153,36 @@ class CommandStreamingContractTest {
       }
       throw new RuntimeException("Unexpected command failure for " + commandClass.fqcn(), cause);
     } catch (java.util.concurrent.TimeoutException e) {
+      future.cancel(true);
       fail(commandClass.simpleName() + " did not finish after the input was released");
     }
   }
 
-  private static void shutdown(ExecutorService executor) {
+  private static void shutdown(ExecutorService executor, Future<?> future) {
     executor.shutdown();
+    try {
+      if (!executor.awaitTermination(
+          COMMAND_COMPLETION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
+        future.cancel(true);
+        executor.shutdownNow();
+        if (!executor.awaitTermination(
+            COMMAND_COMPLETION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
+          fail("Executor did not terminate promptly after test completion");
+        }
+      }
+    } catch (InterruptedException e) {
+      future.cancel(true);
+      executor.shutdownNow();
+      Thread.currentThread().interrupt();
+      fail("Interrupted while shutting down executor", e);
+    }
   }
 
   private static String missingProviderMessage(DiscoveredCommand commandClass) {
     try {
       instantiateProvider(commandClass);
       return null;
-    } catch (ReflectiveOperationException e) {
+    } catch (ReflectiveOperationException | RuntimeException e) {
       return "- "
           + commandClass.fqcn()
           + " -> expected provider "
@@ -179,7 +197,7 @@ class CommandStreamingContractTest {
     try {
       instantiateProvider(commandClass);
       return true;
-    } catch (ReflectiveOperationException e) {
+    } catch (ReflectiveOperationException | RuntimeException e) {
       return false;
     }
   }
@@ -195,10 +213,14 @@ class CommandStreamingContractTest {
     return PROVIDER_PACKAGE_PREFIX + commandClass.simpleName() + "StreamingContractProvider";
   }
 
-  private static List<DiscoveredCommand> discoverCommandClasses() throws IOException {
-    return CommandImplementationDiscovery.discover(REPOSITORY_ROOT).stream()
-        .map(command -> new DiscoveredCommand(command.fqcn(), command.simpleName()))
-        .toList();
+  private static List<DiscoveredCommand> discoverCommandClasses() {
+    try {
+      return CommandImplementationDiscovery.discover(REPOSITORY_ROOT).stream()
+          .map(command -> new DiscoveredCommand(command.fqcn(), command.simpleName()))
+          .toList();
+    } catch (IOException e) {
+      throw new IllegalStateException("Failed to discover command implementations", e);
+    }
   }
 
   private record DiscoveredCommand(String fqcn, String simpleName) {}
@@ -206,7 +228,7 @@ class CommandStreamingContractTest {
   private static final class BlockingProbeInputStream extends InputStream {
     private final byte[] data;
     private final int firstChunkSize;
-    private final CountDownLatch releaseRemainingInput = new CountDownLatch(1);
+    private final CountDownLatch releaseLatch = new CountDownLatch(1);
     private int index;
 
     private BlockingProbeInputStream(byte[] data, int firstChunkSize) {
@@ -229,8 +251,7 @@ class CommandStreamingContractTest {
 
       if (index >= firstChunkSize) {
         try {
-          if (!releaseRemainingInput.await(
-              COMMAND_COMPLETION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
+          if (!releaseLatch.await(COMMAND_COMPLETION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
             throw new IOException("Timed out waiting to release remaining input");
           }
         } catch (InterruptedException e) {
@@ -247,7 +268,7 @@ class CommandStreamingContractTest {
     }
 
     private void releaseRemainingInput() {
-      releaseRemainingInput.countDown();
+      releaseLatch.countDown();
     }
   }
 

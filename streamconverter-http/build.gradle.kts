@@ -35,8 +35,8 @@ dependencies {
     implementation("org.springframework:spring-webflux")
     implementation("org.springframework:spring-context")
     implementation("io.projectreactor.netty:reactor-netty-http")
-    implementation("io.netty:netty-handler:4.2.10.Final")
-    implementation("io.netty:netty-common:4.2.10.Final")
+    implementation("io.netty:netty-handler:4.2.12.Final")
+    implementation("io.netty:netty-common:4.2.12.Final")
 
     // IP address validation
     implementation("com.google.guava:guava:33.5.0-jre")

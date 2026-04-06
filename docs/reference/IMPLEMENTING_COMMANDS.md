@@ -45,7 +45,8 @@ public class MyNewCommand extends AbstractStreamCommand {
         while ((len = inputStream.read(buffer)) != -1) {
             // ここでバッファの内容を変換する
             outputStream.write(buffer, 0, len);
-            outputStream.flush(); // ← ストリーミング準拠のために重要
+            // flush() は毎回必須ではない。BufferedOutputStream など
+            // バッファ層を挟む場合に意味のある境界で呼ぶ。
         }
     }
 }
@@ -228,13 +229,13 @@ public void execute(InputStream inputStream, OutputStream outputStream) throws I
 }
 
 // ✅ ストリーミング準拠: 読みながら即座に書く
+// プローブは write() の呼び出しを検出するので、write するだけで十分
 public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     byte[] buffer = new byte[8192];
     int len;
     while ((len = inputStream.read(buffer)) != -1) {
         // ここで変換処理
         outputStream.write(buffer, 0, len);
-        outputStream.flush(); // 出力を即座に送出
     }
 }
 ```

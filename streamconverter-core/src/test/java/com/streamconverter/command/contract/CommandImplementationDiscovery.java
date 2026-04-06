@@ -1,7 +1,5 @@
 package com.streamconverter.command.contract;
 
-import com.streamconverter.command.AbstractStreamCommand;
-import com.streamconverter.command.ConsumerCommand;
 import com.streamconverter.command.IStreamCommand;
 import io.github.classgraph.ClassGraph;
 import io.github.classgraph.ScanResult;
@@ -19,14 +17,10 @@ final class CommandImplementationDiscovery {
    *     CommandImplementationDiscoveryTest}
    */
   static List<DiscoveredCommand> discover(Path repositoryRoot) throws IOException {
-    try (ScanResult scanResult = new ClassGraph().enableClassInfo().scan()) {
+    try (ScanResult scanResult =
+        new ClassGraph().acceptPackages("com.streamconverter").enableClassInfo().scan()) {
       return scanResult.getClassesImplementing(IStreamCommand.class).stream()
-          .filter(
-              ci ->
-                  !ci.isAbstract()
-                      && (ci.extendsSuperclass(AbstractStreamCommand.class)
-                          || ci.extendsSuperclass(ConsumerCommand.class)
-                          || ci.implementsInterface(IStreamCommand.class)))
+          .filter(ci -> !ci.isAbstract() && !ci.getName().contains("$"))
           .sorted(Comparator.comparing(ci -> ci.getName()))
           .map(ci -> new DiscoveredCommand(ci.getName(), ci.getSimpleName()))
           .toList();

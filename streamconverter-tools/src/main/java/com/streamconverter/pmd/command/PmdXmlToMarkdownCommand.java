@@ -8,6 +8,7 @@ import java.io.InputStream;
 import java.io.ObjectInputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.UncheckedIOException;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
@@ -28,17 +29,16 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
-    try (Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8)) {
+    Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+    try {
       writer.write("# PMD Code Quality Analysis Report\n\n");
       writer.flush();
 
       Stats stats = collectStats(input);
-      try {
-        writeMarkdownBody(writer, stats);
-      } catch (UncheckedMarkdownWriteException e) {
-        throw (IOException) e.getCause();
-      }
+      writeMarkdownBody(writer, stats);
       writer.flush();
+    } catch (UncheckedIOException e) {
+      throw e.getCause();
     }
   }
 
@@ -135,7 +135,7 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
     try {
       writer.write(value);
     } catch (IOException e) {
-      throw new UncheckedMarkdownWriteException(e);
+      throw new UncheckedIOException(e);
     }
   }
 
@@ -149,12 +149,6 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
   private record RuleStat(String category, long count) {
     static RuleStat add(RuleStat a, RuleStat b) {
       return new RuleStat(a.category, a.count + b.count);
-    }
-  }
-
-  private static final class UncheckedMarkdownWriteException extends RuntimeException {
-    private UncheckedMarkdownWriteException(IOException cause) {
-      super(cause);
     }
   }
 }

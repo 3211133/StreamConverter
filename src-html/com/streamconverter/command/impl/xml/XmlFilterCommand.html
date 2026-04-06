@@ -80,20 +80,20 @@
 <span class="source-line-no">067</span><span id="line-67"></span>
 <span class="source-line-no">068</span><span id="line-68">      XMLInputFactory inputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();</span>
 <span class="source-line-no">069</span><span id="line-69"></span>
-<span class="source-line-no">070</span><span id="line-70">      List&lt;String&gt; extractedElements = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">071</span><span id="line-71"></span>
-<span class="source-line-no">072</span><span id="line-72">      XMLEventReader reader;</span>
-<span class="source-line-no">073</span><span id="line-73">      try {</span>
-<span class="source-line-no">074</span><span id="line-74">        reader = inputFactory.createXMLEventReader(inputStream);</span>
-<span class="source-line-no">075</span><span id="line-75">      } catch (XMLStreamException e) {</span>
-<span class="source-line-no">076</span><span id="line-76">        throw new IOException("Error creating XML reader: " + e.getMessage(), e);</span>
-<span class="source-line-no">077</span><span id="line-77">      }</span>
-<span class="source-line-no">078</span><span id="line-78"></span>
-<span class="source-line-no">079</span><span id="line-79">      try {</span>
-<span class="source-line-no">080</span><span id="line-80">        List&lt;String&gt; currentPath = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">081</span><span id="line-81">        boolean isCapturing = false;</span>
-<span class="source-line-no">082</span><span id="line-82">        int captureDepth = 0;</span>
-<span class="source-line-no">083</span><span id="line-83">        int currentDepth = 0;</span>
+<span class="source-line-no">070</span><span id="line-70">      XMLEventReader reader;</span>
+<span class="source-line-no">071</span><span id="line-71">      try {</span>
+<span class="source-line-no">072</span><span id="line-72">        reader = inputFactory.createXMLEventReader(inputStream);</span>
+<span class="source-line-no">073</span><span id="line-73">      } catch (XMLStreamException e) {</span>
+<span class="source-line-no">074</span><span id="line-74">        throw new IOException("Error creating XML reader: " + e.getMessage(), e);</span>
+<span class="source-line-no">075</span><span id="line-75">      }</span>
+<span class="source-line-no">076</span><span id="line-76"></span>
+<span class="source-line-no">077</span><span id="line-77">      try {</span>
+<span class="source-line-no">078</span><span id="line-78">        List&lt;String&gt; currentPath = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">079</span><span id="line-79">        boolean isCapturing = false;</span>
+<span class="source-line-no">080</span><span id="line-80">        int captureDepth = 0;</span>
+<span class="source-line-no">081</span><span id="line-81">        int currentDepth = 0;</span>
+<span class="source-line-no">082</span><span id="line-82">        String firstExtractedElement = null;</span>
+<span class="source-line-no">083</span><span id="line-83">        boolean isWrappedOutput = false;</span>
 <span class="source-line-no">084</span><span id="line-84"></span>
 <span class="source-line-no">085</span><span id="line-85">        XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();</span>
 <span class="source-line-no">086</span><span id="line-86">        StringWriter elementWriter = new StringWriter();</span>
@@ -161,86 +161,90 @@
 <span class="source-line-no">148</span><span id="line-148">                  eventWriter = null;</span>
 <span class="source-line-no">149</span><span id="line-149">                  LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);</span>
 <span class="source-line-no">150</span><span id="line-150">                }</span>
-<span class="source-line-no">151</span><span id="line-151">                extractedElements.add(elementWriter.toString());</span>
-<span class="source-line-no">152</span><span id="line-152">                isCapturing = false;</span>
-<span class="source-line-no">153</span><span id="line-153">                captureDepth = 0;</span>
-<span class="source-line-no">154</span><span id="line-154">              }</span>
-<span class="source-line-no">155</span><span id="line-155">            }</span>
-<span class="source-line-no">156</span><span id="line-156"></span>
-<span class="source-line-no">157</span><span id="line-157">            currentPath.remove(currentPath.size() - 1);</span>
-<span class="source-line-no">158</span><span id="line-158">            currentDepth--;</span>
-<span class="source-line-no">159</span><span id="line-159"></span>
-<span class="source-line-no">160</span><span id="line-160">          } else if (isCapturing) {</span>
-<span class="source-line-no">161</span><span id="line-161">            // Characters, comments, etc. inside captured element</span>
-<span class="source-line-no">162</span><span id="line-162">            try {</span>
-<span class="source-line-no">163</span><span id="line-163">              if (eventWriter != null) {</span>
-<span class="source-line-no">164</span><span id="line-164">                eventWriter.add(event);</span>
-<span class="source-line-no">165</span><span id="line-165">              }</span>
-<span class="source-line-no">166</span><span id="line-166">            } catch (XMLStreamException e) {</span>
-<span class="source-line-no">167</span><span id="line-167">              // Abort capture to avoid corrupt state propagation</span>
-<span class="source-line-no">168</span><span id="line-168">              isCapturing = false;</span>
-<span class="source-line-no">169</span><span id="line-169">              captureDepth = 0;</span>
-<span class="source-line-no">170</span><span id="line-170">              eventWriter = null;</span>
-<span class="source-line-no">171</span><span id="line-171">              LOGGER.warn("Error writing content; aborting capture", e);</span>
-<span class="source-line-no">172</span><span id="line-172">            }</span>
-<span class="source-line-no">173</span><span id="line-173">          }</span>
-<span class="source-line-no">174</span><span id="line-174">        }</span>
-<span class="source-line-no">175</span><span id="line-175"></span>
-<span class="source-line-no">176</span><span id="line-176">        // Ensure writer is closed if capture was interrupted</span>
-<span class="source-line-no">177</span><span id="line-177">        if (eventWriter != null) {</span>
-<span class="source-line-no">178</span><span id="line-178">          try {</span>
-<span class="source-line-no">179</span><span id="line-179">            eventWriter.close();</span>
-<span class="source-line-no">180</span><span id="line-180">          } catch (XMLStreamException e) {</span>
-<span class="source-line-no">181</span><span id="line-181">            LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);</span>
-<span class="source-line-no">182</span><span id="line-182">          }</span>
-<span class="source-line-no">183</span><span id="line-183">        }</span>
-<span class="source-line-no">184</span><span id="line-184"></span>
-<span class="source-line-no">185</span><span id="line-185">        // Write extracted elements to output</span>
-<span class="source-line-no">186</span><span id="line-186">        writeExtractedElements(writer, extractedElements);</span>
+<span class="source-line-no">151</span><span id="line-151">                String extractedElement = elementWriter.toString();</span>
+<span class="source-line-no">152</span><span id="line-152">                if (isWrappedOutput) {</span>
+<span class="source-line-no">153</span><span id="line-153">                  writer.write(extractedElement);</span>
+<span class="source-line-no">154</span><span id="line-154">                  writer.flush();</span>
+<span class="source-line-no">155</span><span id="line-155">                } else if (firstExtractedElement == null) {</span>
+<span class="source-line-no">156</span><span id="line-156">                  firstExtractedElement = extractedElement;</span>
+<span class="source-line-no">157</span><span id="line-157">                } else {</span>
+<span class="source-line-no">158</span><span id="line-158">                  writeWrappedOutputStart(writer, firstExtractedElement);</span>
+<span class="source-line-no">159</span><span id="line-159">                  isWrappedOutput = true;</span>
+<span class="source-line-no">160</span><span id="line-160">                  firstExtractedElement = null;</span>
+<span class="source-line-no">161</span><span id="line-161">                  writer.write(extractedElement);</span>
+<span class="source-line-no">162</span><span id="line-162">                  writer.flush();</span>
+<span class="source-line-no">163</span><span id="line-163">                }</span>
+<span class="source-line-no">164</span><span id="line-164">                isCapturing = false;</span>
+<span class="source-line-no">165</span><span id="line-165">                captureDepth = 0;</span>
+<span class="source-line-no">166</span><span id="line-166">              }</span>
+<span class="source-line-no">167</span><span id="line-167">            }</span>
+<span class="source-line-no">168</span><span id="line-168"></span>
+<span class="source-line-no">169</span><span id="line-169">            currentPath.remove(currentPath.size() - 1);</span>
+<span class="source-line-no">170</span><span id="line-170">            currentDepth--;</span>
+<span class="source-line-no">171</span><span id="line-171"></span>
+<span class="source-line-no">172</span><span id="line-172">          } else if (isCapturing) {</span>
+<span class="source-line-no">173</span><span id="line-173">            // Characters, comments, etc. inside captured element</span>
+<span class="source-line-no">174</span><span id="line-174">            try {</span>
+<span class="source-line-no">175</span><span id="line-175">              if (eventWriter != null) {</span>
+<span class="source-line-no">176</span><span id="line-176">                eventWriter.add(event);</span>
+<span class="source-line-no">177</span><span id="line-177">              }</span>
+<span class="source-line-no">178</span><span id="line-178">            } catch (XMLStreamException e) {</span>
+<span class="source-line-no">179</span><span id="line-179">              // Abort capture to avoid corrupt state propagation</span>
+<span class="source-line-no">180</span><span id="line-180">              isCapturing = false;</span>
+<span class="source-line-no">181</span><span id="line-181">              captureDepth = 0;</span>
+<span class="source-line-no">182</span><span id="line-182">              eventWriter = null;</span>
+<span class="source-line-no">183</span><span id="line-183">              LOGGER.warn("Error writing content; aborting capture", e);</span>
+<span class="source-line-no">184</span><span id="line-184">            }</span>
+<span class="source-line-no">185</span><span id="line-185">          }</span>
+<span class="source-line-no">186</span><span id="line-186">        }</span>
 <span class="source-line-no">187</span><span id="line-187"></span>
-<span class="source-line-no">188</span><span id="line-188">      } catch (XMLStreamException e) {</span>
-<span class="source-line-no">189</span><span id="line-189">        throw new IOException("Error processing XML: " + e.getMessage(), e);</span>
-<span class="source-line-no">190</span><span id="line-190">      } finally {</span>
-<span class="source-line-no">191</span><span id="line-191">        try {</span>
-<span class="source-line-no">192</span><span id="line-192">          reader.close();</span>
-<span class="source-line-no">193</span><span id="line-193">        } catch (XMLStreamException e) {</span>
-<span class="source-line-no">194</span><span id="line-194">          LOGGER.warn("Error closing XML reader: {}", e.getMessage(), e);</span>
+<span class="source-line-no">188</span><span id="line-188">        // Ensure writer is closed if capture was interrupted</span>
+<span class="source-line-no">189</span><span id="line-189">        if (eventWriter != null) {</span>
+<span class="source-line-no">190</span><span id="line-190">          try {</span>
+<span class="source-line-no">191</span><span id="line-191">            eventWriter.close();</span>
+<span class="source-line-no">192</span><span id="line-192">          } catch (XMLStreamException e) {</span>
+<span class="source-line-no">193</span><span id="line-193">            LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);</span>
+<span class="source-line-no">194</span><span id="line-194">          }</span>
 <span class="source-line-no">195</span><span id="line-195">        }</span>
-<span class="source-line-no">196</span><span id="line-196">      }</span>
-<span class="source-line-no">197</span><span id="line-197">    }</span>
-<span class="source-line-no">198</span><span id="line-198">  }</span>
-<span class="source-line-no">199</span><span id="line-199"></span>
-<span class="source-line-no">200</span><span id="line-200">  /**</span>
-<span class="source-line-no">201</span><span id="line-201">   * Write extracted XML elements to the output writer</span>
-<span class="source-line-no">202</span><span id="line-202">   *</span>
-<span class="source-line-no">203</span><span id="line-203">   * @param writer the output writer</span>
-<span class="source-line-no">204</span><span id="line-204">   * @param elements list of extracted XML elements</span>
-<span class="source-line-no">205</span><span id="line-205">   * @throws IOException if writing fails</span>
-<span class="source-line-no">206</span><span id="line-206">   */</span>
-<span class="source-line-no">207</span><span id="line-207">  private void writeExtractedElements(Writer writer, List&lt;String&gt; elements) throws IOException {</span>
-<span class="source-line-no">208</span><span id="line-208">    if (elements.isEmpty()) {</span>
-<span class="source-line-no">209</span><span id="line-209">      // No matching elements found - output empty XML fragment</span>
-<span class="source-line-no">210</span><span id="line-210">      writer.write("");</span>
-<span class="source-line-no">211</span><span id="line-211">      writer.flush();</span>
-<span class="source-line-no">212</span><span id="line-212">      return;</span>
-<span class="source-line-no">213</span><span id="line-213">    }</span>
-<span class="source-line-no">214</span><span id="line-214"></span>
-<span class="source-line-no">215</span><span id="line-215">    if (elements.size() == 1) {</span>
-<span class="source-line-no">216</span><span id="line-216">      // Single element - write directly</span>
-<span class="source-line-no">217</span><span id="line-217">      writer.write(elements.get(0));</span>
-<span class="source-line-no">218</span><span id="line-218">    } else {</span>
-<span class="source-line-no">219</span><span id="line-219">      // Multiple elements - wrap in a root element</span>
-<span class="source-line-no">220</span><span id="line-220">      writer.write("&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;");</span>
-<span class="source-line-no">221</span><span id="line-221">      writer.write("&lt;filtered-results&gt;");</span>
-<span class="source-line-no">222</span><span id="line-222">      for (String element : elements) {</span>
-<span class="source-line-no">223</span><span id="line-223">        writer.write(element);</span>
-<span class="source-line-no">224</span><span id="line-224">      }</span>
-<span class="source-line-no">225</span><span id="line-225">      writer.write("&lt;/filtered-results&gt;");</span>
-<span class="source-line-no">226</span><span id="line-226">    }</span>
-<span class="source-line-no">227</span><span id="line-227"></span>
-<span class="source-line-no">228</span><span id="line-228">    writer.flush();</span>
-<span class="source-line-no">229</span><span id="line-229">  }</span>
-<span class="source-line-no">230</span><span id="line-230">}</span>
+<span class="source-line-no">196</span><span id="line-196"></span>
+<span class="source-line-no">197</span><span id="line-197">        writeRemainingOutput(writer, firstExtractedElement, isWrappedOutput);</span>
+<span class="source-line-no">198</span><span id="line-198"></span>
+<span class="source-line-no">199</span><span id="line-199">      } catch (XMLStreamException e) {</span>
+<span class="source-line-no">200</span><span id="line-200">        throw new IOException("Error processing XML: " + e.getMessage(), e);</span>
+<span class="source-line-no">201</span><span id="line-201">      } finally {</span>
+<span class="source-line-no">202</span><span id="line-202">        try {</span>
+<span class="source-line-no">203</span><span id="line-203">          reader.close();</span>
+<span class="source-line-no">204</span><span id="line-204">        } catch (XMLStreamException e) {</span>
+<span class="source-line-no">205</span><span id="line-205">          LOGGER.warn("Error closing XML reader: {}", e.getMessage(), e);</span>
+<span class="source-line-no">206</span><span id="line-206">        }</span>
+<span class="source-line-no">207</span><span id="line-207">      }</span>
+<span class="source-line-no">208</span><span id="line-208">    }</span>
+<span class="source-line-no">209</span><span id="line-209">  }</span>
+<span class="source-line-no">210</span><span id="line-210"></span>
+<span class="source-line-no">211</span><span id="line-211">  /**</span>
+<span class="source-line-no">212</span><span id="line-212">   * Write extracted XML elements to the output writer</span>
+<span class="source-line-no">213</span><span id="line-213">   *</span>
+<span class="source-line-no">214</span><span id="line-214">   * @param writer the output writer</span>
+<span class="source-line-no">215</span><span id="line-215">   * @param elements list of extracted XML elements</span>
+<span class="source-line-no">216</span><span id="line-216">   * @throws IOException if writing fails</span>
+<span class="source-line-no">217</span><span id="line-217">   */</span>
+<span class="source-line-no">218</span><span id="line-218">  private void writeWrappedOutputStart(Writer writer, String firstElement) throws IOException {</span>
+<span class="source-line-no">219</span><span id="line-219">    writer.write("&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;");</span>
+<span class="source-line-no">220</span><span id="line-220">    writer.write("&lt;filtered-results&gt;");</span>
+<span class="source-line-no">221</span><span id="line-221">    writer.write(firstElement);</span>
+<span class="source-line-no">222</span><span id="line-222">  }</span>
+<span class="source-line-no">223</span><span id="line-223"></span>
+<span class="source-line-no">224</span><span id="line-224">  private void writeRemainingOutput(</span>
+<span class="source-line-no">225</span><span id="line-225">      Writer writer, String firstExtractedElement, boolean isWrappedOutput) throws IOException {</span>
+<span class="source-line-no">226</span><span id="line-226">    if (firstExtractedElement != null) {</span>
+<span class="source-line-no">227</span><span id="line-227">      writer.write(firstExtractedElement);</span>
+<span class="source-line-no">228</span><span id="line-228">    }</span>
+<span class="source-line-no">229</span><span id="line-229">    if (isWrappedOutput) {</span>
+<span class="source-line-no">230</span><span id="line-230">      writer.write("&lt;/filtered-results&gt;");</span>
+<span class="source-line-no">231</span><span id="line-231">    }</span>
+<span class="source-line-no">232</span><span id="line-232">    writer.flush();</span>
+<span class="source-line-no">233</span><span id="line-233">  }</span>
+<span class="source-line-no">234</span><span id="line-234">}</span>
 
 
 

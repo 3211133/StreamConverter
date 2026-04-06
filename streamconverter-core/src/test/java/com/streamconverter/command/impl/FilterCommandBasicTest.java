@@ -145,6 +145,31 @@ class FilterCommandBasicTest {
   }
 
   @Test
+  void testXmlFilterCommand_MultipleElementsAreWrapped() throws IOException {
+    String xmlInput =
+        """
+        <?xml version="1.0"?>
+        <users>
+          <user><name>田中太郎</name></user>
+          <user><name>佐藤花子</name></user>
+          <user><name>鈴木一郎</name></user>
+        </users>
+        """;
+
+    XmlFilterCommand command = XmlFilterCommand.create(TreePath.fromXml("users/user/name"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    command.execute(input, output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertEquals(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><filtered-results><name>田中太郎</name><name>佐藤花子</name><name>鈴木一郎</name></filtered-results>",
+        result);
+  }
+
+  @Test
   void testJsonFilterCommand_NonExistentProperty() throws IOException {
     // Test data
     String jsonInput = "{\"name\":\"田中太郎\",\"age\":30}";

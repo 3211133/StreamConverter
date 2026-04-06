@@ -67,8 +67,6 @@ public class XmlFilterCommand extends AbstractStreamCommand {
 
       XMLInputFactory inputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();
 
-      List<String> extractedElements = new ArrayList<>();
-
       XMLEventReader reader;
       try {
         reader = inputFactory.createXMLEventReader(inputStream);
@@ -81,6 +79,8 @@ public class XmlFilterCommand extends AbstractStreamCommand {
         boolean isCapturing = false;
         int captureDepth = 0;
         int currentDepth = 0;
+        String firstExtractedElement = null;
+        boolean isWrappedOutput = false;
 
         XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
         StringWriter elementWriter = new StringWriter();
@@ -148,7 +148,19 @@ public class XmlFilterCommand extends AbstractStreamCommand {
                   eventWriter = null;
                   LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);
                 }
-                extractedElements.add(elementWriter.toString());
+                String extractedElement = elementWriter.toString();
+                if (isWrappedOutput) {
+                  writer.write(extractedElement);
+                  writer.flush();
+                } else if (firstExtractedElement == null) {
+                  firstExtractedElement = extractedElement;
+                } else {
+                  writeWrappedOutputStart(writer, firstExtractedElement);
+                  isWrappedOutput = true;
+                  firstExtractedElement = null;
+                  writer.write(extractedElement);
+                  writer.flush();
+                }
                 isCapturing = false;
                 captureDepth = 0;
               }
@@ -182,8 +194,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
           }
         }
 
-        // Write extracted elements to output
-        writeExtractedElements(writer, extractedElements);
+        writeRemainingOutput(writer, firstExtractedElement, isWrappedOutput);
 
       } catch (XMLStreamException e) {
         throw new IOException("Error processing XML: " + e.getMessage(), e);
@@ -204,27 +215,20 @@ public class XmlFilterCommand extends AbstractStreamCommand {
    * @param elements list of extracted XML elements
    * @throws IOException if writing fails
    */
-  private void writeExtractedElements(Writer writer, List<String> elements) throws IOException {
-    if (elements.isEmpty()) {
-      // No matching elements found - output empty XML fragment
-      writer.write("");
-      writer.flush();
-      return;
-    }
+  private void writeWrappedOutputStart(Writer writer, String firstElement) throws IOException {
+    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+    writer.write("<filtered-results>");
+    writer.write(firstElement);
+  }
 
-    if (elements.size() == 1) {
-      // Single element - write directly
-      writer.write(elements.get(0));
-    } else {
-      // Multiple elements - wrap in a root element
-      writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-      writer.write("<filtered-results>");
-      for (String element : elements) {
-        writer.write(element);
-      }
+  private void writeRemainingOutput(
+      Writer writer, String firstExtractedElement, boolean isWrappedOutput) throws IOException {
+    if (firstExtractedElement != null) {
+      writer.write(firstExtractedElement);
+    }
+    if (isWrappedOutput) {
       writer.write("</filtered-results>");
     }
-
     writer.flush();
   }
 }

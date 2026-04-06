@@ -11,8 +11,7 @@ import com.streamconverter.command.IStreamCommand;
  *
  * <ul>
  *   <li>a real command instance
- *   <li>sample input large enough to exercise the command beyond its first read
- *   <li>a first-chunk size that leaves meaningful unread input behind for the probe
+ *   <li>sample input representative of the command's expected data format
  *   <li>a classification that reflects confirmed behavior, not assumptions
  * </ul>
  */
@@ -21,8 +20,6 @@ interface CommandStreamingContractProvider {
   IStreamCommand createCommand();
 
   byte[] sampleInput();
-
-  int firstChunkSize();
 
   StreamingExpectation expectation();
 

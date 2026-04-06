@@ -149,11 +149,6 @@ final class CharacterConvertCommandStreamingContractProvider
   }
 
   @Override
-  public int firstChunkSize() {
-    return 24;
-  }
-
-  @Override
   public StreamingExpectation expectation() {
     return StreamingExpectation.STREAMING_COMPLIANT;
   }
@@ -171,11 +166,6 @@ final class LineEndingNormalizeCommandStreamingContractProvider
     String largeBlock = "line-content-".repeat(1200);
     return CommandStreamingContractProviders.utf8(
         largeBlock + "\r\n" + largeBlock + "\r\n" + "tail-line\r\n");
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 12_000;
   }
 
   @Override
@@ -199,11 +189,6 @@ final class CsvFilterCommandStreamingContractProvider implements CommandStreamin
   }
 
   @Override
-  public int firstChunkSize() {
-    return 14_000;
-  }
-
-  @Override
   public StreamingExpectation expectation() {
     return StreamingExpectation.STREAMING_COMPLIANT;
   }
@@ -221,11 +206,6 @@ final class CsvNavigateCommandStreamingContractProvider
     String largeHeader = "header-name-".repeat(900);
     return CommandStreamingContractProviders.utf8(
         "id," + largeHeader + ",age\n1,original,30\n2,Bob,40\n3,Carol,50\n");
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 12_000;
   }
 
   @Override
@@ -248,11 +228,6 @@ final class CsvValidateCommandStreamingContractProvider
   }
 
   @Override
-  public int firstChunkSize() {
-    return 20;
-  }
-
-  @Override
   public StreamingExpectation expectation() {
     return StreamingExpectation.STREAMING_COMPLIANT;
   }
@@ -271,11 +246,6 @@ final class JsonNavigateCommandStreamingContractProvider
     String largeValue = "original".repeat(1400);
     return CommandStreamingContractProviders.utf8(
         "{\"user\":{\"name\":\"" + largeValue + "\",\"role\":\"admin\"},\"tail\":\"value\"}");
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 12_500;
   }
 
   @Override
@@ -302,11 +272,6 @@ final class JsonFilterCommandStreamingContractProvider implements CommandStreami
   }
 
   @Override
-  public int firstChunkSize() {
-    return 14_100;
-  }
-
-  @Override
   public StreamingExpectation expectation() {
     return StreamingExpectation.STREAMING_COMPLIANT;
   }
@@ -327,11 +292,6 @@ final class ConvertCommandStreamingContractProvider implements CommandStreamingC
   }
 
   @Override
-  public int firstChunkSize() {
-    return 13_000;
-  }
-
-  @Override
   public StreamingExpectation expectation() {
     return StreamingExpectation.STREAMING_COMPLIANT;
   }
@@ -346,11 +306,6 @@ final class ValidateCommandStreamingContractProvider implements CommandStreaming
   @Override
   public byte[] sampleInput() {
     return CommandStreamingContractProviders.resourceBytes("valid-test.xml");
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 64;
   }
 
   @Override
@@ -378,11 +333,6 @@ final class XmlFilterCommandStreamingContractProvider implements CommandStreamin
   }
 
   @Override
-  public int firstChunkSize() {
-    return 7_400;
-  }
-
-  @Override
   public StreamingExpectation expectation() {
     return StreamingExpectation.STREAMING_COMPLIANT;
   }
@@ -404,11 +354,6 @@ final class XmlNavigateCommandStreamingContractProvider
   }
 
   @Override
-  public int firstChunkSize() {
-    return 13_000;
-  }
-
-  @Override
   public StreamingExpectation expectation() {
     return StreamingExpectation.STREAMING_COMPLIANT;
   }
@@ -424,11 +369,6 @@ final class FileBufferCommandStreamingContractProvider implements CommandStreami
   public byte[] sampleInput() {
     return CommandStreamingContractProviders.utf8(
         "buffered-1\nbuffered-2\nbuffered-3\nbuffered-4\nbuffered-5\n");
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 20;
   }
 
   @Override
@@ -453,11 +393,6 @@ final class SendHttpCommandStreamingContractProvider implements CommandStreaming
   @Override
   public byte[] sampleInput() {
     return CommandStreamingContractProviders.utf8("{\"message\":\"probe\"}");
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 8;
   }
 
   @Override
@@ -501,11 +436,6 @@ final class PmdXmlToViolationsCommandStreamingContractProvider
   }
 
   @Override
-  public int firstChunkSize() {
-    return 320;
-  }
-
-  @Override
   public StreamingExpectation expectation() {
     return StreamingExpectation.STREAMING_COMPLIANT;
   }
@@ -527,11 +457,6 @@ final class JacocoXmlToModuleSlocCommandStreamingContractProvider
             + "<report name=\"streamconverter-tools\">"
             + "<counter type=\"LINE\" missed=\"5\" covered=\"30\"/>"
             + "</report>\n");
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 100;
   }
 
   @Override
@@ -566,11 +491,6 @@ final class ModuleXmlConcatCommandStreamingContractProvider
   }
 
   @Override
-  public int firstChunkSize() {
-    return 9;
-  }
-
-  @Override
   public StreamingExpectation expectation() {
     return StreamingExpectation.STREAMING_COMPLIANT;
   }
@@ -589,11 +509,6 @@ final class SlocAggregateCommandStreamingContractProvider
         List.of(
             new ModuleSloc("streamconverter-core", 1869, 1500, 369),
             new ModuleSloc("streamconverter-tools", 1038, 900, 138)));
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 128;
   }
 
   @Override
@@ -617,11 +532,6 @@ final class SlocReportFormatCommandStreamingContractProvider
             new ModuleSloc(largeModuleName, 1869, 1500, 369),
             new ModuleSloc("streamconverter-tools", 1038, 900, 138),
             new ModuleSloc(ModuleSloc.TOTAL_NAME, 2907, 2400, 507)));
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 2_500;
   }
 
   @Override

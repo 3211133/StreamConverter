@@ -95,15 +95,12 @@ final class MyNewCommandStreamingContractProvider
     @Override
     public byte[] sampleInput() {
         // コマンドが処理できる入力データ
-        // ポイント: firstChunkSize() より大きいこと（最低 100 バイト以上推奨）
+        // プローブは最後の 1 バイトだけをブロックするので、
+        // 最低でも 2 バイト以上あれば動作する。
+        // コマンドの内部バッファ（例: BufferedReader の 8KB）より
+        // 大きいデータを用意すると、より信頼性の高いテストになる。
         return CommandStreamingContractProviders.utf8(
                 "line-1\nline-2\nline-3\n".repeat(100));
-    }
-
-    @Override
-    public int firstChunkSize() {
-        // sampleInput() の 30〜70% 程度のサイズ
-        return sampleInput().length / 2;
     }
 
     @Override
@@ -188,38 +185,24 @@ final class MyNewCommandProvider implements CommandStreamingContractProvider { .
 final class MyNewCommandStreamingContractProvider implements CommandStreamingContractProvider { ... }
 ```
 
-### ミス 2: `sampleInput()` が小さすぎる
+### ミス 2: `sampleInput()` が 1 バイトしかない
+
+プローブは最後の 1 バイトだけをブロックします。データが 1 バイト以下では
+ブロックが発生しません。最低 2 バイト以上、実用的には 100 バイト以上を推奨します。
 
 ```java
-// ❌ 問題あり: 10バイトでは firstChunkSize との差が作れない
+// ❌ 問題あり: 1バイトでは最後のバイトをブロックできない
 public byte[] sampleInput() {
-    return "hello".getBytes(StandardCharsets.UTF_8); // 5バイト
+    return "x".getBytes(StandardCharsets.UTF_8); // 1バイト
 }
 
-// ✅ 推奨: 100バイト以上
+// ✅ 推奨: 十分なサイズ
 public byte[] sampleInput() {
     return CommandStreamingContractProviders.utf8("line-\n".repeat(200));
 }
 ```
 
-### ミス 3: `firstChunkSize()` を `sampleInput()` と同じサイズにする
-
-プローブは「最初のチャンクを渡した後にブロックする」仕組みです。
-`firstChunkSize` == `sampleInput().length` の場合、ブロッキングが発生しません。
-
-```java
-// ❌ 問題あり: プローブが有効に機能しない
-public int firstChunkSize() {
-    return sampleInput().length; // 全データを渡してしまう
-}
-
-// ✅ 正しい: 30〜70% 程度
-public int firstChunkSize() {
-    return sampleInput().length / 2;
-}
-```
-
-### ミス 4: 全データを読んでから処理する（非ストリーミング）
+### ミス 3: 全データを読んでから処理する（非ストリーミング）
 
 ```java
 // ❌ ストリーミング非準拠: 全データを String に読み込んでから処理
@@ -240,7 +223,7 @@ public void execute(InputStream inputStream, OutputStream outputStream) throws I
 }
 ```
 
-### ミス 5: `supportsProbeExecution()` を false にして `probeSkipReason()` を空にする
+### ミス 4: `supportsProbeExecution()` を false にして `probeSkipReason()` を空にする
 
 ```java
 // ❌ 理由がないとテストが失敗する
@@ -270,14 +253,14 @@ public String probeSkipReason() {
 ```
 [入力ストリーム]                    [コマンド]            [出力ストリーム]
       |                                 |                       |
-      |  最初のチャンク (firstChunkSize) |                       |
+      |  最後の1バイトを除く全データ       |                       |
       |  ─────────────────────────────> |                       |
       |                                 |                       |
-      |  ブロック (最大1秒待機)           |                       |
+      |  最後の1バイトをブロック(最大1秒)  |                       |
       |  = = = = = = = = = = = = =      |                       |
       |                                 |  出力が来た? ─────────> |
       |                                 |  ↑ここを観測           |
-      |  残りの入力をリリース              |                       |
+      |  最後の1バイトをリリース           |                       |
       |  ─────────────────────────────> |                       |
       |                                 |  完了 (最大5秒)        |
 ```

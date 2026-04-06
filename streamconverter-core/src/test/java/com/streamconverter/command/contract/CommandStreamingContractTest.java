@@ -89,8 +89,7 @@ class CommandStreamingContractTest {
           () -> "Non-compliant command must explain why: " + commandClass.fqcn());
     }
 
-    BlockingProbeInputStream inputStream =
-        new BlockingProbeInputStream(provider.sampleInput(), provider.firstChunkSize());
+    BlockingProbeInputStream inputStream = new BlockingProbeInputStream(provider.sampleInput());
     SignalingOutputStream outputStream = new SignalingOutputStream();
 
     ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -225,15 +224,18 @@ class CommandStreamingContractTest {
 
   private record DiscoveredCommand(String fqcn, String simpleName) {}
 
+  /**
+   * An input stream that delivers all bytes except the last one normally, then blocks. This lets
+   * the test observe whether the command has already produced output before the final byte is
+   * released — confirming that output began before input completion.
+   */
   private static final class BlockingProbeInputStream extends InputStream {
     private final byte[] data;
-    private final int firstChunkSize;
     private final CountDownLatch releaseLatch = new CountDownLatch(1);
     private int index;
 
-    private BlockingProbeInputStream(byte[] data, int firstChunkSize) {
+    private BlockingProbeInputStream(byte[] data) {
       this.data = data;
-      this.firstChunkSize = Math.min(Math.max(1, firstChunkSize), Math.max(1, data.length - 1));
     }
 
     @Override
@@ -249,19 +251,22 @@ class CommandStreamingContractTest {
         return -1;
       }
 
-      if (index >= firstChunkSize) {
+      // Deliver all bytes except the last one freely; block on the last byte until released.
+      int available = data.length - 1 - index;
+      if (available <= 0) {
+        // Only the final byte remains: block until released
         try {
           if (!releaseLatch.await(COMMAND_COMPLETION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
-            throw new IOException("Timed out waiting to release remaining input");
+            throw new IOException("Timed out waiting to release the final input byte");
           }
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
-          throw new IOException("Interrupted while waiting to release remaining input", e);
+          throw new IOException("Interrupted while waiting to release the final input byte", e);
         }
+        available = 1;
       }
 
-      int upperBound = index < firstChunkSize ? firstChunkSize : data.length;
-      int bytesToCopy = Math.min(len, upperBound - index);
+      int bytesToCopy = Math.min(len, available);
       System.arraycopy(data, index, buffer, off, bytesToCopy);
       index += bytesToCopy;
       return bytesToCopy;

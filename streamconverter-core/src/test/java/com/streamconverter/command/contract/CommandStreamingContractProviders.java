@@ -189,28 +189,25 @@ final class LineEndingNormalizeCommandStreamingContractProvider
 final class CsvFilterCommandStreamingContractProvider implements CommandStreamingContractProvider {
   @Override
   public IStreamCommand createCommand() {
-    return CsvFilterCommand.create(CSVPath.of("1"), false);
+    return CsvFilterCommand.create(CSVPath.of("*"), false);
   }
 
   @Override
   public byte[] sampleInput() {
-    String largeCell = "selected-value-".repeat(900);
-    return CommandStreamingContractProviders.utf8("1," + largeCell + ",30\n2,tail,40\n3,tail,50\n");
+    String largeFirstRow = "selected-value-".repeat(900);
+    String largeTail = "tail-value-".repeat(900);
+    return CommandStreamingContractProviders.utf8(
+        "1," + largeFirstRow + ",30\n2," + largeTail + ",40\n3,tail,50\n");
   }
 
   @Override
   public int firstChunkSize() {
-    return 12_000;
+    return 14_000;
   }
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.ALLOWED_FULL_BUFFERING;
-  }
-
-  @Override
-  public String exemptionReason() {
-    return "Current implementation does not emit raw output before input completion under the strict streaming probe.";
+    return StreamingExpectation.STREAMING_COMPLIANT;
   }
 }
 
@@ -292,29 +289,28 @@ final class JsonNavigateCommandStreamingContractProvider
 final class JsonFilterCommandStreamingContractProvider implements CommandStreamingContractProvider {
   @Override
   public IStreamCommand createCommand() {
-    return JsonFilterCommand.create(TreePath.fromJson("$.user.name"));
+    return JsonFilterCommand.create(TreePath.fromJson("$.user"));
   }
 
   @Override
   public byte[] sampleInput() {
     String largeValue = "AliceValue".repeat(1400);
     return CommandStreamingContractProviders.utf8(
-        "{\"user\":{\"name\":\"" + largeValue + "\",\"role\":\"admin\"},\"tail\":\"value\"}");
+        "{\"user\":{\"name\":\""
+            + largeValue
+            + "\",\"role\":\"admin\"},\"tail\":\""
+            + "tail-value-".repeat(1400)
+            + "\"}");
   }
 
   @Override
   public int firstChunkSize() {
-    return 12_500;
+    return 14_100;
   }
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.KNOWN_STREAMING_VIOLATION;
-  }
-
-  @Override
-  public String exemptionReason() {
-    return "Current implementation does not emit raw output before input completion under the strict streaming probe.";
+    return StreamingExpectation.STREAMING_COMPLIANT;
   }
 }
 
@@ -438,7 +434,7 @@ final class FileBufferCommandStreamingContractProvider implements CommandStreami
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.KNOWN_STREAMING_VIOLATION;
+    return StreamingExpectation.ALLOWED_FULL_BUFFERING;
   }
 
   @Override
@@ -665,25 +661,21 @@ final class SlocReportFormatCommandStreamingContractProvider
 
   @Override
   public byte[] sampleInput() {
+    String largeModuleName = "streamconverter-core-segment-".repeat(80);
     return CommandStreamingContractProviders.serializeObjects(
         List.of(
-            new ModuleSloc("streamconverter-core", 1869, 1500, 369),
+            new ModuleSloc(largeModuleName, 1869, 1500, 369),
             new ModuleSloc("streamconverter-tools", 1038, 900, 138),
             new ModuleSloc(ModuleSloc.TOTAL_NAME, 2907, 2400, 507)));
   }
 
   @Override
   public int firstChunkSize() {
-    return 192;
+    return 2_500;
   }
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.KNOWN_STREAMING_VIOLATION;
-  }
-
-  @Override
-  public String exemptionReason() {
-    return "SlocReportFormatCommand reads the whole ModuleSloc stream before formatting the final report.";
+    return StreamingExpectation.STREAMING_COMPLIANT;
   }
 }

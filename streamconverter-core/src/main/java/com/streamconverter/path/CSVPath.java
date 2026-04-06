@@ -10,6 +10,16 @@ import java.util.List;
  * <p>CSV列選択のパス一致判定のみに特化したシンプルな設計
  *
  * <p>複数の列セレクターをOR条件で判定する機能を提供
+ *
+ * <p>セレクターには次を指定できる。
+ *
+ * <ul>
+ *   <li>列名
+ *   <li>0始まりの数値インデックス
+ *   <li>{@code "*"} による全列選択
+ * </ul>
+ *
+ * <p><b>注意:</b> {@code "*"} はワイルドカードとして解釈されるため、ヘッダー名そのものが {@code "*"} の列を個別指定する用途には使えない。
  */
 public class CSVPath extends AbstractPath<Integer> {
 
@@ -18,7 +28,7 @@ public class CSVPath extends AbstractPath<Integer> {
   /**
    * 単一セレクターでCSVPathを作成
    *
-   * @param selector 列選択子（列名または数値インデックス）
+   * @param selector 列選択子（列名、数値インデックス、または {@code "*"} による全列選択）
    * @throws IllegalArgumentException セレクターが不正な場合
    */
   private CSVPath(String selector) {
@@ -44,7 +54,7 @@ public class CSVPath extends AbstractPath<Integer> {
   /**
    * 単一セレクターでCSVPathを作成
    *
-   * @param selector 列選択子（列名または数値インデックス）
+   * @param selector 列選択子（列名、数値インデックス、または {@code "*"} による全列選択）
    * @return CSVPath instance
    * @throws IllegalArgumentException セレクターが不正な場合
    */
@@ -88,9 +98,9 @@ public class CSVPath extends AbstractPath<Integer> {
    *
    * <p>いずれかのセレクターがインデックスに一致すれば {@code true} を返す。
    *
-   * <p><b>注意:</b> このメソッドは数値インデックス指定セレクター（例: {@code "0"}, {@code "1:3"}）に対してのみ 機能する。列名指定セレクター（例:
-   * {@code "name"}, {@code "userId"}）は常に {@code false} を返す。 列名での一致判定には {@link #matches(String[],
-   * int)} を使用すること。
+   * <p><b>注意:</b> このメソッドでインデックス一致として扱えるのは、数値インデックス指定セレクター（例: {@code "0"}）と全列選択 {@code "*"} のみ。
+   * 列名指定セレクター （例: {@code "name"}, {@code "userId"}）は常に {@code false} を返す。 列名での一致判定には {@link
+   * #matches(String[], int)} を使用すること。
    *
    * @param columnIndex 判定対象の列インデックス（0始まり）。nullまたは負値の場合はfalse
    * @return いずれかのセレクターが一致する場合true
@@ -170,6 +180,9 @@ public class CSVPath extends AbstractPath<Integer> {
 
   /** 単一セレクターの列インデックス一致判定 */
   private boolean matchesSingleSelector(String selector, Integer columnIndex) {
+    if (isAllColumnsSelector(selector)) {
+      return true;
+    }
     int parsedIndex = parseAsIndex(selector);
     if (parsedIndex >= 0) {
       return parsedIndex == columnIndex;
@@ -179,6 +192,9 @@ public class CSVPath extends AbstractPath<Integer> {
 
   /** 単一セレクターのヘッダー一致判定 */
   private boolean matchesSingleSelector(String selector, String[] headers, int targetIndex) {
+    if (isAllColumnsSelector(selector)) {
+      return true;
+    }
     int parsedIndex = parseAsIndex(selector);
     if (parsedIndex >= 0) {
       // インデックス指定の場合
@@ -200,6 +216,10 @@ public class CSVPath extends AbstractPath<Integer> {
     } catch (NumberFormatException e) {
       return -1;
     }
+  }
+
+  private static boolean isAllColumnsSelector(String selector) {
+    return "*".equals(selector);
   }
 
   /**

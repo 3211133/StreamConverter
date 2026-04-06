@@ -11,8 +11,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintWriter;
 import java.nio.charset.StandardCharsets;
 import java.text.NumberFormat;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Locale;
 
 /**
@@ -46,32 +44,24 @@ public class SlocReportFormatCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
-    List<ModuleSloc> rows = readAll(input);
     String separator = "  " + "─".repeat(MODULE_COL_WIDTH + LINES_COL_WIDTH + 1);
     NumberFormat numberFormat = NumberFormat.getInstance(Locale.US);
 
-    try (PrintWriter writer =
-        new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8))) {
+    try (ObjectInputStream ois = new ObjectInputStream(input);
+        PrintWriter writer =
+            new PrintWriter(new OutputStreamWriter(output, StandardCharsets.UTF_8))) {
       writer.println("=== SLOC Report ===");
       writer.println();
-      for (ModuleSloc sloc : rows) {
-        if (ModuleSloc.TOTAL_NAME.equals(sloc.name())) {
-          writer.println(separator);
-        }
-        writer.printf(
-            "  %-" + MODULE_COL_WIDTH + "s %" + LINES_COL_WIDTH + "s%n",
-            sloc.name(),
-            numberFormat.format(sloc.lines()));
-      }
-    }
-  }
-
-  private List<ModuleSloc> readAll(InputStream input) throws IOException {
-    List<ModuleSloc> result = new ArrayList<>();
-    try (ObjectInputStream ois = new ObjectInputStream(input)) {
       while (true) {
         try {
-          result.add((ModuleSloc) ois.readObject());
+          ModuleSloc sloc = (ModuleSloc) ois.readObject();
+          if (ModuleSloc.TOTAL_NAME.equals(sloc.name())) {
+            writer.println(separator);
+          }
+          writer.printf(
+              "  %-" + MODULE_COL_WIDTH + "s %" + LINES_COL_WIDTH + "s%n",
+              sloc.name(),
+              numberFormat.format(sloc.lines()));
         } catch (EOFException e) {
           break;
         } catch (ClassNotFoundException | ClassCastException e) {
@@ -79,6 +69,5 @@ public class SlocReportFormatCommand extends AbstractStreamCommand {
         }
       }
     }
-    return result;
   }
 }

@@ -10,6 +10,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -28,6 +29,7 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 class SendHttpCommandWebClientTest {
 
@@ -72,7 +74,8 @@ class SendHttpCommandWebClientTest {
   @Test
   void executeCanWriteResponseBeforeRequestBodyCompletesWhenServerRespondsEarly() throws Exception {
     SendHttpCommand command =
-        new SendHttpCommand("https://example.com/post", createImmediateResponseWebClient("accepted"));
+        new SendHttpCommand(
+            "https://example.com/post", createRespondAfterFirstChunkWebClient("accepted"));
     BlockingInputStream input =
         new BlockingInputStream("hello-streaming-body".getBytes(StandardCharsets.UTF_8), 5);
     SignalingOutputStream output = new SignalingOutputStream();
@@ -132,15 +135,38 @@ class SendHttpCommandWebClientTest {
     return WebClient.builder().exchangeFunction(exchangeFunction).build();
   }
 
-  static WebClient createImmediateResponseWebClient(String responseBody) {
+  static WebClient createRespondAfterFirstChunkWebClient(String responseBody) {
     DefaultDataBufferFactory bufferFactory = new DefaultDataBufferFactory();
     ExchangeFunction exchangeFunction =
         request -> {
-          return Mono.just(
-              ClientResponse.create(HttpStatus.OK)
-                  .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
-                  .body(Flux.just(bufferFactory.wrap(responseBody.getBytes(StandardCharsets.UTF_8))))
-                  .build());
+          MockClientHttpRequest mockRequest =
+              new MockClientHttpRequest(HttpMethod.POST, URI.create(request.url().toString()));
+          Sinks.One<Void> firstChunkReceived = Sinks.one();
+          AtomicBoolean emitted = new AtomicBoolean(false);
+          mockRequest.setWriteHandler(
+              body ->
+                  body.next()
+                      .doOnNext(
+                          dataBuffer -> {
+                            try {
+                              if (emitted.compareAndSet(false, true)) {
+                                firstChunkReceived.tryEmitEmpty();
+                              }
+                            } finally {
+                              DataBufferUtils.release(dataBuffer);
+                            }
+                          })
+                      .then());
+          request.writeTo(mockRequest, ExchangeStrategies.withDefaults()).subscribe();
+          return firstChunkReceived
+              .asMono()
+              .thenReturn(
+                  ClientResponse.create(HttpStatus.OK)
+                      .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
+                      .body(
+                          Flux.just(
+                              bufferFactory.wrap(responseBody.getBytes(StandardCharsets.UTF_8))))
+                      .build());
         };
     return WebClient.builder().exchangeFunction(exchangeFunction).build();
   }

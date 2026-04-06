@@ -10,6 +10,7 @@ import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
@@ -28,10 +29,12 @@ import org.springframework.web.reactive.function.client.ExchangeStrategies;
 import org.springframework.web.reactive.function.client.WebClient;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import reactor.core.publisher.Sinks;
 
 class SendHttpCommandWebClientTest {
 
   private static final Duration TIMEOUT = Duration.ofSeconds(2);
+  private static final Duration INPUT_RELEASE_TIMEOUT = Duration.ofSeconds(5);
 
   @Test
   void executeWritesResponseFromInjectedWebClient() throws Exception {
@@ -65,6 +68,27 @@ class SendHttpCommandWebClientTest {
 
       assertTrue(output.awaitFirstWrite(TIMEOUT), "入力解放後はレスポンスが書き出されるはず");
       assertEquals("ack:hello-streaming-body", output.toString(StandardCharsets.UTF_8));
+    }
+  }
+
+  @Test
+  void executeCanWriteResponseBeforeRequestBodyCompletesWhenServerRespondsEarly() throws Exception {
+    SendHttpCommand command =
+        new SendHttpCommand(
+            "https://example.com/post", createRespondAfterFirstChunkWebClient("accepted"));
+    BlockingInputStream input =
+        new BlockingInputStream("hello-streaming-body".getBytes(StandardCharsets.UTF_8), 5);
+    SignalingOutputStream output = new SignalingOutputStream();
+
+    try (var executor = Executors.newSingleThreadExecutor()) {
+      Future<?> future = executor.submit(() -> runCommand(command, input, output));
+
+      assertTrue(output.awaitFirstWrite(TIMEOUT), "早期レスポンスなら入力完了前に書き出せるはず");
+
+      input.releaseRemainingInput();
+      future.get(TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
+
+      assertEquals("accepted", output.toString(StandardCharsets.UTF_8));
     }
   }
 
@@ -111,6 +135,42 @@ class SendHttpCommandWebClientTest {
     return WebClient.builder().exchangeFunction(exchangeFunction).build();
   }
 
+  static WebClient createRespondAfterFirstChunkWebClient(String responseBody) {
+    DefaultDataBufferFactory bufferFactory = new DefaultDataBufferFactory();
+    ExchangeFunction exchangeFunction =
+        request -> {
+          MockClientHttpRequest mockRequest =
+              new MockClientHttpRequest(HttpMethod.POST, URI.create(request.url().toString()));
+          Sinks.One<Void> firstChunkReceived = Sinks.one();
+          AtomicBoolean emitted = new AtomicBoolean(false);
+          mockRequest.setWriteHandler(
+              body ->
+                  body.next()
+                      .doOnNext(
+                          dataBuffer -> {
+                            try {
+                              if (emitted.compareAndSet(false, true)) {
+                                firstChunkReceived.tryEmitEmpty();
+                              }
+                            } finally {
+                              DataBufferUtils.release(dataBuffer);
+                            }
+                          })
+                      .then());
+          request.writeTo(mockRequest, ExchangeStrategies.withDefaults()).subscribe();
+          return firstChunkReceived
+              .asMono()
+              .thenReturn(
+                  ClientResponse.create(HttpStatus.OK)
+                      .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
+                      .body(
+                          Flux.just(
+                              bufferFactory.wrap(responseBody.getBytes(StandardCharsets.UTF_8))))
+                      .build());
+        };
+    return WebClient.builder().exchangeFunction(exchangeFunction).build();
+  }
+
   private static final class BlockingInputStream extends InputStream {
     private final byte[] data;
     private final int firstChunkSize;
@@ -137,7 +197,7 @@ class SendHttpCommandWebClientTest {
 
       if (index >= firstChunkSize) {
         try {
-          if (!releaseRemainingInput.await(TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
+          if (!releaseRemainingInput.await(INPUT_RELEASE_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
             throw new IOException("Timed out waiting to release remaining input");
           }
         } catch (InterruptedException e) {

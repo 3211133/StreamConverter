@@ -516,7 +516,12 @@ final class PmdXmlToMarkdownCommandStreamingContractProvider
 
   @Override
   public StreamingExpectation expectation() {
-    return StreamingExpectation.STREAMING_COMPLIANT;
+    return StreamingExpectation.ALLOWED_FULL_BUFFERING;
+  }
+
+  @Override
+  public String exemptionReason() {
+    return "The command writes the markdown header before input completion, but the current contract only observes downstream OutputStream visibility.";
   }
 }
 

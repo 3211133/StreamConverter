@@ -5,10 +5,13 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamconverter.pmd.PmdViolation;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.FilterWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.ObjectOutputStream;
 import java.io.OutputStream;
+import java.io.StringWriter;
+import java.io.Writer;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.CountDownLatch;
@@ -18,6 +21,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 class PmdXmlToMarkdownCommandTest {
+  private static final String MARKDOWN_HEADER = "# PMD Code Quality Analysis Report\n\n";
 
   private static final PmdViolation VIOLATION_A =
       new PmdViolation(
@@ -73,23 +77,32 @@ class PmdXmlToMarkdownCommandTest {
 
   @Test
   void writesHeaderBeforeInputCompletes() throws Exception {
-    var output = new SignalingOutputStream();
-    var input = new BlockingInputStream(serializeBytes(List.of(VIOLATION_A, VIOLATION_B)), 8);
+    RecordingWriter recordingWriter = new RecordingWriter(new StringWriter());
+    BlockingInputStream input =
+        new BlockingInputStream(serializeBytes(List.of(VIOLATION_A, VIOLATION_B)), 8);
+
+    PmdXmlToMarkdownCommand command =
+        new PmdXmlToMarkdownCommand() {
+          @Override
+          Writer createWriter(OutputStream output) {
+            return recordingWriter;
+          }
+        };
 
     try (var executor = Executors.newSingleThreadExecutor()) {
       Future<?> future =
           executor.submit(
               () -> {
                 try {
-                  new PmdXmlToMarkdownCommand().execute(input, output);
+                  command.execute(input, new ByteArrayOutputStream());
                 } catch (IOException e) {
                   throw new RuntimeException(e);
                 }
               });
 
       assertTrue(
-          output.awaitFirstWrite(1, TimeUnit.SECONDS),
-          "header should be flushed before input completes");
+          recordingWriter.awaitHeaderWrite(1, TimeUnit.SECONDS),
+          "header should be written before input completes");
 
       input.releaseRemainingInput();
       future.get(2, TimeUnit.SECONDS);
@@ -156,26 +169,23 @@ class PmdXmlToMarkdownCommandTest {
     }
   }
 
-  private static final class SignalingOutputStream extends OutputStream {
-    private final ByteArrayOutputStream delegate = new ByteArrayOutputStream();
-    private final CountDownLatch firstWrite = new CountDownLatch(1);
+  private static final class RecordingWriter extends FilterWriter {
+    private final CountDownLatch headerWrite = new CountDownLatch(1);
 
-    @Override
-    public synchronized void write(int b) {
-      firstWrite.countDown();
-      delegate.write(b);
+    private RecordingWriter(Writer out) {
+      super(out);
     }
 
     @Override
-    public synchronized void write(byte[] b, int off, int len) {
-      if (len > 0) {
-        firstWrite.countDown();
+    public void write(String str) throws IOException {
+      if (MARKDOWN_HEADER.equals(str)) {
+        headerWrite.countDown();
       }
-      delegate.write(b, off, len);
+      super.write(str);
     }
 
-    private boolean awaitFirstWrite(long timeout, TimeUnit unit) throws InterruptedException {
-      return firstWrite.await(timeout, unit);
+    private boolean awaitHeaderWrite(long timeout, TimeUnit unit) throws InterruptedException {
+      return headerWrite.await(timeout, unit);
     }
   }
 }

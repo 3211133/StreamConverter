@@ -29,10 +29,9 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
-    Writer writer = new OutputStreamWriter(output, StandardCharsets.UTF_8);
+    Writer writer = createWriter(output);
     try {
       writer.write("# PMD Code Quality Analysis Report\n\n");
-      writer.flush();
 
       Stats stats = collectStats(input);
       writeMarkdownBody(writer, stats);
@@ -40,6 +39,10 @@ public class PmdXmlToMarkdownCommand extends AbstractStreamCommand {
     } catch (UncheckedIOException e) {
       throw e.getCause();
     }
+  }
+
+  Writer createWriter(OutputStream output) throws IOException {
+    return new OutputStreamWriter(output, StandardCharsets.UTF_8);
   }
 
   private Stats collectStats(InputStream input) throws IOException {

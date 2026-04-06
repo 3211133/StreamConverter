@@ -1,0 +1,308 @@
+# 新しいコマンドを実装する
+
+新しいストリーム処理コマンドを追加するための手順書です。
+コマンドを実装した後に `CommandStreamingContractTest` を通す手順も含みます。
+
+## 目次
+
+1. [コマンドの実装](#1-コマンドの実装)
+2. [ストリーミング契約テスト用プロバイダの作成](#2-ストリーミング契約テスト用プロバイダの作成)
+3. [テストを実行して確認する](#3-テストを実行して確認する)
+4. [expectation の選び方](#4-expectation-の選び方)
+5. [よくあるミスと解決策](#5-よくあるミスと解決策)
+6. [プローブテストの仕組み](#6-プローブテストの仕組み)
+7. [実装例の参考](#7-実装例の参考)
+
+---
+
+## 1. コマンドの実装
+
+### ファイルの配置場所
+
+```
+streamconverter-core/src/main/java/com/streamconverter/command/impl/
+```
+
+サブパッケージも利用できます（例: `csv/`, `xml/`, `json/`）。
+
+### 最低限のテンプレート
+
+```java
+package com.streamconverter.command.impl;
+
+import com.streamconverter.command.AbstractStreamCommand;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
+
+public class MyNewCommand extends AbstractStreamCommand {
+
+    @Override
+    public void execute(InputStream inputStream, OutputStream outputStream)
+            throws IOException {
+        byte[] buffer = new byte[8192];
+        int len;
+        while ((len = inputStream.read(buffer)) != -1) {
+            // ここでバッファの内容を変換する
+            outputStream.write(buffer, 0, len);
+            outputStream.flush(); // ← ストリーミング準拠のために重要
+        }
+    }
+}
+```
+
+### 必須のルール
+
+- **`AbstractStreamCommand` を継承すること**（`IStreamCommand` を直接 implements しても検出されますが、継承が推奨です）
+- `abstract` クラスは自動テストの対象外になります
+- クラス名の末尾に "Command" を付けるのが慣例です
+
+---
+
+## 2. ストリーミング契約テスト用プロバイダの作成
+
+新しいコマンドを実装しても、プロバイダを作成しないと `CommandStreamingContractTest` が失敗します。
+
+### ファイルの配置場所
+
+```
+streamconverter-core/src/test/java/com/streamconverter/command/contract/CommandStreamingContractProviders.java
+```
+
+### ファイル名・クラス名の命名規則（厳守）
+
+コマンドのクラス名に `StreamingContractProvider` を付けます。
+
+| コマンドクラス名 | プロバイダクラス名 |
+|----------------|-----------------|
+| `MyNewCommand` | `MyNewCommandStreamingContractProvider` |
+| `CsvFilterCommand` | `CsvFilterCommandStreamingContractProvider` |
+
+**この命名規則を守らないとテストフレームワークがプロバイダを見つけられません。**
+
+### プロバイダの最小テンプレート
+
+```java
+final class MyNewCommandStreamingContractProvider
+        implements CommandStreamingContractProvider {
+
+    @Override
+    public IStreamCommand createCommand() {
+        return new MyNewCommand(); // または MyNewCommand.create() 等
+    }
+
+    @Override
+    public byte[] sampleInput() {
+        // コマンドが処理できる入力データ
+        // ポイント: firstChunkSize() より大きいこと（最低 100 バイト以上推奨）
+        return CommandStreamingContractProviders.utf8(
+                "line-1\nline-2\nline-3\n".repeat(100));
+    }
+
+    @Override
+    public int firstChunkSize() {
+        // sampleInput() の 30〜70% 程度のサイズ
+        return sampleInput().length / 2;
+    }
+
+    @Override
+    public StreamingExpectation expectation() {
+        return StreamingExpectation.STREAMING_COMPLIANT;
+    }
+}
+```
+
+### 既存のプロバイダクラス（`CommandStreamingContractProviders.java`）への追加
+
+既存のファイルに全プロバイダが定義されています。このファイルの末尾に新しいプロバイダクラスを追加してください。
+
+---
+
+## 3. テストを実行して確認する
+
+```bash
+# 契約テストだけを実行
+./gradlew :streamconverter-core:test --tests "CommandStreamingContractTest"
+
+# 全テストを実行
+./gradlew test
+```
+
+### テスト成功時のメッセージ
+
+```
+CommandStreamingContractTest > everyCommandImplementationHasAStreamingContractProvider PASSED
+CommandStreamingContractTest > allCommandsParticipateInStreamingContract > MyNewCommand PASSED
+```
+
+### プロバイダが見つからないときのエラー
+
+```
+AssertionError: Missing streaming contract providers for command implementations:
+- com.streamconverter.command.impl.MyNewCommand
+  -> expected provider com.streamconverter.command.contract.MyNewCommandStreamingContractProvider
+```
+
+→ プロバイダクラスの名前・パッケージを確認してください。
+
+---
+
+## 4. `expectation()` の選び方
+
+| 値 | 使うとき | `exemptionReason()` |
+|---|---------|---------------------|
+| `STREAMING_COMPLIANT` | 入力の一部を受け取った時点で出力を開始できる（通常のケース） | 不要 |
+| `ALLOWED_FULL_BUFFERING` | 設計上、全入力を読み切ってから出力する（許容されたバッファリング） | **必須** |
+| `KNOWN_STREAMING_VIOLATION` | 実測済みの既知違反（修正予定の制限など） | **必須** |
+
+**`KNOWN_STREAMING_VIOLATION` は「まだ確認していない」という意味で使ってはいけません。**
+必ず実際にプローブテストを実行して、非準拠であることを確認した上で使ってください。
+
+### `ALLOWED_FULL_BUFFERING` の例
+
+```java
+@Override
+public StreamingExpectation expectation() {
+    return StreamingExpectation.ALLOWED_FULL_BUFFERING;
+}
+
+@Override
+public String exemptionReason() {
+    return "MyNewCommand intentionally buffers all input before writing output "
+           + "because it needs to sort the entire dataset.";
+}
+```
+
+---
+
+## 5. よくあるミスと解決策
+
+### ミス 1: プロバイダのクラス名を間違える
+
+```java
+// ❌ 間違い
+final class MyNewCommandProvider implements CommandStreamingContractProvider { ... }
+
+// ✅ 正しい
+final class MyNewCommandStreamingContractProvider implements CommandStreamingContractProvider { ... }
+```
+
+### ミス 2: `sampleInput()` が小さすぎる
+
+```java
+// ❌ 問題あり: 10バイトでは firstChunkSize との差が作れない
+public byte[] sampleInput() {
+    return "hello".getBytes(StandardCharsets.UTF_8); // 5バイト
+}
+
+// ✅ 推奨: 100バイト以上
+public byte[] sampleInput() {
+    return CommandStreamingContractProviders.utf8("line-\n".repeat(200));
+}
+```
+
+### ミス 3: `firstChunkSize()` を `sampleInput()` と同じサイズにする
+
+プローブは「最初のチャンクを渡した後にブロックする」仕組みです。
+`firstChunkSize` == `sampleInput().length` の場合、ブロッキングが発生しません。
+
+```java
+// ❌ 問題あり: プローブが有効に機能しない
+public int firstChunkSize() {
+    return sampleInput().length; // 全データを渡してしまう
+}
+
+// ✅ 正しい: 30〜70% 程度
+public int firstChunkSize() {
+    return sampleInput().length / 2;
+}
+```
+
+### ミス 4: 全データを読んでから処理する（非ストリーミング）
+
+```java
+// ❌ ストリーミング非準拠: 全データを String に読み込んでから処理
+public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+    String allData = new String(inputStream.readAllBytes()); // 全読み込み
+    // ... allData を処理してから outputStream に書く
+}
+
+// ✅ ストリーミング準拠: 読みながら即座に書く
+public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
+    byte[] buffer = new byte[8192];
+    int len;
+    while ((len = inputStream.read(buffer)) != -1) {
+        // ここで変換処理
+        outputStream.write(buffer, 0, len);
+        outputStream.flush(); // 出力を即座に送出
+    }
+}
+```
+
+### ミス 5: `supportsProbeExecution()` を false にして `probeSkipReason()` を空にする
+
+```java
+// ❌ 理由がないとテストが失敗する
+@Override
+public boolean supportsProbeExecution() {
+    return false;
+}
+
+// ✅ 必ず理由を説明する
+@Override
+public boolean supportsProbeExecution() {
+    return false;
+}
+
+@Override
+public String probeSkipReason() {
+    return "This command requires a real database connection that is not available in unit tests.";
+}
+```
+
+---
+
+## 6. プローブテストの仕組み
+
+`CommandStreamingContractTest` は以下の手順でストリーミング準拠を確認します。
+
+```
+[入力ストリーム]                    [コマンド]            [出力ストリーム]
+      |                                 |                       |
+      |  最初のチャンク (firstChunkSize) |                       |
+      |  ─────────────────────────────> |                       |
+      |                                 |                       |
+      |  ブロック (最大1秒待機)           |                       |
+      |  = = = = = = = = = = = = =      |                       |
+      |                                 |  出力が来た? ─────────> |
+      |                                 |  ↑ここを観測           |
+      |  残りの入力をリリース              |                       |
+      |  ─────────────────────────────> |                       |
+      |                                 |  完了 (最大5秒)        |
+```
+
+**判定基準:**
+- ブロック中（残りの入力がリリースされる前）に出力が始まった → `STREAMING_COMPLIANT`
+- ブロック中に出力が始まらなかった → `STREAMING_COMPLIANT` を設定していた場合はテスト失敗
+
+---
+
+## 7. 実装例の参考
+
+シンプルな例から複雑な例へ：
+
+| コマンド | 特徴 | ファイル |
+|---------|------|---------|
+| `CharacterConvertCommand` | 最もシンプル。バッファで読みながら変換 | `impl/charcode/` |
+| `LineEndingNormalizeCommand` | 文字列処理のストリーミング例 | `impl/` |
+| `CsvValidateCommand` | CSV解析のストリーミング | `impl/csv/` |
+| `FileBufferCommand` | `ALLOWED_FULL_BUFFERING` の例 | `impl/` |
+| `SendHttpCommand` | `KNOWN_STREAMING_VIOLATION` の例 | `streamconverter-http` モジュール |
+
+---
+
+## 関連ドキュメント
+
+- [TESTING.md](TESTING.md) - テスト戦略全体
+- [COMMAND_EXAMPLES.md](COMMAND_EXAMPLES.md) - コマンドの使用例
+- [CLAUDE_ARCHITECTURE.md](CLAUDE_ARCHITECTURE.md) - アーキテクチャの詳細

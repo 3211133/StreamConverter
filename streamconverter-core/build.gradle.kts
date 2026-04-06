@@ -68,6 +68,8 @@ dependencies {
 
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.1")
+    // Classpath scanning for streaming contract test discovery
+    testImplementation("io.github.classgraph:classgraph:4.8.179")
     testImplementation(project(":streamconverter-http"))
     testImplementation(project(":streamconverter-tools"))
 }

@@ -124,6 +124,13 @@ When contributing documentation:
 ### Rationale
 This policy reflects the project's primary user base and development team composition while keeping maintenance costs manageable. Machine translation technology has advanced sufficiently to provide adequate internationalization when needed.
 
+## Implementing a New Command
+
+When adding a new `IStreamCommand` implementation, you also need to register it with the
+streaming contract test suite. See
+[docs/reference/IMPLEMENTING_COMMANDS.md](docs/reference/IMPLEMENTING_COMMANDS.md)
+for a step-by-step guide including a provider template and common pitfalls.
+
 ## Pull Request Process
 
 1. Ensure your code follows the style guidelines of this project

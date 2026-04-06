@@ -149,14 +149,15 @@ public class XmlFilterCommand extends AbstractStreamCommand {
                   LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);
                 }
                 String extractedElement = elementWriter.toString();
-                if (firstExtractedElement == null) {
+                if (isWrappedOutput) {
+                  writer.write(extractedElement);
+                  writer.flush();
+                } else if (firstExtractedElement == null) {
                   firstExtractedElement = extractedElement;
                 } else {
-                  if (!isWrappedOutput) {
-                    writeWrappedOutputStart(writer, firstExtractedElement);
-                    isWrappedOutput = true;
-                    firstExtractedElement = null;
-                  }
+                  writeWrappedOutputStart(writer, firstExtractedElement);
+                  isWrappedOutput = true;
+                  firstExtractedElement = null;
                   writer.write(extractedElement);
                   writer.flush();
                 }
@@ -224,7 +225,8 @@ public class XmlFilterCommand extends AbstractStreamCommand {
       Writer writer, String firstExtractedElement, boolean isWrappedOutput) throws IOException {
     if (firstExtractedElement != null) {
       writer.write(firstExtractedElement);
-    } else if (isWrappedOutput) {
+    }
+    if (isWrappedOutput) {
       writer.write("</filtered-results>");
     }
     writer.flush();

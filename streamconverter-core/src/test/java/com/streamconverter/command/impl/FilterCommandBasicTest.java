@@ -152,6 +152,7 @@ class FilterCommandBasicTest {
         <users>
           <user><name>田中太郎</name></user>
           <user><name>佐藤花子</name></user>
+          <user><name>鈴木一郎</name></user>
         </users>
         """;
 
@@ -164,7 +165,7 @@ class FilterCommandBasicTest {
 
     String result = output.toString(StandardCharsets.UTF_8);
     assertEquals(
-        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><filtered-results><name>田中太郎</name><name>佐藤花子</name></filtered-results>",
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><filtered-results><name>田中太郎</name><name>佐藤花子</name><name>鈴木一郎</name></filtered-results>",
         result);
   }
 

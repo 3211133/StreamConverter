@@ -374,7 +374,7 @@ final class XmlFilterCommandStreamingContractProvider implements CommandStreamin
     return CommandStreamingContractProviders.utf8(
         "<root><item>"
             + largeFirstItem
-            + "</item><item>second</item><tail>"
+            + "</item><item>second</item><item>third</item><tail>"
             + largeTail
             + "</tail></root>");
   }

@@ -25,7 +25,7 @@ class CommandImplementationDiscoveryTest {
                 "streamconverter-http の command 実装を検出できる必要がある"),
         () ->
             assertTrue(
-                discovered.contains("com.streamconverter.pmd.command.PmdXmlToMarkdownCommand"),
+                discovered.contains("com.streamconverter.pmd.command.PmdXmlToViolationsCommand"),
                 "streamconverter-tools の PMD command 実装を検出できる必要がある"),
         () ->
             assertTrue(

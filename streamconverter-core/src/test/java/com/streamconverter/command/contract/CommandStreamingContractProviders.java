@@ -18,8 +18,6 @@ import com.streamconverter.command.impl.xml.XmlNavigateCommand;
 import com.streamconverter.command.rule.TestRule;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
-import com.streamconverter.pmd.PmdViolation;
-import com.streamconverter.pmd.command.PmdXmlToMarkdownCommand;
 import com.streamconverter.pmd.command.PmdXmlToViolationsCommand;
 import com.streamconverter.sloc.ModuleSloc;
 import com.streamconverter.sloc.command.JacocoXmlToModuleSlocCommand;
@@ -470,55 +468,6 @@ final class SendHttpCommandStreamingContractProvider implements CommandStreaming
   @Override
   public String exemptionReason() {
     return "Current SendHttpCommand behavior starts processing the HTTP response after the request body upload completes.";
-  }
-}
-
-final class PmdXmlToMarkdownCommandStreamingContractProvider
-    implements CommandStreamingContractProvider {
-  @Override
-  public IStreamCommand createCommand() {
-    return new PmdXmlToMarkdownCommand();
-  }
-
-  @Override
-  public byte[] sampleInput() {
-    return CommandStreamingContractProviders.serializeObjects(
-        List.of(
-            new PmdViolation(
-                "streamconverter-core/src/main/java/Foo.java",
-                10,
-                "UnusedVariable",
-                "Best Practices",
-                3,
-                "Avoid unused variables. ".repeat(300),
-                "Foo",
-                "bar",
-                "x"),
-            new PmdViolation(
-                "streamconverter-tools/src/main/java/Bar.java",
-                20,
-                "LongMethod",
-                "Design",
-                2,
-                "Method too long. ".repeat(300),
-                "Bar",
-                "baz",
-                "")));
-  }
-
-  @Override
-  public int firstChunkSize() {
-    return 3_000;
-  }
-
-  @Override
-  public StreamingExpectation expectation() {
-    return StreamingExpectation.KNOWN_STREAMING_VIOLATION;
-  }
-
-  @Override
-  public String exemptionReason() {
-    return "PmdXmlToMarkdownCommand aggregates statistics for the whole stream before emitting the final report.";
   }
 }
 

@@ -68,7 +68,7 @@ final class CommandStageRunner {
    */
   private void executeStage(
       IStreamCommand command, WiredStageIo stageIo, List<AbortablePipedStream> pipes) {
-    String commandLabel = CommandLabels.resolve(command);
+    String commandLabel = command.commandName();
     try {
       command.execute(stageIo.input(), stageIo.output());
       closeStageOutput(stageIo, commandLabel);

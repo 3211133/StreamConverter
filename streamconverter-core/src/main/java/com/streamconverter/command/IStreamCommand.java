@@ -52,21 +52,44 @@ public interface IStreamCommand {
   void execute(InputStream inputStream, OutputStream outputStream) throws IOException;
 
   /**
+   * Returns a best-effort human-readable name for this command.
+   *
+   * <p>Synthetic and anonymous implementations fall back to {@code IStreamCommand} so diagnostics
+   * remain stable even when the concrete class name is not meaningful.
+   *
+   * @return command label suitable for logging and error messages
+   */
+  default String commandName() {
+    Class<?> implClass = this.getClass();
+    if (implClass.isSynthetic()) {
+      return "IStreamCommand";
+    }
+    String simpleName = implClass.getSimpleName();
+    if (!simpleName.isEmpty()) {
+      return simpleName;
+    }
+    Class<?> superClass = implClass.getSuperclass();
+    if (superClass != null && !Object.class.equals(superClass)) {
+      String superName = superClass.getSimpleName();
+      if (!superName.isEmpty()) {
+        return superName;
+      }
+    }
+    return "IStreamCommand";
+  }
+
+  /**
    * Wraps this command with logging. The returned command logs start, completion, and failure using
    * the provided logger.
    *
-   * <p>The command name is derived from {@code this.getClass().getSimpleName()} at wrap time. When
-   * this command is implemented as a lambda or method reference, the underlying class is synthetic
-   * and the derived name may not be meaningful. In such cases, prefer {@link #withLogging(Logger,
-   * String)} to provide an explicit command name.
+   * <p>The command name is derived by {@link #commandName()}. When a caller wants a different label
+   * in logs, prefer {@link #withLogging(Logger, String)}.
    *
    * @param logger the logger to write messages to
    * @return a new {@link IStreamCommand} that delegates to this command and emits log records
    */
   default IStreamCommand withLogging(Logger logger) {
-    Class<?> implClass = this.getClass();
-    String commandName = implClass.isSynthetic() ? "IStreamCommand" : implClass.getSimpleName();
-    return withLogging(logger, commandName);
+    return withLogging(logger, commandName());
   }
 
   /**

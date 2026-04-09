@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -17,7 +16,6 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.TimeUnit;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.MDC;
 
 /**
  * ストリーム変換クラス。
@@ -65,12 +63,20 @@ public class StreamConverter {
 
   private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
+  private final CommandStageRunner commandStageRunner;
+  private final PipelineCompletionMonitor pipelineCompletionMonitor;
+  private final PipelineFailureHandler pipelineFailureHandler;
+  private final PipelineWiring pipelineWiring;
   private List<IStreamCommand> commands;
   private List<String> commandNames;
 
   private StreamConverter(List<IStreamCommand> commands) {
     this.commandNames = commands.stream().map(StreamConverter::resolveCommandName).toList();
     this.commands = wrapWithLogging(commands, this.commandNames);
+    this.commandStageRunner = new CommandStageRunner();
+    this.pipelineFailureHandler = new PipelineFailureHandler(LOG);
+    this.pipelineCompletionMonitor = new PipelineCompletionMonitor(pipelineFailureHandler);
+    this.pipelineWiring = new PipelineWiring(DEFAULT_BUFFER_SIZE);
   }
 
   /**
@@ -128,6 +134,10 @@ public class StreamConverter {
     return wrapped;
   }
 
+  static boolean isPipeAbortedCause(Throwable cause) {
+    return PipelineFailureHandler.isPipeAbortedCause(cause);
+  }
+
   /**
    * Creates an optimal executor service based on available system resources and command count.
    *
@@ -165,119 +175,28 @@ public class StreamConverter {
       InputStream inputStream, OutputStream outputStream, PipelineContext pipelineContext)
       throws IOException {
     List<CompletableFuture<Void>> futures = new ArrayList<>();
-    // CopyOnWriteArrayList: パイプライン構築中（メインスレッド）と
-    // 失敗時のクローズ処理（ワーカースレッド）が並行して安全にアクセスできるようにする
-    List<AutoCloseable> resources = new CopyOnWriteArrayList<>();
-    List<AbortablePipedStream> pipes = new CopyOnWriteArrayList<>();
+    PipelinePlan plan = pipelineWiring.build(commands, commandNames, inputStream, outputStream);
+    List<AutoCloseable> resources = new ArrayList<>(plan.resources());
 
     try (AutoCloseableExecutorService executor =
         new AutoCloseableExecutorService(createOptimalExecutor())) {
-      InputStream currentInput = inputStream;
-
-      // パイプライン構築
-      for (int i = 0; i < this.commands.size(); i++) {
-        IStreamCommand command = this.commands.get(i);
-        final String commandName = this.commandNames.get(i);
-        final InputStream commandInput = currentInput;
-        final OutputStream commandOutput;
-
-        final AbortablePipedStream pipe;
-        if (i == this.commands.size() - 1) {
-          // 最後のコマンド
-          commandOutput = outputStream;
-          pipe = null;
-        } else {
-          // 中間コマンド: 次のコマンド用にAbortablePipedStreamペア作成
-          pipe = new AbortablePipedStream(DEFAULT_BUFFER_SIZE);
-          resources.add(pipe);
-          pipes.add(pipe);
-          commandOutput = pipe.outputStream();
-          currentInput = pipe.inputStream();
-        }
-
-        // 各コマンドを非同期実行
-        CompletableFuture<Void> future =
-            executor.runAsync(
-                () -> {
-                  PipelineContext.set(pipelineContext);
-
-                  try {
-                    // コマンド実行（ロギングはコンストラクタ時にwithLogging()でラップ済み）
-                    command.execute(commandInput, commandOutput);
-
-                    // 中間コマンドの出力側を閉じて後段コマンドに EOF を通知する
-                    if (pipe != null) {
-                      try {
-                        commandOutput.close();
-                      } catch (IOException closeEx) {
-                        abortAllPipes(pipes);
-                        throw new StreamProcessingException(
-                            "Failed to close output stream of command: " + commandName, closeEx);
-                      }
-                    }
-
-                  } catch (StreamProcessingException e) {
-                    abortAllPipes(pipes);
-                    // Already a StreamProcessingException — re-throw as-is to avoid double-wrapping
-                    throw e;
-                  } catch (IOException | RuntimeException e) {
-                    abortAllPipes(pipes);
-                    throw new StreamProcessingException(
-                        "Command execution failed: " + commandName + " - " + e.getMessage(), e);
-                  } catch (Error e) {
-                    abortAllPipes(pipes);
-                    throw e;
-                  } finally {
-                    PipelineContext.clear();
-                    MDC.clear();
-                  }
-                });
-
-        futures.add(future);
-      }
+      futures.addAll(commandStageRunner.startAll(plan, executor::runAsync, pipelineContext));
 
       // パイプライン構築完了後に exceptionally ハンドラを登録する。
       // これにより resources リストへの add が全て終わった後にワーカーからクローズが呼ばれることが保証される。
       // いずれかのコマンドが失敗したら、すべてのパイプをクローズして
       // ブロック中の書き込みを IOException で即座に解放する。
       for (CompletableFuture<Void> future : futures) {
-        future.exceptionally(
-            t -> {
-              try {
-                closeResources(resources);
-              } catch (RuntimeException ex) {
-                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);
-              }
-              return null;
-            });
+        future.exceptionally(t -> pipelineFailureHandler.cleanupOnAsyncFailure(resources));
       }
 
-      // 全タスクの完了を待機してから根本原因を収集する。
-      // abort() による物理クローズで各コマンドが順不同で完了するため、
-      // 全完了後に走査することでレースコンディションを回避する。
       try {
-        CompletableFuture.allOf(futures.toArray(new CompletableFuture[0])).get();
+        // 全タスクの完了を待機してから根本原因を収集する。
+        // abort() による物理クローズで各コマンドが順不同で完了するため、
+        // 全完了後に走査することでレースコンディションを回避する。
+        pipelineCompletionMonitor.await(futures);
       } catch (ExecutionException e) {
-        // いずれかが失敗した場合は全件走査して根本原因を収集する
-        List<Throwable> rootCauses = collectRootCauses(futures);
-        if (rootCauses.isEmpty()) {
-          // 全件 PipeAbortedException の場合（通常起こらない）
-          throw new StreamProcessingException(
-              "Unexpected error during command execution", e.getCause());
-        }
-        Throwable primary = rootCauses.get(0);
-        for (int i = 1; i < rootCauses.size(); i++) {
-          primary.addSuppressed(rootCauses.get(i));
-        }
-        if (primary instanceof Error err) throw err;
-        if (primary instanceof StreamProcessingException spe) throw spe;
-        if (primary instanceof IOException ioe) throw ioe;
-        if (primary instanceof RuntimeException re) throw re;
-        throw new StreamProcessingException("Unexpected error during command execution", primary);
-      } catch (InterruptedException e) {
-        cancelRemainingFutures(futures, 0);
-        Thread.currentThread().interrupt();
-        throw new StreamProcessingException("Pipeline execution was interrupted", e);
+        pipelineFailureHandler.rethrowExecutionFailure(e, futures);
       }
 
       if (LOG.isInfoEnabled()) {
@@ -286,82 +205,7 @@ public class StreamConverter {
 
     } finally {
       // リソースクリーンアップ
-      closeResources(resources);
-    }
-  }
-
-  /**
-   * 全 futures から根本原因（{@link PipeAbortedException} でない失敗）を全件収集して返す。
-   *
-   * <p>呼び出し前に全 futures が完了済みであること。
-   */
-  private List<Throwable> collectRootCauses(List<CompletableFuture<Void>> futures) {
-    List<Throwable> rootCauses = new ArrayList<>();
-    for (CompletableFuture<Void> f : futures) {
-      if (!f.isCompletedExceptionally()) {
-        continue;
-      }
-      try {
-        f.get();
-      } catch (ExecutionException ee) {
-        Throwable cause = ee.getCause();
-        if (!isPipeAbortedCause(cause)) {
-          rootCauses.add(cause);
-        }
-      } catch (InterruptedException ie) {
-        Thread.currentThread().interrupt();
-        rootCauses.add(ie);
-      }
-    }
-    return rootCauses;
-  }
-
-  /**
-   * 対向コマンドの異常終了に巻き込まれた二次的な失敗かどうかを判定する。
-   *
-   * <p>{@link PipeAbortedException} は {@link AbortablePipedStream#abort()} で設定される
-   * 型付き例外であり、二次的失敗と明示的に識別できる。
-   */
-  static boolean isPipeAbortedCause(Throwable cause) {
-    if (cause instanceof PipeAbortedException) {
-      return true;
-    }
-    if (cause instanceof StreamProcessingException) {
-      return cause.getCause() instanceof PipeAbortedException;
-    }
-    return false;
-  }
-
-  /**
-   * すべてのパイプを abort して、ブロック中の read/write を {@link PipeAbortedException} で解放する。
-   *
-   * @param pipes abort 対象のパイプリスト
-   */
-  private void abortAllPipes(List<AbortablePipedStream> pipes) {
-    for (AbortablePipedStream p : pipes) {
-      p.abort();
-    }
-  }
-
-  /** 失敗時に残りのfuturesをキャンセルする */
-  private void cancelRemainingFutures(List<CompletableFuture<Void>> futures, int fromIndex) {
-    for (int j = fromIndex; j < futures.size(); j++) {
-      futures.get(j).cancel(true);
-    }
-  }
-
-  /**
-   * 使用したリソースを安全にクローズする
-   *
-   * @param resources クローズ対象のリソースリスト
-   */
-  private void closeResources(List<AutoCloseable> resources) {
-    for (AutoCloseable resource : resources) {
-      try {
-        resource.close();
-      } catch (Exception e) {
-        LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
-      }
+      pipelineFailureHandler.closeResources(resources);
     }
   }
 }

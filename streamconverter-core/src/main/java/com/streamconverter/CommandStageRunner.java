@@ -31,10 +31,8 @@ final class CommandStageRunner {
    * List)}.
    */
   List<CompletableFuture<Void>> startAll(
-      List<IStreamCommand> commands,
-      PipelinePlan plan,
-      AsyncRunner asyncRunner,
-      PipelineContext pipelineContext) {
+      List<IStreamCommand> commands, PipelinePlan plan, AsyncRunner asyncRunner) {
+    PipelineContext pipelineContext = new PipelineContext();
     List<CompletableFuture<Void>> futures = new ArrayList<>(plan.stageIos().size());
     for (int i = 0; i < plan.stageIos().size(); i++) {
       futures.add(

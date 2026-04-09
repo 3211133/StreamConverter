@@ -1,7 +1,6 @@
 package com.streamconverter;
 
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.context.PipelineContext;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -147,7 +146,7 @@ public class StreamConverter {
       LOG.info("Starting StreamConverter with {} commands", commands.size());
     }
 
-    executeCommands(inputStream, outputStream, new PipelineContext());
+    executeCommands(inputStream, outputStream);
 
     if (LOG.isInfoEnabled()) {
       LOG.info("Completed StreamConverter pipeline");
@@ -155,8 +154,7 @@ public class StreamConverter {
   }
 
   /** コマンド（単一または複数）を並列実行 */
-  private void executeCommands(
-      InputStream inputStream, OutputStream outputStream, PipelineContext pipelineContext)
+  private void executeCommands(InputStream inputStream, OutputStream outputStream)
       throws IOException {
     List<CompletableFuture<Void>> futures = new ArrayList<>();
     PipelinePlan plan = pipelineWiring.build(commands.size(), inputStream, outputStream);
@@ -164,8 +162,7 @@ public class StreamConverter {
 
     try (AutoCloseableExecutorService executor =
         new AutoCloseableExecutorService(createOptimalExecutor())) {
-      futures.addAll(
-          commandStageRunner.startAll(commands, plan, executor::runAsync, pipelineContext));
+      futures.addAll(commandStageRunner.startAll(commands, plan, executor::runAsync));
 
       // パイプライン構築完了後に exceptionally ハンドラを登録する。
       // これにより resources リストへの add が全て終わった後にワーカーからクローズが呼ばれることが保証される。

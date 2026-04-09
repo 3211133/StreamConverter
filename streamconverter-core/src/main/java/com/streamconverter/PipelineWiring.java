@@ -15,6 +15,19 @@ final class PipelineWiring {
     this.bufferSize = bufferSize;
   }
 
+  /**
+   * Builds the executable stage plan for one pipeline run.
+   *
+   * <p>Non-terminal stages write into newly created {@link AbortablePipedStream}s, while the final
+   * stage writes directly to the caller-provided output stream.
+   *
+   * @param commands commands to execute in order
+   * @param commandNames resolved command names matching {@code commands}
+   * @param inputStream caller-provided pipeline input
+   * @param outputStream caller-provided pipeline output
+   * @return immutable execution plan containing stage specs and closeable resources
+   * @throws IOException if an intermediate pipe cannot be created
+   */
   PipelinePlan build(
       List<IStreamCommand> commands,
       List<String> commandNames,

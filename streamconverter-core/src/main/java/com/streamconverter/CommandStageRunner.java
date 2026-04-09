@@ -11,10 +11,23 @@ import org.slf4j.MDC;
 /** Starts all stage commands for a prepared {@link PipelinePlan}. */
 final class CommandStageRunner {
 
+  /** Abstraction over async task submission so stage startup stays executor-agnostic. */
   interface AsyncRunner {
+    /**
+     * Submits a stage task for asynchronous execution.
+     *
+     * @param runnable stage work to execute
+     * @return future representing the stage completion
+     */
     CompletableFuture<Void> runAsync(Runnable runnable);
   }
 
+  /**
+   * Starts every stage defined by the plan and returns their completion futures.
+   *
+   * <p>Each stage receives the same pipeline context snapshot, while per-stage cleanup is handled
+   * by {@link #startStage(PipelinePlan.StageSpec, AsyncRunner, PipelineContext, List)}.
+   */
   List<CompletableFuture<Void>> startAll(
       PipelinePlan plan, AsyncRunner asyncRunner, PipelineContext pipelineContext) {
     List<CompletableFuture<Void>> futures = new ArrayList<>(plan.stageSpecs().size());
@@ -41,6 +54,12 @@ final class CommandStageRunner {
         });
   }
 
+  /**
+   * Executes a single stage and translates failures into pipeline-level exceptions.
+   *
+   * <p>Intermediate stage outputs are closed on success to signal EOF to the downstream stage. Any
+   * failure aborts all pipes so blocked readers and writers are released promptly.
+   */
   private void executeStage(PipelinePlan.StageSpec stageSpec, List<AbortablePipedStream> pipes) {
     IStreamCommand command = stageSpec.command();
     String commandName = stageSpec.commandName();
@@ -71,6 +90,7 @@ final class CommandStageRunner {
     }
   }
 
+  /** Aborts every intermediate pipe so dependent stages stop waiting on stream activity. */
   private void abortAllPipes(List<AbortablePipedStream> pipes) {
     for (AbortablePipedStream pipe : pipes) {
       pipe.abort();

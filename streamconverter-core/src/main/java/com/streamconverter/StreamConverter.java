@@ -175,12 +175,14 @@ public class StreamConverter {
       InputStream inputStream, OutputStream outputStream, PipelineContext pipelineContext)
       throws IOException {
     List<CompletableFuture<Void>> futures = new ArrayList<>();
-    PipelinePlan plan = pipelineWiring.build(commands, commandNames, inputStream, outputStream);
+    PipelinePlan plan = pipelineWiring.build(commands.size(), inputStream, outputStream);
     List<AutoCloseable> resources = new ArrayList<>(plan.resources());
 
     try (AutoCloseableExecutorService executor =
         new AutoCloseableExecutorService(createOptimalExecutor())) {
-      futures.addAll(commandStageRunner.startAll(plan, executor::runAsync, pipelineContext));
+      futures.addAll(
+          commandStageRunner.startAll(
+              commands, commandNames, plan, executor::runAsync, pipelineContext));
 
       // パイプライン構築完了後に exceptionally ハンドラを登録する。
       // これにより resources リストへの add が全て終わった後にワーカーからクローズが呼ばれることが保証される。

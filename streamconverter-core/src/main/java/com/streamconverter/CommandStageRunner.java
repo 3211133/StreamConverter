@@ -23,22 +23,37 @@ final class CommandStageRunner {
   }
 
   /**
-   * Starts every stage defined by the plan and returns their completion futures.
+   * Starts every stage defined by the command list and IO plan, then returns their completion
+   * futures.
    *
    * <p>Each stage receives the same pipeline context snapshot, while per-stage cleanup is handled
-   * by {@link #startStage(PipelinePlan.StageSpec, AsyncRunner, PipelineContext, List)}.
+   * by {@link #startStage(IStreamCommand, String, WiredStageIo, AsyncRunner, PipelineContext,
+   * List)}.
    */
   List<CompletableFuture<Void>> startAll(
-      PipelinePlan plan, AsyncRunner asyncRunner, PipelineContext pipelineContext) {
-    List<CompletableFuture<Void>> futures = new ArrayList<>(plan.stageSpecs().size());
-    for (PipelinePlan.StageSpec stageSpec : plan.stageSpecs()) {
-      futures.add(startStage(stageSpec, asyncRunner, pipelineContext, plan.pipes()));
+      List<IStreamCommand> commands,
+      List<String> commandNames,
+      PipelinePlan plan,
+      AsyncRunner asyncRunner,
+      PipelineContext pipelineContext) {
+    List<CompletableFuture<Void>> futures = new ArrayList<>(plan.stageIos().size());
+    for (int i = 0; i < plan.stageIos().size(); i++) {
+      futures.add(
+          startStage(
+              commands.get(i),
+              commandNames.get(i),
+              plan.stageIos().get(i),
+              asyncRunner,
+              pipelineContext,
+              plan.pipes()));
     }
     return futures;
   }
 
   private CompletableFuture<Void> startStage(
-      PipelinePlan.StageSpec stageSpec,
+      IStreamCommand command,
+      String commandName,
+      WiredStageIo stageIo,
       AsyncRunner asyncRunner,
       PipelineContext pipelineContext,
       List<AbortablePipedStream> pipes) {
@@ -46,7 +61,7 @@ final class CommandStageRunner {
         () -> {
           PipelineContext.set(pipelineContext);
           try {
-            executeStage(stageSpec, pipes);
+            executeStage(command, commandName, stageIo, pipes);
           } finally {
             PipelineContext.clear();
             MDC.clear();
@@ -60,16 +75,17 @@ final class CommandStageRunner {
    * <p>Intermediate stage outputs are closed on success to signal EOF to the downstream stage. Any
    * failure aborts all pipes so blocked readers and writers are released promptly.
    */
-  private void executeStage(PipelinePlan.StageSpec stageSpec, List<AbortablePipedStream> pipes) {
-    IStreamCommand command = stageSpec.command();
-    String commandName = stageSpec.commandName();
-
+  private void executeStage(
+      IStreamCommand command,
+      String commandName,
+      WiredStageIo stageIo,
+      List<AbortablePipedStream> pipes) {
     try {
-      command.execute(stageSpec.input(), stageSpec.output());
+      command.execute(stageIo.input(), stageIo.output());
 
-      if (stageSpec.pipe() != null) {
+      if (stageIo.pipe() != null) {
         try {
-          stageSpec.output().close();
+          stageIo.output().close();
         } catch (IOException closeEx) {
           abortAllPipes(pipes);
           throw new StreamProcessingException(

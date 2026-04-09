@@ -1,6 +1,5 @@
 package com.streamconverter;
 
-import com.streamconverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -16,36 +15,28 @@ final class PipelineWiring {
   }
 
   /**
-   * Builds the executable stage plan for one pipeline run.
+   * Builds the executable IO plan for one pipeline run.
    *
    * <p>Non-terminal stages write into newly created {@link AbortablePipedStream}s, while the final
    * stage writes directly to the caller-provided output stream.
    *
-   * @param commands commands to execute in order
-   * @param commandNames resolved command names matching {@code commands}
+   * @param stageCount number of stages to wire
    * @param inputStream caller-provided pipeline input
    * @param outputStream caller-provided pipeline output
-   * @return immutable execution plan containing stage specs and closeable resources
+   * @return immutable execution plan containing stage IO wiring and closeable resources
    * @throws IOException if an intermediate pipe cannot be created
    */
-  PipelinePlan build(
-      List<IStreamCommand> commands,
-      List<String> commandNames,
-      InputStream inputStream,
-      OutputStream outputStream)
+  PipelinePlan build(int stageCount, InputStream inputStream, OutputStream outputStream)
       throws IOException {
-    List<PipelinePlan.StageSpec> stageSpecs = new ArrayList<>(commands.size());
+    List<WiredStageIo> stageIos = new ArrayList<>(stageCount);
     List<AbortablePipedStream> pipes = new ArrayList<>();
     List<AutoCloseable> resources = new ArrayList<>();
 
     InputStream currentInput = inputStream;
-    for (int i = 0; i < commands.size(); i++) {
-      IStreamCommand command = commands.get(i);
-      String commandName = commandNames.get(i);
-
+    for (int i = 0; i < stageCount; i++) {
       OutputStream commandOutput;
       AbortablePipedStream pipe;
-      if (i == commands.size() - 1) {
+      if (i == stageCount - 1) {
         commandOutput = outputStream;
         pipe = null;
       } else {
@@ -55,14 +46,13 @@ final class PipelineWiring {
         commandOutput = pipe.outputStream();
       }
 
-      stageSpecs.add(
-          new PipelinePlan.StageSpec(i, command, commandName, currentInput, commandOutput, pipe));
+      stageIos.add(new WiredStageIo(currentInput, commandOutput, pipe));
 
       if (pipe != null) {
         currentInput = pipe.inputStream();
       }
     }
 
-    return new PipelinePlan(stageSpecs, pipes, resources);
+    return new PipelinePlan(stageIos, pipes, resources);
   }
 }

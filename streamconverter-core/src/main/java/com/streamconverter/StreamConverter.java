@@ -112,7 +112,7 @@ public class StreamConverter {
   private static List<IStreamCommand> wrapWithLogging(List<IStreamCommand> commands) {
     List<IStreamCommand> wrapped = new ArrayList<>(commands.size());
     for (IStreamCommand command : commands) {
-      wrapped.add(command.withLogging(LOG));
+      wrapped.add(command.withLogging(LOG, CommandLabels.resolve(command)));
     }
     return wrapped;
   }

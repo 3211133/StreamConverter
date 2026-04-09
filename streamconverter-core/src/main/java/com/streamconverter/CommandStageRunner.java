@@ -68,41 +68,50 @@ final class CommandStageRunner {
    */
   private void executeStage(
       IStreamCommand command, WiredStageIo stageIo, List<AbortablePipedStream> pipes) {
-    String commandLabel = resolveCommandLabel(command);
+    String commandLabel = CommandLabels.resolve(command);
     try {
       command.execute(stageIo.input(), stageIo.output());
-
-      if (stageIo.pipe() != null) {
-        try {
-          stageIo.output().close();
-        } catch (IOException closeEx) {
-          abortAllPipes(pipes);
-          throw new StreamProcessingException(
-              "Failed to close output stream of command: " + commandLabel, closeEx);
-        }
-      }
-
-    } catch (StreamProcessingException e) {
+      closeStageOutput(stageIo, commandLabel);
+    } catch (Throwable throwable) {
       abortAllPipes(pipes);
-      throw e;
-    } catch (IOException | RuntimeException e) {
-      abortAllPipes(pipes);
-      throw new StreamProcessingException(
-          "Command execution failed: " + commandLabel + " - " + e.getMessage(), e);
-    } catch (Error e) {
-      abortAllPipes(pipes);
-      throw e;
+      throw rethrowStageFailure(throwable, commandLabel);
     }
   }
 
-  /** Derives a best-effort command label for diagnostics without storing parallel name state. */
-  private String resolveCommandLabel(IStreamCommand command) {
-    Class<?> implClass = command.getClass();
-    if (implClass.isSynthetic()) {
-      return "IStreamCommand";
+  /**
+   * Closes intermediate stage output to signal EOF to the downstream command.
+   *
+   * @throws StreamProcessingException if the output cannot be closed cleanly
+   */
+  private void closeStageOutput(WiredStageIo stageIo, String commandLabel) {
+    if (stageIo.pipe() == null) {
+      return;
     }
-    String simpleName = implClass.getSimpleName();
-    return simpleName.isEmpty() ? "IStreamCommand" : simpleName;
+    try {
+      stageIo.output().close();
+    } catch (IOException closeEx) {
+      throw new StreamProcessingException(
+          "Failed to close output stream of command: " + commandLabel, closeEx);
+    }
+  }
+
+  /**
+   * Converts a stage failure into the exception type surfaced by the pipeline.
+   *
+   * @throws Error when the stage failed with an unrecoverable JVM error
+   */
+  private RuntimeException rethrowStageFailure(Throwable throwable, String commandLabel) {
+    if (throwable instanceof StreamProcessingException streamProcessingException) {
+      return streamProcessingException;
+    }
+    if (throwable instanceof IOException | throwable instanceof RuntimeException) {
+      return new StreamProcessingException(
+          "Command execution failed: " + commandLabel + " - " + throwable.getMessage(), throwable);
+    }
+    if (throwable instanceof Error error) {
+      throw error;
+    }
+    return new StreamProcessingException("Command execution failed: " + commandLabel, throwable);
   }
 
   /** Aborts every intermediate pipe so dependent stages stop waiting on stream activity. */

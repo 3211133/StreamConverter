@@ -71,8 +71,8 @@ public class StreamConverter {
   private StreamConverter(List<IStreamCommand> commands) {
     this.commands = wrapWithLogging(commands);
     this.commandStageRunner = new CommandStageRunner();
-    this.pipelineFailureHandler = new PipelineFailureHandler(LOG);
-    this.pipelineCompletionMonitor = new PipelineCompletionMonitor(pipelineFailureHandler);
+    this.pipelineFailureHandler = new PipelineFailureHandler();
+    this.pipelineCompletionMonitor = new PipelineCompletionMonitor();
     this.pipelineWiring = new PipelineWiring(DEFAULT_BUFFER_SIZE);
   }
 
@@ -169,7 +169,11 @@ public class StreamConverter {
       // いずれかのコマンドが失敗したら、すべてのパイプをクローズして
       // ブロック中の書き込みを IOException で即座に解放する。
       for (CompletableFuture<Void> future : futures) {
-        future.exceptionally(t -> pipelineFailureHandler.cleanupOnAsyncFailure(resources));
+        future.exceptionally(
+            t -> {
+              closeResources(resources);
+              return null;
+            });
       }
 
       try {
@@ -187,7 +191,22 @@ public class StreamConverter {
 
     } finally {
       // リソースクリーンアップ
-      pipelineFailureHandler.closeResources(resources);
+      closeResources(resources);
+    }
+  }
+
+  /**
+   * Closes resources in order, logging and continuing if individual closes fail.
+   *
+   * @param resources resources associated with the current pipeline execution
+   */
+  private void closeResources(List<AutoCloseable> resources) {
+    for (AutoCloseable resource : resources) {
+      try {
+        resource.close();
+      } catch (Exception e) {
+        LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
+      }
     }
   }
 }

@@ -4,19 +4,13 @@ import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 
-/** Waits for all pipeline stages to complete and delegates failure handling. */
+/** Waits for all pipeline stages to complete and handles wait-time interruption. */
 final class PipelineCompletionMonitor {
-  private final PipelineFailureHandler pipelineFailureHandler;
-
-  PipelineCompletionMonitor(PipelineFailureHandler pipelineFailureHandler) {
-    this.pipelineFailureHandler = pipelineFailureHandler;
-  }
-
   /**
    * Waits for every stage future to finish before failure causes are inspected.
    *
-   * <p>Interrupt handling is centralized in {@link PipelineFailureHandler} so cancellation and
-   * thread interrupt restoration follow the same policy everywhere.
+   * <p>If the waiting thread is interrupted, all unfinished stage futures are cancelled and the
+   * interrupt status is restored before the pipeline fails.
    *
    * @param futures stage completion futures
    * @throws ExecutionException if any stage completed exceptionally
@@ -25,7 +19,16 @@ final class PipelineCompletionMonitor {
     try {
       CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).get();
     } catch (InterruptedException interruptedException) {
-      pipelineFailureHandler.handleInterrupted(futures, 0);
+      cancelRemainingFutures(futures);
+      Thread.currentThread().interrupt();
+      throw new StreamProcessingException("Pipeline execution was interrupted");
+    }
+  }
+
+  /** Cancels unfinished stage futures after interruption. */
+  private void cancelRemainingFutures(List<CompletableFuture<Void>> futures) {
+    for (CompletableFuture<Void> future : futures) {
+      future.cancel(true);
     }
   }
 }

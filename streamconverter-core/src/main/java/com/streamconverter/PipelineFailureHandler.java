@@ -5,31 +5,9 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
-import org.slf4j.Logger;
 
-/** Handles pipeline cleanup and failure translation for {@link StreamConverter}. */
+/** Translates stage failures into the exception surfaced by {@link StreamConverter}. */
 final class PipelineFailureHandler {
-  private final Logger logger;
-
-  PipelineFailureHandler(Logger logger) {
-    this.logger = logger;
-  }
-
-  /**
-   * Best-effort cleanup hook for asynchronous stage failures.
-   *
-   * <p>This method is intended for use from future completion callbacks, so cleanup failures are
-   * logged instead of being propagated back into the callback chain.
-   */
-  Void cleanupOnAsyncFailure(List<AutoCloseable> resources) {
-    try {
-      closeResources(resources);
-    } catch (RuntimeException ex) {
-      logger.error("Unexpected error during resource cleanup on pipeline failure", ex);
-    }
-    return null;
-  }
-
   /**
    * Re-throws the primary execution failure after all stage futures have been inspected.
    *
@@ -67,33 +45,6 @@ final class PipelineFailureHandler {
       throw re;
     }
     throw new StreamProcessingException("Unexpected error during command execution", primary);
-  }
-
-  /**
-   * Cancels remaining futures, restores the interrupt flag, and fails the pipeline.
-   *
-   * @param futures stage futures to cancel
-   * @param fromIndex first future index that should be cancelled
-   */
-  void handleInterrupted(List<CompletableFuture<Void>> futures, int fromIndex) {
-    cancelRemainingFutures(futures, fromIndex);
-    Thread.currentThread().interrupt();
-    throw new StreamProcessingException("Pipeline execution was interrupted");
-  }
-
-  /**
-   * Closes resources in order, logging and continuing if individual closes fail.
-   *
-   * @param resources resources associated with the current pipeline execution
-   */
-  void closeResources(List<AutoCloseable> resources) {
-    for (AutoCloseable resource : resources) {
-      try {
-        resource.close();
-      } catch (Exception e) {
-        logger.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
-      }
-    }
   }
 
   /**
@@ -136,12 +87,5 @@ final class PipelineFailureHandler {
       return cause.getCause() instanceof PipeAbortedException;
     }
     return false;
-  }
-
-  /** Cancels unfinished stage futures starting at the supplied index. */
-  private void cancelRemainingFutures(List<CompletableFuture<Void>> futures, int fromIndex) {
-    for (int i = fromIndex; i < futures.size(); i++) {
-      futures.get(i).cancel(true);
-    }
   }
 }

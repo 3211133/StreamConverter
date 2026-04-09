@@ -68,11 +68,9 @@ public class StreamConverter {
   private final PipelineFailureHandler pipelineFailureHandler;
   private final PipelineWiring pipelineWiring;
   private List<IStreamCommand> commands;
-  private List<String> commandNames;
 
   private StreamConverter(List<IStreamCommand> commands) {
-    this.commandNames = commands.stream().map(StreamConverter::resolveCommandName).toList();
-    this.commands = wrapWithLogging(commands, this.commandNames);
+    this.commands = wrapWithLogging(commands);
     this.commandStageRunner = new CommandStageRunner();
     this.pipelineFailureHandler = new PipelineFailureHandler(LOG);
     this.pipelineCompletionMonitor = new PipelineCompletionMonitor(pipelineFailureHandler);
@@ -111,25 +109,11 @@ public class StreamConverter {
     return new StreamConverter(List.copyOf(commands));
   }
 
-  /**
-   * 元のコマンドクラスから人が読めるコマンド名を解決する。 ラムダ（synthetic）と匿名クラス（getSimpleName が空文字）は "IStreamCommand"
-   * にフォールバックする。
-   */
-  private static String resolveCommandName(IStreamCommand command) {
-    Class<?> cls = command.getClass();
-    if (cls.isSynthetic()) {
-      return "IStreamCommand";
-    }
-    String simpleName = cls.getSimpleName();
-    return simpleName.isEmpty() ? "IStreamCommand" : simpleName;
-  }
-
   /** コマンドリストの各コマンドに withLogging をあらかじめ適用して返す。 ラッピングはコンストラクト時に1度だけ行われ、実行ごとのオーバーヘッドを排除する。 */
-  private static List<IStreamCommand> wrapWithLogging(
-      List<IStreamCommand> commands, List<String> names) {
+  private static List<IStreamCommand> wrapWithLogging(List<IStreamCommand> commands) {
     List<IStreamCommand> wrapped = new ArrayList<>(commands.size());
-    for (int i = 0; i < commands.size(); i++) {
-      wrapped.add(commands.get(i).withLogging(LOG, names.get(i)));
+    for (IStreamCommand command : commands) {
+      wrapped.add(command.withLogging(LOG));
     }
     return wrapped;
   }
@@ -181,8 +165,7 @@ public class StreamConverter {
     try (AutoCloseableExecutorService executor =
         new AutoCloseableExecutorService(createOptimalExecutor())) {
       futures.addAll(
-          commandStageRunner.startAll(
-              commands, commandNames, plan, executor::runAsync, pipelineContext));
+          commandStageRunner.startAll(commands, plan, executor::runAsync, pipelineContext));
 
       // パイプライン構築完了後に exceptionally ハンドラを登録する。
       // これにより resources リストへの add が全て終わった後にワーカーからクローズが呼ばれることが保証される。

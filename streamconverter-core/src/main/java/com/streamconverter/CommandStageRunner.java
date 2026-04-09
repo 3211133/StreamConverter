@@ -32,7 +32,6 @@ final class CommandStageRunner {
    */
   List<CompletableFuture<Void>> startAll(
       List<IStreamCommand> commands,
-      List<String> commandNames,
       PipelinePlan plan,
       AsyncRunner asyncRunner,
       PipelineContext pipelineContext) {
@@ -40,19 +39,13 @@ final class CommandStageRunner {
     for (int i = 0; i < plan.stageIos().size(); i++) {
       futures.add(
           startStage(
-              commands.get(i),
-              commandNames.get(i),
-              plan.stageIos().get(i),
-              asyncRunner,
-              pipelineContext,
-              plan.pipes()));
+              commands.get(i), plan.stageIos().get(i), asyncRunner, pipelineContext, plan.pipes()));
     }
     return futures;
   }
 
   private CompletableFuture<Void> startStage(
       IStreamCommand command,
-      String commandName,
       WiredStageIo stageIo,
       AsyncRunner asyncRunner,
       PipelineContext pipelineContext,
@@ -61,7 +54,7 @@ final class CommandStageRunner {
         () -> {
           PipelineContext.set(pipelineContext);
           try {
-            executeStage(command, commandName, stageIo, pipes);
+            executeStage(command, stageIo, pipes);
           } finally {
             PipelineContext.clear();
             MDC.clear();
@@ -76,10 +69,8 @@ final class CommandStageRunner {
    * failure aborts all pipes so blocked readers and writers are released promptly.
    */
   private void executeStage(
-      IStreamCommand command,
-      String commandName,
-      WiredStageIo stageIo,
-      List<AbortablePipedStream> pipes) {
+      IStreamCommand command, WiredStageIo stageIo, List<AbortablePipedStream> pipes) {
+    String commandLabel = resolveCommandLabel(command);
     try {
       command.execute(stageIo.input(), stageIo.output());
 
@@ -89,7 +80,7 @@ final class CommandStageRunner {
         } catch (IOException closeEx) {
           abortAllPipes(pipes);
           throw new StreamProcessingException(
-              "Failed to close output stream of command: " + commandName, closeEx);
+              "Failed to close output stream of command: " + commandLabel, closeEx);
         }
       }
 
@@ -99,11 +90,21 @@ final class CommandStageRunner {
     } catch (IOException | RuntimeException e) {
       abortAllPipes(pipes);
       throw new StreamProcessingException(
-          "Command execution failed: " + commandName + " - " + e.getMessage(), e);
+          "Command execution failed: " + commandLabel + " - " + e.getMessage(), e);
     } catch (Error e) {
       abortAllPipes(pipes);
       throw e;
     }
+  }
+
+  /** Derives a best-effort command label for diagnostics without storing parallel name state. */
+  private String resolveCommandLabel(IStreamCommand command) {
+    Class<?> implClass = command.getClass();
+    if (implClass.isSynthetic()) {
+      return "IStreamCommand";
+    }
+    String simpleName = implClass.getSimpleName();
+    return simpleName.isEmpty() ? "IStreamCommand" : simpleName;
   }
 
   /** Aborts every intermediate pipe so dependent stages stop waiting on stream activity. */

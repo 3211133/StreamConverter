@@ -67,8 +67,10 @@ public class StreamConverter {
   private final PipelineFailureHandler pipelineFailureHandler;
   private final PipelineWiring pipelineWiring;
   private List<IStreamCommand> commands;
+  private final List<String> commandLabels;
 
   private StreamConverter(List<IStreamCommand> commands) {
+    this.commandLabels = commands.stream().map(IStreamCommand::commandName).toList();
     this.commands = wrapWithLogging(commands);
     this.commandStageRunner = new CommandStageRunner();
     this.pipelineFailureHandler = new PipelineFailureHandler();
@@ -164,7 +166,8 @@ public class StreamConverter {
     try (AutoCloseableExecutorService executor =
         new AutoCloseableExecutorService(createOptimalExecutor())) {
       // 各コマンドを配線済みの input/output stream に接続して起動する。
-      futures.addAll(commandStageRunner.startAll(commands, plan, executor::runAsync));
+      futures.addAll(
+          commandStageRunner.startAll(commands, commandLabels, plan, executor::runAsync));
 
       // パイプライン構築完了後に exceptionally ハンドラを登録する。
       // これにより resources リストへの add が全て終わった後にワーカーからクローズが呼ばれることが保証される。
@@ -173,7 +176,11 @@ public class StreamConverter {
       for (CompletableFuture<Void> future : futures) {
         future.exceptionally(
             t -> {
-              closeResources(resources);
+              try {
+                closeResources(resources);
+              } catch (RuntimeException ex) {
+                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);
+              }
               return null;
             });
       }

@@ -21,7 +21,8 @@ final class PipelineCompletionMonitor {
     } catch (InterruptedException interruptedException) {
       cancelRemainingFutures(futures);
       Thread.currentThread().interrupt();
-      throw new StreamProcessingException("Pipeline execution was interrupted");
+      throw new StreamProcessingException(
+          "Pipeline execution was interrupted", interruptedException);
     }
   }
 

@@ -31,19 +31,28 @@ final class CommandStageRunner {
    * List)}.
    */
   List<CompletableFuture<Void>> startAll(
-      List<IStreamCommand> commands, PipelinePlan plan, AsyncRunner asyncRunner) {
+      List<IStreamCommand> commands,
+      List<String> commandLabels,
+      PipelinePlan plan,
+      AsyncRunner asyncRunner) {
     PipelineContext pipelineContext = new PipelineContext();
     List<CompletableFuture<Void>> futures = new ArrayList<>(plan.stageIos().size());
     for (int i = 0; i < plan.stageIos().size(); i++) {
       futures.add(
           startStage(
-              commands.get(i), plan.stageIos().get(i), asyncRunner, pipelineContext, plan.pipes()));
+              commands.get(i),
+              commandLabels.get(i),
+              plan.stageIos().get(i),
+              asyncRunner,
+              pipelineContext,
+              plan.pipes()));
     }
     return futures;
   }
 
   private CompletableFuture<Void> startStage(
       IStreamCommand command,
+      String commandLabel,
       WiredStageIo stageIo,
       AsyncRunner asyncRunner,
       PipelineContext pipelineContext,
@@ -52,7 +61,7 @@ final class CommandStageRunner {
         () -> {
           PipelineContext.set(pipelineContext);
           try {
-            executeStage(command, stageIo, pipes);
+            executeStage(command, commandLabel, stageIo, pipes);
           } finally {
             PipelineContext.clear();
             MDC.clear();
@@ -67,8 +76,10 @@ final class CommandStageRunner {
    * failure aborts all pipes so blocked readers and writers are released promptly.
    */
   private void executeStage(
-      IStreamCommand command, WiredStageIo stageIo, List<AbortablePipedStream> pipes) {
-    String commandLabel = command.commandName();
+      IStreamCommand command,
+      String commandLabel,
+      WiredStageIo stageIo,
+      List<AbortablePipedStream> pipes) {
     try {
       command.execute(stageIo.input(), stageIo.output());
       closeStageOutput(stageIo, commandLabel);

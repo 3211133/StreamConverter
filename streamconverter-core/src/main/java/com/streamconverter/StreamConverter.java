@@ -157,11 +157,13 @@ public class StreamConverter {
   private void executeCommands(InputStream inputStream, OutputStream outputStream)
       throws IOException {
     List<CompletableFuture<Void>> futures = new ArrayList<>();
+    // 非同期実行側は配線済みの入出力だけを消費できるように、先にステージIOグラフを構築する。
     PipelinePlan plan = pipelineWiring.build(commands.size(), inputStream, outputStream);
     List<AutoCloseable> resources = new ArrayList<>(plan.resources());
 
     try (AutoCloseableExecutorService executor =
         new AutoCloseableExecutorService(createOptimalExecutor())) {
+      // 各コマンドを配線済みの input/output stream に接続して起動する。
       futures.addAll(commandStageRunner.startAll(commands, plan, executor::runAsync));
 
       // パイプライン構築完了後に exceptionally ハンドラを登録する。
@@ -182,6 +184,7 @@ public class StreamConverter {
         // 全完了後に走査することでレースコンディションを回避する。
         pipelineCompletionMonitor.await(futures);
       } catch (ExecutionException e) {
+        // abort 由来の二次的な失敗が出揃ったあとで、根本原因として返す失敗を解釈する。
         pipelineFailureHandler.rethrowExecutionFailure(e, futures);
       }
 

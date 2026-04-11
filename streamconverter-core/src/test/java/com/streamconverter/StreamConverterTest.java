@@ -462,4 +462,51 @@ class StreamConverterTest {
         StreamConverter.isPipeAbortedCause(ex),
         "StreamProcessingException wrapping unrelated IOException should not be treated as pipe-aborted cause");
   }
+
+  // -------------------------------------------------------------------------
+  // コマンド名リグレッション防止テスト
+  // -------------------------------------------------------------------------
+
+  @Test
+  @Timeout(10)
+  @DisplayName("エラーメッセージにコマンド名が含まれる（命名リグレッション防止）")
+  void testErrorMessageContainsConcreteCommandName() throws IOException {
+    class FailingCommand implements IStreamCommand {
+      @Override
+      public void execute(InputStream in, OutputStream out) throws IOException {
+        throw new RuntimeException("deliberate failure");
+      }
+    }
+
+    StreamConverter converter = StreamConverter.create(new FailingCommand());
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+
+    assertTrue(
+        ex.getMessage().contains("FailingCommand"),
+        "エラーメッセージに 'FailingCommand' が含まれるべき: " + ex.getMessage());
+  }
+
+  @Test
+  @Timeout(10)
+  @DisplayName("exceptionally コールバックがリソースクリーンアップ後も根本原因を維持する")
+  void testExceptionallyDoesNotOverrideRootCause() throws IOException {
+    RuntimeException originalCause = new RuntimeException("original failure");
+    IStreamCommand failingCommand =
+        (in, out) -> {
+          throw originalCause;
+        };
+
+    StreamConverter converter = StreamConverter.create(failingCommand);
+    InputStream input = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    StreamProcessingException ex =
+        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+
+    assertSame(originalCause, ex.getCause(), "exceptionally コールバックが根本原因を上書きしていないこと");
+  }
 }

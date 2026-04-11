@@ -142,21 +142,26 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Method</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#commandName()" class="member-name-link">commandName</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="block">Returns a best-effort human-readable name for this command.</div>
+</div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code>void</code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3"><code><a href="#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab3">
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#withLogging(org.slf4j.Logger)" class="member-name-link">withLogging</a><wbr>(org.slf4j.Logger&nbsp;logger)</code></div>
-<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#withLogging(org.slf4j.Logger)" class="member-name-link">withLogging</a><wbr>(org.slf4j.Logger&nbsp;logger)</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Wraps this command with logging.</div>
 </div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#withLogging(org.slf4j.Logger,java.lang.String)" class="member-name-link">withLogging</a><wbr>(org.slf4j.Logger&nbsp;logger,
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code>default <a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5"><code><a href="#withLogging(org.slf4j.Logger,java.lang.String)" class="member-name-link">withLogging</a><wbr>(org.slf4j.Logger&nbsp;logger,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;commandName)</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
+<div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab5">
 <div class="block">Wraps this command with logging using an explicit command name.</div>
 </div>
 </div>
@@ -190,15 +195,28 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="commandName()">
+<h3>commandName</h3>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-62">commandName</a></span>()</div>
+<div class="block">Returns a best-effort human-readable name for this command.
+
+ <p>Synthetic and anonymous implementations fall back to <code>IStreamCommand</code> so diagnostics
+ remain stable even when the concrete class name is not meaningful.</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>command label suitable for logging and error messages</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="withLogging(org.slf4j.Logger)">
 <h3>withLogging</h3>
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-66">withLogging</a></span><wbr><span class="parameters">(org.slf4j.Logger&nbsp;logger)</span></div>
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-91">withLogging</a></span><wbr><span class="parameters">(org.slf4j.Logger&nbsp;logger)</span></div>
 <div class="block">Wraps this command with logging. The returned command logs start, completion, and failure using
  the provided logger.
 
- <p>The command name is derived from <code>this.getClass().getSimpleName()</code> at wrap time. When
- this command is implemented as a lambda or method reference, the underlying class is synthetic
- and the derived name may not be meaningful. In such cases, prefer <a href="#withLogging(org.slf4j.Logger,java.lang.String)"><code>withLogging(Logger, String)</code></a> to provide an explicit command name.</div>
+ <p>The command name is derived by <a href="#commandName()"><code>commandName()</code></a>. When a caller wants a different label
+ in logs, prefer <a href="#withLogging(org.slf4j.Logger,java.lang.String)"><code>withLogging(Logger, String)</code></a>.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>logger</code> - the logger to write messages to</dd>
@@ -210,7 +228,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="withLogging(org.slf4j.Logger,java.lang.String)">
 <h3>withLogging</h3>
-<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-83">withLogging</a></span><wbr><span class="parameters">(org.slf4j.Logger&nbsp;logger,
+<div class="member-signature"><span class="modifiers">default</span>&nbsp;<span class="return-type"><a href="IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/command/IStreamCommand.html#line-106">withLogging</a></span><wbr><span class="parameters">(org.slf4j.Logger&nbsp;logger,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;commandName)</span></div>
 <div class="block">Wraps this command with logging using an explicit command name.
 

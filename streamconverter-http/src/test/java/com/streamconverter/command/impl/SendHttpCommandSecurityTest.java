@@ -65,4 +65,75 @@ class SendHttpCommandSecurityTest {
 
     System.out.println("Valid external URL accepted successfully");
   }
+
+  @Test
+  @DisplayName("無効なプロトコル（ftp, file, javascript）はブロックされる")
+  void testInvalidProtocolBlocked() {
+    IllegalArgumentException ftpEx =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new SendHttpCommand("ftp://example.com"),
+            "FTPプロトコルはIllegalArgumentExceptionをスローするべき");
+    assertTrue(
+        ftpEx.getMessage().contains("HTTP and HTTPS"),
+        "エラーメッセージに許可プロトコルの説明が含まれるべき");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new SendHttpCommand("file:///tmp/test"),
+        "fileプロトコルはIllegalArgumentExceptionをスローするべき");
+
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new SendHttpCommand("javascript:alert('xss')"),
+        "JavaScriptプロトコルはIllegalArgumentExceptionをスローするべき");
+  }
+
+  @Test
+  @DisplayName("スキームなしのURLはブロックされる")
+  void testNoSchemeBlocked() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new SendHttpCommand("example.com/api"),
+            "スキームなしのURLはIllegalArgumentExceptionをスローするべき");
+    assertTrue(
+        ex.getMessage().contains("scheme"),
+        "エラーメッセージにschemeに関する説明が含まれるべき");
+  }
+
+  @Test
+  @DisplayName("IPv6ループバックアドレス（[::1]）はブロックされる")
+  void testIpv6LoopbackBlocked() {
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new SendHttpCommand("http://[::1]:8080"),
+            "IPv6 localhostアクセスはIllegalArgumentExceptionをスローするべき");
+    assertTrue(
+        ex.getMessage().contains("localhost") || ex.getMessage().contains("private"),
+        "エラーメッセージにlocalhost or privateが含まれるべき");
+  }
+
+  @Test
+  @DisplayName("10.x.x.x および 172.16.x.x のプライベートIPレンジはブロックされる")
+  void testPrivateIpRangesBlocked() {
+    IllegalArgumentException ex10 =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new SendHttpCommand("http://10.0.0.1"),
+            "10.x.x.xアクセスはIllegalArgumentExceptionをスローするべき");
+    assertTrue(
+        ex10.getMessage().contains("private") || ex10.getMessage().contains("localhost"),
+        "エラーメッセージにprivate or localhostが含まれるべき");
+
+    IllegalArgumentException ex172 =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new SendHttpCommand("http://172.16.0.1"),
+            "172.16-31.x.xアクセスはIllegalArgumentExceptionをスローするべき");
+    assertTrue(
+        ex172.getMessage().contains("private") || ex172.getMessage().contains("localhost"),
+        "エラーメッセージにprivate or localhostが含まれるべき");
+  }
 }

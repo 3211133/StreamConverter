@@ -352,7 +352,7 @@ public class CsvValidateCommandTest {
 
   @Test
   @DisplayName("Validation consumes the full input stream")
-  void testStreamingValidationBehavior() throws IOException {
+  void testValidationConsumesFullInputStream() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
     CsvValidateCommand command = CsvValidateCommand.create(requiredColumns);
 

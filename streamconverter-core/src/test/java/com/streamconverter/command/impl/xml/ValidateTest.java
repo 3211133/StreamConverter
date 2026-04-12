@@ -166,7 +166,7 @@ class ValidateTest {
 
   @Test
   @DisplayName("XML validation passes content through and fully consumes the input stream")
-  void testStreamingXmlValidationBehavior() throws IOException {
+  void testXmlValidationPassesThroughAndConsumesInputStream() throws IOException {
     ValidateCommand command = ValidateCommand.create(schemaPath);
 
     StringBuilder xmlBuilder = new StringBuilder();

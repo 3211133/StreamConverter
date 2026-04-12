@@ -106,7 +106,7 @@ src/test/java/com/streamConverter/
 │       ├── json/
 │       │   └── JsonValidateCommandTest.java # JSONバリデーションテスト
 │       └── xml/
-│           ├── ConvertCommandTest.java    # XML変換テスト
+│           ├── XmlNavigateCommandTest.java # XMLナビゲート・変換テスト
 │           └── ValidateTest.java          # XMLバリデーションテスト
 ├── context/
 │   └── ExecutionContextTest.java         # 実行コンテキストテスト

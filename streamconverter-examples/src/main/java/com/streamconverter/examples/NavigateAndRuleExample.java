@@ -1,7 +1,6 @@
 package com.streamconverter.examples;
 
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.impl.LineEndingNormalizeCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
 import com.streamconverter.command.impl.xml.XmlNavigateCommand;
@@ -167,12 +166,10 @@ public class NavigateAndRuleExample {
 
   private static void xmlPipeline() throws IOException {
     log.info("--- XML パイプライン ---");
-    // XmlNavigateCommand は対象フィールドを含む断片 XML を出力する。
-    // そのため、複数フィールドを別々のコマンドで変換することはできない。
-    // 代わりに、name フィールドに複数の Rule を段階的に適用する3段構成にする:
-    //   コマンド1: product/name の前後空白をトリム → <name>Laptop Computer</name>
-    //   コマンド2: name を小文字化              → <name>laptop computer</name>
-    //   コマンド3: LineEndingNormalizeCommand   → 行末を LF に統一
+    // XmlNavigateCommand は JSON と同様に XML 全体構造を保持しながら特定パスの値を変換する。
+    // 複数フィールドを別々のコマンドで変換することも可能。
+    //   コマンド1: product/name の前後空白をトリムして小文字化
+    //   コマンド2: product/category をスネークケースに変換
 
     String xml =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"
@@ -184,14 +181,22 @@ public class NavigateAndRuleExample {
 
     log.info("入力 XML:\n{}", xml);
 
-    String xmlExpected = "<name>laptop computer</name>\n";
-    log.info("期待値（product/name フィールドのみ抽出・変換）:\n{}", xmlExpected);
+    String xmlExpected =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<product>\n"
+            + "  <name>laptop computer</name>\n"
+            + "  <category>personal_computer</category>\n"
+            + "  <sku>lp001</sku>\n"
+            + "</product>\n";
+    log.info("期待値（XML 全体を保持しながら name と category を変換）:\n{}", xmlExpected);
 
     ByteArrayOutputStream xmlOut = new ByteArrayOutputStream();
     StreamConverter.create(
-            XmlNavigateCommand.create(TreePath.fromXml("product/name"), new TrimRule()),
-            XmlNavigateCommand.create(TreePath.fromXml("name"), new LowerCaseRule()),
-            new LineEndingNormalizeCommand(LineEndingNormalizeCommand.LineEndingType.UNIX))
+            XmlNavigateCommand.create(
+                TreePath.fromXml("product/name"),
+                ChainRule.builder().addRule(new TrimRule()).addRule(new LowerCaseRule()).build()),
+            XmlNavigateCommand.create(
+                TreePath.fromXml("product/category"), CamelToSnakeCaseRule.create()))
         .run(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), xmlOut);
     log.info("出力:\n{}", xmlOut.toString(StandardCharsets.UTF_8));
   }

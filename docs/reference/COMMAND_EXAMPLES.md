@@ -33,13 +33,13 @@ converter.run(inputStream, outputStream);
 
 ```java
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.impl.xml.ConvertCommand;
+import com.streamconverter.command.impl.xml.XmlNavigateCommand;
 import com.streamconverter.command.impl.xml.ValidateCommand;
 import com.streamconverter.command.rule.impl.string.TrimRule;
 import com.streamconverter.path.TreePath;
 
 StreamConverter converter = StreamConverter.create(
-    ConvertCommand.create(new TrimRule(), TreePath.fromXml("root/element")),
+    XmlNavigateCommand.create(TreePath.fromXml("root/element"), new TrimRule()),
     ValidateCommand.create("schema.xsd")
 );
 converter.run(inputStream, outputStream);

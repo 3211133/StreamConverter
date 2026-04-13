@@ -201,7 +201,6 @@ spotbugs {
 
 // SpotBugs task configuration
 tasks.spotbugsMain {
-    ignoreFailures = true // SpotBugs違反があってもビルドを継続
     reports.create("html") {
         required.set(true)
         outputLocation.set(file("build/reports/spotbugs/main.html"))
@@ -217,7 +216,6 @@ tasks.spotbugsMain {
 }
 
 tasks.spotbugsTest {
-    ignoreFailures = true // SpotBugs違反があってもビルドを継続
 }
 
 // check タスクの実行時に spotlessApply を依存タスクとして実行する

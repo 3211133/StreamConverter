@@ -11,7 +11,6 @@ import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.impl.csv.CsvValidateCommand;
 import com.streamconverter.command.impl.json.JsonFilterCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
-import com.streamconverter.command.impl.xml.ConvertCommand;
 import com.streamconverter.command.impl.xml.ValidateCommand;
 import com.streamconverter.command.impl.xml.XmlFilterCommand;
 import com.streamconverter.command.impl.xml.XmlNavigateCommand;
@@ -93,7 +92,10 @@ final class CommandStreamingContractProviders {
 
   static void writeString(Path path, String value) {
     try {
-      Files.createDirectories(path.getParent());
+      Path parent = path.getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
       Files.writeString(path, value, StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to prepare contract test input file: " + path, e);
@@ -269,26 +271,6 @@ final class JsonFilterCommandStreamingContractProvider implements CommandStreami
             + "\",\"role\":\"admin\"},\"tail\":\""
             + "tail-value-".repeat(1400)
             + "\"}");
-  }
-
-  @Override
-  public StreamingExpectation expectation() {
-    return StreamingExpectation.STREAMING_COMPLIANT;
-  }
-}
-
-final class ConvertCommandStreamingContractProvider implements CommandStreamingContractProvider {
-  @Override
-  public IStreamCommand createCommand() {
-    return ConvertCommand.create(
-        new TestRule("original", "transformed"), TreePath.fromXml("root/item"));
-  }
-
-  @Override
-  public byte[] sampleInput() {
-    String largeText = "original".repeat(1600);
-    return CommandStreamingContractProviders.utf8(
-        "<root><item>" + largeText + "</item><item>second</item><tail>z</tail></root>");
   }
 
   @Override

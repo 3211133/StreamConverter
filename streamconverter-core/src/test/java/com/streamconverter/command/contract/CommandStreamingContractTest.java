@@ -89,41 +89,43 @@ class CommandStreamingContractTest {
           () -> "Non-compliant command must explain why: " + commandClass.fqcn());
     }
 
-    BlockingProbeInputStream inputStream = new BlockingProbeInputStream(provider.sampleInput());
-    SignalingOutputStream outputStream = new SignalingOutputStream();
-
-    ExecutorService executor = Executors.newSingleThreadExecutor();
-    Future<?> future =
-        executor.submit(() -> executeCommand(provider.createCommand(), inputStream, outputStream));
-
     boolean wroteBeforeRelease = false;
     AssertionError failure = null;
-    try {
-      wroteBeforeRelease = outputStream.awaitFirstWrite(FIRST_WRITE_TIMEOUT);
-      if (provider.expectation() == StreamingExpectation.STREAMING_COMPLIANT) {
-        assertTrue(
-            wroteBeforeRelease,
-            () ->
-                commandClass.simpleName()
-                    + " did not start writing before the remaining input was released");
-      } else {
-        assertFalse(
-            wroteBeforeRelease,
-            () ->
-                commandClass.simpleName()
-                    + " started writing early but is marked as non-compliant: "
-                    + provider.exemptionReason());
-      }
-    } catch (AssertionError e) {
-      failure = e;
-    } finally {
-      inputStream.releaseRemainingInput();
-    }
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try (BlockingProbeInputStream inputStream =
+            new BlockingProbeInputStream(provider.sampleInput());
+        SignalingOutputStream outputStream = new SignalingOutputStream()) {
+      Future<?> future =
+          executor.submit(
+              () -> executeCommand(provider.createCommand(), inputStream, outputStream));
 
-    try {
-      awaitCompletion(commandClass, future);
-    } finally {
-      shutdown(executor, future);
+      try {
+        wroteBeforeRelease = outputStream.awaitFirstWrite(FIRST_WRITE_TIMEOUT);
+        if (provider.expectation() == StreamingExpectation.STREAMING_COMPLIANT) {
+          assertTrue(
+              wroteBeforeRelease,
+              () ->
+                  commandClass.simpleName()
+                      + " did not start writing before the remaining input was released");
+        } else {
+          assertFalse(
+              wroteBeforeRelease,
+              () ->
+                  commandClass.simpleName()
+                      + " started writing early but is marked as non-compliant: "
+                      + provider.exemptionReason());
+        }
+      } catch (AssertionError e) {
+        failure = e;
+      } finally {
+        inputStream.releaseRemainingInput();
+      }
+
+      try {
+        awaitCompletion(commandClass, future);
+      } finally {
+        shutdown(executor, future);
+      }
     }
 
     if (failure != null) {

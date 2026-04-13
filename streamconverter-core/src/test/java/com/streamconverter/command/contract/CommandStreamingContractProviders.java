@@ -287,7 +287,15 @@ final class ValidateCommandStreamingContractProvider implements CommandStreaming
 
   @Override
   public byte[] sampleInput() {
-    return CommandStreamingContractProviders.resourceBytes("valid-test.xml");
+    String largeContent = "content-".repeat(1500);
+    return CommandStreamingContractProviders.utf8(
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<root id=\"test\">"
+            + "<element>"
+            + largeContent
+            + "</element>"
+            + "<element>tail</element>"
+            + "</root>");
   }
 
   @Override

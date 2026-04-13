@@ -29,11 +29,6 @@ StreamConverter の処理を HTTP 経由で利用するための Spring Boot Web
 
 指定パスに `PassThroughRule` を適用しながら JSON 構造全体を出力します（パスの値のみを抽出するのではありません）。
 
-### XML ナビゲーション（構造保持）
-`POST /api/v1/stream/xml/navigate?xpath=root/element`
-
-指定パスに変換ルールを適用しながら XML 構造全体を出力します（パスの要素のみを抽出するのではありません）。
-
 ### パイプライン処理
 `POST /api/v1/stream/process`
 

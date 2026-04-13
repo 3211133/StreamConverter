@@ -56,12 +56,11 @@ import org.slf4j.LoggerFactory;
  * [コマンド3] JsonNavigateCommand($.sku) + ラムダIRule（"SKU-" プレフィックス付与）
  * </pre>
  *
- * <p><b>シナリオ（XML 3段パイプライン）:</b>
+ * <p><b>シナリオ（XML 2段パイプライン）:</b>
  *
  * <pre>
  * [コマンド1] XmlNavigateCommand(product/name) + ChainRule(TrimRule → LowerCaseRule)
  * [コマンド2] XmlNavigateCommand(product/category) + CamelToSnakeCaseRule
- * [コマンド3] XmlNavigateCommand(product/sku) + ラムダIRule（"SKU-" プレフィックス付与）
  * </pre>
  */
 public class NavigateAndRuleExample {

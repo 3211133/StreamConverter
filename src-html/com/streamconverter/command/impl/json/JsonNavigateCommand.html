@@ -121,49 +121,55 @@
 <span class="source-line-no">108</span><span id="line-108">        case VALUE_STRING:</span>
 <span class="source-line-no">109</span><span id="line-109">          String originalValue = parser.getText();</span>
 <span class="source-line-no">110</span><span id="line-110">          if (isMatchingPath(currentPath)) {</span>
-<span class="source-line-no">111</span><span id="line-111">            generator.writeString(rule.apply(originalValue));</span>
-<span class="source-line-no">112</span><span id="line-112">          } else {</span>
-<span class="source-line-no">113</span><span id="line-113">            generator.writeString(originalValue);</span>
-<span class="source-line-no">114</span><span id="line-114">          }</span>
-<span class="source-line-no">115</span><span id="line-115">          break;</span>
-<span class="source-line-no">116</span><span id="line-116"></span>
-<span class="source-line-no">117</span><span id="line-117">        case START_OBJECT:</span>
-<span class="source-line-no">118</span><span id="line-118">          depth++;</span>
-<span class="source-line-no">119</span><span id="line-119">          generator.writeStartObject();</span>
-<span class="source-line-no">120</span><span id="line-120">          break;</span>
-<span class="source-line-no">121</span><span id="line-121"></span>
-<span class="source-line-no">122</span><span id="line-122">        case END_OBJECT:</span>
-<span class="source-line-no">123</span><span id="line-123">          depth--;</span>
-<span class="source-line-no">124</span><span id="line-124">          // Trim path to current depth</span>
-<span class="source-line-no">125</span><span id="line-125">          while (currentPath.size() &gt; depth) {</span>
-<span class="source-line-no">126</span><span id="line-126">            currentPath.remove(currentPath.size() - 1);</span>
-<span class="source-line-no">127</span><span id="line-127">          }</span>
-<span class="source-line-no">128</span><span id="line-128">          generator.writeEndObject();</span>
-<span class="source-line-no">129</span><span id="line-129">          break;</span>
-<span class="source-line-no">130</span><span id="line-130"></span>
-<span class="source-line-no">131</span><span id="line-131">        case START_ARRAY:</span>
-<span class="source-line-no">132</span><span id="line-132">          generator.writeStartArray();</span>
-<span class="source-line-no">133</span><span id="line-133">          break;</span>
-<span class="source-line-no">134</span><span id="line-134"></span>
-<span class="source-line-no">135</span><span id="line-135">        case END_ARRAY:</span>
-<span class="source-line-no">136</span><span id="line-136">          generator.writeEndArray();</span>
-<span class="source-line-no">137</span><span id="line-137">          break;</span>
-<span class="source-line-no">138</span><span id="line-138"></span>
-<span class="source-line-no">139</span><span id="line-139">        default:</span>
-<span class="source-line-no">140</span><span id="line-140">          // Copy all other tokens as-is (numbers, booleans, null)</span>
-<span class="source-line-no">141</span><span id="line-141">          generator.copyCurrentEvent(parser);</span>
-<span class="source-line-no">142</span><span id="line-142">          break;</span>
-<span class="source-line-no">143</span><span id="line-143">      }</span>
-<span class="source-line-no">144</span><span id="line-144">    }</span>
-<span class="source-line-no">145</span><span id="line-145">  }</span>
-<span class="source-line-no">146</span><span id="line-146"></span>
-<span class="source-line-no">147</span><span id="line-147">  /** Simple path matching for streaming JSON processing */</span>
-<span class="source-line-no">148</span><span id="line-148">  private boolean isMatchingPath(List&lt;String&gt; currentPath) {</span>
-<span class="source-line-no">149</span><span id="line-149">    // Use matchesIgnoringArraySyntax so that paths like $.orders[*].product_code</span>
-<span class="source-line-no">150</span><span id="line-150">    // correctly match the streaming currentPath ["orders", "product_code"].</span>
-<span class="source-line-no">151</span><span id="line-151">    return treePath.matchesIgnoringArraySyntax(currentPath);</span>
-<span class="source-line-no">152</span><span id="line-152">  }</span>
-<span class="source-line-no">153</span><span id="line-153">}</span>
+<span class="source-line-no">111</span><span id="line-111">            String transformed;</span>
+<span class="source-line-no">112</span><span id="line-112">            try {</span>
+<span class="source-line-no">113</span><span id="line-113">              transformed = rule.apply(originalValue);</span>
+<span class="source-line-no">114</span><span id="line-114">            } catch (RuntimeException ruleEx) {</span>
+<span class="source-line-no">115</span><span id="line-115">              throw new IOException("Rule application failed at path " + currentPath, ruleEx);</span>
+<span class="source-line-no">116</span><span id="line-116">            }</span>
+<span class="source-line-no">117</span><span id="line-117">            generator.writeString(transformed);</span>
+<span class="source-line-no">118</span><span id="line-118">          } else {</span>
+<span class="source-line-no">119</span><span id="line-119">            generator.writeString(originalValue);</span>
+<span class="source-line-no">120</span><span id="line-120">          }</span>
+<span class="source-line-no">121</span><span id="line-121">          break;</span>
+<span class="source-line-no">122</span><span id="line-122"></span>
+<span class="source-line-no">123</span><span id="line-123">        case START_OBJECT:</span>
+<span class="source-line-no">124</span><span id="line-124">          depth++;</span>
+<span class="source-line-no">125</span><span id="line-125">          generator.writeStartObject();</span>
+<span class="source-line-no">126</span><span id="line-126">          break;</span>
+<span class="source-line-no">127</span><span id="line-127"></span>
+<span class="source-line-no">128</span><span id="line-128">        case END_OBJECT:</span>
+<span class="source-line-no">129</span><span id="line-129">          depth--;</span>
+<span class="source-line-no">130</span><span id="line-130">          // Trim path to current depth</span>
+<span class="source-line-no">131</span><span id="line-131">          while (currentPath.size() &gt; depth) {</span>
+<span class="source-line-no">132</span><span id="line-132">            currentPath.remove(currentPath.size() - 1);</span>
+<span class="source-line-no">133</span><span id="line-133">          }</span>
+<span class="source-line-no">134</span><span id="line-134">          generator.writeEndObject();</span>
+<span class="source-line-no">135</span><span id="line-135">          break;</span>
+<span class="source-line-no">136</span><span id="line-136"></span>
+<span class="source-line-no">137</span><span id="line-137">        case START_ARRAY:</span>
+<span class="source-line-no">138</span><span id="line-138">          generator.writeStartArray();</span>
+<span class="source-line-no">139</span><span id="line-139">          break;</span>
+<span class="source-line-no">140</span><span id="line-140"></span>
+<span class="source-line-no">141</span><span id="line-141">        case END_ARRAY:</span>
+<span class="source-line-no">142</span><span id="line-142">          generator.writeEndArray();</span>
+<span class="source-line-no">143</span><span id="line-143">          break;</span>
+<span class="source-line-no">144</span><span id="line-144"></span>
+<span class="source-line-no">145</span><span id="line-145">        default:</span>
+<span class="source-line-no">146</span><span id="line-146">          // Copy all other tokens as-is (numbers, booleans, null)</span>
+<span class="source-line-no">147</span><span id="line-147">          generator.copyCurrentEvent(parser);</span>
+<span class="source-line-no">148</span><span id="line-148">          break;</span>
+<span class="source-line-no">149</span><span id="line-149">      }</span>
+<span class="source-line-no">150</span><span id="line-150">    }</span>
+<span class="source-line-no">151</span><span id="line-151">  }</span>
+<span class="source-line-no">152</span><span id="line-152"></span>
+<span class="source-line-no">153</span><span id="line-153">  /** Simple path matching for streaming JSON processing */</span>
+<span class="source-line-no">154</span><span id="line-154">  private boolean isMatchingPath(List&lt;String&gt; currentPath) {</span>
+<span class="source-line-no">155</span><span id="line-155">    // Use matchesIgnoringArraySyntax so that paths like $.orders[*].product_code</span>
+<span class="source-line-no">156</span><span id="line-156">    // correctly match the streaming currentPath ["orders", "product_code"].</span>
+<span class="source-line-no">157</span><span id="line-157">    return treePath.matchesIgnoringArraySyntax(currentPath);</span>
+<span class="source-line-no">158</span><span id="line-158">  }</span>
+<span class="source-line-no">159</span><span id="line-159">}</span>
 
 
 

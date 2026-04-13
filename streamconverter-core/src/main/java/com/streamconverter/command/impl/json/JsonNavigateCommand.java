@@ -108,7 +108,13 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
         case VALUE_STRING:
           String originalValue = parser.getText();
           if (isMatchingPath(currentPath)) {
-            generator.writeString(rule.apply(originalValue));
+            String transformed;
+            try {
+              transformed = rule.apply(originalValue);
+            } catch (RuntimeException ruleEx) {
+              throw new IOException("Rule application failed at path " + currentPath, ruleEx);
+            }
+            generator.writeString(transformed);
           } else {
             generator.writeString(originalValue);
           }

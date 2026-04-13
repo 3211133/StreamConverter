@@ -54,7 +54,7 @@ converter.run(inputStream, outputStream);
 | --- | --- | --- |
 | CSV | `CsvNavigateCommand`, `CsvFilterCommand`, `CsvValidateCommand` | 列変換・行フィルタ・構造検証 |
 | JSON | `JsonNavigateCommand`, `JsonFilterCommand` | JSONPath 変換・フィルタ |
-| XML | `XmlNavigateCommand`, `XmlFilterCommand`, `ConvertCommand`, `ValidateCommand` | XPath ナビゲーションと XSD 検証 |
+| XML | `XmlNavigateCommand`, `XmlFilterCommand`, `ValidateCommand` | XPath ナビゲーションと XSD 検証 |
 | 文字列 | `LineEndingNormalizeCommand`, `CharacterConvertCommand` | 改行正規化・エンコーディング変換 |
 
 ---

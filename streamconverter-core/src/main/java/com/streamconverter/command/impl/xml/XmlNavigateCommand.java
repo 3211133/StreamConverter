@@ -125,18 +125,18 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   private void closeResources(XMLEventReader eventReader, XMLEventWriter eventWriter) {
-    if (eventReader != null) {
-      try {
-        eventReader.close();
-      } catch (XMLStreamException e) {
-        LOGGER.warn("Failed to close XMLEventReader", e);
-      }
-    }
     if (eventWriter != null) {
       try {
         eventWriter.close();
       } catch (XMLStreamException e) {
         LOGGER.warn("Failed to close XMLEventWriter", e);
+      }
+    }
+    if (eventReader != null) {
+      try {
+        eventReader.close();
+      } catch (XMLStreamException e) {
+        LOGGER.warn("Failed to close XMLEventReader", e);
       }
     }
   }

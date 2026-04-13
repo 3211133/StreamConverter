@@ -97,13 +97,19 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="../../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-29">XmlNavigateCommand</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-35">XmlNavigateCommand</a></span>
 <span class="extends-implements">extends <a href="../../AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></span></div>
-<div class="block">XML Navigate Command Class
+<div class="block">XML Navigate Command for applying transformations to XML data.
 
- <p>This class implements command for targeted XML transformation using XPath. It identifies
- specific elements using XPath expressions and applies IRule transformations to those elements
- while preserving the overall XML structure.</div>
+ <p>This command navigates through XML structures and applies transformations using rules while
+ preserving the overall XML structure. It identifies specific elements using TreePath
+ slash-delimited path expressions (e.g., <code>product/name</code>) and applies <a href="../../rule/IRule.html" title="interface in com.streamconverter.command.rule"><code>IRule</code></a>
+ transformations to the text content of matching nodes.
+
+ <p>The full XML event stream — including the XML declaration, all elements, attributes, and text
+ nodes — is written to the output. Only character data at nodes whose path exactly matches the
+ configured <a href="../../../path/TreePath.html" title="class in com.streamconverter.path"><code>TreePath</code></a> is transformed by the rule; all other events are passed through
+ unchanged.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -162,7 +168,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="create(com.streamconverter.path.TreePath,com.streamconverter.command.rule.IRule)">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="XmlNavigateCommand.html" title="class in com.streamconverter.command.impl.xml">XmlNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-57">create</a></span><wbr><span class="parameters">(<a href="../../../path/TreePath.html" title="class in com.streamconverter.path">TreePath</a>&nbsp;treePath,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="XmlNavigateCommand.html" title="class in com.streamconverter.command.impl.xml">XmlNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-63">create</a></span><wbr><span class="parameters">(<a href="../../../path/TreePath.html" title="class in com.streamconverter.path">TreePath</a>&nbsp;treePath,
  <a href="../../rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Factory method for creating an XML navigation command with TreePath and rule.</div>
 <dl class="notes">
@@ -180,7 +186,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-67">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-73">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block"><span class="description-from-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">AbstractStreamCommand</a></code></span></div>

@@ -112,9 +112,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
             try {
               transformed = rule.apply(originalValue);
             } catch (RuntimeException ruleEx) {
-              throw new IOException(
-                  "Rule application failed at path " + currentPath + " on value: " + originalValue,
-                  ruleEx);
+              throw new IOException("Rule application failed at path " + currentPath, ruleEx);
             }
             generator.writeString(transformed);
           } else {

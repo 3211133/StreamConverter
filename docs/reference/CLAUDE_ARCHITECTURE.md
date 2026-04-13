@@ -13,7 +13,7 @@
 ## Available built-in commands (core)
 - CSV: `CsvNavigateCommand`, `CsvFilterCommand`, `CsvValidateCommand`
 - JSON: `JsonNavigateCommand`, `JsonFilterCommand`
-- XML: `XmlNavigateCommand`, `XmlFilterCommand`, `ConvertCommand`, `ValidateCommand`
+- XML: `XmlNavigateCommand`, `XmlFilterCommand`, `ValidateCommand`
 - Text: `LineEndingNormalizeCommand`, `CharacterConvertCommand`
 
 ## Important

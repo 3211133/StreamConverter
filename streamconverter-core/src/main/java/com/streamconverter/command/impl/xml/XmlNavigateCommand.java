@@ -7,9 +7,6 @@ import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 import javax.xml.stream.XMLEventFactory;
@@ -69,26 +66,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-    try (Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
-      // Apply rule to specific XPath elements while preserving structure
-      applyRuleToXmlPath(inputStream, writer);
-    } catch (XMLStreamException e) {
-      throw new IOException("XML processing error", e);
-    }
-  }
-
-  /**
-   * Apply transformation rule to specific XPath elements while preserving XML structure This is a
-   * simplified implementation - production version would need proper XPath library
-   */
-  private void applyRuleToXmlPath(InputStream inputStream, Writer writer)
-      throws IOException, XMLStreamException {
     XMLEventReader eventReader = null;
     XMLEventWriter eventWriter = null;
 
     try {
       eventReader = createXMLEventReader(inputStream);
-      eventWriter = createXMLEventWriter(writer);
+      eventWriter = createXMLEventWriter(outputStream);
       navigateXmlWithRule(eventReader, eventWriter, treePath, rule);
     } catch (XMLStreamException e) {
       handleXmlException(e);
@@ -101,45 +84,20 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)
       throws XMLStreamException {
     List<String> currentPath = new ArrayList<>();
-    boolean inTargetElement = false;
-    int targetDepth = 0;
 
     while (eventReader.hasNext()) {
       XMLEvent event = eventReader.nextEvent();
 
       if (event.isStartElement()) {
-        String elementName = event.asStartElement().getName().getLocalPart();
-        currentPath.add(elementName);
-
-        if (treePath.matches(currentPath)) {
-          inTargetElement = true;
-          targetDepth = currentPath.size();
-          eventWriter.add(event);
-        } else if (inTargetElement) {
-          eventWriter.add(event);
-        }
+        currentPath.add(event.asStartElement().getName().getLocalPart());
       } else if (event.isEndElement()) {
-        if (inTargetElement) {
-          eventWriter.add(event);
-          if (currentPath.size() == targetDepth) {
-            inTargetElement = false;
-            // Add newline as simple characters
-            eventWriter.add(EVENT_FACTORY.createCharacters("\n"));
-          }
-        }
         currentPath.remove(currentPath.size() - 1);
-      } else if (event.isCharacters() && inTargetElement) {
-        // Apply rule to character data in target elements
-        String originalData = event.asCharacters().getData();
-        String transformedData = rule.apply(originalData);
-        if (!originalData.equals(transformedData)) {
-          // Create new character event with transformed data
-          XMLEvent transformedEvent = EVENT_FACTORY.createCharacters(transformedData);
-          eventWriter.add(transformedEvent);
-        } else {
-          eventWriter.add(event);
-        }
+      } else if (event.isCharacters() && treePath.matches(currentPath)) {
+        String transformed = rule.apply(event.asCharacters().getData());
+        event = EVENT_FACTORY.createCharacters(transformed);
       }
+
+      eventWriter.add(event);
     }
   }
 
@@ -153,9 +111,9 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     return reader;
   }
 
-  private XMLEventWriter createXMLEventWriter(Writer writer) throws XMLStreamException {
+  private XMLEventWriter createXMLEventWriter(OutputStream outputStream) throws XMLStreamException {
     XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-    return outputFactory.createXMLEventWriter(writer);
+    return outputFactory.createXMLEventWriter(outputStream);
   }
 
   private void handleXmlException(XMLStreamException e) throws IOException {
@@ -167,18 +125,18 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   private void closeResources(XMLEventReader eventReader, XMLEventWriter eventWriter) {
-    if (eventReader != null) {
-      try {
-        eventReader.close();
-      } catch (XMLStreamException e) {
-        LOGGER.warn("Failed to close XMLEventReader", e);
-      }
-    }
     if (eventWriter != null) {
       try {
         eventWriter.close();
       } catch (XMLStreamException e) {
         LOGGER.warn("Failed to close XMLEventWriter", e);
+      }
+    }
+    if (eventReader != null) {
+      try {
+        eventReader.close();
+      } catch (XMLStreamException e) {
+        LOGGER.warn("Failed to close XMLEventReader", e);
       }
     }
   }

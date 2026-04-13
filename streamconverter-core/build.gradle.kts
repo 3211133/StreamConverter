@@ -5,7 +5,7 @@ plugins {
     id("jacoco")
     id("pmd")
     id("com.github.spotbugs") version "6.4.8"
-    id("com.diffplug.spotless") version "8.3.0"
+    id("com.diffplug.spotless") version "8.4.0"
     id("info.solidsoft.pitest") version "1.19.0"
 }
 
@@ -201,7 +201,6 @@ spotbugs {
 
 // SpotBugs task configuration
 tasks.spotbugsMain {
-    ignoreFailures = true // SpotBugs違反があってもビルドを継続
     reports.create("html") {
         required.set(true)
         outputLocation.set(file("build/reports/spotbugs/main.html"))
@@ -217,7 +216,6 @@ tasks.spotbugsMain {
 }
 
 tasks.spotbugsTest {
-    ignoreFailures = true // SpotBugs違反があってもビルドを継続
 }
 
 // check タスクの実行時に spotlessApply を依存タスクとして実行する

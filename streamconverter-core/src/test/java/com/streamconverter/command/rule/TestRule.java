@@ -3,7 +3,7 @@ package com.streamconverter.command.rule;
 import java.util.Objects;
 
 /**
- * Test implementation of IRule for unit testing XML ConvertCommand.
+ * Test implementation of IRule for unit testing commands.
  *
  * <p>This rule performs simple string replacement operations for testing purposes.
  */

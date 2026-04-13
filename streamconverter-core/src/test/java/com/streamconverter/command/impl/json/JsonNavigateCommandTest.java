@@ -1,6 +1,7 @@
 package com.streamconverter.command.impl.json;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -260,6 +261,30 @@ class JsonNavigateCommandTest {
         result.indexOf("\"original\"") == result.lastIndexOf("\"original\""),
         "$.first.x must remain 'original'; only one occurrence expected in output");
     assertTrue(result.contains("\"keep\""), "Non-target fields should be preserved");
+  }
+
+  @Test
+  @DisplayName("Rule RuntimeException is wrapped as IOException with original cause")
+  void testRuleRuntimeExceptionWrappedAsIOException() {
+    RuntimeException ruleEx = new RuntimeException("rule failure");
+    JsonNavigateCommand failingRuleCommand =
+        JsonNavigateCommand.create(
+            TreePath.fromJson("$.value"),
+            v -> {
+              throw ruleEx;
+            });
+    String jsonInput = "{\"value\":\"some text\"}";
+    InputStream inputStream = new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
+    OutputStream outputStream = new ByteArrayOutputStream();
+
+    IOException thrown =
+        assertThrows(
+            IOException.class, () -> failingRuleCommand.execute(inputStream, outputStream));
+    assertNotNull(thrown.getCause(), "IOException should have original exception as cause");
+    assertInstanceOf(
+        RuntimeException.class,
+        thrown.getCause(),
+        "Cause should be the RuntimeException from rule");
   }
 
   @Test

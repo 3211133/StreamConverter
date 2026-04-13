@@ -113,8 +113,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         try {
           transformed = rule.apply(data);
         } catch (RuntimeException ruleEx) {
-          throw new XMLStreamException(
-              "Rule application failed at path " + currentPath + " on value: " + data, ruleEx);
+          throw new XMLStreamException("Rule application failed at path " + currentPath, ruleEx);
         }
         // Write every event unconditionally; character events at the target path are replaced
         // above.
@@ -147,18 +146,24 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private IOException buildXmlException(XMLStreamException e) {
     String location = "";
     if (e.getLocation() != null) {
-      location =
-          String.format(
-              " at line %d, column %d",
-              e.getLocation().getLineNumber(), e.getLocation().getColumnNumber());
+      int line = e.getLocation().getLineNumber();
+      int column = e.getLocation().getColumnNumber();
+      if (line > 0 && column > 0) {
+        location = String.format(" at line %d, column %d", line, column);
+      }
     }
-    LOGGER.error("XML processing failed{}: {}", location, e.getMessage(), e);
-    return new IOException("XML processing failed" + location + ": " + e.getMessage(), e);
+    LOGGER.error("XML processing failed{}", location, e);
+    return new IOException("XML processing failed" + location, e);
   }
 
   private void closeResources(
       XMLEventReader eventReader, XMLEventWriter eventWriter, IOException primaryException) {
     if (eventWriter != null) {
+      try {
+        eventWriter.flush();
+      } catch (XMLStreamException e) {
+        LOGGER.warn("Failed to flush XMLEventWriter during cleanup", e);
+      }
       try {
         eventWriter.close();
       } catch (XMLStreamException e) {

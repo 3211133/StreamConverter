@@ -92,7 +92,10 @@ final class CommandStreamingContractProviders {
 
   static void writeString(Path path, String value) {
     try {
-      Files.createDirectories(path.getParent());
+      Path parent = path.getParent();
+      if (parent != null) {
+        Files.createDirectories(parent);
+      }
       Files.writeString(path, value, StandardCharsets.UTF_8);
     } catch (IOException e) {
       throw new IllegalStateException("Failed to prepare contract test input file: " + path, e);

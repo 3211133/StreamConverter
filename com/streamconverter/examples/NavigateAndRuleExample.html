@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/examples/NavigateAndRuleExample.html#line-68">NavigateAndRuleExample</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/examples/NavigateAndRuleExample.html#line-66">NavigateAndRuleExample</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">例2: Navigate系コマンド × IRule（CSV/JSON/XML）
 
@@ -129,12 +129,11 @@ loadScripts(document, 'script');</script>
  [コマンド3] JsonNavigateCommand($.sku) + ラムダIRule（"SKU-" プレフィックス付与）
  </pre>
 
- <p><b>シナリオ（XML 3段パイプライン）:</b>
+ <p><b>シナリオ（XML 2段パイプライン）:</b>
 
  <pre>
  [コマンド1] XmlNavigateCommand(product/name) + ChainRule(TrimRule → LowerCaseRule)
  [コマンド2] XmlNavigateCommand(product/category) + CamelToSnakeCaseRule
- [コマンド3] XmlNavigateCommand(product/sku) + ラムダIRule（"SKU-" プレフィックス付与）
  </pre></div>
 </section>
 <section class="summary">
@@ -186,7 +185,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="&lt;init&gt;()">
 <h3>NavigateAndRuleExample</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/examples/NavigateAndRuleExample.html#line-68">NavigateAndRuleExample</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/examples/NavigateAndRuleExample.html#line-66">NavigateAndRuleExample</a></span>()</div>
 </section>
 </li>
 </ul>
@@ -200,7 +199,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="main(java.lang.String[])">
 <h3>main</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/examples/NavigateAndRuleExample.html#line-76">main</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;args)</span>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/examples/NavigateAndRuleExample.html#line-74">main</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>[]&nbsp;args)</span>
                  throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <dl class="notes">
 <dt>Parameters:</dt>

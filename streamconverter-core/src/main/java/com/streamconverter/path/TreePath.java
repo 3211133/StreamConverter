@@ -123,8 +123,12 @@ public class TreePath implements IPath<List<String>> {
    */
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (obj == null || getClass() != obj.getClass()) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (obj == null || getClass() != obj.getClass()) {
+      return false;
+    }
     TreePath treePath = (TreePath) obj;
     return segments.equals(treePath.segments);
   }

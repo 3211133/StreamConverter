@@ -101,8 +101,11 @@ public class CsvFilterCommand extends AbstractStreamCommand {
       }
 
       // Process remaining rows
-      String[] row;
-      while ((row = csvReader.readNext()) != null) {
+      while (true) {
+        String[] row = csvReader.readNext();
+        if (row == null) {
+          break;
+        }
         writeFilteredRow(csvWriter, row, columnIndices);
       }
 

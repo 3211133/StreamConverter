@@ -47,6 +47,7 @@ public class FileBufferCommand extends AbstractStreamCommand {
   private final boolean encrypted;
 
   private FileBufferCommand(boolean encrypted) {
+    super();
     this.encrypted = encrypted;
   }
 
@@ -108,8 +109,11 @@ public class FileBufferCommand extends AbstractStreamCommand {
   private void write(InputStream inputStream, Path tempFile) throws IOException {
     try (OutputStream fileOut = Files.newOutputStream(tempFile)) {
       byte[] buffer = new byte[BUFFER_SIZE];
-      int bytesRead;
-      while ((bytesRead = inputStream.read(buffer)) != -1) {
+      while (true) {
+        int bytesRead = inputStream.read(buffer);
+        if (bytesRead == -1) {
+          break;
+        }
         fileOut.write(buffer, 0, bytesRead);
       }
     }
@@ -118,8 +122,11 @@ public class FileBufferCommand extends AbstractStreamCommand {
   private void read(Path tempFile, OutputStream outputStream) throws IOException {
     try (InputStream fileIn = Files.newInputStream(tempFile)) {
       byte[] buffer = new byte[BUFFER_SIZE];
-      int bytesRead;
-      while ((bytesRead = fileIn.read(buffer)) != -1) {
+      while (true) {
+        int bytesRead = fileIn.read(buffer);
+        if (bytesRead == -1) {
+          break;
+        }
         outputStream.write(buffer, 0, bytesRead);
       }
     }
@@ -132,8 +139,11 @@ public class FileBufferCommand extends AbstractStreamCommand {
       Cipher cipher = initCipher(Cipher.ENCRYPT_MODE, key, iv);
       try (CipherOutputStream cipherOut = new CipherOutputStream(fileOut, cipher)) {
         byte[] buffer = new byte[BUFFER_SIZE];
-        int bytesRead;
-        while ((bytesRead = inputStream.read(buffer)) != -1) {
+        while (true) {
+          int bytesRead = inputStream.read(buffer);
+          if (bytesRead == -1) {
+            break;
+          }
           cipherOut.write(buffer, 0, bytesRead);
         }
       }
@@ -155,8 +165,11 @@ public class FileBufferCommand extends AbstractStreamCommand {
       Cipher cipher = initCipher(Cipher.DECRYPT_MODE, key, storedIv);
       try (CipherInputStream cipherIn = new CipherInputStream(fileIn, cipher)) {
         byte[] buffer = new byte[BUFFER_SIZE];
-        int bytesRead;
-        while ((bytesRead = cipherIn.read(buffer)) != -1) {
+        while (true) {
+          int bytesRead = cipherIn.read(buffer);
+          if (bytesRead == -1) {
+            break;
+          }
           outputStream.write(buffer, 0, bytesRead);
         }
       }

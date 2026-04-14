@@ -14,8 +14,5 @@ import java.io.IOException;
  */
 public class PipeAbortedException extends IOException {
 
-  /** 対向コマンドの異常終了を示す例外を作成する。 */
-  public PipeAbortedException() {
-    super();
-  }
+  private static final long serialVersionUID = 1L;
 }

@@ -16,15 +16,6 @@ import org.apache.commons.io.input.TeeInputStream;
 public abstract class ConsumerCommand extends AbstractStreamCommand {
 
   /**
-   * Default constructor.
-   *
-   * <p>Initializes the command with default settings.
-   */
-  public ConsumerCommand() {
-    super();
-  }
-
-  /**
    * Executes the command on the provided input stream and writes the result to the output stream.
    *
    * <p><strong>Note on data integrity:</strong> This method uses {@link TeeInputStream} to copy
@@ -51,7 +42,7 @@ public abstract class ConsumerCommand extends AbstractStreamCommand {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
-    try (InputStream teeInputStream = new TeeInputStream(inputStream, outputStream); ) {
+    try (InputStream teeInputStream = new TeeInputStream(inputStream, outputStream)) {
       this.consume(teeInputStream);
     } catch (IOException e) {
       throw new IOException("Error while consuming input stream", e);

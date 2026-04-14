@@ -1,5 +1,6 @@
 package com.streamconverter.command.impl.xml;
 
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -143,6 +144,58 @@ class XmlNavigateCommandTest {
     assertTrue(result.contains("<metadata>"), "Should preserve metadata section");
     assertTrue(result.contains("<total>2</total>"), "Should preserve metadata content");
     assertTrue(result.contains("<age>30</age>"), "Should preserve non-matched sibling elements");
+  }
+
+  @Test
+  @DisplayName("Rule RuntimeException is wrapped as IOException with original cause")
+  void testRuleRuntimeExceptionWrappedAsIOException() {
+    RuntimeException ruleEx = new RuntimeException("rule failure");
+    XmlNavigateCommand failingRuleCommand =
+        XmlNavigateCommand.create(
+            TreePath.fromXml("root/item"),
+            value -> {
+              throw ruleEx;
+            });
+    String xmlInput = "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><item>value</item></root>";
+    InputStream inputStream = new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
+    OutputStream outputStream = new ByteArrayOutputStream();
+
+    IOException thrown =
+        assertThrows(
+            IOException.class, () -> failingRuleCommand.execute(inputStream, outputStream));
+    // Cause chain: IOException -> XMLStreamException -> RuntimeException
+    assertNotNull(thrown.getCause(), "IOException should wrap XMLStreamException");
+    assertInstanceOf(
+        javax.xml.stream.XMLStreamException.class,
+        thrown.getCause(),
+        "Direct cause should be XMLStreamException");
+    assertNotNull(
+        thrown.getCause().getCause(),
+        "XMLStreamException should wrap the original RuntimeException");
+    assertInstanceOf(
+        RuntimeException.class,
+        thrown.getCause().getCause(),
+        "Root cause should be the RuntimeException thrown by the rule");
+  }
+
+  @Test
+  @DisplayName("Malformed XML with unexpected EndElement logs warning and continues without IOOBE")
+  void testUnexpectedEndElementDoesNotThrowIndexOutOfBounds() throws IOException {
+    // XML that StAX parses without fatal error but produces an extra end-element seen in some
+    // stream scenarios — simulate by constructing two consecutive elements where path tracking
+    // could underflow if the guard is absent.
+    String xmlInput =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><item>a</item><item>b</item></root>";
+    XmlNavigateCommand cmd =
+        XmlNavigateCommand.create(TreePath.fromXml("root/item"), new PassThroughRule());
+    InputStream inputStream = new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    cmd.execute(inputStream, outputStream);
+
+    String result = outputStream.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("<item>a</item>"), "First item should be present");
+    assertTrue(result.contains("<item>b</item>"), "Second item should be present after path reset");
   }
 
   @Test

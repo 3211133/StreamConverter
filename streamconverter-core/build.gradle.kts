@@ -4,8 +4,8 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
-    id("com.github.spotbugs") version "6.4.8"
-    id("com.diffplug.spotless") version "8.3.0"
+    id("com.github.spotbugs") version "6.5.0"
+    id("com.diffplug.spotless") version "8.4.0"
     id("info.solidsoft.pitest") version "1.19.0"
 }
 
@@ -69,7 +69,7 @@ dependencies {
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.1")
     // Classpath scanning for streaming contract test discovery
-    testImplementation("io.github.classgraph:classgraph:4.8.179")
+    testImplementation("io.github.classgraph:classgraph:4.8.184")
     testImplementation(project(":streamconverter-http"))
     testImplementation(project(":streamconverter-tools"))
 }

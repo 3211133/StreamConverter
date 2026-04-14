@@ -8,12 +8,8 @@ package com.streamconverter.command.rule;
  */
 public class PassThroughRule implements IRule {
 
-  private final boolean requireNonNullInput;
-
   /** Default constructor. */
-  public PassThroughRule() {
-    this.requireNonNullInput = true;
-  }
+  public PassThroughRule() {}
 
   /**
    * Apply the pass-through rule - returns input unchanged.
@@ -24,7 +20,7 @@ public class PassThroughRule implements IRule {
    */
   @Override
   public String apply(String input) {
-    if (requireNonNullInput && input == null) {
+    if (input == null) {
       throw new IllegalArgumentException("Input cannot be null");
     }
     return input;

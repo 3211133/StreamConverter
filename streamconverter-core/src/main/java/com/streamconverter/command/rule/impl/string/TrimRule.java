@@ -27,22 +27,12 @@ import com.streamconverter.command.rule.IRule;
  */
 public class TrimRule implements IRule {
 
-  private final boolean nullSafe;
-
   /** Creates a TrimRule instance. */
-  public TrimRule() {
-    this.nullSafe = true;
-  }
+  public TrimRule() {}
 
   @Override
   public String apply(String input) {
-    if (input != null) {
-      return input.trim();
-    }
-    if (nullSafe) {
-      return null;
-    }
-    throw new IllegalArgumentException("Input cannot be null");
+    return input != null ? input.trim() : null;
   }
 
   @Override

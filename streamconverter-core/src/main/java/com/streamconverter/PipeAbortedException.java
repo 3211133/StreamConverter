@@ -22,6 +22,6 @@ public class PipeAbortedException extends IOException {
    * <p>This exception indicates that a paired command aborted and pipe IO can no longer continue.
    */
   public PipeAbortedException() {
-    super("Pipe aborted");
+    super();
   }
 }

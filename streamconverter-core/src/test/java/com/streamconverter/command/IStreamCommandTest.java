@@ -37,7 +37,6 @@ class IStreamCommandTest {
       wrapped.execute(in, out);
     }
 
-    verify(logger, times(2)).isInfoEnabled();
     verify(logger).info(eq("Starting command: {}"), anyString());
     verify(logger).info(eq("Completed command: {} ({}ms)"), anyString(), anyLong());
     verifyNoMoreInteractions(logger);

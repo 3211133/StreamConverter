@@ -146,15 +146,11 @@ public class StreamConverter {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Starting StreamConverter with {} commands", commands.size());
-    }
+    LOG.info("Starting StreamConverter with {} commands", commands.size());
 
     executeCommands(inputStream, outputStream);
 
-    if (LOG.isInfoEnabled()) {
-      LOG.info("Completed StreamConverter pipeline");
-    }
+    LOG.info("Completed StreamConverter pipeline");
   }
 
   /** コマンド（単一または複数）を並列実行 */
@@ -193,9 +189,7 @@ public class StreamConverter {
         pipelineFailureHandler.rethrowExecutionFailure(e, futures);
       }
 
-      if (LOG.isInfoEnabled()) {
-        LOG.info("All commands completed successfully");
-      }
+      LOG.info("All commands completed successfully");
 
     } finally {
       // リソースクリーンアップ
@@ -213,9 +207,7 @@ public class StreamConverter {
       try (resource) {
         resource.getClass(); // non-empty block to satisfy PMD EmptyControlStatement
       } catch (IOException e) {
-        if (LOG.isWarnEnabled()) {
-          LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
-        }
+        LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
       }
     }
   }

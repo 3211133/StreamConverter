@@ -28,6 +28,8 @@ import org.xml.sax.SAXException;
  */
 public class ValidateCommand extends ConsumerCommand {
   private static final Logger logger = LoggerFactory.getLogger(ValidateCommand.class);
+  private static final Logger securityLogger =
+      LoggerFactory.getLogger("com.streamConverter.security");
 
   private final String schemaPath;
   private final Schema schema;
@@ -101,22 +103,14 @@ public class ValidateCommand extends ConsumerCommand {
       URL schemaUrl = ClasspathResourceValidator.getResourceUrl(validatedPath);
 
       Schema loadedSchema = factory.newSchema(schemaUrl);
-      if (logger.isInfoEnabled()) {
-        logger.info("XML Schema loaded successfully from: {}", validatedPath);
-      }
-      if (logger.isInfoEnabled()) {
-        logger.info("Secure XML schema loading completed for: {}", validatedPath);
-      }
+      logger.info("XML Schema loaded successfully from: {}", validatedPath);
+      securityLogger.info("Secure XML schema loading completed for: {}", validatedPath);
 
       return loadedSchema;
 
     } catch (SAXException | IllegalArgumentException e) {
-      if (logger.isErrorEnabled()) {
-        logger.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);
-      }
-      if (logger.isErrorEnabled()) {
-        logger.error("Secure XML schema loading failed for: {}", validatedPath);
-      }
+      logger.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);
+      securityLogger.error("Secure XML schema loading failed for: {}", validatedPath);
       throw new StreamProcessingException(
           String.format("XMLスキーマの読み込みに失敗しました - スキーマ: %s, エラー: %s", validatedPath, e.getMessage()),
           e);
@@ -146,15 +140,11 @@ public class ValidateCommand extends ConsumerCommand {
       // XMLバリデーションの実行
       validator.validate(new StreamSource(inputStream));
 
-      if (logger.isInfoEnabled()) {
-        logger.info("XML validation completed successfully using schema: {}", schemaPath);
-      }
+      logger.info("XML validation completed successfully using schema: {}", schemaPath);
 
     } catch (SAXException e) {
       // バリデーションエラーの詳細ログ出力
-      if (logger.isErrorEnabled()) {
-        logger.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);
-      }
+      logger.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);
 
       // バリデーションエラーをカスタム例外でラップして伝播
       throw new StreamProcessingException(
@@ -176,8 +166,6 @@ public class ValidateCommand extends ConsumerCommand {
     validator.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");
     validator.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("Secure XML processing features configured for Validator");
-    }
+    logger.debug("Secure XML processing features configured for Validator");
   }
 }

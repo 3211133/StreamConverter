@@ -105,25 +105,17 @@ public interface IStreamCommand {
    */
   default IStreamCommand withLogging(Logger logger, String commandName) {
     return (in, out) -> {
-      if (logger.isInfoEnabled()) {
-        logger.info("Starting command: {}", commandName);
-      }
+      logger.info("Starting command: {}", commandName);
       long start = System.currentTimeMillis();
       try {
         this.execute(in, out);
-        if (logger.isInfoEnabled()) {
-          logger.info(
-              "Completed command: {} ({}ms)", commandName, System.currentTimeMillis() - start);
-        }
+        logger.info(
+            "Completed command: {} ({}ms)", commandName, System.currentTimeMillis() - start);
       } catch (IOException | RuntimeException e) {
-        if (logger.isErrorEnabled()) {
-          logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
-        }
+        logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
         throw e;
       } catch (Error e) {
-        if (logger.isErrorEnabled()) {
-          logger.error("Fatal error in command: {} - {}", commandName, e.getMessage(), e);
-        }
+        logger.error("Fatal error in command: {} - {}", commandName, e.getMessage(), e);
         throw e;
       }
     };

@@ -74,9 +74,7 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
 
   @Override
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-    if (logger.isDebugEnabled()) {
-      logger.debug("Starting line ending normalization to: {}", targetType);
-    }
+    logger.debug("Starting line ending normalization to: {}", targetType);
 
     // Stream processing for memory efficiency
     try (Reader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
@@ -91,9 +89,7 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
       writer.flush();
     }
 
-    if (logger.isDebugEnabled()) {
-      logger.debug("Line ending normalization completed successfully");
-    }
+    logger.debug("Line ending normalization completed successfully");
   }
 
   private static void copy(Reader reader, Writer writer) throws IOException {

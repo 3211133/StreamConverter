@@ -104,11 +104,9 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         if (!currentPath.isEmpty()) {
           currentPath.remove(currentPath.size() - 1);
         } else {
-          if (LOGGER.isWarnEnabled()) {
-            LOGGER.warn(
-                "Unexpected end element '{}' with empty path stack — possible malformed XML",
-                event.asEndElement().getName().getLocalPart());
-          }
+          LOGGER.warn(
+              "Unexpected end element '{}' with empty path stack — possible malformed XML",
+              event.asEndElement().getName().getLocalPart());
         }
       } else if (event.isCharacters() && treePath.matches(currentPath)) {
         String data = event.asCharacters().getData();
@@ -134,9 +132,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       try {
         reader.close();
       } catch (XMLStreamException closeEx) {
-        if (LOGGER.isWarnEnabled()) {
-          LOGGER.warn("Failed to close empty XMLEventReader", closeEx);
-        }
+        LOGGER.warn("Failed to close empty XMLEventReader", closeEx);
       }
       throw new XMLStreamException("Empty XML input");
     }

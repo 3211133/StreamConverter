@@ -66,11 +66,6 @@ tasks.register<Test>("benchmarkLargeData") {
     // 5GBテスト用にヒープサイズを大きく設定
     jvmArgs("-Xmx3g", "-Xms1g")
     
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-    }
 }
 
 tasks.register<Test>("benchmarkInfrastructure") {
@@ -81,10 +76,6 @@ tasks.register<Test>("benchmarkInfrastructure") {
     
     jvmArgs("-Xmx1g", "-Xms512m")
     
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-    }
 }
 
 tasks.register<Test>("benchmarkMemoryEfficiency") {
@@ -92,10 +83,6 @@ tasks.register<Test>("benchmarkMemoryEfficiency") {
     description = "Run memory efficiency benchmarks"
     useJUnitPlatform()
     include("**/MemoryEfficiencyTest*")
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-    }
     // Increase heap size for memory efficiency tests
     jvmArgs("-Xms1g", "-Xmx2g")
 }
@@ -105,10 +92,6 @@ tasks.register<Test>("benchmarkAll") {
     description = "Run all benchmark tests"
     useJUnitPlatform()
     include("**/benchmark/**/*Test*", "**/MemoryEfficiencyTest*")
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-    }
     // Increase heap size for all benchmarks
     jvmArgs("-Xms1g", "-Xmx2g")
 }
@@ -136,10 +119,6 @@ tasks.test {
     // Exclude benchmark-related tests by class name/path pattern as well
     exclude("**/benchmark/**", "**/*Benchmark*", "**/MemoryEfficiencyTest*")
 
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-    }
     finalizedBy(tasks.jacocoTestReport)
 }
 

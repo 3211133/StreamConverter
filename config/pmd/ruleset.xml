@@ -69,8 +69,11 @@
     <!--
         This codebase prefers stream-oriented implementations over micro-optimizing StringBuilder
         capacity. The rule's suggested fixes do not align with the project's memory discipline.
+        AvoidInstantiatingObjectsInLoops was also noisy here because the remaining violations are
+        naturally per-iteration resources or defensive copies, not reusable allocations.
     -->
     <rule ref="category/java/performance.xml">
+        <exclude name="AvoidInstantiatingObjectsInLoops" />
         <exclude name="InsufficientStringBufferDeclaration" />
     </rule>
     <rule ref="category/java/security.xml" />

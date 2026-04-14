@@ -16,6 +16,7 @@
 
     <rule ref="category/java/codestyle.xml">
         <exclude name="AtLeastOneConstructor" />
+        <exclude name="CallSuperInConstructor" />
         <exclude name="CommentDefaultAccessModifier" />
         <exclude name="LocalVariableCouldBeFinal" />
         <exclude name="MethodArgumentCouldBeFinal" />
@@ -30,6 +31,7 @@
 
     <rule ref="category/java/design.xml">
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
+        <exclude name="LawOfDemeter" />
     </rule>
 
     <rule ref="category/java/errorprone.xml">

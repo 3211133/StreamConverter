@@ -47,7 +47,6 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if treePath or rule is null
    */
   private XmlNavigateCommand(TreePath treePath, IRule rule) {
-    super();
     this.treePath = treePath;
     this.rule = rule;
   }

@@ -38,7 +38,6 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if treePath or rule is null
    */
   private JsonNavigateCommand(TreePath treePath, IRule rule) {
-    super();
     this.treePath = treePath;
     this.rule = rule;
     this.jsonFactory = new JsonFactory();

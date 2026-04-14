@@ -46,7 +46,6 @@ public class ValidateCommand extends ConsumerCommand {
    * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
    */
   private ValidateCommand(String schemaPath, Schema schema) {
-    super();
     this.schemaPath = schemaPath;
     this.schema = schema;
   }

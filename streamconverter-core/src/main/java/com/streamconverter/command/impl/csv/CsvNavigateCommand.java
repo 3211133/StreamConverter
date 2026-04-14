@@ -36,7 +36,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    */
   @Deprecated
   private CsvNavigateCommand(String columnSelector, IRule rule) {
-    super();
     this.columnSelector = CSVPath.of(columnSelector);
     this.rule = rule;
   }
@@ -49,7 +48,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if columnSelector or rule is null
    */
   private CsvNavigateCommand(CSVPath columnSelector, IRule rule) {
-    super();
     this.columnSelector = columnSelector;
     this.rule = rule;
   }
@@ -62,7 +60,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if treePath or rule is null
    */
   private CsvNavigateCommand(TreePath treePath, IRule rule) {
-    super();
     this.columnSelector = CSVPath.of(treePath.toString());
     this.rule = rule;
   }

@@ -62,7 +62,6 @@ public class CsvValidateCommand extends ConsumerCommand {
    */
   private CsvValidateCommand(
       final boolean hasHeader, final int maxErrorsToReport, final String... requiredColumns) {
-    super();
     this.hasHeader = hasHeader;
     this.maxErrorsToReport = Math.max(1, maxErrorsToReport);
 

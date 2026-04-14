@@ -44,7 +44,6 @@ public class XmlFilterCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if xpath is null
    */
   private XmlFilterCommand(IPath<List<String>> xpath) {
-    super();
     this.xpath = xpath;
   }
 

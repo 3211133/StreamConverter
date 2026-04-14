@@ -36,7 +36,6 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if jsonPath is null
    */
   private JsonFilterCommand(IPath<List<String>> jsonPath) {
-    super();
     this.jsonPath = jsonPath;
     this.jsonFactory = new JsonFactory();
   }

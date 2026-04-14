@@ -13,9 +13,12 @@
     <!--
         Logging placeholders already avoid most unnecessary string work.
         Per-call log-level guards made hot methods noisier than the rule's value.
+        UseVarargs also proved too blunt here: PMD cannot distinguish natural array-shaped
+        data from APIs that only accept arrays because of call-site ergonomics.
     -->
     <rule ref="category/java/bestpractices.xml">
         <exclude name="GuardLogStatement" />
+        <exclude name="UseVarargs" />
     </rule>
 
     <!--

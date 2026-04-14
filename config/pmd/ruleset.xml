@@ -10,10 +10,23 @@
         style-only rules that currently drown out actionable findings.
     </description>
 
+    <!--
+        Logging placeholders already avoid most unnecessary string work.
+        Per-call log-level guards made hot methods noisier than the rule's value.
+    -->
     <rule ref="category/java/bestpractices.xml">
         <exclude name="GuardLogStatement" />
     </rule>
 
+    <!--
+        The following codestyle rules were excluded because they either duplicate the team's
+        formatter/review conventions or produced low-signal churn without improving readability.
+        In particular:
+        - CallSuperInConstructor: explicit super() adds no value in normal Java constructors.
+        - PrematureDeclaration: the "too early" threshold is too context-sensitive for PMD.
+        - ShortMethodName: short names can be idiomatic in factories/DSLs/tests.
+        - UnnecessaryConstructor: conflicted with the repository's Javadoc expectations.
+    -->
     <rule ref="category/java/codestyle.xml">
         <exclude name="AtLeastOneConstructor" />
         <exclude name="CallSuperInConstructor" />
@@ -31,16 +44,29 @@
         <exclude name="UnnecessaryConstructor" />
     </rule>
 
+    <!--
+        These design rules were noisy for this repository:
+        - LawOfDemeter mostly flagged normal parser/library API traversal instead of design issues.
+        - ClassWithOnlyPrivateConstructorsShouldBeFinal is stylistic and not worth global enforcement.
+    -->
     <rule ref="category/java/design.xml">
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
         <exclude name="LawOfDemeter" />
     </rule>
 
+    <!--
+        Multiple loggers are intentionally allowed when operational routing matters
+        (for example security/audit categories), so a blanket 1-class-1-logger rule is too rigid.
+    -->
     <rule ref="category/java/errorprone.xml">
         <exclude name="AvoidLiteralsInIfCondition" />
         <exclude name="MoreThanOneLogger" />
     </rule>
 
+    <!--
+        This codebase prefers stream-oriented implementations over micro-optimizing StringBuilder
+        capacity. The rule's suggested fixes do not align with the project's memory discipline.
+    -->
     <rule ref="category/java/performance.xml">
         <exclude name="InsufficientStringBufferDeclaration" />
     </rule>

@@ -21,6 +21,7 @@
         <exclude name="LocalVariableCouldBeFinal" />
         <exclude name="MethodArgumentCouldBeFinal" />
         <exclude name="OnlyOneReturn" />
+        <exclude name="ShortMethodName" />
         <exclude name="ShortVariable" />
         <exclude name="LongVariable" />
         <exclude name="FieldNamingConventions" />
@@ -39,6 +40,8 @@
         <exclude name="MoreThanOneLogger" />
     </rule>
 
-    <rule ref="category/java/performance.xml" />
+    <rule ref="category/java/performance.xml">
+        <exclude name="InsufficientStringBufferDeclaration" />
+    </rule>
     <rule ref="category/java/security.xml" />
 </ruleset>

@@ -89,10 +89,6 @@ spotless {
 tasks.test {
     useJUnitPlatform()
     
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-    }
 }
 
 // Main class configuration for default application task

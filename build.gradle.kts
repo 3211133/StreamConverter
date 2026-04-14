@@ -6,7 +6,21 @@
  * This project uses @Incubating APIs which are subject to change.
  */
 
+import com.github.spotbugs.snom.SpotBugsTask
 import java.math.BigDecimal
+import java.io.File
+import java.io.Serializable
+import java.net.URLClassLoader
+import javax.xml.parsers.DocumentBuilderFactory
+import org.gradle.api.Action
+import org.gradle.api.plugins.quality.Pmd
+import org.gradle.api.Task
+import org.gradle.api.tasks.testing.Test
+import org.gradle.api.tasks.testing.TestDescriptor
+import org.gradle.api.tasks.testing.TestListener
+import org.gradle.api.tasks.testing.TestResult
+import org.gradle.api.tasks.testing.logging.TestExceptionFormat
+import org.gradle.api.tasks.testing.logging.TestLogEvent
 
 
 plugins {
@@ -19,6 +33,246 @@ plugins {
     id("info.solidsoft.pitest") version "1.19.0"
     id("org.springframework.boot") version "4.0.5"
     id("io.spring.dependency-management") version "1.1.7"
+}
+
+class TestSkipReasonResolver(private val classpathEntries: Iterable<File>) {
+    fun resolve(testDescriptor: TestDescriptor): String? {
+        val className = testDescriptor.className ?: return null
+        val methodName = testDescriptor.name.removeSuffix("()")
+
+        return URLClassLoader(
+            classpathEntries.map { it.toURI().toURL() }.toTypedArray(),
+            javaClass.classLoader
+        ).use { classLoader ->
+            runCatching {
+                val testClass = classLoader.loadClass(className)
+                findDisabledReason(testClass, methodName)
+            }.getOrNull()
+        }
+    }
+
+    private fun findDisabledReason(testClass: Class<*>, methodName: String): String? {
+        val method = testClass.declaredMethods.firstOrNull { it.name == methodName }
+
+        return extractReason(method?.annotations?.asList())
+            ?: extractReason(testClass.annotations.asList())
+    }
+
+    private fun extractReason(annotations: List<Annotation>?): String? {
+        if (annotations == null) {
+            return null
+        }
+
+        annotations.forEach { annotation ->
+            val annotationType = annotation.annotationClass.java
+            if (!annotationType.name.startsWith("org.junit.jupiter.api.condition.")
+                && annotationType.name != "org.junit.jupiter.api.Disabled"
+            ) {
+                return@forEach
+            }
+
+            listOf("disabledReason", "value", "reason").forEach { attributeName ->
+                val attribute = annotationType.methods.firstOrNull { it.name == attributeName } ?: return@forEach
+                val rawValue = runCatching { attribute.invoke(annotation) }.getOrNull() ?: return@forEach
+                val rendered = renderAnnotationValue(rawValue).trim()
+                if (rendered.isNotEmpty()) {
+                    return rendered
+                }
+            }
+
+            val fallback = annotation.toString()
+                .substringAfter("(")
+                .substringBeforeLast(")")
+                .trim()
+            if (fallback.isNotEmpty()) {
+                return fallback
+            }
+        }
+
+        return null
+    }
+
+    private fun renderAnnotationValue(value: Any): String {
+        return when (value) {
+            is Array<*> -> value.joinToString(", ") { it.toString() }
+            else -> value.toString()
+        }
+    }
+}
+
+object QualityReportPrinter {
+    private const val MAX_DETAILS = 40
+
+    private fun parseXmlDocument(reportFile: File) = DocumentBuilderFactory.newInstance()
+        .apply {
+            setFeature("http://apache.org/xml/features/disallow-doctype-decl", true)
+            setFeature("http://xml.org/sax/features/external-general-entities", false)
+            setFeature("http://xml.org/sax/features/external-parameter-entities", false)
+            isXIncludeAware = false
+            isExpandEntityReferences = false
+        }
+        .newDocumentBuilder()
+        .parse(reportFile)
+
+    fun summarizePmdReport(taskPath: String, reportFile: File) {
+        if (!reportFile.isFile) {
+            return
+        }
+
+        val document = parseXmlDocument(reportFile)
+        val violations = document.getElementsByTagName("violation")
+        if (violations.length == 0) {
+            println("PMD summary for $taskPath: no violations")
+            return
+        }
+
+        println("PMD summary for $taskPath: ${violations.length} violation(s)")
+        val ruleCounts = linkedMapOf<String, Int>()
+        val detailLimit = minOf(violations.length, MAX_DETAILS)
+        for (index in 0 until violations.length) {
+            val violation = violations.item(index)
+            val filePath = violation.parentNode?.attributes?.getNamedItem("name")?.nodeValue ?: "<unknown>"
+            val line = violation.attributes?.getNamedItem("beginline")?.nodeValue ?: "?"
+            val rule = violation.attributes?.getNamedItem("rule")?.nodeValue ?: "unknown-rule"
+            val message = violation.textContent.trim().replace(Regex("\\s+"), " ")
+            ruleCounts[rule] = (ruleCounts[rule] ?: 0) + 1
+            if (index < detailLimit) {
+                println("  $filePath:$line [$rule] $message")
+            }
+        }
+
+        if (violations.length > detailLimit) {
+            println("  ... ${violations.length - detailLimit} more violation(s) omitted from console output")
+        }
+
+        println("  Top rules:")
+        ruleCounts.entries
+            .sortedByDescending { it.value }
+            .take(10)
+            .forEach { (rule, count) ->
+                println("    $count $rule")
+            }
+
+        println("  Full XML: ${reportFile.absolutePath}")
+    }
+
+    fun summarizeSpotBugsReport(taskPath: String, reportFile: File) {
+        if (!reportFile.isFile) {
+            return
+        }
+
+        val document = parseXmlDocument(reportFile)
+        val bugs = document.getElementsByTagName("BugInstance")
+        if (bugs.length == 0) {
+            println("SpotBugs summary for $taskPath: no findings")
+            return
+        }
+
+        println("SpotBugs summary for $taskPath: ${bugs.length} finding(s)")
+        val typeCounts = linkedMapOf<String, Int>()
+        val detailLimit = minOf(bugs.length, MAX_DETAILS)
+        for (index in 0 until bugs.length) {
+            val bug = bugs.item(index)
+            val type = bug.attributes?.getNamedItem("type")?.nodeValue ?: "unknown-type"
+            val priority = bug.attributes?.getNamedItem("priority")?.nodeValue ?: "?"
+            val sourceLine = bug.childNodes?.let { children ->
+                (0 until children.length)
+                    .map { children.item(it) }
+                    .firstOrNull { it.nodeName == "SourceLine" }
+            }
+            val filePath = sourceLine?.attributes?.getNamedItem("sourcepath")?.nodeValue ?: "<unknown>"
+            val line = sourceLine?.attributes?.getNamedItem("start")?.nodeValue ?: "?"
+            val longMessage = bug.childNodes?.let { children ->
+                (0 until children.length)
+                    .map { children.item(it) }
+                    .firstOrNull { it.nodeName == "LongMessage" }
+                    ?.textContent
+            }?.trim()?.replace(Regex("\\s+"), " ") ?: "No description"
+            typeCounts[type] = (typeCounts[type] ?: 0) + 1
+            if (index < detailLimit) {
+                println("  $filePath:$line [$type priority=$priority] $longMessage")
+            }
+        }
+
+        if (bugs.length > detailLimit) {
+            println("  ... ${bugs.length - detailLimit} more finding(s) omitted from console output")
+        }
+
+        println("  Top bug types:")
+        typeCounts.entries
+            .sortedByDescending { it.value }
+            .take(10)
+            .forEach { (type, count) ->
+                println("    $count $type")
+            }
+
+        println("  Full XML: ${reportFile.absolutePath}")
+    }
+}
+
+class PmdSummaryAction(
+    private val taskPath: String,
+    private val reportFile: File
+) : Action<Task>, Serializable {
+    override fun execute(task: Task) {
+        QualityReportPrinter.summarizePmdReport(taskPath, reportFile)
+    }
+}
+
+class SpotBugsSummaryAction(
+    private val taskPath: String,
+    private val reportFile: File
+) : Action<Task>, Serializable {
+    override fun execute(task: Task) {
+        QualityReportPrinter.summarizeSpotBugsReport(taskPath, reportFile)
+    }
+}
+
+fun Test.configureReadableTestOutput() {
+    val verboseTests = providers.systemProperty("test.verbose")
+        .orElse(providers.gradleProperty("test.verbose"))
+        .map(String::toBoolean)
+        .getOrElse(false)
+
+    testLogging {
+        events = setOf(TestLogEvent.FAILED, TestLogEvent.SKIPPED)
+        showStandardStreams = verboseTests
+        showExceptions = true
+        showCauses = true
+        showStackTraces = verboseTests
+        exceptionFormat = if (verboseTests) {
+            TestExceptionFormat.FULL
+        } else {
+            TestExceptionFormat.SHORT
+        }
+    }
+
+    addTestListener(object : TestListener {
+        override fun beforeSuite(suite: TestDescriptor) = Unit
+
+        override fun beforeTest(testDescriptor: TestDescriptor) = Unit
+
+        override fun afterTest(testDescriptor: TestDescriptor, result: TestResult) {
+            if (result.resultType == TestResult.ResultType.SKIPPED) {
+                val reason = result.exceptions
+                    .mapNotNull { it.message?.trim() }
+                    .firstOrNull()
+                    ?: TestSkipReasonResolver(testClassesDirs.files + classpath.files).resolve(testDescriptor)
+                    ?: "No skip reason provided"
+                logger.lifecycle("Skipped: ${testDescriptor.className}.${testDescriptor.name} -> $reason")
+            }
+        }
+
+        override fun afterSuite(suite: TestDescriptor, result: TestResult) {
+            if (suite.parent == null) {
+                logger.lifecycle(
+                    "Test summary: ${result.resultType} " +
+                        "(${result.testCount} total, ${result.successfulTestCount} passed, " +
+                        "${result.failedTestCount} failed, ${result.skippedTestCount} skipped)"
+                )
+            }
+        }
+    })
 }
 
 // Main class configuration
@@ -36,11 +290,6 @@ tasks.register<Test>("benchmarkLargeData") {
     // 5GBテスト用にヒープサイズを大きく設定
     jvmArgs("-Xmx3g", "-Xms1g")
     
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.FULL
-    }
 }
 tasks.register<Test>("benchmarkInfrastructure") {
     group = "benchmark"
@@ -50,10 +299,6 @@ tasks.register<Test>("benchmarkInfrastructure") {
     
     jvmArgs("-Xmx1g", "-Xms512m")
     
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-    }
 }
 
 tasks.register<Test>("benchmarkMemoryEfficiency") {
@@ -61,10 +306,6 @@ tasks.register<Test>("benchmarkMemoryEfficiency") {
     description = "Run memory efficiency benchmarks"
     useJUnitPlatform()
     include("**/MemoryEfficiencyTest*")
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-    }
     // Increase heap size for memory efficiency tests
     jvmArgs("-Xms1g", "-Xmx2g")
 }
@@ -74,10 +315,6 @@ tasks.register<Test>("benchmarkAll") {
     description = "Run all benchmark tests"
     useJUnitPlatform()
     include("**/benchmark/**/*Test*", "**/MemoryEfficiencyTest*")
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-    }
     // Increase heap size for all benchmarks
     jvmArgs("-Xms1g", "-Xmx2g")
 }
@@ -133,12 +370,6 @@ tasks.test {
     // メモリ効率テスト用にJVMヒープサイズを設定
     jvmArgs("-Xmx1g", "-Xms512m")
     
-    // テスト実行時の詳細ログを表示
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = true
-    }
-    
     // テスト完了後にJaCoCoレポートを生成
     finalizedBy(tasks.jacocoTestReport)
     // テスト実行後にjavadocを生成
@@ -190,14 +421,8 @@ pmd {
     isConsoleOutput = false
     toolVersion = "7.16.0"
     rulesMinimumPriority = 5
-    ruleSets = listOf(
-        "category/java/bestpractices.xml",
-        "category/java/codestyle.xml",
-        "category/java/design.xml",
-        "category/java/errorprone.xml",
-        "category/java/performance.xml",
-        "category/java/security.xml"
-    )
+    ruleSetFiles = files("config/pmd/ruleset.xml")
+    ruleSets = emptyList()
 }
 
 // PMD task configuration
@@ -251,7 +476,29 @@ allprojects {
     version = "0.0.0"
 
     tasks.withType<Test>().configureEach {
+        configureReadableTestOutput()
         systemProperty("skipNetworkTests", System.getProperty("skipNetworkTests", "true"))
+    }
+
+    tasks.withType<Pmd>().configureEach {
+        reports.xml.required.set(true)
+        val reportSuffix = name.removePrefix("pmd")
+            .replaceFirstChar { it.lowercase() }
+        val reportFile = project.layout.buildDirectory
+            .file("reports/pmd/$reportSuffix.xml")
+            .get()
+            .asFile
+        doLast(PmdSummaryAction(path, reportFile))
+    }
+
+    tasks.withType<SpotBugsTask>().configureEach {
+        val reportSuffix = name.removePrefix("spotbugs")
+            .replaceFirstChar { it.lowercase() }
+        val reportFile = project.layout.buildDirectory
+            .file("reports/spotbugs/$reportSuffix.xml")
+            .get()
+            .asFile
+        doLast(SpotBugsSummaryAction(path, reportFile))
     }
 }
 
@@ -314,4 +561,3 @@ tasks.register<Javadoc>("javadocAll") {
         println("   🚀 Ready for GitHub Actions deployment")
     }
 }
-

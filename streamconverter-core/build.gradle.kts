@@ -108,18 +108,6 @@ tasks.test {
         forkEvery = 1         // テストクラス毎にJVM再起動
     }
     
-    // テスト実行時の詳細ログを表示
-    // デバッグ時は -Dtest.verbose=true で詳細出力を有効化可能
-    val verboseTests = System.getProperty("test.verbose")?.toBoolean() ?: false
-    testLogging {
-        events("skipped", "failed")
-        showStandardStreams = verboseTests
-        showExceptions = verboseTests
-        showCauses = verboseTests
-        showStackTraces = verboseTests
-        exceptionFormat = org.gradle.api.tasks.testing.logging.TestExceptionFormat.SHORT
-    }
-    
     // CI環境での安定性を考慮した条件付きタスク実行
     if (org.gradle.internal.os.OperatingSystem.current().isLinux()) {
         // テスト完了後にJaCoCoレポートを生成（Linuxのみ、より安定）
@@ -171,14 +159,8 @@ pmd {
     isConsoleOutput = false
     toolVersion = "7.16.0"
     rulesMinimumPriority = 5
-    ruleSets = listOf(
-        "category/java/bestpractices.xml",
-        "category/java/codestyle.xml",
-        "category/java/design.xml",
-        "category/java/errorprone.xml",
-        "category/java/performance.xml",
-        "category/java/security.xml"
-    )
+    ruleSetFiles = rootProject.files("config/pmd/ruleset.xml")
+    ruleSets = emptyList()
     isIgnoreFailures = true // PMD違反があってもビルドを継続
 }
 

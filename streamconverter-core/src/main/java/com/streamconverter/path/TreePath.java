@@ -30,7 +30,7 @@ public class TreePath implements IPath<List<String>> {
    * @throws IllegalArgumentException if xmlPath is null or invalid
    */
   public static TreePath fromXml(String xmlPath) {
-    if (xmlPath == null || xmlPath.trim().isEmpty()) {
+    if (xmlPath == null || xmlPath.isBlank()) {
       throw new IllegalArgumentException("XML path cannot be null or empty");
     }
     String trimmedPath = xmlPath.trim();
@@ -46,7 +46,7 @@ public class TreePath implements IPath<List<String>> {
    * @throws IllegalArgumentException if jsonPath is null or invalid
    */
   public static TreePath fromJson(String jsonPath) {
-    if (jsonPath == null || jsonPath.trim().isEmpty()) {
+    if (jsonPath == null || jsonPath.isBlank()) {
       throw new IllegalArgumentException("JSON path cannot be null or empty");
     }
     String trimmedPath = jsonPath.trim();

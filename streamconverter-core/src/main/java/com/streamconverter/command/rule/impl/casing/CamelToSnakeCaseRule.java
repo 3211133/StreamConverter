@@ -28,6 +28,11 @@ import com.streamconverter.command.rule.IRule;
  */
 public class CamelToSnakeCaseRule implements IRule {
 
+  /** Common acronyms that should be split when found consecutively */
+  private static final String[] COMMON_ACRONYMS = {
+    "JSON", "XML", "API", "URL", "HTTP", "HTTPS", "FTP", "SQL", "HTML", "CSS", "JS", "REST", "SOAP"
+  };
+
   /** Whether to preserve leading/trailing underscores */
   private final boolean preserveUnderscores;
 
@@ -128,11 +133,6 @@ public class CamelToSnakeCaseRule implements IRule {
     return result.toString();
   }
 
-  /** Common acronyms that should be split when found consecutively */
-  private static final String[] COMMON_ACRONYMS = {
-    "JSON", "XML", "API", "URL", "HTTP", "HTTPS", "FTP", "SQL", "HTML", "CSS", "JS", "REST", "SOAP"
-  };
-
   /**
    * Splits consecutive acronyms based on configurable patterns. This method uses a dictionary
    * approach to identify and split consecutive acronyms like JSONAPI -> JSON_API
@@ -171,8 +171,14 @@ public class CamelToSnakeCaseRule implements IRule {
 
   /** Builder class for CamelToSnakeCaseRule configuration. */
   public static class Builder {
-    private boolean preserveUnderscores = false;
-    private boolean handleAcronyms = true;
+    private boolean preserveUnderscoresFlag;
+    private boolean handleAcronymsFlag;
+
+    /** Creates a builder with the default configuration. */
+    public Builder() {
+      this.preserveUnderscoresFlag = false;
+      this.handleAcronymsFlag = true;
+    }
 
     /**
      * Sets whether to preserve existing underscores in the input.
@@ -181,7 +187,7 @@ public class CamelToSnakeCaseRule implements IRule {
      * @return this builder
      */
     public Builder preserveUnderscores(boolean preserve) {
-      this.preserveUnderscores = preserve;
+      this.preserveUnderscoresFlag = preserve;
       return this;
     }
 
@@ -192,7 +198,7 @@ public class CamelToSnakeCaseRule implements IRule {
      * @return this builder
      */
     public Builder handleAcronyms(boolean handle) {
-      this.handleAcronyms = handle;
+      this.handleAcronymsFlag = handle;
       return this;
     }
 
@@ -202,7 +208,7 @@ public class CamelToSnakeCaseRule implements IRule {
      * @return configured rule instance
      */
     public CamelToSnakeCaseRule build() {
-      return new CamelToSnakeCaseRule(preserveUnderscores, handleAcronyms);
+      return new CamelToSnakeCaseRule(preserveUnderscoresFlag, handleAcronymsFlag);
     }
   }
 

@@ -59,7 +59,7 @@ public class CSVPath extends AbstractPath<Integer> {
    * @throws IllegalArgumentException セレクターが不正な場合
    */
   public static CSVPath of(String selector) {
-    if (selector == null || selector.trim().isEmpty()) {
+    if (selector == null || selector.isBlank()) {
       throw new IllegalArgumentException("CSV column selector cannot be null or empty");
     }
     return new CSVPath(selector);

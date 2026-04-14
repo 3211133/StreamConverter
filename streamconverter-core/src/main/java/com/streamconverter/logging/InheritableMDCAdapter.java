@@ -26,31 +26,34 @@ import org.slf4j.spi.MDCAdapter;
  */
 public class InheritableMDCAdapter implements MDCAdapter {
 
+  private final InheritableThreadLocal<Map<String, String>> tlm;
+
+  private final InheritableThreadLocal<Map<String, Deque<String>>> tlmDeque;
+
   /** Constructs a new InheritableMDCAdapter. */
-  public InheritableMDCAdapter() {}
-
-  private final InheritableThreadLocal<Map<String, String>> tlm =
-      new InheritableThreadLocal<>() {
-        @Override
-        protected Map<String, String> childValue(Map<String, String> parentValue) {
-          return parentValue == null ? null : new HashMap<>(parentValue);
-        }
-      };
-
-  private final InheritableThreadLocal<Map<String, Deque<String>>> tlmDeque =
-      new InheritableThreadLocal<>() {
-        @Override
-        protected Map<String, Deque<String>> childValue(Map<String, Deque<String>> parentValue) {
-          if (parentValue == null) {
-            return null;
+  public InheritableMDCAdapter() {
+    this.tlm =
+        new InheritableThreadLocal<>() {
+          @Override
+          protected Map<String, String> childValue(Map<String, String> parentValue) {
+            return parentValue == null ? null : new HashMap<>(parentValue);
           }
-          Map<String, Deque<String>> copy = new HashMap<>();
-          for (Map.Entry<String, Deque<String>> entry : parentValue.entrySet()) {
-            copy.put(entry.getKey(), new ArrayDeque<>(entry.getValue()));
+        };
+    this.tlmDeque =
+        new InheritableThreadLocal<>() {
+          @Override
+          protected Map<String, Deque<String>> childValue(Map<String, Deque<String>> parentValue) {
+            if (parentValue == null) {
+              return null;
+            }
+            Map<String, Deque<String>> copy = new HashMap<>();
+            for (Map.Entry<String, Deque<String>> entry : parentValue.entrySet()) {
+              copy.put(entry.getKey(), new ArrayDeque<>(entry.getValue()));
+            }
+            return copy;
           }
-          return copy;
-        }
-      };
+        };
+  }
 
   /**
    * 現在のスレッドのMDCコンテキストにキーと値を設定する。

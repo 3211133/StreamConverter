@@ -36,6 +36,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if jsonPath is null
    */
   private JsonFilterCommand(IPath<List<String>> jsonPath) {
+    super();
     this.jsonPath = jsonPath;
     this.jsonFactory = new JsonFactory();
   }
@@ -81,9 +82,9 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   /** A single segment in a parsed path. */
   private static class PathSegment {
 
-    final String field; // non-null for field access
-    final boolean wildcard; // true for [*]
-    final int index; // >= 0 for numeric index, -1 otherwise
+    final String fieldName; // non-null for field access
+    final boolean isWildcard; // true for [*]
+    final int arrayIndex; // >= 0 for numeric index, -1 otherwise
 
     static PathSegment field(String name) {
       return new PathSegment(name, false, -1);
@@ -97,14 +98,14 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       return new PathSegment(null, false, i);
     }
 
-    private PathSegment(String field, boolean wildcard, int index) {
-      this.field = field;
-      this.wildcard = wildcard;
-      this.index = index;
+    private PathSegment(String fieldName, boolean isWildcard, int arrayIndex) {
+      this.fieldName = fieldName;
+      this.isWildcard = isWildcard;
+      this.arrayIndex = arrayIndex;
     }
 
     boolean isField() {
-      return field != null;
+      return fieldName != null;
     }
   }
 
@@ -215,7 +216,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
           break;
         }
         String name = parser.currentName();
-        if (seg.field.equals(name)) {
+        if (seg.fieldName.equals(name)) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
         } else {
@@ -226,7 +227,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       if (!found) {
         generator.writeNull();
       }
-    } else if (seg.wildcard) {
+    } else if (seg.isWildcard) {
       // Expect an array; iterate elements and extract from each
       if (token != JsonToken.START_ARRAY) {
         skipValue(parser, token);
@@ -260,7 +261,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         if (arrToken == null || arrToken == JsonToken.END_ARRAY) {
           break;
         }
-        if (currentIdx == seg.index) {
+        if (currentIdx == seg.arrayIndex) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
           while (true) {
@@ -315,7 +316,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
           break;
         }
         String name = parser.currentName();
-        if (seg.field.equals(name)) {
+        if (seg.fieldName.equals(name)) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
         } else {
@@ -326,7 +327,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       if (!found) {
         generator.writeNull();
       }
-    } else if (seg.wildcard) {
+    } else if (seg.isWildcard) {
       if (currentToken != JsonToken.START_ARRAY) {
         skipValue(parser, currentToken);
         generator.writeNull();
@@ -358,7 +359,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         if (arrToken2 == null || arrToken2 == JsonToken.END_ARRAY) {
           break;
         }
-        if (currentIdx == seg.index) {
+        if (currentIdx == seg.arrayIndex) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
           while (true) {

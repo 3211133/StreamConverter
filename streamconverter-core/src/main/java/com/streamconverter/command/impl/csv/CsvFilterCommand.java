@@ -37,6 +37,7 @@ public class CsvFilterCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if columnSelector is null
    */
   private CsvFilterCommand(CSVPath columnSelector, boolean hasHeader) {
+    super();
     this.combinedSelector = columnSelector;
     this.hasHeader = hasHeader;
   }

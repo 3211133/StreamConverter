@@ -21,6 +21,13 @@ import org.slf4j.Marker;
  */
 public class PipelineContextTurboFilter extends TurboFilter {
 
+  private final boolean syncEnabled;
+
+  /** Creates a new filter instance. */
+  public PipelineContextTurboFilter() {
+    this.syncEnabled = true;
+  }
+
   /**
    * ログイベント発生直前に {@link PipelineContext#syncToMDC()} を呼び出し、 パイプライン共有値を呼び出しスレッドのMDCへ反映する。
    *
@@ -41,7 +48,9 @@ public class PipelineContextTurboFilter extends TurboFilter {
   @Override
   public FilterReply decide(
       Marker marker, Logger logger, Level level, String format, Object[] params, Throwable t) {
-    PipelineContext.syncToMDC();
+    if (syncEnabled) {
+      PipelineContext.syncToMDC();
+    }
     return FilterReply.NEUTRAL;
   }
 }

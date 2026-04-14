@@ -117,8 +117,14 @@ public class SnakeToCamelCaseRule implements IRule {
 
   /** Builder class for SnakeToCamelCaseRule configuration. */
   public static class Builder {
-    private boolean capitalizeFirst = false;
-    private boolean preserveUnderscores = false;
+    private boolean capitalizeFirstFlag;
+    private boolean preserveUnderscoresFlag;
+
+    /** Creates a builder with the default configuration. */
+    public Builder() {
+      this.capitalizeFirstFlag = false;
+      this.preserveUnderscoresFlag = false;
+    }
 
     /**
      * Sets whether to capitalize the first letter (PascalCase instead of camelCase).
@@ -127,7 +133,7 @@ public class SnakeToCamelCaseRule implements IRule {
      * @return this builder
      */
     public Builder capitalizeFirst(boolean capitalize) {
-      this.capitalizeFirst = capitalize;
+      this.capitalizeFirstFlag = capitalize;
       return this;
     }
 
@@ -138,7 +144,7 @@ public class SnakeToCamelCaseRule implements IRule {
      * @return this builder
      */
     public Builder preserveUnderscores(boolean preserve) {
-      this.preserveUnderscores = preserve;
+      this.preserveUnderscoresFlag = preserve;
       return this;
     }
 
@@ -148,7 +154,7 @@ public class SnakeToCamelCaseRule implements IRule {
      * @return configured rule instance
      */
     public SnakeToCamelCaseRule build() {
-      return new SnakeToCamelCaseRule(capitalizeFirst, preserveUnderscores);
+      return new SnakeToCamelCaseRule(capitalizeFirstFlag, preserveUnderscoresFlag);
     }
   }
 

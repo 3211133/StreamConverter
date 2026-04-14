@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SecureXmlConfiguration {
 
-  private static final Logger logger = LoggerFactory.getLogger(SecureXmlConfiguration.class);
   private static final Logger securityLogger =
       LoggerFactory.getLogger("com.streamConverter.security");
 
@@ -209,7 +208,6 @@ public class SecureXmlConfiguration {
  * 内部での使用を想定してpackage-privateとしており、外部から直接インスタンス化されることを想定していない。
  */
 class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {
-  private static final Logger logger = LoggerFactory.getLogger(SecurityAwareErrorHandler.class);
   private static final Logger securityLogger =
       LoggerFactory.getLogger("com.streamConverter.security");
 
@@ -222,8 +220,12 @@ class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {
    */
   @Override
   public void warning(org.xml.sax.SAXParseException exception) {
-    logger.debug("XML parsing warning (details suppressed for security)");
-    securityLogger.warn("XML parsing warning detected during secure processing");
+    if (securityLogger.isDebugEnabled()) {
+      securityLogger.debug("XML parsing warning (details suppressed for security)");
+    }
+    if (securityLogger.isWarnEnabled()) {
+      securityLogger.warn("XML parsing warning detected during secure processing");
+    }
   }
 
   /**
@@ -236,11 +238,13 @@ class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {
    */
   @Override
   public void error(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {
-    logger.warn(
-        "XML parsing error at line {}, column {}",
-        exception.getLineNumber(),
-        exception.getColumnNumber());
-    securityLogger.warn("XML parsing error detected during secure processing");
+    if (securityLogger.isWarnEnabled()) {
+      securityLogger.warn(
+          "XML parsing error at line {}, column {}",
+          exception.getLineNumber(),
+          exception.getColumnNumber());
+      securityLogger.warn("XML parsing error detected during secure processing");
+    }
     throw new org.xml.sax.SAXException("XML processing failed: parsing error detected", exception);
   }
 
@@ -254,7 +258,9 @@ class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {
    */
   @Override
   public void fatalError(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {
-    securityLogger.error("Fatal XML parsing error detected during secure processing");
+    if (securityLogger.isErrorEnabled()) {
+      securityLogger.error("Fatal XML parsing error detected during secure processing");
+    }
     throw new org.xml.sax.SAXException("XML processing failed due to security constraints");
   }
 }

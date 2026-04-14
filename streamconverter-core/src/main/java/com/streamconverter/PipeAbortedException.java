@@ -15,4 +15,13 @@ import java.io.IOException;
 public class PipeAbortedException extends IOException {
 
   private static final long serialVersionUID = 1L;
+
+  /**
+   * Creates a {@link PipeAbortedException} with no detail message.
+   *
+   * <p>This exception indicates that a paired command aborted and pipe IO can no longer continue.
+   */
+  public PipeAbortedException() {
+    super("Pipe aborted");
+  }
 }

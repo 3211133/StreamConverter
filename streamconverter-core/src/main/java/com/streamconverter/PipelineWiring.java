@@ -35,21 +35,13 @@ final class PipelineWiring {
 
     InputStream currentInput = inputStream;
     for (int i = 0; i < stageCount; i++) {
-      OutputStream commandOutput;
-      AbortablePipedStream pipe;
       if (i == stageCount - 1) {
-        commandOutput = outputStream;
-        pipe = null;
+        stageIos.add(new WiredStageIo(currentInput, outputStream, null));
       } else {
-        pipe = new AbortablePipedStream(bufferSize);
+        AbortablePipedStream pipe = new AbortablePipedStream(bufferSize);
         resources.add(pipe);
         pipes.add(pipe);
-        commandOutput = pipe.outputStream();
-      }
-
-      stageIos.add(new WiredStageIo(currentInput, commandOutput, pipe));
-
-      if (pipe != null) {
+        stageIos.add(new WiredStageIo(currentInput, pipe.outputStream(), pipe));
         currentInput = pipe.inputStream();
       }
     }

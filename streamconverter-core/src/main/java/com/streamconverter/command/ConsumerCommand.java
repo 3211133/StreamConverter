@@ -16,6 +16,15 @@ import org.apache.commons.io.input.TeeInputStream;
 public abstract class ConsumerCommand extends AbstractStreamCommand {
 
   /**
+   * Default constructor.
+   *
+   * <p>Subclasses typically expose their own factory methods or constructors.
+   */
+  protected ConsumerCommand() {
+    super();
+  }
+
+  /**
    * Executes the command on the provided input stream and writes the result to the output stream.
    *
    * <p><strong>Note on data integrity:</strong> This method uses {@link TeeInputStream} to copy

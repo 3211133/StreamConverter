@@ -42,7 +42,7 @@ class CommandStreamingContractTest {
 
   private static final Path REPOSITORY_ROOT = Path.of("..").normalize();
   private static final String PROVIDER_PACKAGE_PREFIX = "com.streamconverter.command.contract.";
-  private static final Duration FIRST_WRITE_TIMEOUT = Duration.ofSeconds(1);
+  private static final Duration PROBE_OBSERVATION_TIMEOUT = Duration.ofSeconds(5);
   private static final Duration COMMAND_COMPLETION_TIMEOUT = Duration.ofSeconds(5);
   private static final List<DiscoveredCommand> DISCOVERED_COMMANDS = discoverCommandClasses();
 
@@ -75,6 +75,7 @@ class CommandStreamingContractTest {
       throws Exception {
     CommandStreamingContractProvider provider = instantiateProvider(commandClass);
     assertNotNull(provider, () -> "No provider available for " + commandClass.fqcn());
+    IStreamCommand command = provider.createCommand();
 
     if (!provider.supportsProbeExecution()) {
       assertFalse(
@@ -95,18 +96,19 @@ class CommandStreamingContractTest {
     try (BlockingProbeInputStream inputStream =
             new BlockingProbeInputStream(provider.sampleInput());
         SignalingOutputStream outputStream = new SignalingOutputStream()) {
-      Future<?> future =
-          executor.submit(
-              () -> executeCommand(provider.createCommand(), inputStream, outputStream));
+      Future<?> future = executor.submit(() -> executeCommand(command, inputStream, outputStream));
 
       try {
-        wroteBeforeRelease = outputStream.awaitFirstWrite(FIRST_WRITE_TIMEOUT);
+        ProbeObservation observation = awaitProbeObservation(inputStream, outputStream, future);
+        wroteBeforeRelease = observation == ProbeObservation.WROTE_BEFORE_RELEASE;
         if (provider.expectation() == StreamingExpectation.STREAMING_COMPLIANT) {
           assertTrue(
               wroteBeforeRelease,
               () ->
                   commandClass.simpleName()
-                      + " did not start writing before the remaining input was released");
+                      + " did not start writing before the probe reached the final blocked byte ("
+                      + observation.describeForCompliantCommand()
+                      + ")");
         } else {
           assertFalse(
               wroteBeforeRelease,
@@ -141,6 +143,28 @@ class CommandStreamingContractTest {
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  private static ProbeObservation awaitProbeObservation(
+      BlockingProbeInputStream inputStream, SignalingOutputStream outputStream, Future<?> future)
+      throws InterruptedException {
+    long deadlineNanos = System.nanoTime() + PROBE_OBSERVATION_TIMEOUT.toNanos();
+    while (System.nanoTime() < deadlineNanos) {
+      if (outputStream.hasWritten()) {
+        return ProbeObservation.WROTE_BEFORE_RELEASE;
+      }
+      if (inputStream.isWaitingForFinalByteRelease()) {
+        return ProbeObservation.REACHED_FINAL_BYTE_BEFORE_WRITE;
+      }
+      if (future.isDone()) {
+        return outputStream.hasWritten()
+            ? ProbeObservation.WROTE_BEFORE_RELEASE
+            : ProbeObservation.COMPLETED_BEFORE_WRITE;
+      }
+      TimeUnit.MILLISECONDS.sleep(10);
+    }
+    fail("Probe timed out before observing either output or the final-byte block");
+    return ProbeObservation.COMPLETED_BEFORE_WRITE;
   }
 
   private static void awaitCompletion(DiscoveredCommand commandClass, Future<?> future)
@@ -226,6 +250,23 @@ class CommandStreamingContractTest {
 
   private record DiscoveredCommand(String fqcn, String simpleName) {}
 
+  private enum ProbeObservation {
+    WROTE_BEFORE_RELEASE("output started before the blocked final byte"),
+    REACHED_FINAL_BYTE_BEFORE_WRITE(
+        "command consumed input to the final blocked byte without writing"),
+    COMPLETED_BEFORE_WRITE("command finished before writing any output");
+
+    private final String compliantDescription;
+
+    ProbeObservation(String compliantDescription) {
+      this.compliantDescription = compliantDescription;
+    }
+
+    private String describeForCompliantCommand() {
+      return compliantDescription;
+    }
+  }
+
   /**
    * An input stream that delivers all bytes except the last one normally, then blocks. This lets
    * the test observe whether the command has already produced output before the final byte is
@@ -235,6 +276,7 @@ class CommandStreamingContractTest {
     private final byte[] data;
     private final CountDownLatch releaseLatch = new CountDownLatch(1);
     private int index;
+    private volatile boolean waitingForFinalByteRelease;
 
     private BlockingProbeInputStream(byte[] data) {
       this.data = data;
@@ -257,6 +299,7 @@ class CommandStreamingContractTest {
       int available = data.length - 1 - index;
       if (available <= 0) {
         // Only the final byte remains: block until released
+        waitingForFinalByteRelease = true;
         try {
           if (!releaseLatch.await(COMMAND_COMPLETION_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
             throw new IOException("Timed out waiting to release the final input byte");
@@ -264,6 +307,8 @@ class CommandStreamingContractTest {
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
           throw new IOException("Interrupted while waiting to release the final input byte", e);
+        } finally {
+          waitingForFinalByteRelease = false;
         }
         available = 1;
       }
@@ -276,6 +321,10 @@ class CommandStreamingContractTest {
 
     private void releaseRemainingInput() {
       releaseLatch.countDown();
+    }
+
+    private boolean isWaitingForFinalByteRelease() {
+      return waitingForFinalByteRelease;
     }
   }
 
@@ -296,8 +345,8 @@ class CommandStreamingContractTest {
       super.write(b, off, len);
     }
 
-    private boolean awaitFirstWrite(Duration timeout) throws InterruptedException {
-      return firstWriteLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
+    private boolean hasWritten() {
+      return firstWriteLatch.getCount() == 0;
     }
   }
 }

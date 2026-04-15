@@ -20,35 +20,36 @@
 <span class="source-line-no">007</span><span id="line-7"> * meaningful context about the failure while preserving the original exception information.</span>
 <span class="source-line-no">008</span><span id="line-8"> */</span>
 <span class="source-line-no">009</span><span id="line-9">public class StreamProcessingException extends RuntimeException {</span>
-<span class="source-line-no">010</span><span id="line-10"></span>
-<span class="source-line-no">011</span><span id="line-11">  /**</span>
-<span class="source-line-no">012</span><span id="line-12">   * Constructs a new StreamProcessingException with the specified detail message.</span>
-<span class="source-line-no">013</span><span id="line-13">   *</span>
-<span class="source-line-no">014</span><span id="line-14">   * @param message the detail message</span>
-<span class="source-line-no">015</span><span id="line-15">   */</span>
-<span class="source-line-no">016</span><span id="line-16">  public StreamProcessingException(String message) {</span>
-<span class="source-line-no">017</span><span id="line-17">    super(message);</span>
-<span class="source-line-no">018</span><span id="line-18">  }</span>
-<span class="source-line-no">019</span><span id="line-19"></span>
-<span class="source-line-no">020</span><span id="line-20">  /**</span>
-<span class="source-line-no">021</span><span id="line-21">   * Constructs a new StreamProcessingException with the specified detail message and cause.</span>
-<span class="source-line-no">022</span><span id="line-22">   *</span>
-<span class="source-line-no">023</span><span id="line-23">   * @param message the detail message</span>
-<span class="source-line-no">024</span><span id="line-24">   * @param cause the cause of the exception</span>
-<span class="source-line-no">025</span><span id="line-25">   */</span>
-<span class="source-line-no">026</span><span id="line-26">  public StreamProcessingException(String message, Throwable cause) {</span>
-<span class="source-line-no">027</span><span id="line-27">    super(message, cause);</span>
-<span class="source-line-no">028</span><span id="line-28">  }</span>
-<span class="source-line-no">029</span><span id="line-29"></span>
-<span class="source-line-no">030</span><span id="line-30">  /**</span>
-<span class="source-line-no">031</span><span id="line-31">   * Constructs a new StreamProcessingException with the specified cause.</span>
-<span class="source-line-no">032</span><span id="line-32">   *</span>
-<span class="source-line-no">033</span><span id="line-33">   * @param cause the cause of the exception</span>
-<span class="source-line-no">034</span><span id="line-34">   */</span>
-<span class="source-line-no">035</span><span id="line-35">  public StreamProcessingException(Throwable cause) {</span>
-<span class="source-line-no">036</span><span id="line-36">    super(cause);</span>
-<span class="source-line-no">037</span><span id="line-37">  }</span>
-<span class="source-line-no">038</span><span id="line-38">}</span>
+<span class="source-line-no">010</span><span id="line-10">  private static final long serialVersionUID = 1L;</span>
+<span class="source-line-no">011</span><span id="line-11"></span>
+<span class="source-line-no">012</span><span id="line-12">  /**</span>
+<span class="source-line-no">013</span><span id="line-13">   * Constructs a new StreamProcessingException with the specified detail message.</span>
+<span class="source-line-no">014</span><span id="line-14">   *</span>
+<span class="source-line-no">015</span><span id="line-15">   * @param message the detail message</span>
+<span class="source-line-no">016</span><span id="line-16">   */</span>
+<span class="source-line-no">017</span><span id="line-17">  public StreamProcessingException(String message) {</span>
+<span class="source-line-no">018</span><span id="line-18">    super(message);</span>
+<span class="source-line-no">019</span><span id="line-19">  }</span>
+<span class="source-line-no">020</span><span id="line-20"></span>
+<span class="source-line-no">021</span><span id="line-21">  /**</span>
+<span class="source-line-no">022</span><span id="line-22">   * Constructs a new StreamProcessingException with the specified detail message and cause.</span>
+<span class="source-line-no">023</span><span id="line-23">   *</span>
+<span class="source-line-no">024</span><span id="line-24">   * @param message the detail message</span>
+<span class="source-line-no">025</span><span id="line-25">   * @param cause the cause of the exception</span>
+<span class="source-line-no">026</span><span id="line-26">   */</span>
+<span class="source-line-no">027</span><span id="line-27">  public StreamProcessingException(String message, Throwable cause) {</span>
+<span class="source-line-no">028</span><span id="line-28">    super(message, cause);</span>
+<span class="source-line-no">029</span><span id="line-29">  }</span>
+<span class="source-line-no">030</span><span id="line-30"></span>
+<span class="source-line-no">031</span><span id="line-31">  /**</span>
+<span class="source-line-no">032</span><span id="line-32">   * Constructs a new StreamProcessingException with the specified cause.</span>
+<span class="source-line-no">033</span><span id="line-33">   *</span>
+<span class="source-line-no">034</span><span id="line-34">   * @param cause the cause of the exception</span>
+<span class="source-line-no">035</span><span id="line-35">   */</span>
+<span class="source-line-no">036</span><span id="line-36">  public StreamProcessingException(Throwable cause) {</span>
+<span class="source-line-no">037</span><span id="line-37">    super(cause);</span>
+<span class="source-line-no">038</span><span id="line-38">  }</span>
+<span class="source-line-no">039</span><span id="line-39">}</span>
 
 
 

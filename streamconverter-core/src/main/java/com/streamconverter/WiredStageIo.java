@@ -10,28 +10,28 @@ import java.io.OutputStream;
  * is not the terminal stage.
  */
 final class WiredStageIo {
-  private final InputStream inputStream;
-  private final OutputStream outputStream;
-  private final AbortablePipedStream ownedPipe;
+  private final InputStream input;
+  private final OutputStream output;
+  private final AbortablePipedStream pipe;
 
   WiredStageIo(InputStream input, OutputStream output, AbortablePipedStream pipe) {
-    this.inputStream = input;
-    this.outputStream = output;
-    this.ownedPipe = pipe;
+    this.input = input;
+    this.output = output;
+    this.pipe = pipe;
   }
 
   /** Returns the input stream connected to this stage. */
   InputStream input() {
-    return inputStream;
+    return input;
   }
 
   /** Returns the output stream connected to this stage. */
   OutputStream output() {
-    return outputStream;
+    return output;
   }
 
   /** Returns the intermediate pipe for this stage, or {@code null} for the terminal stage. */
   AbortablePipedStream pipe() {
-    return ownedPipe;
+    return pipe;
   }
 }

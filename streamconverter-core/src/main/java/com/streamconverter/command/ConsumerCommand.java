@@ -18,9 +18,9 @@ public abstract class ConsumerCommand extends AbstractStreamCommand {
   /**
    * Default constructor.
    *
-   * <p>Subclasses typically expose their own factory methods or constructors.
+   * <p>Initializes the command with default settings.
    */
-  protected ConsumerCommand() {
+  public ConsumerCommand() {
     super();
   }
 
@@ -51,7 +51,7 @@ public abstract class ConsumerCommand extends AbstractStreamCommand {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
-    try (InputStream teeInputStream = new TeeInputStream(inputStream, outputStream)) {
+    try (InputStream teeInputStream = new TeeInputStream(inputStream, outputStream); ) {
       this.consume(teeInputStream);
     } catch (IOException e) {
       throw new IOException("Error while consuming input stream", e);

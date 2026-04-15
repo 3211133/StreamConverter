@@ -7,7 +7,6 @@ package com.streamconverter;
  * meaningful context about the failure while preserving the original exception information.
  */
 public class StreamProcessingException extends RuntimeException {
-  private static final long serialVersionUID = 1L;
 
   /**
    * Constructs a new StreamProcessingException with the specified detail message.

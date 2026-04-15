@@ -60,7 +60,7 @@ public class SecureXPathValidator {
    * @throws IllegalArgumentException xpath引数がnullまたは空の場合
    */
   public static void validateXPath(String xpath) {
-    if (xpath == null || xpath.isBlank()) {
+    if (xpath == null || xpath.trim().isEmpty()) {
       throw new IllegalArgumentException("TreePath expression cannot be null or empty");
     }
 
@@ -81,9 +81,7 @@ public class SecureXPathValidator {
     // 厳格モードでの追加検証
     validateStrictMode(trimmedXpath);
 
-    if (securityLogger.isDebugEnabled()) {
-      securityLogger.debug("TreePath validation passed: {}", sanitizeForLogging(trimmedXpath));
-    }
+    securityLogger.debug("TreePath validation passed: {}", sanitizeForLogging(trimmedXpath));
   }
 
   /**
@@ -110,10 +108,8 @@ public class SecureXPathValidator {
     // 連続する空白の正規化
     sanitized = sanitized.replaceAll("\\s+", " ");
 
-    if (securityLogger.isDebugEnabled()) {
-      securityLogger.debug(
-          "TreePath sanitized: {} -> {}", sanitizeForLogging(xpath), sanitizeForLogging(sanitized));
-    }
+    securityLogger.debug(
+        "TreePath sanitized: {} -> {}", sanitizeForLogging(xpath), sanitizeForLogging(sanitized));
 
     return sanitized;
   }
@@ -129,9 +125,7 @@ public class SecureXPathValidator {
       validateXPath(xpath);
       return true;
     } catch (SecurityException | IllegalArgumentException e) {
-      if (securityLogger.isWarnEnabled()) {
-        securityLogger.warn("Unsafe TreePath detected: {}", sanitizeForLogging(xpath));
-      }
+      securityLogger.warn("Unsafe TreePath detected: {}", sanitizeForLogging(xpath));
       return false;
     }
   }
@@ -176,10 +170,8 @@ public class SecureXPathValidator {
 
   private static void validateBasicInjectionPatterns(String xpath) {
     if (XPATH_INJECTION_PATTERN.matcher(xpath).matches()) {
-      if (securityLogger.isWarnEnabled()) {
-        securityLogger.warn(
-            "Basic TreePath injection pattern detected: {}", sanitizeForLogging(xpath));
-      }
+      securityLogger.warn(
+          "Basic TreePath injection pattern detected: {}", sanitizeForLogging(xpath));
       throw new SecurityException(
           "Potentially malicious TreePath expression detected: basic injection pattern");
     }
@@ -187,9 +179,7 @@ public class SecureXPathValidator {
 
   private static void validateDangerousFunctions(String xpath) {
     if (DANGEROUS_FUNCTIONS_PATTERN.matcher(xpath).matches()) {
-      if (securityLogger.isWarnEnabled()) {
-        securityLogger.warn("Dangerous TreePath function detected: {}", sanitizeForLogging(xpath));
-      }
+      securityLogger.warn("Dangerous TreePath function detected: {}", sanitizeForLogging(xpath));
       throw new SecurityException(
           "Potentially malicious TreePath expression detected: dangerous function usage");
     }
@@ -197,10 +187,7 @@ public class SecureXPathValidator {
 
   private static void validateExternalReferences(String xpath) {
     if (EXTERNAL_REFERENCE_PATTERN.matcher(xpath).matches()) {
-      if (securityLogger.isWarnEnabled()) {
-        securityLogger.warn(
-            "External reference in TreePath detected: {}", sanitizeForLogging(xpath));
-      }
+      securityLogger.warn("External reference in TreePath detected: {}", sanitizeForLogging(xpath));
       throw new SecurityException(
           "Potentially malicious TreePath expression detected: external reference");
     }
@@ -208,10 +195,8 @@ public class SecureXPathValidator {
 
   private static void validateSqlLikeInjection(String xpath) {
     if (SQL_LIKE_INJECTION_PATTERN.matcher(xpath).matches()) {
-      if (securityLogger.isWarnEnabled()) {
-        securityLogger.warn(
-            "SQL-like injection pattern in TreePath detected: {}", sanitizeForLogging(xpath));
-      }
+      securityLogger.warn(
+          "SQL-like injection pattern in TreePath detected: {}", sanitizeForLogging(xpath));
       throw new SecurityException(
           "Potentially malicious TreePath expression detected: SQL-like injection pattern");
     }
@@ -222,40 +207,31 @@ public class SecureXPathValidator {
 
     // 長すぎるXPath式を拒否
     if (xpath.length() > 1000) {
-      if (securityLogger.isWarnEnabled()) {
-        securityLogger.warn(
-            "TreePath expression too long in strict mode: {} characters", xpath.length());
-      }
+      securityLogger.warn(
+          "TreePath expression too long in strict mode: {} characters", xpath.length());
       throw new SecurityException("TreePath expression exceeds maximum length in strict mode");
     }
 
     // 深いネストを拒否
     long nestingLevel = xpath.chars().filter(ch -> ch == '[').count();
     if (nestingLevel > 10) {
-      if (securityLogger.isWarnEnabled()) {
-        securityLogger.warn(
-            "TreePath expression has too deep nesting in strict mode: {} levels", nestingLevel);
-      }
+      securityLogger.warn(
+          "TreePath expression has too deep nesting in strict mode: {} levels", nestingLevel);
       throw new SecurityException("TreePath expression has excessive nesting in strict mode");
     }
 
     // 複雑な演算子の組み合わせを制限
     if (xpath.contains("and") && xpath.contains("or") && xpath.contains("not")) {
-      if (securityLogger.isWarnEnabled()) {
-        securityLogger.warn(
-            "Complex operator combination in TreePath in strict mode: {}",
-            sanitizeForLogging(xpath));
-      }
+      securityLogger.warn(
+          "Complex operator combination in TreePath in strict mode: {}", sanitizeForLogging(xpath));
       throw new SecurityException("Complex operator combinations not allowed in strict mode");
     }
 
     // ワイルドカードの過度な使用を制限
     long wildcardCount = xpath.chars().filter(ch -> ch == '*').count();
     if (wildcardCount > 5) {
-      if (securityLogger.isWarnEnabled()) {
-        securityLogger.warn(
-            "Excessive wildcard usage in TreePath in strict mode: {} wildcards", wildcardCount);
-      }
+      securityLogger.warn(
+          "Excessive wildcard usage in TreePath in strict mode: {} wildcards", wildcardCount);
       throw new SecurityException("Excessive wildcard usage not allowed in strict mode");
     }
   }

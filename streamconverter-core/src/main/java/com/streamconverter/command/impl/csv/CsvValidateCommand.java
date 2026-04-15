@@ -62,6 +62,7 @@ public class CsvValidateCommand extends ConsumerCommand {
    */
   private CsvValidateCommand(
       final boolean hasHeader, final int maxErrorsToReport, final String... requiredColumns) {
+    super();
     this.hasHeader = hasHeader;
     this.maxErrorsToReport = Math.max(1, maxErrorsToReport);
 
@@ -145,7 +146,6 @@ public class CsvValidateCommand extends ConsumerCommand {
       int rowNum = 1;
       boolean hasDataRows = false;
 
-      // Consume CSV records until the parser reports EOF.
       while ((row = csvReader.readNext()) != null) {
         hasDataRows = true;
         validateDataRow(row, rowNum++, headers, validationErrors);
@@ -166,7 +166,9 @@ public class CsvValidateCommand extends ConsumerCommand {
     } catch (CsvValidationException e) {
       LOGGER.error("CSV parsing error: {}", e.getMessage(), e);
       throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
-    } catch (IOException e) {
+    } catch (StreamProcessingException e) {
+      throw e;
+    } catch (Exception e) {
       LOGGER.error("CSV validation failed: {}", e.getMessage(), e);
       throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     }
@@ -184,7 +186,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     Set<String> duplicates = new HashSet<>();
 
     for (String header : headers) {
-      if (header == null || header.isBlank()) {
+      if (header == null || header.trim().isEmpty()) {
         errors.add("Header contains empty or null column");
         continue;
       }
@@ -241,7 +243,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     // 空行チェック
     boolean isEmptyRow = true;
     for (String cell : row) {
-      if (cell != null && !cell.isBlank()) {
+      if (cell != null && !cell.trim().isEmpty()) {
         isEmptyRow = false;
         break;
       }

@@ -229,18 +229,11 @@ public final class ValidationResult {
     private String typeVal;
     private String schemaPathVal;
     private boolean valid;
-    private final List<String> errors;
-    private final List<String> warnings;
-    private Instant timeVal;
+    private final List<String> errors = new ArrayList<>();
+    private final List<String> warnings = new ArrayList<>();
+    private Instant timeVal = Instant.now();
     private long execTimeMillis;
     private String dataSourceVal;
-
-    /** Creates a builder with empty error/warning lists and default timestamps. */
-    public Builder() {
-      this.errors = new ArrayList<>();
-      this.warnings = new ArrayList<>();
-      this.timeVal = Instant.now();
-    }
 
     /**
      * バリデーションタイプを設定

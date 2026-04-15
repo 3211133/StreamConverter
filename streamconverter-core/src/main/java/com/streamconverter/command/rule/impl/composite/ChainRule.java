@@ -110,12 +110,7 @@ public class ChainRule implements IRule {
 
   /** Builder class for ChainRule configuration. */
   public static class Builder {
-    private final List<IRule> rules;
-
-    /** Creates a builder with an empty rule chain. */
-    public Builder() {
-      this.rules = new ArrayList<>();
-    }
+    private final List<IRule> rules = new ArrayList<>();
 
     /**
      * Adds a rule to the end of the chain.
@@ -215,12 +210,8 @@ public class ChainRule implements IRule {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
     ChainRule chainRule = (ChainRule) obj;
     return rules.equals(chainRule.rules);
   }

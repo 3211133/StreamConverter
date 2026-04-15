@@ -27,9 +27,6 @@ import com.streamconverter.command.rule.IRule;
  */
 public class TrimRule implements IRule {
 
-  /** Creates a TrimRule instance. */
-  public TrimRule() {}
-
   @Override
   public String apply(String input) {
     return input != null ? input.trim() : null;

@@ -82,7 +82,9 @@ public class XmlFilterCommand extends AbstractStreamCommand {
         String firstExtractedElement = null;
         boolean isWrappedOutput = false;
 
-        CaptureSession captureSession = new CaptureSession(XMLOutputFactory.newInstance());
+        XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
+        StringWriter elementWriter = new StringWriter();
+        XMLEventWriter eventWriter = null;
 
         while (reader.hasNext()) {
           XMLEvent event = reader.nextEvent();
@@ -96,24 +98,27 @@ public class XmlFilterCommand extends AbstractStreamCommand {
             if (xpath.matches(currentPath) && !isCapturing) {
               isCapturing = true;
               captureDepth = currentDepth;
+              elementWriter = new StringWriter();
               try {
-                captureSession.start(event);
+                eventWriter = outputFactory.createXMLEventWriter(elementWriter);
+                eventWriter.add(event);
               } catch (XMLStreamException e) {
-                // Reset capturing state to avoid leaving the capture session half-open
+                // Reset capturing state to avoid leaving isCapturing=true with eventWriter=null
                 isCapturing = false;
                 captureDepth = 0;
-                captureSession.abort();
                 LOGGER.warn("Error writing start element", e);
               }
             } else if (isCapturing && currentDepth > captureDepth) {
               // We're inside a matching element, continue capturing with the same writer
               try {
-                captureSession.add(event);
+                if (eventWriter != null) {
+                  eventWriter.add(event);
+                }
               } catch (XMLStreamException e) {
                 // Abort capture to avoid writing corrupt partial state
                 isCapturing = false;
                 captureDepth = 0;
-                captureSession.abort();
+                eventWriter = null;
                 LOGGER.warn("Error writing nested start element; aborting capture", e);
               }
             }
@@ -121,18 +126,29 @@ public class XmlFilterCommand extends AbstractStreamCommand {
           } else if (event.isEndElement()) {
             if (isCapturing) {
               try {
-                captureSession.add(event);
+                if (eventWriter != null) {
+                  eventWriter.add(event);
+                }
               } catch (XMLStreamException e) {
                 // Abort capture to avoid corrupt state propagation
                 isCapturing = false;
                 captureDepth = 0;
-                captureSession.abort();
+                eventWriter = null;
                 LOGGER.warn("Error writing end element; aborting capture", e);
               }
 
               // If we're closing the captured element (re-check isCapturing in case catch reset it)
               if (isCapturing && currentDepth == captureDepth) {
-                String extractedElement = captureSession.finish();
+                try {
+                  if (eventWriter != null) {
+                    eventWriter.close();
+                    eventWriter = null;
+                  }
+                } catch (XMLStreamException e) {
+                  eventWriter = null;
+                  LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);
+                }
+                String extractedElement = elementWriter.toString();
                 if (isWrappedOutput) {
                   writer.write(extractedElement);
                   writer.flush();
@@ -156,20 +172,26 @@ public class XmlFilterCommand extends AbstractStreamCommand {
           } else if (isCapturing) {
             // Characters, comments, etc. inside captured element
             try {
-              captureSession.add(event);
+              if (eventWriter != null) {
+                eventWriter.add(event);
+              }
             } catch (XMLStreamException e) {
               // Abort capture to avoid corrupt state propagation
               isCapturing = false;
               captureDepth = 0;
-              captureSession.abort();
+              eventWriter = null;
               LOGGER.warn("Error writing content; aborting capture", e);
             }
           }
         }
 
         // Ensure writer is closed if capture was interrupted
-        if (captureSession.isOpen()) {
-          captureSession.abort();
+        if (eventWriter != null) {
+          try {
+            eventWriter.close();
+          } catch (XMLStreamException e) {
+            LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);
+          }
         }
 
         writeRemainingOutput(writer, firstExtractedElement, isWrappedOutput);
@@ -208,52 +230,5 @@ public class XmlFilterCommand extends AbstractStreamCommand {
       writer.write("</filtered-results>");
     }
     writer.flush();
-  }
-
-  private static final class CaptureSession {
-    private final XMLOutputFactory outputFactory;
-
-    private StringWriter elementWriter = new StringWriter();
-    private XMLEventWriter eventWriter;
-    private boolean open;
-
-    private CaptureSession(XMLOutputFactory outputFactory) {
-      this.outputFactory = outputFactory;
-    }
-
-    private void start(XMLEvent startEvent) throws XMLStreamException {
-      elementWriter = new StringWriter();
-      eventWriter = outputFactory.createXMLEventWriter(elementWriter);
-      open = true;
-      eventWriter.add(startEvent);
-    }
-
-    private void add(XMLEvent event) throws XMLStreamException {
-      if (open) {
-        eventWriter.add(event);
-      }
-    }
-
-    private String finish() {
-      abort();
-      return elementWriter.toString();
-    }
-
-    private void abort() {
-      if (!open) {
-        return;
-      }
-      try {
-        eventWriter.close();
-      } catch (XMLStreamException e) {
-        LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);
-      } finally {
-        open = false;
-      }
-    }
-
-    private boolean isOpen() {
-      return open;
-    }
   }
 }

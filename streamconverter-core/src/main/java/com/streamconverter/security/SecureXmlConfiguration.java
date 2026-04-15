@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
  */
 public class SecureXmlConfiguration {
 
-  private static final Logger logger = LoggerFactory.getLogger(SecureXmlConfiguration.class);
   private static final Logger securityLogger =
       LoggerFactory.getLogger("com.streamConverter.security");
 

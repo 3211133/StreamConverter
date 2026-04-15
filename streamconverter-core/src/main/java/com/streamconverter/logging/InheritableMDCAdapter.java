@@ -26,29 +26,34 @@ import org.slf4j.spi.MDCAdapter;
  */
 public class InheritableMDCAdapter implements MDCAdapter {
 
+  private final InheritableThreadLocal<Map<String, String>> tlm;
+
+  private final InheritableThreadLocal<Map<String, Deque<String>>> tlmDeque;
+
   /** Constructs a new InheritableMDCAdapter. */
-  public InheritableMDCAdapter() {}
-
-  private final InheritableThreadLocal<Map<String, String>> tlm =
-      new InheritableThreadLocal<>() {
-        @Override
-        protected Map<String, String> childValue(Map<String, String> parentValue) {
-          return parentValue == null ? null : new HashMap<>(parentValue);
-        }
-      };
-
-  private final InheritableThreadLocal<Map<String, Deque<String>>> tlmDeque =
-      new InheritableThreadLocal<>() {
-        @Override
-        protected Map<String, Deque<String>> childValue(Map<String, Deque<String>> parentValue) {
-          if (parentValue == null) return null;
-          Map<String, Deque<String>> copy = new HashMap<>();
-          for (Map.Entry<String, Deque<String>> entry : parentValue.entrySet()) {
-            copy.put(entry.getKey(), new ArrayDeque<>(entry.getValue()));
+  public InheritableMDCAdapter() {
+    this.tlm =
+        new InheritableThreadLocal<>() {
+          @Override
+          protected Map<String, String> childValue(Map<String, String> parentValue) {
+            return parentValue == null ? null : new HashMap<>(parentValue);
           }
-          return copy;
-        }
-      };
+        };
+    this.tlmDeque =
+        new InheritableThreadLocal<>() {
+          @Override
+          protected Map<String, Deque<String>> childValue(Map<String, Deque<String>> parentValue) {
+            if (parentValue == null) {
+              return null;
+            }
+            Map<String, Deque<String>> copy = new HashMap<>();
+            for (Map.Entry<String, Deque<String>> entry : parentValue.entrySet()) {
+              copy.put(entry.getKey(), new ArrayDeque<>(entry.getValue()));
+            }
+            return copy;
+          }
+        };
+  }
 
   /**
    * 現在のスレッドのMDCコンテキストにキーと値を設定する。
@@ -62,7 +67,9 @@ public class InheritableMDCAdapter implements MDCAdapter {
    */
   @Override
   public void put(String key, String val) {
-    if (key == null) throw new IllegalArgumentException("key cannot be null");
+    if (key == null) {
+      throw new IllegalArgumentException("key cannot be null");
+    }
     Map<String, String> map = tlm.get();
     if (map == null) {
       map = new HashMap<>();
@@ -153,7 +160,9 @@ public class InheritableMDCAdapter implements MDCAdapter {
    */
   @Override
   public void pushByKey(String key, String value) {
-    if (key == null) return;
+    if (key == null) {
+      return;
+    }
     Map<String, Deque<String>> map = tlmDeque.get();
     if (map == null) {
       map = new HashMap<>();
@@ -172,9 +181,13 @@ public class InheritableMDCAdapter implements MDCAdapter {
    */
   @Override
   public String popByKey(String key) {
-    if (key == null) return null;
+    if (key == null) {
+      return null;
+    }
     Map<String, Deque<String>> map = tlmDeque.get();
-    if (map == null) return null;
+    if (map == null) {
+      return null;
+    }
     Deque<String> deque = map.get(key);
     return (deque != null) ? deque.pop() : null;
   }
@@ -190,7 +203,9 @@ public class InheritableMDCAdapter implements MDCAdapter {
   @Override
   public Deque<String> getCopyOfDequeByKey(String key) {
     Map<String, Deque<String>> map = tlmDeque.get();
-    if (map == null) return null;
+    if (map == null) {
+      return null;
+    }
     Deque<String> deque = map.get(key);
     return (deque != null) ? new ArrayDeque<>(deque) : null;
   }
@@ -204,9 +219,13 @@ public class InheritableMDCAdapter implements MDCAdapter {
    */
   @Override
   public void clearDequeByKey(String key) {
-    if (key == null) return;
+    if (key == null) {
+      return;
+    }
     Map<String, Deque<String>> map = tlmDeque.get();
-    if (map == null) return;
+    if (map == null) {
+      return;
+    }
     Deque<String> deque = map.get(key);
     if (deque != null) {
       deque.clear();

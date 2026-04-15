@@ -10,30 +10,74 @@
         style-only rules that currently drown out actionable findings.
     </description>
 
+    <!--
+        Logging placeholders already avoid most unnecessary string work.
+        Per-call log-level guards made hot methods noisier than the rule's value.
+        UseVarargs also proved too blunt here: PMD cannot distinguish natural array-shaped
+        data from APIs that only accept arrays because of call-site ergonomics.
+    -->
     <rule ref="category/java/bestpractices.xml">
+        <exclude name="GuardLogStatement" />
+        <exclude name="UseVarargs" />
     </rule>
 
+    <!--
+        The following codestyle rules were excluded because they either duplicate the team's
+        formatter/review conventions or produced low-signal churn without improving readability.
+        In particular:
+        - CallSuperInConstructor: explicit super() adds no value in normal Java constructors.
+        - PrematureDeclaration: the "too early" threshold is too context-sensitive for PMD.
+        - ShortMethodName: short names can be idiomatic in factories/DSLs/tests.
+        - UnnecessaryConstructor: conflicted with the repository's Javadoc expectations.
+    -->
     <rule ref="category/java/codestyle.xml">
         <exclude name="AtLeastOneConstructor" />
+        <exclude name="CallSuperInConstructor" />
         <exclude name="CommentDefaultAccessModifier" />
         <exclude name="LocalVariableCouldBeFinal" />
         <exclude name="MethodArgumentCouldBeFinal" />
         <exclude name="OnlyOneReturn" />
+        <exclude name="PrematureDeclaration" />
+        <exclude name="ShortMethodName" />
         <exclude name="ShortVariable" />
         <exclude name="LongVariable" />
         <exclude name="FieldNamingConventions" />
         <exclude name="FormalParameterNamingConventions" />
         <exclude name="LocalVariableNamingConventions" />
+        <exclude name="UnnecessaryConstructor" />
     </rule>
 
+    <!--
+        These design rules were noisy for this repository:
+        - LawOfDemeter mostly flagged normal parser/library API traversal instead of design issues.
+        - ClassWithOnlyPrivateConstructorsShouldBeFinal is stylistic and not worth global enforcement.
+    -->
     <rule ref="category/java/design.xml">
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
+        <exclude name="LawOfDemeter" />
     </rule>
 
+    <!--
+        Multiple loggers are intentionally allowed when operational routing matters
+        (for example security/audit categories), so a blanket 1-class-1-logger rule is too rigid.
+        AssignmentInOperand also clashes with Java's normal read-loop idioms and tended to
+        encourage `while (true)` rewrites without improving correctness.
+    -->
     <rule ref="category/java/errorprone.xml">
+        <exclude name="AssignmentInOperand" />
         <exclude name="AvoidLiteralsInIfCondition" />
+        <exclude name="MoreThanOneLogger" />
     </rule>
 
-    <rule ref="category/java/performance.xml" />
+    <!--
+        This codebase prefers stream-oriented implementations over micro-optimizing StringBuilder
+        capacity. The rule's suggested fixes do not align with the project's memory discipline.
+        AvoidInstantiatingObjectsInLoops was also noisy here because the remaining violations are
+        naturally per-iteration resources or defensive copies, not reusable allocations.
+    -->
+    <rule ref="category/java/performance.xml">
+        <exclude name="AvoidInstantiatingObjectsInLoops" />
+        <exclude name="InsufficientStringBufferDeclaration" />
+    </rule>
     <rule ref="category/java/security.xml" />
 </ruleset>

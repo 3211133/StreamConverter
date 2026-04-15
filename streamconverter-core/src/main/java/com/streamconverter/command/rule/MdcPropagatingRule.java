@@ -82,8 +82,12 @@ public final class MdcPropagatingRule implements IRule {
 
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) return true;
-    if (!(obj instanceof MdcPropagatingRule other)) return false;
+    if (this == obj) {
+      return true;
+    }
+    if (!(obj instanceof MdcPropagatingRule other)) {
+      return false;
+    }
     return mdcKey.equals(other.mdcKey);
   }
 

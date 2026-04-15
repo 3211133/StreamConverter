@@ -95,11 +95,9 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
   private static void copy(Reader reader, Writer writer) throws IOException {
     // For PRESERVE_INPUT, copy directly without modification
     char[] buffer = new char[8192];
-    while (true) {
-      int charsRead = reader.read(buffer);
-      if (charsRead == -1) {
-        break;
-      }
+    int charsRead;
+    // Stream the source as-is until the reader reaches EOF.
+    while ((charsRead = reader.read(buffer)) != -1) {
       writer.write(buffer, 0, charsRead);
     }
   }
@@ -107,11 +105,9 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
   private static void normalize(Reader reader, Writer writer, String targetSeparator)
       throws IOException {
     // Process character by character for line ending normalization
-    while (true) {
-      int current = reader.read();
-      if (current == -1) {
-        break;
-      }
+    int current;
+    // Read one code unit at a time so CR, LF, and CRLF can be normalized consistently.
+    while ((current = reader.read()) != -1) {
       if (current == '\r') {
         handleCarriageReturn(reader, writer, targetSeparator);
         continue;

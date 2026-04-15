@@ -145,11 +145,8 @@ public class CsvValidateCommand extends ConsumerCommand {
       int rowNum = 1;
       boolean hasDataRows = false;
 
-      while (true) {
-        row = csvReader.readNext();
-        if (row == null) {
-          break;
-        }
+      // Consume CSV records until the parser reports EOF.
+      while ((row = csvReader.readNext()) != null) {
         hasDataRows = true;
         validateDataRow(row, rowNum++, headers, validationErrors);
       }

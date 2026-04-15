@@ -86,11 +86,9 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
     int depth = 0;
     // currentPath[i] holds the field name active at object-depth i+1
     List<String> currentPath = new ArrayList<>();
-    while (true) {
-      JsonToken token = parser.nextToken();
-      if (token == null) {
-        break;
-      }
+    JsonToken token;
+    // Advance the streaming parser token by token until the document ends.
+    while ((token = parser.nextToken()) != null) {
       switch (token) {
         case FIELD_NAME:
           String fieldName = parser.currentName();

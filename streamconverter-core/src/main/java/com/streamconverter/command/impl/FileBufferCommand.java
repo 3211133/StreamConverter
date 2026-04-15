@@ -109,11 +109,9 @@ public class FileBufferCommand extends AbstractStreamCommand {
   private void write(InputStream inputStream, Path tempFile) throws IOException {
     try (OutputStream fileOut = Files.newOutputStream(tempFile)) {
       byte[] buffer = new byte[BUFFER_SIZE];
-      while (true) {
-        int bytesRead = inputStream.read(buffer);
-        if (bytesRead == -1) {
-          break;
-        }
+      int bytesRead;
+      // Drain the source stream into the temp file until EOF.
+      while ((bytesRead = inputStream.read(buffer)) != -1) {
         fileOut.write(buffer, 0, bytesRead);
       }
     }
@@ -122,11 +120,9 @@ public class FileBufferCommand extends AbstractStreamCommand {
   private void read(Path tempFile, OutputStream outputStream) throws IOException {
     try (InputStream fileIn = Files.newInputStream(tempFile)) {
       byte[] buffer = new byte[BUFFER_SIZE];
-      while (true) {
-        int bytesRead = fileIn.read(buffer);
-        if (bytesRead == -1) {
-          break;
-        }
+      int bytesRead;
+      // Replay the buffered file to the caller until EOF.
+      while ((bytesRead = fileIn.read(buffer)) != -1) {
         outputStream.write(buffer, 0, bytesRead);
       }
     }
@@ -139,11 +135,9 @@ public class FileBufferCommand extends AbstractStreamCommand {
       Cipher cipher = initCipher(Cipher.ENCRYPT_MODE, key, iv);
       try (CipherOutputStream cipherOut = new CipherOutputStream(fileOut, cipher)) {
         byte[] buffer = new byte[BUFFER_SIZE];
-        while (true) {
-          int bytesRead = inputStream.read(buffer);
-          if (bytesRead == -1) {
-            break;
-          }
+        int bytesRead;
+        // Encrypt streamed chunks into the temp file until EOF.
+        while ((bytesRead = inputStream.read(buffer)) != -1) {
           cipherOut.write(buffer, 0, bytesRead);
         }
       }
@@ -165,11 +159,9 @@ public class FileBufferCommand extends AbstractStreamCommand {
       Cipher cipher = initCipher(Cipher.DECRYPT_MODE, key, storedIv);
       try (CipherInputStream cipherIn = new CipherInputStream(fileIn, cipher)) {
         byte[] buffer = new byte[BUFFER_SIZE];
-        while (true) {
-          int bytesRead = cipherIn.read(buffer);
-          if (bytesRead == -1) {
-            break;
-          }
+        int bytesRead;
+        // Decrypt streamed chunks from the temp file until EOF.
+        while ((bytesRead = cipherIn.read(buffer)) != -1) {
           outputStream.write(buffer, 0, bytesRead);
         }
       }

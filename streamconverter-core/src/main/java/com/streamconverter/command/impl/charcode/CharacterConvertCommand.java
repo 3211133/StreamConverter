@@ -73,11 +73,9 @@ public class CharacterConvertCommand extends AbstractStreamCommand {
       // transferTo()は大容量データでメモリを大量消費するため、
       // 固定サイズバッファでストリーミング処理を実装
       char[] buffer = new char[8192]; // 8KB char buffer (16KB memory)
-      while (true) {
-        int charsRead = reader.read(buffer);
-        if (charsRead == -1) {
-          break;
-        }
+      int charsRead;
+      // Stream fixed-size chunks until the source reader reaches EOF.
+      while ((charsRead = reader.read(buffer)) != -1) {
         writer.write(buffer, 0, charsRead);
         writer.flush(); // 即座に出力してメモリを解放
       }

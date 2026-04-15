@@ -161,11 +161,9 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
     csvWriter.writeNext(headers, false);
 
     // Process data rows
-    while (true) {
-      String[] row = csvReader.readNext();
-      if (row == null) {
-        break;
-      }
+    String[] row;
+    // Read and transform each data row until the CSV reader reaches EOF.
+    while ((row = csvReader.readNext()) != null) {
       if (columnIndex < row.length) {
         // Apply rule to target column only
         row[columnIndex] = rule.apply(row[columnIndex]);

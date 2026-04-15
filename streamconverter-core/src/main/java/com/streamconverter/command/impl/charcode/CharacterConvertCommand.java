@@ -17,8 +17,8 @@ import java.util.Objects;
  */
 // BEGIN CharacterConvertCommand.java
 public class CharacterConvertCommand extends AbstractStreamCommand {
-  private String from;
-  private String to;
+  private final String from;
+  private final String to;
 
   /**
    * Constructor to initialize the character encodings for conversion.
@@ -28,6 +28,7 @@ public class CharacterConvertCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if the specified character encodings are not supported.
    */
   private CharacterConvertCommand(String from, String to) {
+    super();
     this.from = from;
     this.to = to;
   }
@@ -67,13 +68,13 @@ public class CharacterConvertCommand extends AbstractStreamCommand {
 
     // 省メモリストリーミング文字コード変換
     try (InputStreamReader reader = new InputStreamReader(inputStream, this.from);
-        OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.to); ) {
+        OutputStreamWriter writer = new OutputStreamWriter(outputStream, this.to)) {
 
       // transferTo()は大容量データでメモリを大量消費するため、
       // 固定サイズバッファでストリーミング処理を実装
       char[] buffer = new char[8192]; // 8KB char buffer (16KB memory)
       int charsRead;
-
+      // Stream fixed-size chunks until the source reader reaches EOF.
       while ((charsRead = reader.read(buffer)) != -1) {
         writer.write(buffer, 0, charsRead);
         writer.flush(); // 即座に出力してメモリを解放

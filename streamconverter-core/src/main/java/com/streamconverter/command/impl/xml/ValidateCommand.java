@@ -61,7 +61,7 @@ public class ValidateCommand extends ConsumerCommand {
    */
   public static ValidateCommand create(String schemaPath) {
     Objects.requireNonNull(schemaPath, "Schema path cannot be null");
-    if (schemaPath.trim().isEmpty()) {
+    if (schemaPath.isBlank()) {
       throw new IllegalArgumentException("Schema path cannot be empty");
     }
     String normalizedPath = normalizeClasspathPath(schemaPath);

@@ -204,8 +204,10 @@ public class StreamConverter {
    */
   private void closeResources(List<Closeable> resources) {
     for (Closeable resource : resources) {
-      try (resource) {
-        resource.getClass(); // non-empty block to satisfy PMD EmptyControlStatement
+      try (Closeable ignored = resource) {
+        if (LOG.isTraceEnabled()) {
+          LOG.trace("Closing resource [{}]", resource.getClass().getSimpleName());
+        }
       } catch (IOException e) {
         LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
       }

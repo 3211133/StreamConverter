@@ -1,6 +1,5 @@
 package com.streamconverter;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -31,17 +30,25 @@ final class PipelineWiring {
       throws IOException {
     List<WiredStageIo> stageIos = new ArrayList<>(stageCount);
     List<AbortablePipedStream> pipes = new ArrayList<>();
-    List<Closeable> resources = new ArrayList<>();
+    List<AutoCloseable> resources = new ArrayList<>();
 
     InputStream currentInput = inputStream;
     for (int i = 0; i < stageCount; i++) {
+      OutputStream commandOutput;
+      AbortablePipedStream pipe;
       if (i == stageCount - 1) {
-        stageIos.add(new WiredStageIo(currentInput, outputStream, null));
+        commandOutput = outputStream;
+        pipe = null;
       } else {
-        AbortablePipedStream pipe = new AbortablePipedStream(bufferSize);
+        pipe = new AbortablePipedStream(bufferSize);
         resources.add(pipe);
         pipes.add(pipe);
-        stageIos.add(new WiredStageIo(currentInput, pipe.outputStream(), pipe));
+        commandOutput = pipe.outputStream();
+      }
+
+      stageIos.add(new WiredStageIo(currentInput, commandOutput, pipe));
+
+      if (pipe != null) {
         currentInput = pipe.inputStream();
       }
     }

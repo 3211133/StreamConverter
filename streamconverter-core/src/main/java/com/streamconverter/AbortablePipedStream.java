@@ -1,6 +1,5 @@
 package com.streamconverter;
 
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -28,7 +27,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
  *
  * @see PipeAbortedException
  */
-public final class AbortablePipedStream implements Closeable {
+public final class AbortablePipedStream implements AutoCloseable {
 
   private final PipedOutputStream out;
   private final PipedInputStream in;

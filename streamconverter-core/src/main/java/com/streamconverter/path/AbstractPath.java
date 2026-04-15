@@ -33,6 +33,6 @@ public abstract class AbstractPath<T> implements IPath<T> {
    * @return nullまたは空の場合true
    */
   protected static boolean isNullOrEmpty(String str) {
-    return str == null || str.isBlank();
+    return str == null || str.trim().isEmpty();
   }
 }

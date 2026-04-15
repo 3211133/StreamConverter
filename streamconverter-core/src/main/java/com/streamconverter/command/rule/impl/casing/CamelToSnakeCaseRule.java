@@ -1,7 +1,6 @@
 package com.streamconverter.command.rule.impl.casing;
 
 import com.streamconverter.command.rule.IRule;
-import java.util.Locale;
 
 /**
  * Transforms camelCase strings to snake_case format.
@@ -28,11 +27,6 @@ import java.util.Locale;
  * @since 1.0
  */
 public class CamelToSnakeCaseRule implements IRule {
-
-  /** Common acronyms that should be split when found consecutively */
-  private static final String[] COMMON_ACRONYMS = {
-    "JSON", "XML", "API", "URL", "HTTP", "HTTPS", "FTP", "SQL", "HTML", "CSS", "JS", "REST", "SOAP"
-  };
 
   /** Whether to preserve leading/trailing underscores */
   private final boolean preserveUnderscores;
@@ -62,7 +56,7 @@ public class CamelToSnakeCaseRule implements IRule {
     }
 
     // Convert to lowercase
-    result = result.toLowerCase(Locale.ROOT);
+    result = result.toLowerCase();
 
     // Clean up multiple underscores if not preserving
     if (!preserveUnderscores) {
@@ -134,6 +128,11 @@ public class CamelToSnakeCaseRule implements IRule {
     return result.toString();
   }
 
+  /** Common acronyms that should be split when found consecutively */
+  private static final String[] COMMON_ACRONYMS = {
+    "JSON", "XML", "API", "URL", "HTTP", "HTTPS", "FTP", "SQL", "HTML", "CSS", "JS", "REST", "SOAP"
+  };
+
   /**
    * Splits consecutive acronyms based on configurable patterns. This method uses a dictionary
    * approach to identify and split consecutive acronyms like JSONAPI -> JSON_API
@@ -172,14 +171,8 @@ public class CamelToSnakeCaseRule implements IRule {
 
   /** Builder class for CamelToSnakeCaseRule configuration. */
   public static class Builder {
-    private boolean preserveUnderscoresFlag;
-    private boolean handleAcronymsFlag;
-
-    /** Creates a builder with the default configuration. */
-    public Builder() {
-      this.preserveUnderscoresFlag = false;
-      this.handleAcronymsFlag = true;
-    }
+    private boolean preserveUnderscores = false;
+    private boolean handleAcronyms = true;
 
     /**
      * Sets whether to preserve existing underscores in the input.
@@ -188,7 +181,7 @@ public class CamelToSnakeCaseRule implements IRule {
      * @return this builder
      */
     public Builder preserveUnderscores(boolean preserve) {
-      this.preserveUnderscoresFlag = preserve;
+      this.preserveUnderscores = preserve;
       return this;
     }
 
@@ -199,7 +192,7 @@ public class CamelToSnakeCaseRule implements IRule {
      * @return this builder
      */
     public Builder handleAcronyms(boolean handle) {
-      this.handleAcronymsFlag = handle;
+      this.handleAcronyms = handle;
       return this;
     }
 
@@ -209,7 +202,7 @@ public class CamelToSnakeCaseRule implements IRule {
      * @return configured rule instance
      */
     public CamelToSnakeCaseRule build() {
-      return new CamelToSnakeCaseRule(preserveUnderscoresFlag, handleAcronymsFlag);
+      return new CamelToSnakeCaseRule(preserveUnderscores, handleAcronyms);
     }
   }
 

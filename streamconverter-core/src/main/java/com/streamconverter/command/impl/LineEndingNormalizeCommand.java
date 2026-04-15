@@ -68,7 +68,6 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
    * @throws NullPointerException if targetType is null
    */
   public LineEndingNormalizeCommand(LineEndingType targetType) {
-    super();
     this.targetType = Objects.requireNonNull(targetType, "Target type cannot be null");
   }
 
@@ -81,59 +80,45 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
         Writer writer = new OutputStreamWriter(outputStream, StandardCharsets.UTF_8)) {
 
       if (targetType == LineEndingType.PRESERVE_INPUT) {
-        copy(reader, writer);
+        // For PRESERVE_INPUT, copy directly without modification
+        char[] buffer = new char[8192];
+        int bytesRead;
+        while ((bytesRead = reader.read(buffer)) != -1) {
+          writer.write(buffer, 0, bytesRead);
+        }
       } else {
-        normalize(reader, writer, targetType.getSeparator());
+        // Process character by character for line ending normalization
+        String targetSeparator = targetType.getSeparator();
+        int current;
+
+        while ((current = reader.read()) != -1) {
+          if (current == '\r') {
+            // Handle CR - could be CR, CRLF, or standalone CR
+            int next = reader.read();
+            if (next == '\n') {
+              // CRLF -> convert to target
+              writer.write(targetSeparator);
+            } else {
+              // Standalone CR -> convert to target
+              writer.write(targetSeparator);
+              // Write the next character that wasn't part of line ending
+              if (next != -1) {
+                writer.write(next);
+              }
+            }
+          } else if (current == '\n') {
+            // LF -> convert to target (handles Unix style)
+            writer.write(targetSeparator);
+          } else {
+            // Regular character
+            writer.write(current);
+          }
+        }
       }
 
       writer.flush();
     }
 
     logger.debug("Line ending normalization completed successfully");
-  }
-
-  private static void copy(Reader reader, Writer writer) throws IOException {
-    // For PRESERVE_INPUT, copy directly without modification
-    char[] buffer = new char[8192];
-    int charsRead;
-    // Stream the source as-is until the reader reaches EOF.
-    while ((charsRead = reader.read(buffer)) != -1) {
-      writer.write(buffer, 0, charsRead);
-    }
-  }
-
-  private static void normalize(Reader reader, Writer writer, String targetSeparator)
-      throws IOException {
-    // Process character by character for line ending normalization
-    int current;
-    // Read one code unit at a time so CR, LF, and CRLF can be normalized consistently.
-    while ((current = reader.read()) != -1) {
-      if (current == '\r') {
-        handleCarriageReturn(reader, writer, targetSeparator);
-        continue;
-      }
-      if (current == '\n') {
-        writer.write(targetSeparator);
-        continue;
-      }
-      writer.write(current);
-    }
-  }
-
-  private static void handleCarriageReturn(Reader reader, Writer writer, String targetSeparator)
-      throws IOException {
-    // Handle CR - could be CR, CRLF, or standalone CR
-    int next = reader.read();
-    if (next == '\n') {
-      // CRLF -> convert to target
-      writer.write(targetSeparator);
-      return;
-    }
-    // Standalone CR -> convert to target
-    writer.write(targetSeparator);
-    // Write the next character that wasn't part of line ending
-    if (next != -1) {
-      writer.write(next);
-    }
   }
 }

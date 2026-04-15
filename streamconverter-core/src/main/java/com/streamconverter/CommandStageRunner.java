@@ -12,7 +12,6 @@ import org.slf4j.MDC;
 final class CommandStageRunner {
 
   /** Abstraction over async task submission so stage startup stays executor-agnostic. */
-  @FunctionalInterface
   interface AsyncRunner {
     /**
      * Submits a stage task for asynchronous execution.
@@ -116,7 +115,7 @@ final class CommandStageRunner {
     if (throwable instanceof StreamProcessingException streamProcessingException) {
       return streamProcessingException;
     }
-    if (throwable instanceof IOException || throwable instanceof RuntimeException) {
+    if (throwable instanceof IOException | throwable instanceof RuntimeException) {
       return new StreamProcessingException(
           "Command execution failed: " + commandLabel + " - " + throwable.getMessage(), throwable);
     }

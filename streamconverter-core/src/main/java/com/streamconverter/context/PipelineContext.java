@@ -35,14 +35,12 @@ import org.slf4j.MDC;
  */
 public final class PipelineContext {
 
+  /** パイプラインコンテキストを新規作成する。 */
+  public PipelineContext() {}
+
   private static final ThreadLocal<PipelineContext> HOLDER = new ThreadLocal<>();
 
-  private final Map<String, String> sharedValues;
-
-  /** パイプラインコンテキストを新規作成する。 */
-  public PipelineContext() {
-    this.sharedValues = new ConcurrentHashMap<>();
-  }
+  private final ConcurrentHashMap<String, String> sharedValues = new ConcurrentHashMap<>();
 
   /**
    * 共有値を設定し、呼び出しスレッドのMDCにも即座に反映する。

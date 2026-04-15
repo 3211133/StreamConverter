@@ -81,9 +81,9 @@ public class JsonFilterCommand extends AbstractStreamCommand {
   /** A single segment in a parsed path. */
   private static class PathSegment {
 
-    final String fieldName; // non-null for field access
-    final boolean isWildcard; // true for [*]
-    final int arrayIndex; // >= 0 for numeric index, -1 otherwise
+    final String field; // non-null for field access
+    final boolean wildcard; // true for [*]
+    final int index; // >= 0 for numeric index, -1 otherwise
 
     static PathSegment field(String name) {
       return new PathSegment(name, false, -1);
@@ -97,14 +97,14 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       return new PathSegment(null, false, i);
     }
 
-    private PathSegment(String fieldName, boolean isWildcard, int arrayIndex) {
-      this.fieldName = fieldName;
-      this.isWildcard = isWildcard;
-      this.arrayIndex = arrayIndex;
+    private PathSegment(String field, boolean wildcard, int index) {
+      this.field = field;
+      this.wildcard = wildcard;
+      this.index = index;
     }
 
     boolean isField() {
-      return fieldName != null;
+      return field != null;
     }
   }
 
@@ -210,10 +210,9 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       }
       boolean found = false;
       JsonToken t;
-      // Scan object fields until the current object closes or the stream ends unexpectedly.
       while ((t = parser.nextToken()) != null && t != JsonToken.END_OBJECT) {
         String name = parser.currentName();
-        if (seg.fieldName.equals(name)) {
+        if (seg.field.equals(name)) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
         } else {
@@ -224,7 +223,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       if (!found) {
         generator.writeNull();
       }
-    } else if (seg.isWildcard) {
+    } else if (seg.wildcard) {
       // Expect an array; iterate elements and extract from each
       if (token != JsonToken.START_ARRAY) {
         skipValue(parser, token);
@@ -233,7 +232,6 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       }
       generator.writeStartArray();
       JsonToken elemToken;
-      // Stream array elements until the current array closes or the stream ends unexpectedly.
       while ((elemToken = parser.nextToken()) != null && elemToken != JsonToken.END_ARRAY) {
         if (segIdx + 1 >= segments.size()) {
           copyValue(parser, generator, elemToken);
@@ -252,13 +250,11 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       int currentIdx = 0;
       boolean found = false;
       JsonToken arrToken;
-      // Walk array elements until the target index is found or the array closes.
       while ((arrToken = parser.nextToken()) != null && arrToken != JsonToken.END_ARRAY) {
-        if (currentIdx == seg.arrayIndex) {
+        if (currentIdx == seg.index) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
           JsonToken skipToken;
-          // Skip the remaining elements so the parser is positioned after the current array.
           while ((skipToken = parser.nextToken()) != null && skipToken != JsonToken.END_ARRAY) {
             skipValue(parser, skipToken);
           }
@@ -302,10 +298,9 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       }
       boolean found = false;
       JsonToken t2;
-      // Scan object fields until the current object closes or the stream ends unexpectedly.
       while ((t2 = parser.nextToken()) != null && t2 != JsonToken.END_OBJECT) {
         String name = parser.currentName();
-        if (seg.fieldName.equals(name)) {
+        if (seg.field.equals(name)) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
         } else {
@@ -316,7 +311,7 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       if (!found) {
         generator.writeNull();
       }
-    } else if (seg.isWildcard) {
+    } else if (seg.wildcard) {
       if (currentToken != JsonToken.START_ARRAY) {
         skipValue(parser, currentToken);
         generator.writeNull();
@@ -324,7 +319,6 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       }
       generator.writeStartArray();
       JsonToken elemToken2;
-      // Stream array elements until the current array closes or the stream ends unexpectedly.
       while ((elemToken2 = parser.nextToken()) != null && elemToken2 != JsonToken.END_ARRAY) {
         if (segIdx + 1 >= segments.size()) {
           copyValue(parser, generator, elemToken2);
@@ -342,13 +336,11 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       int currentIdx = 0;
       boolean found = false;
       JsonToken arrToken2;
-      // Walk array elements until the target index is found or the array closes.
       while ((arrToken2 = parser.nextToken()) != null && arrToken2 != JsonToken.END_ARRAY) {
-        if (currentIdx == seg.arrayIndex) {
+        if (currentIdx == seg.index) {
           extractPath(parser, generator, segments, segIdx + 1);
           found = true;
           JsonToken skipToken2;
-          // Skip the remaining elements so the parser is positioned after the current array.
           while ((skipToken2 = parser.nextToken()) != null && skipToken2 != JsonToken.END_ARRAY) {
             skipValue(parser, skipToken2);
           }
@@ -391,7 +383,6 @@ public class JsonFilterCommand extends AbstractStreamCommand {
       case START_OBJECT:
         generator.writeStartObject();
         JsonToken objToken;
-        // Copy fields until the current object closes or the stream ends unexpectedly.
         while ((objToken = parser.nextToken()) != null && objToken != JsonToken.END_OBJECT) {
           generator.writeFieldName(parser.currentName());
           copyValue(parser, generator);
@@ -401,9 +392,9 @@ public class JsonFilterCommand extends AbstractStreamCommand {
 
       case START_ARRAY:
         generator.writeStartArray();
-        JsonToken t;
-        // Copy elements until the current array closes or the stream ends unexpectedly.
-        while ((t = parser.nextToken()) != null && t != JsonToken.END_ARRAY) {
+        while (true) {
+          JsonToken t = parser.nextToken();
+          if (t == JsonToken.END_ARRAY) break;
           copyValue(parser, generator, t);
         }
         generator.writeEndArray();
@@ -447,11 +438,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         int objDepth = 1;
         while (objDepth > 0) {
           JsonToken t = parser.nextToken();
-          if (t == JsonToken.START_OBJECT) {
-            objDepth++;
-          } else if (t == JsonToken.END_OBJECT) {
-            objDepth--;
-          }
+          if (t == JsonToken.START_OBJECT) objDepth++;
+          else if (t == JsonToken.END_OBJECT) objDepth--;
         }
         break;
 
@@ -459,11 +447,8 @@ public class JsonFilterCommand extends AbstractStreamCommand {
         int arrDepth = 1;
         while (arrDepth > 0) {
           JsonToken t = parser.nextToken();
-          if (t == JsonToken.START_ARRAY) {
-            arrDepth++;
-          } else if (t == JsonToken.END_ARRAY) {
-            arrDepth--;
-          }
+          if (t == JsonToken.START_ARRAY) arrDepth++;
+          else if (t == JsonToken.END_ARRAY) arrDepth--;
         }
         break;
 

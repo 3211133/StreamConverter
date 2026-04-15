@@ -59,7 +59,7 @@ public class CSVPath extends AbstractPath<Integer> {
    * @throws IllegalArgumentException セレクターが不正な場合
    */
   public static CSVPath of(String selector) {
-    if (selector == null || selector.isBlank()) {
+    if (selector == null || selector.trim().isEmpty()) {
       throw new IllegalArgumentException("CSV column selector cannot be null or empty");
     }
     return new CSVPath(selector);
@@ -184,7 +184,10 @@ public class CSVPath extends AbstractPath<Integer> {
       return true;
     }
     int parsedIndex = parseAsIndex(selector);
-    return parsedIndex >= 0 && parsedIndex == columnIndex; // 列名指定はヘッダー情報が必要
+    if (parsedIndex >= 0) {
+      return parsedIndex == columnIndex;
+    }
+    return false; // 列名指定はヘッダー情報が必要
   }
 
   /** 単一セレクターのヘッダー一致判定 */

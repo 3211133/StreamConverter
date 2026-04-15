@@ -1,7 +1,6 @@
 package com.streamconverter;
 
 import com.streamconverter.command.IStreamCommand;
-import java.io.Closeable;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -30,16 +29,6 @@ import org.slf4j.LoggerFactory;
  * 独立した空のMDCコンテキストを持ち、親スレッドのMDC値は伝搬されない。
  */
 public class StreamConverter {
-
-  private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
-  private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
-
-  private final CommandStageRunner commandStageRunner;
-  private final PipelineCompletionMonitor pipelineCompletionMonitor;
-  private final PipelineFailureHandler pipelineFailureHandler;
-  private final PipelineWiring pipelineWiring;
-  private final List<IStreamCommand> commands;
-  private final List<String> commandLabels;
 
   /** AutoCloseableラッパーでExecutorServiceのリソース管理を改善 */
   private static class AutoCloseableExecutorService implements AutoCloseable {
@@ -71,9 +60,18 @@ public class StreamConverter {
     }
   }
 
+  private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
+  private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
+  private final CommandStageRunner commandStageRunner;
+  private final PipelineCompletionMonitor pipelineCompletionMonitor;
+  private final PipelineFailureHandler pipelineFailureHandler;
+  private final PipelineWiring pipelineWiring;
+  private List<IStreamCommand> commands;
+  private final List<String> commandLabels;
+
   private StreamConverter(List<IStreamCommand> commands) {
     this.commandLabels = commands.stream().map(IStreamCommand::commandName).toList();
-    this.commands = List.copyOf(wrapWithLogging(commands));
+    this.commands = wrapWithLogging(commands);
     this.commandStageRunner = new CommandStageRunner();
     this.pipelineFailureHandler = new PipelineFailureHandler();
     this.pipelineCompletionMonitor = new PipelineCompletionMonitor();
@@ -146,11 +144,15 @@ public class StreamConverter {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
-    LOG.info("Starting StreamConverter with {} commands", commands.size());
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Starting StreamConverter with {} commands", commands.size());
+    }
 
     executeCommands(inputStream, outputStream);
 
-    LOG.info("Completed StreamConverter pipeline");
+    if (LOG.isInfoEnabled()) {
+      LOG.info("Completed StreamConverter pipeline");
+    }
   }
 
   /** コマンド（単一または複数）を並列実行 */
@@ -159,7 +161,7 @@ public class StreamConverter {
     List<CompletableFuture<Void>> futures = new ArrayList<>();
     // 非同期実行側は配線済みの入出力だけを消費できるように、先にステージIOグラフを構築する。
     PipelinePlan plan = pipelineWiring.build(commands.size(), inputStream, outputStream);
-    List<Closeable> resources = new ArrayList<>(plan.resources());
+    List<AutoCloseable> resources = new ArrayList<>(plan.resources());
 
     try (AutoCloseableExecutorService executor =
         new AutoCloseableExecutorService(createOptimalExecutor())) {
@@ -174,7 +176,11 @@ public class StreamConverter {
       for (CompletableFuture<Void> future : futures) {
         future.exceptionally(
             t -> {
-              closeResources(resources);
+              try {
+                closeResources(resources);
+              } catch (RuntimeException ex) {
+                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);
+              }
               return null;
             });
       }
@@ -189,7 +195,9 @@ public class StreamConverter {
         pipelineFailureHandler.rethrowExecutionFailure(e, futures);
       }
 
-      LOG.info("All commands completed successfully");
+      if (LOG.isInfoEnabled()) {
+        LOG.info("All commands completed successfully");
+      }
 
     } finally {
       // リソースクリーンアップ
@@ -202,11 +210,11 @@ public class StreamConverter {
    *
    * @param resources resources associated with the current pipeline execution
    */
-  private void closeResources(List<Closeable> resources) {
-    for (Closeable resource : resources) {
-      try (resource) {
-        resource.getClass(); // non-empty block to satisfy PMD EmptyControlStatement
-      } catch (IOException e) {
+  private void closeResources(List<AutoCloseable> resources) {
+    for (AutoCloseable resource : resources) {
+      try {
+        resource.close();
+      } catch (Exception e) {
         LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
       }
     }

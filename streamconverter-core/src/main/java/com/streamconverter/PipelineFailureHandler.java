@@ -32,12 +32,11 @@ final class PipelineFailureHandler {
       primary.addSuppressed(rootCauses.get(i));
     }
 
-    throwPrimary(primary);
-  }
-
-  private static void throwPrimary(Throwable primary) throws IOException {
     if (primary instanceof Error err) {
       throw err;
+    }
+    if (primary instanceof StreamProcessingException spe) {
+      throw spe;
     }
     if (primary instanceof IOException ioe) {
       throw ioe;
@@ -81,8 +80,12 @@ final class PipelineFailureHandler {
    * failed and the pipeline actively closed its intermediate pipes.
    */
   static boolean isPipeAbortedCause(Throwable cause) {
-    return cause instanceof PipeAbortedException
-        || (cause instanceof StreamProcessingException
-            && cause.getCause() instanceof PipeAbortedException);
+    if (cause instanceof PipeAbortedException) {
+      return true;
+    }
+    if (cause instanceof StreamProcessingException) {
+      return cause.getCause() instanceof PipeAbortedException;
+    }
+    return false;
   }
 }

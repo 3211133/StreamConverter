@@ -1,6 +1,5 @@
 package com.streamconverter;
 
-import java.io.Closeable;
 import java.util.List;
 
 /**
@@ -10,29 +9,31 @@ import java.util.List;
  * references remain live execution objects.
  */
 final class PipelinePlan {
-  private final List<WiredStageIo> stageIoList;
-  private final List<AbortablePipedStream> pipeList;
-  private final List<Closeable> resourceList;
+  private final List<WiredStageIo> stageIos;
+  private final List<AbortablePipedStream> pipes;
+  private final List<AutoCloseable> resources;
 
   PipelinePlan(
-      List<WiredStageIo> stageIos, List<AbortablePipedStream> pipes, List<Closeable> resources) {
-    this.stageIoList = List.copyOf(stageIos);
-    this.pipeList = List.copyOf(pipes);
-    this.resourceList = List.copyOf(resources);
+      List<WiredStageIo> stageIos,
+      List<AbortablePipedStream> pipes,
+      List<AutoCloseable> resources) {
+    this.stageIos = List.copyOf(stageIos);
+    this.pipes = List.copyOf(pipes);
+    this.resources = List.copyOf(resources);
   }
 
   /** Returns the ordered IO connections for each stage. */
   List<WiredStageIo> stageIos() {
-    return stageIoList;
+    return stageIos;
   }
 
   /** Returns all intermediate pipes that may need abort signaling. */
   List<AbortablePipedStream> pipes() {
-    return pipeList;
+    return pipes;
   }
 
   /** Returns resources that must be closed after pipeline completion or failure. */
-  List<Closeable> resources() {
-    return resourceList;
+  List<AutoCloseable> resources() {
+    return resources;
   }
 }

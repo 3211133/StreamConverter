@@ -30,7 +30,7 @@ public class TreePath implements IPath<List<String>> {
    * @throws IllegalArgumentException if xmlPath is null or invalid
    */
   public static TreePath fromXml(String xmlPath) {
-    if (xmlPath == null || xmlPath.isBlank()) {
+    if (xmlPath == null || xmlPath.trim().isEmpty()) {
       throw new IllegalArgumentException("XML path cannot be null or empty");
     }
     String trimmedPath = xmlPath.trim();
@@ -46,7 +46,7 @@ public class TreePath implements IPath<List<String>> {
    * @throws IllegalArgumentException if jsonPath is null or invalid
    */
   public static TreePath fromJson(String jsonPath) {
-    if (jsonPath == null || jsonPath.isBlank()) {
+    if (jsonPath == null || jsonPath.trim().isEmpty()) {
       throw new IllegalArgumentException("JSON path cannot be null or empty");
     }
     String trimmedPath = jsonPath.trim();
@@ -60,9 +60,11 @@ public class TreePath implements IPath<List<String>> {
    * @param currentPath current path segments to match against
    * @return true if paths match exactly
    */
-  @Override
   public boolean matches(List<String> currentPath) {
-    return currentPath != null && segments.equals(currentPath);
+    if (currentPath == null) {
+      return false;
+    }
+    return segments.equals(currentPath);
   }
 
   /**
@@ -121,12 +123,8 @@ public class TreePath implements IPath<List<String>> {
    */
   @Override
   public boolean equals(Object obj) {
-    if (this == obj) {
-      return true;
-    }
-    if (obj == null || getClass() != obj.getClass()) {
-      return false;
-    }
+    if (this == obj) return true;
+    if (obj == null || getClass() != obj.getClass()) return false;
     TreePath treePath = (TreePath) obj;
     return segments.equals(treePath.segments);
   }

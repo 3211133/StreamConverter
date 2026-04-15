@@ -36,8 +36,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(XmlNavigateCommand.class);
   private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
-  private final TreePath treePath;
-  private final IRule rule;
+  private TreePath treePath;
+  private IRule rule;
 
   /**
    * Constructor for XML navigation with TreePath selector and transformation rule.
@@ -100,12 +100,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       if (event.isStartElement()) {
         currentPath.add(event.asStartElement().getName().getLocalPart());
       } else if (event.isEndElement()) {
-        if (currentPath.isEmpty()) {
+        if (!currentPath.isEmpty()) {
+          currentPath.remove(currentPath.size() - 1);
+        } else {
           LOGGER.warn(
               "Unexpected end element '{}' with empty path stack — possible malformed XML",
               event.asEndElement().getName().getLocalPart());
-        } else {
-          currentPath.remove(currentPath.size() - 1);
         }
       } else if (event.isCharacters() && treePath.matches(currentPath)) {
         String data = event.asCharacters().getData();

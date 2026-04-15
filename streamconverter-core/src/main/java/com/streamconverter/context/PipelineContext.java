@@ -37,7 +37,7 @@ public final class PipelineContext {
 
   private static final ThreadLocal<PipelineContext> HOLDER = new ThreadLocal<>();
 
-  private final ConcurrentHashMap<String, String> sharedValues;
+  private final Map<String, String> sharedValues;
 
   /** パイプラインコンテキストを新規作成する。 */
   public PipelineContext() {

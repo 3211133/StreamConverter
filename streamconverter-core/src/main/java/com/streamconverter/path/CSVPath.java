@@ -184,10 +184,7 @@ public class CSVPath extends AbstractPath<Integer> {
       return true;
     }
     int parsedIndex = parseAsIndex(selector);
-    if (parsedIndex >= 0) {
-      return parsedIndex == columnIndex;
-    }
-    return false; // 列名指定はヘッダー情報が必要
+    return parsedIndex >= 0 && parsedIndex == columnIndex; // 列名指定はヘッダー情報が必要
   }
 
   /** 単一セレクターのヘッダー一致判定 */

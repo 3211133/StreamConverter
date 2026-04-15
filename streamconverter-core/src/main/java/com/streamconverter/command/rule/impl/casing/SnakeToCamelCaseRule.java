@@ -1,6 +1,7 @@
 package com.streamconverter.command.rule.impl.casing;
 
 import com.streamconverter.command.rule.IRule;
+import java.util.Locale;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -66,7 +67,7 @@ public class SnakeToCamelCaseRule implements IRule {
     StringBuffer sb = new StringBuffer();
 
     while (matcher.find()) {
-      String replacement = matcher.group(1).toUpperCase();
+      String replacement = matcher.group(1).toUpperCase(Locale.ROOT);
       matcher.appendReplacement(sb, replacement);
     }
     matcher.appendTail(sb);

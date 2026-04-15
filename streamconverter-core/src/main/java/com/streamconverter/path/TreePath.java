@@ -60,11 +60,9 @@ public class TreePath implements IPath<List<String>> {
    * @param currentPath current path segments to match against
    * @return true if paths match exactly
    */
+  @Override
   public boolean matches(List<String> currentPath) {
-    if (currentPath == null) {
-      return false;
-    }
-    return segments.equals(currentPath);
+    return currentPath != null && segments.equals(currentPath);
   }
 
   /**

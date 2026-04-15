@@ -1,6 +1,7 @@
 package com.streamconverter.command.rule.impl.casing;
 
 import com.streamconverter.command.rule.IRule;
+import java.util.Locale;
 
 /**
  * Transforms camelCase strings to snake_case format.
@@ -61,7 +62,7 @@ public class CamelToSnakeCaseRule implements IRule {
     }
 
     // Convert to lowercase
-    result = result.toLowerCase();
+    result = result.toLowerCase(Locale.ROOT);
 
     // Clean up multiple underscores if not preserving
     if (!preserveUnderscores) {

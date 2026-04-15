@@ -36,8 +36,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(XmlNavigateCommand.class);
   private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
-  private TreePath treePath;
-  private IRule rule;
+  private final TreePath treePath;
+  private final IRule rule;
 
   /**
    * Constructor for XML navigation with TreePath selector and transformation rule.

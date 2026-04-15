@@ -60,8 +60,11 @@
     <!--
         Multiple loggers are intentionally allowed when operational routing matters
         (for example security/audit categories), so a blanket 1-class-1-logger rule is too rigid.
+        AssignmentInOperand also clashes with Java's normal read-loop idioms and tended to
+        encourage `while (true)` rewrites without improving correctness.
     -->
     <rule ref="category/java/errorprone.xml">
+        <exclude name="AssignmentInOperand" />
         <exclude name="AvoidLiteralsInIfCondition" />
         <exclude name="MoreThanOneLogger" />
     </rule>

@@ -60,7 +60,7 @@ public class SecureXPathValidator {
    * @throws IllegalArgumentException xpath引数がnullまたは空の場合
    */
   public static void validateXPath(String xpath) {
-    if (xpath == null || xpath.trim().isEmpty()) {
+    if (xpath == null || xpath.isBlank()) {
       throw new IllegalArgumentException("TreePath expression cannot be null or empty");
     }
 
@@ -81,7 +81,9 @@ public class SecureXPathValidator {
     // 厳格モードでの追加検証
     validateStrictMode(trimmedXpath);
 
-    securityLogger.debug("TreePath validation passed: {}", sanitizeForLogging(trimmedXpath));
+    if (securityLogger.isDebugEnabled()) {
+      securityLogger.debug("TreePath validation passed: {}", sanitizeForLogging(trimmedXpath));
+    }
   }
 
   /**
@@ -108,8 +110,10 @@ public class SecureXPathValidator {
     // 連続する空白の正規化
     sanitized = sanitized.replaceAll("\\s+", " ");
 
-    securityLogger.debug(
-        "TreePath sanitized: {} -> {}", sanitizeForLogging(xpath), sanitizeForLogging(sanitized));
+    if (securityLogger.isDebugEnabled()) {
+      securityLogger.debug(
+          "TreePath sanitized: {} -> {}", sanitizeForLogging(xpath), sanitizeForLogging(sanitized));
+    }
 
     return sanitized;
   }

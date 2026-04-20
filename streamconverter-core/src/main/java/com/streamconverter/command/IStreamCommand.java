@@ -111,10 +111,7 @@ public interface IStreamCommand {
         this.execute(in, out);
         logger.info(
             "Completed command: {} ({}ms)", commandName, System.currentTimeMillis() - start);
-      } catch (IOException e) {
-        logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
-        throw e;
-      } catch (RuntimeException e) {
+      } catch (IOException | RuntimeException e) {
         logger.error("Failed command: {} - {}", commandName, e.getMessage(), e);
         throw e;
       } catch (Error e) {

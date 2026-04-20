@@ -21,6 +21,9 @@ import org.slf4j.Marker;
  */
 public class PipelineContextTurboFilter extends TurboFilter {
 
+  /** Creates a new filter instance. */
+  public PipelineContextTurboFilter() {}
+
   /**
    * ログイベント発生直前に {@link PipelineContext#syncToMDC()} を呼び出し、 パイプライン共有値を呼び出しスレッドのMDCへ反映する。
    *

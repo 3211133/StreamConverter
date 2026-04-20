@@ -56,6 +56,9 @@ Always start with the **[Documentation Index](docs/INDEX.md)** for comprehensive
 - Conventional Commits specification required
 - Pre-commit hooks validate formatting, compilation, and tests
 - Branch protection rules require pull requests for `develop` branch
+- **New branches must always be created from `origin/develop`**, not from the current working branch.
+  Before creating a branch, always run: `git checkout -b <branch-name> origin/develop`
+  Failure to do so causes unrelated commits from the working branch to appear in the PR.
 
 ### Multi-Module Considerations
 - Cross-module dependencies managed via Gradle composite builds

@@ -74,7 +74,7 @@
 <span class="source-line-no">061</span><span id="line-61">   */</span>
 <span class="source-line-no">062</span><span id="line-62">  public static ValidateCommand create(String schemaPath) {</span>
 <span class="source-line-no">063</span><span id="line-63">    Objects.requireNonNull(schemaPath, "Schema path cannot be null");</span>
-<span class="source-line-no">064</span><span id="line-64">    if (schemaPath.trim().isEmpty()) {</span>
+<span class="source-line-no">064</span><span id="line-64">    if (schemaPath.isBlank()) {</span>
 <span class="source-line-no">065</span><span id="line-65">      throw new IllegalArgumentException("Schema path cannot be empty");</span>
 <span class="source-line-no">066</span><span id="line-66">    }</span>
 <span class="source-line-no">067</span><span id="line-67">    String normalizedPath = normalizeClasspathPath(schemaPath);</span>

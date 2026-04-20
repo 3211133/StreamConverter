@@ -27,11 +27,15 @@
 <span class="source-line-no">014</span><span id="line-14"> */</span>
 <span class="source-line-no">015</span><span id="line-15">public class PipeAbortedException extends IOException {</span>
 <span class="source-line-no">016</span><span id="line-16"></span>
-<span class="source-line-no">017</span><span id="line-17">  /** 対向コマンドの異常終了を示す例外を作成する。 */</span>
-<span class="source-line-no">018</span><span id="line-18">  public PipeAbortedException() {</span>
-<span class="source-line-no">019</span><span id="line-19">    super();</span>
-<span class="source-line-no">020</span><span id="line-20">  }</span>
-<span class="source-line-no">021</span><span id="line-21">}</span>
+<span class="source-line-no">017</span><span id="line-17">  private static final long serialVersionUID = 1L;</span>
+<span class="source-line-no">018</span><span id="line-18"></span>
+<span class="source-line-no">019</span><span id="line-19">  /**</span>
+<span class="source-line-no">020</span><span id="line-20">   * Creates a {@link PipeAbortedException} with no detail message.</span>
+<span class="source-line-no">021</span><span id="line-21">   *</span>
+<span class="source-line-no">022</span><span id="line-22">   * &lt;p&gt;This exception indicates that a paired command aborted and pipe IO can no longer continue.</span>
+<span class="source-line-no">023</span><span id="line-23">   */</span>
+<span class="source-line-no">024</span><span id="line-24">  public PipeAbortedException() {}</span>
+<span class="source-line-no">025</span><span id="line-25">}</span>
 
 
 

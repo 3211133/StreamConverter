@@ -34,30 +34,33 @@
 <span class="source-line-no">021</span><span id="line-21"> */</span>
 <span class="source-line-no">022</span><span id="line-22">public class PipelineContextTurboFilter extends TurboFilter {</span>
 <span class="source-line-no">023</span><span id="line-23"></span>
-<span class="source-line-no">024</span><span id="line-24">  /**</span>
-<span class="source-line-no">025</span><span id="line-25">   * ログイベント発生直前に {@link PipelineContext#syncToMDC()} を呼び出し、 パイプライン共有値を呼び出しスレッドのMDCへ反映する。</span>
-<span class="source-line-no">026</span><span id="line-26">   *</span>
-<span class="source-line-no">027</span><span id="line-27">   * &lt;p&gt;フィルタリングは行わず、常に {@link FilterReply#NEUTRAL} を返す。</span>
-<span class="source-line-no">028</span><span id="line-28">   *</span>
-<span class="source-line-no">029</span><span id="line-29">   * &lt;p&gt;このフィルタはログを発生させたスレッドと同一スレッドで実行されるため、 {@link PipelineContext#syncToMDC()}</span>
-<span class="source-line-no">030</span><span id="line-30">   * によりそのスレッドのMDCのみが更新される。 これは {@link PipelineContext} が {@link ThreadLocal} ベースであるための前提条件であり、</span>
-<span class="source-line-no">031</span><span id="line-31">   * TurboFilter の仕様（ログ発生スレッドでの同期実行）により保証されている。</span>
-<span class="source-line-no">032</span><span id="line-32">   *</span>
-<span class="source-line-no">033</span><span id="line-33">   * @param marker ログマーカー（未使用）</span>
-<span class="source-line-no">034</span><span id="line-34">   * @param logger ログ出力元ロガー（未使用）</span>
-<span class="source-line-no">035</span><span id="line-35">   * @param level ログレベル（未使用）</span>
-<span class="source-line-no">036</span><span id="line-36">   * @param format メッセージフォーマット（未使用）</span>
-<span class="source-line-no">037</span><span id="line-37">   * @param params メッセージパラメータ（未使用）</span>
-<span class="source-line-no">038</span><span id="line-38">   * @param t 例外（未使用）</span>
-<span class="source-line-no">039</span><span id="line-39">   * @return 常に {@link FilterReply#NEUTRAL}</span>
-<span class="source-line-no">040</span><span id="line-40">   */</span>
-<span class="source-line-no">041</span><span id="line-41">  @Override</span>
-<span class="source-line-no">042</span><span id="line-42">  public FilterReply decide(</span>
-<span class="source-line-no">043</span><span id="line-43">      Marker marker, Logger logger, Level level, String format, Object[] params, Throwable t) {</span>
-<span class="source-line-no">044</span><span id="line-44">    PipelineContext.syncToMDC();</span>
-<span class="source-line-no">045</span><span id="line-45">    return FilterReply.NEUTRAL;</span>
-<span class="source-line-no">046</span><span id="line-46">  }</span>
-<span class="source-line-no">047</span><span id="line-47">}</span>
+<span class="source-line-no">024</span><span id="line-24">  /** Creates a new filter instance. */</span>
+<span class="source-line-no">025</span><span id="line-25">  public PipelineContextTurboFilter() {}</span>
+<span class="source-line-no">026</span><span id="line-26"></span>
+<span class="source-line-no">027</span><span id="line-27">  /**</span>
+<span class="source-line-no">028</span><span id="line-28">   * ログイベント発生直前に {@link PipelineContext#syncToMDC()} を呼び出し、 パイプライン共有値を呼び出しスレッドのMDCへ反映する。</span>
+<span class="source-line-no">029</span><span id="line-29">   *</span>
+<span class="source-line-no">030</span><span id="line-30">   * &lt;p&gt;フィルタリングは行わず、常に {@link FilterReply#NEUTRAL} を返す。</span>
+<span class="source-line-no">031</span><span id="line-31">   *</span>
+<span class="source-line-no">032</span><span id="line-32">   * &lt;p&gt;このフィルタはログを発生させたスレッドと同一スレッドで実行されるため、 {@link PipelineContext#syncToMDC()}</span>
+<span class="source-line-no">033</span><span id="line-33">   * によりそのスレッドのMDCのみが更新される。 これは {@link PipelineContext} が {@link ThreadLocal} ベースであるための前提条件であり、</span>
+<span class="source-line-no">034</span><span id="line-34">   * TurboFilter の仕様（ログ発生スレッドでの同期実行）により保証されている。</span>
+<span class="source-line-no">035</span><span id="line-35">   *</span>
+<span class="source-line-no">036</span><span id="line-36">   * @param marker ログマーカー（未使用）</span>
+<span class="source-line-no">037</span><span id="line-37">   * @param logger ログ出力元ロガー（未使用）</span>
+<span class="source-line-no">038</span><span id="line-38">   * @param level ログレベル（未使用）</span>
+<span class="source-line-no">039</span><span id="line-39">   * @param format メッセージフォーマット（未使用）</span>
+<span class="source-line-no">040</span><span id="line-40">   * @param params メッセージパラメータ（未使用）</span>
+<span class="source-line-no">041</span><span id="line-41">   * @param t 例外（未使用）</span>
+<span class="source-line-no">042</span><span id="line-42">   * @return 常に {@link FilterReply#NEUTRAL}</span>
+<span class="source-line-no">043</span><span id="line-43">   */</span>
+<span class="source-line-no">044</span><span id="line-44">  @Override</span>
+<span class="source-line-no">045</span><span id="line-45">  public FilterReply decide(</span>
+<span class="source-line-no">046</span><span id="line-46">      Marker marker, Logger logger, Level level, String format, Object[] params, Throwable t) {</span>
+<span class="source-line-no">047</span><span id="line-47">    PipelineContext.syncToMDC();</span>
+<span class="source-line-no">048</span><span id="line-48">    return FilterReply.NEUTRAL;</span>
+<span class="source-line-no">049</span><span id="line-49">  }</span>
+<span class="source-line-no">050</span><span id="line-50">}</span>
 
 
 

@@ -163,6 +163,8 @@ public class CsvValidateCommand extends ConsumerCommand {
 
       LOGGER.info("CSV validation completed successfully");
 
+    } catch (StreamProcessingException e) {
+      throw e;
     } catch (CsvValidationException e) {
       LOGGER.error("CSV parsing error: {}", e.getMessage(), e);
       throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);

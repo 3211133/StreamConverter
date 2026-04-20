@@ -174,7 +174,11 @@ public class StreamConverter {
       for (CompletableFuture<Void> future : futures) {
         future.exceptionally(
             t -> {
-              closeResources(resources);
+              try {
+                closeResources(resources);
+              } catch (RuntimeException ex) {
+                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);
+              }
               return null;
             });
       }
@@ -204,10 +208,12 @@ public class StreamConverter {
    */
   private void closeResources(List<Closeable> resources) {
     for (Closeable resource : resources) {
-      try (resource) {
-        resource.getClass(); // non-empty block to satisfy PMD EmptyControlStatement
+      try {
+        resource.close();
       } catch (IOException e) {
         LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
+      } catch (RuntimeException e) {
+        LOG.warn("Unexpected error closing resource [{}]", resource.getClass().getSimpleName(), e);
       }
     }
   }

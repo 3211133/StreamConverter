@@ -99,22 +99,20 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               try {
                 captureSession.start(event);
               } catch (XMLStreamException e) {
-                // Reset capturing state to avoid leaving the capture session half-open
                 isCapturing = false;
                 captureDepth = 0;
                 captureSession.abort();
-                LOGGER.warn("Error writing start element", e);
+                throw new IOException("Error writing start element", e);
               }
             } else if (isCapturing && currentDepth > captureDepth) {
               // We're inside a matching element, continue capturing with the same writer
               try {
                 captureSession.add(event);
               } catch (XMLStreamException e) {
-                // Abort capture to avoid writing corrupt partial state
                 isCapturing = false;
                 captureDepth = 0;
                 captureSession.abort();
-                LOGGER.warn("Error writing nested start element; aborting capture", e);
+                throw new IOException("Error writing nested start element", e);
               }
             }
 
@@ -123,11 +121,10 @@ public class XmlFilterCommand extends AbstractStreamCommand {
               try {
                 captureSession.add(event);
               } catch (XMLStreamException e) {
-                // Abort capture to avoid corrupt state propagation
                 isCapturing = false;
                 captureDepth = 0;
                 captureSession.abort();
-                LOGGER.warn("Error writing end element; aborting capture", e);
+                throw new IOException("Error writing end element", e);
               }
 
               // If we're closing the captured element (re-check isCapturing in case catch reset it)
@@ -158,11 +155,10 @@ public class XmlFilterCommand extends AbstractStreamCommand {
             try {
               captureSession.add(event);
             } catch (XMLStreamException e) {
-              // Abort capture to avoid corrupt state propagation
               isCapturing = false;
               captureDepth = 0;
               captureSession.abort();
-              LOGGER.warn("Error writing content; aborting capture", e);
+              throw new IOException("Error writing XML content", e);
             }
           }
         }

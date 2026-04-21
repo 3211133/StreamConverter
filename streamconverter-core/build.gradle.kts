@@ -4,7 +4,7 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
-    id("com.github.spotbugs") version "6.5.0"
+    id("com.github.spotbugs") version "6.5.1"
     id("com.diffplug.spotless") version "8.4.0"
     id("info.solidsoft.pitest") version "1.19.0"
 }
@@ -45,7 +45,7 @@ dependencies {
     implementation("commons-io:commons-io:2.21.0")
 
     // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:3.0.1")
+    implementation("com.networknt:json-schema-validator:3.0.2")
 
     // JsonSurfer for streaming JSON processing
     implementation("com.github.jsurfer:jsurfer-jackson:1.6.5")

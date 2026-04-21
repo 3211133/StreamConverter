@@ -82,68 +82,72 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
   /** Process JSON with specific JSONPath targeting */
   private void processJsonStreamWithPath(JsonParser parser, JsonGenerator generator)
       throws IOException {
+    // depth tracks how many objects deep we are (0 = before root object)
     int depth = 0;
+    // currentPath[i] holds the field name active at object-depth i+1
     List<String> currentPath = new ArrayList<>();
     JsonToken token;
+    // Advance the streaming parser token by token until the document ends.
     while ((token = parser.nextToken()) != null) {
       switch (token) {
-        case FIELD_NAME -> depth = handleFieldName(parser, generator, depth, currentPath);
-        case VALUE_STRING -> handleValueString(parser, generator, currentPath);
-        case START_OBJECT -> {
+        case FIELD_NAME:
+          String fieldName = parser.currentName();
+          // Ensure currentPath has a slot for depth (1-based object depth)
+          while (currentPath.size() < depth) {
+            currentPath.add(null);
+          }
+          while (currentPath.size() > depth) {
+            currentPath.remove(currentPath.size() - 1);
+          }
+          if (depth > 0) {
+            currentPath.set(depth - 1, fieldName);
+          }
+          generator.writeFieldName(fieldName);
+          break;
+
+        case VALUE_STRING:
+          String originalValue = parser.getText();
+          if (isMatchingPath(currentPath)) {
+            String transformed;
+            try {
+              transformed = rule.apply(originalValue);
+            } catch (RuntimeException ruleEx) {
+              throw new IOException("Rule application failed at path " + currentPath, ruleEx);
+            }
+            generator.writeString(transformed);
+          } else {
+            generator.writeString(originalValue);
+          }
+          break;
+
+        case START_OBJECT:
           depth++;
           generator.writeStartObject();
-        }
-        case END_OBJECT -> depth = handleEndObject(generator, depth, currentPath);
-        case START_ARRAY -> generator.writeStartArray();
-        case END_ARRAY -> generator.writeEndArray();
-        default -> generator.copyCurrentEvent(parser);
+          break;
+
+        case END_OBJECT:
+          depth--;
+          // Trim path to current depth
+          while (currentPath.size() > depth) {
+            currentPath.remove(currentPath.size() - 1);
+          }
+          generator.writeEndObject();
+          break;
+
+        case START_ARRAY:
+          generator.writeStartArray();
+          break;
+
+        case END_ARRAY:
+          generator.writeEndArray();
+          break;
+
+        default:
+          // Copy all other tokens as-is (numbers, booleans, null)
+          generator.copyCurrentEvent(parser);
+          break;
       }
     }
-  }
-
-  private int handleFieldName(
-      JsonParser parser, JsonGenerator generator, int depth, List<String> currentPath)
-      throws IOException {
-    String fieldName = parser.currentName();
-    while (currentPath.size() < depth) {
-      currentPath.add(null);
-    }
-    while (currentPath.size() > depth) {
-      currentPath.remove(currentPath.size() - 1);
-    }
-    if (depth > 0) {
-      currentPath.set(depth - 1, fieldName);
-    }
-    generator.writeFieldName(fieldName);
-    return depth;
-  }
-
-  @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  private void handleValueString(
-      JsonParser parser, JsonGenerator generator, List<String> currentPath) throws IOException {
-    // IRule.apply() declares no checked exceptions; RuntimeException catch wraps any rule failure.
-    String originalValue = parser.getText();
-    if (isMatchingPath(currentPath)) {
-      String transformed;
-      try {
-        transformed = rule.apply(originalValue);
-      } catch (RuntimeException ruleEx) {
-        throw new IOException("Rule application failed at path " + currentPath, ruleEx);
-      }
-      generator.writeString(transformed);
-    } else {
-      generator.writeString(originalValue);
-    }
-  }
-
-  private int handleEndObject(JsonGenerator generator, int depth, List<String> currentPath)
-      throws IOException {
-    int newDepth = depth - 1;
-    while (currentPath.size() > newDepth) {
-      currentPath.remove(currentPath.size() - 1);
-    }
-    generator.writeEndObject();
-    return newDepth;
   }
 
   /** Simple path matching for streaming JSON processing */

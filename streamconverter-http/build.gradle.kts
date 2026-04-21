@@ -39,7 +39,7 @@ dependencies {
     implementation("io.netty:netty-common:4.2.12.Final")
 
     // IP address validation
-    implementation("com.google.guava:guava:33.5.0-jre")
+    implementation("com.google.guava:guava:33.6.0-jre")
 
     // JUnit 5
     testImplementation(platform("org.junit:junit-bom:6.0.3"))

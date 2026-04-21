@@ -90,6 +90,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and
+  // re-thrown as XMLStreamException so the caller's error-handling path is not bypassed.
   private void navigateXmlWithRule(
       XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)
       throws XMLStreamException {

@@ -33,7 +33,9 @@ import org.slf4j.LoggerFactory;
  * path expressions including nested elements and attributes
  */
 @SuppressWarnings("PMD.TooManyMethods")
-// CaptureSession inner class methods push the count above the threshold; the split is intentional.
+// CaptureSession は XMLEventWriter のライフサイクルを管理する内部状態機械であり、
+// このクラス外に公開する必要がないため private static inner class として保持している。
+// 別ファイルに分離すると package-private にせざるを得ず、パッケージ境界が意図せず広がる。
 public class XmlFilterCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(XmlFilterCommand.class);
 

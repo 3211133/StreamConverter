@@ -22,8 +22,10 @@ import java.util.List;
  * <p><b>注意:</b> {@code "*"} はワイルドカードとして解釈されるため、ヘッダー名そのものが {@code "*"} の列を個別指定する用途には使えない。
  */
 @SuppressWarnings("PMD.TooManyMethods")
-// Selector API requires index-matching, name-matching, and header-array variants as distinct
-// methods.
+// セレクター API は列インデックス一致・列名一致・ヘッダー配列一致の各バリアントを
+// 型安全に分けて提供する必要があり、オーバーロードを統合すると呼び出し元の型安全性が失われる。
+// ヘルパーメソッド（matchesSingleSelector × 2, parseAsIndex, isAllColumnsSelector 等）を
+// 別クラスに抽出するとパッケージ外に公開せざるを得ず、内部実装が漏洩する。
 public class CSVPath extends AbstractPath<Integer> {
 
   private final List<String> selectors;

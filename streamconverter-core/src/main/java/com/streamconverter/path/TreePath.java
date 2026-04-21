@@ -12,7 +12,10 @@ import java.util.List;
  * efficient matching during data processing.
  */
 @SuppressWarnings("PMD.TooManyMethods")
-// Path API provides factory methods, matching variants, and utility methods as distinct operations.
+// public API（fromXml/fromJson・matches/matchesIgnoringArraySyntax・equals/hashCode/toString）と
+// private パーサーヘルパー（parseJsonPathToSegments/parseComplexJsonPath/parseXmlPathToSegments 等）
+// が同居している。パーサーヘルパーを別クラスに分離するとパッケージ外に公開せざるを得ず、
+// 内部実装が漏洩するため private のまま保持することが望ましい。
 public class TreePath implements IPath<List<String>> {
 
   private final List<String> segments;

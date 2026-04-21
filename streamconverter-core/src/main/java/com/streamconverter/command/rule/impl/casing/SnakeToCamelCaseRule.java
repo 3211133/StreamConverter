@@ -54,39 +54,44 @@ public class SnakeToCamelCaseRule implements IRule {
     if (input == null || input.isEmpty()) {
       return input;
     }
+    String result = normalizeUnderscores(input);
+    result = convertSnakeToCamel(result);
+    result = trimUnderscores(result);
+    return adjustFirstLetterCase(result);
+  }
 
-    String result = input;
-
-    // Clean up multiple underscores if not preserving
-    if (!preserveUnderscores) {
-      result = MULTIPLE_UNDERSCORES_PATTERN.matcher(result).replaceAll("_");
+  private String normalizeUnderscores(String value) {
+    if (preserveUnderscores) {
+      return value;
     }
+    return MULTIPLE_UNDERSCORES_PATTERN.matcher(value).replaceAll("_");
+  }
 
-    // Convert snake_case to camelCase by capitalizing letters after underscores
-    Matcher matcher = SNAKE_CASE_PATTERN.matcher(result);
+  private static String convertSnakeToCamel(String value) {
+    Matcher matcher = SNAKE_CASE_PATTERN.matcher(value);
     StringBuffer sb = new StringBuffer();
-
     while (matcher.find()) {
-      String replacement = matcher.group(1).toUpperCase(Locale.ROOT);
-      matcher.appendReplacement(sb, replacement);
+      matcher.appendReplacement(sb, matcher.group(1).toUpperCase(Locale.ROOT));
     }
     matcher.appendTail(sb);
-    result = sb.toString();
+    return sb.toString();
+  }
 
-    // Handle leading/trailing underscores
-    if (!preserveUnderscores) {
-      result = result.replaceAll("^_+|_+$", "");
+  private String trimUnderscores(String value) {
+    if (preserveUnderscores) {
+      return value;
     }
+    return value.replaceAll("^_+|_+$", "");
+  }
 
-    // Capitalize first letter if PascalCase is requested
-    if (capitalizeFirst && !result.isEmpty()) {
-      result = Character.toUpperCase(result.charAt(0)) + result.substring(1);
-    } else if (!capitalizeFirst && !result.isEmpty()) {
-      // Ensure first letter is lowercase for camelCase
-      result = Character.toLowerCase(result.charAt(0)) + result.substring(1);
+  private String adjustFirstLetterCase(String value) {
+    if (value.isEmpty()) {
+      return value;
     }
-
-    return result;
+    if (capitalizeFirst) {
+      return Character.toUpperCase(value.charAt(0)) + value.substring(1);
+    }
+    return Character.toLowerCase(value.charAt(0)) + value.substring(1);
   }
 
   /**

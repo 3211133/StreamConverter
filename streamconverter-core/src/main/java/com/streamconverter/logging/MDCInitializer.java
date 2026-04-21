@@ -4,6 +4,7 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.Map;
 import org.slf4j.ILoggerFactory;
+import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.MDC;
 import org.slf4j.spi.MDCAdapter;
@@ -42,6 +43,8 @@ import org.slf4j.spi.MDCAdapter;
  * }</pre>
  */
 public final class MDCInitializer {
+
+  private static final Logger LOGGER = LoggerFactory.getLogger(MDCInitializer.class);
 
   private MDCInitializer() {}
 
@@ -145,7 +148,8 @@ public final class MDCInitializer {
           && logbackAdapter == currentSlf4jAdapter;
     } catch (ClassNotFoundException ignored) {
       return true; // Logback not on classpath
-    } catch (ReflectiveOperationException | RuntimeException ignored) {
+    } catch (ReflectiveOperationException | RuntimeException e) {
+      LOGGER.warn("Failed to check Logback MDC adapter; will attempt reinstall", e);
       return false;
     }
   }

@@ -39,8 +39,13 @@ final class XmlCaptureSession {
     }
   }
 
-  String finish() {
-    abort();
+  String finish() throws XMLStreamException {
+    try {
+      eventWriter.flush();
+      eventWriter.close();
+    } finally {
+      open = false;
+    }
     return elementWriter.toString();
   }
 

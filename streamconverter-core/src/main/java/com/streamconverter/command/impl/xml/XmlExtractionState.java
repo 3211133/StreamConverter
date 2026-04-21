@@ -46,7 +46,7 @@ final class XmlExtractionState {
     captureSession.abort();
   }
 
-  String finishCapture() {
+  String finishCapture() throws XMLStreamException {
     String result = captureSession.finish();
     this.capturing = false;
     this.captureDepth = 0;

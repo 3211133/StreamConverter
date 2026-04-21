@@ -115,7 +115,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
         state.startCapture(state.currentDepth, event);
       } catch (XMLStreamException e) {
         state.resetCapture();
-        throw new IOException("Error writing start element", e);
+        throw new IOException("Error writing start element at path: " + state.currentPath, e);
       }
     } else if (state.isCapturing() && state.currentDepth > state.captureDepth) {
       addEventToCapture(event, state);
@@ -123,7 +123,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
   }
 
   private void handleEndElement(XMLEvent event, Writer writer, XmlExtractionState state)
-      throws IOException {
+      throws IOException, XMLStreamException {
     if (state.isCapturing()) {
       addEventToCapture(event, state);
       if (state.isCapturing() && state.currentDepth == state.captureDepth) {

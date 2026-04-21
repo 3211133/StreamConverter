@@ -7,13 +7,10 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.StringWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.List;
 import javax.xml.stream.XMLEventReader;
-import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -32,22 +29,11 @@ import org.slf4j.LoggerFactory;
  * structure of extracted elements - Memory-efficient streaming processing - Support for complex
  * path expressions including nested elements and attributes
  */
-@SuppressWarnings("PMD.TooManyMethods")
-// CaptureSession を private static inner class として保持しているため、
-// その private メソッドが外部クラスのメソッドカウントに加算されている。
-// CaptureSession の分離は技術的に可能だが、XmlFilterCommand 専用の実装詳細であり
-// package-private クラスとして独立させる設計上の利点がないため内部クラスのままとする。
 public class XmlFilterCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(XmlFilterCommand.class);
 
   private final IPath<List<String>> xpath;
 
-  /**
-   * Constructor for XML filtering with typed TreePath selector.
-   *
-   * @param xpath the typed TreePath to extract elements
-   * @throws IllegalArgumentException if xpath is null
-   */
   private XmlFilterCommand(IPath<List<String>> xpath) {
     this.xpath = xpath;
   }
@@ -85,13 +71,13 @@ public class XmlFilterCommand extends AbstractStreamCommand {
 
   private void processEvents(XMLEventReader reader, Writer writer) throws IOException {
     try {
-      ExtractionState state = new ExtractionState(XMLOutputFactory.newInstance());
+      XmlExtractionState state = new XmlExtractionState(XMLOutputFactory.newInstance());
       drainEvents(reader, writer, state);
       if (state.isCaptureOpen()) {
         state.abortCapture();
       }
       String remaining = state.firstElementConsumed ? null : state.firstExtractedElement;
-      writeRemainingOutput(writer, remaining, state.isWrappedOutput);
+      XmlOutputEmitter.writeRemaining(writer, remaining, state.isWrappedOutput);
     } catch (XMLStreamException e) {
       throw new IOException("Error processing XML: " + e.getMessage(), e);
     } finally {
@@ -99,7 +85,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
     }
   }
 
-  private void drainEvents(XMLEventReader reader, Writer writer, ExtractionState state)
+  private void drainEvents(XMLEventReader reader, Writer writer, XmlExtractionState state)
       throws XMLStreamException, IOException {
     while (reader.hasNext()) {
       XMLEvent event = reader.nextEvent();
@@ -121,13 +107,12 @@ public class XmlFilterCommand extends AbstractStreamCommand {
     }
   }
 
-  private void handleStartElement(XMLEvent event, ExtractionState state) throws IOException {
+  private void handleStartElement(XMLEvent event, XmlExtractionState state) throws IOException {
     state.currentDepth++;
     state.currentPath.add(event.asStartElement().getName().getLocalPart());
     if (xpath.matches(state.currentPath) && !state.isCapturing()) {
-      state.startCapture(state.currentDepth);
       try {
-        state.captureSession.start(event);
+        state.startCapture(state.currentDepth, event);
       } catch (XMLStreamException e) {
         state.resetCapture();
         throw new IOException("Error writing start element", e);
@@ -137,157 +122,24 @@ public class XmlFilterCommand extends AbstractStreamCommand {
     }
   }
 
-  private void handleEndElement(XMLEvent event, Writer writer, ExtractionState state)
+  private void handleEndElement(XMLEvent event, Writer writer, XmlExtractionState state)
       throws IOException {
     if (state.isCapturing()) {
       addEventToCapture(event, state);
       if (state.isCapturing() && state.currentDepth == state.captureDepth) {
-        String extracted = state.finishCapture();
-        emitExtracted(writer, extracted, state);
+        XmlOutputEmitter.emit(writer, state.finishCapture(), state);
       }
     }
     state.currentPath.remove(state.currentPath.size() - 1);
     state.currentDepth--;
   }
 
-  private void addEventToCapture(XMLEvent event, ExtractionState state) throws IOException {
+  private void addEventToCapture(XMLEvent event, XmlExtractionState state) throws IOException {
     try {
-      state.captureSession.add(event);
+      state.addToCapture(event);
     } catch (XMLStreamException e) {
       state.resetCapture();
       throw new IOException("Error writing XML content", e);
-    }
-  }
-
-  private void emitExtracted(Writer writer, String extracted, ExtractionState state)
-      throws IOException {
-    if (state.isWrappedOutput) {
-      writer.write(extracted);
-      writer.flush();
-    } else if (state.firstExtractedElement == null) {
-      state.firstExtractedElement = extracted;
-    } else {
-      writeWrappedOutputStart(writer, state.firstExtractedElement);
-      state.isWrappedOutput = true;
-      state.firstElementConsumed = true;
-      writer.write(extracted);
-      writer.flush();
-    }
-  }
-
-  private static final class ExtractionState {
-    final List<String> currentPath = new ArrayList<>();
-    final CaptureSession captureSession;
-    int currentDepth;
-    int captureDepth;
-    boolean capturing;
-    boolean firstElementConsumed;
-    String firstExtractedElement;
-    boolean isWrappedOutput;
-
-    ExtractionState(XMLOutputFactory factory) {
-      this.captureSession = new CaptureSession(factory);
-    }
-
-    boolean isCapturing() {
-      return capturing;
-    }
-
-    boolean isCaptureOpen() {
-      return captureSession.isOpen();
-    }
-
-    void startCapture(int depth) {
-      this.capturing = true;
-      this.captureDepth = depth;
-    }
-
-    void resetCapture() {
-      this.capturing = false;
-      this.captureDepth = 0;
-      captureSession.abort();
-    }
-
-    String finishCapture() {
-      String result = captureSession.finish();
-      this.capturing = false;
-      this.captureDepth = 0;
-      return result;
-    }
-
-    void abortCapture() {
-      captureSession.abort();
-    }
-  }
-
-  /**
-   * Write extracted XML elements to the output writer
-   *
-   * @param writer the output writer
-   * @param elements list of extracted XML elements
-   * @throws IOException if writing fails
-   */
-  private void writeWrappedOutputStart(Writer writer, String firstElement) throws IOException {
-    writer.write("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-    writer.write("<filtered-results>");
-    writer.write(firstElement);
-  }
-
-  private void writeRemainingOutput(
-      Writer writer, String firstExtractedElement, boolean isWrappedOutput) throws IOException {
-    if (firstExtractedElement != null) {
-      writer.write(firstExtractedElement);
-    }
-    if (isWrappedOutput) {
-      writer.write("</filtered-results>");
-    }
-    writer.flush();
-  }
-
-  private static final class CaptureSession {
-    private final XMLOutputFactory outputFactory;
-
-    private StringWriter elementWriter = new StringWriter();
-    private XMLEventWriter eventWriter;
-    private boolean open;
-
-    private CaptureSession(XMLOutputFactory outputFactory) {
-      this.outputFactory = outputFactory;
-    }
-
-    private void start(XMLEvent startEvent) throws XMLStreamException {
-      elementWriter = new StringWriter();
-      eventWriter = outputFactory.createXMLEventWriter(elementWriter);
-      open = true;
-      eventWriter.add(startEvent);
-    }
-
-    private void add(XMLEvent event) throws XMLStreamException {
-      if (open) {
-        eventWriter.add(event);
-      }
-    }
-
-    private String finish() {
-      abort();
-      return elementWriter.toString();
-    }
-
-    private void abort() {
-      if (!open) {
-        return;
-      }
-      try {
-        eventWriter.close();
-      } catch (XMLStreamException e) {
-        LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);
-      } finally {
-        open = false;
-      }
-    }
-
-    private boolean isOpen() {
-      return open;
     }
   }
 }

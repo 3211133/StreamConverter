@@ -207,31 +207,38 @@ public class SecureXPathValidator {
   }
 
   private static void validateStrictMode(String xpath) {
-    // 厳格モードでの追加検証
+    checkLength(xpath);
+    checkNesting(xpath);
+    checkOperators(xpath);
+    checkWildcards(xpath);
+  }
 
-    // 長すぎるXPath式を拒否
+  private static void checkLength(String xpath) {
     if (xpath.length() > 1000) {
       securityLogger.warn(
           "TreePath expression too long in strict mode: {} characters", xpath.length());
       throw new SecurityException("TreePath expression exceeds maximum length in strict mode");
     }
+  }
 
-    // 深いネストを拒否
+  private static void checkNesting(String xpath) {
     long nestingLevel = xpath.chars().filter(ch -> ch == '[').count();
     if (nestingLevel > 10) {
       securityLogger.warn(
           "TreePath expression has too deep nesting in strict mode: {} levels", nestingLevel);
       throw new SecurityException("TreePath expression has excessive nesting in strict mode");
     }
+  }
 
-    // 複雑な演算子の組み合わせを制限
+  private static void checkOperators(String xpath) {
     if (xpath.contains("and") && xpath.contains("or") && xpath.contains("not")) {
       securityLogger.warn(
           "Complex operator combination in TreePath in strict mode: {}", sanitizeForLogging(xpath));
       throw new SecurityException("Complex operator combinations not allowed in strict mode");
     }
+  }
 
-    // ワイルドカードの過度な使用を制限
+  private static void checkWildcards(String xpath) {
     long wildcardCount = xpath.chars().filter(ch -> ch == '*').count();
     if (wildcardCount > 5) {
       securityLogger.warn(

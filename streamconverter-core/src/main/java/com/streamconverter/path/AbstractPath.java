@@ -14,6 +14,9 @@ public abstract class AbstractPath<T> implements IPath<T> {
    *
    * @param path パス文字列（構築時に検証される）
    */
+  @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")
+  // テンプレートメソッドパターン: validateAndNormalize は abstract で final 化不可。
+  // ファクトリメソッドへの変更は既存 public API の破壊的変更になる。
   protected AbstractPath(String path) {
     validateAndNormalize(path);
   }

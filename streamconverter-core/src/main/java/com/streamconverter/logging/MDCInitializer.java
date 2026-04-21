@@ -68,46 +68,59 @@ public final class MDCInitializer {
       return;
     }
 
-    // Capture existing MDC state BEFORE replacing the adapter so it can be migrated
     Map<String, String> existingContext = MDC.getCopyOfContextMap();
-
-    // Reuse an already-installed adapter if SLF4J side is ready; otherwise create a new one
     InheritableMDCAdapter adapter =
         slf4jReady ? (InheritableMDCAdapter) currentAdapter : new InheritableMDCAdapter();
 
-    // Replace the MDC_ADAPTER field in SLF4J MDC via reflection
-    // (MDC.setMDCAdapter is package-private in SLF4J 2.x)
     if (!slf4jReady) {
-      try {
-        Field mdcAdapterField = MDC.class.getDeclaredField("MDC_ADAPTER");
-        mdcAdapterField.setAccessible(true);
-        mdcAdapterField.set(null, (MDCAdapter) adapter);
-      } catch (ReflectiveOperationException | RuntimeException e) {
-        throw new IllegalStateException(
-            "Failed to install InheritableMDCAdapter into SLF4J MDC", e);
-      }
+      installIntoSlf4j(adapter);
     }
-
-    // Install into Logback LoggerContext via reflection (avoids hard compile-time dependency)
     if (!logbackReady) {
-      try {
-        Class<?> loggerContextClass = Class.forName("ch.qos.logback.classic.LoggerContext");
-        ILoggerFactory factory = LoggerFactory.getILoggerFactory();
-        if (loggerContextClass.isInstance(factory)) {
-          Method setMDCAdapter = loggerContextClass.getMethod("setMDCAdapter", MDCAdapter.class);
-          setMDCAdapter.invoke(factory, adapter);
-        }
-      } catch (ClassNotFoundException ignored) {
-        // Logback is not on the classpath; nothing to do
-      } catch (ReflectiveOperationException | RuntimeException e) {
-        throw new IllegalStateException(
-            "Failed to install InheritableMDCAdapter into Logback LoggerContext", e);
-      }
+      installIntoLogback(adapter);
     }
-
-    // Migrate existing MDC state from the previous adapter into the new one
     if (!slf4jReady && existingContext != null) {
       adapter.setContextMap(existingContext);
+    }
+  }
+
+  /**
+   * Installs the adapter into the SLF4J {@link MDC} class via reflection.
+   *
+   * <p>{@code MDC.setMDCAdapter()} is package-private in SLF4J 2.x, so reflection is the only way
+   * to replace the adapter from outside the {@code org.slf4j} package.
+   */
+  @SuppressWarnings({"PMD.AvoidAccessibilityAlteration", "PMD.AvoidCatchingGenericException"})
+  private static void installIntoSlf4j(InheritableMDCAdapter adapter) {
+    // MDC.setMDCAdapter() is package-private in SLF4J 2.x; reflection is the only available path.
+    // RuntimeException は Field.set() が SecurityException 以外をスローする可能性に備えた catch。
+    try {
+      Field mdcAdapterField = MDC.class.getDeclaredField("MDC_ADAPTER");
+      mdcAdapterField.setAccessible(true);
+      mdcAdapterField.set(null, (MDCAdapter) adapter);
+    } catch (ReflectiveOperationException | RuntimeException e) {
+      throw new IllegalStateException("Failed to install InheritableMDCAdapter into SLF4J MDC", e);
+    }
+  }
+
+  /**
+   * Installs the adapter into the Logback {@code LoggerContext} via reflection, if Logback is
+   * present on the classpath.
+   */
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  private static void installIntoLogback(InheritableMDCAdapter adapter) {
+    // ReflectiveOperationException subtypes vary by JDK version; Exception covers all cases.
+    try {
+      Class<?> loggerContextClass = Class.forName("ch.qos.logback.classic.LoggerContext");
+      ILoggerFactory factory = LoggerFactory.getILoggerFactory();
+      if (loggerContextClass.isInstance(factory)) {
+        Method setMDCAdapter = loggerContextClass.getMethod("setMDCAdapter", MDCAdapter.class);
+        setMDCAdapter.invoke(factory, adapter);
+      }
+    } catch (ClassNotFoundException ignored) {
+      // Logback is not on the classpath; nothing to do
+    } catch (ReflectiveOperationException | RuntimeException e) {
+      throw new IllegalStateException(
+          "Failed to install InheritableMDCAdapter into Logback LoggerContext", e);
     }
   }
 
@@ -115,7 +128,9 @@ public final class MDCInitializer {
    * Returns {@code true} if the Logback {@code LoggerContext} already has an {@link
    * InheritableMDCAdapter} installed, or if Logback is not on the classpath.
    */
+  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.CompareObjectsWithEquals"})
   private static boolean isLogbackAlreadyInstalled(MDCAdapter currentSlf4jAdapter) {
+    // ReflectiveOperationException subtypes vary by JDK version; Exception covers all cases.
     try {
       Class<?> loggerContextClass = Class.forName("ch.qos.logback.classic.LoggerContext");
       ILoggerFactory factory = LoggerFactory.getILoggerFactory();
@@ -124,7 +139,8 @@ public final class MDCInitializer {
       }
       Method getMDCAdapter = loggerContextClass.getMethod("getMDCAdapter");
       MDCAdapter logbackAdapter = (MDCAdapter) getMDCAdapter.invoke(factory);
-      // Both sides must use the same InheritableMDCAdapter instance
+      // == checks instance identity: SLF4J and Logback must share the exact same adapter object,
+      // not just equal values. equals() would incorrectly return true for distinct instances.
       return logbackAdapter instanceof InheritableMDCAdapter
           && logbackAdapter == currentSlf4jAdapter;
     } catch (ClassNotFoundException ignored) {

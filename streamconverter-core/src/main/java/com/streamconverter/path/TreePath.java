@@ -62,7 +62,7 @@ public class TreePath implements IPath<List<String>> {
    */
   @Override
   public boolean matches(List<String> currentPath) {
-    return currentPath != null && segments.equals(currentPath);
+    return segments.equals(currentPath);
   }
 
   /**

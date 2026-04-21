@@ -225,6 +225,8 @@ public final class ValidationResult {
   }
 
   /** ValidationResult作成用のBuilderクラス */
+  @SuppressWarnings("PMD.TooManyMethods")
+  // Fluent builder requires one setter per field plus addError/addWarning/build/validation helpers.
   public static class Builder {
     private String typeVal;
     private String schemaPathVal;

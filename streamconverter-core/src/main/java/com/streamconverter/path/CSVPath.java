@@ -21,6 +21,9 @@ import java.util.List;
  *
  * <p><b>注意:</b> {@code "*"} はワイルドカードとして解釈されるため、ヘッダー名そのものが {@code "*"} の列を個別指定する用途には使えない。
  */
+@SuppressWarnings("PMD.TooManyMethods")
+// Selector API requires index-matching, name-matching, and header-array variants as distinct
+// methods.
 public class CSVPath extends AbstractPath<Integer> {
 
   private final List<String> selectors;

@@ -32,6 +32,8 @@ import org.slf4j.LoggerFactory;
  * structure of extracted elements - Memory-efficient streaming processing - Support for complex
  * path expressions including nested elements and attributes
  */
+@SuppressWarnings("PMD.TooManyMethods")
+// CaptureSession inner class methods push the count above the threshold; the split is intentional.
 public class XmlFilterCommand extends AbstractStreamCommand {
   private static final Logger LOGGER = LoggerFactory.getLogger(XmlFilterCommand.class);
 

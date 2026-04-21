@@ -48,19 +48,13 @@
     </rule>
 
     <!--
-        These design rules were noisy for this repository:
-        - LawOfDemeter mostly flagged normal parser/library API traversal instead of design issues.
-        - ClassWithOnlyPrivateConstructorsShouldBeFinal is stylistic and not worth global enforcement.
+        ClassWithOnlyPrivateConstructorsShouldBeFinal is stylistic and not worth global enforcement.
+        LawOfDemeter mostly flags normal streaming-API traversal (parser.nextToken(), etc.) rather
+        than true coupling violations; the few real cases are suppressed per-method.
     -->
     <rule ref="category/java/design.xml">
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
         <exclude name="LawOfDemeter" />
-        <!--
-            CSVPath・TreePath はセレクター API の柔軟性のため、
-            ValidationResult.Builder は fluent builder パターンのため、
-            設計上メソッド数が多くなることが必然。
-        -->
-        <exclude name="TooManyMethods" />
     </rule>
 
     <!--

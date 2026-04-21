@@ -21,6 +21,8 @@ import org.slf4j.LoggerFactory;
  *
  * @since 1.0.0
  */
+@SuppressWarnings("PMD.TooManyMethods")
+// Each security check (length, nesting, operators, wildcards) is a distinct validation method.
 public class SecureXPathValidator {
 
   private static final Logger securityLogger =

@@ -11,6 +11,8 @@ import java.util.List;
  * and XML-style ("user/name") formats. It converts path expressions into hierarchical segments for
  * efficient matching during data processing.
  */
+@SuppressWarnings("PMD.TooManyMethods")
+// Path API provides factory methods, matching variants, and utility methods as distinct operations.
 public class TreePath implements IPath<List<String>> {
 
   private final List<String> segments;

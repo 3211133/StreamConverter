@@ -23,9 +23,9 @@ import org.slf4j.LoggerFactory;
  */
 @SuppressWarnings("PMD.TooManyMethods")
 // セキュリティ検証は「インジェクション・危険関数・外部参照・SQLライク・厳格モード」の
-// 独立したチェック群で構成され、各チェックは固有の正規表現とエラーメッセージを持つ。
-// チェックを別クラスに分離すると private な Pattern 定数をパッケージ外に公開せざるを得ず、
-// 攻撃者がパターンの詳細を知ることができるため意図的に単一クラスに集約している。
+// 独立したチェック群で構成され、各チェックが固有の private Pattern 定数を参照している。
+// チェック群は package-private クラスへ分離可能だが、単一クラスに集約することで
+// 全パターンの見通しが保たれ、検証ロジックの変更漏れを防ぎやすい。
 public class SecureXPathValidator {
 
   private static final Logger securityLogger =

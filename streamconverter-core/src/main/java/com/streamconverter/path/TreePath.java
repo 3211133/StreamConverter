@@ -14,8 +14,8 @@ import java.util.List;
 @SuppressWarnings("PMD.TooManyMethods")
 // public API（fromXml/fromJson・matches/matchesIgnoringArraySyntax・equals/hashCode/toString）と
 // private パーサーヘルパー（parseJsonPathToSegments/parseComplexJsonPath/parseXmlPathToSegments 等）
-// が同居している。パーサーヘルパーを別クラスに分離するとパッケージ外に公開せざるを得ず、
-// 内部実装が漏洩するため private のまま保持することが望ましい。
+// が同居している。パーサーヘルパーは package-private クラスへ分離可能だが、TreePath 専用の
+// 実装詳細であり独立させる設計上の意義がないため現状を維持している。
 public class TreePath implements IPath<List<String>> {
 
   private final List<String> segments;

@@ -226,9 +226,10 @@ public final class ValidationResult {
 
   /** ValidationResult作成用のBuilderクラス */
   @SuppressWarnings("PMD.TooManyMethods")
-  // Fluent builder はフィールドごとに独立した setter が必要（メソッドチェーンの型安全性のため）。
-  // setter を統合すると呼び出し元でフィールド名を文字列で指定せざるを得ず、コンパイル時の安全性を失う。
-  // build() と事前検証ヘルパー（requireNonBlank/ensureConsistency）は builder 内部で完結すべき責務。
+  // fluent builder はフィールドごとに独立した setter が必要であり、
+  // setter・addError/addWarning・build・検証ヘルパーの合計がしきい値を超える。
+  // 検証ヘルパーは package-private クラスへ分離可能だが、builder の事前条件として
+  // 同一クラス内に置く方が責務の所在が明確なため現状を維持している。
   public static class Builder {
     private String typeVal;
     private String schemaPathVal;

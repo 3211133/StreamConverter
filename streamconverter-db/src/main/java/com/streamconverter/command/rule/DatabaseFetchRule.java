@@ -69,7 +69,13 @@ public class DatabaseFetchRule implements IRule {
     this.databaseUrl = validateDatabaseUrl(databaseUrl.trim());
 
     // クエリの検証
-    this.query = validateQuery(query.trim());
+    String trimmed = query.trim();
+    long placeholderCount = trimmed.chars().filter(c -> c == '?').count();
+    if (placeholderCount > 1) {
+      throw new IllegalArgumentException(
+          "Query must have at most one placeholder '?', found " + placeholderCount);
+    }
+    this.query = validateQuery(trimmed);
 
     logger.info(
         "DatabaseFetchRule initialized with secure validation - URL: {}, Query length: {}",

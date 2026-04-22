@@ -104,7 +104,6 @@ public class PooledDatabaseFetchRule implements IRule {
     try (Connection connection = connectionPool.getConnection();
         PreparedStatement statement = connection.prepareStatement(query)) {
 
-      // 入力文字列をパラメータとして設定（クエリに「?」プレースホルダーがある場合）
       if (query.contains("?") && input != null && !input.isEmpty()) {
         String sanitizedInput = sanitizeInput(input);
         if (sanitizedInput.isEmpty()) {
@@ -118,59 +117,51 @@ public class PooledDatabaseFetchRule implements IRule {
         logger.debug("Parameter set for prepared statement: length={}", sanitizedInput.length());
       }
 
-      // クエリ実行
       logger.debug("Executing query with pooled connection: {}", query);
       try (ResultSet resultSet = statement.executeQuery()) {
-        // 結果の検証と処理
         ResultSetMetaData metaData = resultSet.getMetaData();
         int columnCount = metaData.getColumnCount();
 
-        // 結果がない場合
         if (!resultSet.next()) {
-          logger.warn("クエリ結果が空です。");
+          logger.debug("Query returned no results.");
           return "";
         }
 
-        // 列数の検証
         if (columnCount != 1) {
-          logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);
+          logger.debug("Query returned {} columns; using first column.", columnCount);
         }
 
-        // 先頭行の先頭列の値を取得
         String value = resultSet.getString(1);
 
-        // 追加の行があるかチェック
         boolean hasMoreRows = resultSet.next();
         if (hasMoreRows) {
-          logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");
+          logger.info("Query returned multiple rows; using first row.");
         }
 
-        // nullチェック
         if (value == null) {
-          logger.info("クエリ結果の先頭値がNULLです。");
+          logger.debug("First row value is NULL.");
           return "";
         }
 
-        // 結果が理想的（1行1列）かどうかをログに記録
         if (columnCount == 1 && !hasMoreRows) {
-          logger.debug("データベースから単一値を取得しました（プール使用）: {}", value);
+          logger.debug("Fetched single value from database (pooled): {}", value);
         } else {
-          logger.debug("データベースから先頭値を取得しました（プール使用）: {}", value);
+          logger.debug("Fetched first value from database (pooled): {}", value);
         }
 
         return value;
       }
 
     } catch (SQLException e) {
-      logger.error("プール接続でのデータベース操作中にエラーが発生しました: {}", e.getMessage(), e);
+      logger.error("Database operation failed (pooled connection): {}", e.getMessage(), e);
       Throwable[] suppressed = e.getSuppressed();
       if (suppressed != null) {
         for (Throwable s : suppressed) {
-          logger.error("クローズ中に追加のエラーが発生しました: {}", s.getMessage(), s);
+          logger.error("Additional error during close: {}", s.getMessage(), s);
         }
       }
       throw new StreamProcessingException(
-          "データベースフェッチに失敗しました: " + e.getMessage(), e);
+          "Database fetch failed: " + e.getMessage(), e);
     }
   }
 

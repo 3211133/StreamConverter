@@ -121,6 +121,11 @@ When contributing documentation:
 3. **Code comments**: English or Japanese is acceptable
 4. **Commit messages**: Follow Conventional Commits in English (as per standard practice)
 
+### Test Naming Convention
+- **`@DisplayName` annotations**: Use Japanese for all test display names to match the project's primary language policy. Example: `@DisplayName("execute：有効な入力を処理して出力を返す")`
+- **Method names**: Use English (e.g., `testExecuteWithValidInput()`), as Java identifiers are conventionally English
+- When adding tests to an existing file, follow the language already used in that file's `@DisplayName` annotations
+
 ### Rationale
 This policy reflects the project's primary user base and development team composition while keeping maintenance costs manageable. Machine translation technology has advanced sufficiently to provide adequate internationalization when needed.
 

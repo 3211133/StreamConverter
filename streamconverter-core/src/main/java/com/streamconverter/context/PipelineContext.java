@@ -13,6 +13,13 @@ import org.slf4j.MDC;
  * <p>共有値は {@link com.streamconverter.logging.PipelineContextTurboFilter} により、
  * ログ出力直前にMDCへ自動的にマージされる。
  *
+ * <p><b>スレッドモデル:</b> 各コマンドスレッドは独自の {@code PipelineContext} インスタンスを保持する。 {@link
+ * com.streamconverter.StreamConverter} は各コマンドスレッドで {@link #set(PipelineContext)} を呼び出す際に、
+ * <em>同一インスタンスを複数スレッドで共有しない</em>。したがって {@code sharedValues} に {@link
+ * java.util.concurrent.ConcurrentHashMap} を使用しているのは、同一スレッドの {@link
+ * com.streamconverter.logging.PipelineContextTurboFilter}（Logbackの内部スレッドから呼ばれる可能性がある）
+ * との並行アクセスに備えるためである。
+ *
  * <p>使用例:
  *
  * <pre>{@code

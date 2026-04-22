@@ -14,6 +14,14 @@ import org.slf4j.Logger;
  * <p>This is a functional interface and can be implemented using lambda expressions or method
  * references for simple stream processing operations.
  *
+ * <p><b>Note on lambda implementations:</b> Lambda and anonymous implementations are treated as
+ * synthetic by the JVM, so {@link #commandName()} returns {@code "IStreamCommand"} instead of a
+ * meaningful class name. More importantly, {@link com.streamconverter.StreamConverter} wraps each
+ * command with {@link #withLogging(org.slf4j.Logger)} only when the command is an instance of
+ * {@link com.streamconverter.command.AbstractStreamCommand}; lambdas bypass this wrapping and
+ * therefore produce no start/completion/failure log entries. For commands that should appear in
+ * pipeline logs, extend {@link com.streamconverter.command.AbstractStreamCommand} instead.
+ *
  * <p>Usage examples:
  *
  * <pre>{@code

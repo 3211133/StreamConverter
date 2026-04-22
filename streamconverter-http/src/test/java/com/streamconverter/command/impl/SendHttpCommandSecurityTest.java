@@ -123,4 +123,18 @@ class SendHttpCommandSecurityTest {
         ex172.getMessage().contains("private") || ex172.getMessage().contains("localhost"),
         "エラーメッセージにprivate or localhostが含まれるべき");
   }
+
+  // ---- #653: ホスト名を DNS 解決してプライベート IP を検出する ----
+
+  @Test
+  @DisplayName("解決不能なホスト名は IllegalArgumentException をスローする（#653）")
+  void testUnresolvableHostThrows() {
+    // 修正前: InetAddresses.forString() がホスト名で IllegalArgumentException → catch して false
+    // を返す。つまり解決不能ホスト名が通過する。
+    // 修正後: InetAddress.getAllByName() で解決を試みて失敗したら IllegalArgumentException をスロー。
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new SendHttpCommand("http://this-host-does-not-exist.invalid"),
+        "解決不能なホスト名はブロックされるべき");
+  }
 }

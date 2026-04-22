@@ -15,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -238,5 +239,71 @@ class SendHttpCommandWebClientTest {
     private boolean awaitFirstWrite(Duration timeout) throws InterruptedException {
       return firstWriteLatch.await(timeout.toMillis(), TimeUnit.MILLISECONDS);
     }
+  }
+
+  // ---- #657: エラーレスポンスボディを 256 文字に切り詰める ----
+
+  @Test
+  @DisplayName("エラーレスポンスボディが 256 文字を超える場合は切り詰められる（#657）")
+  void testErrorBodyIsTruncatedToMaxLength() throws Exception {
+    // 修正前: errorBody をそのままメッセージに埋め込む → 大きなボディが例外メッセージに入る
+    // 修正後: 256 文字超は "...[truncated]" サフィックス付きで切り詰める
+    String longBody = "E".repeat(300);
+    WebClient errorClient = createErrorWebClient(500, longBody);
+    SendHttpCommand command = new SendHttpCommand("https://example.com/post", errorClient);
+
+    IOException ex =
+        assertThrows(
+            IOException.class,
+            () ->
+                command.execute(
+                    new ByteArrayInputStream("body".getBytes(StandardCharsets.UTF_8)),
+                    new ByteArrayOutputStream()));
+
+    String causeMessage = ex.getCause().getMessage();
+    assertTrue(
+        causeMessage.contains("...[truncated]"),
+        "エラーメッセージに切り詰め表示が含まれるべき: " + causeMessage);
+    assertFalse(
+        causeMessage.contains(longBody),
+        "エラーメッセージに完全な 300 文字ボディが含まれてはいけない");
+  }
+
+  @Test
+  @DisplayName("エラーレスポンスボディが 256 文字以下の場合は切り詰めない（#657）")
+  void testShortErrorBodyIsNotTruncated() throws Exception {
+    String shortBody = "short error";
+    WebClient errorClient = createErrorWebClient(400, shortBody);
+    SendHttpCommand command = new SendHttpCommand("https://example.com/post", errorClient);
+
+    IOException ex =
+        assertThrows(
+            IOException.class,
+            () ->
+                command.execute(
+                    new ByteArrayInputStream("body".getBytes(StandardCharsets.UTF_8)),
+                    new ByteArrayOutputStream()));
+
+    String causeMessage = ex.getCause().getMessage();
+    assertTrue(causeMessage.contains(shortBody), "短いエラーボディはそのまま含まれるべき");
+    assertFalse(causeMessage.contains("...[truncated]"), "短いエラーボディは切り詰められないべき");
+  }
+
+  static WebClient createErrorWebClient(int statusCode, String responseBody) {
+    DefaultDataBufferFactory bufferFactory = new DefaultDataBufferFactory();
+    org.springframework.http.HttpStatus status =
+        org.springframework.http.HttpStatus.valueOf(statusCode);
+    ExchangeFunction exchangeFunction =
+        request ->
+            reactor.core.publisher.Mono.just(
+                ClientResponse.create(status)
+                    .header(HttpHeaders.CONTENT_TYPE,
+                        org.springframework.http.MediaType.TEXT_PLAIN_VALUE)
+                    .body(
+                        Flux.just(
+                            bufferFactory.wrap(
+                                responseBody.getBytes(StandardCharsets.UTF_8))))
+                    .build());
+    return WebClient.builder().exchangeFunction(exchangeFunction).build();
   }
 }

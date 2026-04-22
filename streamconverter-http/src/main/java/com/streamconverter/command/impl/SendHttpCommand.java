@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.URI;
+import java.net.UnknownHostException;
 import java.net.URISyntaxException;
 import java.time.Duration;
 import java.util.Objects;
@@ -140,16 +141,28 @@ public class SendHttpCommand extends AbstractStreamCommand {
         || "::1".equals(cleanHost);
   }
 
-  /** プライベートIPアドレスかどうかを判定する（Guava使用） */
+  /**
+   * ホストがプライベートIPに解決されるかを判定する。
+   * リテラルIPはGuavaで即解析し、ホスト名はDNS解決後に検査する。
+   * 解決不能なホスト名は例外をスローしてアクセスを拒否する。
+   */
   private boolean isPrivateIpAddress(String host) {
-    try {
-      // GuavaのInetAddressesを使用してIPアドレスを解析
+    // まずリテラルIPとして解析を試みる
+    if (InetAddresses.isInetAddress(host)) {
       InetAddress address = InetAddresses.forString(host);
-      // RFC 1918準拠のプライベートアドレス判定
       return address.isSiteLocalAddress() || address.isLoopbackAddress();
-    } catch (IllegalArgumentException e) {
-      // IPアドレス形式でない場合（ホスト名など）はfalseを返す
+    }
+    // ホスト名: DNS解決して全アドレスを検査する
+    try {
+      InetAddress[] addresses = InetAddress.getAllByName(host);
+      for (InetAddress address : addresses) {
+        if (address.isSiteLocalAddress() || address.isLoopbackAddress()) {
+          return true;
+        }
+      }
       return false;
+    } catch (UnknownHostException e) {
+      throw new IllegalArgumentException("Cannot resolve hostname: " + host, e);
     }
   }
 
@@ -197,7 +210,9 @@ public class SendHttpCommand extends AbstractStreamCommand {
                               new RuntimeException(
                                   String.format(
                                       "HTTP request failed: status=%d, url=%s, response=%s",
-                                      response.statusCode().value(), url, errorBody))))
+                                      response.statusCode().value(),
+                                      url,
+                                      truncate(errorBody, 256)))))
           .bodyToFlux(org.springframework.core.io.buffer.DataBuffer.class)
           .timeout(Duration.ofMinutes(5)) // 大容量データ処理のため5分に延長
           .doOnNext(
@@ -239,5 +254,12 @@ public class SendHttpCommand extends AbstractStreamCommand {
       logger.error(errorMessage, e);
       throw new IOException(errorMessage, e);
     }
+  }
+
+  private static String truncate(String s, int maxLength) {
+    if (s == null || s.length() <= maxLength) {
+      return s;
+    }
+    return s.substring(0, maxLength) + "...[truncated]";
   }
 }

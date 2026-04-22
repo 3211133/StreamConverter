@@ -36,6 +36,10 @@ public class SendHttpCommand extends AbstractStreamCommand {
 
   private static final Logger logger = LoggerFactory.getLogger(SendHttpCommand.class);
 
+  private static final int CONNECT_TIMEOUT_MS = 10_000;
+  private static final int MAX_ERROR_BODY_SIZE = 1024 * 1024;
+  private static final int STREAMING_CHUNK_SIZE = 8192;
+
   private final String url;
   private final WebClient webClient;
 
@@ -68,7 +72,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
     HttpClient httpClient =
         HttpClient.create()
             .responseTimeout(Duration.ofSeconds(30))
-            .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, 10000)
+            .option(io.netty.channel.ChannelOption.CONNECT_TIMEOUT_MILLIS, CONNECT_TIMEOUT_MS)
             .keepAlive(false); // Disable keep-alive to avoid connection pool issues
 
     return WebClient.builder()
@@ -77,7 +81,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
             configurer ->
                 // 1 MB limit for error response bodies (used by onStatus bodyToMono).
                 // The streaming response path (bodyToFlux) bypasses this buffer entirely.
-                configurer.defaultCodecs().maxInMemorySize(1024 * 1024))
+                configurer.defaultCodecs().maxInMemorySize(MAX_ERROR_BODY_SIZE))
         .build();
   }
 
@@ -184,7 +188,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
                   org.springframework.core.io.buffer.DataBufferUtils.readInputStream(
                       () -> inputStream,
                       org.springframework.core.io.buffer.DefaultDataBufferFactory.sharedInstance,
-                      8192))) // 8KB chunks for memory efficiency
+                      STREAMING_CHUNK_SIZE)))
           .retrieve()
           .onStatus(
               status -> !status.is2xxSuccessful(),

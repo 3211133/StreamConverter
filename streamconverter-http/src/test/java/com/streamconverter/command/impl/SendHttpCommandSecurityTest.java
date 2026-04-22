@@ -3,7 +3,9 @@ package com.streamconverter.command.impl;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 
 /** SendHttpCommandのセキュリティ機能専用テスト */
 class SendHttpCommandSecurityTest {
@@ -47,6 +49,8 @@ class SendHttpCommandSecurityTest {
   }
 
   @Test
+  @Tag("network")
+  @DisabledIfSystemProperty(named = "skipNetworkTests", matches = "true")
   @DisplayName("有効な外部URLは許可されることを確認")
   void testValidExternalUrl() {
     assertDoesNotThrow(
@@ -122,5 +126,21 @@ class SendHttpCommandSecurityTest {
     assertTrue(
         ex172.getMessage().contains("private") || ex172.getMessage().contains("localhost"),
         "エラーメッセージにprivate or localhostが含まれるべき");
+  }
+
+  // ---- #653: ホスト名を DNS 解決してプライベート IP を検出する ----
+
+  @Test
+  @Tag("network")
+  @DisabledIfSystemProperty(named = "skipNetworkTests", matches = "true")
+  @DisplayName("解決不能なホスト名は IllegalArgumentException をスローする（#653）")
+  void testUnresolvableHostThrows() {
+    // 修正前: InetAddresses.forString() がホスト名で IllegalArgumentException → catch して false
+    // を返す。つまり解決不能ホスト名が通過する。
+    // 修正後: InetAddress.getAllByName() で解決を試みて失敗したら IllegalArgumentException をスロー。
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new SendHttpCommand("http://this-host-does-not-exist.invalid"),
+        "解決不能なホスト名はブロックされるべき");
   }
 }

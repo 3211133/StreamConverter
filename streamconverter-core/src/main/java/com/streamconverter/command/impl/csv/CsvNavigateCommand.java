@@ -27,20 +27,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
   private final IRule rule;
 
   /**
-   * Constructor for CSV navigation with column selector and transformation rule.
-   *
-   * @param columnSelector the column name or index to select (e.g., "name", "2")
-   * @param rule the transformation rule to apply to selected column
-   * @throws IllegalArgumentException if columnSelector or rule is null
-   * @deprecated Use {@link #CsvNavigateCommand(CSVPath, IRule)} instead
-   */
-  @Deprecated
-  private CsvNavigateCommand(String columnSelector, IRule rule) {
-    this.columnSelector = CSVPath.of(columnSelector);
-    this.rule = rule;
-  }
-
-  /**
    * Constructor for CSV navigation with typed column selector and transformation rule.
    *
    * @param columnSelector the typed CSVPath to select column
@@ -62,28 +48,6 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
   private CsvNavigateCommand(TreePath treePath, IRule rule) {
     this.columnSelector = CSVPath.of(treePath.toString());
     this.rule = rule;
-  }
-
-  /**
-   * Factory method for creating a CSV navigation command with explicit rule specification. This
-   * method makes the intention explicit: extract data from the specified column and apply the given
-   * transformation rule.
-   *
-   * @param columnSelector the column name or index to select (e.g., "name", "2")
-   * @param rule the transformation rule to apply to selected column data
-   * @return a CsvNavigateCommand that extracts the specified column with the given rule
-   * @throws IllegalArgumentException if rule is null
-   * @deprecated Use {@link #create(CSVPath, IRule)} instead
-   */
-  @Deprecated
-  public static CsvNavigateCommand create(String columnSelector, IRule rule) {
-    if (columnSelector == null) {
-      throw new IllegalArgumentException("Column selector cannot be null");
-    }
-    if (rule == null) {
-      throw new IllegalArgumentException("Rule cannot be null");
-    }
-    return new CsvNavigateCommand(columnSelector, rule);
   }
 
   /**

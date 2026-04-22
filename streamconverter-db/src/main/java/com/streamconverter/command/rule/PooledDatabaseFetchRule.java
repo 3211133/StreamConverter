@@ -65,7 +65,13 @@ public class PooledDatabaseFetchRule implements IRule {
     Objects.requireNonNull(query, "Query cannot be null");
 
     this.connectionPool = connectionPool;
-    this.query = validateQuery(query.trim());
+    String trimmed = query.trim();
+    long placeholderCount = trimmed.chars().filter(c -> c == '?').count();
+    if (placeholderCount > 1) {
+      throw new IllegalArgumentException(
+          "Query must have at most one placeholder '?', found " + placeholderCount);
+    }
+    this.query = validateQuery(trimmed);
 
     logger.info(
         "PooledDatabaseFetchRule initialized - Query length: {}, Pool: {}",
@@ -128,8 +134,12 @@ public class PooledDatabaseFetchRule implements IRule {
 
   /** クエリにプレースホルダーがある場合に入力値をバインドする。拒否すべき入力なら false を返す。 */
   private boolean bindParameters(PreparedStatement statement, String input) throws SQLException {
-    if (!query.contains("?") || input == null || input.isEmpty()) {
+    if (!query.contains("?")) {
       return true;
+    }
+    if (input == null || input.isEmpty()) {
+      logger.warn("Query has a placeholder but input is null or empty. Rejecting to prevent unbound parameter.");
+      return false;
     }
     String sanitizedInput = sanitizeInput(input);
     if (sanitizedInput.isEmpty()) {

@@ -44,7 +44,7 @@ import org.slf4j.spi.MDCAdapter;
  */
 public final class MDCInitializer {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(MDCInitializer.class);
+  private static final Logger logger = LoggerFactory.getLogger(MDCInitializer.class);
 
   private MDCInitializer() {}
 
@@ -149,7 +149,7 @@ public final class MDCInitializer {
     } catch (ClassNotFoundException ignored) {
       return true; // Logback not on classpath
     } catch (ReflectiveOperationException | RuntimeException e) {
-      LOGGER.warn("Failed to check Logback MDC adapter; will attempt reinstall", e);
+      logger.warn("Failed to check Logback MDC adapter; will attempt reinstall", e);
       return false;
     }
   }

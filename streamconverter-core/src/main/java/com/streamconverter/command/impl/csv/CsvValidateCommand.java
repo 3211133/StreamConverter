@@ -37,7 +37,7 @@ import org.slf4j.LoggerFactory;
  * </pre>
  */
 public class CsvValidateCommand extends ConsumerCommand {
-  private static final Logger LOGGER = LoggerFactory.getLogger(CsvValidateCommand.class);
+  private static final Logger logger = LoggerFactory.getLogger(CsvValidateCommand.class);
 
   private final Set<String> requiredColumns;
   private final boolean hasHeader;
@@ -73,9 +73,9 @@ public class CsvValidateCommand extends ConsumerCommand {
     }
 
     if (requiredColumns.length == 0) {
-      LOGGER.info("No required columns specified, column validation will be skipped");
+      logger.info("No required columns specified, column validation will be skipped");
     } else {
-      LOGGER.info("Required columns: {}", this.requiredColumns);
+      logger.info("Required columns: {}", this.requiredColumns);
     }
   }
 
@@ -121,7 +121,7 @@ public class CsvValidateCommand extends ConsumerCommand {
   public void consume(final InputStream inputStream) throws IOException {
     Objects.requireNonNull(inputStream, "InputStream cannot be null");
 
-    LOGGER.info(
+    logger.info(
         "Starting CSV validation - hasHeader: {}, requiredColumns: {}",
         hasHeader,
         requiredColumns.size());
@@ -135,7 +135,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     if (!validationErrors.isEmpty()) {
       handleValidationErrors(validationErrors);
     }
-    LOGGER.info("CSV validation completed successfully");
+    logger.info("CSV validation completed successfully");
   }
 
   private boolean readAndValidate(InputStream inputStream, List<String> validationErrors)
@@ -156,10 +156,10 @@ public class CsvValidateCommand extends ConsumerCommand {
       return validateDataRows(csvReader, rowValidator, headers, validationErrors);
 
     } catch (CsvValidationException e) {
-      LOGGER.error("CSV parsing error: {}", e.getMessage(), e);
+      logger.error("CSV parsing error: {}", e.getMessage(), e);
       throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     } catch (IOException e) {
-      LOGGER.error("CSV validation failed: {}", e.getMessage(), e);
+      logger.error("CSV validation failed: {}", e.getMessage(), e);
       throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     }
   }
@@ -189,16 +189,16 @@ public class CsvValidateCommand extends ConsumerCommand {
 
     for (int i = 0; i < errors.size(); i++) {
       errorBuilder.append("\n  ").append(i + 1).append(". ").append(errors.get(i));
-      LOGGER.error("CSV validation error {}: {}", i + 1, errors.get(i));
+      logger.error("CSV validation error {}: {}", i + 1, errors.get(i));
     }
 
     String errorMessage = errorBuilder.toString();
-    LOGGER.error("CSV validation summary: {}", errorMessage);
+    logger.error("CSV validation summary: {}", errorMessage);
 
     String finalErrorMessage = errorMessage;
     if (errorMessage.length() > 1000) {
       finalErrorMessage = errorMessage.substring(0, 997) + "...";
-      LOGGER.warn(
+      logger.warn(
           "Error message truncated due to length (original: {} chars)", errorMessage.length());
     }
 

@@ -1,5 +1,6 @@
 package com.streamconverter.command.impl.xml;
 
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertThrows;
@@ -12,7 +13,10 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.lang.reflect.Modifier;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
+import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamException;
 import org.junit.jupiter.api.BeforeEach;
@@ -364,5 +368,22 @@ class XmlNavigateCommandTest {
     public javax.xml.namespace.NamespaceContext getNamespaceContext() {
       return delegate.getNamespaceContext();
     }
+  }
+
+  @Test
+  @DisplayName("XmlNavigateCommand は XMLEventFactory を static final フィールドとして保持しない（スレッドセーフ保証のため）")
+  void xmlNavigateCommand_hasNoStaticFinalXmlEventFactoryField() {
+    boolean hasStaticFinalEventFactory =
+        Arrays.stream(XmlNavigateCommand.class.getDeclaredFields())
+            .filter(f -> XMLEventFactory.class.isAssignableFrom(f.getType()))
+            .anyMatch(
+                f -> {
+                  int mod = f.getModifiers();
+                  return Modifier.isStatic(mod) && Modifier.isFinal(mod);
+                });
+
+    assertFalse(
+        hasStaticFinalEventFactory,
+        "XMLEventFactory should not be held as static final field — thread safety is not guaranteed by the spec");
   }
 }

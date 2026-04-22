@@ -13,7 +13,6 @@ import javax.xml.stream.XMLEventFactory;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 import org.slf4j.Logger;
@@ -151,16 +150,17 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   /**
-   * Creates the {@link XMLEventWriter} for the given output stream. Protected for testing.
+   * 出力ストリームへの XMLEventWriter を作成する。
    *
-   * @param outputStream the stream to write XML events to
-   * @return a new XMLEventWriter backed by the given stream
-   * @throws XMLStreamException if the writer cannot be created
+   * <p>テスト時にオーバーライドしてファクトリをモック可能にするため protected スコープとしている。
+   *
+   * @param outputStream 書き込み先ストリーム
+   * @return 設定済み XMLEventWriter
+   * @throws XMLStreamException ライターの生成に失敗した場合
    */
   protected XMLEventWriter createXMLEventWriter(OutputStream outputStream)
       throws XMLStreamException {
-    XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
-    return outputFactory.createXMLEventWriter(outputStream);
+    return SecureXmlConfiguration.createSecureXMLOutputFactory().createXMLEventWriter(outputStream);
   }
 
   private IOException buildXmlException(XMLStreamException e) {

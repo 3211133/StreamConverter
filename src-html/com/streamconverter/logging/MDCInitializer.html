@@ -17,136 +17,156 @@
 <span class="source-line-no">004</span><span id="line-4">import java.lang.reflect.Method;</span>
 <span class="source-line-no">005</span><span id="line-5">import java.util.Map;</span>
 <span class="source-line-no">006</span><span id="line-6">import org.slf4j.ILoggerFactory;</span>
-<span class="source-line-no">007</span><span id="line-7">import org.slf4j.LoggerFactory;</span>
-<span class="source-line-no">008</span><span id="line-8">import org.slf4j.MDC;</span>
-<span class="source-line-no">009</span><span id="line-9">import org.slf4j.spi.MDCAdapter;</span>
-<span class="source-line-no">010</span><span id="line-10"></span>
-<span class="source-line-no">011</span><span id="line-11">/**</span>
-<span class="source-line-no">012</span><span id="line-12"> * Installs {@link InheritableMDCAdapter} so that MDC context is automatically propagated to child</span>
-<span class="source-line-no">013</span><span id="line-13"> * threads (including virtual threads) without manual copying.</span>
-<span class="source-line-no">014</span><span id="line-14"> *</span>
-<span class="source-line-no">015</span><span id="line-15"> * &lt;p&gt;Call {@link #initialize()} once at application startup, &lt;em&gt;before&lt;/em&gt; the first log</span>
-<span class="source-line-no">016</span><span id="line-16"> * statement, to replace the default Logback MDC adapter. After initialization, MDC values set in a</span>
-<span class="source-line-no">017</span><span id="line-17"> * parent thread are automatically visible in any thread it spawns.</span>
-<span class="source-line-no">018</span><span id="line-18"> *</span>
-<span class="source-line-no">019</span><span id="line-19"> * &lt;p&gt;If {@link InheritableMDCAdapter} is not installed (i.e., {@link #initialize()} was not</span>
-<span class="source-line-no">020</span><span id="line-20"> * called), MDC context will not propagate to child threads. Each thread will have an independent,</span>
-<span class="source-line-no">021</span><span id="line-21"> * empty MDC context.</span>
-<span class="source-line-no">022</span><span id="line-22"> *</span>
-<span class="source-line-no">023</span><span id="line-23"> * &lt;p&gt;&lt;strong&gt;Important:&lt;/strong&gt; {@code InheritableMDCAdapter} is backed by {@link</span>
-<span class="source-line-no">024</span><span id="line-24"> * java.lang.InheritableThreadLocal}. In environments that reuse threads (for example, servlet</span>
-<span class="source-line-no">025</span><span id="line-25"> * containers or {@link java.util.concurrent.ExecutorService} thread pools), MDC values inherited</span>
-<span class="source-line-no">026</span><span id="line-26"> * for one logical request can unintentionally be visible to a subsequent, unrelated request running</span>
-<span class="source-line-no">027</span><span id="line-27"> * on the same thread unless MDC is reliably cleared. This can lead to log correlation IDs, user</span>
-<span class="source-line-no">028</span><span id="line-28"> * identifiers, or other contextual data "leaking" across requests.</span>
-<span class="source-line-no">029</span><span id="line-29"> *</span>
-<span class="source-line-no">030</span><span id="line-30"> * &lt;p&gt;When using {@link MDCInitializer} together with thread pools, ensure that each task clears MDC</span>
-<span class="source-line-no">031</span><span id="line-31"> * in a {@code finally} block (for example, by calling {@link MDC#clear()} or removing the keys it</span>
-<span class="source-line-no">032</span><span id="line-32"> * set), or wrap submitted {@link Runnable}/{@link java.util.concurrent.Callable} instances so that</span>
-<span class="source-line-no">033</span><span id="line-33"> * MDC is captured, applied for the task execution, and then cleared afterwards.</span>
-<span class="source-line-no">034</span><span id="line-34"> *</span>
-<span class="source-line-no">035</span><span id="line-35"> * &lt;p&gt;Example usage:</span>
-<span class="source-line-no">036</span><span id="line-36"> *</span>
-<span class="source-line-no">037</span><span id="line-37"> * &lt;pre&gt;{@code</span>
-<span class="source-line-no">038</span><span id="line-38"> * public static void main(String[] args) {</span>
-<span class="source-line-no">039</span><span id="line-39"> *     MDCInitializer.initialize();</span>
-<span class="source-line-no">040</span><span id="line-40"> *     // ... rest of application startup</span>
-<span class="source-line-no">041</span><span id="line-41"> * }</span>
-<span class="source-line-no">042</span><span id="line-42"> * }&lt;/pre&gt;</span>
-<span class="source-line-no">043</span><span id="line-43"> */</span>
-<span class="source-line-no">044</span><span id="line-44">public final class MDCInitializer {</span>
-<span class="source-line-no">045</span><span id="line-45"></span>
-<span class="source-line-no">046</span><span id="line-46">  private MDCInitializer() {}</span>
-<span class="source-line-no">047</span><span id="line-47"></span>
-<span class="source-line-no">048</span><span id="line-48">  /**</span>
-<span class="source-line-no">049</span><span id="line-49">   * Installs {@link InheritableMDCAdapter} into both the SLF4J {@link MDC} class and the Logback</span>
-<span class="source-line-no">050</span><span id="line-50">   * {@code LoggerContext} (if Logback is present on the classpath).</span>
-<span class="source-line-no">051</span><span id="line-51">   *</span>
-<span class="source-line-no">052</span><span id="line-52">   * &lt;p&gt;This method is idempotent: calling it multiple times has no additional effect after the</span>
-<span class="source-line-no">053</span><span id="line-53">   * first call. It is also thread-safe; concurrent calls are serialized.</span>
+<span class="source-line-no">007</span><span id="line-7">import org.slf4j.Logger;</span>
+<span class="source-line-no">008</span><span id="line-8">import org.slf4j.LoggerFactory;</span>
+<span class="source-line-no">009</span><span id="line-9">import org.slf4j.MDC;</span>
+<span class="source-line-no">010</span><span id="line-10">import org.slf4j.spi.MDCAdapter;</span>
+<span class="source-line-no">011</span><span id="line-11"></span>
+<span class="source-line-no">012</span><span id="line-12">/**</span>
+<span class="source-line-no">013</span><span id="line-13"> * Installs {@link InheritableMDCAdapter} so that MDC context is automatically propagated to child</span>
+<span class="source-line-no">014</span><span id="line-14"> * threads (including virtual threads) without manual copying.</span>
+<span class="source-line-no">015</span><span id="line-15"> *</span>
+<span class="source-line-no">016</span><span id="line-16"> * &lt;p&gt;Call {@link #initialize()} once at application startup, &lt;em&gt;before&lt;/em&gt; the first log</span>
+<span class="source-line-no">017</span><span id="line-17"> * statement, to replace the default Logback MDC adapter. After initialization, MDC values set in a</span>
+<span class="source-line-no">018</span><span id="line-18"> * parent thread are automatically visible in any thread it spawns.</span>
+<span class="source-line-no">019</span><span id="line-19"> *</span>
+<span class="source-line-no">020</span><span id="line-20"> * &lt;p&gt;If {@link InheritableMDCAdapter} is not installed (i.e., {@link #initialize()} was not</span>
+<span class="source-line-no">021</span><span id="line-21"> * called), MDC context will not propagate to child threads. Each thread will have an independent,</span>
+<span class="source-line-no">022</span><span id="line-22"> * empty MDC context.</span>
+<span class="source-line-no">023</span><span id="line-23"> *</span>
+<span class="source-line-no">024</span><span id="line-24"> * &lt;p&gt;&lt;strong&gt;Important:&lt;/strong&gt; {@code InheritableMDCAdapter} is backed by {@link</span>
+<span class="source-line-no">025</span><span id="line-25"> * java.lang.InheritableThreadLocal}. In environments that reuse threads (for example, servlet</span>
+<span class="source-line-no">026</span><span id="line-26"> * containers or {@link java.util.concurrent.ExecutorService} thread pools), MDC values inherited</span>
+<span class="source-line-no">027</span><span id="line-27"> * for one logical request can unintentionally be visible to a subsequent, unrelated request running</span>
+<span class="source-line-no">028</span><span id="line-28"> * on the same thread unless MDC is reliably cleared. This can lead to log correlation IDs, user</span>
+<span class="source-line-no">029</span><span id="line-29"> * identifiers, or other contextual data "leaking" across requests.</span>
+<span class="source-line-no">030</span><span id="line-30"> *</span>
+<span class="source-line-no">031</span><span id="line-31"> * &lt;p&gt;When using {@link MDCInitializer} together with thread pools, ensure that each task clears MDC</span>
+<span class="source-line-no">032</span><span id="line-32"> * in a {@code finally} block (for example, by calling {@link MDC#clear()} or removing the keys it</span>
+<span class="source-line-no">033</span><span id="line-33"> * set), or wrap submitted {@link Runnable}/{@link java.util.concurrent.Callable} instances so that</span>
+<span class="source-line-no">034</span><span id="line-34"> * MDC is captured, applied for the task execution, and then cleared afterwards.</span>
+<span class="source-line-no">035</span><span id="line-35"> *</span>
+<span class="source-line-no">036</span><span id="line-36"> * &lt;p&gt;Example usage:</span>
+<span class="source-line-no">037</span><span id="line-37"> *</span>
+<span class="source-line-no">038</span><span id="line-38"> * &lt;pre&gt;{@code</span>
+<span class="source-line-no">039</span><span id="line-39"> * public static void main(String[] args) {</span>
+<span class="source-line-no">040</span><span id="line-40"> *     MDCInitializer.initialize();</span>
+<span class="source-line-no">041</span><span id="line-41"> *     // ... rest of application startup</span>
+<span class="source-line-no">042</span><span id="line-42"> * }</span>
+<span class="source-line-no">043</span><span id="line-43"> * }&lt;/pre&gt;</span>
+<span class="source-line-no">044</span><span id="line-44"> */</span>
+<span class="source-line-no">045</span><span id="line-45">public final class MDCInitializer {</span>
+<span class="source-line-no">046</span><span id="line-46"></span>
+<span class="source-line-no">047</span><span id="line-47">  private static final Logger LOGGER = LoggerFactory.getLogger(MDCInitializer.class);</span>
+<span class="source-line-no">048</span><span id="line-48"></span>
+<span class="source-line-no">049</span><span id="line-49">  private MDCInitializer() {}</span>
+<span class="source-line-no">050</span><span id="line-50"></span>
+<span class="source-line-no">051</span><span id="line-51">  /**</span>
+<span class="source-line-no">052</span><span id="line-52">   * Installs {@link InheritableMDCAdapter} into both the SLF4J {@link MDC} class and the Logback</span>
+<span class="source-line-no">053</span><span id="line-53">   * {@code LoggerContext} (if Logback is present on the classpath).</span>
 <span class="source-line-no">054</span><span id="line-54">   *</span>
-<span class="source-line-no">055</span><span id="line-55">   * &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; The key-value map of the current thread's MDC context is migrated</span>
-<span class="source-line-no">056</span><span id="line-56">   * into the new adapter. However, deque-based state ({@code pushByKey}/{@code popByKey}) and</span>
-<span class="source-line-no">057</span><span id="line-57">   * values set in other threads are not migrated. For best results, call this method at application</span>
-<span class="source-line-no">058</span><span id="line-58">   * startup before any MDC values are set.</span>
-<span class="source-line-no">059</span><span id="line-59">   *</span>
-<span class="source-line-no">060</span><span id="line-60">   * @throws IllegalStateException if the adapter cannot be installed via reflection</span>
-<span class="source-line-no">061</span><span id="line-61">   */</span>
-<span class="source-line-no">062</span><span id="line-62">  public static synchronized void initialize() {</span>
-<span class="source-line-no">063</span><span id="line-63">    MDCAdapter currentAdapter = MDC.getMDCAdapter();</span>
-<span class="source-line-no">064</span><span id="line-64">    boolean slf4jReady = currentAdapter instanceof InheritableMDCAdapter;</span>
-<span class="source-line-no">065</span><span id="line-65">    boolean logbackReady = isLogbackAlreadyInstalled(currentAdapter);</span>
-<span class="source-line-no">066</span><span id="line-66"></span>
-<span class="source-line-no">067</span><span id="line-67">    if (slf4jReady &amp;&amp; logbackReady) {</span>
-<span class="source-line-no">068</span><span id="line-68">      return;</span>
-<span class="source-line-no">069</span><span id="line-69">    }</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">    // Capture existing MDC state BEFORE replacing the adapter so it can be migrated</span>
-<span class="source-line-no">072</span><span id="line-72">    Map&lt;String, String&gt; existingContext = MDC.getCopyOfContextMap();</span>
+<span class="source-line-no">055</span><span id="line-55">   * &lt;p&gt;This method is idempotent: calling it multiple times has no additional effect after the</span>
+<span class="source-line-no">056</span><span id="line-56">   * first call. It is also thread-safe; concurrent calls are serialized.</span>
+<span class="source-line-no">057</span><span id="line-57">   *</span>
+<span class="source-line-no">058</span><span id="line-58">   * &lt;p&gt;&lt;strong&gt;Note:&lt;/strong&gt; The key-value map of the current thread's MDC context is migrated</span>
+<span class="source-line-no">059</span><span id="line-59">   * into the new adapter. However, deque-based state ({@code pushByKey}/{@code popByKey}) and</span>
+<span class="source-line-no">060</span><span id="line-60">   * values set in other threads are not migrated. For best results, call this method at application</span>
+<span class="source-line-no">061</span><span id="line-61">   * startup before any MDC values are set.</span>
+<span class="source-line-no">062</span><span id="line-62">   *</span>
+<span class="source-line-no">063</span><span id="line-63">   * @throws IllegalStateException if the adapter cannot be installed via reflection</span>
+<span class="source-line-no">064</span><span id="line-64">   */</span>
+<span class="source-line-no">065</span><span id="line-65">  public static synchronized void initialize() {</span>
+<span class="source-line-no">066</span><span id="line-66">    MDCAdapter currentAdapter = MDC.getMDCAdapter();</span>
+<span class="source-line-no">067</span><span id="line-67">    boolean slf4jReady = currentAdapter instanceof InheritableMDCAdapter;</span>
+<span class="source-line-no">068</span><span id="line-68">    boolean logbackReady = isLogbackAlreadyInstalled(currentAdapter);</span>
+<span class="source-line-no">069</span><span id="line-69"></span>
+<span class="source-line-no">070</span><span id="line-70">    if (slf4jReady &amp;&amp; logbackReady) {</span>
+<span class="source-line-no">071</span><span id="line-71">      return;</span>
+<span class="source-line-no">072</span><span id="line-72">    }</span>
 <span class="source-line-no">073</span><span id="line-73"></span>
-<span class="source-line-no">074</span><span id="line-74">    // Reuse an already-installed adapter if SLF4J side is ready; otherwise create a new one</span>
+<span class="source-line-no">074</span><span id="line-74">    Map&lt;String, String&gt; existingContext = MDC.getCopyOfContextMap();</span>
 <span class="source-line-no">075</span><span id="line-75">    InheritableMDCAdapter adapter =</span>
 <span class="source-line-no">076</span><span id="line-76">        slf4jReady ? (InheritableMDCAdapter) currentAdapter : new InheritableMDCAdapter();</span>
 <span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">    // Replace the MDC_ADAPTER field in SLF4J MDC via reflection</span>
-<span class="source-line-no">079</span><span id="line-79">    // (MDC.setMDCAdapter is package-private in SLF4J 2.x)</span>
-<span class="source-line-no">080</span><span id="line-80">    if (!slf4jReady) {</span>
-<span class="source-line-no">081</span><span id="line-81">      try {</span>
-<span class="source-line-no">082</span><span id="line-82">        Field mdcAdapterField = MDC.class.getDeclaredField("MDC_ADAPTER");</span>
-<span class="source-line-no">083</span><span id="line-83">        mdcAdapterField.setAccessible(true);</span>
-<span class="source-line-no">084</span><span id="line-84">        mdcAdapterField.set(null, (MDCAdapter) adapter);</span>
-<span class="source-line-no">085</span><span id="line-85">      } catch (ReflectiveOperationException | RuntimeException e) {</span>
-<span class="source-line-no">086</span><span id="line-86">        throw new IllegalStateException(</span>
-<span class="source-line-no">087</span><span id="line-87">            "Failed to install InheritableMDCAdapter into SLF4J MDC", e);</span>
-<span class="source-line-no">088</span><span id="line-88">      }</span>
-<span class="source-line-no">089</span><span id="line-89">    }</span>
-<span class="source-line-no">090</span><span id="line-90"></span>
-<span class="source-line-no">091</span><span id="line-91">    // Install into Logback LoggerContext via reflection (avoids hard compile-time dependency)</span>
-<span class="source-line-no">092</span><span id="line-92">    if (!logbackReady) {</span>
-<span class="source-line-no">093</span><span id="line-93">      try {</span>
-<span class="source-line-no">094</span><span id="line-94">        Class&lt;?&gt; loggerContextClass = Class.forName("ch.qos.logback.classic.LoggerContext");</span>
-<span class="source-line-no">095</span><span id="line-95">        ILoggerFactory factory = LoggerFactory.getILoggerFactory();</span>
-<span class="source-line-no">096</span><span id="line-96">        if (loggerContextClass.isInstance(factory)) {</span>
-<span class="source-line-no">097</span><span id="line-97">          Method setMDCAdapter = loggerContextClass.getMethod("setMDCAdapter", MDCAdapter.class);</span>
-<span class="source-line-no">098</span><span id="line-98">          setMDCAdapter.invoke(factory, adapter);</span>
-<span class="source-line-no">099</span><span id="line-99">        }</span>
-<span class="source-line-no">100</span><span id="line-100">      } catch (ClassNotFoundException ignored) {</span>
-<span class="source-line-no">101</span><span id="line-101">        // Logback is not on the classpath; nothing to do</span>
-<span class="source-line-no">102</span><span id="line-102">      } catch (ReflectiveOperationException | RuntimeException e) {</span>
-<span class="source-line-no">103</span><span id="line-103">        throw new IllegalStateException(</span>
-<span class="source-line-no">104</span><span id="line-104">            "Failed to install InheritableMDCAdapter into Logback LoggerContext", e);</span>
-<span class="source-line-no">105</span><span id="line-105">      }</span>
-<span class="source-line-no">106</span><span id="line-106">    }</span>
+<span class="source-line-no">078</span><span id="line-78">    if (!slf4jReady) {</span>
+<span class="source-line-no">079</span><span id="line-79">      installIntoSlf4j(adapter);</span>
+<span class="source-line-no">080</span><span id="line-80">    }</span>
+<span class="source-line-no">081</span><span id="line-81">    if (!logbackReady) {</span>
+<span class="source-line-no">082</span><span id="line-82">      installIntoLogback(adapter);</span>
+<span class="source-line-no">083</span><span id="line-83">    }</span>
+<span class="source-line-no">084</span><span id="line-84">    if (!slf4jReady &amp;&amp; existingContext != null) {</span>
+<span class="source-line-no">085</span><span id="line-85">      adapter.setContextMap(existingContext);</span>
+<span class="source-line-no">086</span><span id="line-86">    }</span>
+<span class="source-line-no">087</span><span id="line-87">  }</span>
+<span class="source-line-no">088</span><span id="line-88"></span>
+<span class="source-line-no">089</span><span id="line-89">  /**</span>
+<span class="source-line-no">090</span><span id="line-90">   * Installs the adapter into the SLF4J {@link MDC} class via reflection.</span>
+<span class="source-line-no">091</span><span id="line-91">   *</span>
+<span class="source-line-no">092</span><span id="line-92">   * &lt;p&gt;{@code MDC.setMDCAdapter()} is package-private in SLF4J 2.x, so reflection is the only way</span>
+<span class="source-line-no">093</span><span id="line-93">   * to replace the adapter from outside the {@code org.slf4j} package.</span>
+<span class="source-line-no">094</span><span id="line-94">   */</span>
+<span class="source-line-no">095</span><span id="line-95">  @SuppressWarnings({"PMD.AvoidAccessibilityAlteration", "PMD.AvoidCatchingGenericException"})</span>
+<span class="source-line-no">096</span><span id="line-96">  private static void installIntoSlf4j(InheritableMDCAdapter adapter) {</span>
+<span class="source-line-no">097</span><span id="line-97">    // MDC.setMDCAdapter() is package-private in SLF4J 2.x; reflection is the only available path.</span>
+<span class="source-line-no">098</span><span id="line-98">    // RuntimeException は Field.set() が SecurityException 以外をスローする可能性に備えた catch。</span>
+<span class="source-line-no">099</span><span id="line-99">    try {</span>
+<span class="source-line-no">100</span><span id="line-100">      Field mdcAdapterField = MDC.class.getDeclaredField("MDC_ADAPTER");</span>
+<span class="source-line-no">101</span><span id="line-101">      mdcAdapterField.setAccessible(true);</span>
+<span class="source-line-no">102</span><span id="line-102">      mdcAdapterField.set(null, (MDCAdapter) adapter);</span>
+<span class="source-line-no">103</span><span id="line-103">    } catch (ReflectiveOperationException | RuntimeException e) {</span>
+<span class="source-line-no">104</span><span id="line-104">      throw new IllegalStateException("Failed to install InheritableMDCAdapter into SLF4J MDC", e);</span>
+<span class="source-line-no">105</span><span id="line-105">    }</span>
+<span class="source-line-no">106</span><span id="line-106">  }</span>
 <span class="source-line-no">107</span><span id="line-107"></span>
-<span class="source-line-no">108</span><span id="line-108">    // Migrate existing MDC state from the previous adapter into the new one</span>
-<span class="source-line-no">109</span><span id="line-109">    if (!slf4jReady &amp;&amp; existingContext != null) {</span>
-<span class="source-line-no">110</span><span id="line-110">      adapter.setContextMap(existingContext);</span>
-<span class="source-line-no">111</span><span id="line-111">    }</span>
-<span class="source-line-no">112</span><span id="line-112">  }</span>
-<span class="source-line-no">113</span><span id="line-113"></span>
-<span class="source-line-no">114</span><span id="line-114">  /**</span>
-<span class="source-line-no">115</span><span id="line-115">   * Returns {@code true} if the Logback {@code LoggerContext} already has an {@link</span>
-<span class="source-line-no">116</span><span id="line-116">   * InheritableMDCAdapter} installed, or if Logback is not on the classpath.</span>
-<span class="source-line-no">117</span><span id="line-117">   */</span>
-<span class="source-line-no">118</span><span id="line-118">  private static boolean isLogbackAlreadyInstalled(MDCAdapter currentSlf4jAdapter) {</span>
-<span class="source-line-no">119</span><span id="line-119">    try {</span>
-<span class="source-line-no">120</span><span id="line-120">      Class&lt;?&gt; loggerContextClass = Class.forName("ch.qos.logback.classic.LoggerContext");</span>
-<span class="source-line-no">121</span><span id="line-121">      ILoggerFactory factory = LoggerFactory.getILoggerFactory();</span>
-<span class="source-line-no">122</span><span id="line-122">      if (!loggerContextClass.isInstance(factory)) {</span>
-<span class="source-line-no">123</span><span id="line-123">        return true; // not Logback — nothing to install</span>
-<span class="source-line-no">124</span><span id="line-124">      }</span>
-<span class="source-line-no">125</span><span id="line-125">      Method getMDCAdapter = loggerContextClass.getMethod("getMDCAdapter");</span>
-<span class="source-line-no">126</span><span id="line-126">      MDCAdapter logbackAdapter = (MDCAdapter) getMDCAdapter.invoke(factory);</span>
-<span class="source-line-no">127</span><span id="line-127">      // Both sides must use the same InheritableMDCAdapter instance</span>
-<span class="source-line-no">128</span><span id="line-128">      return logbackAdapter instanceof InheritableMDCAdapter</span>
-<span class="source-line-no">129</span><span id="line-129">          &amp;&amp; logbackAdapter == currentSlf4jAdapter;</span>
-<span class="source-line-no">130</span><span id="line-130">    } catch (ClassNotFoundException ignored) {</span>
-<span class="source-line-no">131</span><span id="line-131">      return true; // Logback not on classpath</span>
-<span class="source-line-no">132</span><span id="line-132">    } catch (ReflectiveOperationException | RuntimeException ignored) {</span>
-<span class="source-line-no">133</span><span id="line-133">      return false;</span>
-<span class="source-line-no">134</span><span id="line-134">    }</span>
-<span class="source-line-no">135</span><span id="line-135">  }</span>
-<span class="source-line-no">136</span><span id="line-136">}</span>
+<span class="source-line-no">108</span><span id="line-108">  /**</span>
+<span class="source-line-no">109</span><span id="line-109">   * Installs the adapter into the Logback {@code LoggerContext} via reflection, if Logback is</span>
+<span class="source-line-no">110</span><span id="line-110">   * present on the classpath.</span>
+<span class="source-line-no">111</span><span id="line-111">   */</span>
+<span class="source-line-no">112</span><span id="line-112">  @SuppressWarnings("PMD.AvoidCatchingGenericException")</span>
+<span class="source-line-no">113</span><span id="line-113">  private static void installIntoLogback(InheritableMDCAdapter adapter) {</span>
+<span class="source-line-no">114</span><span id="line-114">    // ReflectiveOperationException subtypes vary by JDK version; Exception covers all cases.</span>
+<span class="source-line-no">115</span><span id="line-115">    try {</span>
+<span class="source-line-no">116</span><span id="line-116">      Class&lt;?&gt; loggerContextClass = Class.forName("ch.qos.logback.classic.LoggerContext");</span>
+<span class="source-line-no">117</span><span id="line-117">      ILoggerFactory factory = LoggerFactory.getILoggerFactory();</span>
+<span class="source-line-no">118</span><span id="line-118">      if (loggerContextClass.isInstance(factory)) {</span>
+<span class="source-line-no">119</span><span id="line-119">        Method setMDCAdapter = loggerContextClass.getMethod("setMDCAdapter", MDCAdapter.class);</span>
+<span class="source-line-no">120</span><span id="line-120">        setMDCAdapter.invoke(factory, adapter);</span>
+<span class="source-line-no">121</span><span id="line-121">      }</span>
+<span class="source-line-no">122</span><span id="line-122">    } catch (ClassNotFoundException ignored) {</span>
+<span class="source-line-no">123</span><span id="line-123">      // Logback is not on the classpath; nothing to do</span>
+<span class="source-line-no">124</span><span id="line-124">    } catch (ReflectiveOperationException | RuntimeException e) {</span>
+<span class="source-line-no">125</span><span id="line-125">      throw new IllegalStateException(</span>
+<span class="source-line-no">126</span><span id="line-126">          "Failed to install InheritableMDCAdapter into Logback LoggerContext", e);</span>
+<span class="source-line-no">127</span><span id="line-127">    }</span>
+<span class="source-line-no">128</span><span id="line-128">  }</span>
+<span class="source-line-no">129</span><span id="line-129"></span>
+<span class="source-line-no">130</span><span id="line-130">  /**</span>
+<span class="source-line-no">131</span><span id="line-131">   * Returns {@code true} if the Logback {@code LoggerContext} already has an {@link</span>
+<span class="source-line-no">132</span><span id="line-132">   * InheritableMDCAdapter} installed, or if Logback is not on the classpath.</span>
+<span class="source-line-no">133</span><span id="line-133">   */</span>
+<span class="source-line-no">134</span><span id="line-134">  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.CompareObjectsWithEquals"})</span>
+<span class="source-line-no">135</span><span id="line-135">  private static boolean isLogbackAlreadyInstalled(MDCAdapter currentSlf4jAdapter) {</span>
+<span class="source-line-no">136</span><span id="line-136">    // ReflectiveOperationException subtypes vary by JDK version; Exception covers all cases.</span>
+<span class="source-line-no">137</span><span id="line-137">    try {</span>
+<span class="source-line-no">138</span><span id="line-138">      Class&lt;?&gt; loggerContextClass = Class.forName("ch.qos.logback.classic.LoggerContext");</span>
+<span class="source-line-no">139</span><span id="line-139">      ILoggerFactory factory = LoggerFactory.getILoggerFactory();</span>
+<span class="source-line-no">140</span><span id="line-140">      if (!loggerContextClass.isInstance(factory)) {</span>
+<span class="source-line-no">141</span><span id="line-141">        return true; // not Logback — nothing to install</span>
+<span class="source-line-no">142</span><span id="line-142">      }</span>
+<span class="source-line-no">143</span><span id="line-143">      Method getMDCAdapter = loggerContextClass.getMethod("getMDCAdapter");</span>
+<span class="source-line-no">144</span><span id="line-144">      MDCAdapter logbackAdapter = (MDCAdapter) getMDCAdapter.invoke(factory);</span>
+<span class="source-line-no">145</span><span id="line-145">      // == checks instance identity: SLF4J and Logback must share the exact same adapter object,</span>
+<span class="source-line-no">146</span><span id="line-146">      // not just equal values. equals() would incorrectly return true for distinct instances.</span>
+<span class="source-line-no">147</span><span id="line-147">      return logbackAdapter instanceof InheritableMDCAdapter</span>
+<span class="source-line-no">148</span><span id="line-148">          &amp;&amp; logbackAdapter == currentSlf4jAdapter;</span>
+<span class="source-line-no">149</span><span id="line-149">    } catch (ClassNotFoundException ignored) {</span>
+<span class="source-line-no">150</span><span id="line-150">      return true; // Logback not on classpath</span>
+<span class="source-line-no">151</span><span id="line-151">    } catch (ReflectiveOperationException | RuntimeException e) {</span>
+<span class="source-line-no">152</span><span id="line-152">      LOGGER.warn("Failed to check Logback MDC adapter; will attempt reinstall", e);</span>
+<span class="source-line-no">153</span><span id="line-153">      return false;</span>
+<span class="source-line-no">154</span><span id="line-154">    }</span>
+<span class="source-line-no">155</span><span id="line-155">  }</span>
+<span class="source-line-no">156</span><span id="line-156">}</span>
 
 
 

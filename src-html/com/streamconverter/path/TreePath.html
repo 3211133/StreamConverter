@@ -24,219 +24,224 @@
 <span class="source-line-no">011</span><span id="line-11"> * and XML-style ("user/name") formats. It converts path expressions into hierarchical segments for</span>
 <span class="source-line-no">012</span><span id="line-12"> * efficient matching during data processing.</span>
 <span class="source-line-no">013</span><span id="line-13"> */</span>
-<span class="source-line-no">014</span><span id="line-14">public class TreePath implements IPath&lt;List&lt;String&gt;&gt; {</span>
-<span class="source-line-no">015</span><span id="line-15"></span>
-<span class="source-line-no">016</span><span id="line-16">  private final List&lt;String&gt; segments;</span>
-<span class="source-line-no">017</span><span id="line-17">  private final String originalPath;</span>
-<span class="source-line-no">018</span><span id="line-18"></span>
-<span class="source-line-no">019</span><span id="line-19">  // Private constructor for factory methods</span>
-<span class="source-line-no">020</span><span id="line-20">  private TreePath(String originalPath, List&lt;String&gt; segments) {</span>
-<span class="source-line-no">021</span><span id="line-21">    this.originalPath = originalPath;</span>
-<span class="source-line-no">022</span><span id="line-22">    this.segments = segments;</span>
-<span class="source-line-no">023</span><span id="line-23">  }</span>
-<span class="source-line-no">024</span><span id="line-24"></span>
-<span class="source-line-no">025</span><span id="line-25">  /**</span>
-<span class="source-line-no">026</span><span id="line-26">   * Creates a TreePath from an XML path expression.</span>
-<span class="source-line-no">027</span><span id="line-27">   *</span>
-<span class="source-line-no">028</span><span id="line-28">   * @param xmlPath the XML path expression (e.g., "user/name")</span>
-<span class="source-line-no">029</span><span id="line-29">   * @return TreePath instance</span>
-<span class="source-line-no">030</span><span id="line-30">   * @throws IllegalArgumentException if xmlPath is null or invalid</span>
-<span class="source-line-no">031</span><span id="line-31">   */</span>
-<span class="source-line-no">032</span><span id="line-32">  public static TreePath fromXml(String xmlPath) {</span>
-<span class="source-line-no">033</span><span id="line-33">    if (xmlPath == null || xmlPath.isBlank()) {</span>
-<span class="source-line-no">034</span><span id="line-34">      throw new IllegalArgumentException("XML path cannot be null or empty");</span>
-<span class="source-line-no">035</span><span id="line-35">    }</span>
-<span class="source-line-no">036</span><span id="line-36">    String trimmedPath = xmlPath.trim();</span>
-<span class="source-line-no">037</span><span id="line-37">    List&lt;String&gt; segments = parseXmlPathToSegments(trimmedPath);</span>
-<span class="source-line-no">038</span><span id="line-38">    return new TreePath(trimmedPath, segments);</span>
-<span class="source-line-no">039</span><span id="line-39">  }</span>
-<span class="source-line-no">040</span><span id="line-40"></span>
-<span class="source-line-no">041</span><span id="line-41">  /**</span>
-<span class="source-line-no">042</span><span id="line-42">   * Creates a TreePath from a JSON path expression.</span>
-<span class="source-line-no">043</span><span id="line-43">   *</span>
-<span class="source-line-no">044</span><span id="line-44">   * @param jsonPath the JSON path expression (e.g., "$.user.name")</span>
-<span class="source-line-no">045</span><span id="line-45">   * @return TreePath instance</span>
-<span class="source-line-no">046</span><span id="line-46">   * @throws IllegalArgumentException if jsonPath is null or invalid</span>
-<span class="source-line-no">047</span><span id="line-47">   */</span>
-<span class="source-line-no">048</span><span id="line-48">  public static TreePath fromJson(String jsonPath) {</span>
-<span class="source-line-no">049</span><span id="line-49">    if (jsonPath == null || jsonPath.isBlank()) {</span>
-<span class="source-line-no">050</span><span id="line-50">      throw new IllegalArgumentException("JSON path cannot be null or empty");</span>
-<span class="source-line-no">051</span><span id="line-51">    }</span>
-<span class="source-line-no">052</span><span id="line-52">    String trimmedPath = jsonPath.trim();</span>
-<span class="source-line-no">053</span><span id="line-53">    List&lt;String&gt; segments = parseJsonPathToSegments(trimmedPath);</span>
-<span class="source-line-no">054</span><span id="line-54">    return new TreePath(trimmedPath, segments);</span>
-<span class="source-line-no">055</span><span id="line-55">  }</span>
-<span class="source-line-no">056</span><span id="line-56"></span>
-<span class="source-line-no">057</span><span id="line-57">  /**</span>
-<span class="source-line-no">058</span><span id="line-58">   * Checks if current path matches the target path segments</span>
-<span class="source-line-no">059</span><span id="line-59">   *</span>
-<span class="source-line-no">060</span><span id="line-60">   * @param currentPath current path segments to match against</span>
-<span class="source-line-no">061</span><span id="line-61">   * @return true if paths match exactly</span>
-<span class="source-line-no">062</span><span id="line-62">   */</span>
-<span class="source-line-no">063</span><span id="line-63">  @Override</span>
-<span class="source-line-no">064</span><span id="line-64">  public boolean matches(List&lt;String&gt; currentPath) {</span>
-<span class="source-line-no">065</span><span id="line-65">    return currentPath != null &amp;&amp; segments.equals(currentPath);</span>
-<span class="source-line-no">066</span><span id="line-66">  }</span>
-<span class="source-line-no">067</span><span id="line-67"></span>
-<span class="source-line-no">068</span><span id="line-68">  /**</span>
-<span class="source-line-no">069</span><span id="line-69">   * Checks if current path matches after stripping array-index syntax from this path's segments.</span>
-<span class="source-line-no">070</span><span id="line-70">   *</span>
-<span class="source-line-no">071</span><span id="line-71">   * &lt;p&gt;A segment like {@code "orders[*]"} or {@code "orders[0]"} is normalized to {@code "orders"}</span>
-<span class="source-line-no">072</span><span id="line-72">   * before comparison. This allows paths such as {@code "$.orders[*].product_code"} to match the</span>
-<span class="source-line-no">073</span><span id="line-73">   * streaming {@code currentPath} list {@code ["orders", "product_code"]}.</span>
-<span class="source-line-no">074</span><span id="line-74">   *</span>
-<span class="source-line-no">075</span><span id="line-75">   * @param currentPath current path segments built by the streaming traversal</span>
-<span class="source-line-no">076</span><span id="line-76">   * @return true if the normalized segments equal {@code currentPath}</span>
-<span class="source-line-no">077</span><span id="line-77">   */</span>
-<span class="source-line-no">078</span><span id="line-78">  public boolean matchesIgnoringArraySyntax(List&lt;String&gt; currentPath) {</span>
-<span class="source-line-no">079</span><span id="line-79">    if (currentPath == null) {</span>
-<span class="source-line-no">080</span><span id="line-80">      return false;</span>
-<span class="source-line-no">081</span><span id="line-81">    }</span>
-<span class="source-line-no">082</span><span id="line-82">    List&lt;String&gt; normalized = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">083</span><span id="line-83">    for (String segment : segments) {</span>
-<span class="source-line-no">084</span><span id="line-84">      // Strip leading $. prefix if present (handles complex path single-segment case)</span>
-<span class="source-line-no">085</span><span id="line-85">      String s = segment;</span>
-<span class="source-line-no">086</span><span id="line-86">      if (s.startsWith("$.")) {</span>
-<span class="source-line-no">087</span><span id="line-87">        s = s.substring(2);</span>
-<span class="source-line-no">088</span><span id="line-88">      } else if (s.startsWith("$")) {</span>
-<span class="source-line-no">089</span><span id="line-89">        s = s.substring(1);</span>
-<span class="source-line-no">090</span><span id="line-90">      }</span>
-<span class="source-line-no">091</span><span id="line-91">      // Split on dots to expand compound segments like "orders[*].product_code"</span>
-<span class="source-line-no">092</span><span id="line-92">      for (String part : s.split("\\.")) {</span>
-<span class="source-line-no">093</span><span id="line-93">        // Remove array index notation: [*], [0], [1], etc.</span>
-<span class="source-line-no">094</span><span id="line-94">        String stripped = part.replaceAll("\\[.*?\\]", "");</span>
-<span class="source-line-no">095</span><span id="line-95">        if (!stripped.isEmpty()) {</span>
-<span class="source-line-no">096</span><span id="line-96">          normalized.add(stripped);</span>
-<span class="source-line-no">097</span><span id="line-97">        }</span>
-<span class="source-line-no">098</span><span id="line-98">      }</span>
-<span class="source-line-no">099</span><span id="line-99">    }</span>
-<span class="source-line-no">100</span><span id="line-100">    return normalized.equals(currentPath);</span>
-<span class="source-line-no">101</span><span id="line-101">  }</span>
-<span class="source-line-no">102</span><span id="line-102"></span>
-<span class="source-line-no">103</span><span id="line-103">  /**</span>
-<span class="source-line-no">104</span><span id="line-104">   * Returns the original path expression.</span>
-<span class="source-line-no">105</span><span id="line-105">   *</span>
-<span class="source-line-no">106</span><span id="line-106">   * @return the original path expression</span>
-<span class="source-line-no">107</span><span id="line-107">   */</span>
-<span class="source-line-no">108</span><span id="line-108">  @Override</span>
-<span class="source-line-no">109</span><span id="line-109">  public String toString() {</span>
-<span class="source-line-no">110</span><span id="line-110">    return originalPath;</span>
-<span class="source-line-no">111</span><span id="line-111">  }</span>
-<span class="source-line-no">112</span><span id="line-112"></span>
-<span class="source-line-no">113</span><span id="line-113">  /**</span>
-<span class="source-line-no">114</span><span id="line-114">   * 2つのTreePathが等しいかどうかをセグメントリストで比較する。</span>
-<span class="source-line-no">115</span><span id="line-115">   *</span>
-<span class="source-line-no">116</span><span id="line-116">   * &lt;p&gt;注意: 元のパス文字列（{@link #toString()} の値）が異なっていても、セグメントに展開した結果が同じであれば等しいとみなす。 例えば JSONスタイルの {@code</span>
-<span class="source-line-no">117</span><span id="line-117">   * "$.user.name"} と XMLスタイルの {@code "user/name"} がパース後に同じセグメントになる場合、 等しいと判定される。</span>
-<span class="source-line-no">118</span><span id="line-118">   *</span>
-<span class="source-line-no">119</span><span id="line-119">   * @param obj 比較対象のオブジェクト</span>
-<span class="source-line-no">120</span><span id="line-120">   * @return セグメントリストが等しい場合true</span>
-<span class="source-line-no">121</span><span id="line-121">   */</span>
-<span class="source-line-no">122</span><span id="line-122">  @Override</span>
-<span class="source-line-no">123</span><span id="line-123">  public boolean equals(Object obj) {</span>
-<span class="source-line-no">124</span><span id="line-124">    if (this == obj) {</span>
-<span class="source-line-no">125</span><span id="line-125">      return true;</span>
-<span class="source-line-no">126</span><span id="line-126">    }</span>
-<span class="source-line-no">127</span><span id="line-127">    if (obj == null || getClass() != obj.getClass()) {</span>
-<span class="source-line-no">128</span><span id="line-128">      return false;</span>
-<span class="source-line-no">129</span><span id="line-129">    }</span>
-<span class="source-line-no">130</span><span id="line-130">    TreePath treePath = (TreePath) obj;</span>
-<span class="source-line-no">131</span><span id="line-131">    return segments.equals(treePath.segments);</span>
-<span class="source-line-no">132</span><span id="line-132">  }</span>
-<span class="source-line-no">133</span><span id="line-133"></span>
-<span class="source-line-no">134</span><span id="line-134">  /**</span>
-<span class="source-line-no">135</span><span id="line-135">   * セグメントリストに基づくハッシュコードを返す。</span>
-<span class="source-line-no">136</span><span id="line-136">   *</span>
-<span class="source-line-no">137</span><span id="line-137">   * @return ハッシュコード</span>
-<span class="source-line-no">138</span><span id="line-138">   */</span>
-<span class="source-line-no">139</span><span id="line-139">  @Override</span>
-<span class="source-line-no">140</span><span id="line-140">  public int hashCode() {</span>
-<span class="source-line-no">141</span><span id="line-141">    return segments.hashCode();</span>
-<span class="source-line-no">142</span><span id="line-142">  }</span>
-<span class="source-line-no">143</span><span id="line-143"></span>
-<span class="source-line-no">144</span><span id="line-144">  // === Internal Implementation ===</span>
-<span class="source-line-no">145</span><span id="line-145"></span>
-<span class="source-line-no">146</span><span id="line-146">  private static List&lt;String&gt; parseJsonPathToSegments(String jsonPath) {</span>
-<span class="source-line-no">147</span><span id="line-147">    // Handle root path</span>
-<span class="source-line-no">148</span><span id="line-148">    if ("$".equals(jsonPath)) {</span>
-<span class="source-line-no">149</span><span id="line-149">      return new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">150</span><span id="line-150">    }</span>
-<span class="source-line-no">151</span><span id="line-151"></span>
-<span class="source-line-no">152</span><span id="line-152">    // Handle array syntax preservation for JsonFilterCommand compatibility</span>
-<span class="source-line-no">153</span><span id="line-153">    if (jsonPath.contains("[")) {</span>
-<span class="source-line-no">154</span><span id="line-154">      // For complex paths with arrays, preserve original parsing logic</span>
-<span class="source-line-no">155</span><span id="line-155">      // This ensures JsonFilterCommand continues to work</span>
-<span class="source-line-no">156</span><span id="line-156">      return parseComplexJsonPath(jsonPath);</span>
-<span class="source-line-no">157</span><span id="line-157">    }</span>
-<span class="source-line-no">158</span><span id="line-158"></span>
-<span class="source-line-no">159</span><span id="line-159">    // Simple property paths: $.property or $.nested.property</span>
-<span class="source-line-no">160</span><span id="line-160">    if (jsonPath.startsWith("$.")) {</span>
-<span class="source-line-no">161</span><span id="line-161">      String pathWithoutRoot = jsonPath.substring(2);</span>
-<span class="source-line-no">162</span><span id="line-162">      if (pathWithoutRoot.isEmpty()) {</span>
-<span class="source-line-no">163</span><span id="line-163">        return new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">164</span><span id="line-164">      }</span>
-<span class="source-line-no">165</span><span id="line-165">      return Arrays.asList(pathWithoutRoot.split("\\."));</span>
-<span class="source-line-no">166</span><span id="line-166">    }</span>
-<span class="source-line-no">167</span><span id="line-167"></span>
-<span class="source-line-no">168</span><span id="line-168">    throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);</span>
-<span class="source-line-no">169</span><span id="line-169">  }</span>
-<span class="source-line-no">170</span><span id="line-170"></span>
-<span class="source-line-no">171</span><span id="line-171">  private static List&lt;String&gt; parseComplexJsonPath(String jsonPath) {</span>
-<span class="source-line-no">172</span><span id="line-172">    // For paths with array syntax like $[*].name or $.users[0].name</span>
-<span class="source-line-no">173</span><span id="line-173">    // Keep them as single segments to maintain compatibility</span>
-<span class="source-line-no">174</span><span id="line-174">    // The actual array handling is done in JsonFilterCommand</span>
-<span class="source-line-no">175</span><span id="line-175">    return List.of(jsonPath);</span>
-<span class="source-line-no">176</span><span id="line-176">  }</span>
-<span class="source-line-no">177</span><span id="line-177"></span>
-<span class="source-line-no">178</span><span id="line-178">  private static List&lt;String&gt; parseXmlPathToSegments(String xmlPath) {</span>
-<span class="source-line-no">179</span><span id="line-179">    // Remove leading and trailing slashes without regex to avoid polynomial complexity</span>
-<span class="source-line-no">180</span><span id="line-180">    String normalizedPath = removeLeadingTrailingSlashes(xmlPath);</span>
-<span class="source-line-no">181</span><span id="line-181">    if (normalizedPath.isEmpty()) {</span>
-<span class="source-line-no">182</span><span id="line-182">      return new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">183</span><span id="line-183">    }</span>
-<span class="source-line-no">184</span><span id="line-184"></span>
-<span class="source-line-no">185</span><span id="line-185">    // Split by single slash and filter empty segments to handle multiple consecutive slashes</span>
-<span class="source-line-no">186</span><span id="line-186">    List&lt;String&gt; segments = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">187</span><span id="line-187">    int start = 0;</span>
-<span class="source-line-no">188</span><span id="line-188">    for (int i = 0; i &lt;= normalizedPath.length(); i++) {</span>
-<span class="source-line-no">189</span><span id="line-189">      if (i == normalizedPath.length() || normalizedPath.charAt(i) == '/') {</span>
-<span class="source-line-no">190</span><span id="line-190">        if (i &gt; start) {</span>
-<span class="source-line-no">191</span><span id="line-191">          segments.add(normalizedPath.substring(start, i));</span>
-<span class="source-line-no">192</span><span id="line-192">        }</span>
-<span class="source-line-no">193</span><span id="line-193">        start = i + 1;</span>
-<span class="source-line-no">194</span><span id="line-194">      }</span>
-<span class="source-line-no">195</span><span id="line-195">    }</span>
-<span class="source-line-no">196</span><span id="line-196"></span>
-<span class="source-line-no">197</span><span id="line-197">    return segments;</span>
-<span class="source-line-no">198</span><span id="line-198">  }</span>
-<span class="source-line-no">199</span><span id="line-199"></span>
-<span class="source-line-no">200</span><span id="line-200">  /**</span>
-<span class="source-line-no">201</span><span id="line-201">   * Removes leading and trailing slashes from path without regex</span>
-<span class="source-line-no">202</span><span id="line-202">   *</span>
-<span class="source-line-no">203</span><span id="line-203">   * @param path the input path</span>
-<span class="source-line-no">204</span><span id="line-204">   * @return path with leading/trailing slashes removed</span>
-<span class="source-line-no">205</span><span id="line-205">   */</span>
-<span class="source-line-no">206</span><span id="line-206">  private static String removeLeadingTrailingSlashes(String path) {</span>
-<span class="source-line-no">207</span><span id="line-207">    if (path == null || path.isEmpty()) {</span>
-<span class="source-line-no">208</span><span id="line-208">      return "";</span>
-<span class="source-line-no">209</span><span id="line-209">    }</span>
-<span class="source-line-no">210</span><span id="line-210"></span>
-<span class="source-line-no">211</span><span id="line-211">    int start = 0;</span>
-<span class="source-line-no">212</span><span id="line-212">    int end = path.length();</span>
-<span class="source-line-no">213</span><span id="line-213"></span>
-<span class="source-line-no">214</span><span id="line-214">    // Remove leading slashes</span>
-<span class="source-line-no">215</span><span id="line-215">    while (start &lt; end &amp;&amp; path.charAt(start) == '/') {</span>
-<span class="source-line-no">216</span><span id="line-216">      start++;</span>
-<span class="source-line-no">217</span><span id="line-217">    }</span>
+<span class="source-line-no">014</span><span id="line-14">@SuppressWarnings("PMD.TooManyMethods")</span>
+<span class="source-line-no">015</span><span id="line-15">// public API（fromXml/fromJson・matches/matchesIgnoringArraySyntax・equals/hashCode/toString）と</span>
+<span class="source-line-no">016</span><span id="line-16">// private パーサーヘルパー（parseJsonPathToSegments/parseComplexJsonPath/parseXmlPathToSegments 等）</span>
+<span class="source-line-no">017</span><span id="line-17">// が同居している。パーサーヘルパーは package-private クラスへ分離可能だが、TreePath 専用の</span>
+<span class="source-line-no">018</span><span id="line-18">// 実装詳細であり独立させる設計上の意義がないため現状を維持している。</span>
+<span class="source-line-no">019</span><span id="line-19">public class TreePath implements IPath&lt;List&lt;String&gt;&gt; {</span>
+<span class="source-line-no">020</span><span id="line-20"></span>
+<span class="source-line-no">021</span><span id="line-21">  private final List&lt;String&gt; segments;</span>
+<span class="source-line-no">022</span><span id="line-22">  private final String originalPath;</span>
+<span class="source-line-no">023</span><span id="line-23"></span>
+<span class="source-line-no">024</span><span id="line-24">  // Private constructor for factory methods</span>
+<span class="source-line-no">025</span><span id="line-25">  private TreePath(String originalPath, List&lt;String&gt; segments) {</span>
+<span class="source-line-no">026</span><span id="line-26">    this.originalPath = originalPath;</span>
+<span class="source-line-no">027</span><span id="line-27">    this.segments = segments;</span>
+<span class="source-line-no">028</span><span id="line-28">  }</span>
+<span class="source-line-no">029</span><span id="line-29"></span>
+<span class="source-line-no">030</span><span id="line-30">  /**</span>
+<span class="source-line-no">031</span><span id="line-31">   * Creates a TreePath from an XML path expression.</span>
+<span class="source-line-no">032</span><span id="line-32">   *</span>
+<span class="source-line-no">033</span><span id="line-33">   * @param xmlPath the XML path expression (e.g., "user/name")</span>
+<span class="source-line-no">034</span><span id="line-34">   * @return TreePath instance</span>
+<span class="source-line-no">035</span><span id="line-35">   * @throws IllegalArgumentException if xmlPath is null or invalid</span>
+<span class="source-line-no">036</span><span id="line-36">   */</span>
+<span class="source-line-no">037</span><span id="line-37">  public static TreePath fromXml(String xmlPath) {</span>
+<span class="source-line-no">038</span><span id="line-38">    if (xmlPath == null || xmlPath.isBlank()) {</span>
+<span class="source-line-no">039</span><span id="line-39">      throw new IllegalArgumentException("XML path cannot be null or empty");</span>
+<span class="source-line-no">040</span><span id="line-40">    }</span>
+<span class="source-line-no">041</span><span id="line-41">    String trimmedPath = xmlPath.trim();</span>
+<span class="source-line-no">042</span><span id="line-42">    List&lt;String&gt; segments = parseXmlPathToSegments(trimmedPath);</span>
+<span class="source-line-no">043</span><span id="line-43">    return new TreePath(trimmedPath, segments);</span>
+<span class="source-line-no">044</span><span id="line-44">  }</span>
+<span class="source-line-no">045</span><span id="line-45"></span>
+<span class="source-line-no">046</span><span id="line-46">  /**</span>
+<span class="source-line-no">047</span><span id="line-47">   * Creates a TreePath from a JSON path expression.</span>
+<span class="source-line-no">048</span><span id="line-48">   *</span>
+<span class="source-line-no">049</span><span id="line-49">   * @param jsonPath the JSON path expression (e.g., "$.user.name")</span>
+<span class="source-line-no">050</span><span id="line-50">   * @return TreePath instance</span>
+<span class="source-line-no">051</span><span id="line-51">   * @throws IllegalArgumentException if jsonPath is null or invalid</span>
+<span class="source-line-no">052</span><span id="line-52">   */</span>
+<span class="source-line-no">053</span><span id="line-53">  public static TreePath fromJson(String jsonPath) {</span>
+<span class="source-line-no">054</span><span id="line-54">    if (jsonPath == null || jsonPath.isBlank()) {</span>
+<span class="source-line-no">055</span><span id="line-55">      throw new IllegalArgumentException("JSON path cannot be null or empty");</span>
+<span class="source-line-no">056</span><span id="line-56">    }</span>
+<span class="source-line-no">057</span><span id="line-57">    String trimmedPath = jsonPath.trim();</span>
+<span class="source-line-no">058</span><span id="line-58">    List&lt;String&gt; segments = parseJsonPathToSegments(trimmedPath);</span>
+<span class="source-line-no">059</span><span id="line-59">    return new TreePath(trimmedPath, segments);</span>
+<span class="source-line-no">060</span><span id="line-60">  }</span>
+<span class="source-line-no">061</span><span id="line-61"></span>
+<span class="source-line-no">062</span><span id="line-62">  /**</span>
+<span class="source-line-no">063</span><span id="line-63">   * Checks if current path matches the target path segments</span>
+<span class="source-line-no">064</span><span id="line-64">   *</span>
+<span class="source-line-no">065</span><span id="line-65">   * @param currentPath current path segments to match against</span>
+<span class="source-line-no">066</span><span id="line-66">   * @return true if paths match exactly</span>
+<span class="source-line-no">067</span><span id="line-67">   */</span>
+<span class="source-line-no">068</span><span id="line-68">  @Override</span>
+<span class="source-line-no">069</span><span id="line-69">  public boolean matches(List&lt;String&gt; currentPath) {</span>
+<span class="source-line-no">070</span><span id="line-70">    return segments.equals(currentPath);</span>
+<span class="source-line-no">071</span><span id="line-71">  }</span>
+<span class="source-line-no">072</span><span id="line-72"></span>
+<span class="source-line-no">073</span><span id="line-73">  /**</span>
+<span class="source-line-no">074</span><span id="line-74">   * Checks if current path matches after stripping array-index syntax from this path's segments.</span>
+<span class="source-line-no">075</span><span id="line-75">   *</span>
+<span class="source-line-no">076</span><span id="line-76">   * &lt;p&gt;A segment like {@code "orders[*]"} or {@code "orders[0]"} is normalized to {@code "orders"}</span>
+<span class="source-line-no">077</span><span id="line-77">   * before comparison. This allows paths such as {@code "$.orders[*].product_code"} to match the</span>
+<span class="source-line-no">078</span><span id="line-78">   * streaming {@code currentPath} list {@code ["orders", "product_code"]}.</span>
+<span class="source-line-no">079</span><span id="line-79">   *</span>
+<span class="source-line-no">080</span><span id="line-80">   * @param currentPath current path segments built by the streaming traversal</span>
+<span class="source-line-no">081</span><span id="line-81">   * @return true if the normalized segments equal {@code currentPath}</span>
+<span class="source-line-no">082</span><span id="line-82">   */</span>
+<span class="source-line-no">083</span><span id="line-83">  public boolean matchesIgnoringArraySyntax(List&lt;String&gt; currentPath) {</span>
+<span class="source-line-no">084</span><span id="line-84">    if (currentPath == null) {</span>
+<span class="source-line-no">085</span><span id="line-85">      return false;</span>
+<span class="source-line-no">086</span><span id="line-86">    }</span>
+<span class="source-line-no">087</span><span id="line-87">    List&lt;String&gt; normalized = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">088</span><span id="line-88">    for (String segment : segments) {</span>
+<span class="source-line-no">089</span><span id="line-89">      // Strip leading $. prefix if present (handles complex path single-segment case)</span>
+<span class="source-line-no">090</span><span id="line-90">      String s = segment;</span>
+<span class="source-line-no">091</span><span id="line-91">      if (s.startsWith("$.")) {</span>
+<span class="source-line-no">092</span><span id="line-92">        s = s.substring(2);</span>
+<span class="source-line-no">093</span><span id="line-93">      } else if (s.startsWith("$")) {</span>
+<span class="source-line-no">094</span><span id="line-94">        s = s.substring(1);</span>
+<span class="source-line-no">095</span><span id="line-95">      }</span>
+<span class="source-line-no">096</span><span id="line-96">      // Split on dots to expand compound segments like "orders[*].product_code"</span>
+<span class="source-line-no">097</span><span id="line-97">      for (String part : s.split("\\.")) {</span>
+<span class="source-line-no">098</span><span id="line-98">        // Remove array index notation: [*], [0], [1], etc.</span>
+<span class="source-line-no">099</span><span id="line-99">        String stripped = part.replaceAll("\\[.*?\\]", "");</span>
+<span class="source-line-no">100</span><span id="line-100">        if (!stripped.isEmpty()) {</span>
+<span class="source-line-no">101</span><span id="line-101">          normalized.add(stripped);</span>
+<span class="source-line-no">102</span><span id="line-102">        }</span>
+<span class="source-line-no">103</span><span id="line-103">      }</span>
+<span class="source-line-no">104</span><span id="line-104">    }</span>
+<span class="source-line-no">105</span><span id="line-105">    return normalized.equals(currentPath);</span>
+<span class="source-line-no">106</span><span id="line-106">  }</span>
+<span class="source-line-no">107</span><span id="line-107"></span>
+<span class="source-line-no">108</span><span id="line-108">  /**</span>
+<span class="source-line-no">109</span><span id="line-109">   * Returns the original path expression.</span>
+<span class="source-line-no">110</span><span id="line-110">   *</span>
+<span class="source-line-no">111</span><span id="line-111">   * @return the original path expression</span>
+<span class="source-line-no">112</span><span id="line-112">   */</span>
+<span class="source-line-no">113</span><span id="line-113">  @Override</span>
+<span class="source-line-no">114</span><span id="line-114">  public String toString() {</span>
+<span class="source-line-no">115</span><span id="line-115">    return originalPath;</span>
+<span class="source-line-no">116</span><span id="line-116">  }</span>
+<span class="source-line-no">117</span><span id="line-117"></span>
+<span class="source-line-no">118</span><span id="line-118">  /**</span>
+<span class="source-line-no">119</span><span id="line-119">   * 2つのTreePathが等しいかどうかをセグメントリストで比較する。</span>
+<span class="source-line-no">120</span><span id="line-120">   *</span>
+<span class="source-line-no">121</span><span id="line-121">   * &lt;p&gt;注意: 元のパス文字列（{@link #toString()} の値）が異なっていても、セグメントに展開した結果が同じであれば等しいとみなす。 例えば JSONスタイルの {@code</span>
+<span class="source-line-no">122</span><span id="line-122">   * "$.user.name"} と XMLスタイルの {@code "user/name"} がパース後に同じセグメントになる場合、 等しいと判定される。</span>
+<span class="source-line-no">123</span><span id="line-123">   *</span>
+<span class="source-line-no">124</span><span id="line-124">   * @param obj 比較対象のオブジェクト</span>
+<span class="source-line-no">125</span><span id="line-125">   * @return セグメントリストが等しい場合true</span>
+<span class="source-line-no">126</span><span id="line-126">   */</span>
+<span class="source-line-no">127</span><span id="line-127">  @Override</span>
+<span class="source-line-no">128</span><span id="line-128">  public boolean equals(Object obj) {</span>
+<span class="source-line-no">129</span><span id="line-129">    if (this == obj) {</span>
+<span class="source-line-no">130</span><span id="line-130">      return true;</span>
+<span class="source-line-no">131</span><span id="line-131">    }</span>
+<span class="source-line-no">132</span><span id="line-132">    if (obj == null || getClass() != obj.getClass()) {</span>
+<span class="source-line-no">133</span><span id="line-133">      return false;</span>
+<span class="source-line-no">134</span><span id="line-134">    }</span>
+<span class="source-line-no">135</span><span id="line-135">    TreePath treePath = (TreePath) obj;</span>
+<span class="source-line-no">136</span><span id="line-136">    return segments.equals(treePath.segments);</span>
+<span class="source-line-no">137</span><span id="line-137">  }</span>
+<span class="source-line-no">138</span><span id="line-138"></span>
+<span class="source-line-no">139</span><span id="line-139">  /**</span>
+<span class="source-line-no">140</span><span id="line-140">   * セグメントリストに基づくハッシュコードを返す。</span>
+<span class="source-line-no">141</span><span id="line-141">   *</span>
+<span class="source-line-no">142</span><span id="line-142">   * @return ハッシュコード</span>
+<span class="source-line-no">143</span><span id="line-143">   */</span>
+<span class="source-line-no">144</span><span id="line-144">  @Override</span>
+<span class="source-line-no">145</span><span id="line-145">  public int hashCode() {</span>
+<span class="source-line-no">146</span><span id="line-146">    return segments.hashCode();</span>
+<span class="source-line-no">147</span><span id="line-147">  }</span>
+<span class="source-line-no">148</span><span id="line-148"></span>
+<span class="source-line-no">149</span><span id="line-149">  // === Internal Implementation ===</span>
+<span class="source-line-no">150</span><span id="line-150"></span>
+<span class="source-line-no">151</span><span id="line-151">  private static List&lt;String&gt; parseJsonPathToSegments(String jsonPath) {</span>
+<span class="source-line-no">152</span><span id="line-152">    // Handle root path</span>
+<span class="source-line-no">153</span><span id="line-153">    if ("$".equals(jsonPath)) {</span>
+<span class="source-line-no">154</span><span id="line-154">      return new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">155</span><span id="line-155">    }</span>
+<span class="source-line-no">156</span><span id="line-156"></span>
+<span class="source-line-no">157</span><span id="line-157">    // Handle array syntax preservation for JsonFilterCommand compatibility</span>
+<span class="source-line-no">158</span><span id="line-158">    if (jsonPath.contains("[")) {</span>
+<span class="source-line-no">159</span><span id="line-159">      // For complex paths with arrays, preserve original parsing logic</span>
+<span class="source-line-no">160</span><span id="line-160">      // This ensures JsonFilterCommand continues to work</span>
+<span class="source-line-no">161</span><span id="line-161">      return parseComplexJsonPath(jsonPath);</span>
+<span class="source-line-no">162</span><span id="line-162">    }</span>
+<span class="source-line-no">163</span><span id="line-163"></span>
+<span class="source-line-no">164</span><span id="line-164">    // Simple property paths: $.property or $.nested.property</span>
+<span class="source-line-no">165</span><span id="line-165">    if (jsonPath.startsWith("$.")) {</span>
+<span class="source-line-no">166</span><span id="line-166">      String pathWithoutRoot = jsonPath.substring(2);</span>
+<span class="source-line-no">167</span><span id="line-167">      if (pathWithoutRoot.isEmpty()) {</span>
+<span class="source-line-no">168</span><span id="line-168">        return new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">169</span><span id="line-169">      }</span>
+<span class="source-line-no">170</span><span id="line-170">      return Arrays.asList(pathWithoutRoot.split("\\."));</span>
+<span class="source-line-no">171</span><span id="line-171">    }</span>
+<span class="source-line-no">172</span><span id="line-172"></span>
+<span class="source-line-no">173</span><span id="line-173">    throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);</span>
+<span class="source-line-no">174</span><span id="line-174">  }</span>
+<span class="source-line-no">175</span><span id="line-175"></span>
+<span class="source-line-no">176</span><span id="line-176">  private static List&lt;String&gt; parseComplexJsonPath(String jsonPath) {</span>
+<span class="source-line-no">177</span><span id="line-177">    // For paths with array syntax like $[*].name or $.users[0].name</span>
+<span class="source-line-no">178</span><span id="line-178">    // Keep them as single segments to maintain compatibility</span>
+<span class="source-line-no">179</span><span id="line-179">    // The actual array handling is done in JsonFilterCommand</span>
+<span class="source-line-no">180</span><span id="line-180">    return List.of(jsonPath);</span>
+<span class="source-line-no">181</span><span id="line-181">  }</span>
+<span class="source-line-no">182</span><span id="line-182"></span>
+<span class="source-line-no">183</span><span id="line-183">  private static List&lt;String&gt; parseXmlPathToSegments(String xmlPath) {</span>
+<span class="source-line-no">184</span><span id="line-184">    // Remove leading and trailing slashes without regex to avoid polynomial complexity</span>
+<span class="source-line-no">185</span><span id="line-185">    String normalizedPath = removeLeadingTrailingSlashes(xmlPath);</span>
+<span class="source-line-no">186</span><span id="line-186">    if (normalizedPath.isEmpty()) {</span>
+<span class="source-line-no">187</span><span id="line-187">      return new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">188</span><span id="line-188">    }</span>
+<span class="source-line-no">189</span><span id="line-189"></span>
+<span class="source-line-no">190</span><span id="line-190">    // Split by single slash and filter empty segments to handle multiple consecutive slashes</span>
+<span class="source-line-no">191</span><span id="line-191">    List&lt;String&gt; segments = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">192</span><span id="line-192">    int start = 0;</span>
+<span class="source-line-no">193</span><span id="line-193">    for (int i = 0; i &lt;= normalizedPath.length(); i++) {</span>
+<span class="source-line-no">194</span><span id="line-194">      if (i == normalizedPath.length() || normalizedPath.charAt(i) == '/') {</span>
+<span class="source-line-no">195</span><span id="line-195">        if (i &gt; start) {</span>
+<span class="source-line-no">196</span><span id="line-196">          segments.add(normalizedPath.substring(start, i));</span>
+<span class="source-line-no">197</span><span id="line-197">        }</span>
+<span class="source-line-no">198</span><span id="line-198">        start = i + 1;</span>
+<span class="source-line-no">199</span><span id="line-199">      }</span>
+<span class="source-line-no">200</span><span id="line-200">    }</span>
+<span class="source-line-no">201</span><span id="line-201"></span>
+<span class="source-line-no">202</span><span id="line-202">    return segments;</span>
+<span class="source-line-no">203</span><span id="line-203">  }</span>
+<span class="source-line-no">204</span><span id="line-204"></span>
+<span class="source-line-no">205</span><span id="line-205">  /**</span>
+<span class="source-line-no">206</span><span id="line-206">   * Removes leading and trailing slashes from path without regex</span>
+<span class="source-line-no">207</span><span id="line-207">   *</span>
+<span class="source-line-no">208</span><span id="line-208">   * @param path the input path</span>
+<span class="source-line-no">209</span><span id="line-209">   * @return path with leading/trailing slashes removed</span>
+<span class="source-line-no">210</span><span id="line-210">   */</span>
+<span class="source-line-no">211</span><span id="line-211">  private static String removeLeadingTrailingSlashes(String path) {</span>
+<span class="source-line-no">212</span><span id="line-212">    if (path == null || path.isEmpty()) {</span>
+<span class="source-line-no">213</span><span id="line-213">      return "";</span>
+<span class="source-line-no">214</span><span id="line-214">    }</span>
+<span class="source-line-no">215</span><span id="line-215"></span>
+<span class="source-line-no">216</span><span id="line-216">    int start = 0;</span>
+<span class="source-line-no">217</span><span id="line-217">    int end = path.length();</span>
 <span class="source-line-no">218</span><span id="line-218"></span>
-<span class="source-line-no">219</span><span id="line-219">    // Remove trailing slashes</span>
-<span class="source-line-no">220</span><span id="line-220">    while (end &gt; start &amp;&amp; path.charAt(end - 1) == '/') {</span>
-<span class="source-line-no">221</span><span id="line-221">      end--;</span>
+<span class="source-line-no">219</span><span id="line-219">    // Remove leading slashes</span>
+<span class="source-line-no">220</span><span id="line-220">    while (start &lt; end &amp;&amp; path.charAt(start) == '/') {</span>
+<span class="source-line-no">221</span><span id="line-221">      start++;</span>
 <span class="source-line-no">222</span><span id="line-222">    }</span>
 <span class="source-line-no">223</span><span id="line-223"></span>
-<span class="source-line-no">224</span><span id="line-224">    return path.substring(start, end);</span>
-<span class="source-line-no">225</span><span id="line-225">  }</span>
-<span class="source-line-no">226</span><span id="line-226">}</span>
+<span class="source-line-no">224</span><span id="line-224">    // Remove trailing slashes</span>
+<span class="source-line-no">225</span><span id="line-225">    while (end &gt; start &amp;&amp; path.charAt(end - 1) == '/') {</span>
+<span class="source-line-no">226</span><span id="line-226">      end--;</span>
+<span class="source-line-no">227</span><span id="line-227">    }</span>
+<span class="source-line-no">228</span><span id="line-228"></span>
+<span class="source-line-no">229</span><span id="line-229">    return path.substring(start, end);</span>
+<span class="source-line-no">230</span><span id="line-230">  }</span>
+<span class="source-line-no">231</span><span id="line-231">}</span>
 
 
 

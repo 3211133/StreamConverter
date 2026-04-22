@@ -138,138 +138,144 @@
 <span class="source-line-no">125</span><span id="line-125">   * @return 安全に設定されたTransformerFactory</span>
 <span class="source-line-no">126</span><span id="line-126">   * @throws IllegalStateException セキュリティ設定の適用に失敗した場合</span>
 <span class="source-line-no">127</span><span id="line-127">   */</span>
-<span class="source-line-no">128</span><span id="line-128">  public static TransformerFactory createSecureTransformerFactory() {</span>
-<span class="source-line-no">129</span><span id="line-129">    TransformerFactory factory = TransformerFactory.newInstance();</span>
-<span class="source-line-no">130</span><span id="line-130"></span>
-<span class="source-line-no">131</span><span id="line-131">    try {</span>
-<span class="source-line-no">132</span><span id="line-132">      // XMLTransform攻撃を防ぐための設定</span>
-<span class="source-line-no">133</span><span id="line-133">      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");</span>
-<span class="source-line-no">134</span><span id="line-134">      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");</span>
-<span class="source-line-no">135</span><span id="line-135">      // 機能制限</span>
-<span class="source-line-no">136</span><span id="line-136">      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);</span>
-<span class="source-line-no">137</span><span id="line-137">    } catch (Exception e) {</span>
-<span class="source-line-no">138</span><span id="line-138">      throw new IllegalStateException(</span>
-<span class="source-line-no">139</span><span id="line-139">          "Failed to configure secure TransformerFactory: XXE protection could not be applied", e);</span>
-<span class="source-line-no">140</span><span id="line-140">    }</span>
-<span class="source-line-no">141</span><span id="line-141"></span>
-<span class="source-line-no">142</span><span id="line-142">    securityLogger.info("Secure TransformerFactory created with XXE protection");</span>
-<span class="source-line-no">143</span><span id="line-143">    return factory;</span>
-<span class="source-line-no">144</span><span id="line-144">  }</span>
-<span class="source-line-no">145</span><span id="line-145"></span>
-<span class="source-line-no">146</span><span id="line-146">  /**</span>
-<span class="source-line-no">147</span><span id="line-147">   * 安全に設定されたSchemaFactoryを作成します</span>
-<span class="source-line-no">148</span><span id="line-148">   *</span>
-<span class="source-line-no">149</span><span id="line-149">   * &lt;p&gt;XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）</span>
-<span class="source-line-no">150</span><span id="line-150">   *</span>
-<span class="source-line-no">151</span><span id="line-151">   * @return 安全に設定されたSchemaFactory</span>
-<span class="source-line-no">152</span><span id="line-152">   * @throws IllegalStateException セキュリティ設定の適用に失敗した場合</span>
-<span class="source-line-no">153</span><span id="line-153">   */</span>
-<span class="source-line-no">154</span><span id="line-154">  public static SchemaFactory createSecureSchemaFactory() {</span>
-<span class="source-line-no">155</span><span id="line-155">    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);</span>
-<span class="source-line-no">156</span><span id="line-156"></span>
-<span class="source-line-no">157</span><span id="line-157">    try {</span>
-<span class="source-line-no">158</span><span id="line-158">      // 外部リソースアクセスを制限</span>
-<span class="source-line-no">159</span><span id="line-159">      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");</span>
-<span class="source-line-no">160</span><span id="line-160">      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");</span>
-<span class="source-line-no">161</span><span id="line-161">      // セキュアプロセシング機能を有効化</span>
-<span class="source-line-no">162</span><span id="line-162">      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);</span>
-<span class="source-line-no">163</span><span id="line-163">    } catch (Exception e) {</span>
-<span class="source-line-no">164</span><span id="line-164">      throw new IllegalStateException(</span>
-<span class="source-line-no">165</span><span id="line-165">          "Failed to configure secure SchemaFactory: XXE protection could not be applied", e);</span>
-<span class="source-line-no">166</span><span id="line-166">    }</span>
-<span class="source-line-no">167</span><span id="line-167"></span>
-<span class="source-line-no">168</span><span id="line-168">    securityLogger.info("Secure SchemaFactory created with XXE protection");</span>
-<span class="source-line-no">169</span><span id="line-169">    return factory;</span>
-<span class="source-line-no">170</span><span id="line-170">  }</span>
-<span class="source-line-no">171</span><span id="line-171"></span>
-<span class="source-line-no">172</span><span id="line-172">  /**</span>
-<span class="source-line-no">173</span><span id="line-173">   * ストリーム処理用に安全なDocumentBuilderを作成します。</span>
-<span class="source-line-no">174</span><span id="line-174">   *</span>
-<span class="source-line-no">175</span><span id="line-175">   * &lt;p&gt;引数の {@code inputStream} はnullチェックにのみ使用され、実際のXML解析はこのメソッド内では行いません。 返された {@code</span>
-<span class="source-line-no">176</span><span id="line-176">   * DocumentBuilder} を使って呼び出し元が解析を行います。</span>
-<span class="source-line-no">177</span><span id="line-177">   *</span>
-<span class="source-line-no">178</span><span id="line-178">   * @param inputStream nullチェック対象のInputStream（nullの場合は {@link IllegalArgumentException} をスロー）</span>
-<span class="source-line-no">179</span><span id="line-179">   * @return ストリーム処理用に安全に設定されたDocumentBuilder</span>
-<span class="source-line-no">180</span><span id="line-180">   * @throws ParserConfigurationException XML設定エラーが発生した場合</span>
-<span class="source-line-no">181</span><span id="line-181">   * @throws IllegalArgumentException inputStreamがnullの場合</span>
-<span class="source-line-no">182</span><span id="line-182">   */</span>
-<span class="source-line-no">183</span><span id="line-183">  public static DocumentBuilder createSecureDocumentBuilderForStream(InputStream inputStream)</span>
-<span class="source-line-no">184</span><span id="line-184">      throws ParserConfigurationException {</span>
-<span class="source-line-no">185</span><span id="line-185"></span>
-<span class="source-line-no">186</span><span id="line-186">    // 入力検証</span>
-<span class="source-line-no">187</span><span id="line-187">    if (inputStream == null) {</span>
-<span class="source-line-no">188</span><span id="line-188">      throw new IllegalArgumentException("InputStream cannot be null");</span>
-<span class="source-line-no">189</span><span id="line-189">    }</span>
-<span class="source-line-no">190</span><span id="line-190"></span>
-<span class="source-line-no">191</span><span id="line-191">    DocumentBuilder builder = createSecureDocumentBuilder();</span>
-<span class="source-line-no">192</span><span id="line-192"></span>
-<span class="source-line-no">193</span><span id="line-193">    // エラーハンドラーの設定（セキュリティ上の理由により詳細エラー情報を制限）</span>
-<span class="source-line-no">194</span><span id="line-194">    builder.setErrorHandler(new SecurityAwareErrorHandler());</span>
-<span class="source-line-no">195</span><span id="line-195"></span>
-<span class="source-line-no">196</span><span id="line-196">    securityLogger.debug("Secure DocumentBuilder created for InputStream processing");</span>
-<span class="source-line-no">197</span><span id="line-197">    return builder;</span>
-<span class="source-line-no">198</span><span id="line-198">  }</span>
-<span class="source-line-no">199</span><span id="line-199">}</span>
-<span class="source-line-no">200</span><span id="line-200"></span>
-<span class="source-line-no">201</span><span id="line-201">/**</span>
-<span class="source-line-no">202</span><span id="line-202"> * セキュリティを考慮したXMLエラーハンドラー。</span>
-<span class="source-line-no">203</span><span id="line-203"> *</span>
-<span class="source-line-no">204</span><span id="line-204"> * &lt;p&gt;詳細なエラー情報の外部漏洩を防ぐため、外部向けメッセージには一般的な内容のみを使用する。 内部ログには行・列情報を記録し、デバッグを可能にする。</span>
-<span class="source-line-no">205</span><span id="line-205"> *</span>
-<span class="source-line-no">206</span><span id="line-206"> * &lt;p&gt;このクラスは {@link</span>
-<span class="source-line-no">207</span><span id="line-207"> * SecureXmlConfiguration#createSecureDocumentBuilderForStream(java.io.InputStream)}</span>
-<span class="source-line-no">208</span><span id="line-208"> * 内部での使用を想定してpackage-privateとしており、外部から直接インスタンス化されることを想定していない。</span>
-<span class="source-line-no">209</span><span id="line-209"> */</span>
-<span class="source-line-no">210</span><span id="line-210">class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {</span>
-<span class="source-line-no">211</span><span id="line-211">  private static final Logger logger = LoggerFactory.getLogger(SecurityAwareErrorHandler.class);</span>
-<span class="source-line-no">212</span><span id="line-212">  private static final Logger securityLogger =</span>
-<span class="source-line-no">213</span><span id="line-213">      LoggerFactory.getLogger("com.streamConverter.security");</span>
-<span class="source-line-no">214</span><span id="line-214"></span>
-<span class="source-line-no">215</span><span id="line-215">  /**</span>
-<span class="source-line-no">216</span><span id="line-216">   * XML解析の警告を処理する。</span>
-<span class="source-line-no">217</span><span id="line-217">   *</span>
-<span class="source-line-no">218</span><span id="line-218">   * &lt;p&gt;セキュリティ上の理由から詳細は抑制し、内部ロガーにはDEBUGレベルで一般的なメッセージのみを記録する。 セキュリティロガーにはWARNレベルで警告発生を記録する。</span>
-<span class="source-line-no">219</span><span id="line-219">   *</span>
-<span class="source-line-no">220</span><span id="line-220">   * @param exception 発生した警告の詳細（ログには詳細情報を含めない）</span>
-<span class="source-line-no">221</span><span id="line-221">   */</span>
-<span class="source-line-no">222</span><span id="line-222">  @Override</span>
-<span class="source-line-no">223</span><span id="line-223">  public void warning(org.xml.sax.SAXParseException exception) {</span>
-<span class="source-line-no">224</span><span id="line-224">    logger.debug("XML parsing warning (details suppressed for security)");</span>
-<span class="source-line-no">225</span><span id="line-225">    securityLogger.warn("XML parsing warning detected during secure processing");</span>
-<span class="source-line-no">226</span><span id="line-226">  }</span>
-<span class="source-line-no">227</span><span id="line-227"></span>
-<span class="source-line-no">228</span><span id="line-228">  /**</span>
-<span class="source-line-no">229</span><span id="line-229">   * XML解析の回復可能エラーを処理する。</span>
-<span class="source-line-no">230</span><span id="line-230">   *</span>
-<span class="source-line-no">231</span><span id="line-231">   * &lt;p&gt;セキュリティコンテキストでは回復可能エラーも失敗として扱う（不正XMLを後続処理に渡さない）。 内部ログには行・列情報を記録するが、外部エラーメッセージには詳細を含めない。</span>
-<span class="source-line-no">232</span><span id="line-232">   *</span>
-<span class="source-line-no">233</span><span id="line-233">   * @param exception 発生したエラーの詳細</span>
-<span class="source-line-no">234</span><span id="line-234">   * @throws org.xml.sax.SAXException 常にスローし、XML処理を中断する</span>
-<span class="source-line-no">235</span><span id="line-235">   */</span>
-<span class="source-line-no">236</span><span id="line-236">  @Override</span>
-<span class="source-line-no">237</span><span id="line-237">  public void error(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {</span>
-<span class="source-line-no">238</span><span id="line-238">    logger.warn(</span>
-<span class="source-line-no">239</span><span id="line-239">        "XML parsing error at line {}, column {}",</span>
-<span class="source-line-no">240</span><span id="line-240">        exception.getLineNumber(),</span>
-<span class="source-line-no">241</span><span id="line-241">        exception.getColumnNumber());</span>
-<span class="source-line-no">242</span><span id="line-242">    securityLogger.warn("XML parsing error detected during secure processing");</span>
-<span class="source-line-no">243</span><span id="line-243">    throw new org.xml.sax.SAXException("XML processing failed: parsing error detected", exception);</span>
-<span class="source-line-no">244</span><span id="line-244">  }</span>
-<span class="source-line-no">245</span><span id="line-245"></span>
-<span class="source-line-no">246</span><span id="line-246">  /**</span>
-<span class="source-line-no">247</span><span id="line-247">   * XML解析の致命的エラーを処理する。</span>
-<span class="source-line-no">248</span><span id="line-248">   *</span>
-<span class="source-line-no">249</span><span id="line-249">   * &lt;p&gt;セキュリティ制約違反とみなし、詳細情報を外部に漏らさずに処理を中断する。</span>
-<span class="source-line-no">250</span><span id="line-250">   *</span>
-<span class="source-line-no">251</span><span id="line-251">   * @param exception 発生した致命的エラーの詳細</span>
-<span class="source-line-no">252</span><span id="line-252">   * @throws org.xml.sax.SAXException 常にスローし、XML処理を中断する</span>
-<span class="source-line-no">253</span><span id="line-253">   */</span>
-<span class="source-line-no">254</span><span id="line-254">  @Override</span>
-<span class="source-line-no">255</span><span id="line-255">  public void fatalError(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {</span>
-<span class="source-line-no">256</span><span id="line-256">    securityLogger.error("Fatal XML parsing error detected during secure processing");</span>
-<span class="source-line-no">257</span><span id="line-257">    throw new org.xml.sax.SAXException("XML processing failed due to security constraints");</span>
-<span class="source-line-no">258</span><span id="line-258">  }</span>
-<span class="source-line-no">259</span><span id="line-259">}</span>
+<span class="source-line-no">128</span><span id="line-128">  @SuppressWarnings("PMD.AvoidCatchingGenericException")</span>
+<span class="source-line-no">129</span><span id="line-129">  // JAXP API（setAttribute/setFeature）は実装により TransformerConfigurationException,</span>
+<span class="source-line-no">130</span><span id="line-130">  // IllegalArgumentException 等の異なる例外をスローする。Exception でまとめてキャッチが現実的。</span>
+<span class="source-line-no">131</span><span id="line-131">  public static TransformerFactory createSecureTransformerFactory() {</span>
+<span class="source-line-no">132</span><span id="line-132">    TransformerFactory factory = TransformerFactory.newInstance();</span>
+<span class="source-line-no">133</span><span id="line-133"></span>
+<span class="source-line-no">134</span><span id="line-134">    try {</span>
+<span class="source-line-no">135</span><span id="line-135">      // XMLTransform攻撃を防ぐための設定</span>
+<span class="source-line-no">136</span><span id="line-136">      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_DTD, "");</span>
+<span class="source-line-no">137</span><span id="line-137">      factory.setAttribute(XMLConstants.ACCESS_EXTERNAL_STYLESHEET, "");</span>
+<span class="source-line-no">138</span><span id="line-138">      // 機能制限</span>
+<span class="source-line-no">139</span><span id="line-139">      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);</span>
+<span class="source-line-no">140</span><span id="line-140">    } catch (Exception e) {</span>
+<span class="source-line-no">141</span><span id="line-141">      throw new IllegalStateException(</span>
+<span class="source-line-no">142</span><span id="line-142">          "Failed to configure secure TransformerFactory: XXE protection could not be applied", e);</span>
+<span class="source-line-no">143</span><span id="line-143">    }</span>
+<span class="source-line-no">144</span><span id="line-144"></span>
+<span class="source-line-no">145</span><span id="line-145">    securityLogger.info("Secure TransformerFactory created with XXE protection");</span>
+<span class="source-line-no">146</span><span id="line-146">    return factory;</span>
+<span class="source-line-no">147</span><span id="line-147">  }</span>
+<span class="source-line-no">148</span><span id="line-148"></span>
+<span class="source-line-no">149</span><span id="line-149">  /**</span>
+<span class="source-line-no">150</span><span id="line-150">   * 安全に設定されたSchemaFactoryを作成します</span>
+<span class="source-line-no">151</span><span id="line-151">   *</span>
+<span class="source-line-no">152</span><span id="line-152">   * &lt;p&gt;XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）</span>
+<span class="source-line-no">153</span><span id="line-153">   *</span>
+<span class="source-line-no">154</span><span id="line-154">   * @return 安全に設定されたSchemaFactory</span>
+<span class="source-line-no">155</span><span id="line-155">   * @throws IllegalStateException セキュリティ設定の適用に失敗した場合</span>
+<span class="source-line-no">156</span><span id="line-156">   */</span>
+<span class="source-line-no">157</span><span id="line-157">  @SuppressWarnings("PMD.AvoidCatchingGenericException")</span>
+<span class="source-line-no">158</span><span id="line-158">  // JAXP API（setProperty/setFeature）は実装により SAXNotRecognizedException,</span>
+<span class="source-line-no">159</span><span id="line-159">  // SAXNotSupportedException 等の異なる例外をスローする。Exception でまとめてキャッチが現実的。</span>
+<span class="source-line-no">160</span><span id="line-160">  public static SchemaFactory createSecureSchemaFactory() {</span>
+<span class="source-line-no">161</span><span id="line-161">    SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);</span>
+<span class="source-line-no">162</span><span id="line-162"></span>
+<span class="source-line-no">163</span><span id="line-163">    try {</span>
+<span class="source-line-no">164</span><span id="line-164">      // 外部リソースアクセスを制限</span>
+<span class="source-line-no">165</span><span id="line-165">      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_DTD, "");</span>
+<span class="source-line-no">166</span><span id="line-166">      factory.setProperty(XMLConstants.ACCESS_EXTERNAL_SCHEMA, "");</span>
+<span class="source-line-no">167</span><span id="line-167">      // セキュアプロセシング機能を有効化</span>
+<span class="source-line-no">168</span><span id="line-168">      factory.setFeature(XMLConstants.FEATURE_SECURE_PROCESSING, true);</span>
+<span class="source-line-no">169</span><span id="line-169">    } catch (Exception e) {</span>
+<span class="source-line-no">170</span><span id="line-170">      throw new IllegalStateException(</span>
+<span class="source-line-no">171</span><span id="line-171">          "Failed to configure secure SchemaFactory: XXE protection could not be applied", e);</span>
+<span class="source-line-no">172</span><span id="line-172">    }</span>
+<span class="source-line-no">173</span><span id="line-173"></span>
+<span class="source-line-no">174</span><span id="line-174">    securityLogger.info("Secure SchemaFactory created with XXE protection");</span>
+<span class="source-line-no">175</span><span id="line-175">    return factory;</span>
+<span class="source-line-no">176</span><span id="line-176">  }</span>
+<span class="source-line-no">177</span><span id="line-177"></span>
+<span class="source-line-no">178</span><span id="line-178">  /**</span>
+<span class="source-line-no">179</span><span id="line-179">   * ストリーム処理用に安全なDocumentBuilderを作成します。</span>
+<span class="source-line-no">180</span><span id="line-180">   *</span>
+<span class="source-line-no">181</span><span id="line-181">   * &lt;p&gt;引数の {@code inputStream} はnullチェックにのみ使用され、実際のXML解析はこのメソッド内では行いません。 返された {@code</span>
+<span class="source-line-no">182</span><span id="line-182">   * DocumentBuilder} を使って呼び出し元が解析を行います。</span>
+<span class="source-line-no">183</span><span id="line-183">   *</span>
+<span class="source-line-no">184</span><span id="line-184">   * @param inputStream nullチェック対象のInputStream（nullの場合は {@link IllegalArgumentException} をスロー）</span>
+<span class="source-line-no">185</span><span id="line-185">   * @return ストリーム処理用に安全に設定されたDocumentBuilder</span>
+<span class="source-line-no">186</span><span id="line-186">   * @throws ParserConfigurationException XML設定エラーが発生した場合</span>
+<span class="source-line-no">187</span><span id="line-187">   * @throws IllegalArgumentException inputStreamがnullの場合</span>
+<span class="source-line-no">188</span><span id="line-188">   */</span>
+<span class="source-line-no">189</span><span id="line-189">  public static DocumentBuilder createSecureDocumentBuilderForStream(InputStream inputStream)</span>
+<span class="source-line-no">190</span><span id="line-190">      throws ParserConfigurationException {</span>
+<span class="source-line-no">191</span><span id="line-191"></span>
+<span class="source-line-no">192</span><span id="line-192">    // 入力検証</span>
+<span class="source-line-no">193</span><span id="line-193">    if (inputStream == null) {</span>
+<span class="source-line-no">194</span><span id="line-194">      throw new IllegalArgumentException("InputStream cannot be null");</span>
+<span class="source-line-no">195</span><span id="line-195">    }</span>
+<span class="source-line-no">196</span><span id="line-196"></span>
+<span class="source-line-no">197</span><span id="line-197">    DocumentBuilder builder = createSecureDocumentBuilder();</span>
+<span class="source-line-no">198</span><span id="line-198"></span>
+<span class="source-line-no">199</span><span id="line-199">    // エラーハンドラーの設定（セキュリティ上の理由により詳細エラー情報を制限）</span>
+<span class="source-line-no">200</span><span id="line-200">    builder.setErrorHandler(new SecurityAwareErrorHandler());</span>
+<span class="source-line-no">201</span><span id="line-201"></span>
+<span class="source-line-no">202</span><span id="line-202">    securityLogger.debug("Secure DocumentBuilder created for InputStream processing");</span>
+<span class="source-line-no">203</span><span id="line-203">    return builder;</span>
+<span class="source-line-no">204</span><span id="line-204">  }</span>
+<span class="source-line-no">205</span><span id="line-205">}</span>
+<span class="source-line-no">206</span><span id="line-206"></span>
+<span class="source-line-no">207</span><span id="line-207">/**</span>
+<span class="source-line-no">208</span><span id="line-208"> * セキュリティを考慮したXMLエラーハンドラー。</span>
+<span class="source-line-no">209</span><span id="line-209"> *</span>
+<span class="source-line-no">210</span><span id="line-210"> * &lt;p&gt;詳細なエラー情報の外部漏洩を防ぐため、外部向けメッセージには一般的な内容のみを使用する。 内部ログには行・列情報を記録し、デバッグを可能にする。</span>
+<span class="source-line-no">211</span><span id="line-211"> *</span>
+<span class="source-line-no">212</span><span id="line-212"> * &lt;p&gt;このクラスは {@link</span>
+<span class="source-line-no">213</span><span id="line-213"> * SecureXmlConfiguration#createSecureDocumentBuilderForStream(java.io.InputStream)}</span>
+<span class="source-line-no">214</span><span id="line-214"> * 内部での使用を想定してpackage-privateとしており、外部から直接インスタンス化されることを想定していない。</span>
+<span class="source-line-no">215</span><span id="line-215"> */</span>
+<span class="source-line-no">216</span><span id="line-216">class SecurityAwareErrorHandler implements org.xml.sax.ErrorHandler {</span>
+<span class="source-line-no">217</span><span id="line-217">  private static final Logger logger = LoggerFactory.getLogger(SecurityAwareErrorHandler.class);</span>
+<span class="source-line-no">218</span><span id="line-218">  private static final Logger securityLogger =</span>
+<span class="source-line-no">219</span><span id="line-219">      LoggerFactory.getLogger("com.streamConverter.security");</span>
+<span class="source-line-no">220</span><span id="line-220"></span>
+<span class="source-line-no">221</span><span id="line-221">  /**</span>
+<span class="source-line-no">222</span><span id="line-222">   * XML解析の警告を処理する。</span>
+<span class="source-line-no">223</span><span id="line-223">   *</span>
+<span class="source-line-no">224</span><span id="line-224">   * &lt;p&gt;セキュリティ上の理由から詳細は抑制し、内部ロガーにはDEBUGレベルで一般的なメッセージのみを記録する。 セキュリティロガーにはWARNレベルで警告発生を記録する。</span>
+<span class="source-line-no">225</span><span id="line-225">   *</span>
+<span class="source-line-no">226</span><span id="line-226">   * @param exception 発生した警告の詳細（ログには詳細情報を含めない）</span>
+<span class="source-line-no">227</span><span id="line-227">   */</span>
+<span class="source-line-no">228</span><span id="line-228">  @Override</span>
+<span class="source-line-no">229</span><span id="line-229">  public void warning(org.xml.sax.SAXParseException exception) {</span>
+<span class="source-line-no">230</span><span id="line-230">    logger.debug("XML parsing warning (details suppressed for security)");</span>
+<span class="source-line-no">231</span><span id="line-231">    securityLogger.warn("XML parsing warning detected during secure processing");</span>
+<span class="source-line-no">232</span><span id="line-232">  }</span>
+<span class="source-line-no">233</span><span id="line-233"></span>
+<span class="source-line-no">234</span><span id="line-234">  /**</span>
+<span class="source-line-no">235</span><span id="line-235">   * XML解析の回復可能エラーを処理する。</span>
+<span class="source-line-no">236</span><span id="line-236">   *</span>
+<span class="source-line-no">237</span><span id="line-237">   * &lt;p&gt;セキュリティコンテキストでは回復可能エラーも失敗として扱う（不正XMLを後続処理に渡さない）。 内部ログには行・列情報を記録するが、外部エラーメッセージには詳細を含めない。</span>
+<span class="source-line-no">238</span><span id="line-238">   *</span>
+<span class="source-line-no">239</span><span id="line-239">   * @param exception 発生したエラーの詳細</span>
+<span class="source-line-no">240</span><span id="line-240">   * @throws org.xml.sax.SAXException 常にスローし、XML処理を中断する</span>
+<span class="source-line-no">241</span><span id="line-241">   */</span>
+<span class="source-line-no">242</span><span id="line-242">  @Override</span>
+<span class="source-line-no">243</span><span id="line-243">  public void error(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {</span>
+<span class="source-line-no">244</span><span id="line-244">    logger.warn(</span>
+<span class="source-line-no">245</span><span id="line-245">        "XML parsing error at line {}, column {}",</span>
+<span class="source-line-no">246</span><span id="line-246">        exception.getLineNumber(),</span>
+<span class="source-line-no">247</span><span id="line-247">        exception.getColumnNumber());</span>
+<span class="source-line-no">248</span><span id="line-248">    securityLogger.warn("XML parsing error detected during secure processing");</span>
+<span class="source-line-no">249</span><span id="line-249">    throw new org.xml.sax.SAXException("XML processing failed: parsing error detected", exception);</span>
+<span class="source-line-no">250</span><span id="line-250">  }</span>
+<span class="source-line-no">251</span><span id="line-251"></span>
+<span class="source-line-no">252</span><span id="line-252">  /**</span>
+<span class="source-line-no">253</span><span id="line-253">   * XML解析の致命的エラーを処理する。</span>
+<span class="source-line-no">254</span><span id="line-254">   *</span>
+<span class="source-line-no">255</span><span id="line-255">   * &lt;p&gt;セキュリティ制約違反とみなし、詳細情報を外部に漏らさずに処理を中断する。</span>
+<span class="source-line-no">256</span><span id="line-256">   *</span>
+<span class="source-line-no">257</span><span id="line-257">   * @param exception 発生した致命的エラーの詳細</span>
+<span class="source-line-no">258</span><span id="line-258">   * @throws org.xml.sax.SAXException 常にスローし、XML処理を中断する</span>
+<span class="source-line-no">259</span><span id="line-259">   */</span>
+<span class="source-line-no">260</span><span id="line-260">  @Override</span>
+<span class="source-line-no">261</span><span id="line-261">  public void fatalError(org.xml.sax.SAXParseException exception) throws org.xml.sax.SAXException {</span>
+<span class="source-line-no">262</span><span id="line-262">    securityLogger.error("Fatal XML parsing error detected during secure processing");</span>
+<span class="source-line-no">263</span><span id="line-263">    throw new org.xml.sax.SAXException("XML processing failed due to security constraints");</span>
+<span class="source-line-no">264</span><span id="line-264">  }</span>
+<span class="source-line-no">265</span><span id="line-265">}</span>
 
 
 

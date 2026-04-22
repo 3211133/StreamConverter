@@ -167,70 +167,78 @@
 <span class="source-line-no">154</span><span id="line-154">  }</span>
 <span class="source-line-no">155</span><span id="line-155"></span>
 <span class="source-line-no">156</span><span id="line-156">  /** コマンド（単一または複数）を並列実行 */</span>
-<span class="source-line-no">157</span><span id="line-157">  private void executeCommands(InputStream inputStream, OutputStream outputStream)</span>
-<span class="source-line-no">158</span><span id="line-158">      throws IOException {</span>
-<span class="source-line-no">159</span><span id="line-159">    List&lt;CompletableFuture&lt;Void&gt;&gt; futures = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">160</span><span id="line-160">    // 非同期実行側は配線済みの入出力だけを消費できるように、先にステージIOグラフを構築する。</span>
-<span class="source-line-no">161</span><span id="line-161">    PipelinePlan plan = pipelineWiring.build(commands.size(), inputStream, outputStream);</span>
-<span class="source-line-no">162</span><span id="line-162">    List&lt;Closeable&gt; resources = new ArrayList&lt;&gt;(plan.resources());</span>
-<span class="source-line-no">163</span><span id="line-163"></span>
-<span class="source-line-no">164</span><span id="line-164">    try (AutoCloseableExecutorService executor =</span>
-<span class="source-line-no">165</span><span id="line-165">        new AutoCloseableExecutorService(createOptimalExecutor())) {</span>
-<span class="source-line-no">166</span><span id="line-166">      // 各コマンドを配線済みの input/output stream に接続して起動する。</span>
-<span class="source-line-no">167</span><span id="line-167">      futures.addAll(</span>
-<span class="source-line-no">168</span><span id="line-168">          commandStageRunner.startAll(commands, commandLabels, plan, executor::runAsync));</span>
-<span class="source-line-no">169</span><span id="line-169"></span>
-<span class="source-line-no">170</span><span id="line-170">      // パイプライン構築完了後に exceptionally ハンドラを登録する。</span>
-<span class="source-line-no">171</span><span id="line-171">      // これにより resources リストへの add が全て終わった後にワーカーからクローズが呼ばれることが保証される。</span>
-<span class="source-line-no">172</span><span id="line-172">      // いずれかのコマンドが失敗したら、すべてのパイプをクローズして</span>
-<span class="source-line-no">173</span><span id="line-173">      // ブロック中の書き込みを IOException で即座に解放する。</span>
-<span class="source-line-no">174</span><span id="line-174">      for (CompletableFuture&lt;Void&gt; future : futures) {</span>
-<span class="source-line-no">175</span><span id="line-175">        future.exceptionally(</span>
-<span class="source-line-no">176</span><span id="line-176">            t -&gt; {</span>
-<span class="source-line-no">177</span><span id="line-177">              try {</span>
-<span class="source-line-no">178</span><span id="line-178">                closeResources(resources);</span>
-<span class="source-line-no">179</span><span id="line-179">              } catch (RuntimeException ex) {</span>
-<span class="source-line-no">180</span><span id="line-180">                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);</span>
-<span class="source-line-no">181</span><span id="line-181">              }</span>
-<span class="source-line-no">182</span><span id="line-182">              return null;</span>
-<span class="source-line-no">183</span><span id="line-183">            });</span>
-<span class="source-line-no">184</span><span id="line-184">      }</span>
-<span class="source-line-no">185</span><span id="line-185"></span>
-<span class="source-line-no">186</span><span id="line-186">      try {</span>
-<span class="source-line-no">187</span><span id="line-187">        // 全タスクの完了を待機してから根本原因を収集する。</span>
-<span class="source-line-no">188</span><span id="line-188">        // abort() による物理クローズで各コマンドが順不同で完了するため、</span>
-<span class="source-line-no">189</span><span id="line-189">        // 全完了後に走査することでレースコンディションを回避する。</span>
-<span class="source-line-no">190</span><span id="line-190">        pipelineCompletionMonitor.await(futures);</span>
-<span class="source-line-no">191</span><span id="line-191">      } catch (ExecutionException e) {</span>
-<span class="source-line-no">192</span><span id="line-192">        // abort 由来の二次的な失敗が出揃ったあとで、根本原因として返す失敗を解釈する。</span>
-<span class="source-line-no">193</span><span id="line-193">        pipelineFailureHandler.rethrowExecutionFailure(e, futures);</span>
-<span class="source-line-no">194</span><span id="line-194">      }</span>
-<span class="source-line-no">195</span><span id="line-195"></span>
-<span class="source-line-no">196</span><span id="line-196">      LOG.info("All commands completed successfully");</span>
-<span class="source-line-no">197</span><span id="line-197"></span>
-<span class="source-line-no">198</span><span id="line-198">    } finally {</span>
-<span class="source-line-no">199</span><span id="line-199">      // リソースクリーンアップ</span>
-<span class="source-line-no">200</span><span id="line-200">      closeResources(resources);</span>
-<span class="source-line-no">201</span><span id="line-201">    }</span>
-<span class="source-line-no">202</span><span id="line-202">  }</span>
-<span class="source-line-no">203</span><span id="line-203"></span>
-<span class="source-line-no">204</span><span id="line-204">  /**</span>
-<span class="source-line-no">205</span><span id="line-205">   * Closes resources in order, logging and continuing if individual closes fail.</span>
-<span class="source-line-no">206</span><span id="line-206">   *</span>
-<span class="source-line-no">207</span><span id="line-207">   * @param resources resources associated with the current pipeline execution</span>
-<span class="source-line-no">208</span><span id="line-208">   */</span>
-<span class="source-line-no">209</span><span id="line-209">  private void closeResources(List&lt;Closeable&gt; resources) {</span>
-<span class="source-line-no">210</span><span id="line-210">    for (Closeable resource : resources) {</span>
-<span class="source-line-no">211</span><span id="line-211">      try {</span>
-<span class="source-line-no">212</span><span id="line-212">        resource.close();</span>
-<span class="source-line-no">213</span><span id="line-213">      } catch (IOException e) {</span>
-<span class="source-line-no">214</span><span id="line-214">        LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);</span>
-<span class="source-line-no">215</span><span id="line-215">      } catch (RuntimeException e) {</span>
-<span class="source-line-no">216</span><span id="line-216">        LOG.warn("Unexpected error closing resource [{}]", resource.getClass().getSimpleName(), e);</span>
-<span class="source-line-no">217</span><span id="line-217">      }</span>
-<span class="source-line-no">218</span><span id="line-218">    }</span>
-<span class="source-line-no">219</span><span id="line-219">  }</span>
-<span class="source-line-no">220</span><span id="line-220">}</span>
+<span class="source-line-no">157</span><span id="line-157">  @SuppressWarnings("PMD.AvoidCatchingGenericException")</span>
+<span class="source-line-no">158</span><span id="line-158">  // Closeable.close() は IOException を宣言するが、実装が RuntimeException をスローすることもある。</span>
+<span class="source-line-no">159</span><span id="line-159">  // RuntimeException は IOException のサブクラスではないため catch (IOException) では捕捉できず、</span>
+<span class="source-line-no">160</span><span id="line-160">  // cleanup を継続するには Exception でまとめてキャッチするしかない。</span>
+<span class="source-line-no">161</span><span id="line-161">  private void executeCommands(InputStream inputStream, OutputStream outputStream)</span>
+<span class="source-line-no">162</span><span id="line-162">      throws IOException {</span>
+<span class="source-line-no">163</span><span id="line-163">    List&lt;CompletableFuture&lt;Void&gt;&gt; futures = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">164</span><span id="line-164">    // 非同期実行側は配線済みの入出力だけを消費できるように、先にステージIOグラフを構築する。</span>
+<span class="source-line-no">165</span><span id="line-165">    PipelinePlan plan = pipelineWiring.build(commands.size(), inputStream, outputStream);</span>
+<span class="source-line-no">166</span><span id="line-166">    List&lt;Closeable&gt; resources = new ArrayList&lt;&gt;(plan.resources());</span>
+<span class="source-line-no">167</span><span id="line-167"></span>
+<span class="source-line-no">168</span><span id="line-168">    try (AutoCloseableExecutorService executor =</span>
+<span class="source-line-no">169</span><span id="line-169">        new AutoCloseableExecutorService(createOptimalExecutor())) {</span>
+<span class="source-line-no">170</span><span id="line-170">      // 各コマンドを配線済みの input/output stream に接続して起動する。</span>
+<span class="source-line-no">171</span><span id="line-171">      futures.addAll(</span>
+<span class="source-line-no">172</span><span id="line-172">          commandStageRunner.startAll(commands, commandLabels, plan, executor::runAsync));</span>
+<span class="source-line-no">173</span><span id="line-173"></span>
+<span class="source-line-no">174</span><span id="line-174">      // パイプライン構築完了後に exceptionally ハンドラを登録する。</span>
+<span class="source-line-no">175</span><span id="line-175">      // これにより resources リストへの add が全て終わった後にワーカーからクローズが呼ばれることが保証される。</span>
+<span class="source-line-no">176</span><span id="line-176">      // いずれかのコマンドが失敗したら、すべてのパイプをクローズして</span>
+<span class="source-line-no">177</span><span id="line-177">      // ブロック中の書き込みを IOException で即座に解放する。</span>
+<span class="source-line-no">178</span><span id="line-178">      for (CompletableFuture&lt;Void&gt; future : futures) {</span>
+<span class="source-line-no">179</span><span id="line-179">        future.exceptionally(</span>
+<span class="source-line-no">180</span><span id="line-180">            t -&gt; {</span>
+<span class="source-line-no">181</span><span id="line-181">              try {</span>
+<span class="source-line-no">182</span><span id="line-182">                closeResources(resources);</span>
+<span class="source-line-no">183</span><span id="line-183">              } catch (RuntimeException ex) {</span>
+<span class="source-line-no">184</span><span id="line-184">                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);</span>
+<span class="source-line-no">185</span><span id="line-185">              }</span>
+<span class="source-line-no">186</span><span id="line-186">              return null;</span>
+<span class="source-line-no">187</span><span id="line-187">            });</span>
+<span class="source-line-no">188</span><span id="line-188">      }</span>
+<span class="source-line-no">189</span><span id="line-189"></span>
+<span class="source-line-no">190</span><span id="line-190">      try {</span>
+<span class="source-line-no">191</span><span id="line-191">        // 全タスクの完了を待機してから根本原因を収集する。</span>
+<span class="source-line-no">192</span><span id="line-192">        // abort() による物理クローズで各コマンドが順不同で完了するため、</span>
+<span class="source-line-no">193</span><span id="line-193">        // 全完了後に走査することでレースコンディションを回避する。</span>
+<span class="source-line-no">194</span><span id="line-194">        pipelineCompletionMonitor.await(futures);</span>
+<span class="source-line-no">195</span><span id="line-195">      } catch (ExecutionException e) {</span>
+<span class="source-line-no">196</span><span id="line-196">        // abort 由来の二次的な失敗が出揃ったあとで、根本原因として返す失敗を解釈する。</span>
+<span class="source-line-no">197</span><span id="line-197">        pipelineFailureHandler.rethrowExecutionFailure(e, futures);</span>
+<span class="source-line-no">198</span><span id="line-198">      }</span>
+<span class="source-line-no">199</span><span id="line-199"></span>
+<span class="source-line-no">200</span><span id="line-200">      LOG.info("All commands completed successfully");</span>
+<span class="source-line-no">201</span><span id="line-201"></span>
+<span class="source-line-no">202</span><span id="line-202">    } finally {</span>
+<span class="source-line-no">203</span><span id="line-203">      // リソースクリーンアップ</span>
+<span class="source-line-no">204</span><span id="line-204">      closeResources(resources);</span>
+<span class="source-line-no">205</span><span id="line-205">    }</span>
+<span class="source-line-no">206</span><span id="line-206">  }</span>
+<span class="source-line-no">207</span><span id="line-207"></span>
+<span class="source-line-no">208</span><span id="line-208">  /**</span>
+<span class="source-line-no">209</span><span id="line-209">   * Closes resources in order, logging and continuing if individual closes fail.</span>
+<span class="source-line-no">210</span><span id="line-210">   *</span>
+<span class="source-line-no">211</span><span id="line-211">   * @param resources resources associated with the current pipeline execution</span>
+<span class="source-line-no">212</span><span id="line-212">   */</span>
+<span class="source-line-no">213</span><span id="line-213">  @SuppressWarnings("PMD.AvoidCatchingGenericException")</span>
+<span class="source-line-no">214</span><span id="line-214">  // Closeable.close() は IOException を宣言するが、実装が RuntimeException をスローすることもある。</span>
+<span class="source-line-no">215</span><span id="line-215">  // RuntimeException は IOException のサブクラスではないため catch (IOException) では捕捉できず、</span>
+<span class="source-line-no">216</span><span id="line-216">  // 1 件の例外でループを中断せず全リソースを close するには Exception でまとめてキャッチするしかない。</span>
+<span class="source-line-no">217</span><span id="line-217">  private void closeResources(List&lt;Closeable&gt; resources) {</span>
+<span class="source-line-no">218</span><span id="line-218">    for (Closeable resource : resources) {</span>
+<span class="source-line-no">219</span><span id="line-219">      try {</span>
+<span class="source-line-no">220</span><span id="line-220">        resource.close();</span>
+<span class="source-line-no">221</span><span id="line-221">      } catch (IOException e) {</span>
+<span class="source-line-no">222</span><span id="line-222">        LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);</span>
+<span class="source-line-no">223</span><span id="line-223">      } catch (RuntimeException e) {</span>
+<span class="source-line-no">224</span><span id="line-224">        LOG.warn("Unexpected error closing resource [{}]", resource.getClass().getSimpleName(), e);</span>
+<span class="source-line-no">225</span><span id="line-225">      }</span>
+<span class="source-line-no">226</span><span id="line-226">    }</span>
+<span class="source-line-no">227</span><span id="line-227">  }</span>
+<span class="source-line-no">228</span><span id="line-228">}</span>
 
 
 

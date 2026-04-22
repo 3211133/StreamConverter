@@ -27,28 +27,31 @@
 <span class="source-line-no">014</span><span id="line-14">   *</span>
 <span class="source-line-no">015</span><span id="line-15">   * @param path パス文字列（構築時に検証される）</span>
 <span class="source-line-no">016</span><span id="line-16">   */</span>
-<span class="source-line-no">017</span><span id="line-17">  protected AbstractPath(String path) {</span>
-<span class="source-line-no">018</span><span id="line-18">    validateAndNormalize(path);</span>
-<span class="source-line-no">019</span><span id="line-19">  }</span>
-<span class="source-line-no">020</span><span id="line-20"></span>
-<span class="source-line-no">021</span><span id="line-21">  /**</span>
-<span class="source-line-no">022</span><span id="line-22">   * パス文字列の検証と正規化</span>
-<span class="source-line-no">023</span><span id="line-23">   *</span>
-<span class="source-line-no">024</span><span id="line-24">   * @param rawPath 生のパス文字列</span>
-<span class="source-line-no">025</span><span id="line-25">   * @throws IllegalArgumentException 不正なパスの場合</span>
-<span class="source-line-no">026</span><span id="line-26">   */</span>
-<span class="source-line-no">027</span><span id="line-27">  protected abstract void validateAndNormalize(String rawPath);</span>
-<span class="source-line-no">028</span><span id="line-28"></span>
-<span class="source-line-no">029</span><span id="line-29">  /**</span>
-<span class="source-line-no">030</span><span id="line-30">   * 文字列がnullまたは空かチェック</span>
-<span class="source-line-no">031</span><span id="line-31">   *</span>
-<span class="source-line-no">032</span><span id="line-32">   * @param str チェック対象文字列</span>
-<span class="source-line-no">033</span><span id="line-33">   * @return nullまたは空の場合true</span>
-<span class="source-line-no">034</span><span id="line-34">   */</span>
-<span class="source-line-no">035</span><span id="line-35">  protected static boolean isNullOrEmpty(String str) {</span>
-<span class="source-line-no">036</span><span id="line-36">    return str == null || str.isBlank();</span>
-<span class="source-line-no">037</span><span id="line-37">  }</span>
-<span class="source-line-no">038</span><span id="line-38">}</span>
+<span class="source-line-no">017</span><span id="line-17">  @SuppressWarnings("PMD.ConstructorCallsOverridableMethod")</span>
+<span class="source-line-no">018</span><span id="line-18">  // テンプレートメソッドパターン: validateAndNormalize は abstract で final 化不可。</span>
+<span class="source-line-no">019</span><span id="line-19">  // ファクトリメソッドへの変更は既存 public API の破壊的変更になる。</span>
+<span class="source-line-no">020</span><span id="line-20">  protected AbstractPath(String path) {</span>
+<span class="source-line-no">021</span><span id="line-21">    validateAndNormalize(path);</span>
+<span class="source-line-no">022</span><span id="line-22">  }</span>
+<span class="source-line-no">023</span><span id="line-23"></span>
+<span class="source-line-no">024</span><span id="line-24">  /**</span>
+<span class="source-line-no">025</span><span id="line-25">   * パス文字列の検証と正規化</span>
+<span class="source-line-no">026</span><span id="line-26">   *</span>
+<span class="source-line-no">027</span><span id="line-27">   * @param rawPath 生のパス文字列</span>
+<span class="source-line-no">028</span><span id="line-28">   * @throws IllegalArgumentException 不正なパスの場合</span>
+<span class="source-line-no">029</span><span id="line-29">   */</span>
+<span class="source-line-no">030</span><span id="line-30">  protected abstract void validateAndNormalize(String rawPath);</span>
+<span class="source-line-no">031</span><span id="line-31"></span>
+<span class="source-line-no">032</span><span id="line-32">  /**</span>
+<span class="source-line-no">033</span><span id="line-33">   * 文字列がnullまたは空かチェック</span>
+<span class="source-line-no">034</span><span id="line-34">   *</span>
+<span class="source-line-no">035</span><span id="line-35">   * @param str チェック対象文字列</span>
+<span class="source-line-no">036</span><span id="line-36">   * @return nullまたは空の場合true</span>
+<span class="source-line-no">037</span><span id="line-37">   */</span>
+<span class="source-line-no">038</span><span id="line-38">  protected static boolean isNullOrEmpty(String str) {</span>
+<span class="source-line-no">039</span><span id="line-39">    return str == null || str.isBlank();</span>
+<span class="source-line-no">040</span><span id="line-40">  }</span>
+<span class="source-line-no">041</span><span id="line-41">}</span>
 
 
 

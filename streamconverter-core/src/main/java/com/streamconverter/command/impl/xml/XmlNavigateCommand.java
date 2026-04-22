@@ -46,7 +46,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  private XmlNavigateCommand(TreePath treePath, IRule rule) {
+  XmlNavigateCommand(TreePath treePath, IRule rule) {
     this.treePath = treePath;
     this.rule = rule;
   }
@@ -141,7 +141,15 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     return reader;
   }
 
-  private XMLEventWriter createXMLEventWriter(OutputStream outputStream) throws XMLStreamException {
+  /**
+   * Creates the {@link XMLEventWriter} for the given output stream. Protected for testing.
+   *
+   * @param outputStream the stream to write XML events to
+   * @return a new XMLEventWriter backed by the given stream
+   * @throws XMLStreamException if the writer cannot be created
+   */
+  protected XMLEventWriter createXMLEventWriter(OutputStream outputStream)
+      throws XMLStreamException {
     XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
     return outputFactory.createXMLEventWriter(outputStream);
   }
@@ -180,7 +188,11 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     try {
       eventWriter.close();
     } catch (XMLStreamException e) {
-      LOGGER.warn("Failed to close XMLEventWriter", e);
+      if (primaryException != null) {
+        primaryException.addSuppressed(e);
+      } else {
+        throw new RuntimeException("Failed to close XMLEventWriter", e);
+      }
     } catch (RuntimeException e) {
       if (primaryException != null) {
         primaryException.addSuppressed(e);
@@ -200,7 +212,11 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     try {
       eventReader.close();
     } catch (XMLStreamException e) {
-      LOGGER.warn("Failed to close XMLEventReader", e);
+      if (primaryException != null) {
+        primaryException.addSuppressed(e);
+      } else {
+        throw new RuntimeException("Failed to close XMLEventReader", e);
+      }
     } catch (RuntimeException e) {
       if (primaryException != null) {
         primaryException.addSuppressed(e);

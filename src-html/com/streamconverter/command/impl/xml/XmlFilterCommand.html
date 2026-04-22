@@ -43,7 +43,7 @@
 <span class="source-line-no">030</span><span id="line-30"> * path expressions including nested elements and attributes</span>
 <span class="source-line-no">031</span><span id="line-31"> */</span>
 <span class="source-line-no">032</span><span id="line-32">public class XmlFilterCommand extends AbstractStreamCommand {</span>
-<span class="source-line-no">033</span><span id="line-33">  private static final Logger LOGGER = LoggerFactory.getLogger(XmlFilterCommand.class);</span>
+<span class="source-line-no">033</span><span id="line-33">  private static final Logger logger = LoggerFactory.getLogger(XmlFilterCommand.class);</span>
 <span class="source-line-no">034</span><span id="line-34"></span>
 <span class="source-line-no">035</span><span id="line-35">  private final IPath&lt;List&lt;String&gt;&gt; xpath;</span>
 <span class="source-line-no">036</span><span id="line-36"></span>
@@ -116,7 +116,7 @@
 <span class="source-line-no">103</span><span id="line-103">    try {</span>
 <span class="source-line-no">104</span><span id="line-104">      reader.close();</span>
 <span class="source-line-no">105</span><span id="line-105">    } catch (XMLStreamException e) {</span>
-<span class="source-line-no">106</span><span id="line-106">      LOGGER.warn("Error closing XML reader: {}", e.getMessage(), e);</span>
+<span class="source-line-no">106</span><span id="line-106">      logger.warn("Error closing XML reader: {}", e.getMessage(), e);</span>
 <span class="source-line-no">107</span><span id="line-107">    }</span>
 <span class="source-line-no">108</span><span id="line-108">  }</span>
 <span class="source-line-no">109</span><span id="line-109"></span>

@@ -57,7 +57,7 @@
 <span class="source-line-no">044</span><span id="line-44"> */</span>
 <span class="source-line-no">045</span><span id="line-45">public final class MDCInitializer {</span>
 <span class="source-line-no">046</span><span id="line-46"></span>
-<span class="source-line-no">047</span><span id="line-47">  private static final Logger LOGGER = LoggerFactory.getLogger(MDCInitializer.class);</span>
+<span class="source-line-no">047</span><span id="line-47">  private static final Logger logger = LoggerFactory.getLogger(MDCInitializer.class);</span>
 <span class="source-line-no">048</span><span id="line-48"></span>
 <span class="source-line-no">049</span><span id="line-49">  private MDCInitializer() {}</span>
 <span class="source-line-no">050</span><span id="line-50"></span>
@@ -162,7 +162,7 @@
 <span class="source-line-no">149</span><span id="line-149">    } catch (ClassNotFoundException ignored) {</span>
 <span class="source-line-no">150</span><span id="line-150">      return true; // Logback not on classpath</span>
 <span class="source-line-no">151</span><span id="line-151">    } catch (ReflectiveOperationException | RuntimeException e) {</span>
-<span class="source-line-no">152</span><span id="line-152">      LOGGER.warn("Failed to check Logback MDC adapter; will attempt reinstall", e);</span>
+<span class="source-line-no">152</span><span id="line-152">      logger.warn("Failed to check Logback MDC adapter; will attempt reinstall", e);</span>
 <span class="source-line-no">153</span><span id="line-153">      return false;</span>
 <span class="source-line-no">154</span><span id="line-154">    }</span>
 <span class="source-line-no">155</span><span id="line-155">  }</span>

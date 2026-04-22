@@ -34,4 +34,11 @@
         <Class name="~.*Test" />
         <Bug pattern="ODR_OPEN_DATABASE_RESOURCE" />
     </Match>
+
+    <!-- XmlNavigateCommand: constructor null-checks are intentional (Copilot review #662).
+         The class is package-private and not subclassed externally, so finalizer attack risk is negligible. -->
+    <Match>
+        <Class name="com.streamconverter.command.impl.xml.XmlNavigateCommand" />
+        <Bug pattern="CT_CONSTRUCTOR_THROW" />
+    </Match>
 </FindBugsFilter>

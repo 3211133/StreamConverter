@@ -89,17 +89,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       eventWriter.flush();
     } catch (XMLStreamException e) {
       primaryException = buildXmlException(e);
-      throw primaryException;
     } finally {
-      try {
-        closeResources(eventReader, eventWriter, primaryException);
-      } catch (IOException closeEx) {
-        if (primaryException != null) {
-          primaryException.addSuppressed(closeEx);
-        } else {
-          throw closeEx;
-        }
-      }
+      primaryException = XmlStreamResources.closeAll(eventReader, eventWriter, primaryException);
+    }
+
+    if (primaryException != null) {
+      throw primaryException;
     }
   }
 
@@ -179,67 +174,5 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     }
     LOGGER.error("XML processing failed{}", location, e);
     return new IOException("XML processing failed" + location, e);
-  }
-
-  private void closeResources(
-      XMLEventReader eventReader, XMLEventWriter eventWriter, IOException primaryException)
-      throws IOException {
-    flushAndCloseWriter(eventWriter, primaryException);
-    closeEventReader(eventReader, primaryException);
-  }
-
-  @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  private void flushAndCloseWriter(XMLEventWriter eventWriter, IOException primaryException)
-      throws IOException {
-    if (eventWriter == null) {
-      return;
-    }
-    try {
-      eventWriter.flush();
-    } catch (XMLStreamException e) {
-      if (primaryException != null) {
-        primaryException.addSuppressed(e);
-      } else {
-        throw buildXmlException(e);
-      }
-    }
-    try {
-      eventWriter.close();
-    } catch (XMLStreamException e) {
-      if (primaryException != null) {
-        primaryException.addSuppressed(e);
-      } else {
-        throw buildXmlException(e);
-      }
-    } catch (RuntimeException e) {
-      if (primaryException != null) {
-        primaryException.addSuppressed(e);
-      } else {
-        throw e;
-      }
-    }
-  }
-
-  @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  private void closeEventReader(XMLEventReader eventReader, IOException primaryException)
-      throws IOException {
-    if (eventReader == null) {
-      return;
-    }
-    try {
-      eventReader.close();
-    } catch (XMLStreamException e) {
-      if (primaryException != null) {
-        primaryException.addSuppressed(e);
-      } else {
-        throw buildXmlException(e);
-      }
-    } catch (RuntimeException e) {
-      if (primaryException != null) {
-        primaryException.addSuppressed(e);
-      } else {
-        throw e;
-      }
-    }
   }
 }

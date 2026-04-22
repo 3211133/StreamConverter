@@ -243,7 +243,8 @@ class XmlNavigateCommandTest {
           }
         };
 
-    OutputStream failingOutput =
+    IOException thrown;
+    try (OutputStream failingOutput =
         new OutputStream() {
           private int count = 0;
 
@@ -253,23 +254,26 @@ class XmlNavigateCommandTest {
               throw new IOException("simulated output failure");
             }
           }
-        };
-
-    IOException thrown =
-        assertThrows(
-            IOException.class,
-            () ->
-                cmd.execute(
-                    new ByteArrayInputStream(
-                        "<?xml version=\"1.0\"?><root><item>x</item></root>"
-                            .getBytes(StandardCharsets.UTF_8)),
-                    failingOutput));
+        }) {
+      thrown =
+          assertThrows(
+              IOException.class,
+              () ->
+                  cmd.execute(
+                      new ByteArrayInputStream(
+                          "<?xml version=\"1.0\"?><root><item>x</item></root>"
+                              .getBytes(StandardCharsets.UTF_8)),
+                      failingOutput));
+    }
 
     boolean found =
         java.util.Arrays.stream(thrown.getSuppressed())
             .anyMatch(
-                s -> s instanceof XMLStreamException && "close failed".equals(s.getMessage()));
-    assertTrue(found, "close() の XMLStreamException は suppressed に含まれるべき");
+                s ->
+                    s instanceof IOException
+                        && s.getCause() instanceof XMLStreamException
+                        && "close failed".equals(s.getCause().getMessage()));
+    assertTrue(found, "close() の XMLStreamException は IOException にラップされて suppressed に含まれるべき");
   }
 
   @Test

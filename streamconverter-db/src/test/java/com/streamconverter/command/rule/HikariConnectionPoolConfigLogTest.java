@@ -1,6 +1,7 @@
 package com.streamconverter.command.rule;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import ch.qos.logback.classic.Level;
 import ch.qos.logback.classic.Logger;
@@ -25,20 +26,23 @@ class HikariConnectionPoolConfigLogTest {
 
     Logger hikariLogger =
         (Logger) LoggerFactory.getLogger(HikariConnectionPoolConfig.class);
+    Level originalLevel = hikariLogger.getLevel();
     ListAppender<ILoggingEvent> appender = new ListAppender<>();
     appender.start();
     hikariLogger.addAppender(appender);
     hikariLogger.setLevel(Level.INFO);
 
     try (HikariConnectionPoolConfig pool = new HikariConnectionPoolConfig(testUrl)) {
-      // URL を含むINFOログが出力されているかを確認するため構築するだけでよい
-      // AutoCloseable なのでリソースは自動解放される
-    } catch (Exception e) {
-      // URL ログの確認が目的なので接続失敗は無視
+      // do nothing — construction triggers the INFO log under test
     } finally {
       hikariLogger.detachAppender(appender);
+      appender.stop();
+      hikariLogger.setLevel(originalLevel);
     }
 
+    assertTrue(
+        appender.list.stream().anyMatch(e -> e.getLevel() == Level.INFO),
+        "コンストラクタは少なくとも 1 件の INFO ログを出力するべき");
     boolean urlAppearsInInfoLog =
         appender.list.stream()
             .filter(e -> e.getLevel() == Level.INFO)
@@ -56,20 +60,24 @@ class HikariConnectionPoolConfigLogTest {
 
     Logger pooledLogger =
         (Logger) LoggerFactory.getLogger(PooledDatabaseFetchRule.class);
+    Level originalLevel = pooledLogger.getLevel();
     ListAppender<ILoggingEvent> appender = new ListAppender<>();
     appender.start();
     pooledLogger.addAppender(appender);
     pooledLogger.setLevel(Level.INFO);
 
     try (HikariConnectionPoolConfig pool =
-            new HikariConnectionPoolConfig(testUrl, 2, Duration.ofSeconds(5))) {
+        new HikariConnectionPoolConfig(testUrl, 2, Duration.ofSeconds(5))) {
       new PooledDatabaseFetchRule(pool, "SELECT 1");
-    } catch (Exception e) {
-      // 接続失敗は無視 — URL ログ不在の確認が目的
     } finally {
       pooledLogger.detachAppender(appender);
+      appender.stop();
+      pooledLogger.setLevel(originalLevel);
     }
 
+    assertTrue(
+        appender.list.stream().anyMatch(e -> e.getLevel() == Level.INFO),
+        "PooledDatabaseFetchRule の初期化は少なくとも 1 件の INFO ログを出力するべき");
     boolean urlAppearsInInfoLog =
         appender.list.stream()
             .filter(e -> e.getLevel() == Level.INFO)

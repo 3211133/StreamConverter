@@ -47,6 +47,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if treePath or rule is null
    */
   XmlNavigateCommand(TreePath treePath, IRule rule) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
+    }
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
     this.treePath = treePath;
     this.rule = rule;
   }
@@ -85,7 +91,15 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       primaryException = buildXmlException(e);
       throw primaryException;
     } finally {
-      closeResources(eventReader, eventWriter, primaryException);
+      try {
+        closeResources(eventReader, eventWriter, primaryException);
+      } catch (IOException closeEx) {
+        if (primaryException != null) {
+          primaryException.addSuppressed(closeEx);
+        } else {
+          throw closeEx;
+        }
+      }
     }
   }
 
@@ -168,22 +182,26 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   private void closeResources(
-      XMLEventReader eventReader, XMLEventWriter eventWriter, IOException primaryException) {
+      XMLEventReader eventReader, XMLEventWriter eventWriter, IOException primaryException)
+      throws IOException {
     flushAndCloseWriter(eventWriter, primaryException);
     closeEventReader(eventReader, primaryException);
   }
 
   @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  private void flushAndCloseWriter(XMLEventWriter eventWriter, IOException primaryException) {
-    // RuntimeException from XMLEventWriter.close() is not declared; catch is required to
-    // suppress it into primaryException so the caller's original failure is preserved.
+  private void flushAndCloseWriter(XMLEventWriter eventWriter, IOException primaryException)
+      throws IOException {
     if (eventWriter == null) {
       return;
     }
     try {
       eventWriter.flush();
     } catch (XMLStreamException e) {
-      LOGGER.warn("Failed to flush XMLEventWriter during cleanup", e);
+      if (primaryException != null) {
+        primaryException.addSuppressed(e);
+      } else {
+        throw buildXmlException(e);
+      }
     }
     try {
       eventWriter.close();
@@ -191,7 +209,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       if (primaryException != null) {
         primaryException.addSuppressed(e);
       } else {
-        throw new RuntimeException("Failed to close XMLEventWriter", e);
+        throw buildXmlException(e);
       }
     } catch (RuntimeException e) {
       if (primaryException != null) {
@@ -203,9 +221,8 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   }
 
   @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  private void closeEventReader(XMLEventReader eventReader, IOException primaryException) {
-    // RuntimeException from XMLEventReader.close() is not declared; catch is required to
-    // suppress it into primaryException so the caller's original failure is preserved.
+  private void closeEventReader(XMLEventReader eventReader, IOException primaryException)
+      throws IOException {
     if (eventReader == null) {
       return;
     }
@@ -215,7 +232,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       if (primaryException != null) {
         primaryException.addSuppressed(e);
       } else {
-        throw new RuntimeException("Failed to close XMLEventReader", e);
+        throw buildXmlException(e);
       }
     } catch (RuntimeException e) {
       if (primaryException != null) {

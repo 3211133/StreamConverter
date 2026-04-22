@@ -223,7 +223,7 @@ class XmlNavigateCommandTest {
 
   @Test
   @DisplayName("close() の XMLStreamException はプライマリ例外の suppressed に追加される（#662）")
-  void testWriterCloseXmlStreamExceptionSuppressedOnPrimaryException() throws Exception {
+  void testWriterCloseXmlStreamExceptionSuppressedOnPrimaryException() throws IOException {
     // 修正前: XMLStreamException は WARN ログのみ → addSuppressed されない
     // 修正後: primaryException != null なら addSuppressed する
     XMLStreamException closeEx = new XMLStreamException("close failed");
@@ -273,10 +273,10 @@ class XmlNavigateCommandTest {
   }
 
   @Test
-  @DisplayName("close() の XMLStreamException はプライマリ例外なし時に RuntimeException でラップされる（#662）")
+  @DisplayName("close() の XMLStreamException はプライマリ例外なし時に IOException でラップされる（#662）")
   void testWriterCloseXmlStreamExceptionThrowsRuntimeWhenNoPrimary() {
     // 修正前: XMLStreamException は WARN ログのみ → 呼び出し元に伝播しない
-    // 修正後: primaryException == null なら RuntimeException にラップして再スロー
+    // 修正後: primaryException == null なら buildXmlException で IOException にラップして再スロー
     XMLStreamException closeEx = new XMLStreamException("close failed");
 
     XmlNavigateCommand cmd =
@@ -294,9 +294,9 @@ class XmlNavigateCommandTest {
           }
         };
 
-    RuntimeException thrown =
+    IOException thrown =
         assertThrows(
-            RuntimeException.class,
+            IOException.class,
             () ->
                 cmd.execute(
                     new ByteArrayInputStream(
@@ -305,9 +305,7 @@ class XmlNavigateCommandTest {
                     new ByteArrayOutputStream()));
 
     assertInstanceOf(
-        XMLStreamException.class,
-        thrown.getCause(),
-        "RuntimeException は XMLStreamException をラップするべき");
+        XMLStreamException.class, thrown.getCause(), "IOException は XMLStreamException をラップするべき");
   }
 
   private static class DelegatingXmlEventWriter implements XMLEventWriter {

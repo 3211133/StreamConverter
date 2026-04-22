@@ -15,8 +15,8 @@ final class SqlQueryUtils {
   /** SQLインジェクション攻撃を検出するパターン（SELECT以外の危険なSQL文） */
   private static final Pattern SQL_INJECTION_PATTERN =
       Pattern.compile(
-          "union|insert|update|delete|drop|create|alter|exec|execute|sp_|xp_",
-          Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
+          "\\b(?:union|insert|update|delete|drop|create|alter|exec(?:ute)?)\\b|\\b(?:sp_|xp_)\\w*",
+          Pattern.CASE_INSENSITIVE);
 
   private SqlQueryUtils() {}
 

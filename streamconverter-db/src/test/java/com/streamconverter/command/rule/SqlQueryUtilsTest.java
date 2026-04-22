@@ -53,4 +53,13 @@ class SqlQueryUtilsTest {
         () -> SqlQueryUtils.validateQuery(
             "SELECT name FROM users WHERE name LIKE ? ORDER BY id", logger));
   }
+
+  @Test
+  @DisplayName("カラム名に update/union 等を含む正常クエリは誤検知されない（\\b 単語境界）")
+  void testColumnNamesContainingKeywordsAreNotFalsePositives() {
+    assertDoesNotThrow(
+        () -> SqlQueryUtils.validateQuery(
+            "SELECT updates_count, reunion_id FROM events WHERE id = ?", logger),
+        "updates_count や reunion_id は単語境界でキーワードと区別されるべき");
+  }
 }

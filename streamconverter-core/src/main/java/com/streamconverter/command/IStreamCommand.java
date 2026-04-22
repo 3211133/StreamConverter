@@ -16,11 +16,12 @@ import org.slf4j.Logger;
  *
  * <p><b>Note on lambda implementations:</b> Lambda and anonymous implementations are treated as
  * synthetic by the JVM, so {@link #commandName()} returns {@code "IStreamCommand"} instead of a
- * meaningful class name. More importantly, {@link com.streamconverter.StreamConverter} wraps each
- * command with {@link #withLogging(org.slf4j.Logger)} only when the command is an instance of
- * {@link com.streamconverter.command.AbstractStreamCommand}; lambdas bypass this wrapping and
- * therefore produce no start/completion/failure log entries. For commands that should appear in
- * pipeline logs, extend {@link com.streamconverter.command.AbstractStreamCommand} instead.
+ * meaningful class name. {@link com.streamconverter.StreamConverter} wraps every command with
+ * {@link #withLogging(org.slf4j.Logger)}, so start/completion/failure log entries are emitted for
+ * all commands — including lambdas. However, the label used in those log entries is derived from
+ * {@link #commandName()}, which returns {@code "IStreamCommand"} for synthetic/lambda
+ * implementations. For commands that should appear in pipeline logs with a meaningful name, extend
+ * {@link com.streamconverter.command.AbstractStreamCommand} or override {@link #commandName()}.
  *
  * <p>Usage examples:
  *

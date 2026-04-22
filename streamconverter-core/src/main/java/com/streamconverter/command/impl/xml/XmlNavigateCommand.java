@@ -180,7 +180,11 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     try {
       eventWriter.close();
     } catch (XMLStreamException e) {
-      LOGGER.warn("Failed to close XMLEventWriter", e);
+      if (primaryException != null) {
+        primaryException.addSuppressed(e);
+      } else {
+        throw new RuntimeException("Failed to close XMLEventWriter", e);
+      }
     } catch (RuntimeException e) {
       if (primaryException != null) {
         primaryException.addSuppressed(e);
@@ -200,7 +204,11 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     try {
       eventReader.close();
     } catch (XMLStreamException e) {
-      LOGGER.warn("Failed to close XMLEventReader", e);
+      if (primaryException != null) {
+        primaryException.addSuppressed(e);
+      } else {
+        throw new RuntimeException("Failed to close XMLEventReader", e);
+      }
     } catch (RuntimeException e) {
       if (primaryException != null) {
         primaryException.addSuppressed(e);

@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLStreamException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -215,5 +217,156 @@ class XmlNavigateCommandTest {
     OutputStream outputStream = new ByteArrayOutputStream();
 
     assertThrows(IOException.class, () -> command.execute(inputStream, outputStream));
+  }
+
+  // ---- #662 fix: XMLStreamException from close() is addSuppressed, not silently dropped ----
+
+  @Test
+  @DisplayName(
+      "XMLStreamException from writer close() is suppressed onto primary IOException (#662)")
+  void testWriterCloseXmlStreamExceptionSuppressedOnPrimaryException() throws Exception {
+    XMLStreamException closeEx = new XMLStreamException("close failed");
+
+    XmlNavigateCommand cmd =
+        new XmlNavigateCommand(TreePath.fromXml("root/item"), new PassThroughRule()) {
+          @Override
+          protected XMLEventWriter createXMLEventWriter(OutputStream out)
+              throws XMLStreamException {
+            // Force invalid XML so execute() throws a primary XMLStreamException before close()
+            XMLEventWriter real = super.createXMLEventWriter(out);
+            // Return a writer that delegates add/flush to real but throws on close()
+            return new DelegatingXmlEventWriter(real) {
+              @Override
+              public void close() throws XMLStreamException {
+                throw closeEx;
+              }
+            };
+          }
+        };
+
+    // Use invalid XML to force a primary IOException from the processing path
+    String xmlInput = "<?xml version=\"1.0\"?><root><item>x</item></root>";
+    // Trigger failure by using an OutputStream that throws on write
+    OutputStream failingOutput =
+        new OutputStream() {
+          private int writeCount = 0;
+
+          @Override
+          public void write(int b) throws IOException {
+            // Allow the XML declaration through, then fail
+            if (writeCount++ > 20) {
+              throw new IOException("simulated output failure");
+            }
+          }
+        };
+
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () ->
+                cmd.execute(
+                    new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8)),
+                    failingOutput));
+    // The close() XMLStreamException must be attached as a suppressed exception
+    Throwable[] suppressed = thrown.getSuppressed();
+    assertTrue(suppressed.length > 0, "Primary IOException should have suppressed exceptions");
+    boolean found =
+        java.util.Arrays.stream(suppressed)
+            .anyMatch(
+                s -> s instanceof XMLStreamException && s.getMessage().equals("close failed"));
+    assertTrue(found, "XMLStreamException from close() should be in suppressed list");
+  }
+
+  @Test
+  @DisplayName(
+      "XMLStreamException from writer close() throws RuntimeException when no primary exception (#662)")
+  void testWriterCloseXmlStreamExceptionThrowsRuntimeWhenNoPrimary() {
+    XMLStreamException closeEx = new XMLStreamException("close failed");
+
+    XmlNavigateCommand cmd =
+        new XmlNavigateCommand(TreePath.fromXml("root/item"), new PassThroughRule()) {
+          @Override
+          protected XMLEventWriter createXMLEventWriter(OutputStream out)
+              throws XMLStreamException {
+            XMLEventWriter real = super.createXMLEventWriter(out);
+            return new DelegatingXmlEventWriter(real) {
+              @Override
+              public void close() throws XMLStreamException {
+                throw closeEx;
+              }
+            };
+          }
+        };
+
+    String xmlInput = "<?xml version=\"1.0\"?><root><item>x</item></root>";
+
+    // With valid input/output, processing succeeds but close() throws — should become
+    // RuntimeException
+    RuntimeException thrown =
+        assertThrows(
+            RuntimeException.class,
+            () ->
+                cmd.execute(
+                    new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8)),
+                    new ByteArrayOutputStream()));
+    assertInstanceOf(
+        XMLStreamException.class,
+        thrown.getCause(),
+        "RuntimeException should wrap the XMLStreamException from close()");
+  }
+
+  /** Forwards all XMLEventWriter calls to a delegate; subclasses may override selectively. */
+  private static class DelegatingXmlEventWriter implements XMLEventWriter {
+    private final XMLEventWriter delegate;
+
+    DelegatingXmlEventWriter(XMLEventWriter delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public void flush() throws XMLStreamException {
+      delegate.flush();
+    }
+
+    @Override
+    public void close() throws XMLStreamException {
+      delegate.close();
+    }
+
+    @Override
+    public void add(javax.xml.stream.events.XMLEvent event) throws XMLStreamException {
+      delegate.add(event);
+    }
+
+    @Override
+    public void add(javax.xml.stream.XMLEventReader reader) throws XMLStreamException {
+      delegate.add(reader);
+    }
+
+    @Override
+    public String getPrefix(String uri) throws XMLStreamException {
+      return delegate.getPrefix(uri);
+    }
+
+    @Override
+    public void setPrefix(String prefix, String uri) throws XMLStreamException {
+      delegate.setPrefix(prefix, uri);
+    }
+
+    @Override
+    public void setDefaultNamespace(String uri) throws XMLStreamException {
+      delegate.setDefaultNamespace(uri);
+    }
+
+    @Override
+    public void setNamespaceContext(javax.xml.namespace.NamespaceContext context)
+        throws XMLStreamException {
+      delegate.setNamespaceContext(context);
+    }
+
+    @Override
+    public javax.xml.namespace.NamespaceContext getNamespaceContext() {
+      return delegate.getNamespaceContext();
+    }
   }
 }

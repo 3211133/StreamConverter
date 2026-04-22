@@ -42,6 +42,9 @@ public class InheritableMDCAdapter implements MDCAdapter {
     this.tlmDeque =
         new InheritableThreadLocal<>() {
           @Override
+          @SuppressWarnings("PMD.ReturnEmptyCollectionRatherThanNull")
+          // SLF4J MDCAdapter 仕様: null は「このスレッドは MDC deque を継承しない」を示す。
+          // 空 Map を返すと MDC の初期化ロジックが誤作動する。
           protected Map<String, Deque<String>> childValue(Map<String, Deque<String>> parentValue) {
             if (parentValue == null) {
               return null;
@@ -201,6 +204,9 @@ public class InheritableMDCAdapter implements MDCAdapter {
    * @return Dequeのコピー。キーが存在しない場合はnull
    */
   @Override
+  @SuppressWarnings("PMD.ReturnEmptyCollectionRatherThanNull")
+  // SLF4J MDCAdapter 仕様: null は「キーが存在しない」を示す API コントラクト。
+  // 空 Deque を返すと呼び出し元が「キーは存在するが空」と誤認する。
   public Deque<String> getCopyOfDequeByKey(String key) {
     Map<String, Deque<String>> map = tlmDeque.get();
     if (map == null) {

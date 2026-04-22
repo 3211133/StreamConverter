@@ -161,7 +161,6 @@ pmd {
     rulesMinimumPriority = 5
     ruleSetFiles = rootProject.files("config/pmd/ruleset.xml")
     ruleSets = emptyList()
-    isIgnoreFailures = true // PMD違反があってもビルドを継続
 }
 
 // PMD task configuration
@@ -171,6 +170,10 @@ tasks.pmdMain {
         html.required.set(true)
     }
     exclude("**/examples/**", "**/demo/**")
+}
+
+tasks.pmdTest {
+    ignoreFailures = true
 }
 
 // SpotBugs configuration for bug pattern detection

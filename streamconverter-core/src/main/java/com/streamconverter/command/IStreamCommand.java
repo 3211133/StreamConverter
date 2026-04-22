@@ -103,6 +103,10 @@ public interface IStreamCommand {
    * @param commandName the human-readable name of this command to appear in log messages
    * @return a new {@link IStreamCommand} that delegates to this command and emits log records
    */
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  // RuntimeException のキャッチは意図的: ロギング後に再スローするためで、握り潰しではない。
+  // Error は別ブロックで明示的に区別しており、汎用 Exception キャッチではない。
+  // PMD はルール定義上 RuntimeException を汎用キャッチと判定するため抑制が必要。
   default IStreamCommand withLogging(Logger logger, String commandName) {
     return (in, out) -> {
       logger.info("Starting command: {}", commandName);

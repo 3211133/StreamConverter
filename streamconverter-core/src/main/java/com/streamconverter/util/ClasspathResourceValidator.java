@@ -61,10 +61,10 @@ public final class ClasspathResourceValidator {
       throw new IllegalArgumentException("Resource path cannot be empty");
     }
 
-    // Context ClassLoaderを優先し、なければクラスのClassLoaderを使用
+    // Context ClassLoaderを優先し、なければシステムClassLoaderを使用
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     if (classLoader == null) {
-      classLoader = ClasspathResourceValidator.class.getClassLoader();
+      classLoader = ClassLoader.getSystemClassLoader();
     }
 
     InputStream stream = classLoader.getResourceAsStream(normalizedPath);
@@ -105,10 +105,10 @@ public final class ClasspathResourceValidator {
       throw new IllegalArgumentException("Resource path cannot be empty");
     }
 
-    // Context ClassLoaderを優先し、なければクラスのClassLoaderを使用
+    // Context ClassLoaderを優先し、なければシステムClassLoaderを使用
     ClassLoader classLoader = Thread.currentThread().getContextClassLoader();
     if (classLoader == null) {
-      classLoader = ClasspathResourceValidator.class.getClassLoader();
+      classLoader = ClassLoader.getSystemClassLoader();
     }
 
     URL url = classLoader.getResource(normalizedPath);

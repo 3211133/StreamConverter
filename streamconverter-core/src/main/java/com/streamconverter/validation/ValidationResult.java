@@ -225,6 +225,11 @@ public final class ValidationResult {
   }
 
   /** ValidationResult作成用のBuilderクラス */
+  @SuppressWarnings("PMD.TooManyMethods")
+  // fluent builder はフィールドごとに独立した setter が必要であり、
+  // setter・addError/addWarning・build・検証ヘルパーの合計がしきい値を超える。
+  // 検証ヘルパーは package-private クラスへ分離可能だが、builder の事前条件として
+  // 同一クラス内に置く方が責務の所在が明確なため現状を維持している。
   public static class Builder {
     private String typeVal;
     private String schemaPathVal;

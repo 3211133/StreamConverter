@@ -21,6 +21,11 @@ import java.util.List;
  *
  * <p><b>注意:</b> {@code "*"} はワイルドカードとして解釈されるため、ヘッダー名そのものが {@code "*"} の列を個別指定する用途には使えない。
  */
+@SuppressWarnings("PMD.TooManyMethods")
+// public API（matches オーバーロード × 2, findMatchingIndices × 2, of × 2）と
+// private ヘルパー（matchesSingleSelector × 2, parseAsIndex, isAllColumnsSelector）で構成される。
+// ヘルパーは同一パッケージの package-private クラスに分離可能だが、CSVPath 専用の実装詳細を
+// 独立クラスとして切り出す設計上の意義がないため現状を維持している。
 public class CSVPath extends AbstractPath<Integer> {
 
   private final List<String> selectors;

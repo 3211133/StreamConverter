@@ -48,9 +48,9 @@
     </rule>
 
     <!--
-        These design rules were noisy for this repository:
-        - LawOfDemeter mostly flagged normal parser/library API traversal instead of design issues.
-        - ClassWithOnlyPrivateConstructorsShouldBeFinal is stylistic and not worth global enforcement.
+        ClassWithOnlyPrivateConstructorsShouldBeFinal is stylistic and not worth global enforcement.
+        LawOfDemeter mostly flags normal streaming-API traversal (parser.nextToken(), etc.) rather
+        than true coupling violations; the few real cases are suppressed per-method.
     -->
     <rule ref="category/java/design.xml">
         <exclude name="ClassWithOnlyPrivateConstructorsShouldBeFinal" />
@@ -66,6 +66,19 @@
     <rule ref="category/java/errorprone.xml">
         <exclude name="AssignmentInOperand" />
         <exclude name="AvoidLiteralsInIfCondition" />
+        <!--
+            abort() はパイプへの異常終了シグナルで close() ではない。
+            AbortablePipedStream は PipelinePlan の resources リストで一括管理され、
+            StreamConverter.closeResources() が適切なタイミングでクローズする。
+            PMD はループ変数への close() 呼び出しがないことを誤検知している。
+        -->
+        <exclude name="CloseResource" />
+        <!--
+            CommandStageRunner.executeStage() では Throwable をキャッチして
+            Error の場合は即座に再スローする意図的な設計。
+            Error（OutOfMemoryError 等）を Exception と区別して処理するために必要。
+        -->
+        <exclude name="AvoidCatchingThrowable" />
         <exclude name="MoreThanOneLogger" />
     </rule>
 

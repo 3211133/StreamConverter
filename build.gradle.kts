@@ -434,6 +434,7 @@ tasks.pmdMain {
     exclude("**/examples/**", "**/demo/**")
 }
 
+
 // SpotBugs configuration for bug pattern detection
 spotbugs {
     toolVersion.set("4.8.6")

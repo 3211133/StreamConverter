@@ -125,6 +125,9 @@ public class SecureXmlConfiguration {
    * @return 安全に設定されたTransformerFactory
    * @throws IllegalStateException セキュリティ設定の適用に失敗した場合
    */
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  // JAXP API（setAttribute/setFeature）は実装により TransformerConfigurationException,
+  // IllegalArgumentException 等の異なる例外をスローする。Exception でまとめてキャッチが現実的。
   public static TransformerFactory createSecureTransformerFactory() {
     TransformerFactory factory = TransformerFactory.newInstance();
 
@@ -151,6 +154,9 @@ public class SecureXmlConfiguration {
    * @return 安全に設定されたSchemaFactory
    * @throws IllegalStateException セキュリティ設定の適用に失敗した場合
    */
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  // JAXP API（setProperty/setFeature）は実装により SAXNotRecognizedException,
+  // SAXNotSupportedException 等の異なる例外をスローする。Exception でまとめてキャッチが現実的。
   public static SchemaFactory createSecureSchemaFactory() {
     SchemaFactory factory = SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI);
 

@@ -127,39 +127,33 @@ public class CsvValidateCommand extends ConsumerCommand {
         requiredColumns.size());
 
     List<String> validationErrors = new ArrayList<>();
-    boolean empty = false;
+    boolean empty = readAndValidate(inputStream, validationErrors);
 
+    if (empty) {
+      throw new StreamProcessingException("CSV validation failed: CSV file is empty");
+    }
+    if (!validationErrors.isEmpty()) {
+      handleValidationErrors(validationErrors);
+    }
+    LOGGER.info("CSV validation completed successfully");
+  }
+
+  private boolean readAndValidate(InputStream inputStream, List<String> validationErrors)
+      throws IOException {
+    CsvRowValidator rowValidator = new CsvRowValidator(requiredColumns, maxErrorsToReport);
     try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         CSVReader csvReader = new CSVReader(reader)) {
 
       String[] headers = null;
-
       if (hasHeader) {
         headers = csvReader.readNext();
         if (headers == null) {
-          empty = true;
-        } else {
-          validateHeaders(headers, validationErrors);
+          return true;
         }
+        rowValidator.validateHeaders(headers, validationErrors);
       }
 
-      if (!empty) {
-        String[] row;
-        int rowNum = 1;
-        boolean hasDataRows = false;
-
-        // Consume CSV records until the parser reports EOF.
-        while ((row = csvReader.readNext()) != null) {
-          hasDataRows = true;
-          validateDataRow(row, rowNum++, headers, validationErrors);
-        }
-
-        if (hasHeader && !hasDataRows) {
-          validationErrors.add("CSV file contains only header, no data rows found");
-        } else if (!hasHeader && !hasDataRows) {
-          empty = true;
-        }
-      }
+      return validateDataRows(csvReader, rowValidator, headers, validationErrors);
 
     } catch (CsvValidationException e) {
       LOGGER.error("CSV parsing error: {}", e.getMessage(), e);
@@ -168,105 +162,24 @@ public class CsvValidateCommand extends ConsumerCommand {
       LOGGER.error("CSV validation failed: {}", e.getMessage(), e);
       throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     }
-
-    if (empty) {
-      throw new StreamProcessingException("CSV validation failed: CSV file is empty");
-    }
-
-    if (!validationErrors.isEmpty()) {
-      handleValidationErrors(validationErrors);
-    }
-
-    LOGGER.info("CSV validation completed successfully");
   }
 
-  /** ヘッダー行のバリデーション */
-  private void validateHeaders(String[] headers, List<String> errors) {
-    if (headers == null || headers.length == 0) {
-      errors.add("Header row is empty");
-      return;
+  private boolean validateDataRows(
+      CSVReader csvReader, CsvRowValidator rowValidator, String[] headers, List<String> errors)
+      throws IOException, CsvValidationException {
+    String[] row;
+    int rowNum = 1;
+    boolean hasDataRows = false;
+
+    while ((row = csvReader.readNext()) != null) {
+      hasDataRows = true;
+      rowValidator.validateDataRow(row, rowNum++, headers, errors);
     }
 
-    // 重複ヘッダーチェック
-    Set<String> headerSet = new HashSet<>();
-    Set<String> duplicates = new HashSet<>();
-
-    for (String header : headers) {
-      if (header == null || header.isBlank()) {
-        errors.add("Header contains empty or null column");
-        continue;
-      }
-
-      String trimmedHeader = header.trim();
-      if (!headerSet.add(trimmedHeader)) {
-        duplicates.add(trimmedHeader);
-      }
+    if (hasHeader && !hasDataRows) {
+      errors.add("CSV file contains only header, no data rows found");
     }
-
-    if (!duplicates.isEmpty()) {
-      errors.add("Duplicate column headers: " + duplicates);
-    }
-
-    // 必須カラムの存在チェック
-    if (!requiredColumns.isEmpty()) {
-      Set<String> headerNames = new HashSet<>();
-      for (String header : headers) {
-        if (header != null) {
-          headerNames.add(header.trim());
-        }
-      }
-
-      Set<String> missingColumns = new HashSet<>(requiredColumns);
-      missingColumns.removeAll(headerNames);
-
-      if (!missingColumns.isEmpty()) {
-        errors.add("Missing required columns: " + missingColumns);
-      }
-    }
-
-    LOGGER.debug("Header validation completed - {} columns found", headers.length);
-  }
-
-  /** 1データ行のバリデーション */
-  private void validateDataRow(String[] row, int rowNum, String[] headers, List<String> errors) {
-    int expectedColumnCount = headers != null ? headers.length : -1;
-
-    if (row == null) {
-      addError(errors, String.format("Data row %d: null row", rowNum));
-      return;
-    }
-
-    // カラム数チェック
-    if (expectedColumnCount > 0 && row.length != expectedColumnCount) {
-      addError(
-          errors,
-          String.format(
-              "Data row %d has inconsistent number of columns (expected %d, found %d)",
-              rowNum, expectedColumnCount, row.length));
-      return;
-    }
-
-    // 空行チェック
-    boolean isEmptyRow = true;
-    for (String cell : row) {
-      if (cell != null && !cell.isBlank()) {
-        isEmptyRow = false;
-        break;
-      }
-    }
-
-    if (isEmptyRow) {
-      addError(errors, String.format("Data row %d: Empty data row", rowNum));
-    }
-  }
-
-  /** エラーメッセージを追加（最大数制限あり） */
-  private void addError(List<String> errors, String error) {
-    if (errors.size() < maxErrorsToReport) {
-      errors.add(error);
-    } else if (errors.size() == maxErrorsToReport) {
-      errors.add("... and more errors (limit reached)");
-    }
+    return !hasHeader && !hasDataRows;
   }
 
   /** バリデーションエラーの処理 */
@@ -282,7 +195,6 @@ public class CsvValidateCommand extends ConsumerCommand {
     String errorMessage = errorBuilder.toString();
     LOGGER.error("CSV validation summary: {}", errorMessage);
 
-    // エラーメッセージが長すぎる場合は切り詰める（可読性向上のため）
     String finalErrorMessage = errorMessage;
     if (errorMessage.length() > 1000) {
       finalErrorMessage = errorMessage.substring(0, 997) + "...";

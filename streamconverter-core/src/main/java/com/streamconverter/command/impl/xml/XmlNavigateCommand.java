@@ -89,6 +89,9 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     }
   }
 
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and
+  // re-thrown as XMLStreamException so the caller's error-handling path is not bypassed.
   private void navigateXmlWithRule(
       XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)
       throws XMLStreamException {
@@ -158,35 +161,51 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
 
   private void closeResources(
       XMLEventReader eventReader, XMLEventWriter eventWriter, IOException primaryException) {
-    if (eventWriter != null) {
-      try {
-        eventWriter.flush();
-      } catch (XMLStreamException e) {
-        LOGGER.warn("Failed to flush XMLEventWriter during cleanup", e);
-      }
-      try {
-        eventWriter.close();
-      } catch (XMLStreamException e) {
-        LOGGER.warn("Failed to close XMLEventWriter", e);
-      } catch (RuntimeException e) {
-        if (primaryException != null) {
-          primaryException.addSuppressed(e);
-        } else {
-          throw e;
-        }
+    flushAndCloseWriter(eventWriter, primaryException);
+    closeEventReader(eventReader, primaryException);
+  }
+
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  private void flushAndCloseWriter(XMLEventWriter eventWriter, IOException primaryException) {
+    // RuntimeException from XMLEventWriter.close() is not declared; catch is required to
+    // suppress it into primaryException so the caller's original failure is preserved.
+    if (eventWriter == null) {
+      return;
+    }
+    try {
+      eventWriter.flush();
+    } catch (XMLStreamException e) {
+      LOGGER.warn("Failed to flush XMLEventWriter during cleanup", e);
+    }
+    try {
+      eventWriter.close();
+    } catch (XMLStreamException e) {
+      LOGGER.warn("Failed to close XMLEventWriter", e);
+    } catch (RuntimeException e) {
+      if (primaryException != null) {
+        primaryException.addSuppressed(e);
+      } else {
+        throw e;
       }
     }
-    if (eventReader != null) {
-      try {
-        eventReader.close();
-      } catch (XMLStreamException e) {
-        LOGGER.warn("Failed to close XMLEventReader", e);
-      } catch (RuntimeException e) {
-        if (primaryException != null) {
-          primaryException.addSuppressed(e);
-        } else {
-          throw e;
-        }
+  }
+
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  private void closeEventReader(XMLEventReader eventReader, IOException primaryException) {
+    // RuntimeException from XMLEventReader.close() is not declared; catch is required to
+    // suppress it into primaryException so the caller's original failure is preserved.
+    if (eventReader == null) {
+      return;
+    }
+    try {
+      eventReader.close();
+    } catch (XMLStreamException e) {
+      LOGGER.warn("Failed to close XMLEventReader", e);
+    } catch (RuntimeException e) {
+      if (primaryException != null) {
+        primaryException.addSuppressed(e);
+      } else {
+        throw e;
       }
     }
   }

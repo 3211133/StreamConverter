@@ -154,6 +154,10 @@ public class StreamConverter {
   }
 
   /** コマンド（単一または複数）を並列実行 */
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  // Closeable.close() は IOException を宣言するが、実装が RuntimeException をスローすることもある。
+  // RuntimeException は IOException のサブクラスではないため catch (IOException) では捕捉できず、
+  // cleanup を継続するには Exception でまとめてキャッチするしかない。
   private void executeCommands(InputStream inputStream, OutputStream outputStream)
       throws IOException {
     List<CompletableFuture<Void>> futures = new ArrayList<>();
@@ -206,6 +210,10 @@ public class StreamConverter {
    *
    * @param resources resources associated with the current pipeline execution
    */
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  // Closeable.close() は IOException を宣言するが、実装が RuntimeException をスローすることもある。
+  // RuntimeException は IOException のサブクラスではないため catch (IOException) では捕捉できず、
+  // 1 件の例外でループを中断せず全リソースを close するには Exception でまとめてキャッチするしかない。
   private void closeResources(List<Closeable> resources) {
     for (Closeable resource : resources) {
       try {

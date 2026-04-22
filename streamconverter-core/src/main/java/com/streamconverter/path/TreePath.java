@@ -11,6 +11,11 @@ import java.util.List;
  * and XML-style ("user/name") formats. It converts path expressions into hierarchical segments for
  * efficient matching during data processing.
  */
+@SuppressWarnings("PMD.TooManyMethods")
+// public API（fromXml/fromJson・matches/matchesIgnoringArraySyntax・equals/hashCode/toString）と
+// private パーサーヘルパー（parseJsonPathToSegments/parseComplexJsonPath/parseXmlPathToSegments 等）
+// が同居している。パーサーヘルパーは package-private クラスへ分離可能だが、TreePath 専用の
+// 実装詳細であり独立させる設計上の意義がないため現状を維持している。
 public class TreePath implements IPath<List<String>> {
 
   private final List<String> segments;
@@ -62,7 +67,7 @@ public class TreePath implements IPath<List<String>> {
    */
   @Override
   public boolean matches(List<String> currentPath) {
-    return currentPath != null && segments.equals(currentPath);
+    return segments.equals(currentPath);
   }
 
   /**

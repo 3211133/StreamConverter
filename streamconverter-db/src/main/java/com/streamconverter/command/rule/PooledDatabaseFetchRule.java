@@ -104,61 +104,13 @@ public class PooledDatabaseFetchRule implements IRule {
     try (Connection connection = connectionPool.getConnection();
         PreparedStatement statement = connection.prepareStatement(query)) {
 
-      // 入力文字列をパラメータとして設定（クエリに「?」プレースホルダーがある場合）
-      if (query.contains("?") && input != null && !input.isEmpty()) {
-        String sanitizedInput = sanitizeInput(input);
-        if (sanitizedInput.isEmpty()) {
-          logger.warn(
-              "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",
-              input);
-          return "";
-        }
-
-        statement.setString(1, sanitizedInput);
-        logger.debug("Parameter set for prepared statement: length={}", sanitizedInput.length());
+      if (!bindParameters(statement, input)) {
+        return "";
       }
 
-      // クエリ実行
       logger.debug("Executing query with pooled connection: {}", query);
       try (ResultSet resultSet = statement.executeQuery()) {
-        // 結果の検証と処理
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columnCount = metaData.getColumnCount();
-
-        // 結果がない場合
-        if (!resultSet.next()) {
-          logger.warn("クエリ結果が空です。");
-          return "";
-        }
-
-        // 列数の検証
-        if (columnCount != 1) {
-          logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);
-        }
-
-        // 先頭行の先頭列の値を取得
-        String value = resultSet.getString(1);
-
-        // 追加の行があるかチェック
-        boolean hasMoreRows = resultSet.next();
-        if (hasMoreRows) {
-          logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");
-        }
-
-        // nullチェック
-        if (value == null) {
-          logger.info("クエリ結果の先頭値がNULLです。");
-          return "";
-        }
-
-        // 結果が理想的（1行1列）かどうかをログに記録
-        if (columnCount == 1 && !hasMoreRows) {
-          logger.debug("データベースから単一値を取得しました（プール使用）: {}", value);
-        } else {
-          logger.debug("データベースから先頭値を取得しました（プール使用）: {}", value);
-        }
-
-        return value;
+        return extractFirstValue(resultSet);
       }
 
     } catch (SQLException e) {
@@ -172,6 +124,57 @@ public class PooledDatabaseFetchRule implements IRule {
       throw new StreamProcessingException(
           "データベースフェッチに失敗しました: " + e.getMessage(), e);
     }
+  }
+
+  /** クエリにプレースホルダーがある場合に入力値をバインドする。拒否すべき入力なら false を返す。 */
+  private boolean bindParameters(PreparedStatement statement, String input) throws SQLException {
+    if (!query.contains("?") || input == null || input.isEmpty()) {
+      return true;
+    }
+    String sanitizedInput = sanitizeInput(input);
+    if (sanitizedInput.isEmpty()) {
+      logger.warn(
+          "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",
+          input);
+      return false;
+    }
+    statement.setString(1, sanitizedInput);
+    logger.debug("Parameter set for prepared statement: length={}", sanitizedInput.length());
+    return true;
+  }
+
+  /** ResultSet から先頭行・先頭列の値を取得して返す。結果なしの場合は空文字列を返す。 */
+  private String extractFirstValue(ResultSet resultSet) throws SQLException {
+    ResultSetMetaData metaData = resultSet.getMetaData();
+    int columnCount = metaData.getColumnCount();
+
+    if (!resultSet.next()) {
+      logger.warn("クエリ結果が空です。");
+      return "";
+    }
+
+    if (columnCount != 1) {
+      logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);
+    }
+
+    String value = resultSet.getString(1);
+    boolean hasMoreRows = resultSet.next();
+    if (hasMoreRows) {
+      logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");
+    }
+
+    if (value == null) {
+      logger.info("クエリ結果の先頭値がNULLです。");
+      return "";
+    }
+
+    if (columnCount == 1 && !hasMoreRows) {
+      logger.debug("データベースから単一値を取得しました（プール使用）: {}", value);
+    } else {
+      logger.debug("データベースから先頭値を取得しました（プール使用）: {}", value);
+    }
+
+    return value;
   }
 
   /**

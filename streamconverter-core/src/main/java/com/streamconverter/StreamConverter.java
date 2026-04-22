@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  */
 public class StreamConverter {
 
-  private static final Logger LOG = LoggerFactory.getLogger(StreamConverter.class);
+  private static final Logger logger = LoggerFactory.getLogger(StreamConverter.class);
   private static final int DEFAULT_BUFFER_SIZE = 64 * 1024; // 64KB buffer
 
   private final CommandStageRunner commandStageRunner;
@@ -58,10 +58,10 @@ public class StreamConverter {
       executor.shutdown();
       try {
         if (!executor.awaitTermination(10, TimeUnit.SECONDS)) {
-          LOG.warn("Executor did not terminate gracefully, forcing shutdown");
+          logger.warn("Executor did not terminate gracefully, forcing shutdown");
           executor.shutdownNow();
           if (!executor.awaitTermination(5, TimeUnit.SECONDS)) {
-            LOG.error("Executor did not terminate after forced shutdown");
+            logger.error("Executor did not terminate after forced shutdown");
           }
         }
       } catch (InterruptedException e) {
@@ -116,7 +116,7 @@ public class StreamConverter {
   private static List<IStreamCommand> wrapWithLogging(List<IStreamCommand> commands) {
     List<IStreamCommand> wrapped = new ArrayList<>(commands.size());
     for (IStreamCommand command : commands) {
-      wrapped.add(command.withLogging(LOG));
+      wrapped.add(command.withLogging(logger));
     }
     return wrapped;
   }
@@ -146,11 +146,11 @@ public class StreamConverter {
     Objects.requireNonNull(inputStream);
     Objects.requireNonNull(outputStream);
 
-    LOG.info("Starting StreamConverter with {} commands", commands.size());
+    logger.info("Starting StreamConverter with {} commands", commands.size());
 
     executeCommands(inputStream, outputStream);
 
-    LOG.info("Completed StreamConverter pipeline");
+    logger.info("Completed StreamConverter pipeline");
   }
 
   /** コマンド（単一または複数）を並列実行 */
@@ -181,7 +181,7 @@ public class StreamConverter {
               try {
                 closeResources(resources);
               } catch (RuntimeException ex) {
-                LOG.error("Unexpected error during resource cleanup on pipeline failure", ex);
+                logger.error("Unexpected error during resource cleanup on pipeline failure", ex);
               }
               return null;
             });
@@ -197,7 +197,7 @@ public class StreamConverter {
         pipelineFailureHandler.rethrowExecutionFailure(e, futures);
       }
 
-      LOG.info("All commands completed successfully");
+      logger.info("All commands completed successfully");
 
     } finally {
       // リソースクリーンアップ
@@ -219,9 +219,10 @@ public class StreamConverter {
       try {
         resource.close();
       } catch (IOException e) {
-        LOG.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
+        logger.warn("Failed to close resource [{}]", resource.getClass().getSimpleName(), e);
       } catch (RuntimeException e) {
-        LOG.warn("Unexpected error closing resource [{}]", resource.getClass().getSimpleName(), e);
+        logger.warn(
+            "Unexpected error closing resource [{}]", resource.getClass().getSimpleName(), e);
       }
     }
   }

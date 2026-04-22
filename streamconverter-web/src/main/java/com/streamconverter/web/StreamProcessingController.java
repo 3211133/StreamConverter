@@ -16,6 +16,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.streamconverter.StreamConverter;
+import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.impl.json.JsonNavigateCommand;
@@ -35,7 +36,7 @@ import reactor.core.publisher.Mono;
 @RequestMapping("/api/v1/stream")
 public class StreamProcessingController {
 
-  private static final Logger log = LoggerFactory.getLogger(StreamProcessingController.class);
+  private static final Logger logger = LoggerFactory.getLogger(StreamProcessingController.class);
 
   private static final int MAX_PIPELINE_CONFIG_LENGTH = 1000;
   private static final int MAX_PIPELINE_COMMANDS = 10;
@@ -55,7 +56,7 @@ public class StreamProcessingController {
   public Mono<ResponseEntity<Flux<DataBuffer>>> processCsvExtraction(
       @RequestBody Flux<DataBuffer> inputData, @RequestParam String columnName) {
 
-    log.info("Processing CSV extraction for column: {}", columnName);
+    logger.info("Processing CSV extraction for column: {}", columnName);
 
     return Mono
         .fromCallable(
@@ -67,7 +68,7 @@ public class StreamProcessingController {
                             CSVPath.of(columnName), new PassThroughRule()))))
         .onErrorResume(
             e -> {
-              log.error("CSV extraction failed: {}", e.getMessage(), e);
+              logger.error("CSV extraction failed: {}", e.getMessage(), e);
               return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
             });
   }
@@ -86,7 +87,7 @@ public class StreamProcessingController {
   public Mono<ResponseEntity<Flux<DataBuffer>>> processJsonExtraction(
       @RequestBody Flux<DataBuffer> inputData, @RequestParam String jsonPath) {
 
-    log.info("Processing JSON extraction for path: {}", jsonPath);
+    logger.info("Processing JSON extraction for path: {}", jsonPath);
 
     return Mono
         .fromCallable(
@@ -98,7 +99,7 @@ public class StreamProcessingController {
                             TreePath.fromJson(jsonPath), new PassThroughRule()))))
         .onErrorResume(
             e -> {
-              log.error("JSON extraction failed: {}", e.getMessage(), e);
+              logger.error("JSON extraction failed: {}", e.getMessage(), e);
               return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
             });
   }
@@ -122,18 +123,18 @@ public class StreamProcessingController {
         .fromCallable(() -> buildPipelineFromConfig(pipelineConfig))
         .map(
             commands -> {
-              log.info("Processing pipeline with {} commands", commands.length);
+              logger.info("Processing pipeline with {} commands", commands.length);
               return ResponseEntity.ok(processWithStreamConverter(inputData, commands));
             })
         .onErrorResume(
             IllegalArgumentException.class,
             e -> {
-              log.warn("Invalid pipeline config: {}", e.getMessage());
+              logger.warn("Invalid pipeline config: {}", e.getMessage());
               return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());
             })
         .onErrorResume(
             e -> {
-              log.error("Pipeline processing failed: {}", e.getMessage(), e);
+              logger.error("Pipeline processing failed: {}", e.getMessage(), e);
               return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
             });
   }
@@ -226,12 +227,22 @@ public class StreamProcessingController {
               }
               yield JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());
             }
-            case "process" -> (IStreamCommand) (in, out) -> in.transferTo(out);
+            case "process" -> new AbstractStreamCommand() {
+              @Override
+              public void execute(InputStream in, java.io.OutputStream out) throws IOException {
+                in.transferTo(out);
+              }
+
+              @Override
+              public String commandName() {
+                return "process";
+              }
+            };
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
           };
     }
 
-    log.info("Built pipeline with {} commands", commands.length);
+    logger.info("Built pipeline with {} commands", commands.length);
     return commands;
   }
 }

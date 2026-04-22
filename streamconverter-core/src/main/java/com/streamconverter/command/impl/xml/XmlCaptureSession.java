@@ -15,7 +15,7 @@ import org.slf4j.LoggerFactory;
  * {@link #finish} or {@link #abort}). Writing to a closed session is a no-op.
  */
 final class XmlCaptureSession {
-  private static final Logger LOGGER = LoggerFactory.getLogger(XmlCaptureSession.class);
+  private static final Logger logger = LoggerFactory.getLogger(XmlCaptureSession.class);
 
   private final XMLOutputFactory outputFactory;
   private StringWriter elementWriter = new StringWriter();
@@ -56,7 +56,7 @@ final class XmlCaptureSession {
     try {
       eventWriter.close();
     } catch (XMLStreamException e) {
-      LOGGER.warn("Error closing event writer: {}", e.getMessage(), e);
+      logger.warn("Error closing event writer: {}", e.getMessage(), e);
     } finally {
       open = false;
     }

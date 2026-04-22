@@ -87,6 +87,28 @@ converter.run(inputStream, outputStream);
 
 ---
 
+## 🔒 セキュリティ
+
+各コマンドには以下のセキュリティ制限が組み込まれています。
+
+### SendHttpCommand
+- ループバックアドレス（`localhost`, `127.0.0.1`, `::1`）へのリクエストは拒否されます
+- RFC 1918 プライベートアドレス（`10.x.x.x`, `172.16.x.x`–`172.31.x.x`, `192.168.x.x`）は拒否されます
+- DNS 解決後のアドレスも検査されます（DNS リバインディング攻撃への対策）
+- HTTP/HTTPS スキームのみ許可されます
+
+### XML コマンド（XmlNavigateCommand, XmlFilterCommand, ValidateCommand）
+- XXE（XML External Entity）対策として外部エンティティ参照を無効化しています
+- DOCTYPE 宣言は処理されません
+
+### DB コマンド（DatabaseFetchRule, PooledDatabaseFetchRule）
+- SELECT クエリのみ実行を許可します
+- セミコロンによる複数文はブロックされます
+
+詳細は [docs/reference/SECURITY_ANALYSIS.md](docs/reference/SECURITY_ANALYSIS.md) を参照してください。
+
+---
+
 ## 📄 ライセンス
 
 本プロジェクトはリポジトリ内の [LICENSE](LICENSE) に従います。

@@ -98,8 +98,7 @@ public class HikariConnectionPoolConfig implements AutoCloseable {
     this.dataSource = new HikariDataSource(config);
 
     logger.info(
-        "HikariCP connection pool initialized - URL: {}, MaxPoolSize: {}, ConnectionTimeout: {}ms",
-        databaseUrl,
+        "HikariCP connection pool initialized - MaxPoolSize: {}, ConnectionTimeout: {}ms",
         maximumPoolSize,
         connectionTimeout.toMillis());
   }

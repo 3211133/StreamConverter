@@ -34,7 +34,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if columnSelector or rule is null
    * @deprecated Use {@link #CsvNavigateCommand(CSVPath, IRule)} instead
    */
-  @Deprecated
+  @Deprecated(since = "1.2", forRemoval = true)
   private CsvNavigateCommand(String columnSelector, IRule rule) {
     this.columnSelector = CSVPath.of(columnSelector);
     this.rule = rule;
@@ -75,7 +75,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if rule is null
    * @deprecated Use {@link #create(CSVPath, IRule)} instead
    */
-  @Deprecated
+  @Deprecated(since = "1.2", forRemoval = true)
   public static CsvNavigateCommand create(String columnSelector, IRule rule) {
     if (columnSelector == null) {
       throw new IllegalArgumentException("Column selector cannot be null");

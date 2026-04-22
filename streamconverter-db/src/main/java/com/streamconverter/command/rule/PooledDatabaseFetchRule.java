@@ -65,7 +65,13 @@ public class PooledDatabaseFetchRule implements IRule {
     Objects.requireNonNull(query, "Query cannot be null");
 
     this.connectionPool = connectionPool;
-    this.query = validateQuery(query.trim());
+    String trimmed = query.trim();
+    long placeholderCount = trimmed.chars().filter(c -> c == '?').count();
+    if (placeholderCount > 1) {
+      throw new IllegalArgumentException(
+          "Query must have at most one placeholder '?', found " + placeholderCount);
+    }
+    this.query = validateQuery(trimmed);
 
     logger.info(
         "PooledDatabaseFetchRule initialized - Query length: {}, Pool: {}",
@@ -84,10 +90,6 @@ public class PooledDatabaseFetchRule implements IRule {
     return SqlQueryUtils.validateQuery(queryString, logger);
   }
 
-  private String sanitizeInput(String input) {
-    return SqlQueryUtils.sanitizeInput(input, logger);
-  }
-
   /**
    * ルールの適用を実行します。
    *
@@ -104,52 +106,13 @@ public class PooledDatabaseFetchRule implements IRule {
     try (Connection connection = connectionPool.getConnection();
         PreparedStatement statement = connection.prepareStatement(query)) {
 
-      if (query.contains("?") && input != null && !input.isEmpty()) {
-        String sanitizedInput = sanitizeInput(input);
-        if (sanitizedInput.isEmpty()) {
-          logger.warn(
-              "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",
-              input);
-          return "";
-        }
-
-        statement.setString(1, sanitizedInput);
-        logger.debug("Parameter set for prepared statement: length={}", sanitizedInput.length());
+      if (!bindParameters(statement, input)) {
+        return "";
       }
 
       logger.debug("Executing query with pooled connection: {}", query);
       try (ResultSet resultSet = statement.executeQuery()) {
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columnCount = metaData.getColumnCount();
-
-        if (!resultSet.next()) {
-          logger.debug("Query returned no results.");
-          return "";
-        }
-
-        if (columnCount != 1) {
-          logger.debug("Query returned {} columns; using first column.", columnCount);
-        }
-
-        String value = resultSet.getString(1);
-
-        boolean hasMoreRows = resultSet.next();
-        if (hasMoreRows) {
-          logger.info("Query returned multiple rows; using first row.");
-        }
-
-        if (value == null) {
-          logger.debug("First row value is NULL.");
-          return "";
-        }
-
-        if (columnCount == 1 && !hasMoreRows) {
-          logger.debug("Fetched single value from database (pooled): {}", value);
-        } else {
-          logger.debug("Fetched first value from database (pooled): {}", value);
-        }
-
-        return value;
+        return extractFirstValue(resultSet);
       }
 
     } catch (SQLException e) {
@@ -163,6 +126,54 @@ public class PooledDatabaseFetchRule implements IRule {
       throw new StreamProcessingException(
           "Database fetch failed: " + e.getMessage(), e);
     }
+  }
+
+  /** クエリにプレースホルダーがある場合に入力値をバインドする。拒否すべき入力なら false を返す。 */
+  private boolean bindParameters(PreparedStatement statement, String input) throws SQLException {
+    if (!query.contains("?")) {
+      return true;
+    }
+    if (input == null || input.isEmpty()) {
+      logger.warn("Query has a placeholder but input is null or empty. Rejecting to prevent unbound parameter.");
+      return false;
+    }
+    statement.setString(1, input);
+    logger.debug("Parameter set for prepared statement: length={}", input.length());
+    return true;
+  }
+
+  /** ResultSet から先頭行・先頭列の値を取得して返す。結果なしの場合は空文字列を返す。 */
+  private String extractFirstValue(ResultSet resultSet) throws SQLException {
+    ResultSetMetaData metaData = resultSet.getMetaData();
+    int columnCount = metaData.getColumnCount();
+
+    if (!resultSet.next()) {
+      logger.warn("クエリ結果が空です。");
+      return "";
+    }
+
+    if (columnCount != 1) {
+      logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);
+    }
+
+    String value = resultSet.getString(1);
+    boolean hasMoreRows = resultSet.next();
+    if (hasMoreRows) {
+      logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");
+    }
+
+    if (value == null) {
+      logger.info("クエリ結果の先頭値がNULLです。");
+      return "";
+    }
+
+    if (columnCount == 1 && !hasMoreRows) {
+      logger.debug("データベースから単一値を取得しました（プール使用）: {}", value);
+    } else {
+      logger.debug("データベースから先頭値を取得しました（プール使用）: {}", value);
+    }
+
+    return value;
   }
 
   /**

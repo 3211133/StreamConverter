@@ -232,6 +232,11 @@ public class StreamProcessingController {
               public void execute(InputStream in, java.io.OutputStream out) throws IOException {
                 in.transferTo(out);
               }
+
+              @Override
+              public String commandName() {
+                return "process";
+              }
             };
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
           };

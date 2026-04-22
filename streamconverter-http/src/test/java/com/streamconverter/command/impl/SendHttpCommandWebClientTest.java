@@ -15,6 +15,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.buffer.DataBufferUtils;
 import org.springframework.core.io.buffer.DefaultDataBufferFactory;
@@ -216,6 +217,75 @@ class SendHttpCommandWebClientTest {
     private void releaseRemainingInput() {
       releaseRemainingInput.countDown();
     }
+  }
+
+  // ---- #657 fix: error body truncation ----
+
+  @Test
+  @DisplayName("エラーレスポンスボディが256文字を超える場合は切り詰められる（#657）")
+  void testErrorBodyIsTruncatedToMaxLength() throws Exception {
+    // 300文字の長いエラーボディを返すWebClientモック
+    String longBody = "E".repeat(300);
+    WebClient errorClient = createErrorWebClient(500, longBody);
+    SendHttpCommand command = new SendHttpCommand("https://example.com/post", errorClient);
+
+    IOException ex =
+        assertThrows(
+            IOException.class,
+            () ->
+                command.execute(
+                    new ByteArrayInputStream("body".getBytes(StandardCharsets.UTF_8)),
+                    new ByteArrayOutputStream()));
+
+    // execute() wraps RuntimeException into IOException; the cause carries the truncated body
+    String causeMessage = ex.getCause().getMessage();
+    // 元の300文字ではなく、256文字 + "...[truncated]" が含まれる
+    assertTrue(
+        causeMessage.contains("...[truncated]"),
+        "エラーメッセージに切り詰め表示が含まれるべき: " + causeMessage);
+    // 元の300文字文字列がそのまま含まれていてはいけない
+    assertFalse(
+        causeMessage.contains(longBody),
+        "エラーメッセージに完全な長いボディが含まれてはいけない");
+  }
+
+  @Test
+  @DisplayName("エラーレスポンスボディが256文字以下の場合は切り詰めない（#657）")
+  void testShortErrorBodyIsNotTruncated() throws Exception {
+    String shortBody = "short error";
+    WebClient errorClient = createErrorWebClient(400, shortBody);
+    SendHttpCommand command = new SendHttpCommand("https://example.com/post", errorClient);
+
+    IOException ex =
+        assertThrows(
+            IOException.class,
+            () ->
+                command.execute(
+                    new ByteArrayInputStream("body".getBytes(StandardCharsets.UTF_8)),
+                    new ByteArrayOutputStream()));
+
+    String causeMessage = ex.getCause().getMessage();
+    assertTrue(
+        causeMessage.contains(shortBody),
+        "短いエラーボディはそのまま含まれるべき");
+    assertFalse(
+        causeMessage.contains("...[truncated]"),
+        "短いエラーボディは切り詰められないべき");
+  }
+
+  static WebClient createErrorWebClient(int statusCode, String responseBody) {
+    DefaultDataBufferFactory bufferFactory = new DefaultDataBufferFactory();
+    HttpStatus status = HttpStatus.valueOf(statusCode);
+    ExchangeFunction exchangeFunction =
+        request ->
+            Mono.just(
+                ClientResponse.create(status)
+                    .header(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN_VALUE)
+                    .body(
+                        Flux.just(
+                            bufferFactory.wrap(responseBody.getBytes(StandardCharsets.UTF_8))))
+                    .build());
+    return WebClient.builder().exchangeFunction(exchangeFunction).build();
   }
 
   private static final class SignalingOutputStream extends ByteArrayOutputStream {

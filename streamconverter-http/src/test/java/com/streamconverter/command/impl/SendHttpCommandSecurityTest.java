@@ -3,6 +3,7 @@ package com.streamconverter.command.impl;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** SendHttpCommandのセキュリティ機能専用テスト */
@@ -122,5 +123,35 @@ class SendHttpCommandSecurityTest {
     assertTrue(
         ex172.getMessage().contains("private") || ex172.getMessage().contains("localhost"),
         "エラーメッセージにprivate or localhostが含まれるべき");
+  }
+
+  // ---- #653 fix: hostname DNS resolution ----
+
+  @Test
+  @DisplayName("解決不能なホスト名は IllegalArgumentException をスローする（#653）")
+  void testUnresolvableHostThrows() {
+    // ホスト名がDNS解決できない場合、修正前は false を返して通過させていた。
+    // 修正後は IllegalArgumentException をスローする。
+    IllegalArgumentException ex =
+        assertThrows(
+            IllegalArgumentException.class,
+            () -> new SendHttpCommand("http://this-host-does-not-exist.invalid"),
+            "解決不能なホスト名はブロックされるべき");
+    assertTrue(
+        ex.getMessage().contains("resolve") || ex.getMessage().contains("Cannot"),
+        "エラーメッセージにhostname解決失敗の説明が含まれるべき");
+  }
+
+  @Test
+  @Tag("network")
+  @DisplayName("ループバックIPに解決されるホスト名はブロックされる（DNS経由・#653）")
+  void testHostnameResolvingToLoopbackIsBlocked() {
+    // nip.io は 127.0.0.1.nip.io → 127.0.0.1 に解決する公開サービス。
+    // DNS解決後の検査が機能していれば IllegalArgumentException がスローされる。
+    // ネットワーク依存のため @Tag("network") で分離。
+    assertThrows(
+        IllegalArgumentException.class,
+        () -> new SendHttpCommand("http://127.0.0.1.nip.io"),
+        "127.0.0.1 に解決されるホスト名はブロックされるべき");
   }
 }

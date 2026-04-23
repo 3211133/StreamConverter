@@ -6,6 +6,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.stream.XMLInputFactory;
+import javax.xml.stream.XMLOutputFactory;
 import javax.xml.transform.TransformerFactory;
 import javax.xml.validation.SchemaFactory;
 import org.slf4j.Logger;
@@ -114,6 +115,21 @@ public class SecureXmlConfiguration {
     factory.setProperty(XMLInputFactory.IS_VALIDATING, false);
 
     securityLogger.info("Secure XMLInputFactory created with XXE protection");
+    return factory;
+  }
+
+  /**
+   * セキュリティ設定を明示した XMLOutputFactory を作成します。
+   *
+   * <p>XMLOutputFactory 仕様には外部エンティティ制御プロパティが存在しないが、 使用箇所を一元管理することで将来の実装差し替え時の保護となる。 {@code
+   * IS_REPAIRING_NAMESPACES} を false に設定し、 不正な名前空間宣言の自動補完を防ぐ。
+   *
+   * @return セキュリティ設定済み XMLOutputFactory
+   */
+  public static XMLOutputFactory createSecureXMLOutputFactory() {
+    XMLOutputFactory factory = XMLOutputFactory.newInstance();
+    factory.setProperty(XMLOutputFactory.IS_REPAIRING_NAMESPACES, false);
+    securityLogger.info("Secure XMLOutputFactory created");
     return factory;
   }
 

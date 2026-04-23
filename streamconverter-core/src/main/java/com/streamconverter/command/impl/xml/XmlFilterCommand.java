@@ -12,7 +12,6 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
-import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 import org.slf4j.Logger;
@@ -71,7 +70,8 @@ public class XmlFilterCommand extends AbstractStreamCommand {
 
   private void processEvents(XMLEventReader reader, Writer writer) throws IOException {
     try {
-      XmlExtractionState state = new XmlExtractionState(XMLOutputFactory.newInstance());
+      XmlExtractionState state =
+          new XmlExtractionState(SecureXmlConfiguration.createSecureXMLOutputFactory());
       drainEvents(reader, writer, state);
       if (state.isCaptureOpen()) {
         state.abortCapture();

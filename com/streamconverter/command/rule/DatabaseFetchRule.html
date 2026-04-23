@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="IRule.html" title="interface in com.streamconverter.command.rule">IRule</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/DatabaseFetchRule.html#line-44">DatabaseFetchRule</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/DatabaseFetchRule.html#line-42">DatabaseFetchRule</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="IRule.html" title="interface in com.streamconverter.command.rule">IRule</a></span></div>
 <div class="block">データベースからデータを取得するルール
@@ -121,9 +121,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 
  <ul>
    <li>SELECTクエリのみ許可（INSERT/UPDATE/DELETE等は禁止）
-   <li>SQLインジェクション攻撃の検出と防止
    <li>許可されたデータベーススキーマのみ接続可能
-   <li>入力パラメータの自動サニタイズ
  </ul></div>
 </section>
 <section class="summary">
@@ -180,7 +178,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String,java.lang.String)">
 <h3>DatabaseFetchRule</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/DatabaseFetchRule.html#line-66">DatabaseFetchRule</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;databaseUrl,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/DatabaseFetchRule.html#line-64">DatabaseFetchRule</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;databaseUrl,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;query)</span></div>
 <div class="block">コンストラクタ
 

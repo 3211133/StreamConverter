@@ -43,7 +43,6 @@ public class HikariConnectionPoolConfig implements AutoCloseable {
   private static final Logger logger = LoggerFactory.getLogger(HikariConnectionPoolConfig.class);
 
   private final HikariDataSource dataSource;
-  private final String databaseUrl;
 
   /**
    * デフォルト設定で接続プールを初期化
@@ -71,8 +70,6 @@ public class HikariConnectionPoolConfig implements AutoCloseable {
     }
     Objects.requireNonNull(connectionTimeout, "Connection timeout cannot be null");
 
-    this.databaseUrl = databaseUrl;
-
     HikariConfig config = new HikariConfig();
     config.setJdbcUrl(databaseUrl);
     config.setMaximumPoolSize(maximumPoolSize);
@@ -98,8 +95,7 @@ public class HikariConnectionPoolConfig implements AutoCloseable {
     this.dataSource = new HikariDataSource(config);
 
     logger.info(
-        "HikariCP connection pool initialized - URL: {}, MaxPoolSize: {}, ConnectionTimeout: {}ms",
-        databaseUrl,
+        "HikariCP connection pool initialized - MaxPoolSize: {}, ConnectionTimeout: {}ms",
         maximumPoolSize,
         connectionTimeout.toMillis());
   }
@@ -142,7 +138,7 @@ public class HikariConnectionPoolConfig implements AutoCloseable {
   /**
    * プールの詳細統計情報を取得
    *
-   * @return 詳細統計情報文字列
+   * @return 詳細統計情報文字列（URLは含まない）
    */
   public String getDetailedStats() {
     if (dataSource.isClosed()) {
@@ -151,12 +147,11 @@ public class HikariConnectionPoolConfig implements AutoCloseable {
 
     com.zaxxer.hikari.HikariPoolMXBean mxBean = dataSource.getHikariPoolMXBean();
     return String.format(
-        "HikariCP Details[active=%d, idle=%d, total=%d, waiting=%d, url=%s]",
+        "HikariCP Details[active=%d, idle=%d, total=%d, waiting=%d]",
         mxBean.getActiveConnections(),
         mxBean.getIdleConnections(),
         mxBean.getTotalConnections(),
-        mxBean.getThreadsAwaitingConnection(),
-        databaseUrl);
+        mxBean.getThreadsAwaitingConnection());
   }
 
   /**

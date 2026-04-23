@@ -70,7 +70,7 @@ public class PooledDatabaseFetchRule implements IRule {
     logger.info(
         "PooledDatabaseFetchRule initialized - Query length: {}, Pool: {}",
         this.query.length(),
-        connectionPool.getDetailedStats());
+        connectionPool.getPoolStats());
   }
 
   /**

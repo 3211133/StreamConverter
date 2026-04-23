@@ -24,7 +24,7 @@ import java.util.regex.Pattern;
  *
  * <pre>{@code
  * IRule rule = SnakeToCamelCaseRule.builder().build();
- * IStreamCommand command = JsonNavigateCommand.create("$.user_name", rule);
+ * IStreamCommand command = JsonWalker.create(TreePath.fromJson("$.user_name"), rule);
  * }</pre>
  *
  * @since 1.0

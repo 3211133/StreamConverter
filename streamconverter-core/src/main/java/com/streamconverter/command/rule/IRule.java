@@ -20,7 +20,7 @@ package com.streamconverter.command.rule;
  *
  * // StreamConverterコマンドでの使用例
  * IRule dataCleaningRule = input -> input.trim().replaceAll("\\s+", " ");
- * JsonNavigateCommand command = JsonNavigateCommand.create(
+ * JsonWalker command = JsonWalker.create(
  *     TreePath.fromJson("$.user.name"),
  *     dataCleaningRule
  * );

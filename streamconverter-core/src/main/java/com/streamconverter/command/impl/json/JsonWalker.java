@@ -14,7 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * JSON Navigation Command for applying transformations to JSON data
+ * JSON Walker for applying transformations to JSON data.
  *
  * <p>This command navigates through JSON structures and applies transformations using rules while
  * preserving the overall JSON structure. It focuses purely on navigation and transformation, not
@@ -24,7 +24,7 @@ import java.util.List;
  * elements - Preserve JSON structure during transformation - Stream processing for memory
  * efficiency
  */
-public class JsonNavigateCommand extends AbstractStreamCommand {
+public class JsonWalker extends AbstractStreamCommand {
 
   private final TreePath treePath;
   private final IRule rule;
@@ -37,7 +37,7 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  private JsonNavigateCommand(TreePath treePath, IRule rule) {
+  private JsonWalker(TreePath treePath, IRule rule) {
     this.treePath = treePath;
     this.rule = rule;
     this.jsonFactory = new JsonFactory();
@@ -48,17 +48,17 @@ public class JsonNavigateCommand extends AbstractStreamCommand {
    *
    * @param treePath the TreePath to select data
    * @param rule the transformation rule to apply to selected elements
-   * @return a JsonNavigateCommand that transforms the specified path with the given rule
+   * @return a JsonWalker that transforms the specified path with the given rule
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  public static JsonNavigateCommand create(TreePath treePath, IRule rule) {
+  public static JsonWalker create(TreePath treePath, IRule rule) {
     if (treePath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    return new JsonNavigateCommand(treePath, rule);
+    return new JsonWalker(treePath, rule);
   }
 
   @Override

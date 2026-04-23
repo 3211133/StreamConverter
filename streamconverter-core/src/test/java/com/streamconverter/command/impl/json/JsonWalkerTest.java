@@ -21,15 +21,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Unit tests for JsonNavigateCommand. */
-class JsonNavigateCommandTest {
+/** Unit tests for JsonWalker. */
+class JsonWalkerTest {
 
-  private JsonNavigateCommand command;
+  private JsonWalker command;
 
   @BeforeEach
   void setUp() {
     // Use a specific JSONPath instead of createForAll
-    command = JsonNavigateCommand.create(TreePath.fromJson("$.test"), new PassThroughRule());
+    command = JsonWalker.create(TreePath.fromJson("$.test"), new PassThroughRule());
   }
 
   @Test
@@ -83,7 +83,7 @@ class JsonNavigateCommandTest {
 
   @Test
   void testInvalidJsonInput() throws IOException {
-    // JsonNavigateCommand propagates JsonParseException as IOException for invalid input.
+    // JsonWalker propagates JsonParseException as IOException for invalid input.
     String invalidJson = "{invalid json}";
     InputStream inputStream =
         new ByteArrayInputStream(invalidJson.getBytes(StandardCharsets.UTF_8));
@@ -188,8 +188,8 @@ class JsonNavigateCommandTest {
   void testNestedPathTransformation() throws IOException {
     String jsonInput =
         "{\"a\":{\"b\":{\"c\":\"original\",\"d\":\"unchanged\"}},\"other\":\"untouched\"}";
-    JsonNavigateCommand cmd =
-        JsonNavigateCommand.create(TreePath.fromJson("$.a.b.c"), TestRule.contentTransformRule());
+    JsonWalker cmd =
+        JsonWalker.create(TreePath.fromJson("$.a.b.c"), TestRule.contentTransformRule());
 
     ByteArrayInputStream input =
         new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
@@ -206,8 +206,7 @@ class JsonNavigateCommandTest {
   @DisplayName("[#548] Sibling fields at same level are not transformed")
   void testSiblingFieldsNotTransformed() throws IOException {
     String jsonInput = "{\"x\":\"original value\",\"y\":\"original value\"}";
-    JsonNavigateCommand cmd =
-        JsonNavigateCommand.create(TreePath.fromJson("$.x"), TestRule.contentTransformRule());
+    JsonWalker cmd = JsonWalker.create(TreePath.fromJson("$.x"), TestRule.contentTransformRule());
 
     ByteArrayInputStream input =
         new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
@@ -225,9 +224,8 @@ class JsonNavigateCommandTest {
   void testArraySyntaxPathMatching() throws IOException {
     String jsonInput =
         "{\"orders\":[{\"product_code\":\"ABC\",\"qty\":1},{\"product_code\":\"XYZ\",\"qty\":2}]}";
-    JsonNavigateCommand cmd =
-        JsonNavigateCommand.create(
-            TreePath.fromJson("$.orders[*].product_code"), s -> s.toLowerCase());
+    JsonWalker cmd =
+        JsonWalker.create(TreePath.fromJson("$.orders[*].product_code"), s -> s.toLowerCase());
 
     ByteArrayInputStream input =
         new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
@@ -245,9 +243,8 @@ class JsonNavigateCommandTest {
   void testSecondObjectPathDoesNotTransformFirst() throws IOException {
     String jsonInput =
         "{\"first\":{\"x\":\"original\",\"y\":\"keep\"},\"second\":{\"x\":\"original\",\"y\":\"keep\"}}";
-    JsonNavigateCommand cmd =
-        JsonNavigateCommand.create(
-            TreePath.fromJson("$.second.x"), TestRule.contentTransformRule());
+    JsonWalker cmd =
+        JsonWalker.create(TreePath.fromJson("$.second.x"), TestRule.contentTransformRule());
 
     ByteArrayInputStream input =
         new ByteArrayInputStream(jsonInput.getBytes(StandardCharsets.UTF_8));
@@ -267,8 +264,8 @@ class JsonNavigateCommandTest {
   @DisplayName("Rule RuntimeException is wrapped as IOException with original cause")
   void testRuleRuntimeExceptionWrappedAsIOException() {
     RuntimeException ruleEx = new RuntimeException("rule failure");
-    JsonNavigateCommand failingRuleCommand =
-        JsonNavigateCommand.create(
+    JsonWalker failingRuleCommand =
+        JsonWalker.create(
             TreePath.fromJson("$.value"),
             v -> {
               throw ruleEx;
@@ -297,8 +294,8 @@ class JsonNavigateCommandTest {
             + "{\"order_id\":\"ORD-001\",\"product_code\":\"original\"},"
             + "{\"order_id\":\"ORD-002\",\"product_code\":\"original\"}"
             + "]}";
-    JsonNavigateCommand cmd =
-        JsonNavigateCommand.create(
+    JsonWalker cmd =
+        JsonWalker.create(
             TreePath.fromJson("$.orders[*].product_code"), TestRule.contentTransformRule());
 
     ByteArrayInputStream input =

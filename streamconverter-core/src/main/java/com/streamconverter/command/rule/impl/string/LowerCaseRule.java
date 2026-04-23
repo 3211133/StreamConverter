@@ -22,7 +22,7 @@ import java.util.Locale;
  * <pre>{@code
  * IRule rule = new LowerCaseRule();
  * IRule localeRule = new LowerCaseRule(Locale.ENGLISH);
- * IStreamCommand command = JsonNavigateCommand.create("$.name", rule);
+ * IStreamCommand command = JsonWalker.create(TreePath.fromJson("$.name"), rule);
  * }</pre>
  *
  * @since 1.0

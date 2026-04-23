@@ -2,7 +2,7 @@ package com.streamconverter.examples;
 
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
 import com.streamconverter.command.rule.MdcPropagatingRule;
 import com.streamconverter.command.rule.impl.string.TrimRule;
 import com.streamconverter.context.PipelineContext;
@@ -35,11 +35,11 @@ import org.slf4j.LoggerFactory;
  * [コマンド1: ラムダ]
  *   最初の1行から注文IDを読み取り PipelineContext.putShared("orderId", ...) に格納
  *          ↓
- * [コマンド2: CsvNavigateCommand + MdcPropagatingRule]
+ * [コマンド2: CsvWalker + MdcPropagatingRule]
  *   productName 列を抽出し、値を "productName" キーで MDC に自動伝搬
  *   → このコマンドのログに orderId と productName が含まれる
  *          ↓
- * [コマンド3: CsvNavigateCommand + TrimRule]
+ * [コマンド3: CsvWalker + TrimRule]
  *   address 列の前後空白をトリム
  *   → このコマンドのログにも orderId が含まれる（PipelineContext 経由）
  * </pre>
@@ -87,13 +87,12 @@ public class PipelineContextExample {
     // MdcPropagatingRule は値をパススルーしながら PipelineContext.putShared() を呼び出す Rule。
     // これにより、後続の全コマンドのログに productName が自動的に含まれる。
     IStreamCommand propagateProductName =
-        CsvNavigateCommand.create(
-            CSVPath.of("productName"), MdcPropagatingRule.create("productName"));
+        CsvWalker.create(CSVPath.of("productName"), MdcPropagatingRule.create("productName"));
 
     // --- コマンド3: TrimRule で address をトリム ---
     // このコマンドのログには orderId が含まれる。
     // PipelineContextTurboFilter がログ出力直前に PipelineContext の共有値を MDC に同期するため。
-    IStreamCommand trimAddress = CsvNavigateCommand.create(CSVPath.of("address"), new TrimRule());
+    IStreamCommand trimAddress = CsvWalker.create(CSVPath.of("address"), new TrimRule());
 
     // --- パイプライン実行 ---
     StreamConverter converter =

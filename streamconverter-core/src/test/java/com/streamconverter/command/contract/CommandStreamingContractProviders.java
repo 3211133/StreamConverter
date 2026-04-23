@@ -7,13 +7,13 @@ import com.streamconverter.command.impl.LineEndingNormalizeCommand.LineEndingTyp
 import com.streamconverter.command.impl.SendHttpCommand;
 import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
 import com.streamconverter.command.impl.csv.CsvFilterCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.impl.csv.CsvValidateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
 import com.streamconverter.command.impl.json.JsonFilterCommand;
-import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.impl.json.JsonWalker;
 import com.streamconverter.command.impl.xml.ValidateCommand;
 import com.streamconverter.command.impl.xml.XmlFilterCommand;
-import com.streamconverter.command.impl.xml.XmlNavigateCommand;
+import com.streamconverter.command.impl.xml.XmlWalker;
 import com.streamconverter.command.rule.TestRule;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
@@ -196,11 +196,10 @@ final class CsvFilterCommandStreamingContractProvider implements CommandStreamin
   }
 }
 
-final class CsvNavigateCommandStreamingContractProvider
-    implements CommandStreamingContractProvider {
+final class CsvWalkerStreamingContractProvider implements CommandStreamingContractProvider {
   @Override
   public IStreamCommand createCommand() {
-    return CsvNavigateCommand.create(CSVPath.of("1"), new TestRule("original", "transformed"));
+    return CsvWalker.create(CSVPath.of("1"), new TestRule("original", "transformed"));
   }
 
   @Override
@@ -235,11 +234,10 @@ final class CsvValidateCommandStreamingContractProvider
   }
 }
 
-final class JsonNavigateCommandStreamingContractProvider
-    implements CommandStreamingContractProvider {
+final class JsonWalkerStreamingContractProvider implements CommandStreamingContractProvider {
   @Override
   public IStreamCommand createCommand() {
-    return JsonNavigateCommand.create(
+    return JsonWalker.create(
         TreePath.fromJson("$.user.name"), new TestRule("original", "transformed"));
   }
 
@@ -328,12 +326,10 @@ final class XmlFilterCommandStreamingContractProvider implements CommandStreamin
   }
 }
 
-final class XmlNavigateCommandStreamingContractProvider
-    implements CommandStreamingContractProvider {
+final class XmlWalkerStreamingContractProvider implements CommandStreamingContractProvider {
   @Override
   public IStreamCommand createCommand() {
-    return XmlNavigateCommand.create(
-        TreePath.fromXml("root/item"), new TestRule("original", "transformed"));
+    return XmlWalker.create(TreePath.fromXml("root/item"), new TestRule("original", "transformed"));
   }
 
   @Override

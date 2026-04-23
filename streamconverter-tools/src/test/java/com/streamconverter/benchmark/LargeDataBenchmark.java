@@ -5,9 +5,9 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
-import com.streamconverter.command.impl.json.JsonNavigateCommand;
-import com.streamconverter.command.impl.xml.XmlNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
+import com.streamconverter.command.impl.json.JsonWalker;
+import com.streamconverter.command.impl.xml.XmlWalker;
 import com.streamconverter.command.rule.PassThroughRule;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
@@ -373,7 +373,7 @@ class LargeDataBenchmark {
     // 複雑なパイプライン（メモリプレッシャーをかける）
     StreamConverter converter =
         StreamConverter.create(
-            JsonNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule()),
+            JsonWalker.create(TreePath.fromXml("/orders"), new PassThroughRule()),
             (in, out) -> in.transferTo(out),
             (in, out) -> in.transferTo(out),
             (in, out) -> in.transferTo(out));
@@ -473,7 +473,7 @@ class LargeDataBenchmark {
       // 複雑な4段階パイプライン
       StreamConverter converter =
           StreamConverter.create(
-              XmlNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule()),
+              XmlWalker.create(TreePath.fromXml("/orders"), new PassThroughRule()),
               (in, out) -> in.transferTo(out),
               (in, out) -> in.transferTo(out),
               (in, out) -> in.transferTo(out));
@@ -781,11 +781,11 @@ class LargeDataBenchmark {
   private IStreamCommand createFormatSpecificCommand(String format) {
     switch (format.toUpperCase()) {
       case "XML":
-        return XmlNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule());
+        return XmlWalker.create(TreePath.fromXml("/orders"), new PassThroughRule());
       case "JSON":
-        return JsonNavigateCommand.create(TreePath.fromXml("/orders"), new PassThroughRule());
+        return JsonWalker.create(TreePath.fromXml("/orders"), new PassThroughRule());
       case "CSV":
-        return CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
+        return CsvWalker.create(CSVPath.of("name"), new PassThroughRule());
       default:
         return (in, out) -> in.transferTo(out);
     }

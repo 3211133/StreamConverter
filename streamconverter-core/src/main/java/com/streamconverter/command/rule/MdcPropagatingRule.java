@@ -23,7 +23,7 @@ import com.streamconverter.context.PipelineContext;
  *
  * <pre>{@code
  * // XMLの orderId を抽出してMDCに伝搬
- * XmlNavigateCommand command = XmlNavigateCommand.create(
+ * XmlWalker command = XmlWalker.create(
  *     TreePath.fromXPath("/order/@id"),
  *     MdcPropagatingRule.create("orderId")
  * );
@@ -43,7 +43,7 @@ public final class MdcPropagatingRule implements IRule {
    * <p>使用例:
    *
    * <pre>{@code
-   * XmlNavigateCommand.create(
+   * XmlWalker.create(
    *     TreePath.fromXml("request/userId"),
    *     MdcPropagatingRule.create("userId"));
    * }</pre>

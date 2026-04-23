@@ -21,8 +21,8 @@ import org.slf4j.LoggerFactory;
  * XML Filter Command Class
  *
  * <p>This class implements pure data extraction from XML using TreePath expressions. Unlike
- * XmlNavigateCommand which applies transformations, XmlFilterCommand only extracts/filters elements
- * based on specified paths without any modifications.
+ * XmlWalker which applies transformations, XmlFilterCommand only extracts/filters elements based on
+ * specified paths without any modifications.
  *
  * <p>Features: - Extract specific elements using TreePath expressions - Preserve exact XML
  * structure of extracted elements - Memory-efficient streaming processing - Support for complex

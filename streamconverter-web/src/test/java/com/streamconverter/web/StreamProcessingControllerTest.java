@@ -111,7 +111,7 @@ class StreamProcessingControllerTest {
               assertNotNull(responseBody, "Response body should not be null");
               String responseString = new String(responseBody, StandardCharsets.UTF_8);
 
-              // JsonNavigateCommand with PassThroughRule preserves the entire JSON
+              // JsonWalker with PassThroughRule preserves the entire JSON
               assertFalse(responseString.isEmpty(), "Response should not be empty");
 
               // Verify the complete JSON structure is preserved

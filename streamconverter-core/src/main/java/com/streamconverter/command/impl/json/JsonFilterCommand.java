@@ -14,8 +14,8 @@ import java.util.List;
  * JSON Filter Command Class
  *
  * <p>This class implements pure data extraction from JSON using TreePath expressions. Unlike
- * JsonNavigateCommand which applies transformations, JsonFilterCommand only extracts/filters data
- * based on specified paths without any modifications.
+ * JsonWalker which applies transformations, JsonFilterCommand only extracts/filters data based on
+ * specified paths without any modifications.
  *
  * <p>Features: - Extract specific elements using TreePath expressions - Preserve exact data types
  * and structure of extracted elements - Streaming processing via Jackson Streaming API

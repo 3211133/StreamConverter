@@ -36,9 +36,7 @@ import org.slf4j.LoggerFactory;
  *
  * <ul>
  *   <li>SELECTクエリのみ許可（INSERT/UPDATE/DELETE等は禁止）
- *   <li>SQLインジェクション攻撃の検出と防止
  *   <li>許可されたデータベーススキーマのみ接続可能
- *   <li>入力パラメータの自動サニタイズ
  * </ul>
  */
 public class DatabaseFetchRule implements IRule {
@@ -71,7 +69,13 @@ public class DatabaseFetchRule implements IRule {
     this.databaseUrl = validateDatabaseUrl(databaseUrl.trim());
 
     // クエリの検証
-    this.query = validateQuery(query.trim());
+    String trimmed = query.trim();
+    long placeholderCount = trimmed.chars().filter(c -> c == '?').count();
+    if (placeholderCount > 1) {
+      throw new IllegalArgumentException(
+          "Query must have at most one placeholder '?', found " + placeholderCount);
+    }
+    this.query = validateQuery(trimmed);
 
     logger.info(
         "DatabaseFetchRule initialized with secure validation - URL: {}, Query length: {}",
@@ -117,10 +121,6 @@ public class DatabaseFetchRule implements IRule {
     return SqlQueryUtils.validateQuery(queryString, logger);
   }
 
-  private String sanitizeInput(String input) {
-    return SqlQueryUtils.sanitizeInput(input, logger);
-  }
-
   /**
    * ルールの適用を実行します。
    *
@@ -140,17 +140,8 @@ public class DatabaseFetchRule implements IRule {
 
       // 入力文字列をパラメータとして設定（クエリに「?」プレースホルダーがある場合）
       if (query.contains("?") && input != null && !input.isEmpty()) {
-        // 入力値のサニタイズとセキュリティチェック
-        String sanitizedInput = sanitizeInput(input);
-        if (sanitizedInput.isEmpty()) {
-          logger.warn(
-              "Input parameter was sanitized to empty string. Rejecting input for security reasons. Original input: {}",
-              input);
-          return "";
-        }
-
-        statement.setString(1, sanitizedInput);
-        logger.debug("Parameter set for prepared statement: length={}", sanitizedInput.length());
+        statement.setString(1, input);
+        logger.debug("Parameter set for prepared statement: length={}", input.length());
       }
 
       // クエリ実行

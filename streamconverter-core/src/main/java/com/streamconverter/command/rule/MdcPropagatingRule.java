@@ -24,7 +24,7 @@ import com.streamconverter.context.PipelineContext;
  * <pre>{@code
  * // XMLの orderId を抽出してMDCに伝搬
  * XmlWalker command = XmlWalker.create(
- *     TreePath.fromXPath("/order/@id"),
+ *     TreePath.fromXml("order/@id"),
  *     MdcPropagatingRule.create("orderId")
  * );
  * }</pre>

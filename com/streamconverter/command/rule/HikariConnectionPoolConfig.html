@@ -213,7 +213,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String)">
 <h3>HikariConnectionPoolConfig</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-54">HikariConnectionPoolConfig</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;databaseUrl)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-53">HikariConnectionPoolConfig</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;databaseUrl)</span></div>
 <div class="block">デフォルト設定で接続プールを初期化</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -226,7 +226,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <li>
 <section class="detail" id="&lt;init&gt;(java.lang.String,int,java.time.Duration)">
 <h3>HikariConnectionPoolConfig</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-66">HikariConnectionPoolConfig</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;databaseUrl,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-65">HikariConnectionPoolConfig</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;databaseUrl,
  int&nbsp;maximumPoolSize,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/time/Duration.html" title="class or interface in java.time" class="external-link">Duration</a>&nbsp;connectionTimeout)</span></div>
 <div class="block">カスタム設定で接続プールを初期化</div>
@@ -251,7 +251,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <li>
 <section class="detail" id="getConnection()">
 <h3>getConnection</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.sql/java/sql/Connection.html" title="class or interface in java.sql" class="external-link">Connection</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-113">getConnection</a></span>()
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.sql/java/sql/Connection.html" title="class or interface in java.sql" class="external-link">Connection</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-109">getConnection</a></span>()
                          throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.sql/java/sql/SQLException.html" title="class or interface in java.sql" class="external-link">SQLException</a></span></div>
 <div class="block">プールから接続を取得</div>
 <dl class="notes">
@@ -265,7 +265,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <li>
 <section class="detail" id="getPoolStats()">
 <h3>getPoolStats</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-129">getPoolStats</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-125">getPoolStats</a></span>()</div>
 <div class="block">プールの現在の統計情報を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -276,18 +276,18 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <li>
 <section class="detail" id="getDetailedStats()">
 <h3>getDetailedStats</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-147">getDetailedStats</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-143">getDetailedStats</a></span>()</div>
 <div class="block">プールの詳細統計情報を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>
-<dd>詳細統計情報文字列</dd>
+<dd>詳細統計情報文字列（URLは含まない）</dd>
 </dl>
 </section>
 </li>
 <li>
 <section class="detail" id="isClosed()">
 <h3>isClosed</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-167">isClosed</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-162">isClosed</a></span>()</div>
 <div class="block">プールがクローズ済みかどうかを確認</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -298,7 +298,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <li>
 <section class="detail" id="close()">
 <h3>close</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-172">close</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-167">close</a></span>()</div>
 <div class="block">プールをシャットダウンし、全ての接続をクローズ</div>
 <dl class="notes">
 <dt>Specified by:</dt>
@@ -311,7 +311,7 @@ implements <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base
 <h3>shutdown</h3>
 <div class="member-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html" title="class or interface in java.lang" class="external-link">@Deprecated</a>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html#since()" title="class or interface in java.lang" class="external-link">since</a>="1.2",
             <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Deprecated.html#forRemoval()" title="class or interface in java.lang" class="external-link">forRemoval</a>=true)
-</span><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-186">shutdown</a></span>()</div>
+</span><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/HikariConnectionPoolConfig.html#line-181">shutdown</a></span>()</div>
 <div class="deprecation-block"><span class="deprecated-label">Deprecated, for removal: This API element is subject to removal in a future version.</span>
 <div class="deprecation-comment"><a href="#close()"><code>close()</code></a> を使用してください</div>
 </div>

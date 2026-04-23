@@ -97,7 +97,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="../../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-35">XmlNavigateCommand</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-34">XmlNavigateCommand</a></span>
 <span class="extends-implements">extends <a href="../../AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></span></div>
 <div class="block">XML Navigate Command for applying transformations to XML data.
 
@@ -142,7 +142,7 @@ loadScripts(document, 'script');</script>
 <div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>protected <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLEventWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLEventWriter</a></code></div>
 <div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#createXMLEventWriter(java.io.OutputStream)" class="member-name-link">createXMLEventWriter</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Creates the <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLEventWriter.html" title="class or interface in javax.xml.stream" class="external-link"><code>XMLEventWriter</code></a> for the given output stream.</div>
+<div class="block">出力ストリームへの XMLEventWriter を作成する。</div>
 </div>
 <div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>void</code></div>
 <div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#execute(java.io.InputStream,java.io.OutputStream)" class="member-name-link">execute</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
@@ -173,7 +173,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="create(com.streamconverter.path.TreePath,com.streamconverter.command.rule.IRule)">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="XmlNavigateCommand.html" title="class in com.streamconverter.command.impl.xml">XmlNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-69">create</a></span><wbr><span class="parameters">(<a href="../../../path/TreePath.html" title="class in com.streamconverter.path">TreePath</a>&nbsp;treePath,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="XmlNavigateCommand.html" title="class in com.streamconverter.command.impl.xml">XmlNavigateCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-68">create</a></span><wbr><span class="parameters">(<a href="../../../path/TreePath.html" title="class in com.streamconverter.path">TreePath</a>&nbsp;treePath,
  <a href="../../rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Factory method for creating an XML navigation command with TreePath and rule.</div>
 <dl class="notes">
@@ -191,7 +191,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-79">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-78">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block"><span class="description-from-type-label">Description copied from class:&nbsp;<code><a href="../../AbstractStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">AbstractStreamCommand</a></code></span></div>
@@ -212,16 +212,18 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createXMLEventWriter(java.io.OutputStream)">
 <h3>createXMLEventWriter</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLEventWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLEventWriter</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-160">createXMLEventWriter</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLEventWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLEventWriter</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlNavigateCommand.html#line-161">createXMLEventWriter</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                                        throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
-<div class="block">Creates the <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLEventWriter.html" title="class or interface in javax.xml.stream" class="external-link"><code>XMLEventWriter</code></a> for the given output stream. Protected for testing.</div>
+<div class="block">出力ストリームへの XMLEventWriter を作成する。
+
+ <p>テスト時にオーバーライドしてファクトリをモック可能にするため protected スコープとしている。</div>
 <dl class="notes">
 <dt>Parameters:</dt>
-<dd><code>outputStream</code> - the stream to write XML events to</dd>
+<dd><code>outputStream</code> - 書き込み先ストリーム</dd>
 <dt>Returns:</dt>
-<dd>a new XMLEventWriter backed by the given stream</dd>
+<dd>設定済み XMLEventWriter</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - if the writer cannot be created</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></code> - ライターの生成に失敗した場合</dd>
 </dl>
 </section>
 </li>

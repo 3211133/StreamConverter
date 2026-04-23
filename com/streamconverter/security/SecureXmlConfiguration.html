@@ -91,7 +91,7 @@ loadScripts(document, 'script');</script>
 </div>
 <section class="class-description" id="class-description">
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-31">SecureXmlConfiguration</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-32">SecureXmlConfiguration</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a></span></div>
 <div class="block">XML処理のセキュリティ設定を提供するユーティリティクラス
 
@@ -154,6 +154,11 @@ loadScripts(document, 'script');</script>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
 <div class="block">XXE攻撃を防ぐように設定されたXMLInputFactoryを作成します</div>
 </div>
+<div class="col-first even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code>static <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLOutputFactory.html" title="class or interface in javax.xml.stream" class="external-link">XMLOutputFactory</a></code></div>
+<div class="col-second even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4"><code><a href="#createSecureXMLOutputFactory()" class="member-name-link">createSecureXMLOutputFactory</a>()</code></div>
+<div class="col-last even-row-color method-summary-table method-summary-table-tab1 method-summary-table-tab4">
+<div class="block">セキュリティ設定を明示した XMLOutputFactory を作成します。</div>
+</div>
 </div>
 </div>
 </div>
@@ -174,7 +179,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createSecureDocumentBuilderFactory()">
 <h3>createSecureDocumentBuilderFactory</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/DocumentBuilderFactory.html" title="class or interface in javax.xml.parsers" class="external-link">DocumentBuilderFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-46">createSecureDocumentBuilderFactory</a></span>()
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/DocumentBuilderFactory.html" title="class or interface in javax.xml.parsers" class="external-link">DocumentBuilderFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-47">createSecureDocumentBuilderFactory</a></span>()
                                                                  throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/ParserConfigurationException.html" title="class or interface in javax.xml.parsers" class="external-link">ParserConfigurationException</a></span></div>
 <div class="block">XXE攻撃を防ぐように設定されたDocumentBuilderFactoryを作成します</div>
 <dl class="notes">
@@ -188,7 +193,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createSecureDocumentBuilder()">
 <h3>createSecureDocumentBuilder</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/DocumentBuilder.html" title="class or interface in javax.xml.parsers" class="external-link">DocumentBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-95">createSecureDocumentBuilder</a></span>()
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/DocumentBuilder.html" title="class or interface in javax.xml.parsers" class="external-link">DocumentBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-96">createSecureDocumentBuilder</a></span>()
                                                    throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/ParserConfigurationException.html" title="class or interface in javax.xml.parsers" class="external-link">ParserConfigurationException</a></span></div>
 <div class="block">安全に設定されたDocumentBuilderを作成します</div>
 <dl class="notes">
@@ -202,7 +207,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createSecureXMLInputFactory()">
 <h3>createSecureXMLInputFactory</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLInputFactory.html" title="class or interface in javax.xml.stream" class="external-link">XMLInputFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-105">createSecureXMLInputFactory</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLInputFactory.html" title="class or interface in javax.xml.stream" class="external-link">XMLInputFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-106">createSecureXMLInputFactory</a></span>()</div>
 <div class="block">XXE攻撃を防ぐように設定されたXMLInputFactoryを作成します</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -211,9 +216,23 @@ loadScripts(document, 'script');</script>
 </section>
 </li>
 <li>
+<section class="detail" id="createSecureXMLOutputFactory()">
+<h3>createSecureXMLOutputFactory</h3>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLOutputFactory.html" title="class or interface in javax.xml.stream" class="external-link">XMLOutputFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-129">createSecureXMLOutputFactory</a></span>()</div>
+<div class="block">セキュリティ設定を明示した XMLOutputFactory を作成します。
+
+ <p>XMLOutputFactory 仕様には外部エンティティ制御プロパティが存在しないが、 使用箇所を一元管理することで将来の実装差し替え時の保護となる。 <code>
+ IS_REPAIRING_NAMESPACES</code> を false に設定し、 不正な名前空間宣言の自動補完を防ぐ。</div>
+<dl class="notes">
+<dt>Returns:</dt>
+<dd>セキュリティ設定済み XMLOutputFactory</dd>
+</dl>
+</section>
+</li>
+<li>
 <section class="detail" id="createSecureTransformerFactory()">
 <h3>createSecureTransformerFactory</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/transform/TransformerFactory.html" title="class or interface in javax.xml.transform" class="external-link">TransformerFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-128">createSecureTransformerFactory</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/transform/TransformerFactory.html" title="class or interface in javax.xml.transform" class="external-link">TransformerFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-144">createSecureTransformerFactory</a></span>()</div>
 <div class="block">安全に設定されたTransformerFactoryを作成します
 
  <p>XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）</div>
@@ -228,7 +247,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createSecureSchemaFactory()">
 <h3>createSecureSchemaFactory</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/validation/SchemaFactory.html" title="class or interface in javax.xml.validation" class="external-link">SchemaFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-157">createSecureSchemaFactory</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/validation/SchemaFactory.html" title="class or interface in javax.xml.validation" class="external-link">SchemaFactory</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-173">createSecureSchemaFactory</a></span>()</div>
 <div class="block">安全に設定されたSchemaFactoryを作成します
 
  <p>XXE攻撃防止設定（設定失敗はXXE脆弱性のまま継続するため例外をスロー）</div>
@@ -243,7 +262,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createSecureDocumentBuilderForStream(java.io.InputStream)">
 <h3>createSecureDocumentBuilderForStream</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/DocumentBuilder.html" title="class or interface in javax.xml.parsers" class="external-link">DocumentBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-189">createSecureDocumentBuilderForStream</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</span>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/DocumentBuilder.html" title="class or interface in javax.xml.parsers" class="external-link">DocumentBuilder</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/security/SecureXmlConfiguration.html#line-205">createSecureDocumentBuilderForStream</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream)</span>
                                                             throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/parsers/ParserConfigurationException.html" title="class or interface in javax.xml.parsers" class="external-link">ParserConfigurationException</a></span></div>
 <div class="block">ストリーム処理用に安全なDocumentBuilderを作成します。
 

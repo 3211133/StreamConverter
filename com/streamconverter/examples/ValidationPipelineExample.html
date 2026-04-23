@@ -111,15 +111,15 @@ loadScripts(document, 'script');</script>
 
  <pre>
  パターンA（問題あり）:
-   CsvValidateCommand → CsvNavigateCommand
+   CsvValidateCommand → CsvWalker
    検証失敗でも後段に部分データが届く可能性がある
 
  パターンB（安全）:
-   CsvValidateCommand → FileBufferCommand → CsvNavigateCommand
+   CsvValidateCommand → FileBufferCommand → CsvWalker
    FileBufferCommand が前段の完了を待ち、後段は確実に検証済みデータのみを受け取る
 
  パターンC（機密データ）:
-   CsvValidateCommand → FileBufferCommand.createEncrypted() → CsvNavigateCommand
+   CsvValidateCommand → FileBufferCommand.createEncrypted() → CsvWalker
    一時ファイルを AES-256-GCM で暗号化するため、機密データでも安全
  </pre></div>
 </section>

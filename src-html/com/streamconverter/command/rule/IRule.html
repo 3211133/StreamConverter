@@ -33,7 +33,7 @@
 <span class="source-line-no">020</span><span id="line-20"> *</span>
 <span class="source-line-no">021</span><span id="line-21"> * // StreamConverterコマンドでの使用例</span>
 <span class="source-line-no">022</span><span id="line-22"> * IRule dataCleaningRule = input -&gt; input.trim().replaceAll("\\s+", " ");</span>
-<span class="source-line-no">023</span><span id="line-23"> * JsonNavigateCommand command = JsonNavigateCommand.create(</span>
+<span class="source-line-no">023</span><span id="line-23"> * JsonWalker command = JsonWalker.create(</span>
 <span class="source-line-no">024</span><span id="line-24"> *     TreePath.fromJson("$.user.name"),</span>
 <span class="source-line-no">025</span><span id="line-25"> *     dataCleaningRule</span>
 <span class="source-line-no">026</span><span id="line-26"> * );</span>

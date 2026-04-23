@@ -40,8 +40,8 @@
 <span class="source-line-no">027</span><span id="line-27"> * );</span>
 <span class="source-line-no">028</span><span id="line-28"> * String result = rule.apply("123"); // ユーザーID 123 の名前を取得</span>
 <span class="source-line-no">029</span><span id="line-29"> *</span>
-<span class="source-line-no">030</span><span id="line-30"> * // NavigateCommandと組み合わせた使用例</span>
-<span class="source-line-no">031</span><span id="line-31"> * JsonNavigateCommand command = new JsonNavigateCommand("$.userId", rule);</span>
+<span class="source-line-no">030</span><span id="line-30"> * // JsonWalkerと組み合わせた使用例</span>
+<span class="source-line-no">031</span><span id="line-31"> * JsonWalker command = JsonWalker.create(TreePath.fromJson("$.userId"), rule);</span>
 <span class="source-line-no">032</span><span id="line-32"> * command.execute(inputStream, outputStream); // JSON中のuserIdでDBを検索して置換</span>
 <span class="source-line-no">033</span><span id="line-33"> * }&lt;/pre&gt;</span>
 <span class="source-line-no">034</span><span id="line-34"> *</span>

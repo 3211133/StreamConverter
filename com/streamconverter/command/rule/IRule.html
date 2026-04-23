@@ -117,7 +117,7 @@ loadScripts(document, 'script');</script>
 
  // StreamConverterコマンドでの使用例
  IRule dataCleaningRule = input -&gt; input.trim().replaceAll("\\s+", " ");
- JsonNavigateCommand command = JsonNavigateCommand.create(
+ JsonWalker command = JsonWalker.create(
      TreePath.fromJson("$.user.name"),
      dataCleaningRule
  );

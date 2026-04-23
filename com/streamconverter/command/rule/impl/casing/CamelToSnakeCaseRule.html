@@ -116,7 +116,7 @@ implements <a href="../../IRule.html" title="interface in com.streamconverter.co
 
  <pre><code>
  IRule rule = CamelToSnakeCaseRule.builder().build();
- IStreamCommand command = JsonNavigateCommand.create("$.userName", rule);
+ IStreamCommand command = JsonWalker.create(TreePath.fromJson("$.userName"), rule);
  </code></pre></div>
 <dl class="notes">
 <dt>Since:</dt>

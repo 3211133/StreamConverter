@@ -34,8 +34,8 @@
 <span class="source-line-no">021</span><span id="line-21"> *</span>
 <span class="source-line-no">022</span><span id="line-22"> * &lt;pre&gt;{@code</span>
 <span class="source-line-no">023</span><span id="line-23"> * IRule rule = new LowerCaseRule();</span>
-<span class="source-line-no">024</span><span id="line-24"> * IRule localeRule = new LowerCaseRule(Locale.ENGLISH);</span>
-<span class="source-line-no">025</span><span id="line-25"> * IStreamCommand command = JsonNavigateCommand.create("$.name", rule);</span>
+<span class="source-line-no">024</span><span id="line-24"> * IRule localeRule = LowerCaseRule.create(Locale.ENGLISH);</span>
+<span class="source-line-no">025</span><span id="line-25"> * IStreamCommand command = JsonWalker.create(TreePath.fromJson("$.name"), rule);</span>
 <span class="source-line-no">026</span><span id="line-26"> * }&lt;/pre&gt;</span>
 <span class="source-line-no">027</span><span id="line-27"> *</span>
 <span class="source-line-no">028</span><span id="line-28"> * @since 1.0</span>

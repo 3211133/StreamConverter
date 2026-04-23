@@ -115,7 +115,7 @@ implements <a href="../../IRule.html" title="interface in com.streamconverter.co
 
  <pre><code>
  IRule rule = new TrimRule();
- IStreamCommand command = JsonNavigateCommand.create("$.name", rule);
+ IStreamCommand command = JsonWalker.create(TreePath.fromJson("$.name"), rule);
  </code></pre></div>
 <dl class="notes">
 <dt>Since:</dt>

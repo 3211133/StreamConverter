@@ -112,11 +112,11 @@ loadScripts(document, 'script');</script>
  [コマンド1: ラムダ]
    最初の1行から注文IDを読み取り PipelineContext.putShared("orderId", ...) に格納
           ↓
- [コマンド2: CsvNavigateCommand + MdcPropagatingRule]
+ [コマンド2: CsvWalker + MdcPropagatingRule]
    productName 列を抽出し、値を "productName" キーで MDC に自動伝搬
    → このコマンドのログに orderId と productName が含まれる
           ↓
- [コマンド3: CsvNavigateCommand + TrimRule]
+ [コマンド3: CsvWalker + TrimRule]
    address 列の前後空白をトリム
    → このコマンドのログにも orderId が含まれる（PipelineContext 経由）
  </pre></div>

@@ -15,7 +15,7 @@
 <span class="source-line-no">002</span><span id="line-2"></span>
 <span class="source-line-no">003</span><span id="line-3">import com.streamconverter.StreamConverter;</span>
 <span class="source-line-no">004</span><span id="line-4">import com.streamconverter.command.IStreamCommand;</span>
-<span class="source-line-no">005</span><span id="line-5">import com.streamconverter.command.impl.csv.CsvNavigateCommand;</span>
+<span class="source-line-no">005</span><span id="line-5">import com.streamconverter.command.impl.csv.CsvWalker;</span>
 <span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.rule.MdcPropagatingRule;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamconverter.command.rule.impl.string.TrimRule;</span>
 <span class="source-line-no">008</span><span id="line-8">import com.streamconverter.context.PipelineContext;</span>
@@ -48,11 +48,11 @@
 <span class="source-line-no">035</span><span id="line-35"> * [コマンド1: ラムダ]</span>
 <span class="source-line-no">036</span><span id="line-36"> *   最初の1行から注文IDを読み取り PipelineContext.putShared("orderId", ...) に格納</span>
 <span class="source-line-no">037</span><span id="line-37"> *          ↓</span>
-<span class="source-line-no">038</span><span id="line-38"> * [コマンド2: CsvNavigateCommand + MdcPropagatingRule]</span>
+<span class="source-line-no">038</span><span id="line-38"> * [コマンド2: CsvWalker + MdcPropagatingRule]</span>
 <span class="source-line-no">039</span><span id="line-39"> *   productName 列を抽出し、値を "productName" キーで MDC に自動伝搬</span>
 <span class="source-line-no">040</span><span id="line-40"> *   → このコマンドのログに orderId と productName が含まれる</span>
 <span class="source-line-no">041</span><span id="line-41"> *          ↓</span>
-<span class="source-line-no">042</span><span id="line-42"> * [コマンド3: CsvNavigateCommand + TrimRule]</span>
+<span class="source-line-no">042</span><span id="line-42"> * [コマンド3: CsvWalker + TrimRule]</span>
 <span class="source-line-no">043</span><span id="line-43"> *   address 列の前後空白をトリム</span>
 <span class="source-line-no">044</span><span id="line-44"> *   → このコマンドのログにも orderId が含まれる（PipelineContext 経由）</span>
 <span class="source-line-no">045</span><span id="line-45"> * &lt;/pre&gt;</span>
@@ -100,33 +100,32 @@
 <span class="source-line-no">087</span><span id="line-87">    // MdcPropagatingRule は値をパススルーしながら PipelineContext.putShared() を呼び出す Rule。</span>
 <span class="source-line-no">088</span><span id="line-88">    // これにより、後続の全コマンドのログに productName が自動的に含まれる。</span>
 <span class="source-line-no">089</span><span id="line-89">    IStreamCommand propagateProductName =</span>
-<span class="source-line-no">090</span><span id="line-90">        CsvNavigateCommand.create(</span>
-<span class="source-line-no">091</span><span id="line-91">            CSVPath.of("productName"), MdcPropagatingRule.create("productName"));</span>
-<span class="source-line-no">092</span><span id="line-92"></span>
-<span class="source-line-no">093</span><span id="line-93">    // --- コマンド3: TrimRule で address をトリム ---</span>
-<span class="source-line-no">094</span><span id="line-94">    // このコマンドのログには orderId が含まれる。</span>
-<span class="source-line-no">095</span><span id="line-95">    // PipelineContextTurboFilter がログ出力直前に PipelineContext の共有値を MDC に同期するため。</span>
-<span class="source-line-no">096</span><span id="line-96">    IStreamCommand trimAddress = CsvNavigateCommand.create(CSVPath.of("address"), new TrimRule());</span>
-<span class="source-line-no">097</span><span id="line-97"></span>
-<span class="source-line-no">098</span><span id="line-98">    // --- パイプライン実行 ---</span>
-<span class="source-line-no">099</span><span id="line-99">    StreamConverter converter =</span>
-<span class="source-line-no">100</span><span id="line-100">        StreamConverter.create(extractOrderId, propagateProductName, trimAddress);</span>
-<span class="source-line-no">101</span><span id="line-101"></span>
-<span class="source-line-no">102</span><span id="line-102">    ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
-<span class="source-line-no">103</span><span id="line-103">    try (InputStream inputStream = new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8))) {</span>
-<span class="source-line-no">104</span><span id="line-104">      converter.run(inputStream, output);</span>
-<span class="source-line-no">105</span><span id="line-105">    }</span>
-<span class="source-line-no">106</span><span id="line-106"></span>
-<span class="source-line-no">107</span><span id="line-107">    String result = output.toString(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">108</span><span id="line-108">    String expected =</span>
-<span class="source-line-no">109</span><span id="line-109">        "orderId,productName,address\r\n"</span>
-<span class="source-line-no">110</span><span id="line-110">            + "ORD-2026-0001,Laptop Computer,Tokyo Japan\r\n"</span>
-<span class="source-line-no">111</span><span id="line-111">            + "ORD-2026-0002,Wireless Mouse,Osaka Japan\r\n";</span>
-<span class="source-line-no">112</span><span id="line-112">    log.info("期待値:\n{}", expected);</span>
-<span class="source-line-no">113</span><span id="line-113">    log.info("出力 CSV:\n{}", result);</span>
-<span class="source-line-no">114</span><span id="line-114">    log.info("ログの各行に orderId / productName が含まれていることを確認してください");</span>
-<span class="source-line-no">115</span><span id="line-115">  }</span>
-<span class="source-line-no">116</span><span id="line-116">}</span>
+<span class="source-line-no">090</span><span id="line-90">        CsvWalker.create(CSVPath.of("productName"), MdcPropagatingRule.create("productName"));</span>
+<span class="source-line-no">091</span><span id="line-91"></span>
+<span class="source-line-no">092</span><span id="line-92">    // --- コマンド3: TrimRule で address をトリム ---</span>
+<span class="source-line-no">093</span><span id="line-93">    // このコマンドのログには orderId が含まれる。</span>
+<span class="source-line-no">094</span><span id="line-94">    // PipelineContextTurboFilter がログ出力直前に PipelineContext の共有値を MDC に同期するため。</span>
+<span class="source-line-no">095</span><span id="line-95">    IStreamCommand trimAddress = CsvWalker.create(CSVPath.of("address"), new TrimRule());</span>
+<span class="source-line-no">096</span><span id="line-96"></span>
+<span class="source-line-no">097</span><span id="line-97">    // --- パイプライン実行 ---</span>
+<span class="source-line-no">098</span><span id="line-98">    StreamConverter converter =</span>
+<span class="source-line-no">099</span><span id="line-99">        StreamConverter.create(extractOrderId, propagateProductName, trimAddress);</span>
+<span class="source-line-no">100</span><span id="line-100"></span>
+<span class="source-line-no">101</span><span id="line-101">    ByteArrayOutputStream output = new ByteArrayOutputStream();</span>
+<span class="source-line-no">102</span><span id="line-102">    try (InputStream inputStream = new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8))) {</span>
+<span class="source-line-no">103</span><span id="line-103">      converter.run(inputStream, output);</span>
+<span class="source-line-no">104</span><span id="line-104">    }</span>
+<span class="source-line-no">105</span><span id="line-105"></span>
+<span class="source-line-no">106</span><span id="line-106">    String result = output.toString(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">107</span><span id="line-107">    String expected =</span>
+<span class="source-line-no">108</span><span id="line-108">        "orderId,productName,address\r\n"</span>
+<span class="source-line-no">109</span><span id="line-109">            + "ORD-2026-0001,Laptop Computer,Tokyo Japan\r\n"</span>
+<span class="source-line-no">110</span><span id="line-110">            + "ORD-2026-0002,Wireless Mouse,Osaka Japan\r\n";</span>
+<span class="source-line-no">111</span><span id="line-111">    log.info("期待値:\n{}", expected);</span>
+<span class="source-line-no">112</span><span id="line-112">    log.info("出力 CSV:\n{}", result);</span>
+<span class="source-line-no">113</span><span id="line-113">    log.info("ログの各行に orderId / productName が含まれていることを確認してください");</span>
+<span class="source-line-no">114</span><span id="line-114">  }</span>
+<span class="source-line-no">115</span><span id="line-115">}</span>
 
 
 

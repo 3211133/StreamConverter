@@ -111,29 +111,29 @@ loadScripts(document, 'script');</script>
  <p><b>シナリオ（CSV 3段パイプライン）:</b>
 
  <pre>
- [コマンド1] CsvNavigateCommand(name列) + ChainRule(TrimRule → LowerCaseRule)
+ [コマンド1] CsvWalker(name列) + ChainRule(TrimRule → LowerCaseRule)
              商品名の前後空白を除去して小文字に統一
           ↓
- [コマンド2] CsvNavigateCommand(price列) + カスタムIRule実装クラス（PriceFormattingRule）
+ [コマンド2] CsvWalker(price列) + カスタムIRule実装クラス（PriceFormattingRule）
              価格を "¥1,234" 形式にフォーマット
           ↓
- [コマンド3] CsvNavigateCommand(category列) + ラムダIRule
+ [コマンド3] CsvWalker(category列) + ラムダIRule
              カテゴリを大文字に変換（ラムダで実装）
  </pre>
 
  <p><b>シナリオ（JSON 3段パイプライン）:</b>
 
  <pre>
- [コマンド1] JsonNavigateCommand($.name) + ChainRule(TrimRule → LowerCaseRule)
- [コマンド2] JsonNavigateCommand($.category) + CamelToSnakeCaseRule（組み込みRuleの例）
- [コマンド3] JsonNavigateCommand($.sku) + ラムダIRule（"SKU-" プレフィックス付与）
+ [コマンド1] JsonWalker($.name) + ChainRule(TrimRule → LowerCaseRule)
+ [コマンド2] JsonWalker($.category) + CamelToSnakeCaseRule（組み込みRuleの例）
+ [コマンド3] JsonWalker($.sku) + ラムダIRule（"SKU-" プレフィックス付与）
  </pre>
 
  <p><b>シナリオ（XML 2段パイプライン）:</b>
 
  <pre>
- [コマンド1] XmlNavigateCommand(product/name) + ChainRule(TrimRule → LowerCaseRule)
- [コマンド2] XmlNavigateCommand(product/category) + CamelToSnakeCaseRule
+ [コマンド1] XmlWalker(product/name) + ChainRule(TrimRule → LowerCaseRule)
+ [コマンド2] XmlWalker(product/category) + CamelToSnakeCaseRule
  </pre></div>
 </section>
 <section class="summary">

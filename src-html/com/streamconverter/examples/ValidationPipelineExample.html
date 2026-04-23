@@ -16,8 +16,8 @@
 <span class="source-line-no">003</span><span id="line-3">import com.streamconverter.StreamConverter;</span>
 <span class="source-line-no">004</span><span id="line-4">import com.streamconverter.StreamProcessingException;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.streamconverter.command.impl.FileBufferCommand;</span>
-<span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.impl.csv.CsvNavigateCommand;</span>
-<span class="source-line-no">007</span><span id="line-7">import com.streamconverter.command.impl.csv.CsvValidateCommand;</span>
+<span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.impl.csv.CsvValidateCommand;</span>
+<span class="source-line-no">007</span><span id="line-7">import com.streamconverter.command.impl.csv.CsvWalker;</span>
 <span class="source-line-no">008</span><span id="line-8">import com.streamconverter.command.rule.impl.string.TrimRule;</span>
 <span class="source-line-no">009</span><span id="line-9">import com.streamconverter.path.CSVPath;</span>
 <span class="source-line-no">010</span><span id="line-10">import java.io.ByteArrayInputStream;</span>
@@ -46,15 +46,15 @@
 <span class="source-line-no">033</span><span id="line-33"> *</span>
 <span class="source-line-no">034</span><span id="line-34"> * &lt;pre&gt;</span>
 <span class="source-line-no">035</span><span id="line-35"> * パターンA（問題あり）:</span>
-<span class="source-line-no">036</span><span id="line-36"> *   CsvValidateCommand → CsvNavigateCommand</span>
+<span class="source-line-no">036</span><span id="line-36"> *   CsvValidateCommand → CsvWalker</span>
 <span class="source-line-no">037</span><span id="line-37"> *   検証失敗でも後段に部分データが届く可能性がある</span>
 <span class="source-line-no">038</span><span id="line-38"> *</span>
 <span class="source-line-no">039</span><span id="line-39"> * パターンB（安全）:</span>
-<span class="source-line-no">040</span><span id="line-40"> *   CsvValidateCommand → FileBufferCommand → CsvNavigateCommand</span>
+<span class="source-line-no">040</span><span id="line-40"> *   CsvValidateCommand → FileBufferCommand → CsvWalker</span>
 <span class="source-line-no">041</span><span id="line-41"> *   FileBufferCommand が前段の完了を待ち、後段は確実に検証済みデータのみを受け取る</span>
 <span class="source-line-no">042</span><span id="line-42"> *</span>
 <span class="source-line-no">043</span><span id="line-43"> * パターンC（機密データ）:</span>
-<span class="source-line-no">044</span><span id="line-44"> *   CsvValidateCommand → FileBufferCommand.createEncrypted() → CsvNavigateCommand</span>
+<span class="source-line-no">044</span><span id="line-44"> *   CsvValidateCommand → FileBufferCommand.createEncrypted() → CsvWalker</span>
 <span class="source-line-no">045</span><span id="line-45"> *   一時ファイルを AES-256-GCM で暗号化するため、機密データでも安全</span>
 <span class="source-line-no">046</span><span id="line-46"> * &lt;/pre&gt;</span>
 <span class="source-line-no">047</span><span id="line-47"> */</span>
@@ -99,7 +99,7 @@
 <span class="source-line-no">086</span><span id="line-86">    // TeeInputStream を使って入力を読みながら出力にも同時に流す。</span>
 <span class="source-line-no">087</span><span id="line-87">    // そのため検証が失敗した時点で後段にはすでに部分データが流れている可能性がある。</span>
 <span class="source-line-no">088</span><span id="line-88">    CsvValidateCommand validator = CsvValidateCommand.create("id", "name", "email");</span>
-<span class="source-line-no">089</span><span id="line-89">    CsvNavigateCommand trimName = CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule());</span>
+<span class="source-line-no">089</span><span id="line-89">    CsvWalker trimName = CsvWalker.create(CSVPath.of("name"), new TrimRule());</span>
 <span class="source-line-no">090</span><span id="line-90"></span>
 <span class="source-line-no">091</span><span id="line-91">    StreamConverter converter = StreamConverter.create(validator, trimName);</span>
 <span class="source-line-no">092</span><span id="line-92"></span>
@@ -116,7 +116,7 @@
 <span class="source-line-no">103</span><span id="line-103"></span>
 <span class="source-line-no">104</span><span id="line-104">    // 同じ StreamConverter を使いまわすことはできないため再生成</span>
 <span class="source-line-no">105</span><span id="line-105">    validator = CsvValidateCommand.create("id", "name", "email");</span>
-<span class="source-line-no">106</span><span id="line-106">    trimName = CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule());</span>
+<span class="source-line-no">106</span><span id="line-106">    trimName = CsvWalker.create(CSVPath.of("name"), new TrimRule());</span>
 <span class="source-line-no">107</span><span id="line-107">    converter = StreamConverter.create(validator, trimName);</span>
 <span class="source-line-no">108</span><span id="line-108"></span>
 <span class="source-line-no">109</span><span id="line-109">    log.info(</span>
@@ -138,7 +138,7 @@
 <span class="source-line-no">125</span><span id="line-125">    // FileBufferCommand を検証コマンドの後に挿入することで逐次化できる。</span>
 <span class="source-line-no">126</span><span id="line-126">    // FileBufferCommand は:</span>
 <span class="source-line-no">127</span><span id="line-127">    //   1. 前段（CsvValidateCommand）の出力を一時ファイルに書き込む（前段が完全に完了するまで待機）</span>
-<span class="source-line-no">128</span><span id="line-128">    //   2. 前段完了後に一時ファイルを後段（CsvNavigateCommand）への入力として流す</span>
+<span class="source-line-no">128</span><span id="line-128">    //   2. 前段完了後に一時ファイルを後段（CsvWalker）への入力として流す</span>
 <span class="source-line-no">129</span><span id="line-129">    // これにより「検証が成功した場合のみ後段が動く」ことが保証される。</span>
 <span class="source-line-no">130</span><span id="line-130">    String validExpected =</span>
 <span class="source-line-no">131</span><span id="line-131">        "id,name,email\r\n" + "1,Alice,alice@example.com\r\n" + "2,Bob,bob@example.com\r\n";</span>
@@ -148,7 +148,7 @@
 <span class="source-line-no">135</span><span id="line-135">      StreamConverter.create(</span>
 <span class="source-line-no">136</span><span id="line-136">              CsvValidateCommand.create("id", "name", "email"),</span>
 <span class="source-line-no">137</span><span id="line-137">              FileBufferCommand.create(),</span>
-<span class="source-line-no">138</span><span id="line-138">              CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule()))</span>
+<span class="source-line-no">138</span><span id="line-138">              CsvWalker.create(CSVPath.of("name"), new TrimRule()))</span>
 <span class="source-line-no">139</span><span id="line-139">          .run(new ByteArrayInputStream(validCsv.getBytes(StandardCharsets.UTF_8)), out3);</span>
 <span class="source-line-no">140</span><span id="line-140">      log.info("出力:\n{}", out3.toString(StandardCharsets.UTF_8));</span>
 <span class="source-line-no">141</span><span id="line-141">    } catch (StreamProcessingException e) {</span>
@@ -162,7 +162,7 @@
 <span class="source-line-no">149</span><span id="line-149">      StreamConverter.create(</span>
 <span class="source-line-no">150</span><span id="line-150">              CsvValidateCommand.create("id", "name", "email"),</span>
 <span class="source-line-no">151</span><span id="line-151">              FileBufferCommand.create(),</span>
-<span class="source-line-no">152</span><span id="line-152">              CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule()))</span>
+<span class="source-line-no">152</span><span id="line-152">              CsvWalker.create(CSVPath.of("name"), new TrimRule()))</span>
 <span class="source-line-no">153</span><span id="line-153">          .run(new ByteArrayInputStream(invalidCsv.getBytes(StandardCharsets.UTF_8)), out4);</span>
 <span class="source-line-no">154</span><span id="line-154">      log.warn("後段が実行された（問題あり）:\n{}", out4.toString(StandardCharsets.UTF_8));</span>
 <span class="source-line-no">155</span><span id="line-155">    } catch (StreamProcessingException e) {</span>
@@ -186,7 +186,7 @@
 <span class="source-line-no">173</span><span id="line-173">      StreamConverter.create(</span>
 <span class="source-line-no">174</span><span id="line-174">              CsvValidateCommand.create("id", "name", "email"),</span>
 <span class="source-line-no">175</span><span id="line-175">              FileBufferCommand.createEncrypted(),</span>
-<span class="source-line-no">176</span><span id="line-176">              CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule()))</span>
+<span class="source-line-no">176</span><span id="line-176">              CsvWalker.create(CSVPath.of("name"), new TrimRule()))</span>
 <span class="source-line-no">177</span><span id="line-177">          .run(new ByteArrayInputStream(validCsv.getBytes(StandardCharsets.UTF_8)), out5);</span>
 <span class="source-line-no">178</span><span id="line-178">      log.info("出力（一時ファイルは AES-256-GCM で暗号化）:\n{}", out5.toString(StandardCharsets.UTF_8));</span>
 <span class="source-line-no">179</span><span id="line-179">    } catch (StreamProcessingException e) {</span>

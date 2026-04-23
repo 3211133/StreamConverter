@@ -33,7 +33,6 @@ import org.slf4j.LoggerFactory;
  */
 public class XmlNavigateCommand extends AbstractStreamCommand {
   private static final Logger logger = LoggerFactory.getLogger(XmlNavigateCommand.class);
-  private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
   private final TreePath treePath;
   private final IRule rule;
@@ -103,6 +102,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
   private void navigateXmlWithRule(
       XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)
       throws XMLStreamException {
+    XMLEventFactory eventFactory = XMLEventFactory.newInstance();
     List<String> currentPath = new ArrayList<>();
 
     while (eventReader.hasNext()) {
@@ -128,7 +128,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         }
         // Write every event unconditionally; character events at the target path are replaced
         // above.
-        event = EVENT_FACTORY.createCharacters(transformed);
+        event = eventFactory.createCharacters(transformed);
       }
 
       eventWriter.add(event);

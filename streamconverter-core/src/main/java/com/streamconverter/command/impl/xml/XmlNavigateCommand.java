@@ -46,7 +46,13 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  private XmlNavigateCommand(TreePath treePath, IRule rule) {
+  XmlNavigateCommand(TreePath treePath, IRule rule) {
+    if (treePath == null) {
+      throw new IllegalArgumentException("TreePath cannot be null");
+    }
+    if (rule == null) {
+      throw new IllegalArgumentException("Rule cannot be null");
+    }
     this.treePath = treePath;
     this.rule = rule;
   }
@@ -83,9 +89,12 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       eventWriter.flush();
     } catch (XMLStreamException e) {
       primaryException = buildXmlException(e);
-      throw primaryException;
     } finally {
-      closeResources(eventReader, eventWriter, primaryException);
+      primaryException = XmlStreamResources.closeAll(eventReader, eventWriter, primaryException);
+    }
+
+    if (primaryException != null) {
+      throw primaryException;
     }
   }
 
@@ -141,7 +150,15 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     return reader;
   }
 
-  private XMLEventWriter createXMLEventWriter(OutputStream outputStream) throws XMLStreamException {
+  /**
+   * Creates the {@link XMLEventWriter} for the given output stream. Protected for testing.
+   *
+   * @param outputStream the stream to write XML events to
+   * @return a new XMLEventWriter backed by the given stream
+   * @throws XMLStreamException if the writer cannot be created
+   */
+  protected XMLEventWriter createXMLEventWriter(OutputStream outputStream)
+      throws XMLStreamException {
     XMLOutputFactory outputFactory = XMLOutputFactory.newInstance();
     return outputFactory.createXMLEventWriter(outputStream);
   }
@@ -157,56 +174,5 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
     }
     logger.error("XML processing failed{}", location, e);
     return new IOException("XML processing failed" + location, e);
-  }
-
-  private void closeResources(
-      XMLEventReader eventReader, XMLEventWriter eventWriter, IOException primaryException) {
-    flushAndCloseWriter(eventWriter, primaryException);
-    closeEventReader(eventReader, primaryException);
-  }
-
-  @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  private void flushAndCloseWriter(XMLEventWriter eventWriter, IOException primaryException) {
-    // RuntimeException from XMLEventWriter.close() is not declared; catch is required to
-    // suppress it into primaryException so the caller's original failure is preserved.
-    if (eventWriter == null) {
-      return;
-    }
-    try {
-      eventWriter.flush();
-    } catch (XMLStreamException e) {
-      logger.warn("Failed to flush XMLEventWriter during cleanup", e);
-    }
-    try {
-      eventWriter.close();
-    } catch (XMLStreamException e) {
-      logger.warn("Failed to close XMLEventWriter", e);
-    } catch (RuntimeException e) {
-      if (primaryException != null) {
-        primaryException.addSuppressed(e);
-      } else {
-        throw e;
-      }
-    }
-  }
-
-  @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  private void closeEventReader(XMLEventReader eventReader, IOException primaryException) {
-    // RuntimeException from XMLEventReader.close() is not declared; catch is required to
-    // suppress it into primaryException so the caller's original failure is preserved.
-    if (eventReader == null) {
-      return;
-    }
-    try {
-      eventReader.close();
-    } catch (XMLStreamException e) {
-      logger.warn("Failed to close XMLEventReader", e);
-    } catch (RuntimeException e) {
-      if (primaryException != null) {
-        primaryException.addSuppressed(e);
-      } else {
-        throw e;
-      }
-    }
   }
 }

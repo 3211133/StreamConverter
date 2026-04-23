@@ -13,6 +13,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
+import javax.xml.stream.XMLEventWriter;
+import javax.xml.stream.XMLStreamException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -215,5 +217,152 @@ class XmlNavigateCommandTest {
     OutputStream outputStream = new ByteArrayOutputStream();
 
     assertThrows(IOException.class, () -> command.execute(inputStream, outputStream));
+  }
+
+  // ---- #662: XMLStreamException from close() must be addSuppressed or rethrown ----
+
+  @Test
+  @DisplayName("close() の XMLStreamException はプライマリ例外の suppressed に追加される（#662）")
+  void testWriterCloseXmlStreamExceptionSuppressedOnPrimaryException() throws IOException {
+    // 修正前: XMLStreamException は WARN ログのみ → addSuppressed されない
+    // 修正後: primaryException != null なら addSuppressed する
+    XMLStreamException closeEx = new XMLStreamException("close failed");
+
+    XmlNavigateCommand cmd =
+        new XmlNavigateCommand(TreePath.fromXml("root/item"), new PassThroughRule()) {
+          @Override
+          protected XMLEventWriter createXMLEventWriter(OutputStream out)
+              throws XMLStreamException {
+            XMLEventWriter real = super.createXMLEventWriter(out);
+            return new DelegatingXmlEventWriter(real) {
+              @Override
+              public void close() throws XMLStreamException {
+                throw closeEx;
+              }
+            };
+          }
+        };
+
+    IOException thrown;
+    try (OutputStream failingOutput =
+        new OutputStream() {
+          private int count = 0;
+
+          @Override
+          public void write(int b) throws IOException {
+            if (count++ > 20) {
+              throw new IOException("simulated output failure");
+            }
+          }
+        }) {
+      thrown =
+          assertThrows(
+              IOException.class,
+              () ->
+                  cmd.execute(
+                      new ByteArrayInputStream(
+                          "<?xml version=\"1.0\"?><root><item>x</item></root>"
+                              .getBytes(StandardCharsets.UTF_8)),
+                      failingOutput));
+    }
+
+    boolean found =
+        java.util.Arrays.stream(thrown.getSuppressed())
+            .anyMatch(
+                s ->
+                    s instanceof IOException
+                        && s.getCause() instanceof XMLStreamException
+                        && "close failed".equals(s.getCause().getMessage()));
+    assertTrue(found, "close() の XMLStreamException は IOException にラップされて suppressed に含まれるべき");
+  }
+
+  @Test
+  @DisplayName("close() の XMLStreamException はプライマリ例外なし時に IOException でラップされる（#662）")
+  void testWriterCloseXmlStreamExceptionThrowsRuntimeWhenNoPrimary() {
+    // 修正前: XMLStreamException は WARN ログのみ → 呼び出し元に伝播しない
+    // 修正後: primaryException == null なら buildXmlException で IOException にラップして再スロー
+    XMLStreamException closeEx = new XMLStreamException("close failed");
+
+    XmlNavigateCommand cmd =
+        new XmlNavigateCommand(TreePath.fromXml("root/item"), new PassThroughRule()) {
+          @Override
+          protected XMLEventWriter createXMLEventWriter(OutputStream out)
+              throws XMLStreamException {
+            XMLEventWriter real = super.createXMLEventWriter(out);
+            return new DelegatingXmlEventWriter(real) {
+              @Override
+              public void close() throws XMLStreamException {
+                throw closeEx;
+              }
+            };
+          }
+        };
+
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () ->
+                cmd.execute(
+                    new ByteArrayInputStream(
+                        "<?xml version=\"1.0\"?><root><item>x</item></root>"
+                            .getBytes(StandardCharsets.UTF_8)),
+                    new ByteArrayOutputStream()));
+
+    assertInstanceOf(
+        XMLStreamException.class, thrown.getCause(), "IOException は XMLStreamException をラップするべき");
+  }
+
+  private static class DelegatingXmlEventWriter implements XMLEventWriter {
+    private final XMLEventWriter delegate;
+
+    DelegatingXmlEventWriter(XMLEventWriter delegate) {
+      this.delegate = delegate;
+    }
+
+    @Override
+    public void flush() throws XMLStreamException {
+      delegate.flush();
+    }
+
+    @Override
+    public void close() throws XMLStreamException {
+      delegate.close();
+    }
+
+    @Override
+    public void add(javax.xml.stream.events.XMLEvent e) throws XMLStreamException {
+      delegate.add(e);
+    }
+
+    @Override
+    public void add(javax.xml.stream.XMLEventReader r) throws XMLStreamException {
+      delegate.add(r);
+    }
+
+    @Override
+    public String getPrefix(String uri) throws XMLStreamException {
+      return delegate.getPrefix(uri);
+    }
+
+    @Override
+    public void setPrefix(String p, String uri) throws XMLStreamException {
+      delegate.setPrefix(p, uri);
+    }
+
+    @Override
+    public void setDefaultNamespace(String uri) throws XMLStreamException {
+      delegate.setDefaultNamespace(uri);
+    }
+
+    @Override
+    public void setNamespaceContext(javax.xml.namespace.NamespaceContext ctx)
+        throws XMLStreamException {
+      delegate.setNamespaceContext(ctx);
+    }
+
+    @Override
+    public javax.xml.namespace.NamespaceContext getNamespaceContext() {
+      return delegate.getNamespaceContext();
+    }
   }
 }

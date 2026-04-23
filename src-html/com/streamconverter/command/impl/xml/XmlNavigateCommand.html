@@ -46,76 +46,76 @@
 <span class="source-line-no">033</span><span id="line-33"> */</span>
 <span class="source-line-no">034</span><span id="line-34">public class XmlNavigateCommand extends AbstractStreamCommand {</span>
 <span class="source-line-no">035</span><span id="line-35">  private static final Logger logger = LoggerFactory.getLogger(XmlNavigateCommand.class);</span>
-<span class="source-line-no">036</span><span id="line-36">  private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();</span>
-<span class="source-line-no">037</span><span id="line-37"></span>
-<span class="source-line-no">038</span><span id="line-38">  private final TreePath treePath;</span>
-<span class="source-line-no">039</span><span id="line-39">  private final IRule rule;</span>
-<span class="source-line-no">040</span><span id="line-40"></span>
-<span class="source-line-no">041</span><span id="line-41">  /**</span>
-<span class="source-line-no">042</span><span id="line-42">   * Constructor for XML navigation with TreePath selector and transformation rule.</span>
-<span class="source-line-no">043</span><span id="line-43">   *</span>
-<span class="source-line-no">044</span><span id="line-44">   * @param treePath the TreePath to select elements</span>
-<span class="source-line-no">045</span><span id="line-45">   * @param rule the transformation rule to apply to selected elements</span>
-<span class="source-line-no">046</span><span id="line-46">   * @throws IllegalArgumentException if treePath or rule is null</span>
-<span class="source-line-no">047</span><span id="line-47">   */</span>
-<span class="source-line-no">048</span><span id="line-48">  XmlNavigateCommand(TreePath treePath, IRule rule) {</span>
-<span class="source-line-no">049</span><span id="line-49">    if (treePath == null) {</span>
-<span class="source-line-no">050</span><span id="line-50">      throw new IllegalArgumentException("TreePath cannot be null");</span>
-<span class="source-line-no">051</span><span id="line-51">    }</span>
-<span class="source-line-no">052</span><span id="line-52">    if (rule == null) {</span>
-<span class="source-line-no">053</span><span id="line-53">      throw new IllegalArgumentException("Rule cannot be null");</span>
-<span class="source-line-no">054</span><span id="line-54">    }</span>
-<span class="source-line-no">055</span><span id="line-55">    this.treePath = treePath;</span>
-<span class="source-line-no">056</span><span id="line-56">    this.rule = rule;</span>
-<span class="source-line-no">057</span><span id="line-57">  }</span>
-<span class="source-line-no">058</span><span id="line-58"></span>
-<span class="source-line-no">059</span><span id="line-59">  /**</span>
-<span class="source-line-no">060</span><span id="line-60">   * Factory method for creating an XML navigation command with TreePath and rule.</span>
-<span class="source-line-no">061</span><span id="line-61">   *</span>
-<span class="source-line-no">062</span><span id="line-62">   * @param treePath the TreePath to select elements</span>
-<span class="source-line-no">063</span><span id="line-63">   * @param rule the transformation rule to apply to selected elements</span>
-<span class="source-line-no">064</span><span id="line-64">   * @return an XmlNavigateCommand that transforms the specified TreePath elements with the given</span>
-<span class="source-line-no">065</span><span id="line-65">   *     rule</span>
-<span class="source-line-no">066</span><span id="line-66">   * @throws IllegalArgumentException if treePath or rule is null</span>
-<span class="source-line-no">067</span><span id="line-67">   */</span>
-<span class="source-line-no">068</span><span id="line-68">  public static XmlNavigateCommand create(TreePath treePath, IRule rule) {</span>
-<span class="source-line-no">069</span><span id="line-69">    if (treePath == null) {</span>
-<span class="source-line-no">070</span><span id="line-70">      throw new IllegalArgumentException("TreePath cannot be null");</span>
-<span class="source-line-no">071</span><span id="line-71">    }</span>
-<span class="source-line-no">072</span><span id="line-72">    if (rule == null) {</span>
-<span class="source-line-no">073</span><span id="line-73">      throw new IllegalArgumentException("Rule cannot be null");</span>
-<span class="source-line-no">074</span><span id="line-74">    }</span>
-<span class="source-line-no">075</span><span id="line-75">    return new XmlNavigateCommand(treePath, rule);</span>
-<span class="source-line-no">076</span><span id="line-76">  }</span>
-<span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">  @Override</span>
-<span class="source-line-no">079</span><span id="line-79">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">080</span><span id="line-80">    XMLEventReader eventReader = null;</span>
-<span class="source-line-no">081</span><span id="line-81">    XMLEventWriter eventWriter = null;</span>
-<span class="source-line-no">082</span><span id="line-82">    IOException primaryException = null;</span>
-<span class="source-line-no">083</span><span id="line-83"></span>
-<span class="source-line-no">084</span><span id="line-84">    try {</span>
-<span class="source-line-no">085</span><span id="line-85">      eventReader = createXMLEventReader(inputStream);</span>
-<span class="source-line-no">086</span><span id="line-86">      eventWriter = createXMLEventWriter(outputStream);</span>
-<span class="source-line-no">087</span><span id="line-87">      navigateXmlWithRule(eventReader, eventWriter, treePath, rule);</span>
-<span class="source-line-no">088</span><span id="line-88">      eventWriter.flush();</span>
-<span class="source-line-no">089</span><span id="line-89">    } catch (XMLStreamException e) {</span>
-<span class="source-line-no">090</span><span id="line-90">      primaryException = buildXmlException(e);</span>
-<span class="source-line-no">091</span><span id="line-91">    } finally {</span>
-<span class="source-line-no">092</span><span id="line-92">      primaryException = XmlStreamResources.closeAll(eventReader, eventWriter, primaryException);</span>
-<span class="source-line-no">093</span><span id="line-93">    }</span>
-<span class="source-line-no">094</span><span id="line-94"></span>
-<span class="source-line-no">095</span><span id="line-95">    if (primaryException != null) {</span>
-<span class="source-line-no">096</span><span id="line-96">      throw primaryException;</span>
-<span class="source-line-no">097</span><span id="line-97">    }</span>
-<span class="source-line-no">098</span><span id="line-98">  }</span>
-<span class="source-line-no">099</span><span id="line-99"></span>
-<span class="source-line-no">100</span><span id="line-100">  @SuppressWarnings("PMD.AvoidCatchingGenericException")</span>
-<span class="source-line-no">101</span><span id="line-101">  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and</span>
-<span class="source-line-no">102</span><span id="line-102">  // re-thrown as XMLStreamException so the caller's error-handling path is not bypassed.</span>
-<span class="source-line-no">103</span><span id="line-103">  private void navigateXmlWithRule(</span>
-<span class="source-line-no">104</span><span id="line-104">      XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)</span>
-<span class="source-line-no">105</span><span id="line-105">      throws XMLStreamException {</span>
+<span class="source-line-no">036</span><span id="line-36"></span>
+<span class="source-line-no">037</span><span id="line-37">  private final TreePath treePath;</span>
+<span class="source-line-no">038</span><span id="line-38">  private final IRule rule;</span>
+<span class="source-line-no">039</span><span id="line-39"></span>
+<span class="source-line-no">040</span><span id="line-40">  /**</span>
+<span class="source-line-no">041</span><span id="line-41">   * Constructor for XML navigation with TreePath selector and transformation rule.</span>
+<span class="source-line-no">042</span><span id="line-42">   *</span>
+<span class="source-line-no">043</span><span id="line-43">   * @param treePath the TreePath to select elements</span>
+<span class="source-line-no">044</span><span id="line-44">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">045</span><span id="line-45">   * @throws IllegalArgumentException if treePath or rule is null</span>
+<span class="source-line-no">046</span><span id="line-46">   */</span>
+<span class="source-line-no">047</span><span id="line-47">  XmlNavigateCommand(TreePath treePath, IRule rule) {</span>
+<span class="source-line-no">048</span><span id="line-48">    if (treePath == null) {</span>
+<span class="source-line-no">049</span><span id="line-49">      throw new IllegalArgumentException("TreePath cannot be null");</span>
+<span class="source-line-no">050</span><span id="line-50">    }</span>
+<span class="source-line-no">051</span><span id="line-51">    if (rule == null) {</span>
+<span class="source-line-no">052</span><span id="line-52">      throw new IllegalArgumentException("Rule cannot be null");</span>
+<span class="source-line-no">053</span><span id="line-53">    }</span>
+<span class="source-line-no">054</span><span id="line-54">    this.treePath = treePath;</span>
+<span class="source-line-no">055</span><span id="line-55">    this.rule = rule;</span>
+<span class="source-line-no">056</span><span id="line-56">  }</span>
+<span class="source-line-no">057</span><span id="line-57"></span>
+<span class="source-line-no">058</span><span id="line-58">  /**</span>
+<span class="source-line-no">059</span><span id="line-59">   * Factory method for creating an XML navigation command with TreePath and rule.</span>
+<span class="source-line-no">060</span><span id="line-60">   *</span>
+<span class="source-line-no">061</span><span id="line-61">   * @param treePath the TreePath to select elements</span>
+<span class="source-line-no">062</span><span id="line-62">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">063</span><span id="line-63">   * @return an XmlNavigateCommand that transforms the specified TreePath elements with the given</span>
+<span class="source-line-no">064</span><span id="line-64">   *     rule</span>
+<span class="source-line-no">065</span><span id="line-65">   * @throws IllegalArgumentException if treePath or rule is null</span>
+<span class="source-line-no">066</span><span id="line-66">   */</span>
+<span class="source-line-no">067</span><span id="line-67">  public static XmlNavigateCommand create(TreePath treePath, IRule rule) {</span>
+<span class="source-line-no">068</span><span id="line-68">    if (treePath == null) {</span>
+<span class="source-line-no">069</span><span id="line-69">      throw new IllegalArgumentException("TreePath cannot be null");</span>
+<span class="source-line-no">070</span><span id="line-70">    }</span>
+<span class="source-line-no">071</span><span id="line-71">    if (rule == null) {</span>
+<span class="source-line-no">072</span><span id="line-72">      throw new IllegalArgumentException("Rule cannot be null");</span>
+<span class="source-line-no">073</span><span id="line-73">    }</span>
+<span class="source-line-no">074</span><span id="line-74">    return new XmlNavigateCommand(treePath, rule);</span>
+<span class="source-line-no">075</span><span id="line-75">  }</span>
+<span class="source-line-no">076</span><span id="line-76"></span>
+<span class="source-line-no">077</span><span id="line-77">  @Override</span>
+<span class="source-line-no">078</span><span id="line-78">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">079</span><span id="line-79">    XMLEventReader eventReader = null;</span>
+<span class="source-line-no">080</span><span id="line-80">    XMLEventWriter eventWriter = null;</span>
+<span class="source-line-no">081</span><span id="line-81">    IOException primaryException = null;</span>
+<span class="source-line-no">082</span><span id="line-82"></span>
+<span class="source-line-no">083</span><span id="line-83">    try {</span>
+<span class="source-line-no">084</span><span id="line-84">      eventReader = createXMLEventReader(inputStream);</span>
+<span class="source-line-no">085</span><span id="line-85">      eventWriter = createXMLEventWriter(outputStream);</span>
+<span class="source-line-no">086</span><span id="line-86">      navigateXmlWithRule(eventReader, eventWriter, treePath, rule);</span>
+<span class="source-line-no">087</span><span id="line-87">      eventWriter.flush();</span>
+<span class="source-line-no">088</span><span id="line-88">    } catch (XMLStreamException e) {</span>
+<span class="source-line-no">089</span><span id="line-89">      primaryException = buildXmlException(e);</span>
+<span class="source-line-no">090</span><span id="line-90">    } finally {</span>
+<span class="source-line-no">091</span><span id="line-91">      primaryException = XmlStreamResources.closeAll(eventReader, eventWriter, primaryException);</span>
+<span class="source-line-no">092</span><span id="line-92">    }</span>
+<span class="source-line-no">093</span><span id="line-93"></span>
+<span class="source-line-no">094</span><span id="line-94">    if (primaryException != null) {</span>
+<span class="source-line-no">095</span><span id="line-95">      throw primaryException;</span>
+<span class="source-line-no">096</span><span id="line-96">    }</span>
+<span class="source-line-no">097</span><span id="line-97">  }</span>
+<span class="source-line-no">098</span><span id="line-98"></span>
+<span class="source-line-no">099</span><span id="line-99">  @SuppressWarnings("PMD.AvoidCatchingGenericException")</span>
+<span class="source-line-no">100</span><span id="line-100">  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and</span>
+<span class="source-line-no">101</span><span id="line-101">  // re-thrown as XMLStreamException so the caller's error-handling path is not bypassed.</span>
+<span class="source-line-no">102</span><span id="line-102">  private void navigateXmlWithRule(</span>
+<span class="source-line-no">103</span><span id="line-103">      XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)</span>
+<span class="source-line-no">104</span><span id="line-104">      throws XMLStreamException {</span>
+<span class="source-line-no">105</span><span id="line-105">    XMLEventFactory eventFactory = XMLEventFactory.newInstance();</span>
 <span class="source-line-no">106</span><span id="line-106">    List&lt;String&gt; currentPath = new ArrayList&lt;&gt;();</span>
 <span class="source-line-no">107</span><span id="line-107"></span>
 <span class="source-line-no">108</span><span id="line-108">    while (eventReader.hasNext()) {</span>
@@ -141,7 +141,7 @@
 <span class="source-line-no">128</span><span id="line-128">        }</span>
 <span class="source-line-no">129</span><span id="line-129">        // Write every event unconditionally; character events at the target path are replaced</span>
 <span class="source-line-no">130</span><span id="line-130">        // above.</span>
-<span class="source-line-no">131</span><span id="line-131">        event = EVENT_FACTORY.createCharacters(transformed);</span>
+<span class="source-line-no">131</span><span id="line-131">        event = eventFactory.createCharacters(transformed);</span>
 <span class="source-line-no">132</span><span id="line-132">      }</span>
 <span class="source-line-no">133</span><span id="line-133"></span>
 <span class="source-line-no">134</span><span id="line-134">      eventWriter.add(event);</span>

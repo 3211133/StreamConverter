@@ -17,8 +17,7 @@ import java.util.List;
  * JSON Walker for applying transformations to JSON data.
  *
  * <p>This command navigates through JSON structures and applies transformations using rules while
- * preserving the overall JSON structure. It focuses purely on navigation and transformation, not
- * extraction.
+ * preserving the overall JSON structure.
  *
  * <p>Responsibilities: - Navigate to specified JSON paths - Apply transformation rules to matching
  * elements - Preserve JSON structure during transformation - Stream processing for memory

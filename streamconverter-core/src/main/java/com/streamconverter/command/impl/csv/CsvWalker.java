@@ -55,7 +55,7 @@ public class CsvWalker extends AbstractStreamCommand {
    *
    * @param columnSelector the typed CSVPath to select column
    * @param rule the transformation rule to apply to selected column data
-   * @return a CsvWalker that extracts the specified column with the given rule
+   * @return a CsvWalker that transforms values in the specified column using the given rule
    * @throws IllegalArgumentException if columnSelector or rule is null
    */
   public static CsvWalker create(CSVPath columnSelector, IRule rule) {
@@ -73,7 +73,7 @@ public class CsvWalker extends AbstractStreamCommand {
    *
    * @param treePath the TreePath representing column selector
    * @param rule the transformation rule to apply to selected column data
-   * @return a CsvWalker that extracts the specified column with the given rule
+   * @return a CsvWalker that transforms values in the specified column using the given rule
    * @throws IllegalArgumentException if treePath or rule is null
    */
   public static CsvWalker create(TreePath treePath, IRule rule) {

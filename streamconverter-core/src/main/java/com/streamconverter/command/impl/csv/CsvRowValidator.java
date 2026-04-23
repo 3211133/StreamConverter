@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 /** Validates CSV headers and data rows, collecting error messages up to a configurable limit. */
 final class CsvRowValidator {
 
-  private static final Logger LOGGER = LoggerFactory.getLogger(CsvRowValidator.class);
+  private static final Logger logger = LoggerFactory.getLogger(CsvRowValidator.class);
 
   private final Set<String> requiredColumns;
   private final int maxErrorsToReport;
@@ -26,7 +26,7 @@ final class CsvRowValidator {
     }
     checkDuplicateHeaders(headers, errors);
     checkRequiredColumns(headers, errors);
-    LOGGER.debug("Header validation completed - {} columns found", headers.length);
+    logger.debug("Header validation completed - {} columns found", headers.length);
   }
 
   private void checkDuplicateHeaders(String[] headers, List<String> errors) {

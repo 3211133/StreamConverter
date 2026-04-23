@@ -165,7 +165,7 @@ class ValidateTest {
   }
 
   @Test
-  @DisplayName("XML validation passes content through and fully consumes the input stream")
+  @DisplayName("execute：コンテンツをそのまま通過させ、入力ストリームを完全に消費する")
   void testXmlValidationPassesThroughAndConsumesInputStream() throws IOException {
     ValidateCommand command = ValidateCommand.create(schemaPath);
 

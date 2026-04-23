@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  * path expressions including nested elements and attributes
  */
 public class XmlFilterCommand extends AbstractStreamCommand {
-  private static final Logger LOGGER = LoggerFactory.getLogger(XmlFilterCommand.class);
+  private static final Logger logger = LoggerFactory.getLogger(XmlFilterCommand.class);
 
   private final IPath<List<String>> xpath;
 
@@ -103,7 +103,7 @@ public class XmlFilterCommand extends AbstractStreamCommand {
     try {
       reader.close();
     } catch (XMLStreamException e) {
-      LOGGER.warn("Error closing XML reader: {}", e.getMessage(), e);
+      logger.warn("Error closing XML reader: {}", e.getMessage(), e);
     }
   }
 

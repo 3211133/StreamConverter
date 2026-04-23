@@ -33,7 +33,7 @@ import org.slf4j.LoggerFactory;
  * unchanged.
  */
 public class XmlNavigateCommand extends AbstractStreamCommand {
-  private static final Logger LOGGER = LoggerFactory.getLogger(XmlNavigateCommand.class);
+  private static final Logger logger = LoggerFactory.getLogger(XmlNavigateCommand.class);
   private static final XMLEventFactory EVENT_FACTORY = XMLEventFactory.newInstance();
 
   private final TreePath treePath;
@@ -113,7 +113,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         currentPath.add(event.asStartElement().getName().getLocalPart());
       } else if (event.isEndElement()) {
         if (currentPath.isEmpty()) {
-          LOGGER.warn(
+          logger.warn(
               "Unexpected end element '{}' with empty path stack — possible malformed XML",
               event.asEndElement().getName().getLocalPart());
         } else {
@@ -143,7 +143,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
       try {
         reader.close();
       } catch (XMLStreamException closeEx) {
-        LOGGER.warn("Failed to close empty XMLEventReader", closeEx);
+        logger.warn("Failed to close empty XMLEventReader", closeEx);
       }
       throw new XMLStreamException("Empty XML input");
     }
@@ -172,7 +172,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
         location = String.format(" at line %d, column %d", line, column);
       }
     }
-    LOGGER.error("XML processing failed{}", location, e);
+    logger.error("XML processing failed{}", location, e);
     return new IOException("XML processing failed" + location, e);
   }
 }

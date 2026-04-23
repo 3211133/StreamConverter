@@ -2,8 +2,8 @@ package com.streamconverter.integration;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
-import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
+import com.streamconverter.command.impl.json.JsonWalker;
 import com.streamconverter.command.rule.DatabaseFetchRule;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
@@ -19,7 +19,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** DatabaseFetchRuleとNavigateCommandsの統合テスト 実際のDBデータを使用してJSON/CSVの値を置換する動作を検証 */
+/** DatabaseFetchRuleとWalkersの統合テスト 実際のDBデータを使用してJSON/CSVの値を置換する動作を検証 */
 // Re-enabled for cross-platform testing with improved H2 configuration
 class DatabaseRuleIntegrationTest {
 
@@ -108,8 +108,8 @@ class DatabaseRuleIntegrationTest {
     // DatabaseFetchRuleの作成
     DatabaseFetchRule dbRule = new DatabaseFetchRule(DB_URL, "SELECT name FROM users WHERE id = ?");
 
-    // JsonNavigateCommandの作成
-    JsonNavigateCommand command = JsonNavigateCommand.create(TreePath.fromJson("$.userId"), dbRule);
+    // JsonWalkerの作成
+    JsonWalker command = JsonWalker.create(TreePath.fromJson("$.userId"), dbRule);
 
     // テスト用JSON
     String inputJson =
@@ -145,8 +145,8 @@ class DatabaseRuleIntegrationTest {
     DatabaseFetchRule dbRule =
         new DatabaseFetchRule(DB_URL, "SELECT name FROM products WHERE code = ?");
 
-    // CsvNavigateCommandの作成
-    CsvNavigateCommand command = CsvNavigateCommand.create(CSVPath.of("product_code"), dbRule);
+    // CsvWalkerの作成
+    CsvWalker command = CsvWalker.create(CSVPath.of("product_code"), dbRule);
 
     // テスト用CSV
     String inputCsv =
@@ -180,8 +180,8 @@ class DatabaseRuleIntegrationTest {
     // DatabaseFetchRuleの作成
     DatabaseFetchRule dbRule = new DatabaseFetchRule(DB_URL, "SELECT name FROM users WHERE id = ?");
 
-    // JsonNavigateCommandの作成
-    JsonNavigateCommand command = JsonNavigateCommand.create(TreePath.fromJson("$.userId"), dbRule);
+    // JsonWalkerの作成
+    JsonWalker command = JsonWalker.create(TreePath.fromJson("$.userId"), dbRule);
 
     // 存在しないユーザーIDを含むJSON
     String inputJson =
@@ -214,8 +214,8 @@ class DatabaseRuleIntegrationTest {
     DatabaseFetchRule dbRule =
         new DatabaseFetchRule(DB_URL, "SELECT department FROM users WHERE id = ?");
 
-    // JsonNavigateCommandの作成
-    JsonNavigateCommand command = JsonNavigateCommand.create(TreePath.fromJson("$.userId"), dbRule);
+    // JsonWalkerの作成
+    JsonWalker command = JsonWalker.create(TreePath.fromJson("$.userId"), dbRule);
 
     // 複数のユーザーIDを含むJSON配列
     String inputJson =
@@ -251,9 +251,9 @@ class DatabaseRuleIntegrationTest {
     DatabaseFetchRule dbRule =
         new DatabaseFetchRule(DB_URL, "SELECT price FROM products WHERE code = ?");
 
-    // JsonNavigateCommandの作成
-    JsonNavigateCommand command =
-        JsonNavigateCommand.create(TreePath.fromJson("$.productCode"), dbRule);
+    // JsonWalkerの作成
+    JsonWalker command =
+        JsonWalker.create(TreePath.fromJson("$.productCode"), dbRule);
 
     // テスト用JSON
     String inputJson =

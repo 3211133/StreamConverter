@@ -19,7 +19,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * XML Navigate Command for applying transformations to XML data.
+ * XML Walker for applying transformations to XML data.
  *
  * <p>This command navigates through XML structures and applies transformations using rules while
  * preserving the overall XML structure. It identifies specific elements using TreePath
@@ -31,8 +31,8 @@ import org.slf4j.LoggerFactory;
  * configured {@link TreePath} is transformed by the rule; all other events are passed through
  * unchanged.
  */
-public class XmlNavigateCommand extends AbstractStreamCommand {
-  private static final Logger logger = LoggerFactory.getLogger(XmlNavigateCommand.class);
+public class XmlWalker extends AbstractStreamCommand {
+  private static final Logger logger = LoggerFactory.getLogger(XmlWalker.class);
 
   private final TreePath treePath;
   private final IRule rule;
@@ -44,7 +44,7 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected elements
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  XmlNavigateCommand(TreePath treePath, IRule rule) {
+  XmlWalker(TreePath treePath, IRule rule) {
     if (treePath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
@@ -60,18 +60,17 @@ public class XmlNavigateCommand extends AbstractStreamCommand {
    *
    * @param treePath the TreePath to select elements
    * @param rule the transformation rule to apply to selected elements
-   * @return an XmlNavigateCommand that transforms the specified TreePath elements with the given
-   *     rule
+   * @return an XmlWalker that transforms the specified TreePath elements with the given rule
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  public static XmlNavigateCommand create(TreePath treePath, IRule rule) {
+  public static XmlWalker create(TreePath treePath, IRule rule) {
     if (treePath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    return new XmlNavigateCommand(treePath, rule);
+    return new XmlWalker(treePath, rule);
   }
 
   @Override

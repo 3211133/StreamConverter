@@ -20,7 +20,7 @@ import com.streamconverter.command.rule.IRule;
  *
  * <pre>{@code
  * IRule rule = new TrimRule();
- * IStreamCommand command = JsonNavigateCommand.create("$.name", rule);
+ * IStreamCommand command = JsonWalker.create(TreePath.fromJson("$.name"), rule);
  * }</pre>
  *
  * @since 1.0

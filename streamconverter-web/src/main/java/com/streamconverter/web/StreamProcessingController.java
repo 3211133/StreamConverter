@@ -18,8 +18,8 @@ import org.springframework.web.bind.annotation.*;
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
-import com.streamconverter.command.impl.json.JsonNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
+import com.streamconverter.command.impl.json.JsonWalker;
 import com.streamconverter.command.rule.PassThroughRule;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
@@ -64,7 +64,7 @@ public class StreamProcessingController {
                 ResponseEntity.ok(
                     processWithStreamConverter(
                         inputData,
-                        CsvNavigateCommand.create(
+                        CsvWalker.create(
                             CSVPath.of(columnName), new PassThroughRule()))))
         .onErrorResume(
             e -> {
@@ -95,7 +95,7 @@ public class StreamProcessingController {
                 ResponseEntity.ok(
                     processWithStreamConverter(
                         inputData,
-                        JsonNavigateCommand.create(
+                        JsonWalker.create(
                             TreePath.fromJson(jsonPath), new PassThroughRule()))))
         .onErrorResume(
             e -> {
@@ -219,13 +219,13 @@ public class StreamProcessingController {
               if (parameter.isEmpty()) {
                 throw new IllegalArgumentException("csv command requires a column name at index " + i);
               }
-              yield CsvNavigateCommand.create(CSVPath.of(parameter), new PassThroughRule());
+              yield CsvWalker.create(CSVPath.of(parameter), new PassThroughRule());
             }
             case "json" -> {
               if (parameter.isEmpty()) {
                 throw new IllegalArgumentException("json command requires a path at index " + i);
               }
-              yield JsonNavigateCommand.create(TreePath.fromJson(parameter), new PassThroughRule());
+              yield JsonWalker.create(TreePath.fromJson(parameter), new PassThroughRule());
             }
             case "process" -> new AbstractStreamCommand() {
               @Override

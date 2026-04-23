@@ -29,15 +29,15 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Unit tests for CsvNavigateCommand. */
-class CsvNavigateCommandTest {
+/** Unit tests for CsvWalker. */
+class CsvWalkerTest {
 
-  private CsvNavigateCommand command;
+  private CsvWalker command;
 
   @BeforeEach
   void setUp() {
     // Use a specific column selector instead of createForAll
-    command = CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
+    command = CsvWalker.create(CSVPath.of("name"), new PassThroughRule());
   }
 
   @Test
@@ -105,8 +105,7 @@ class CsvNavigateCommandTest {
     String csvData = csvBuilder.toString();
 
     // Create command for the specific column that exists in this test's data
-    CsvNavigateCommand testCommand =
-        CsvNavigateCommand.create(CSVPath.of("id"), new PassThroughRule());
+    CsvWalker testCommand = CsvWalker.create(CSVPath.of("id"), new PassThroughRule());
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
@@ -137,8 +136,7 @@ class CsvNavigateCommandTest {
   void testConcurrentExecutionThreadSafety() throws Exception {
     // Use a real transformation (upper-case) so we can verify the correct column was targeted
     String csvInput = "name,age,city\nAlice,30,NYC\nBob,25,LA\nCarol,35,Chicago\n";
-    CsvNavigateCommand sharedCommand =
-        CsvNavigateCommand.create(CSVPath.of("name"), s -> s.toUpperCase());
+    CsvWalker sharedCommand = CsvWalker.create(CSVPath.of("name"), s -> s.toUpperCase());
 
     int threadCount = 8;
     ExecutorService executor = Executors.newFixedThreadPool(threadCount);
@@ -193,8 +191,7 @@ class CsvNavigateCommandTest {
     String csvData = csvBuilder.toString();
 
     // Create command for the specific column that exists in this test's data
-    CsvNavigateCommand testCommand =
-        CsvNavigateCommand.create(CSVPath.of("employee_id"), new PassThroughRule());
+    CsvWalker testCommand = CsvWalker.create(CSVPath.of("employee_id"), new PassThroughRule());
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(csvData.getBytes(StandardCharsets.UTF_8));
@@ -230,8 +227,7 @@ class CsvNavigateCommandTest {
     // Field containing a quote character: She said "hello"  (RFC 4180: doubled quotes)
     String csvInput = "name,comment\nAlice,\"She said \"\"hello\"\"\"\n";
     // Select the "comment" column which contains the quoted value
-    CsvNavigateCommand testCommand =
-        CsvNavigateCommand.create(CSVPath.of("comment"), new PassThroughRule());
+    CsvWalker testCommand = CsvWalker.create(CSVPath.of("comment"), new PassThroughRule());
 
     ByteArrayInputStream input =
         new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
@@ -269,8 +265,7 @@ class CsvNavigateCommandTest {
   @DisplayName("[#546] RFC 4180: output uses CRLF line endings per RFC 4180 §2")
   void testOutputUsesCrlfLineEndings() throws IOException {
     String csvInput = "name,age\nAlice,30\n";
-    CsvNavigateCommand testCommand =
-        CsvNavigateCommand.create(CSVPath.of("name"), new PassThroughRule());
+    CsvWalker testCommand = CsvWalker.create(CSVPath.of("name"), new PassThroughRule());
 
     ByteArrayOutputStream output = new ByteArrayOutputStream();
     testCommand.execute(
@@ -284,8 +279,7 @@ class CsvNavigateCommandTest {
   @DisplayName("[#546] RFC 4180: comma inside quoted field is not split")
   void testRfc4180CommaInsideQuotedField() throws IOException {
     String csvInput = "name,address\nAlice,\"123 Main St, Suite 4\"\n";
-    CsvNavigateCommand testCommand =
-        CsvNavigateCommand.create(CSVPath.of("address"), new PassThroughRule());
+    CsvWalker testCommand = CsvWalker.create(CSVPath.of("address"), new PassThroughRule());
 
     ByteArrayInputStream input =
         new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));

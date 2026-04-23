@@ -3,8 +3,8 @@ package com.streamconverter.examples;
 import com.streamconverter.StreamConverter;
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.impl.FileBufferCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
 import com.streamconverter.command.impl.csv.CsvValidateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
 import com.streamconverter.command.rule.impl.string.TrimRule;
 import com.streamconverter.path.CSVPath;
 import java.io.ByteArrayInputStream;
@@ -33,15 +33,15 @@ import org.slf4j.LoggerFactory;
  *
  * <pre>
  * パターンA（問題あり）:
- *   CsvValidateCommand → CsvNavigateCommand
+ *   CsvValidateCommand → CsvWalker
  *   検証失敗でも後段に部分データが届く可能性がある
  *
  * パターンB（安全）:
- *   CsvValidateCommand → FileBufferCommand → CsvNavigateCommand
+ *   CsvValidateCommand → FileBufferCommand → CsvWalker
  *   FileBufferCommand が前段の完了を待ち、後段は確実に検証済みデータのみを受け取る
  *
  * パターンC（機密データ）:
- *   CsvValidateCommand → FileBufferCommand.createEncrypted() → CsvNavigateCommand
+ *   CsvValidateCommand → FileBufferCommand.createEncrypted() → CsvWalker
  *   一時ファイルを AES-256-GCM で暗号化するため、機密データでも安全
  * </pre>
  */
@@ -86,7 +86,7 @@ public class ValidationPipelineExample {
     // TeeInputStream を使って入力を読みながら出力にも同時に流す。
     // そのため検証が失敗した時点で後段にはすでに部分データが流れている可能性がある。
     CsvValidateCommand validator = CsvValidateCommand.create("id", "name", "email");
-    CsvNavigateCommand trimName = CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule());
+    CsvWalker trimName = CsvWalker.create(CSVPath.of("name"), new TrimRule());
 
     StreamConverter converter = StreamConverter.create(validator, trimName);
 
@@ -103,7 +103,7 @@ public class ValidationPipelineExample {
 
     // 同じ StreamConverter を使いまわすことはできないため再生成
     validator = CsvValidateCommand.create("id", "name", "email");
-    trimName = CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule());
+    trimName = CsvWalker.create(CSVPath.of("name"), new TrimRule());
     converter = StreamConverter.create(validator, trimName);
 
     log.info(
@@ -125,7 +125,7 @@ public class ValidationPipelineExample {
     // FileBufferCommand を検証コマンドの後に挿入することで逐次化できる。
     // FileBufferCommand は:
     //   1. 前段（CsvValidateCommand）の出力を一時ファイルに書き込む（前段が完全に完了するまで待機）
-    //   2. 前段完了後に一時ファイルを後段（CsvNavigateCommand）への入力として流す
+    //   2. 前段完了後に一時ファイルを後段（CsvWalker）への入力として流す
     // これにより「検証が成功した場合のみ後段が動く」ことが保証される。
     String validExpected =
         "id,name,email\r\n" + "1,Alice,alice@example.com\r\n" + "2,Bob,bob@example.com\r\n";
@@ -135,7 +135,7 @@ public class ValidationPipelineExample {
       StreamConverter.create(
               CsvValidateCommand.create("id", "name", "email"),
               FileBufferCommand.create(),
-              CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule()))
+              CsvWalker.create(CSVPath.of("name"), new TrimRule()))
           .run(new ByteArrayInputStream(validCsv.getBytes(StandardCharsets.UTF_8)), out3);
       log.info("出力:\n{}", out3.toString(StandardCharsets.UTF_8));
     } catch (StreamProcessingException e) {
@@ -149,7 +149,7 @@ public class ValidationPipelineExample {
       StreamConverter.create(
               CsvValidateCommand.create("id", "name", "email"),
               FileBufferCommand.create(),
-              CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule()))
+              CsvWalker.create(CSVPath.of("name"), new TrimRule()))
           .run(new ByteArrayInputStream(invalidCsv.getBytes(StandardCharsets.UTF_8)), out4);
       log.warn("後段が実行された（問題あり）:\n{}", out4.toString(StandardCharsets.UTF_8));
     } catch (StreamProcessingException e) {
@@ -173,7 +173,7 @@ public class ValidationPipelineExample {
       StreamConverter.create(
               CsvValidateCommand.create("id", "name", "email"),
               FileBufferCommand.createEncrypted(),
-              CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule()))
+              CsvWalker.create(CSVPath.of("name"), new TrimRule()))
           .run(new ByteArrayInputStream(validCsv.getBytes(StandardCharsets.UTF_8)), out5);
       log.info("出力（一時ファイルは AES-256-GCM で暗号化）:\n{}", out5.toString(StandardCharsets.UTF_8));
     } catch (StreamProcessingException e) {

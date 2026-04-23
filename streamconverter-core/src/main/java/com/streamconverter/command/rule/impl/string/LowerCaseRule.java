@@ -21,8 +21,8 @@ import java.util.Locale;
  *
  * <pre>{@code
  * IRule rule = new LowerCaseRule();
- * IRule localeRule = new LowerCaseRule(Locale.ENGLISH);
- * IStreamCommand command = JsonNavigateCommand.create("$.name", rule);
+ * IRule localeRule = LowerCaseRule.create(Locale.ENGLISH);
+ * IStreamCommand command = JsonWalker.create(TreePath.fromJson("$.name"), rule);
  * }</pre>
  *
  * @since 1.0

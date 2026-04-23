@@ -15,13 +15,13 @@ import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
 
 /**
- * CSV Navigate Command Class
+ * CSV Walker
  *
  * <p>This class implements command for targeted CSV transformation using column selectors. It
  * identifies specific columns using column names or indices and applies IRule transformations to
  * those columns while preserving the overall CSV structure.
  */
-public class CsvNavigateCommand extends AbstractStreamCommand {
+public class CsvWalker extends AbstractStreamCommand {
 
   private final CSVPath columnSelector;
   private final IRule rule;
@@ -33,7 +33,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected column
    * @throws IllegalArgumentException if columnSelector or rule is null
    */
-  private CsvNavigateCommand(CSVPath columnSelector, IRule rule) {
+  private CsvWalker(CSVPath columnSelector, IRule rule) {
     this.columnSelector = columnSelector;
     this.rule = rule;
   }
@@ -45,7 +45,7 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    * @param rule the transformation rule to apply to selected column
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  private CsvNavigateCommand(TreePath treePath, IRule rule) {
+  private CsvWalker(TreePath treePath, IRule rule) {
     this.columnSelector = CSVPath.of(treePath.toString());
     this.rule = rule;
   }
@@ -55,35 +55,35 @@ public class CsvNavigateCommand extends AbstractStreamCommand {
    *
    * @param columnSelector the typed CSVPath to select column
    * @param rule the transformation rule to apply to selected column data
-   * @return a CsvNavigateCommand that extracts the specified column with the given rule
+   * @return a CsvWalker that transforms values in the specified column using the given rule
    * @throws IllegalArgumentException if columnSelector or rule is null
    */
-  public static CsvNavigateCommand create(CSVPath columnSelector, IRule rule) {
+  public static CsvWalker create(CSVPath columnSelector, IRule rule) {
     if (columnSelector == null) {
       throw new IllegalArgumentException("Column selector cannot be null");
     }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    return new CsvNavigateCommand(columnSelector, rule);
+    return new CsvWalker(columnSelector, rule);
   }
 
   /**
-   * Factory method for creating a CSV navigation command with TreePath compatibility.
+   * Factory method for creating a CSV walker with TreePath compatibility.
    *
    * @param treePath the TreePath representing column selector
    * @param rule the transformation rule to apply to selected column data
-   * @return a CsvNavigateCommand that extracts the specified column with the given rule
+   * @return a CsvWalker that transforms values in the specified column using the given rule
    * @throws IllegalArgumentException if treePath or rule is null
    */
-  public static CsvNavigateCommand create(TreePath treePath, IRule rule) {
+  public static CsvWalker create(TreePath treePath, IRule rule) {
     if (treePath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }
     if (rule == null) {
       throw new IllegalArgumentException("Rule cannot be null");
     }
-    return new CsvNavigateCommand(treePath, rule);
+    return new CsvWalker(treePath, rule);
   }
 
   @Override

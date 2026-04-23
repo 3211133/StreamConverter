@@ -27,8 +27,8 @@ import org.slf4j.LoggerFactory;
  * );
  * String result = rule.apply("123"); // ユーザーID 123 の名前を取得
  *
- * // NavigateCommandと組み合わせた使用例
- * JsonNavigateCommand command = new JsonNavigateCommand("$.userId", rule);
+ * // JsonWalkerと組み合わせた使用例
+ * JsonWalker command = JsonWalker.create(TreePath.fromJson("$.userId"), rule);
  * command.execute(inputStream, outputStream); // JSON中のuserIdでDBを検索して置換
  * }</pre>
  *

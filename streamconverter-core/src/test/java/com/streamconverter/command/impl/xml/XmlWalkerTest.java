@@ -23,14 +23,14 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
-/** Unit tests for XmlNavigateCommand. */
-class XmlNavigateCommandTest {
+/** Unit tests for XmlWalker. */
+class XmlWalkerTest {
 
-  private XmlNavigateCommand command;
+  private XmlWalker command;
 
   @BeforeEach
   void setUp() {
-    command = XmlNavigateCommand.create(TreePath.fromXml("root/item"), new PassThroughRule());
+    command = XmlWalker.create(TreePath.fromXml("root/item"), new PassThroughRule());
   }
 
   @Test
@@ -43,7 +43,7 @@ class XmlNavigateCommandTest {
   void testNullTreePathThrowsIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> XmlNavigateCommand.create(null, new PassThroughRule()),
+        () -> XmlWalker.create(null, new PassThroughRule()),
         "Should throw IllegalArgumentException for null treePath");
   }
 
@@ -52,7 +52,7 @@ class XmlNavigateCommandTest {
   void testNullRuleThrowsIllegalArgumentException() {
     assertThrows(
         IllegalArgumentException.class,
-        () -> XmlNavigateCommand.create(TreePath.fromXml("root/item"), null),
+        () -> XmlWalker.create(TreePath.fromXml("root/item"), null),
         "Should throw IllegalArgumentException for null rule");
   }
 
@@ -98,8 +98,8 @@ class XmlNavigateCommandTest {
   void testRuleAppliedToMatchedElement() throws IOException {
     String xmlInput =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><item>original</item><other>unchanged</other></root>";
-    XmlNavigateCommand upperCaseCommand =
-        XmlNavigateCommand.create(TreePath.fromXml("root/item"), value -> value.toUpperCase());
+    XmlWalker upperCaseCommand =
+        XmlWalker.create(TreePath.fromXml("root/item"), value -> value.toUpperCase());
 
     InputStream inputStream = new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -137,8 +137,8 @@ class XmlNavigateCommandTest {
           </metadata>
         </root>
         """;
-    XmlNavigateCommand nameCommand =
-        XmlNavigateCommand.create(TreePath.fromXml("root/users/user/name"), new PassThroughRule());
+    XmlWalker nameCommand =
+        XmlWalker.create(TreePath.fromXml("root/users/user/name"), new PassThroughRule());
     InputStream inputStream = new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -156,8 +156,8 @@ class XmlNavigateCommandTest {
   @DisplayName("Rule RuntimeException is wrapped as IOException with original cause")
   void testRuleRuntimeExceptionWrappedAsIOException() {
     RuntimeException ruleEx = new RuntimeException("rule failure");
-    XmlNavigateCommand failingRuleCommand =
-        XmlNavigateCommand.create(
+    XmlWalker failingRuleCommand =
+        XmlWalker.create(
             TreePath.fromXml("root/item"),
             value -> {
               throw ruleEx;
@@ -192,8 +192,7 @@ class XmlNavigateCommandTest {
     // could underflow if the guard is absent.
     String xmlInput =
         "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><item>a</item><item>b</item></root>";
-    XmlNavigateCommand cmd =
-        XmlNavigateCommand.create(TreePath.fromXml("root/item"), new PassThroughRule());
+    XmlWalker cmd = XmlWalker.create(TreePath.fromXml("root/item"), new PassThroughRule());
     InputStream inputStream = new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 
@@ -228,12 +227,10 @@ class XmlNavigateCommandTest {
   @Test
   @DisplayName("close() の XMLStreamException はプライマリ例外の suppressed に追加される（#662）")
   void testWriterCloseXmlStreamExceptionSuppressedOnPrimaryException() throws IOException {
-    // 修正前: XMLStreamException は WARN ログのみ → addSuppressed されない
-    // 修正後: primaryException != null なら addSuppressed する
     XMLStreamException closeEx = new XMLStreamException("close failed");
 
-    XmlNavigateCommand cmd =
-        new XmlNavigateCommand(TreePath.fromXml("root/item"), new PassThroughRule()) {
+    XmlWalker cmd =
+        new XmlWalker(TreePath.fromXml("root/item"), new PassThroughRule()) {
           @Override
           protected XMLEventWriter createXMLEventWriter(OutputStream out)
               throws XMLStreamException {
@@ -283,12 +280,10 @@ class XmlNavigateCommandTest {
   @Test
   @DisplayName("close() の XMLStreamException はプライマリ例外なし時に IOException でラップされる（#662）")
   void testWriterCloseXmlStreamExceptionThrowsRuntimeWhenNoPrimary() {
-    // 修正前: XMLStreamException は WARN ログのみ → 呼び出し元に伝播しない
-    // 修正後: primaryException == null なら buildXmlException で IOException にラップして再スロー
     XMLStreamException closeEx = new XMLStreamException("close failed");
 
-    XmlNavigateCommand cmd =
-        new XmlNavigateCommand(TreePath.fromXml("root/item"), new PassThroughRule()) {
+    XmlWalker cmd =
+        new XmlWalker(TreePath.fromXml("root/item"), new PassThroughRule()) {
           @Override
           protected XMLEventWriter createXMLEventWriter(OutputStream out)
               throws XMLStreamException {
@@ -371,10 +366,10 @@ class XmlNavigateCommandTest {
   }
 
   @Test
-  @DisplayName("XmlNavigateCommand は XMLEventFactory を static final フィールドとして保持しない（スレッドセーフ保証のため）")
-  void xmlNavigateCommand_hasNoStaticFinalXmlEventFactoryField() {
+  @DisplayName("XmlWalker は XMLEventFactory を static final フィールドとして保持しない（スレッドセーフ保証のため）")
+  void xmlWalker_hasNoStaticFinalXmlEventFactoryField() {
     boolean hasStaticFinalEventFactory =
-        Arrays.stream(XmlNavigateCommand.class.getDeclaredFields())
+        Arrays.stream(XmlWalker.class.getDeclaredFields())
             .filter(f -> XMLEventFactory.class.isAssignableFrom(f.getType()))
             .anyMatch(
                 f -> {

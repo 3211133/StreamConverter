@@ -16,9 +16,9 @@ import java.util.List;
 /**
  * CSV Filter Command Class
  *
- * <p>This class implements pure data extraction from CSV using column selectors. Unlike
- * CsvNavigateCommand which applies transformations, CsvFilterCommand only extracts/filters columns
- * based on specified column names or indices without any modifications.
+ * <p>This class implements pure data extraction from CSV using column selectors. Unlike CsvWalker
+ * which applies transformations, CsvFilterCommand only extracts/filters columns based on specified
+ * column names or indices without any modifications.
  *
  * <p>Features: - Extract specific columns using column names or indices - Preserve exact data
  * values from extracted columns - Memory-efficient streaming processing - Support for multiple

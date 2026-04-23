@@ -1,9 +1,9 @@
 package com.streamconverter.examples;
 
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
-import com.streamconverter.command.impl.json.JsonNavigateCommand;
-import com.streamconverter.command.impl.xml.XmlNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
+import com.streamconverter.command.impl.json.JsonWalker;
+import com.streamconverter.command.impl.xml.XmlWalker;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.command.rule.impl.casing.CamelToSnakeCaseRule;
 import com.streamconverter.command.rule.impl.composite.ChainRule;
@@ -38,29 +38,29 @@ import org.slf4j.LoggerFactory;
  * <p><b>シナリオ（CSV 3段パイプライン）:</b>
  *
  * <pre>
- * [コマンド1] CsvNavigateCommand(name列) + ChainRule(TrimRule → LowerCaseRule)
+ * [コマンド1] CsvWalker(name列) + ChainRule(TrimRule → LowerCaseRule)
  *             商品名の前後空白を除去して小文字に統一
  *          ↓
- * [コマンド2] CsvNavigateCommand(price列) + カスタムIRule実装クラス（PriceFormattingRule）
+ * [コマンド2] CsvWalker(price列) + カスタムIRule実装クラス（PriceFormattingRule）
  *             価格を "¥1,234" 形式にフォーマット
  *          ↓
- * [コマンド3] CsvNavigateCommand(category列) + ラムダIRule
+ * [コマンド3] CsvWalker(category列) + ラムダIRule
  *             カテゴリを大文字に変換（ラムダで実装）
  * </pre>
  *
  * <p><b>シナリオ（JSON 3段パイプライン）:</b>
  *
  * <pre>
- * [コマンド1] JsonNavigateCommand($.name) + ChainRule(TrimRule → LowerCaseRule)
- * [コマンド2] JsonNavigateCommand($.category) + CamelToSnakeCaseRule（組み込みRuleの例）
- * [コマンド3] JsonNavigateCommand($.sku) + ラムダIRule（"SKU-" プレフィックス付与）
+ * [コマンド1] JsonWalker($.name) + ChainRule(TrimRule → LowerCaseRule)
+ * [コマンド2] JsonWalker($.category) + CamelToSnakeCaseRule（組み込みRuleの例）
+ * [コマンド3] JsonWalker($.sku) + ラムダIRule（"SKU-" プレフィックス付与）
  * </pre>
  *
  * <p><b>シナリオ（XML 2段パイプライン）:</b>
  *
  * <pre>
- * [コマンド1] XmlNavigateCommand(product/name) + ChainRule(TrimRule → LowerCaseRule)
- * [コマンド2] XmlNavigateCommand(product/category) + CamelToSnakeCaseRule
+ * [コマンド1] XmlWalker(product/name) + ChainRule(TrimRule → LowerCaseRule)
+ * [コマンド2] XmlWalker(product/category) + CamelToSnakeCaseRule
  * </pre>
  */
 public class NavigateAndRuleExample {
@@ -106,16 +106,16 @@ public class NavigateAndRuleExample {
     IRule upperCase = s -> s.toUpperCase();
 
     // PriceFormattingRule が "¥128,000" を出力する（カンマを含む）。
-    // CsvNavigateCommand は RFC 4180 に従い、カンマを含む値を二重引用符で囲む。
+    // CsvWalker は RFC 4180 に従い、カンマを含む値を二重引用符で囲む。
     String csvExpected =
         "name,price,category\r\nlaptop computer,\"¥128,000\",ELECTRONICS\r\nwireless mouse,\"¥3,200\",ACCESSORIES\r\n";
     log.info("期待値:\n{}", csvExpected);
 
     ByteArrayOutputStream csvOut = new ByteArrayOutputStream();
     StreamConverter.create(
-            CsvNavigateCommand.create(CSVPath.of("name"), trimAndLower),
-            CsvNavigateCommand.create(CSVPath.of("price"), priceFormatter),
-            CsvNavigateCommand.create(CSVPath.of("category"), upperCase))
+            CsvWalker.create(CSVPath.of("name"), trimAndLower),
+            CsvWalker.create(CSVPath.of("price"), priceFormatter),
+            CsvWalker.create(CSVPath.of("category"), upperCase))
         .run(new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8)), csvOut);
     log.info("出力:\n{}", csvOut.toString(StandardCharsets.UTF_8));
   }
@@ -152,9 +152,9 @@ public class NavigateAndRuleExample {
 
     ByteArrayOutputStream jsonOut = new ByteArrayOutputStream();
     StreamConverter.create(
-            JsonNavigateCommand.create(TreePath.fromJson("$.name"), trimAndLower),
-            JsonNavigateCommand.create(TreePath.fromJson("$.category"), camelToSnake),
-            JsonNavigateCommand.create(TreePath.fromJson("$.sku"), addSkuPrefix))
+            JsonWalker.create(TreePath.fromJson("$.name"), trimAndLower),
+            JsonWalker.create(TreePath.fromJson("$.category"), camelToSnake),
+            JsonWalker.create(TreePath.fromJson("$.sku"), addSkuPrefix))
         .run(new ByteArrayInputStream(json.getBytes(StandardCharsets.UTF_8)), jsonOut);
     log.info("出力:\n{}", jsonOut.toString(StandardCharsets.UTF_8));
   }
@@ -165,7 +165,7 @@ public class NavigateAndRuleExample {
 
   private static void xmlPipeline() throws IOException {
     log.info("--- XML パイプライン ---");
-    // XmlNavigateCommand は JSON と同様に XML 全体構造を保持しながら特定パスの値を変換する。
+    // XmlWalker は JSON と同様に XML 全体構造を保持しながら特定パスの値を変換する。
     // 複数フィールドを別々のコマンドで変換することも可能。
     //   コマンド1: product/name の前後空白をトリムして小文字化
     //   コマンド2: product/category をスネークケースに変換
@@ -191,11 +191,10 @@ public class NavigateAndRuleExample {
 
     ByteArrayOutputStream xmlOut = new ByteArrayOutputStream();
     StreamConverter.create(
-            XmlNavigateCommand.create(
+            XmlWalker.create(
                 TreePath.fromXml("product/name"),
                 ChainRule.builder().addRule(new TrimRule()).addRule(new LowerCaseRule()).build()),
-            XmlNavigateCommand.create(
-                TreePath.fromXml("product/category"), CamelToSnakeCaseRule.create()))
+            XmlWalker.create(TreePath.fromXml("product/category"), CamelToSnakeCaseRule.create()))
         .run(new ByteArrayInputStream(xml.getBytes(StandardCharsets.UTF_8)), xmlOut);
     log.info("出力:\n{}", xmlOut.toString(StandardCharsets.UTF_8));
   }

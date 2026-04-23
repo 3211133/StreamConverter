@@ -22,7 +22,7 @@ import java.util.Locale;
  *
  * <pre>{@code
  * IRule rule = CamelToSnakeCaseRule.builder().build();
- * IStreamCommand command = JsonNavigateCommand.create("$.userName", rule);
+ * IStreamCommand command = JsonWalker.create(TreePath.fromJson("$.userName"), rule);
  * }</pre>
  *
  * @since 1.0

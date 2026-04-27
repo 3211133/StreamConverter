@@ -25,7 +25,7 @@ dependencies {
     implementation(project(":streamconverter-core"))
 
     // Import Spring Boot BOM to align Spring/Reactor/Netty versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.5"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.6"))
 
     // Logging (version via BOM)
     implementation("ch.qos.logback:logback-core")

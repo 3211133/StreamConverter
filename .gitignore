@@ -1,60 +1,56 @@
-# Gradle
-.gradle
-build/
+# Build output
+.gradle/
 .gradle-local/
+build/
+bin/
+lib/
 
-# Node.js
-node_modules/
-package-lock.json
-package.json
-
-# IDE files
-.idea/
-*.iml
-*.iws
-*.ipr
-.vscode/
-*.swp
-*.swo
-.classpath
-.project
-
-# Eclipse/LSP workspace files
-.lsmcp/
-.jdtls/
-
-# Java
+# Java artifacts
 *.class
 *.jar
 *.war
 *.ear
-*.logs
 .mtj.tmp/
 hs_err_pid*
+
+# IDE and editor
+.idea/
+.vscode/
+*.iml
+*.iws
+*.ipr
+.classpath
+.project
+*.swp
+*.swo
+
+# Language server
+.lsmcp/
+.jdtls/
 
 # OS specific
 .DS_Store
 Thumbs.db
 
-# build artifacts
-bin/
-lib/
-
-# Documentation (generated)
-docs/javadoc/
-build/docs/javadoc/
-**/docs/javadoc/
-
-# Log files
+# Logs and temp
 *.log
+*.logs
 logs/
-
-# Temporary files
 temp/
 
-#Agentic Hooks
+# Generated documentation
+**/docs/javadoc/
+
+# Reports and analysis output
+docs/reports/
+
+# Claude Code
 .claude/hooks/
 .claude/logs/
 .claude/tmp/
+.claude/worktrees/
+.claude/scheduled_tasks.lock
 .claude/settings.local.json
+
+# Test stubs (not for review)
 streamconverter-core/src/test/java/com/streamconverter/bugs/

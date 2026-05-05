@@ -136,6 +136,46 @@ streaming contract test suite. See
 [docs/reference/IMPLEMENTING_COMMANDS.md](docs/reference/IMPLEMENTING_COMMANDS.md)
 for a step-by-step guide including a provider template and common pitfalls.
 
+## Local Environment Setup
+
+### Personal Ignore Settings
+
+IDE- or editor-specific files that are personal to your environment should **not** be added to `.gitignore` in this repository. Instead, use one of the following mechanisms:
+
+- **`.git/info/exclude`** — applies only to your local clone of this repository
+- **`~/.gitignore_global`** — applies across all repositories on your machine; configure with:
+  ```
+  git config --global core.excludesfile ~/.gitignore_global
+  ```
+
+Example entries for a global ignore file:
+
+```
+# JetBrains IDEs
+.idea/
+*.iml
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+```
+
+### AI Assistant Files
+
+This repository includes configuration files for AI coding assistants. The following are project assets and are tracked in git:
+
+| File / Directory | Purpose |
+|---|---|
+| `CLAUDE.md` | Project conventions for Claude Code |
+| `AGENTS.md` | Entry point for AI agents (points to CLAUDE.md) |
+| `.claude/settings.json` | Shared Claude Code permission settings |
+| `.claude/agents/` | Project-specific agent definitions |
+| `.claude/commands/` | Project-specific slash command definitions |
+
+Personal customizations (e.g., additional agents or commands for your own workflow) should be placed in `.claude/settings.local.json`, which is excluded from git via `.gitignore`.
+
 ## Pull Request Process
 
 1. Ensure your code follows the style guidelines of this project

@@ -140,7 +140,7 @@ for a step-by-step guide including a provider template and common pitfalls.
 
 ### Personal Ignore Settings
 
-IDE- or editor-specific files that are personal to your environment should **not** be added to `.gitignore` in this repository. Instead, use one of the following mechanisms:
+The repository `.gitignore` covers common IDE and OS patterns (`.idea/`, `.vscode/`, `.DS_Store`, etc.) for convenience, but these entries are not exhaustive. Files specific to your personal environment that are **not already covered** should be managed through one of the following mechanisms rather than adding them to the shared `.gitignore`:
 
 - **`.git/info/exclude`** — applies only to your local clone of this repository
 - **`~/.gitignore_global`** — applies across all repositories on your machine; configure with:

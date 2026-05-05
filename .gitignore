@@ -34,7 +34,6 @@ Thumbs.db
 
 # Logs and temp
 *.log
-*.logs
 logs/
 temp/
 

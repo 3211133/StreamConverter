@@ -14,7 +14,7 @@
 - **[ARCHITECTURE.md](ARCHITECTURE.md)**: 4 層アーキテクチャと設計原則
 - **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)**: UML / クラス関係図
 - **[handbook/architecture.md](handbook/architecture.md)**: パイプライン内部の詳細
-- **[reports/CONTEXT_PROPAGATION_ARCHITECTURE.md](reports/CONTEXT_PROPAGATION_ARCHITECTURE.md)**: コンテキスト伝播の背景調査
+- **[reference/CONTEXT_PROPAGATION_ARCHITECTURE.md](reference/CONTEXT_PROPAGATION_ARCHITECTURE.md)**: コンテキスト伝播の背景調査
 
 ## 🧰 Features
 - **[handbook/logging.md](handbook/logging.md)**: 自動ログ・MDC 連携
@@ -30,7 +30,6 @@
 - **[guides/BENCHMARK_IMPLEMENTATION.md](guides/BENCHMARK_IMPLEMENTATION.md)**: ベンチマーク実装詳細
 - **[development/CONFIGURATION.md](development/CONFIGURATION.md)**: IDE & MCP 設定
 - **[development/INTEGRATION_EXAMPLES.md](development/INTEGRATION_EXAMPLES.md)**: 連携サンプル
-- **[development/commit-commands-summary.md](development/commit-commands-summary.md)**: よく使う Gradle / Git コマンド
 - **[scripts/create-issues.sh](../scripts/create-issues.sh)**: 自動化スクリプト
 
 ## 🧪 Quality & Testing
@@ -56,8 +55,7 @@
 - **[reference/CLAUDE_IMPLEMENTATION.md](reference/CLAUDE_IMPLEMENTATION.md)**: ストリーム処理制約とセキュリティ
 
 ## 📊 Reports & Research
-- **[reports/MDC_ANALYSIS_REPORT.md](reports/MDC_ANALYSIS_REPORT.md)**: MDC 分析
-- **[docs/development/TESTING_OLD.md](development/TESTING_OLD.md)**: 旧テスト手法
+- **[reference/MDC_ANALYSIS_REPORT.md](reference/MDC_ANALYSIS_REPORT.md)**: MDC 分析
 
 ## 🗂️ Archive
 - **[archived/](archived/)**: 旧アーキテクチャや破棄済み設計資料

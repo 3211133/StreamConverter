@@ -212,7 +212,7 @@ public class FileBufferCommand implements IStreamCommand {
 
     private TempFileLifecycle() {}
 
-    static void register(org.slf4j.Logger logger, Thread shutdownHook, Path tempFile) {
+    static void register(Logger logger, Thread shutdownHook, Path tempFile) {
       try {
         Runtime.getRuntime().addShutdownHook(shutdownHook);
       } catch (IllegalStateException | SecurityException e) {
@@ -223,7 +223,7 @@ public class FileBufferCommand implements IStreamCommand {
       }
     }
 
-    static void deregister(org.slf4j.Logger logger, Thread shutdownHook) {
+    static void deregister(Logger logger, Thread shutdownHook) {
       try {
         Runtime.getRuntime().removeShutdownHook(shutdownHook);
       } catch (IllegalStateException e) {
@@ -233,7 +233,7 @@ public class FileBufferCommand implements IStreamCommand {
       }
     }
 
-    static void deleteSilently(org.slf4j.Logger logger, Path path) {
+    static void deleteSilently(Logger logger, Path path) {
       try {
         Files.deleteIfExists(path);
       } catch (IOException e) {

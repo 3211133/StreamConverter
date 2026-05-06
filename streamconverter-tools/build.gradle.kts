@@ -3,7 +3,7 @@ plugins {
     id("jacoco")
     id("application")
     id("com.diffplug.spotless") version "8.4.0"
-    id("org.springframework.boot") version "4.0.5"
+    id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -51,7 +51,7 @@ dependencies {
     implementation("com.fasterxml.jackson.core:jackson-databind:2.21.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.21")
     implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.3")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.21.2")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.21.3")
 }
 
 // Benchmark tasks

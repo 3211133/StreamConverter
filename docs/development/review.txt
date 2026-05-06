@@ -1,3 +1,0 @@
-- `scripts/commit-checks.sh` が存在しないため、`chmod +x` の行でエラーが発生します。
-- `package.json` が存在しないため、`npm install` の行でエラーが発生します。
-- このスクリプトを正しく動作させるには、`scripts/commit-checks.sh` と `package.json` を作成し、適切に設定する必要があります。

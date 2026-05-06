@@ -42,7 +42,7 @@ dependencies {
 
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.20.0")
-    implementation("commons-io:commons-io:2.21.0")
+    implementation("commons-io:commons-io:2.22.0")
 
     // JSON Schema validation
     implementation("com.networknt:json-schema-validator:3.0.2")
@@ -55,7 +55,7 @@ dependencies {
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
-    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.5"))
+    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.6"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")

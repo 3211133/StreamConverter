@@ -1,15 +1,3 @@
-/**
- * Copyright (c) 2023, Stream Converter Project All rights reserved.
- * 指定された通信先にOutputStreamを送信するコマンドクラス。
- *
- * <p>このクラスは、指定された通信先にOutputStreamを送信するためのコマンドを実装します。 ストリームを使用して、データを送信します。 送信先のURLはコンストラクタで指定されます。
- * 送信先のURLは、HTTP POSTリクエストを使用してデータを送信します。 送信先のURLは、HTTPまたはHTTPSで始まる必要があります。
- * 送信先のURLは、コンストラクタで指定されたURLに基づいて決定されます。
- *
- * <p>このクラスは、ストリーム変換のコマンドを実装するための抽象クラスを拡張しています。 ストリーム変換のコマンドは、ストリームを使用してデータを変換するためのものです。
- *
- * <p>レスポンスを受信してOutputStreamに書き込むことができます。
- */
 package com.streamconverter.command.impl;
 
 import com.google.common.net.InetAddresses;

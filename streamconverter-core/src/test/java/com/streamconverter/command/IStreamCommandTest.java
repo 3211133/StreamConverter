@@ -128,9 +128,8 @@ class IStreamCommandTest {
       wrapped.execute(in, out);
     }
 
-    // ログに "IStreamCommand" ではなく実クラス名が含まれることを確認
-    verify(logger)
-        .info(eq("Starting command: {}"), argThat((String name) -> !"IStreamCommand".equals(name)));
+    // ログに具体的なクラス名（ConcreteTestCommand）が使われることを確認
+    verify(logger).info(eq("Starting command: {}"), eq("ConcreteTestCommand"));
   }
 
   @Test

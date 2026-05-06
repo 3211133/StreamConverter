@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.TreePath;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.util.List;
  * elements - Preserve JSON structure during transformation - Stream processing for memory
  * efficiency
  */
-public class JsonWalker extends AbstractStreamCommand {
+public class JsonWalker implements IStreamCommand {
 
   private final TreePath treePath;
   private final IRule rule;

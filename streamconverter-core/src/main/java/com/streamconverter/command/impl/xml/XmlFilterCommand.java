@@ -1,6 +1,6 @@
 package com.streamconverter.command.impl.xml;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.path.IPath;
 import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
@@ -28,7 +28,7 @@ import org.slf4j.LoggerFactory;
  * structure of extracted elements - Memory-efficient streaming processing - Support for complex
  * path expressions including nested elements and attributes
  */
-public class XmlFilterCommand extends AbstractStreamCommand {
+public class XmlFilterCommand implements IStreamCommand {
   private static final Logger logger = LoggerFactory.getLogger(XmlFilterCommand.class);
 
   private final IPath<List<String>> xpath;

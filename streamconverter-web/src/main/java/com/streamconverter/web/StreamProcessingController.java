@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.csv.CsvWalker;
 import com.streamconverter.command.impl.json.JsonWalker;
@@ -227,7 +226,7 @@ public class StreamProcessingController {
               }
               yield JsonWalker.create(TreePath.fromJson(parameter), new PassThroughRule());
             }
-            case "process" -> new AbstractStreamCommand() {
+            case "process" -> new IStreamCommand() {
               @Override
               public void execute(InputStream in, java.io.OutputStream out) throws IOException {
                 in.transferTo(out);

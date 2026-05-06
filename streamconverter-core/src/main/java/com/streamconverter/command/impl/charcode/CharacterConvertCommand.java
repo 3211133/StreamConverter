@@ -1,6 +1,6 @@
 package com.streamconverter.command.impl.charcode;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -12,11 +12,10 @@ import java.util.Objects;
 /**
  * Converts the character encoding of a stream from one encoding to another.
  *
- * <p>This class extends the AbstractStreamCommand and implements the conversion of character
- * encodings.
+ * <p>This class implements the conversion of character encodings.
  */
 // BEGIN CharacterConvertCommand.java
-public class CharacterConvertCommand extends AbstractStreamCommand {
+public class CharacterConvertCommand implements IStreamCommand {
   private final String from;
   private final String to;
 
@@ -28,7 +27,6 @@ public class CharacterConvertCommand extends AbstractStreamCommand {
    * @throws IllegalArgumentException if the specified character encodings are not supported.
    */
   private CharacterConvertCommand(String from, String to) {
-    super();
     this.from = from;
     this.to = to;
   }

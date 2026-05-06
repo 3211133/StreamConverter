@@ -1,6 +1,6 @@
 package com.streamconverter.command.impl.xml;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.TreePath;
 import com.streamconverter.security.SecureXmlConfiguration;
@@ -31,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * configured {@link TreePath} is transformed by the rule; all other events are passed through
  * unchanged.
  */
-public class XmlWalker extends AbstractStreamCommand {
+public class XmlWalker implements IStreamCommand {
   private static final Logger logger = LoggerFactory.getLogger(XmlWalker.class);
 
   private final TreePath treePath;

@@ -13,7 +13,7 @@
 package com.streamconverter.command.impl;
 
 import com.google.common.net.InetAddresses;
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,7 +33,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
 /** 指定された通信先にOutputStreamを送信するコマンドクラス。 */
-public class SendHttpCommand extends AbstractStreamCommand {
+public class SendHttpCommand implements IStreamCommand {
 
   private static final Logger logger = LoggerFactory.getLogger(SendHttpCommand.class);
 
@@ -63,7 +63,6 @@ public class SendHttpCommand extends AbstractStreamCommand {
    * @param webClient 使用するWebClient
    */
   public SendHttpCommand(String url, WebClient webClient) {
-    super();
     this.url = validateAndSanitizeUrl(url);
     this.webClient = Objects.requireNonNull(webClient, "webClient must not be null");
   }
@@ -255,7 +254,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
                   throw new RuntimeException("Failed to flush output stream", e);
                 }
               })
-          .blockLast(); // Intentionally synchronous: AbstractStreamCommand interface requires
+          .blockLast(); // Intentionally synchronous: IStreamCommand interface requires
       // blocking execution
       // for compatibility with existing command pipeline. Alternative: use subscribe()
       // with CompletableFuture for true async, but would break command interface contract.

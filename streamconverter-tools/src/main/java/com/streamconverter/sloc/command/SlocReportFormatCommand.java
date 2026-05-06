@@ -1,6 +1,6 @@
 package com.streamconverter.sloc.command;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.sloc.ModuleSloc;
 import java.io.EOFException;
 import java.io.IOException;
@@ -37,7 +37,7 @@ import java.util.Locale;
  *   Total                      3,427
  * </pre>
  */
-public class SlocReportFormatCommand extends AbstractStreamCommand {
+public class SlocReportFormatCommand implements IStreamCommand {
 
   private static final int MODULE_COL_WIDTH = 25;
   private static final int LINES_COL_WIDTH = 6;

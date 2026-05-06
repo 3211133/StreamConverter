@@ -47,10 +47,6 @@ class CommandImplementationDiscoveryTest {
                 "example 内の内部クラスをトップレベル command として誤検出してはいけない"),
         () ->
             assertFalse(
-                discovered.contains("com.streamconverter.command.AbstractStreamCommand"),
-                "抽象基底クラスを command 実装として扱ってはいけない"),
-        () ->
-            assertFalse(
                 discovered.contains("com.streamconverter.command.ConsumerCommand"),
                 "抽象 consumer 基底クラスを command 実装として扱ってはいけない"));
   }

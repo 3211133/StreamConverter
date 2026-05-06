@@ -3,7 +3,7 @@ package com.streamconverter.command.impl.csv;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
@@ -21,7 +21,7 @@ import java.nio.charset.StandardCharsets;
  * identifies specific columns using column names or indices and applies IRule transformations to
  * those columns while preserving the overall CSV structure.
  */
-public class CsvWalker extends AbstractStreamCommand {
+public class CsvWalker implements IStreamCommand {
 
   private final CSVPath columnSelector;
   private final IRule rule;

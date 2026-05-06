@@ -17,6 +17,13 @@ import org.slf4j.Logger;
 @DisplayName("IStreamCommand#withLogging のテスト")
 class IStreamCommandTest {
 
+  private static class ConcreteTestCommand implements IStreamCommand {
+    @Override
+    public void execute(InputStream in, OutputStream out) throws IOException {
+      in.transferTo(out);
+    }
+  }
+
   private Logger logger;
 
   @BeforeEach
@@ -113,13 +120,7 @@ class IStreamCommandTest {
   @DisplayName("通常クラス実装: クラス名がログに使われる")
   void testWithLogging_concreteClass_usesClassName() throws IOException {
     // 名前付き具象クラスでラップ → getSimpleName() が使われる
-    AbstractStreamCommand concreteCommand =
-        new AbstractStreamCommand() {
-          @Override
-          public void execute(InputStream in, OutputStream out) throws IOException {
-            in.transferTo(out);
-          }
-        };
+    IStreamCommand concreteCommand = new ConcreteTestCommand();
     IStreamCommand wrapped = concreteCommand.withLogging(logger);
 
     try (InputStream in = new ByteArrayInputStream(new byte[0]);

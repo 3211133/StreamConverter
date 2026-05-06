@@ -3,7 +3,7 @@ package com.streamconverter.command.impl.csv;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.path.CSVPath;
 import java.io.IOException;
 import java.io.InputStream;
@@ -24,7 +24,7 @@ import java.util.List;
  * values from extracted columns - Memory-efficient streaming processing - Support for multiple
  * column selection
  */
-public class CsvFilterCommand extends AbstractStreamCommand {
+public class CsvFilterCommand implements IStreamCommand {
 
   private final CSVPath combinedSelector;
   private final boolean hasHeader;

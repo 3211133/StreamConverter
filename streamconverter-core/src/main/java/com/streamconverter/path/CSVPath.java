@@ -21,12 +21,7 @@ import java.util.List;
  *
  * <p><b>注意:</b> {@code "*"} はワイルドカードとして解釈されるため、ヘッダー名そのものが {@code "*"} の列を個別指定する用途には使えない。
  */
-@SuppressWarnings("PMD.TooManyMethods")
-// public API（matches オーバーロード × 2, findMatchingIndices × 2, of × 2）と
-// private ヘルパー（matchesSingleSelector × 2, parseAsIndex, isAllColumnsSelector）で構成される。
-// ヘルパーは同一パッケージの package-private クラスに分離可能だが、CSVPath 専用の実装詳細を
-// 独立クラスとして切り出す設計上の意義がないため現状を維持している。
-public class CSVPath extends AbstractPath<Integer> {
+public class CSVPath implements IColumnSelector {
 
   private final List<String> selectors;
 
@@ -37,7 +32,6 @@ public class CSVPath extends AbstractPath<Integer> {
    * @throws IllegalArgumentException セレクターが不正な場合
    */
   private CSVPath(String selector) {
-    super(selector);
     this.selectors = Collections.singletonList(selector.trim());
   }
 
@@ -48,7 +42,6 @@ public class CSVPath extends AbstractPath<Integer> {
    * @throws IllegalArgumentException セレクターが不正な場合
    */
   private CSVPath(List<String> selectorList) {
-    super(String.join(",", selectorList));
     List<String> temp = new ArrayList<>();
     for (String sel : selectorList) {
       temp.add(sel.trim());
@@ -85,20 +78,6 @@ public class CSVPath extends AbstractPath<Integer> {
   }
 
   /**
-   * 検証・正規化処理のフック。
-   *
-   * <p>{@link AbstractPath#AbstractPath(String)} コンストラクタから呼び出されるが、CSVPathでは検証を ファクトリメソッド（{@link
-   * #of(String)} / {@link #of(java.util.List)}）側で行うため、
-   * コンストラクタ内スロー（CT_CONSTRUCTOR_THROW）を避けるためにここでは何もしない。
-   *
-   * @param rawSelector 生のセレクター文字列（未使用）
-   */
-  @Override
-  protected void validateAndNormalize(String rawSelector) {
-    // Validation is performed in factory methods (of(...)) to avoid CT_CONSTRUCTOR_THROW
-  }
-
-  /**
    * 指定された列インデックスがこのパスにマッチするかどうかを判定する（OR条件）。
    *
    * <p>いずれかのセレクターがインデックスに一致すれば {@code true} を返す。
@@ -110,8 +89,7 @@ public class CSVPath extends AbstractPath<Integer> {
    * @param columnIndex 判定対象の列インデックス（0始まり）。nullまたは負値の場合はfalse
    * @return いずれかのセレクターが一致する場合true
    */
-  @Override
-  public boolean matches(Integer columnIndex) {
+  private boolean matches(Integer columnIndex) {
     if (columnIndex == null || columnIndex < 0) {
       return false;
     }
@@ -147,12 +125,13 @@ public class CSVPath extends AbstractPath<Integer> {
   }
 
   /**
-   * マッチするすべての列インデックスを取得（Don't Ask Tell準拠）
+   * ヘッダー配列から対象列のインデックスリストを解決する（{@link IColumnSelector} の実装）。
    *
    * @param headers CSV列ヘッダー配列
    * @return マッチした列インデックスのリスト
    */
-  public List<Integer> findMatchingIndices(String[] headers) {
+  @Override
+  public List<Integer> resolve(String[] headers) {
     List<Integer> matchingIndices = new ArrayList<>();
     if (headers == null) {
       return matchingIndices;
@@ -167,12 +146,13 @@ public class CSVPath extends AbstractPath<Integer> {
   }
 
   /**
-   * マッチするすべての列インデックスを取得（ヘッダーなしの場合）
+   * ヘッダーなしCSVで列数から対象列のインデックスリストを解決する（{@link IColumnSelector} の実装）。
    *
    * @param totalColumns 総列数
    * @return マッチした列インデックスのリスト
    */
-  public List<Integer> findMatchingIndices(int totalColumns) {
+  @Override
+  public List<Integer> resolve(int totalColumns) {
     List<Integer> matchingIndices = new ArrayList<>();
 
     for (int i = 0; i < totalColumns; i++) {

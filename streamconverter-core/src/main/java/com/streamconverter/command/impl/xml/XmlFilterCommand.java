@@ -1,7 +1,7 @@
 package com.streamconverter.command.impl.xml;
 
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.path.IPath;
+import com.streamconverter.path.ITreeMatcher;
 import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
 import java.io.InputStream;
@@ -9,7 +9,6 @@ import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.util.List;
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -31,9 +30,9 @@ import org.slf4j.LoggerFactory;
 public class XmlFilterCommand implements IStreamCommand {
   private static final Logger logger = LoggerFactory.getLogger(XmlFilterCommand.class);
 
-  private final IPath<List<String>> xpath;
+  private final ITreeMatcher xpath;
 
-  private XmlFilterCommand(IPath<List<String>> xpath) {
+  private XmlFilterCommand(ITreeMatcher xpath) {
     this.xpath = xpath;
   }
 
@@ -44,9 +43,9 @@ public class XmlFilterCommand implements IStreamCommand {
    * @return an XmlFilterCommand instance
    * @throws IllegalArgumentException if xpath is null
    */
-  public static XmlFilterCommand create(IPath<List<String>> xpath) {
+  public static XmlFilterCommand create(ITreeMatcher xpath) {
     if (xpath == null) {
-      throw new IllegalArgumentException("TreePath cannot be null");
+      throw new IllegalArgumentException("xpath cannot be null");
     }
     return new XmlFilterCommand(xpath);
   }

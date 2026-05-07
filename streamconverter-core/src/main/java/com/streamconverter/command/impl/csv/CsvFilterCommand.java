@@ -4,7 +4,7 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.IColumnSelector;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -26,17 +26,17 @@ import java.util.List;
  */
 public class CsvFilterCommand implements IStreamCommand {
 
-  private final CSVPath combinedSelector;
+  private final IColumnSelector combinedSelector;
   private final boolean hasHeader;
 
   /**
    * Constructor for CSV filtering with single typed column selector.
    *
-   * @param columnSelector the typed CSVPath to extract
+   * @param columnSelector the typed IColumnSelector to extract
    * @param hasHeader whether the CSV has a header row
    * @throws IllegalArgumentException if columnSelector is null
    */
-  private CsvFilterCommand(CSVPath columnSelector, boolean hasHeader) {
+  private CsvFilterCommand(IColumnSelector columnSelector, boolean hasHeader) {
     this.combinedSelector = columnSelector;
     this.hasHeader = hasHeader;
   }
@@ -44,23 +44,23 @@ public class CsvFilterCommand implements IStreamCommand {
   /**
    * Factory method for CSV filtering with single typed column selector (assumes header exists).
    *
-   * @param columnSelector the typed CSVPath to extract
+   * @param columnSelector the typed IColumnSelector to extract
    * @return a CsvFilterCommand instance
    * @throws IllegalArgumentException if columnSelector is null
    */
-  public static CsvFilterCommand create(CSVPath columnSelector) {
+  public static CsvFilterCommand create(IColumnSelector columnSelector) {
     return create(columnSelector, true);
   }
 
   /**
    * Factory method for CSV filtering with single typed column selector.
    *
-   * @param columnSelector the typed CSVPath to extract
+   * @param columnSelector the typed IColumnSelector to extract
    * @param hasHeader whether the CSV has a header row
    * @return a CsvFilterCommand instance
    * @throws IllegalArgumentException if columnSelector is null
    */
-  public static CsvFilterCommand create(CSVPath columnSelector, boolean hasHeader) {
+  public static CsvFilterCommand create(IColumnSelector columnSelector, boolean hasHeader) {
     if (columnSelector == null) {
       throw new IllegalArgumentException("Column selector cannot be null");
     }
@@ -121,8 +121,8 @@ public class CsvFilterCommand implements IStreamCommand {
    * @return list of column indices
    * @throws IllegalArgumentException if no columns found
    */
-  private List<Integer> mapColumnSelectorsToIndices(CSVPath csvPath, String[] headers) {
-    List<Integer> indices = csvPath.findMatchingIndices(headers);
+  private List<Integer> mapColumnSelectorsToIndices(IColumnSelector csvPath, String[] headers) {
+    List<Integer> indices = csvPath.resolve(headers);
     if (indices.isEmpty()) {
       throw new IllegalArgumentException("No columns found for selector: " + csvPath.toString());
     }
@@ -137,8 +137,8 @@ public class CsvFilterCommand implements IStreamCommand {
    * @return list of column indices
    * @throws IllegalArgumentException if no valid indices found
    */
-  private List<Integer> parseNumericColumnSelectors(CSVPath csvPath, int totalColumns) {
-    List<Integer> indices = csvPath.findMatchingIndices(totalColumns);
+  private List<Integer> parseNumericColumnSelectors(IColumnSelector csvPath, int totalColumns) {
+    List<Integer> indices = csvPath.resolve(totalColumns);
     if (indices.isEmpty()) {
       throw new IllegalArgumentException(
           "Column selector must be numeric when no header: " + csvPath.toString());

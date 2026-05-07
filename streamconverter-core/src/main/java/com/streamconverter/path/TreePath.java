@@ -16,7 +16,7 @@ import java.util.List;
 // private パーサーヘルパー（parseJsonPathToSegments/parseComplexJsonPath/parseXmlPathToSegments 等）
 // が同居している。パーサーヘルパーは package-private クラスへ分離可能だが、TreePath 専用の
 // 実装詳細であり独立させる設計上の意義がないため現状を維持している。
-public class TreePath implements IPath<List<String>> {
+public class TreePath implements ITreeMatcher {
 
   private final List<String> segments;
   private final String originalPath;

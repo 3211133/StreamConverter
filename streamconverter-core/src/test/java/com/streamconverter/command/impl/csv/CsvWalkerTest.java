@@ -2,6 +2,7 @@ package com.streamconverter.command.impl.csv;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -20,6 +21,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Callable;
 import java.util.concurrent.ExecutorService;
@@ -273,6 +275,41 @@ class CsvWalkerTest {
 
     String result = output.toString(StandardCharsets.UTF_8);
     assertTrue(result.contains("\r\n"), "CSV output must use CRLF (\\r\\n) per RFC 4180 §2");
+  }
+
+  @Test
+  @DisplayName("ワイルドカードセレクターは全列にruleを適用する")
+  void testWildcardSelectorTransformsAllColumns() throws IOException {
+    String csvInput = TestUtils.createTestData("name,age,city", "Alice,30,NYC");
+    CsvWalker testCommand = CsvWalker.create(CSVPath.of("*"), String::toUpperCase);
+
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    testCommand.execute(
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8)), output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("ALICE"), "name列は大文字化されること");
+    assertTrue(result.contains("NYC"), "city列は大文字化されること");
+    assertFalse(result.contains("Alice"), "変換前の値が残っていないこと");
+  }
+
+  @Test
+  @DisplayName("複数列セレクターは指定した全列にruleを適用し、未指定列は変換しない")
+  void testMultiColumnSelectorTransformsSpecifiedColumns() throws IOException {
+    String csvInput = TestUtils.createTestData("first,last,age", "Alice,Smith,30");
+    CsvWalker testCommand =
+        CsvWalker.create(CSVPath.of(Arrays.asList("first", "last")), String::toUpperCase);
+
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+    testCommand.execute(
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8)), output);
+
+    String result = output.toString(StandardCharsets.UTF_8);
+    assertTrue(result.contains("ALICE"), "first列は大文字化されること");
+    assertTrue(result.contains("SMITH"), "last列は大文字化されること");
+    assertTrue(result.contains("30"), "age列（未指定）は変換されないこと");
+    assertFalse(result.contains("Alice"), "変換前のfirst値が残っていないこと");
+    assertFalse(result.contains("Smith"), "変換前のlast値が残っていないこと");
   }
 
   @Test

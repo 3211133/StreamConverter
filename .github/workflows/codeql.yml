@@ -61,6 +61,47 @@ jobs:
     - name: Checkout repository
       uses: actions/checkout@v4
 
+    - name: Check for JavaScript/TypeScript sources
+      if: matrix.language == 'javascript-typescript'
+      id: js-ts-sources
+      shell: bash
+      run: |
+        if git ls-files '*.js' '*.jsx' '*.ts' '*.tsx' | grep -q .; then
+          echo "present=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "present=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Create empty JavaScript/TypeScript SARIF
+      if: matrix.language == 'javascript-typescript' && steps.js-ts-sources.outputs.present == 'false'
+      shell: bash
+      run: |
+        cat > codeql-empty-js-ts.sarif <<'SARIF'
+        {
+          "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+          "version": "2.1.0",
+          "runs": [
+            {
+              "tool": {
+                "driver": {
+                  "name": "CodeQL",
+                  "informationUri": "https://codeql.github.com/",
+                  "rules": []
+                }
+              },
+              "results": []
+            }
+          ]
+        }
+        SARIF
+
+    - name: Upload empty JavaScript/TypeScript SARIF
+      if: matrix.language == 'javascript-typescript' && steps.js-ts-sources.outputs.present == 'false'
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: codeql-empty-js-ts.sarif
+        category: "/language:${{ matrix.language }}"
+
     # Add any setup steps before running the `github/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`
     # or others). This is typically only required for manual builds.
@@ -69,6 +110,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
+      if: matrix.language != 'javascript-typescript' || steps.js-ts-sources.outputs.present == 'true'
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
@@ -97,6 +139,7 @@ jobs:
         exit 1
 
     - name: Perform CodeQL Analysis
+      if: matrix.language != 'javascript-typescript' || steps.js-ts-sources.outputs.present == 'true'
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"

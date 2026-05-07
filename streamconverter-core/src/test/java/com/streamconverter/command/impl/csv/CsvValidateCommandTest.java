@@ -173,6 +173,22 @@ public class CsvValidateCommandTest {
   }
 
   @Test
+  @DisplayName("Empty CSV input without header validation fails")
+  void testEmptyCsvInputWithoutHeaderFailure() throws IOException {
+    String[] requiredColumns = {};
+    CsvValidateCommand command = CsvValidateCommand.create(false, 10, requiredColumns);
+
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream("".getBytes(StandardCharsets.UTF_8));
+
+    StreamProcessingException exception =
+        assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
+
+    assertTrue(exception.getMessage().contains("CSV validation failed"));
+    assertTrue(exception.getMessage().contains("CSV file is empty"));
+  }
+
+  @Test
   @DisplayName("CSV with only header validation fails")
   void testCsvWithOnlyHeaderFailure() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};

@@ -17,37 +17,34 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 /**
- * XML Filter Command Class
+ * XML Extract Command
  *
- * <p>This class implements pure data extraction from XML using TreePath expressions. Unlike
- * XmlWalker which applies transformations, XmlFilterCommand only extracts/filters elements based on
- * specified paths without any modifications.
+ * <p>指定パスにマッチした XML 要素を抽出して出力する。変換は行わない。 変換を行う場合は {@link XmlWalker} を使用すること。
  *
- * <p>Features: - Extract specific elements using TreePath expressions - Preserve exact XML
- * structure of extracted elements - Memory-efficient streaming processing - Support for complex
- * path expressions including nested elements and attributes
+ * <p>特徴: - {@link ITreeMatcher#matches(java.util.List)} による反復マッチで抽出対象を判定 - マッチした要素の XML
+ * 構造をそのまま保持して出力 - Jackson StAX Streaming API による省メモリ処理
  */
-public class XmlFilterCommand implements IStreamCommand {
-  private static final Logger logger = LoggerFactory.getLogger(XmlFilterCommand.class);
+public class XmlExtractCommand implements IStreamCommand {
+  private static final Logger logger = LoggerFactory.getLogger(XmlExtractCommand.class);
 
   private final ITreeMatcher xpath;
 
-  private XmlFilterCommand(ITreeMatcher xpath) {
+  private XmlExtractCommand(ITreeMatcher xpath) {
     this.xpath = xpath;
   }
 
   /**
-   * Factory method for XML filtering with typed path selector.
+   * XML 抽出コマンドを生成する。
    *
-   * @param xpath the typed path to extract elements
-   * @return an XmlFilterCommand instance
-   * @throws IllegalArgumentException if xpath is null
+   * @param xpath 抽出対象を判定する {@link ITreeMatcher}
+   * @return XmlExtractCommand インスタンス
+   * @throws IllegalArgumentException xpath が null の場合
    */
-  public static XmlFilterCommand create(ITreeMatcher xpath) {
+  public static XmlExtractCommand create(ITreeMatcher xpath) {
     if (xpath == null) {
       throw new IllegalArgumentException("xpath cannot be null");
     }
-    return new XmlFilterCommand(xpath);
+    return new XmlExtractCommand(xpath);
   }
 
   @Override

@@ -154,10 +154,10 @@ public class TreePath implements ITreeMatcher {
       return new ArrayList<>();
     }
 
-    // Handle array syntax preservation for JsonFilterCommand compatibility
+    // Handle array syntax preservation for JsonExtractCommand compatibility
     if (jsonPath.contains("[")) {
       // For complex paths with arrays, preserve original parsing logic
-      // This ensures JsonFilterCommand continues to work
+      // This ensures JsonExtractCommand continues to work
       return parseComplexJsonPath(jsonPath);
     }
 
@@ -176,7 +176,7 @@ public class TreePath implements ITreeMatcher {
   private static List<String> parseComplexJsonPath(String jsonPath) {
     // For paths with array syntax like $[*].name or $.users[0].name
     // Keep them as single segments to maintain compatibility
-    // The actual array handling is done in JsonFilterCommand
+    // The actual array handling is done in JsonExtractCommand
     return List.of(jsonPath);
   }
 

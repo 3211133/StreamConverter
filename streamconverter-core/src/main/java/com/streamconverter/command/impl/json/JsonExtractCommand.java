@@ -11,45 +11,38 @@ import java.io.OutputStream;
 import java.util.List;
 
 /**
- * JSON Filter Command Class
+ * JSON Extract Command
  *
- * <p>This class implements pure data extraction from JSON using TreePath expressions. Unlike
- * JsonWalker which applies transformations, JsonFilterCommand only extracts/filters data based on
- * specified paths without any modifications.
+ * <p>指定パスにマッチした JSON 値を抽出して出力する。変換は行わない。 変換を行う場合は {@link JsonWalker} を使用すること。
  *
- * <p>Features: - Extract specific elements using TreePath expressions - Preserve exact data types
- * and structure of extracted elements - Streaming processing via Jackson Streaming API
- * (JsonParser/JsonGenerator); the document is never fully loaded into memory - Support for simple
- * path expressions including wildcards ($[*].field, $.array[*].nested.field)
+ * <p>特徴: - {@link ITreeMatcher#matches(java.util.List)} による反復マッチで抽出対象を判定 - マッチした値の型・構造をそのまま保持して出力 -
+ * Jackson Streaming API による省メモリ処理 - ワイルドカード・ネストパスを含む式をサポート（$[*].field, $.array[*].nested.field）
+ *
+ * <p><b>注意:</b> 現実装は {@link ITreeMatcher} の {@code toString()} をパス式として解釈する。 {@code matches()}
+ * による走査ベースの実装への移行は別途対応予定。
  */
-public class JsonFilterCommand implements IStreamCommand {
+public class JsonExtractCommand implements IStreamCommand {
 
   private final ITreeMatcher jsonPath;
   private final JsonFactory jsonFactory;
 
-  /**
-   * Constructor for JSON filtering with typed ITreeMatcher selector.
-   *
-   * @param jsonPath the typed ITreeMatcher to extract data
-   * @throws IllegalArgumentException if jsonPath is null
-   */
-  private JsonFilterCommand(ITreeMatcher jsonPath) {
+  private JsonExtractCommand(ITreeMatcher jsonPath) {
     this.jsonPath = jsonPath;
     this.jsonFactory = new JsonFactory();
   }
 
   /**
-   * Factory method for JSON filtering with typed path selector.
+   * JSON 抽出コマンドを生成する。
    *
-   * @param jsonPath the typed path to extract data
-   * @return a JsonFilterCommand instance
-   * @throws IllegalArgumentException if jsonPath is null
+   * @param jsonPath 抽出対象を判定する {@link ITreeMatcher}
+   * @return JsonExtractCommand インスタンス
+   * @throws IllegalArgumentException jsonPath が null の場合
    */
-  public static JsonFilterCommand create(ITreeMatcher jsonPath) {
+  public static JsonExtractCommand create(ITreeMatcher jsonPath) {
     if (jsonPath == null) {
       throw new IllegalArgumentException("jsonPath cannot be null");
     }
-    return new JsonFilterCommand(jsonPath);
+    return new JsonExtractCommand(jsonPath);
   }
 
   @Override

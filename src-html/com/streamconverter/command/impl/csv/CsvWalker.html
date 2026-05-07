@@ -19,148 +19,139 @@
 <span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.IStreamCommand;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamconverter.command.rule.IRule;</span>
 <span class="source-line-no">008</span><span id="line-8">import com.streamconverter.path.CSVPath;</span>
-<span class="source-line-no">009</span><span id="line-9">import com.streamconverter.path.TreePath;</span>
-<span class="source-line-no">010</span><span id="line-10">import java.io.IOException;</span>
-<span class="source-line-no">011</span><span id="line-11">import java.io.InputStream;</span>
-<span class="source-line-no">012</span><span id="line-12">import java.io.InputStreamReader;</span>
-<span class="source-line-no">013</span><span id="line-13">import java.io.OutputStream;</span>
-<span class="source-line-no">014</span><span id="line-14">import java.io.OutputStreamWriter;</span>
-<span class="source-line-no">015</span><span id="line-15">import java.nio.charset.StandardCharsets;</span>
-<span class="source-line-no">016</span><span id="line-16"></span>
-<span class="source-line-no">017</span><span id="line-17">/**</span>
-<span class="source-line-no">018</span><span id="line-18"> * CSV Walker</span>
-<span class="source-line-no">019</span><span id="line-19"> *</span>
-<span class="source-line-no">020</span><span id="line-20"> * &lt;p&gt;This class implements command for targeted CSV transformation using column selectors. It</span>
-<span class="source-line-no">021</span><span id="line-21"> * identifies specific columns using column names or indices and applies IRule transformations to</span>
-<span class="source-line-no">022</span><span id="line-22"> * those columns while preserving the overall CSV structure.</span>
-<span class="source-line-no">023</span><span id="line-23"> */</span>
-<span class="source-line-no">024</span><span id="line-24">public class CsvWalker implements IStreamCommand {</span>
-<span class="source-line-no">025</span><span id="line-25"></span>
-<span class="source-line-no">026</span><span id="line-26">  private final CSVPath columnSelector;</span>
-<span class="source-line-no">027</span><span id="line-27">  private final IRule rule;</span>
-<span class="source-line-no">028</span><span id="line-28"></span>
-<span class="source-line-no">029</span><span id="line-29">  /**</span>
-<span class="source-line-no">030</span><span id="line-30">   * Constructor for CSV navigation with typed column selector and transformation rule.</span>
-<span class="source-line-no">031</span><span id="line-31">   *</span>
-<span class="source-line-no">032</span><span id="line-32">   * @param columnSelector the typed CSVPath to select column</span>
-<span class="source-line-no">033</span><span id="line-33">   * @param rule the transformation rule to apply to selected column</span>
-<span class="source-line-no">034</span><span id="line-34">   * @throws IllegalArgumentException if columnSelector or rule is null</span>
-<span class="source-line-no">035</span><span id="line-35">   */</span>
-<span class="source-line-no">036</span><span id="line-36">  private CsvWalker(CSVPath columnSelector, IRule rule) {</span>
-<span class="source-line-no">037</span><span id="line-37">    this.columnSelector = columnSelector;</span>
-<span class="source-line-no">038</span><span id="line-38">    this.rule = rule;</span>
-<span class="source-line-no">039</span><span id="line-39">  }</span>
-<span class="source-line-no">040</span><span id="line-40"></span>
-<span class="source-line-no">041</span><span id="line-41">  /**</span>
-<span class="source-line-no">042</span><span id="line-42">   * Constructor for CSV navigation with TreePath (for compatibility).</span>
-<span class="source-line-no">043</span><span id="line-43">   *</span>
-<span class="source-line-no">044</span><span id="line-44">   * @param treePath the TreePath representing column selector</span>
-<span class="source-line-no">045</span><span id="line-45">   * @param rule the transformation rule to apply to selected column</span>
-<span class="source-line-no">046</span><span id="line-46">   * @throws IllegalArgumentException if treePath or rule is null</span>
-<span class="source-line-no">047</span><span id="line-47">   */</span>
-<span class="source-line-no">048</span><span id="line-48">  private CsvWalker(TreePath treePath, IRule rule) {</span>
-<span class="source-line-no">049</span><span id="line-49">    this.columnSelector = CSVPath.of(treePath.toString());</span>
-<span class="source-line-no">050</span><span id="line-50">    this.rule = rule;</span>
-<span class="source-line-no">051</span><span id="line-51">  }</span>
-<span class="source-line-no">052</span><span id="line-52"></span>
-<span class="source-line-no">053</span><span id="line-53">  /**</span>
-<span class="source-line-no">054</span><span id="line-54">   * Factory method for creating a CSV navigation command with typed column selector and rule.</span>
-<span class="source-line-no">055</span><span id="line-55">   *</span>
-<span class="source-line-no">056</span><span id="line-56">   * @param columnSelector the typed CSVPath to select column</span>
-<span class="source-line-no">057</span><span id="line-57">   * @param rule the transformation rule to apply to selected column data</span>
-<span class="source-line-no">058</span><span id="line-58">   * @return a CsvWalker that transforms values in the specified column using the given rule</span>
-<span class="source-line-no">059</span><span id="line-59">   * @throws IllegalArgumentException if columnSelector or rule is null</span>
-<span class="source-line-no">060</span><span id="line-60">   */</span>
-<span class="source-line-no">061</span><span id="line-61">  public static CsvWalker create(CSVPath columnSelector, IRule rule) {</span>
-<span class="source-line-no">062</span><span id="line-62">    if (columnSelector == null) {</span>
-<span class="source-line-no">063</span><span id="line-63">      throw new IllegalArgumentException("Column selector cannot be null");</span>
-<span class="source-line-no">064</span><span id="line-64">    }</span>
-<span class="source-line-no">065</span><span id="line-65">    if (rule == null) {</span>
-<span class="source-line-no">066</span><span id="line-66">      throw new IllegalArgumentException("Rule cannot be null");</span>
-<span class="source-line-no">067</span><span id="line-67">    }</span>
-<span class="source-line-no">068</span><span id="line-68">    return new CsvWalker(columnSelector, rule);</span>
-<span class="source-line-no">069</span><span id="line-69">  }</span>
-<span class="source-line-no">070</span><span id="line-70"></span>
-<span class="source-line-no">071</span><span id="line-71">  /**</span>
-<span class="source-line-no">072</span><span id="line-72">   * Factory method for creating a CSV walker with TreePath compatibility.</span>
-<span class="source-line-no">073</span><span id="line-73">   *</span>
-<span class="source-line-no">074</span><span id="line-74">   * @param treePath the TreePath representing column selector</span>
-<span class="source-line-no">075</span><span id="line-75">   * @param rule the transformation rule to apply to selected column data</span>
-<span class="source-line-no">076</span><span id="line-76">   * @return a CsvWalker that transforms values in the specified column using the given rule</span>
-<span class="source-line-no">077</span><span id="line-77">   * @throws IllegalArgumentException if treePath or rule is null</span>
-<span class="source-line-no">078</span><span id="line-78">   */</span>
-<span class="source-line-no">079</span><span id="line-79">  public static CsvWalker create(TreePath treePath, IRule rule) {</span>
-<span class="source-line-no">080</span><span id="line-80">    if (treePath == null) {</span>
-<span class="source-line-no">081</span><span id="line-81">      throw new IllegalArgumentException("TreePath cannot be null");</span>
-<span class="source-line-no">082</span><span id="line-82">    }</span>
-<span class="source-line-no">083</span><span id="line-83">    if (rule == null) {</span>
-<span class="source-line-no">084</span><span id="line-84">      throw new IllegalArgumentException("Rule cannot be null");</span>
-<span class="source-line-no">085</span><span id="line-85">    }</span>
-<span class="source-line-no">086</span><span id="line-86">    return new CsvWalker(treePath, rule);</span>
-<span class="source-line-no">087</span><span id="line-87">  }</span>
-<span class="source-line-no">088</span><span id="line-88"></span>
-<span class="source-line-no">089</span><span id="line-89">  @Override</span>
-<span class="source-line-no">090</span><span id="line-90">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">091</span><span id="line-91">    try (CSVReader csvReader =</span>
-<span class="source-line-no">092</span><span id="line-92">            new CSVReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));</span>
-<span class="source-line-no">093</span><span id="line-93">        CSVWriter csvWriter =</span>
-<span class="source-line-no">094</span><span id="line-94">            new CSVWriter(</span>
-<span class="source-line-no">095</span><span id="line-95">                new OutputStreamWriter(outputStream, StandardCharsets.UTF_8),</span>
-<span class="source-line-no">096</span><span id="line-96">                CSVWriter.DEFAULT_SEPARATOR,</span>
-<span class="source-line-no">097</span><span id="line-97">                CSVWriter.DEFAULT_QUOTE_CHARACTER,</span>
-<span class="source-line-no">098</span><span id="line-98">                // RFC 4180 §5: only doubled-quote escaping, no backslash escape</span>
-<span class="source-line-no">099</span><span id="line-99">                CSVWriter.NO_ESCAPE_CHARACTER,</span>
-<span class="source-line-no">100</span><span id="line-100">                // RFC4180_LINE_END (\r\n) per RFC 4180 §2.</span>
-<span class="source-line-no">101</span><span id="line-101">                CSVWriter.RFC4180_LINE_END)) {</span>
-<span class="source-line-no">102</span><span id="line-102"></span>
-<span class="source-line-no">103</span><span id="line-103">      applyRuleToColumn(csvReader, csvWriter);</span>
+<span class="source-line-no">009</span><span id="line-9">import com.streamconverter.path.IColumnSelector;</span>
+<span class="source-line-no">010</span><span id="line-10">import com.streamconverter.path.TreePath;</span>
+<span class="source-line-no">011</span><span id="line-11">import java.io.IOException;</span>
+<span class="source-line-no">012</span><span id="line-12">import java.io.InputStream;</span>
+<span class="source-line-no">013</span><span id="line-13">import java.io.InputStreamReader;</span>
+<span class="source-line-no">014</span><span id="line-14">import java.io.OutputStream;</span>
+<span class="source-line-no">015</span><span id="line-15">import java.io.OutputStreamWriter;</span>
+<span class="source-line-no">016</span><span id="line-16">import java.nio.charset.StandardCharsets;</span>
+<span class="source-line-no">017</span><span id="line-17">import java.util.List;</span>
+<span class="source-line-no">018</span><span id="line-18"></span>
+<span class="source-line-no">019</span><span id="line-19">/**</span>
+<span class="source-line-no">020</span><span id="line-20"> * CSV Walker</span>
+<span class="source-line-no">021</span><span id="line-21"> *</span>
+<span class="source-line-no">022</span><span id="line-22"> * &lt;p&gt;This class implements command for targeted CSV transformation using column selectors. It</span>
+<span class="source-line-no">023</span><span id="line-23"> * identifies specific columns using column names or indices and applies IRule transformations to</span>
+<span class="source-line-no">024</span><span id="line-24"> * those columns while preserving the overall CSV structure.</span>
+<span class="source-line-no">025</span><span id="line-25"> */</span>
+<span class="source-line-no">026</span><span id="line-26">public class CsvWalker implements IStreamCommand {</span>
+<span class="source-line-no">027</span><span id="line-27"></span>
+<span class="source-line-no">028</span><span id="line-28">  private final IColumnSelector columnSelector;</span>
+<span class="source-line-no">029</span><span id="line-29">  private final IRule rule;</span>
+<span class="source-line-no">030</span><span id="line-30"></span>
+<span class="source-line-no">031</span><span id="line-31">  /**</span>
+<span class="source-line-no">032</span><span id="line-32">   * Constructor for CSV navigation with typed column selector and transformation rule.</span>
+<span class="source-line-no">033</span><span id="line-33">   *</span>
+<span class="source-line-no">034</span><span id="line-34">   * @param columnSelector the typed IColumnSelector to select columns</span>
+<span class="source-line-no">035</span><span id="line-35">   * @param rule the transformation rule to apply to selected columns</span>
+<span class="source-line-no">036</span><span id="line-36">   * @throws IllegalArgumentException if columnSelector or rule is null</span>
+<span class="source-line-no">037</span><span id="line-37">   */</span>
+<span class="source-line-no">038</span><span id="line-38">  private CsvWalker(IColumnSelector columnSelector, IRule rule) {</span>
+<span class="source-line-no">039</span><span id="line-39">    this.columnSelector = columnSelector;</span>
+<span class="source-line-no">040</span><span id="line-40">    this.rule = rule;</span>
+<span class="source-line-no">041</span><span id="line-41">  }</span>
+<span class="source-line-no">042</span><span id="line-42"></span>
+<span class="source-line-no">043</span><span id="line-43">  /**</span>
+<span class="source-line-no">044</span><span id="line-44">   * Constructor for CSV navigation with TreePath (for compatibility).</span>
+<span class="source-line-no">045</span><span id="line-45">   *</span>
+<span class="source-line-no">046</span><span id="line-46">   * @param treePath the TreePath representing column selector</span>
+<span class="source-line-no">047</span><span id="line-47">   * @param rule the transformation rule to apply to selected column</span>
+<span class="source-line-no">048</span><span id="line-48">   * @throws IllegalArgumentException if treePath or rule is null</span>
+<span class="source-line-no">049</span><span id="line-49">   */</span>
+<span class="source-line-no">050</span><span id="line-50">  private CsvWalker(TreePath treePath, IRule rule) {</span>
+<span class="source-line-no">051</span><span id="line-51">    this.columnSelector = CSVPath.of(treePath.toString());</span>
+<span class="source-line-no">052</span><span id="line-52">    this.rule = rule;</span>
+<span class="source-line-no">053</span><span id="line-53">  }</span>
+<span class="source-line-no">054</span><span id="line-54"></span>
+<span class="source-line-no">055</span><span id="line-55">  /**</span>
+<span class="source-line-no">056</span><span id="line-56">   * Factory method for creating a CSV navigation command with typed column selector and rule.</span>
+<span class="source-line-no">057</span><span id="line-57">   *</span>
+<span class="source-line-no">058</span><span id="line-58">   * @param columnSelector the typed IColumnSelector to select columns</span>
+<span class="source-line-no">059</span><span id="line-59">   * @param rule the transformation rule to apply to selected columns</span>
+<span class="source-line-no">060</span><span id="line-60">   * @return a CsvWalker that transforms values in the specified columns using the given rule</span>
+<span class="source-line-no">061</span><span id="line-61">   * @throws IllegalArgumentException if columnSelector or rule is null</span>
+<span class="source-line-no">062</span><span id="line-62">   */</span>
+<span class="source-line-no">063</span><span id="line-63">  public static CsvWalker create(IColumnSelector columnSelector, IRule rule) {</span>
+<span class="source-line-no">064</span><span id="line-64">    if (columnSelector == null) {</span>
+<span class="source-line-no">065</span><span id="line-65">      throw new IllegalArgumentException("Column selector cannot be null");</span>
+<span class="source-line-no">066</span><span id="line-66">    }</span>
+<span class="source-line-no">067</span><span id="line-67">    if (rule == null) {</span>
+<span class="source-line-no">068</span><span id="line-68">      throw new IllegalArgumentException("Rule cannot be null");</span>
+<span class="source-line-no">069</span><span id="line-69">    }</span>
+<span class="source-line-no">070</span><span id="line-70">    return new CsvWalker(columnSelector, rule);</span>
+<span class="source-line-no">071</span><span id="line-71">  }</span>
+<span class="source-line-no">072</span><span id="line-72"></span>
+<span class="source-line-no">073</span><span id="line-73">  /**</span>
+<span class="source-line-no">074</span><span id="line-74">   * Factory method for creating a CSV walker with TreePath compatibility.</span>
+<span class="source-line-no">075</span><span id="line-75">   *</span>
+<span class="source-line-no">076</span><span id="line-76">   * @param treePath the TreePath representing column selector</span>
+<span class="source-line-no">077</span><span id="line-77">   * @param rule the transformation rule to apply to selected column data</span>
+<span class="source-line-no">078</span><span id="line-78">   * @return a CsvWalker that transforms values in the specified column using the given rule</span>
+<span class="source-line-no">079</span><span id="line-79">   * @throws IllegalArgumentException if treePath or rule is null</span>
+<span class="source-line-no">080</span><span id="line-80">   */</span>
+<span class="source-line-no">081</span><span id="line-81">  public static CsvWalker create(TreePath treePath, IRule rule) {</span>
+<span class="source-line-no">082</span><span id="line-82">    if (treePath == null) {</span>
+<span class="source-line-no">083</span><span id="line-83">      throw new IllegalArgumentException("TreePath cannot be null");</span>
+<span class="source-line-no">084</span><span id="line-84">    }</span>
+<span class="source-line-no">085</span><span id="line-85">    if (rule == null) {</span>
+<span class="source-line-no">086</span><span id="line-86">      throw new IllegalArgumentException("Rule cannot be null");</span>
+<span class="source-line-no">087</span><span id="line-87">    }</span>
+<span class="source-line-no">088</span><span id="line-88">    return new CsvWalker(treePath, rule);</span>
+<span class="source-line-no">089</span><span id="line-89">  }</span>
+<span class="source-line-no">090</span><span id="line-90"></span>
+<span class="source-line-no">091</span><span id="line-91">  @Override</span>
+<span class="source-line-no">092</span><span id="line-92">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">093</span><span id="line-93">    try (CSVReader csvReader =</span>
+<span class="source-line-no">094</span><span id="line-94">            new CSVReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));</span>
+<span class="source-line-no">095</span><span id="line-95">        CSVWriter csvWriter =</span>
+<span class="source-line-no">096</span><span id="line-96">            new CSVWriter(</span>
+<span class="source-line-no">097</span><span id="line-97">                new OutputStreamWriter(outputStream, StandardCharsets.UTF_8),</span>
+<span class="source-line-no">098</span><span id="line-98">                CSVWriter.DEFAULT_SEPARATOR,</span>
+<span class="source-line-no">099</span><span id="line-99">                CSVWriter.DEFAULT_QUOTE_CHARACTER,</span>
+<span class="source-line-no">100</span><span id="line-100">                // RFC 4180 §5: only doubled-quote escaping, no backslash escape</span>
+<span class="source-line-no">101</span><span id="line-101">                CSVWriter.NO_ESCAPE_CHARACTER,</span>
+<span class="source-line-no">102</span><span id="line-102">                // RFC4180_LINE_END (\r\n) per RFC 4180 §2.</span>
+<span class="source-line-no">103</span><span id="line-103">                CSVWriter.RFC4180_LINE_END)) {</span>
 <span class="source-line-no">104</span><span id="line-104"></span>
-<span class="source-line-no">105</span><span id="line-105">    } catch (CsvValidationException e) {</span>
-<span class="source-line-no">106</span><span id="line-106">      throw new IOException("Failed to parse CSV: " + e.getMessage(), e);</span>
-<span class="source-line-no">107</span><span id="line-107">    }</span>
-<span class="source-line-no">108</span><span id="line-108">  }</span>
-<span class="source-line-no">109</span><span id="line-109"></span>
-<span class="source-line-no">110</span><span id="line-110">  /** Apply transformation rule to specific column while preserving CSV structure */</span>
-<span class="source-line-no">111</span><span id="line-111">  private void applyRuleToColumn(CSVReader csvReader, CSVWriter csvWriter)</span>
-<span class="source-line-no">112</span><span id="line-112">      throws IOException, CsvValidationException {</span>
-<span class="source-line-no">113</span><span id="line-113">    String[] headers = csvReader.readNext();</span>
-<span class="source-line-no">114</span><span id="line-114">    if (headers == null) {</span>
-<span class="source-line-no">115</span><span id="line-115">      return; // Empty input</span>
-<span class="source-line-no">116</span><span id="line-116">    }</span>
-<span class="source-line-no">117</span><span id="line-117"></span>
-<span class="source-line-no">118</span><span id="line-118">    // Determine column index</span>
-<span class="source-line-no">119</span><span id="line-119">    int columnIndex = resolveColumnIndex(headers, columnSelector);</span>
-<span class="source-line-no">120</span><span id="line-120">    if (columnIndex == -1) {</span>
-<span class="source-line-no">121</span><span id="line-121">      throw new IllegalArgumentException("Column not found: " + columnSelector.toString());</span>
-<span class="source-line-no">122</span><span id="line-122">    }</span>
-<span class="source-line-no">123</span><span id="line-123"></span>
-<span class="source-line-no">124</span><span id="line-124">    // Write header (unchanged); applyQuotesToAll=false: only quote when RFC 4180 requires</span>
-<span class="source-line-no">125</span><span id="line-125">    csvWriter.writeNext(headers, false);</span>
-<span class="source-line-no">126</span><span id="line-126"></span>
-<span class="source-line-no">127</span><span id="line-127">    // Process data rows</span>
-<span class="source-line-no">128</span><span id="line-128">    String[] row;</span>
-<span class="source-line-no">129</span><span id="line-129">    // Read and transform each data row until the CSV reader reaches EOF.</span>
+<span class="source-line-no">105</span><span id="line-105">      applyRuleToColumn(csvReader, csvWriter);</span>
+<span class="source-line-no">106</span><span id="line-106"></span>
+<span class="source-line-no">107</span><span id="line-107">    } catch (CsvValidationException e) {</span>
+<span class="source-line-no">108</span><span id="line-108">      throw new IOException("Failed to parse CSV: " + e.getMessage(), e);</span>
+<span class="source-line-no">109</span><span id="line-109">    }</span>
+<span class="source-line-no">110</span><span id="line-110">  }</span>
+<span class="source-line-no">111</span><span id="line-111"></span>
+<span class="source-line-no">112</span><span id="line-112">  /** Apply transformation rule to specific column while preserving CSV structure */</span>
+<span class="source-line-no">113</span><span id="line-113">  private void applyRuleToColumn(CSVReader csvReader, CSVWriter csvWriter)</span>
+<span class="source-line-no">114</span><span id="line-114">      throws IOException, CsvValidationException {</span>
+<span class="source-line-no">115</span><span id="line-115">    String[] headers = csvReader.readNext();</span>
+<span class="source-line-no">116</span><span id="line-116">    if (headers == null) {</span>
+<span class="source-line-no">117</span><span id="line-117">      return; // Empty input</span>
+<span class="source-line-no">118</span><span id="line-118">    }</span>
+<span class="source-line-no">119</span><span id="line-119"></span>
+<span class="source-line-no">120</span><span id="line-120">    List&lt;Integer&gt; indices = columnSelector.resolve(headers);</span>
+<span class="source-line-no">121</span><span id="line-121">    if (indices.isEmpty()) {</span>
+<span class="source-line-no">122</span><span id="line-122">      throw new IllegalArgumentException("Column not found: " + columnSelector.toString());</span>
+<span class="source-line-no">123</span><span id="line-123">    }</span>
+<span class="source-line-no">124</span><span id="line-124"></span>
+<span class="source-line-no">125</span><span id="line-125">    // Write header (unchanged); applyQuotesToAll=false: only quote when RFC 4180 requires</span>
+<span class="source-line-no">126</span><span id="line-126">    csvWriter.writeNext(headers, false);</span>
+<span class="source-line-no">127</span><span id="line-127"></span>
+<span class="source-line-no">128</span><span id="line-128">    // Process data rows</span>
+<span class="source-line-no">129</span><span id="line-129">    String[] row;</span>
 <span class="source-line-no">130</span><span id="line-130">    while ((row = csvReader.readNext()) != null) {</span>
-<span class="source-line-no">131</span><span id="line-131">      if (columnIndex &lt; row.length) {</span>
-<span class="source-line-no">132</span><span id="line-132">        // Apply rule to target column only</span>
-<span class="source-line-no">133</span><span id="line-133">        row[columnIndex] = rule.apply(row[columnIndex]);</span>
-<span class="source-line-no">134</span><span id="line-134">      }</span>
-<span class="source-line-no">135</span><span id="line-135">      // applyQuotesToAll=false: only quote fields that contain delimiters or quotes</span>
-<span class="source-line-no">136</span><span id="line-136">      csvWriter.writeNext(row, false);</span>
-<span class="source-line-no">137</span><span id="line-137">    }</span>
-<span class="source-line-no">138</span><span id="line-138">    csvWriter.flush();</span>
-<span class="source-line-no">139</span><span id="line-139">  }</span>
-<span class="source-line-no">140</span><span id="line-140"></span>
-<span class="source-line-no">141</span><span id="line-141">  /** Resolve column index using CSVPath matches() method */</span>
-<span class="source-line-no">142</span><span id="line-142">  private int resolveColumnIndex(String[] headers, CSVPath csvPath) {</span>
-<span class="source-line-no">143</span><span id="line-143">    for (int i = 0; i &lt; headers.length; i++) {</span>
-<span class="source-line-no">144</span><span id="line-144">      if (csvPath.matches(headers, i)) {</span>
-<span class="source-line-no">145</span><span id="line-145">        return i;</span>
-<span class="source-line-no">146</span><span id="line-146">      }</span>
-<span class="source-line-no">147</span><span id="line-147">    }</span>
-<span class="source-line-no">148</span><span id="line-148">    return -1; // Not found</span>
-<span class="source-line-no">149</span><span id="line-149">  }</span>
-<span class="source-line-no">150</span><span id="line-150">}</span>
+<span class="source-line-no">131</span><span id="line-131">      for (int idx : indices) {</span>
+<span class="source-line-no">132</span><span id="line-132">        if (idx &lt; row.length) {</span>
+<span class="source-line-no">133</span><span id="line-133">          row[idx] = rule.apply(row[idx]);</span>
+<span class="source-line-no">134</span><span id="line-134">        }</span>
+<span class="source-line-no">135</span><span id="line-135">      }</span>
+<span class="source-line-no">136</span><span id="line-136">      // applyQuotesToAll=false: only quote fields that contain delimiters or quotes</span>
+<span class="source-line-no">137</span><span id="line-137">      csvWriter.writeNext(row, false);</span>
+<span class="source-line-no">138</span><span id="line-138">    }</span>
+<span class="source-line-no">139</span><span id="line-139">    csvWriter.flush();</span>
+<span class="source-line-no">140</span><span id="line-140">  }</span>
+<span class="source-line-no">141</span><span id="line-141">}</span>
 
 
 

@@ -85,11 +85,6 @@ loadScripts(document, 'script');</script>
 <li class="circle">java.lang.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" class="type-name-link external-link" title="class or interface in java.lang">Object</a>
 <ul>
 <li class="circle">com.streamconverter.<a href="com/streamconverter/AbortablePipedStream.html" class="type-name-link" title="class in com.streamconverter">AbortablePipedStream</a> (implements java.io.<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/Closeable.html" title="class or interface in java.io" class="external-link">Closeable</a>)</li>
-<li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/AbstractPath.html" class="type-name-link" title="class in com.streamconverter.path">AbstractPath</a>&lt;T&gt; (implements com.streamconverter.path.<a href="com/streamconverter/path/IPath.html" title="interface in com.streamconverter.path">IPath</a>&lt;T&gt;)
-<ul>
-<li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/CSVPath.html" class="type-name-link" title="class in com.streamconverter.path">CSVPath</a></li>
-</ul>
-</li>
 <li class="circle">com.streamconverter.command.rule.impl.casing.<a href="com/streamconverter/command/rule/impl/casing/CamelToSnakeCaseRule.html" class="type-name-link" title="class in com.streamconverter.command.rule.impl.casing">CamelToSnakeCaseRule</a> (implements com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>)</li>
 <li class="circle">com.streamconverter.command.rule.impl.casing.<a href="com/streamconverter/command/rule/impl/casing/CamelToSnakeCaseRule.Builder.html" class="type-name-link" title="class in com.streamconverter.command.rule.impl.casing">CamelToSnakeCaseRule.Builder</a></li>
 <li class="circle">com.streamconverter.command.rule.impl.composite.<a href="com/streamconverter/command/rule/impl/composite/ChainRule.html" class="type-name-link" title="class in com.streamconverter.command.rule.impl.composite">ChainRule</a> (implements com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>)</li>
@@ -112,6 +107,7 @@ loadScripts(document, 'script');</script>
 </ul>
 </li>
 <li class="circle">com.streamconverter.command.impl.csv.<a href="com/streamconverter/command/impl/csv/CsvFilterCommand.html" class="type-name-link" title="class in com.streamconverter.command.impl.csv">CsvFilterCommand</a> (implements com.streamconverter.command.<a href="com/streamconverter/command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>)</li>
+<li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/CSVPath.html" class="type-name-link" title="class in com.streamconverter.path">CSVPath</a> (implements com.streamconverter.path.<a href="com/streamconverter/path/IColumnSelector.html" title="interface in com.streamconverter.path">IColumnSelector</a>)</li>
 <li class="circle">com.streamconverter.command.impl.csv.<a href="com/streamconverter/command/impl/csv/CsvWalker.html" class="type-name-link" title="class in com.streamconverter.command.impl.csv">CsvWalker</a> (implements com.streamconverter.command.<a href="com/streamconverter/command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a>)</li>
 <li class="circle">com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/DatabaseConnectionPool.html" class="type-name-link" title="class in com.streamconverter.command.rule">DatabaseConnectionPool</a></li>
 <li class="circle">com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/DatabaseFetchRule.html" class="type-name-link" title="class in com.streamconverter.command.rule">DatabaseFetchRule</a> (implements com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>)</li>
@@ -168,7 +164,7 @@ loadScripts(document, 'script');</script>
 </li>
 </ul>
 </li>
-<li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/TreePath.html" class="type-name-link" title="class in com.streamconverter.path">TreePath</a> (implements com.streamconverter.path.<a href="com/streamconverter/path/IPath.html" title="interface in com.streamconverter.path">IPath</a>&lt;T&gt;)</li>
+<li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/TreePath.html" class="type-name-link" title="class in com.streamconverter.path">TreePath</a> (implements com.streamconverter.path.<a href="com/streamconverter/path/ITreeMatcher.html" title="interface in com.streamconverter.path">ITreeMatcher</a>)</li>
 <li class="circle">com.streamconverter.command.rule.impl.string.<a href="com/streamconverter/command/rule/impl/string/TrimRule.html" class="type-name-link" title="class in com.streamconverter.command.rule.impl.string">TrimRule</a> (implements com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>)</li>
 <li class="circle">com.streamconverter.examples.<a href="com/streamconverter/examples/ValidationPipelineExample.html" class="type-name-link" title="class in com.streamconverter.examples">ValidationPipelineExample</a></li>
 <li class="circle">com.streamconverter.validation.<a href="com/streamconverter/validation/ValidationResult.html" class="type-name-link" title="class in com.streamconverter.validation">ValidationResult</a></li>
@@ -182,9 +178,10 @@ loadScripts(document, 'script');</script>
 <section class="hierarchy">
 <h2 title="Interface Hierarchy">Interface Hierarchy</h2>
 <ul>
-<li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/IPath.html" class="type-name-link" title="interface in com.streamconverter.path">IPath</a>&lt;T&gt;</li>
+<li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/IColumnSelector.html" class="type-name-link" title="interface in com.streamconverter.path">IColumnSelector</a></li>
 <li class="circle">com.streamconverter.command.rule.<a href="com/streamconverter/command/rule/IRule.html" class="type-name-link" title="interface in com.streamconverter.command.rule">IRule</a></li>
 <li class="circle">com.streamconverter.command.<a href="com/streamconverter/command/IStreamCommand.html" class="type-name-link" title="interface in com.streamconverter.command">IStreamCommand</a></li>
+<li class="circle">com.streamconverter.path.<a href="com/streamconverter/path/ITreeMatcher.html" class="type-name-link" title="interface in com.streamconverter.path">ITreeMatcher</a></li>
 </ul>
 </section>
 <section class="hierarchy">

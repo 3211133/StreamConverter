@@ -92,12 +92,12 @@ loadScripts(document, 'script');</script>
 <section class="class-description" id="class-description">
 <dl class="notes">
 <dt>All Implemented Interfaces:</dt>
-<dd><code><a href="IPath.html" title="interface in com.streamconverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</code></dd>
+<dd><code><a href="ITreeMatcher.html" title="interface in com.streamconverter.path">ITreeMatcher</a></code></dd>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-14">TreePath</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
-implements <a href="IPath.html" title="interface in com.streamconverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</span></div>
+implements <a href="ITreeMatcher.html" title="interface in com.streamconverter.path">ITreeMatcher</a></span></div>
 <div class="block">Represents a hierarchical path for tree-like data structures (JSON, XML).
 
  <p>This class handles parsing and matching of path expressions in both JSON-style ("$.user.name")
@@ -206,7 +206,7 @@ implements <a href="IPath.html" title="interface in com.streamconverter.path">IP
 <div class="block">Checks if current path matches the target path segments</div>
 <dl class="notes">
 <dt>Specified by:</dt>
-<dd><code><a href="IPath.html#matches(T)">matches</a></code>&nbsp;in interface&nbsp;<code><a href="IPath.html" title="interface in com.streamconverter.path">IPath</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&gt;</code></dd>
+<dd><code><a href="ITreeMatcher.html#matches(java.util.List)">matches</a></code>&nbsp;in interface&nbsp;<code><a href="ITreeMatcher.html" title="interface in com.streamconverter.path">ITreeMatcher</a></code></dd>
 <dt>Parameters:</dt>
 <dd><code>currentPath</code> - current path segments to match against</dd>
 <dt>Returns:</dt>

@@ -17,7 +17,7 @@
 <span class="source-line-no">004</span><span id="line-4">import com.fasterxml.jackson.core.JsonGenerator;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.fasterxml.jackson.core.JsonParser;</span>
 <span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.IStreamCommand;</span>
-<span class="source-line-no">007</span><span id="line-7">import com.streamconverter.path.IPath;</span>
+<span class="source-line-no">007</span><span id="line-7">import com.streamconverter.path.ITreeMatcher;</span>
 <span class="source-line-no">008</span><span id="line-8">import java.io.IOException;</span>
 <span class="source-line-no">009</span><span id="line-9">import java.io.InputStream;</span>
 <span class="source-line-no">010</span><span id="line-10">import java.io.OutputStream;</span>
@@ -37,16 +37,16 @@
 <span class="source-line-no">024</span><span id="line-24"> */</span>
 <span class="source-line-no">025</span><span id="line-25">public class JsonFilterCommand implements IStreamCommand {</span>
 <span class="source-line-no">026</span><span id="line-26"></span>
-<span class="source-line-no">027</span><span id="line-27">  private final IPath&lt;List&lt;String&gt;&gt; jsonPath;</span>
+<span class="source-line-no">027</span><span id="line-27">  private final ITreeMatcher jsonPath;</span>
 <span class="source-line-no">028</span><span id="line-28">  private final JsonFactory jsonFactory;</span>
 <span class="source-line-no">029</span><span id="line-29"></span>
 <span class="source-line-no">030</span><span id="line-30">  /**</span>
-<span class="source-line-no">031</span><span id="line-31">   * Constructor for JSON filtering with typed TreePath selector.</span>
+<span class="source-line-no">031</span><span id="line-31">   * Constructor for JSON filtering with typed ITreeMatcher selector.</span>
 <span class="source-line-no">032</span><span id="line-32">   *</span>
-<span class="source-line-no">033</span><span id="line-33">   * @param jsonPath the typed TreePath to extract data</span>
+<span class="source-line-no">033</span><span id="line-33">   * @param jsonPath the typed ITreeMatcher to extract data</span>
 <span class="source-line-no">034</span><span id="line-34">   * @throws IllegalArgumentException if jsonPath is null</span>
 <span class="source-line-no">035</span><span id="line-35">   */</span>
-<span class="source-line-no">036</span><span id="line-36">  private JsonFilterCommand(IPath&lt;List&lt;String&gt;&gt; jsonPath) {</span>
+<span class="source-line-no">036</span><span id="line-36">  private JsonFilterCommand(ITreeMatcher jsonPath) {</span>
 <span class="source-line-no">037</span><span id="line-37">    this.jsonPath = jsonPath;</span>
 <span class="source-line-no">038</span><span id="line-38">    this.jsonFactory = new JsonFactory();</span>
 <span class="source-line-no">039</span><span id="line-39">  }</span>
@@ -58,9 +58,9 @@
 <span class="source-line-no">045</span><span id="line-45">   * @return a JsonFilterCommand instance</span>
 <span class="source-line-no">046</span><span id="line-46">   * @throws IllegalArgumentException if jsonPath is null</span>
 <span class="source-line-no">047</span><span id="line-47">   */</span>
-<span class="source-line-no">048</span><span id="line-48">  public static JsonFilterCommand create(IPath&lt;List&lt;String&gt;&gt; jsonPath) {</span>
+<span class="source-line-no">048</span><span id="line-48">  public static JsonFilterCommand create(ITreeMatcher jsonPath) {</span>
 <span class="source-line-no">049</span><span id="line-49">    if (jsonPath == null) {</span>
-<span class="source-line-no">050</span><span id="line-50">      throw new IllegalArgumentException("TreePath cannot be null");</span>
+<span class="source-line-no">050</span><span id="line-50">      throw new IllegalArgumentException("jsonPath cannot be null");</span>
 <span class="source-line-no">051</span><span id="line-51">    }</span>
 <span class="source-line-no">052</span><span id="line-52">    return new JsonFilterCommand(jsonPath);</span>
 <span class="source-line-no">053</span><span id="line-53">  }</span>

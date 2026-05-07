@@ -29,7 +29,7 @@
 <span class="source-line-no">016</span><span id="line-16">// private パーサーヘルパー（parseJsonPathToSegments/parseComplexJsonPath/parseXmlPathToSegments 等）</span>
 <span class="source-line-no">017</span><span id="line-17">// が同居している。パーサーヘルパーは package-private クラスへ分離可能だが、TreePath 専用の</span>
 <span class="source-line-no">018</span><span id="line-18">// 実装詳細であり独立させる設計上の意義がないため現状を維持している。</span>
-<span class="source-line-no">019</span><span id="line-19">public class TreePath implements IPath&lt;List&lt;String&gt;&gt; {</span>
+<span class="source-line-no">019</span><span id="line-19">public class TreePath implements ITreeMatcher {</span>
 <span class="source-line-no">020</span><span id="line-20"></span>
 <span class="source-line-no">021</span><span id="line-21">  private final List&lt;String&gt; segments;</span>
 <span class="source-line-no">022</span><span id="line-22">  private final String originalPath;</span>

@@ -17,7 +17,7 @@
 <span class="source-line-no">004</span><span id="line-4">import com.opencsv.CSVWriter;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.opencsv.exceptions.CsvValidationException;</span>
 <span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.IStreamCommand;</span>
-<span class="source-line-no">007</span><span id="line-7">import com.streamconverter.path.CSVPath;</span>
+<span class="source-line-no">007</span><span id="line-7">import com.streamconverter.path.IColumnSelector;</span>
 <span class="source-line-no">008</span><span id="line-8">import java.io.IOException;</span>
 <span class="source-line-no">009</span><span id="line-9">import java.io.InputStream;</span>
 <span class="source-line-no">010</span><span id="line-10">import java.io.InputStreamReader;</span>
@@ -39,17 +39,17 @@
 <span class="source-line-no">026</span><span id="line-26"> */</span>
 <span class="source-line-no">027</span><span id="line-27">public class CsvFilterCommand implements IStreamCommand {</span>
 <span class="source-line-no">028</span><span id="line-28"></span>
-<span class="source-line-no">029</span><span id="line-29">  private final CSVPath combinedSelector;</span>
+<span class="source-line-no">029</span><span id="line-29">  private final IColumnSelector combinedSelector;</span>
 <span class="source-line-no">030</span><span id="line-30">  private final boolean hasHeader;</span>
 <span class="source-line-no">031</span><span id="line-31"></span>
 <span class="source-line-no">032</span><span id="line-32">  /**</span>
 <span class="source-line-no">033</span><span id="line-33">   * Constructor for CSV filtering with single typed column selector.</span>
 <span class="source-line-no">034</span><span id="line-34">   *</span>
-<span class="source-line-no">035</span><span id="line-35">   * @param columnSelector the typed CSVPath to extract</span>
+<span class="source-line-no">035</span><span id="line-35">   * @param columnSelector the typed IColumnSelector to extract</span>
 <span class="source-line-no">036</span><span id="line-36">   * @param hasHeader whether the CSV has a header row</span>
 <span class="source-line-no">037</span><span id="line-37">   * @throws IllegalArgumentException if columnSelector is null</span>
 <span class="source-line-no">038</span><span id="line-38">   */</span>
-<span class="source-line-no">039</span><span id="line-39">  private CsvFilterCommand(CSVPath columnSelector, boolean hasHeader) {</span>
+<span class="source-line-no">039</span><span id="line-39">  private CsvFilterCommand(IColumnSelector columnSelector, boolean hasHeader) {</span>
 <span class="source-line-no">040</span><span id="line-40">    this.combinedSelector = columnSelector;</span>
 <span class="source-line-no">041</span><span id="line-41">    this.hasHeader = hasHeader;</span>
 <span class="source-line-no">042</span><span id="line-42">  }</span>
@@ -57,23 +57,23 @@
 <span class="source-line-no">044</span><span id="line-44">  /**</span>
 <span class="source-line-no">045</span><span id="line-45">   * Factory method for CSV filtering with single typed column selector (assumes header exists).</span>
 <span class="source-line-no">046</span><span id="line-46">   *</span>
-<span class="source-line-no">047</span><span id="line-47">   * @param columnSelector the typed CSVPath to extract</span>
+<span class="source-line-no">047</span><span id="line-47">   * @param columnSelector the typed IColumnSelector to extract</span>
 <span class="source-line-no">048</span><span id="line-48">   * @return a CsvFilterCommand instance</span>
 <span class="source-line-no">049</span><span id="line-49">   * @throws IllegalArgumentException if columnSelector is null</span>
 <span class="source-line-no">050</span><span id="line-50">   */</span>
-<span class="source-line-no">051</span><span id="line-51">  public static CsvFilterCommand create(CSVPath columnSelector) {</span>
+<span class="source-line-no">051</span><span id="line-51">  public static CsvFilterCommand create(IColumnSelector columnSelector) {</span>
 <span class="source-line-no">052</span><span id="line-52">    return create(columnSelector, true);</span>
 <span class="source-line-no">053</span><span id="line-53">  }</span>
 <span class="source-line-no">054</span><span id="line-54"></span>
 <span class="source-line-no">055</span><span id="line-55">  /**</span>
 <span class="source-line-no">056</span><span id="line-56">   * Factory method for CSV filtering with single typed column selector.</span>
 <span class="source-line-no">057</span><span id="line-57">   *</span>
-<span class="source-line-no">058</span><span id="line-58">   * @param columnSelector the typed CSVPath to extract</span>
+<span class="source-line-no">058</span><span id="line-58">   * @param columnSelector the typed IColumnSelector to extract</span>
 <span class="source-line-no">059</span><span id="line-59">   * @param hasHeader whether the CSV has a header row</span>
 <span class="source-line-no">060</span><span id="line-60">   * @return a CsvFilterCommand instance</span>
 <span class="source-line-no">061</span><span id="line-61">   * @throws IllegalArgumentException if columnSelector is null</span>
 <span class="source-line-no">062</span><span id="line-62">   */</span>
-<span class="source-line-no">063</span><span id="line-63">  public static CsvFilterCommand create(CSVPath columnSelector, boolean hasHeader) {</span>
+<span class="source-line-no">063</span><span id="line-63">  public static CsvFilterCommand create(IColumnSelector columnSelector, boolean hasHeader) {</span>
 <span class="source-line-no">064</span><span id="line-64">    if (columnSelector == null) {</span>
 <span class="source-line-no">065</span><span id="line-65">      throw new IllegalArgumentException("Column selector cannot be null");</span>
 <span class="source-line-no">066</span><span id="line-66">    }</span>
@@ -134,8 +134,8 @@
 <span class="source-line-no">121</span><span id="line-121">   * @return list of column indices</span>
 <span class="source-line-no">122</span><span id="line-122">   * @throws IllegalArgumentException if no columns found</span>
 <span class="source-line-no">123</span><span id="line-123">   */</span>
-<span class="source-line-no">124</span><span id="line-124">  private List&lt;Integer&gt; mapColumnSelectorsToIndices(CSVPath csvPath, String[] headers) {</span>
-<span class="source-line-no">125</span><span id="line-125">    List&lt;Integer&gt; indices = csvPath.findMatchingIndices(headers);</span>
+<span class="source-line-no">124</span><span id="line-124">  private List&lt;Integer&gt; mapColumnSelectorsToIndices(IColumnSelector csvPath, String[] headers) {</span>
+<span class="source-line-no">125</span><span id="line-125">    List&lt;Integer&gt; indices = csvPath.resolve(headers);</span>
 <span class="source-line-no">126</span><span id="line-126">    if (indices.isEmpty()) {</span>
 <span class="source-line-no">127</span><span id="line-127">      throw new IllegalArgumentException("No columns found for selector: " + csvPath.toString());</span>
 <span class="source-line-no">128</span><span id="line-128">    }</span>
@@ -150,8 +150,8 @@
 <span class="source-line-no">137</span><span id="line-137">   * @return list of column indices</span>
 <span class="source-line-no">138</span><span id="line-138">   * @throws IllegalArgumentException if no valid indices found</span>
 <span class="source-line-no">139</span><span id="line-139">   */</span>
-<span class="source-line-no">140</span><span id="line-140">  private List&lt;Integer&gt; parseNumericColumnSelectors(CSVPath csvPath, int totalColumns) {</span>
-<span class="source-line-no">141</span><span id="line-141">    List&lt;Integer&gt; indices = csvPath.findMatchingIndices(totalColumns);</span>
+<span class="source-line-no">140</span><span id="line-140">  private List&lt;Integer&gt; parseNumericColumnSelectors(IColumnSelector csvPath, int totalColumns) {</span>
+<span class="source-line-no">141</span><span id="line-141">    List&lt;Integer&gt; indices = csvPath.resolve(totalColumns);</span>
 <span class="source-line-no">142</span><span id="line-142">    if (indices.isEmpty()) {</span>
 <span class="source-line-no">143</span><span id="line-143">      throw new IllegalArgumentException(</span>
 <span class="source-line-no">144</span><span id="line-144">          "Column selector must be numeric when no header: " + csvPath.toString());</span>

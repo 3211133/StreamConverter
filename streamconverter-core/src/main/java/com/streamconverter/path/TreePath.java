@@ -1,8 +1,8 @@
 package com.streamconverter.path;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
+import java.util.regex.Pattern;
 
 /**
  * Represents a hierarchical path for tree-like data structures (JSON, XML).
@@ -11,12 +11,9 @@ import java.util.List;
  * and XML-style ("user/name") formats. It converts path expressions into hierarchical segments for
  * efficient matching during data processing.
  */
-@SuppressWarnings("PMD.TooManyMethods")
-// public API（fromXml/fromJson・matches/matchesIgnoringArraySyntax・equals/hashCode/toString）と
-// private パーサーヘルパー（parseJsonPathToSegments/parseComplexJsonPath/parseXmlPathToSegments 等）
-// が同居している。パーサーヘルパーは package-private クラスへ分離可能だが、TreePath 専用の
-// 実装詳細であり独立させる設計上の意義がないため現状を維持している。
 public class TreePath implements ITreeMatcher {
+
+  private static final Pattern ARRAY_NOTATION = Pattern.compile("\\[.*?\\]");
 
   private final List<String> segments;
   private final String originalPath;
@@ -71,41 +68,6 @@ public class TreePath implements ITreeMatcher {
   }
 
   /**
-   * Checks if current path matches after stripping array-index syntax from this path's segments.
-   *
-   * <p>A segment like {@code "orders[*]"} or {@code "orders[0]"} is normalized to {@code "orders"}
-   * before comparison. This allows paths such as {@code "$.orders[*].product_code"} to match the
-   * streaming {@code currentPath} list {@code ["orders", "product_code"]}.
-   *
-   * @param currentPath current path segments built by the streaming traversal
-   * @return true if the normalized segments equal {@code currentPath}
-   */
-  public boolean matchesIgnoringArraySyntax(List<String> currentPath) {
-    if (currentPath == null) {
-      return false;
-    }
-    List<String> normalized = new ArrayList<>();
-    for (String segment : segments) {
-      // Strip leading $. prefix if present (handles complex path single-segment case)
-      String s = segment;
-      if (s.startsWith("$.")) {
-        s = s.substring(2);
-      } else if (s.startsWith("$")) {
-        s = s.substring(1);
-      }
-      // Split on dots to expand compound segments like "orders[*].product_code"
-      for (String part : s.split("\\.")) {
-        // Remove array index notation: [*], [0], [1], etc.
-        String stripped = part.replaceAll("\\[.*?\\]", "");
-        if (!stripped.isEmpty()) {
-          normalized.add(stripped);
-        }
-      }
-    }
-    return normalized.equals(currentPath);
-  }
-
-  /**
    * Returns the original path expression.
    *
    * @return the original path expression
@@ -149,35 +111,29 @@ public class TreePath implements ITreeMatcher {
   // === Internal Implementation ===
 
   private static List<String> parseJsonPathToSegments(String jsonPath) {
-    // Handle root path
     if ("$".equals(jsonPath)) {
       return new ArrayList<>();
     }
 
-    // Handle array syntax preservation for JsonExtractCommand compatibility
-    if (jsonPath.contains("[")) {
-      // For complex paths with arrays, preserve original parsing logic
-      // This ensures JsonExtractCommand continues to work
-      return parseComplexJsonPath(jsonPath);
-    }
-
-    // Simple property paths: $.property or $.nested.property
+    String rest;
     if (jsonPath.startsWith("$.")) {
-      String pathWithoutRoot = jsonPath.substring(2);
-      if (pathWithoutRoot.isEmpty()) {
-        return new ArrayList<>();
-      }
-      return Arrays.asList(pathWithoutRoot.split("\\."));
+      rest = jsonPath.substring(2);
+    } else if (jsonPath.startsWith("$")) {
+      rest = jsonPath.substring(1);
+    } else {
+      throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);
     }
 
-    throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);
-  }
-
-  private static List<String> parseComplexJsonPath(String jsonPath) {
-    // For paths with array syntax like $[*].name or $.users[0].name
-    // Keep them as single segments to maintain compatibility
-    // The actual array handling is done in JsonExtractCommand
-    return List.of(jsonPath);
+    // Strip array notation and split on dots to yield field-name-only segments.
+    // e.g. "[*].name" -> "name", "users[*].profile.department" -> ["users","profile","department"]
+    String stripped = ARRAY_NOTATION.matcher(rest).replaceAll("");
+    List<String> result = new ArrayList<>();
+    for (String part : stripped.split("\\.")) {
+      if (!part.isEmpty()) {
+        result.add(part);
+      }
+    }
+    return result;
   }
 
   private static List<String> parseXmlPathToSegments(String xmlPath) {

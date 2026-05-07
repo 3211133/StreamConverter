@@ -47,9 +47,12 @@ jobs:
           build-mode: none
         - language: java-kotlin
           build-mode: autobuild # This mode only analyzes Java. Set this to 'autobuild' or 'manual' to analyze Kotlin too.
+        - language: javascript-typescript
+          build-mode: none
         # CodeQL supports the following values keywords for 'language': 'actions', 'c-cpp', 'csharp', 'go', 'java-kotlin', 'javascript-typescript', 'python', 'ruby', 'swift'
         # Use `c-cpp` to analyze code written in C, C++ or both
         # Use 'java-kotlin' to analyze code written in Java, Kotlin or both
+        # Use 'javascript-typescript' to analyze code written in JavaScript, TypeScript or both
         # To learn more about changing the languages that are analyzed or customizing the build mode for your analysis,
         # see https://docs.github.com/en/code-security/code-scanning/creating-an-advanced-setup-for-code-scanning/customizing-your-advanced-setup-for-code-scanning.
         # If you are analyzing a compiled language, you can modify the 'build-mode' for that language to customize how
@@ -57,6 +60,47 @@ jobs:
     steps:
     - name: Checkout repository
       uses: actions/checkout@v4
+
+    - name: Check for JavaScript/TypeScript sources
+      if: matrix.language == 'javascript-typescript'
+      id: js-ts-sources
+      shell: bash
+      run: |
+        if git ls-files '*.js' '*.jsx' '*.ts' '*.tsx' | grep -q .; then
+          echo "present=true" >> "$GITHUB_OUTPUT"
+        else
+          echo "present=false" >> "$GITHUB_OUTPUT"
+        fi
+
+    - name: Create empty JavaScript/TypeScript SARIF
+      if: matrix.language == 'javascript-typescript' && steps.js-ts-sources.outputs.present == 'false'
+      shell: bash
+      run: |
+        cat > codeql-empty-js-ts.sarif <<'SARIF'
+        {
+          "$schema": "https://json.schemastore.org/sarif-2.1.0.json",
+          "version": "2.1.0",
+          "runs": [
+            {
+              "tool": {
+                "driver": {
+                  "name": "CodeQL",
+                  "informationUri": "https://codeql.github.com/",
+                  "rules": []
+                }
+              },
+              "results": []
+            }
+          ]
+        }
+        SARIF
+
+    - name: Upload empty JavaScript/TypeScript SARIF
+      if: matrix.language == 'javascript-typescript' && steps.js-ts-sources.outputs.present == 'false'
+      uses: github/codeql-action/upload-sarif@v3
+      with:
+        sarif_file: codeql-empty-js-ts.sarif
+        category: "/language:${{ matrix.language }}"
 
     # Add any setup steps before running the `github/codeql-action/init` action.
     # This includes steps like installing compilers or runtimes (`actions/setup-node`
@@ -66,6 +110,7 @@ jobs:
 
     # Initializes the CodeQL tools for scanning.
     - name: Initialize CodeQL
+      if: matrix.language != 'javascript-typescript' || steps.js-ts-sources.outputs.present == 'true'
       uses: github/codeql-action/init@v3
       with:
         languages: ${{ matrix.language }}
@@ -94,6 +139,7 @@ jobs:
         exit 1
 
     - name: Perform CodeQL Analysis
+      if: matrix.language != 'javascript-typescript' || steps.js-ts-sources.outputs.present == 'true'
       uses: github/codeql-action/analyze@v3
       with:
         category: "/language:${{matrix.language}}"

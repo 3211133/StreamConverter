@@ -1,6 +1,6 @@
 package com.streamconverter.pmd.command;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.pmd.PmdViolation;
 import com.streamconverter.security.SecureXmlConfiguration;
 import java.io.IOException;
@@ -11,6 +11,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * PMD XML レポートを {@link PmdViolation} オブジェクトのストリームに変換するコマンド。
@@ -23,7 +25,9 @@ import javax.xml.stream.XMLStreamReader;
  *
  * <p>PMD XML 構造: {@code <pmd><file name="..."><violation ...>テキスト</violation></file></pmd>}
  */
-public class PmdXmlToViolationsCommand extends AbstractStreamCommand {
+public class PmdXmlToViolationsCommand implements IStreamCommand {
+
+  private static final Logger log = LoggerFactory.getLogger(PmdXmlToViolationsCommand.class);
 
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {

@@ -1,6 +1,6 @@
 package com.streamconverter.command.impl;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,7 +23,7 @@ import org.slf4j.LoggerFactory;
  * <p>The command processes data efficiently while preserving the exact structure of the input,
  * including whether the input ends with a line terminator.
  */
-public class LineEndingNormalizeCommand extends AbstractStreamCommand {
+public class LineEndingNormalizeCommand implements IStreamCommand {
   private static final Logger logger = LoggerFactory.getLogger(LineEndingNormalizeCommand.class);
 
   /** Supported line ending types for normalization. */
@@ -68,7 +68,6 @@ public class LineEndingNormalizeCommand extends AbstractStreamCommand {
    * @throws NullPointerException if targetType is null
    */
   public LineEndingNormalizeCommand(LineEndingType targetType) {
-    super();
     this.targetType = Objects.requireNonNull(targetType, "Target type cannot be null");
   }
 

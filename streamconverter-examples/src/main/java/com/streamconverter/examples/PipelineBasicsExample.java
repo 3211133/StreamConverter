@@ -1,7 +1,6 @@
 package com.streamconverter.examples;
 
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.AbstractStreamCommand;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.LineEndingNormalizeCommand;
 import java.io.ByteArrayInputStream;
@@ -21,7 +20,7 @@ import org.slf4j.LoggerFactory;
  * <p><b>この例で学べること:</b>
  *
  * <ul>
- *   <li>{@link IStreamCommand} はラムダ式でも、{@link AbstractStreamCommand} を継承したクラスでも実装できる
+ *   <li>{@link IStreamCommand} はラムダ式でも、名前付きクラスとして実装することもできる
  *   <li>{@link StreamConverter#create(IStreamCommand...)} に複数のコマンドを渡すと順番に接続されパイプラインになる
  *   <li>各コマンドは別の仮想スレッドで並列実行される（ログのスレッド名で確認できる）
  *   <li>前段コマンドの出力が後段コマンドの入力に自動的にバイト列として接続される
@@ -32,7 +31,7 @@ import org.slf4j.LoggerFactory;
  * <pre>
  * [コマンド1: ラムダ実装]     各行の前後空白をトリム
  *          ↓
- * [コマンド2: クラス実装]     各行を大文字に変換（AbstractStreamCommand 継承）
+ * [コマンド2: クラス実装]     各行を大文字に変換（IStreamCommand 実装）
  *          ↓
  * [コマンド3: 組み込みコマンド] 行末コードを LF に統一（LineEndingNormalizeCommand）
  * </pre>
@@ -65,14 +64,13 @@ public class PipelineBasicsExample {
           out.write(sb.toString().getBytes(StandardCharsets.UTF_8));
         };
 
-    // --- コマンド2: AbstractStreamCommand 継承クラス ---
-    // AbstractStreamCommand を継承することで:
+    // --- コマンド2: IStreamCommand 実装クラス ---
+    // 名前付きクラスとして実装することで:
     //   - クラス名がログに表示される（UpperCaseCommand）
-    //   - protected final Logger log が自動的に用意される
     IStreamCommand upperCaseCommand = new UpperCaseCommand();
 
     // --- コマンド3: 組み込みコマンド ---
-    // LineEndingNormalizeCommand は AbstractStreamCommand を継承した既製コマンド。
+    // LineEndingNormalizeCommand は IStreamCommand を実装した既製コマンド。
     // 行末コードを UNIX (LF) / WINDOWS (CRLF) / CLASSIC_MAC (CR) に統一する。
     IStreamCommand normalizeCommand =
         new LineEndingNormalizeCommand(LineEndingNormalizeCommand.LineEndingType.UNIX);
@@ -97,17 +95,18 @@ public class PipelineBasicsExample {
   }
 
   /**
-   * AbstractStreamCommand を継承したクラス実装の例。
+   * IStreamCommand を実装したクラス実装の例。
    *
-   * <p>{@link AbstractStreamCommand} を継承することで:
+   * <p>名前付きクラスとして実装することで:
    *
    * <ul>
    *   <li>クラス名（UpperCaseCommand）がログのコマンド名として自動的に使われる
-   *   <li>{@code protected final Logger log} が利用可能になる
    *   <li>{@code execute()} メソッドを実装するだけでよい
    * </ul>
    */
-  static class UpperCaseCommand extends AbstractStreamCommand {
+  static class UpperCaseCommand implements IStreamCommand {
+
+    private static final Logger log = LoggerFactory.getLogger(UpperCaseCommand.class);
 
     @Override
     public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {

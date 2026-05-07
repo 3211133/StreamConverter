@@ -1,19 +1,7 @@
-/**
- * Copyright (c) 2023, Stream Converter Project All rights reserved.
- * 指定された通信先にOutputStreamを送信するコマンドクラス。
- *
- * <p>このクラスは、指定された通信先にOutputStreamを送信するためのコマンドを実装します。 ストリームを使用して、データを送信します。 送信先のURLはコンストラクタで指定されます。
- * 送信先のURLは、HTTP POSTリクエストを使用してデータを送信します。 送信先のURLは、HTTPまたはHTTPSで始まる必要があります。
- * 送信先のURLは、コンストラクタで指定されたURLに基づいて決定されます。
- *
- * <p>このクラスは、ストリーム変換のコマンドを実装するための抽象クラスを拡張しています。 ストリーム変換のコマンドは、ストリームを使用してデータを変換するためのものです。
- *
- * <p>レスポンスを受信してOutputStreamに書き込むことができます。
- */
 package com.streamconverter.command.impl;
 
 import com.google.common.net.InetAddresses;
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -33,7 +21,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 import reactor.netty.http.client.HttpClient;
 
 /** 指定された通信先にOutputStreamを送信するコマンドクラス。 */
-public class SendHttpCommand extends AbstractStreamCommand {
+public class SendHttpCommand implements IStreamCommand {
 
   private static final Logger logger = LoggerFactory.getLogger(SendHttpCommand.class);
 
@@ -63,7 +51,6 @@ public class SendHttpCommand extends AbstractStreamCommand {
    * @param webClient 使用するWebClient
    */
   public SendHttpCommand(String url, WebClient webClient) {
-    super();
     this.url = validateAndSanitizeUrl(url);
     this.webClient = Objects.requireNonNull(webClient, "webClient must not be null");
   }
@@ -255,7 +242,7 @@ public class SendHttpCommand extends AbstractStreamCommand {
                   throw new RuntimeException("Failed to flush output stream", e);
                 }
               })
-          .blockLast(); // Intentionally synchronous: AbstractStreamCommand interface requires
+          .blockLast(); // Intentionally synchronous: IStreamCommand interface requires
       // blocking execution
       // for compatibility with existing command pipeline. Alternative: use subscribe()
       // with CompletableFuture for true async, but would break command interface contract.

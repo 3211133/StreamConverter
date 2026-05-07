@@ -13,16 +13,14 @@ import org.apache.commons.io.input.TeeInputStream;
  * input and output streams are not null. It also provides a method to consume the input stream,
  * which must be implemented by subclasses.
  */
-public abstract class ConsumerCommand extends AbstractStreamCommand {
+public abstract class ConsumerCommand implements IStreamCommand {
 
   /**
    * Default constructor.
    *
    * <p>Subclasses typically expose their own factory methods or constructors.
    */
-  protected ConsumerCommand() {
-    super();
-  }
+  protected ConsumerCommand() {}
 
   /**
    * Executes the command on the provided input stream and writes the result to the output stream.

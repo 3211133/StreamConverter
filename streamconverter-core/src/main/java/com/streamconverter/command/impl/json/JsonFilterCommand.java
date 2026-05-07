@@ -3,7 +3,7 @@ package com.streamconverter.command.impl.json;
 import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.path.IPath;
 import java.io.IOException;
 import java.io.InputStream;
@@ -22,7 +22,7 @@ import java.util.List;
  * (JsonParser/JsonGenerator); the document is never fully loaded into memory - Support for simple
  * path expressions including wildcards ($[*].field, $.array[*].nested.field)
  */
-public class JsonFilterCommand extends AbstractStreamCommand {
+public class JsonFilterCommand implements IStreamCommand {
 
   private final IPath<List<String>> jsonPath;
   private final JsonFactory jsonFactory;

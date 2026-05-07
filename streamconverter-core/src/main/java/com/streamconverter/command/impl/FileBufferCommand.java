@@ -1,6 +1,6 @@
 package com.streamconverter.command.impl;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -14,6 +14,8 @@ import javax.crypto.CipherOutputStream;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 import javax.crypto.spec.GCMParameterSpec;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * A pipeline command that buffers data through a temporary file between pipeline stages.
@@ -35,8 +37,9 @@ import javax.crypto.spec.GCMParameterSpec;
  * <p>The encrypted variant ({@link #createEncrypted()}) uses AES-256-GCM to protect sensitive data
  * written to the temporary file.
  */
-public class FileBufferCommand extends AbstractStreamCommand {
+public class FileBufferCommand implements IStreamCommand {
 
+  private static final Logger log = LoggerFactory.getLogger(FileBufferCommand.class);
   private static final int BUFFER_SIZE = 64 * 1024;
 
   private final boolean encrypted;
@@ -209,7 +212,7 @@ public class FileBufferCommand extends AbstractStreamCommand {
 
     private TempFileLifecycle() {}
 
-    static void register(org.slf4j.Logger logger, Thread shutdownHook, Path tempFile) {
+    static void register(Logger logger, Thread shutdownHook, Path tempFile) {
       try {
         Runtime.getRuntime().addShutdownHook(shutdownHook);
       } catch (IllegalStateException | SecurityException e) {
@@ -220,7 +223,7 @@ public class FileBufferCommand extends AbstractStreamCommand {
       }
     }
 
-    static void deregister(org.slf4j.Logger logger, Thread shutdownHook) {
+    static void deregister(Logger logger, Thread shutdownHook) {
       try {
         Runtime.getRuntime().removeShutdownHook(shutdownHook);
       } catch (IllegalStateException e) {
@@ -230,7 +233,7 @@ public class FileBufferCommand extends AbstractStreamCommand {
       }
     }
 
-    static void deleteSilently(org.slf4j.Logger logger, Path path) {
+    static void deleteSilently(Logger logger, Path path) {
       try {
         Files.deleteIfExists(path);
       } catch (IOException e) {

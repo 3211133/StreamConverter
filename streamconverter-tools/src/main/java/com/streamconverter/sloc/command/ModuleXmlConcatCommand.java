@@ -1,6 +1,6 @@
 package com.streamconverter.sloc.command;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import java.io.BufferedInputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,6 +8,8 @@ import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * モジュール名リストを読み込み、各モジュールの JaCoCo XML ファイルを連結して出力するコマンド。
@@ -26,7 +28,9 @@ import java.nio.file.Path;
  *
  * <p><b>YAGNI:</b> 厳密な Well-formed XML が必要になった場合は、ラッパー要素で包む対応が容易にできる。
  */
-public class ModuleXmlConcatCommand extends AbstractStreamCommand {
+public class ModuleXmlConcatCommand implements IStreamCommand {
+
+  private static final Logger log = LoggerFactory.getLogger(ModuleXmlConcatCommand.class);
 
   static final String JACOCO_XML_PATH = "build/reports/jacoco/test/jacocoTestReport.xml";
 

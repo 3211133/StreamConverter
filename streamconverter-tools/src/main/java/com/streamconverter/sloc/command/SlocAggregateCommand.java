@@ -1,6 +1,6 @@
 package com.streamconverter.sloc.command;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.sloc.ModuleSloc;
 import java.io.EOFException;
 import java.io.IOException;
@@ -23,7 +23,7 @@ import java.io.OutputStream;
  * JacocoXmlToModuleSlocCommand}）が書き出したものであり、外部入力を直接受け取らない。予期しない型が 含まれる場合は {@link
  * ClassNotFoundException} / {@link ClassCastException} を {@link java.io.IOException} に変換して伝播する。
  */
-public class SlocAggregateCommand extends AbstractStreamCommand {
+public class SlocAggregateCommand implements IStreamCommand {
 
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {

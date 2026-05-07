@@ -1,6 +1,6 @@
 package com.streamconverter.sloc.command;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.security.SecureXmlConfiguration;
 import com.streamconverter.sloc.ModuleSloc;
 import java.io.ByteArrayInputStream;
@@ -14,6 +14,8 @@ import javax.xml.stream.XMLInputFactory;
 import javax.xml.stream.XMLStreamConstants;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamReader;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 /**
  * JaCoCo XML レポートから LINE カウンターを抽出して {@link ModuleSloc} オブジェクトとして出力するコマンド。
@@ -28,7 +30,9 @@ import javax.xml.stream.XMLStreamReader;
  *
  * <p>ラッパー要素名は JaCoCo の仕様に依存しない独自名のため、JaCoCo のルート要素名が変わっても影響を受けない。
  */
-public class JacocoXmlToModuleSlocCommand extends AbstractStreamCommand {
+public class JacocoXmlToModuleSlocCommand implements IStreamCommand {
+
+  private static final Logger log = LoggerFactory.getLogger(JacocoXmlToModuleSlocCommand.class);
 
   private static final byte[] WRAPPER_OPEN =
       "<?xml version=\"1.0\" encoding=\"UTF-8\"?><jacoco-reports>".getBytes(StandardCharsets.UTF_8);

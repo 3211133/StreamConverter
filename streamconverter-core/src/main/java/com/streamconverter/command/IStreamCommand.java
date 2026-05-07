@@ -20,8 +20,8 @@ import org.slf4j.Logger;
  * {@link #withLogging(org.slf4j.Logger)}, so start/completion/failure log entries are emitted for
  * all commands — including lambdas. However, the label used in those log entries is derived from
  * {@link #commandName()}, which returns {@code "IStreamCommand"} for synthetic/lambda
- * implementations. For commands that should appear in pipeline logs with a meaningful name, extend
- * {@link com.streamconverter.command.AbstractStreamCommand} or override {@link #commandName()}.
+ * implementations. For commands that should appear in pipeline logs with a meaningful name,
+ * implement this interface as a named class or override {@link #commandName()}.
  *
  * <p>Usage examples:
  *

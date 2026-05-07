@@ -30,12 +30,16 @@ streamconverter-core/src/main/java/com/streamconverter/command/impl/
 ```java
 package com.streamconverter.command.impl;
 
-import com.streamconverter.command.AbstractStreamCommand;
+import com.streamconverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
-public class MyNewCommand extends AbstractStreamCommand {
+public class MyNewCommand implements IStreamCommand {
+
+    private static final Logger log = LoggerFactory.getLogger(MyNewCommand.class);
 
     @Override
     public void execute(InputStream inputStream, OutputStream outputStream)
@@ -54,7 +58,8 @@ public class MyNewCommand extends AbstractStreamCommand {
 
 ### 必須のルール
 
-- **`AbstractStreamCommand` を継承すること**（`IStreamCommand` を直接 implements しても検出されますが、継承が推奨です）
+- **`IStreamCommand` を implements すること**（直接実装が推奨です）
+- ログが必要な場合は `private static final Logger log = LoggerFactory.getLogger(MyNewCommand.class);` を宣言する
 - `abstract` クラスは自動テストの対象外になります
 - クラス名の末尾に "Command" を付けるのが慣例です
 

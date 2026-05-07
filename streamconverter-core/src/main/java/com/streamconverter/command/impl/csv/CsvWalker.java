@@ -31,8 +31,8 @@ public class CsvWalker implements IStreamCommand {
   /**
    * Constructor for CSV navigation with typed column selector and transformation rule.
    *
-   * @param columnSelector the typed CSVPath to select column
-   * @param rule the transformation rule to apply to selected column
+   * @param columnSelector the typed IColumnSelector to select columns
+   * @param rule the transformation rule to apply to selected columns
    * @throws IllegalArgumentException if columnSelector or rule is null
    */
   private CsvWalker(IColumnSelector columnSelector, IRule rule) {
@@ -55,9 +55,9 @@ public class CsvWalker implements IStreamCommand {
   /**
    * Factory method for creating a CSV navigation command with typed column selector and rule.
    *
-   * @param columnSelector the typed CSVPath to select column
-   * @param rule the transformation rule to apply to selected column data
-   * @return a CsvWalker that transforms values in the specified column using the given rule
+   * @param columnSelector the typed IColumnSelector to select columns
+   * @param rule the transformation rule to apply to selected columns
+   * @return a CsvWalker that transforms values in the specified columns using the given rule
    * @throws IllegalArgumentException if columnSelector or rule is null
    */
   public static CsvWalker create(IColumnSelector columnSelector, IRule rule) {
@@ -117,23 +117,21 @@ public class CsvWalker implements IStreamCommand {
       return; // Empty input
     }
 
-    // Determine column index
     List<Integer> indices = columnSelector.resolve(headers);
     if (indices.isEmpty()) {
       throw new IllegalArgumentException("Column not found: " + columnSelector.toString());
     }
-    int columnIndex = indices.get(0);
 
     // Write header (unchanged); applyQuotesToAll=false: only quote when RFC 4180 requires
     csvWriter.writeNext(headers, false);
 
     // Process data rows
     String[] row;
-    // Read and transform each data row until the CSV reader reaches EOF.
     while ((row = csvReader.readNext()) != null) {
-      if (columnIndex < row.length) {
-        // Apply rule to target column only
-        row[columnIndex] = rule.apply(row[columnIndex]);
+      for (int idx : indices) {
+        if (idx < row.length) {
+          row[idx] = rule.apply(row[idx]);
+        }
       }
       // applyQuotesToAll=false: only quote fields that contain delimiters or quotes
       csvWriter.writeNext(row, false);

@@ -45,7 +45,7 @@ public class XmlFilterCommand implements IStreamCommand {
    */
   public static XmlFilterCommand create(ITreeMatcher xpath) {
     if (xpath == null) {
-      throw new IllegalArgumentException("TreePath cannot be null");
+      throw new IllegalArgumentException("xpath cannot be null");
     }
     return new XmlFilterCommand(xpath);
   }

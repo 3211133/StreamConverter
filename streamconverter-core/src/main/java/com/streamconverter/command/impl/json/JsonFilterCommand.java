@@ -28,9 +28,9 @@ public class JsonFilterCommand implements IStreamCommand {
   private final JsonFactory jsonFactory;
 
   /**
-   * Constructor for JSON filtering with typed TreePath selector.
+   * Constructor for JSON filtering with typed ITreeMatcher selector.
    *
-   * @param jsonPath the typed TreePath to extract data
+   * @param jsonPath the typed ITreeMatcher to extract data
    * @throws IllegalArgumentException if jsonPath is null
    */
   private JsonFilterCommand(ITreeMatcher jsonPath) {
@@ -47,7 +47,7 @@ public class JsonFilterCommand implements IStreamCommand {
    */
   public static JsonFilterCommand create(ITreeMatcher jsonPath) {
     if (jsonPath == null) {
-      throw new IllegalArgumentException("TreePath cannot be null");
+      throw new IllegalArgumentException("jsonPath cannot be null");
     }
     return new JsonFilterCommand(jsonPath);
   }

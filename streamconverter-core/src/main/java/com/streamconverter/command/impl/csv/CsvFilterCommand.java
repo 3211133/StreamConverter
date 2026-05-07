@@ -32,7 +32,7 @@ public class CsvFilterCommand implements IStreamCommand {
   /**
    * Constructor for CSV filtering with single typed column selector.
    *
-   * @param columnSelector the typed CSVPath to extract
+   * @param columnSelector the typed IColumnSelector to extract
    * @param hasHeader whether the CSV has a header row
    * @throws IllegalArgumentException if columnSelector is null
    */
@@ -44,7 +44,7 @@ public class CsvFilterCommand implements IStreamCommand {
   /**
    * Factory method for CSV filtering with single typed column selector (assumes header exists).
    *
-   * @param columnSelector the typed CSVPath to extract
+   * @param columnSelector the typed IColumnSelector to extract
    * @return a CsvFilterCommand instance
    * @throws IllegalArgumentException if columnSelector is null
    */
@@ -55,7 +55,7 @@ public class CsvFilterCommand implements IStreamCommand {
   /**
    * Factory method for CSV filtering with single typed column selector.
    *
-   * @param columnSelector the typed CSVPath to extract
+   * @param columnSelector the typed IColumnSelector to extract
    * @param hasHeader whether the CSV has a header row
    * @return a CsvFilterCommand instance
    * @throws IllegalArgumentException if columnSelector is null

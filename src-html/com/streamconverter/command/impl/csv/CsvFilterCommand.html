@@ -16,7 +16,7 @@
 <span class="source-line-no">003</span><span id="line-3">import com.opencsv.CSVReader;</span>
 <span class="source-line-no">004</span><span id="line-4">import com.opencsv.CSVWriter;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.opencsv.exceptions.CsvValidationException;</span>
-<span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.AbstractStreamCommand;</span>
+<span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.IStreamCommand;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamconverter.path.CSVPath;</span>
 <span class="source-line-no">008</span><span id="line-8">import java.io.IOException;</span>
 <span class="source-line-no">009</span><span id="line-9">import java.io.InputStream;</span>
@@ -37,7 +37,7 @@
 <span class="source-line-no">024</span><span id="line-24"> * values from extracted columns - Memory-efficient streaming processing - Support for multiple</span>
 <span class="source-line-no">025</span><span id="line-25"> * column selection</span>
 <span class="source-line-no">026</span><span id="line-26"> */</span>
-<span class="source-line-no">027</span><span id="line-27">public class CsvFilterCommand extends AbstractStreamCommand {</span>
+<span class="source-line-no">027</span><span id="line-27">public class CsvFilterCommand implements IStreamCommand {</span>
 <span class="source-line-no">028</span><span id="line-28"></span>
 <span class="source-line-no">029</span><span id="line-29">  private final CSVPath combinedSelector;</span>
 <span class="source-line-no">030</span><span id="line-30">  private final boolean hasHeader;</span>

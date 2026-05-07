@@ -13,7 +13,7 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamconverter.command.impl.xml;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.command.AbstractStreamCommand;</span>
+<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.command.IStreamCommand;</span>
 <span class="source-line-no">004</span><span id="line-4">import com.streamconverter.path.IPath;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.streamconverter.security.SecureXmlConfiguration;</span>
 <span class="source-line-no">006</span><span id="line-6">import java.io.IOException;</span>
@@ -41,7 +41,7 @@
 <span class="source-line-no">028</span><span id="line-28"> * structure of extracted elements - Memory-efficient streaming processing - Support for complex</span>
 <span class="source-line-no">029</span><span id="line-29"> * path expressions including nested elements and attributes</span>
 <span class="source-line-no">030</span><span id="line-30"> */</span>
-<span class="source-line-no">031</span><span id="line-31">public class XmlFilterCommand extends AbstractStreamCommand {</span>
+<span class="source-line-no">031</span><span id="line-31">public class XmlFilterCommand implements IStreamCommand {</span>
 <span class="source-line-no">032</span><span id="line-32">  private static final Logger logger = LoggerFactory.getLogger(XmlFilterCommand.class);</span>
 <span class="source-line-no">033</span><span id="line-33"></span>
 <span class="source-line-no">034</span><span id="line-34">  private final IPath&lt;List&lt;String&gt;&gt; xpath;</span>

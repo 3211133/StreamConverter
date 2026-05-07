@@ -33,8 +33,8 @@
 <span class="source-line-no">020</span><span id="line-20"> * {@link #withLogging(org.slf4j.Logger)}, so start/completion/failure log entries are emitted for</span>
 <span class="source-line-no">021</span><span id="line-21"> * all commands — including lambdas. However, the label used in those log entries is derived from</span>
 <span class="source-line-no">022</span><span id="line-22"> * {@link #commandName()}, which returns {@code "IStreamCommand"} for synthetic/lambda</span>
-<span class="source-line-no">023</span><span id="line-23"> * implementations. For commands that should appear in pipeline logs with a meaningful name, extend</span>
-<span class="source-line-no">024</span><span id="line-24"> * {@link com.streamconverter.command.AbstractStreamCommand} or override {@link #commandName()}.</span>
+<span class="source-line-no">023</span><span id="line-23"> * implementations. For commands that should appear in pipeline logs with a meaningful name,</span>
+<span class="source-line-no">024</span><span id="line-24"> * implement this interface as a named class or override {@link #commandName()}.</span>
 <span class="source-line-no">025</span><span id="line-25"> *</span>
 <span class="source-line-no">026</span><span id="line-26"> * &lt;p&gt;Usage examples:</span>
 <span class="source-line-no">027</span><span id="line-27"> *</span>

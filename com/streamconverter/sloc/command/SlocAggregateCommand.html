@@ -40,7 +40,7 @@ loadScripts(document, 'script');</script>
 <p>Summary:</p>
 <ul>
 <li>Nested</li>
-<li><a href="#field-summary">Field</a></li>
+<li>Field</li>
 <li><a href="#constructor-summary">Constr</a></li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
@@ -60,7 +60,7 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li><a href="#constructor-summary">Constr</a>&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
@@ -87,9 +87,7 @@ loadScripts(document, 'script');</script>
 <h1 title="Class SlocAggregateCommand" class="title">Class SlocAggregateCommand</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="../../command/AbstractStreamCommand.html" title="class in com.streamconverter.command">com.streamconverter.command.AbstractStreamCommand</a>
 <div class="inheritance">com.streamconverter.sloc.command.SlocAggregateCommand</div>
-</div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
@@ -98,7 +96,8 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/sloc/command/SlocAggregateCommand.html#line-26">SlocAggregateCommand</a></span>
-<span class="extends-implements">extends <a href="../../command/AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></span></div>
+<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
+implements <a href="../../command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span></div>
 <div class="block"><a href="../ModuleSloc.html" title="class in com.streamconverter.sloc"><code>ModuleSloc</code></a> オブジェクトのストリームを集約して合計行を追加するコマンド。
 
  <p>入力: <a href="JacocoXmlToModuleSlocCommand.html" title="class in com.streamconverter.sloc.command"><code>JacocoXmlToModuleSlocCommand</code></a> が出力する <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/ObjectOutputStream.html" title="class or interface in java.io" class="external-link"><code>ObjectOutputStream</code></a> ストリーム
@@ -112,15 +111,6 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- =========== FIELD SUMMARY =========== -->
-<li>
-<section class="field-summary" id="field-summary">
-<h2>Field Summary</h2>
-<div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.streamconverter.command.AbstractStreamCommand">Fields inherited from class&nbsp;com.streamconverter.command.<a href="../../command/AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></h3>
-<code><a href="../../command/AbstractStreamCommand.html#log">log</a></code></div>
-</section>
-</li>
 <!-- ======== CONSTRUCTOR SUMMARY ======== -->
 <li>
 <section class="constructor-summary" id="constructor-summary">
@@ -191,13 +181,11 @@ loadScripts(document, 'script');</script>
 <div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/sloc/command/SlocAggregateCommand.html#line-28">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;input,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;output)</span>
              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
-<div class="block"><span class="description-from-type-label">Description copied from class:&nbsp;<code><a href="../../command/AbstractStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">AbstractStreamCommand</a></code></span></div>
+<div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="../../command/IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">IStreamCommand</a></code></span></div>
 <div class="block">Executes the command on the provided input stream and writes the result to the output stream.</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../../command/IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">execute</a></code>&nbsp;in interface&nbsp;<code><a href="../../command/IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></dd>
-<dt>Specified by:</dt>
-<dd><code><a href="../../command/AbstractStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">execute</a></code>&nbsp;in class&nbsp;<code><a href="../../command/AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></code></dd>
 <dt>Parameters:</dt>
 <dd><code>input</code> - The input stream to read data from.</dd>
 <dd><code>output</code> - The output stream to write data to.</dd>

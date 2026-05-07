@@ -29,236 +29,235 @@
 <span class="source-line-no">016</span><span id="line-16">import org.springframework.web.bind.annotation.*;</span>
 <span class="source-line-no">017</span><span id="line-17"></span>
 <span class="source-line-no">018</span><span id="line-18">import com.streamconverter.StreamConverter;</span>
-<span class="source-line-no">019</span><span id="line-19">import com.streamconverter.command.AbstractStreamCommand;</span>
-<span class="source-line-no">020</span><span id="line-20">import com.streamconverter.command.IStreamCommand;</span>
-<span class="source-line-no">021</span><span id="line-21">import com.streamconverter.command.impl.csv.CsvWalker;</span>
-<span class="source-line-no">022</span><span id="line-22">import com.streamconverter.command.impl.json.JsonWalker;</span>
-<span class="source-line-no">023</span><span id="line-23">import com.streamconverter.command.rule.PassThroughRule;</span>
-<span class="source-line-no">024</span><span id="line-24">import com.streamconverter.path.CSVPath;</span>
-<span class="source-line-no">025</span><span id="line-25">import com.streamconverter.path.TreePath;</span>
-<span class="source-line-no">026</span><span id="line-26"></span>
-<span class="source-line-no">027</span><span id="line-27">import reactor.core.publisher.Flux;</span>
-<span class="source-line-no">028</span><span id="line-28">import reactor.core.publisher.Mono;</span>
-<span class="source-line-no">029</span><span id="line-29"></span>
-<span class="source-line-no">030</span><span id="line-30">/**</span>
-<span class="source-line-no">031</span><span id="line-31"> * Web API controller for StreamConverter processing.</span>
-<span class="source-line-no">032</span><span id="line-32"> *</span>
-<span class="source-line-no">033</span><span id="line-33"> * &lt;p&gt;Provides REST endpoints to process data streams using existing StreamConverter functionality.</span>
-<span class="source-line-no">034</span><span id="line-34"> */</span>
-<span class="source-line-no">035</span><span id="line-35">@RestController</span>
-<span class="source-line-no">036</span><span id="line-36">@RequestMapping("/api/v1/stream")</span>
-<span class="source-line-no">037</span><span id="line-37">public class StreamProcessingController {</span>
-<span class="source-line-no">038</span><span id="line-38"></span>
-<span class="source-line-no">039</span><span id="line-39">  private static final Logger logger = LoggerFactory.getLogger(StreamProcessingController.class);</span>
-<span class="source-line-no">040</span><span id="line-40"></span>
-<span class="source-line-no">041</span><span id="line-41">  private static final int MAX_PIPELINE_CONFIG_LENGTH = 1000;</span>
-<span class="source-line-no">042</span><span id="line-42">  private static final int MAX_PIPELINE_COMMANDS = 10;</span>
-<span class="source-line-no">043</span><span id="line-43">  private static final int MAX_PARAMETER_LENGTH = 500;</span>
-<span class="source-line-no">044</span><span id="line-44"></span>
-<span class="source-line-no">045</span><span id="line-45">  /**</span>
-<span class="source-line-no">046</span><span id="line-46">   * Process data stream with CSV extraction.</span>
-<span class="source-line-no">047</span><span id="line-47">   *</span>
-<span class="source-line-no">048</span><span id="line-48">   * @param inputData binary input data</span>
-<span class="source-line-no">049</span><span id="line-49">   * @param columnName CSV column name to extract</span>
-<span class="source-line-no">050</span><span id="line-50">   * @return processed data as binary stream</span>
-<span class="source-line-no">051</span><span id="line-51">   */</span>
-<span class="source-line-no">052</span><span id="line-52">  @PostMapping(</span>
-<span class="source-line-no">053</span><span id="line-53">      value = "/csv/extract",</span>
-<span class="source-line-no">054</span><span id="line-54">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
-<span class="source-line-no">055</span><span id="line-55">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
-<span class="source-line-no">056</span><span id="line-56">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processCsvExtraction(</span>
-<span class="source-line-no">057</span><span id="line-57">      @RequestBody Flux&lt;DataBuffer&gt; inputData, @RequestParam String columnName) {</span>
-<span class="source-line-no">058</span><span id="line-58"></span>
-<span class="source-line-no">059</span><span id="line-59">    logger.info("Processing CSV extraction for column: {}", columnName);</span>
-<span class="source-line-no">060</span><span id="line-60"></span>
-<span class="source-line-no">061</span><span id="line-61">    return Mono</span>
-<span class="source-line-no">062</span><span id="line-62">        .fromCallable(</span>
-<span class="source-line-no">063</span><span id="line-63">            () -&gt;</span>
-<span class="source-line-no">064</span><span id="line-64">                ResponseEntity.ok(</span>
-<span class="source-line-no">065</span><span id="line-65">                    processWithStreamConverter(</span>
-<span class="source-line-no">066</span><span id="line-66">                        inputData,</span>
-<span class="source-line-no">067</span><span id="line-67">                        CsvWalker.create(</span>
-<span class="source-line-no">068</span><span id="line-68">                            CSVPath.of(columnName), new PassThroughRule()))))</span>
-<span class="source-line-no">069</span><span id="line-69">        .onErrorResume(</span>
-<span class="source-line-no">070</span><span id="line-70">            e -&gt; {</span>
-<span class="source-line-no">071</span><span id="line-71">              logger.error("CSV extraction failed: {}", e.getMessage(), e);</span>
-<span class="source-line-no">072</span><span id="line-72">              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
-<span class="source-line-no">073</span><span id="line-73">            });</span>
-<span class="source-line-no">074</span><span id="line-74">  }</span>
-<span class="source-line-no">075</span><span id="line-75"></span>
-<span class="source-line-no">076</span><span id="line-76">  /**</span>
-<span class="source-line-no">077</span><span id="line-77">   * Process data stream with JSON path extraction.</span>
-<span class="source-line-no">078</span><span id="line-78">   *</span>
-<span class="source-line-no">079</span><span id="line-79">   * @param inputData binary input data</span>
-<span class="source-line-no">080</span><span id="line-80">   * @param jsonPath JSON path expression</span>
-<span class="source-line-no">081</span><span id="line-81">   * @return processed data as binary stream</span>
-<span class="source-line-no">082</span><span id="line-82">   */</span>
-<span class="source-line-no">083</span><span id="line-83">  @PostMapping(</span>
-<span class="source-line-no">084</span><span id="line-84">      value = "/json/extract",</span>
-<span class="source-line-no">085</span><span id="line-85">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
-<span class="source-line-no">086</span><span id="line-86">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
-<span class="source-line-no">087</span><span id="line-87">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processJsonExtraction(</span>
-<span class="source-line-no">088</span><span id="line-88">      @RequestBody Flux&lt;DataBuffer&gt; inputData, @RequestParam String jsonPath) {</span>
-<span class="source-line-no">089</span><span id="line-89"></span>
-<span class="source-line-no">090</span><span id="line-90">    logger.info("Processing JSON extraction for path: {}", jsonPath);</span>
-<span class="source-line-no">091</span><span id="line-91"></span>
-<span class="source-line-no">092</span><span id="line-92">    return Mono</span>
-<span class="source-line-no">093</span><span id="line-93">        .fromCallable(</span>
-<span class="source-line-no">094</span><span id="line-94">            () -&gt;</span>
-<span class="source-line-no">095</span><span id="line-95">                ResponseEntity.ok(</span>
-<span class="source-line-no">096</span><span id="line-96">                    processWithStreamConverter(</span>
-<span class="source-line-no">097</span><span id="line-97">                        inputData,</span>
-<span class="source-line-no">098</span><span id="line-98">                        JsonWalker.create(</span>
-<span class="source-line-no">099</span><span id="line-99">                            TreePath.fromJson(jsonPath), new PassThroughRule()))))</span>
-<span class="source-line-no">100</span><span id="line-100">        .onErrorResume(</span>
-<span class="source-line-no">101</span><span id="line-101">            e -&gt; {</span>
-<span class="source-line-no">102</span><span id="line-102">              logger.error("JSON extraction failed: {}", e.getMessage(), e);</span>
-<span class="source-line-no">103</span><span id="line-103">              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
-<span class="source-line-no">104</span><span id="line-104">            });</span>
-<span class="source-line-no">105</span><span id="line-105">  }</span>
-<span class="source-line-no">106</span><span id="line-106"></span>
-<span class="source-line-no">107</span><span id="line-107">  /**</span>
-<span class="source-line-no">108</span><span id="line-108">   * Process data stream with custom command pipeline.</span>
-<span class="source-line-no">109</span><span id="line-109">   *</span>
-<span class="source-line-no">110</span><span id="line-110">   * @param inputData binary input data</span>
-<span class="source-line-no">111</span><span id="line-111">   * @param pipelineConfig pipeline configuration header</span>
-<span class="source-line-no">112</span><span id="line-112">   * @return processed data as binary stream</span>
-<span class="source-line-no">113</span><span id="line-113">   */</span>
-<span class="source-line-no">114</span><span id="line-114">  @PostMapping(</span>
-<span class="source-line-no">115</span><span id="line-115">      value = "/process",</span>
-<span class="source-line-no">116</span><span id="line-116">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
-<span class="source-line-no">117</span><span id="line-117">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
-<span class="source-line-no">118</span><span id="line-118">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processWithPipeline(</span>
-<span class="source-line-no">119</span><span id="line-119">      @RequestBody Flux&lt;DataBuffer&gt; inputData,</span>
-<span class="source-line-no">120</span><span id="line-120">      @RequestHeader("X-Pipeline-Config") String pipelineConfig) {</span>
-<span class="source-line-no">121</span><span id="line-121"></span>
-<span class="source-line-no">122</span><span id="line-122">    return Mono</span>
-<span class="source-line-no">123</span><span id="line-123">        .fromCallable(() -&gt; buildPipelineFromConfig(pipelineConfig))</span>
-<span class="source-line-no">124</span><span id="line-124">        .map(</span>
-<span class="source-line-no">125</span><span id="line-125">            commands -&gt; {</span>
-<span class="source-line-no">126</span><span id="line-126">              logger.info("Processing pipeline with {} commands", commands.length);</span>
-<span class="source-line-no">127</span><span id="line-127">              return ResponseEntity.ok(processWithStreamConverter(inputData, commands));</span>
-<span class="source-line-no">128</span><span id="line-128">            })</span>
-<span class="source-line-no">129</span><span id="line-129">        .onErrorResume(</span>
-<span class="source-line-no">130</span><span id="line-130">            IllegalArgumentException.class,</span>
-<span class="source-line-no">131</span><span id="line-131">            e -&gt; {</span>
-<span class="source-line-no">132</span><span id="line-132">              logger.warn("Invalid pipeline config: {}", e.getMessage());</span>
-<span class="source-line-no">133</span><span id="line-133">              return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());</span>
-<span class="source-line-no">134</span><span id="line-134">            })</span>
-<span class="source-line-no">135</span><span id="line-135">        .onErrorResume(</span>
-<span class="source-line-no">136</span><span id="line-136">            e -&gt; {</span>
-<span class="source-line-no">137</span><span id="line-137">              logger.error("Pipeline processing failed: {}", e.getMessage(), e);</span>
-<span class="source-line-no">138</span><span id="line-138">              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
-<span class="source-line-no">139</span><span id="line-139">            });</span>
-<span class="source-line-no">140</span><span id="line-140">  }</span>
-<span class="source-line-no">141</span><span id="line-141"></span>
-<span class="source-line-no">142</span><span id="line-142">  /**</span>
-<span class="source-line-no">143</span><span id="line-143">   * Health check endpoint.</span>
-<span class="source-line-no">144</span><span id="line-144">   *</span>
-<span class="source-line-no">145</span><span id="line-145">   * @return simple health status</span>
-<span class="source-line-no">146</span><span id="line-146">   */</span>
-<span class="source-line-no">147</span><span id="line-147">  @GetMapping("/health")</span>
-<span class="source-line-no">148</span><span id="line-148">  public Mono&lt;ResponseEntity&lt;String&gt;&gt; health() {</span>
-<span class="source-line-no">149</span><span id="line-149">    return Mono.just(ResponseEntity.ok("StreamConverter Web API is running"));</span>
-<span class="source-line-no">150</span><span id="line-150">  }</span>
-<span class="source-line-no">151</span><span id="line-151"></span>
-<span class="source-line-no">152</span><span id="line-152">  /**</span>
-<span class="source-line-no">153</span><span id="line-153">   * Processes data using StreamConverter with given commands in a streaming fashion.</span>
-<span class="source-line-no">154</span><span id="line-154">   *</span>
-<span class="source-line-no">155</span><span id="line-155">   * @param inputData reactive stream of input data buffers</span>
-<span class="source-line-no">156</span><span id="line-156">   * @param commands stream commands to execute</span>
-<span class="source-line-no">157</span><span id="line-157">   * @return processed output as Flux of DataBuffer</span>
-<span class="source-line-no">158</span><span id="line-158">   */</span>
-<span class="source-line-no">159</span><span id="line-159">  private Flux&lt;DataBuffer&gt; processWithStreamConverter(</span>
-<span class="source-line-no">160</span><span id="line-160">      Flux&lt;DataBuffer&gt; inputData, IStreamCommand... commands) {</span>
-<span class="source-line-no">161</span><span id="line-161">    DefaultDataBufferFactory bufferFactory = new DefaultDataBufferFactory();</span>
-<span class="source-line-no">162</span><span id="line-162">    ExecutorService executor = Executors.newSingleThreadExecutor();</span>
-<span class="source-line-no">163</span><span id="line-163">    return Flux</span>
-<span class="source-line-no">164</span><span id="line-164">        .from(</span>
-<span class="source-line-no">165</span><span id="line-165">            DataBufferUtils.outputStreamPublisher(</span>
-<span class="source-line-no">166</span><span id="line-166">                outputStream -&gt; {</span>
-<span class="source-line-no">167</span><span id="line-167">                  try (InputStream inputStream =</span>
-<span class="source-line-no">168</span><span id="line-168">                      DataBufferUtils.subscriberInputStream(inputData, 4096)) {</span>
-<span class="source-line-no">169</span><span id="line-169">                    StreamConverter converter = StreamConverter.create(commands);</span>
-<span class="source-line-no">170</span><span id="line-170">                    converter.run(inputStream, outputStream);</span>
-<span class="source-line-no">171</span><span id="line-171">                  } catch (IOException e) {</span>
-<span class="source-line-no">172</span><span id="line-172">                    throw new RuntimeException("Stream processing failed", e);</span>
-<span class="source-line-no">173</span><span id="line-173">                  }</span>
-<span class="source-line-no">174</span><span id="line-174">                },</span>
-<span class="source-line-no">175</span><span id="line-175">                bufferFactory,</span>
-<span class="source-line-no">176</span><span id="line-176">                executor))</span>
-<span class="source-line-no">177</span><span id="line-177">        .doFinally(signalType -&gt; executor.shutdown());</span>
-<span class="source-line-no">178</span><span id="line-178">  }</span>
-<span class="source-line-no">179</span><span id="line-179"></span>
-<span class="source-line-no">180</span><span id="line-180">  /**</span>
-<span class="source-line-no">181</span><span id="line-181">   * Builds a pipeline from configuration string.</span>
-<span class="source-line-no">182</span><span id="line-182">   *</span>
-<span class="source-line-no">183</span><span id="line-183">   * @param config pipeline configuration (e.g., "csv:name,json:$.result,process:validator")</span>
-<span class="source-line-no">184</span><span id="line-184">   * @return array of stream commands</span>
-<span class="source-line-no">185</span><span id="line-185">   * @throws IllegalArgumentException config が null/空/長すぎる、またはコマンド数・パラメータが不正な場合</span>
-<span class="source-line-no">186</span><span id="line-186">   */</span>
-<span class="source-line-no">187</span><span id="line-187">  private IStreamCommand[] buildPipelineFromConfig(String config) {</span>
-<span class="source-line-no">188</span><span id="line-188">    if (config == null || config.isBlank()) {</span>
-<span class="source-line-no">189</span><span id="line-189">      throw new IllegalArgumentException("Pipeline config must not be null or blank");</span>
-<span class="source-line-no">190</span><span id="line-190">    }</span>
-<span class="source-line-no">191</span><span id="line-191">    if (config.length() &gt; MAX_PIPELINE_CONFIG_LENGTH) {</span>
-<span class="source-line-no">192</span><span id="line-192">      throw new IllegalArgumentException(</span>
-<span class="source-line-no">193</span><span id="line-193">          "Pipeline config exceeds maximum length of " + MAX_PIPELINE_CONFIG_LENGTH);</span>
-<span class="source-line-no">194</span><span id="line-194">    }</span>
-<span class="source-line-no">195</span><span id="line-195"></span>
-<span class="source-line-no">196</span><span id="line-196">    String[] commandConfigs = config.split(",", -1);</span>
-<span class="source-line-no">197</span><span id="line-197">    if (commandConfigs.length &gt; MAX_PIPELINE_COMMANDS) {</span>
-<span class="source-line-no">198</span><span id="line-198">      throw new IllegalArgumentException(</span>
-<span class="source-line-no">199</span><span id="line-199">          "Pipeline config exceeds maximum command count of " + MAX_PIPELINE_COMMANDS);</span>
-<span class="source-line-no">200</span><span id="line-200">    }</span>
-<span class="source-line-no">201</span><span id="line-201"></span>
-<span class="source-line-no">202</span><span id="line-202">    IStreamCommand[] commands = new IStreamCommand[commandConfigs.length];</span>
-<span class="source-line-no">203</span><span id="line-203"></span>
-<span class="source-line-no">204</span><span id="line-204">    for (int i = 0; i &lt; commandConfigs.length; i++) {</span>
-<span class="source-line-no">205</span><span id="line-205">      String[] parts = commandConfigs[i].split(":", 2);</span>
-<span class="source-line-no">206</span><span id="line-206">      String commandType = parts[0].trim();</span>
-<span class="source-line-no">207</span><span id="line-207">      if (commandType.isEmpty()) {</span>
-<span class="source-line-no">208</span><span id="line-208">        throw new IllegalArgumentException("Command type must not be empty at index " + i);</span>
-<span class="source-line-no">209</span><span id="line-209">      }</span>
-<span class="source-line-no">210</span><span id="line-210">      String parameter = parts.length &gt; 1 ? parts[1].trim() : "";</span>
-<span class="source-line-no">211</span><span id="line-211">      if (parameter.length() &gt; MAX_PARAMETER_LENGTH) {</span>
-<span class="source-line-no">212</span><span id="line-212">        throw new IllegalArgumentException(</span>
-<span class="source-line-no">213</span><span id="line-213">            "Parameter exceeds maximum length of " + MAX_PARAMETER_LENGTH + " at index " + i);</span>
-<span class="source-line-no">214</span><span id="line-214">      }</span>
-<span class="source-line-no">215</span><span id="line-215"></span>
-<span class="source-line-no">216</span><span id="line-216">      commands[i] =</span>
-<span class="source-line-no">217</span><span id="line-217">          switch (commandType.toLowerCase(Locale.ROOT)) {</span>
-<span class="source-line-no">218</span><span id="line-218">            case "csv" -&gt; {</span>
-<span class="source-line-no">219</span><span id="line-219">              if (parameter.isEmpty()) {</span>
-<span class="source-line-no">220</span><span id="line-220">                throw new IllegalArgumentException("csv command requires a column name at index " + i);</span>
-<span class="source-line-no">221</span><span id="line-221">              }</span>
-<span class="source-line-no">222</span><span id="line-222">              yield CsvWalker.create(CSVPath.of(parameter), new PassThroughRule());</span>
-<span class="source-line-no">223</span><span id="line-223">            }</span>
-<span class="source-line-no">224</span><span id="line-224">            case "json" -&gt; {</span>
-<span class="source-line-no">225</span><span id="line-225">              if (parameter.isEmpty()) {</span>
-<span class="source-line-no">226</span><span id="line-226">                throw new IllegalArgumentException("json command requires a path at index " + i);</span>
-<span class="source-line-no">227</span><span id="line-227">              }</span>
-<span class="source-line-no">228</span><span id="line-228">              yield JsonWalker.create(TreePath.fromJson(parameter), new PassThroughRule());</span>
-<span class="source-line-no">229</span><span id="line-229">            }</span>
-<span class="source-line-no">230</span><span id="line-230">            case "process" -&gt; new AbstractStreamCommand() {</span>
-<span class="source-line-no">231</span><span id="line-231">              @Override</span>
-<span class="source-line-no">232</span><span id="line-232">              public void execute(InputStream in, java.io.OutputStream out) throws IOException {</span>
-<span class="source-line-no">233</span><span id="line-233">                in.transferTo(out);</span>
-<span class="source-line-no">234</span><span id="line-234">              }</span>
-<span class="source-line-no">235</span><span id="line-235"></span>
-<span class="source-line-no">236</span><span id="line-236">              @Override</span>
-<span class="source-line-no">237</span><span id="line-237">              public String commandName() {</span>
-<span class="source-line-no">238</span><span id="line-238">                return "process";</span>
-<span class="source-line-no">239</span><span id="line-239">              }</span>
-<span class="source-line-no">240</span><span id="line-240">            };</span>
-<span class="source-line-no">241</span><span id="line-241">            default -&gt; throw new IllegalArgumentException("Unknown command type: " + commandType);</span>
-<span class="source-line-no">242</span><span id="line-242">          };</span>
-<span class="source-line-no">243</span><span id="line-243">    }</span>
-<span class="source-line-no">244</span><span id="line-244"></span>
-<span class="source-line-no">245</span><span id="line-245">    logger.info("Built pipeline with {} commands", commands.length);</span>
-<span class="source-line-no">246</span><span id="line-246">    return commands;</span>
-<span class="source-line-no">247</span><span id="line-247">  }</span>
-<span class="source-line-no">248</span><span id="line-248">}</span>
+<span class="source-line-no">019</span><span id="line-19">import com.streamconverter.command.IStreamCommand;</span>
+<span class="source-line-no">020</span><span id="line-20">import com.streamconverter.command.impl.csv.CsvWalker;</span>
+<span class="source-line-no">021</span><span id="line-21">import com.streamconverter.command.impl.json.JsonWalker;</span>
+<span class="source-line-no">022</span><span id="line-22">import com.streamconverter.command.rule.PassThroughRule;</span>
+<span class="source-line-no">023</span><span id="line-23">import com.streamconverter.path.CSVPath;</span>
+<span class="source-line-no">024</span><span id="line-24">import com.streamconverter.path.TreePath;</span>
+<span class="source-line-no">025</span><span id="line-25"></span>
+<span class="source-line-no">026</span><span id="line-26">import reactor.core.publisher.Flux;</span>
+<span class="source-line-no">027</span><span id="line-27">import reactor.core.publisher.Mono;</span>
+<span class="source-line-no">028</span><span id="line-28"></span>
+<span class="source-line-no">029</span><span id="line-29">/**</span>
+<span class="source-line-no">030</span><span id="line-30"> * Web API controller for StreamConverter processing.</span>
+<span class="source-line-no">031</span><span id="line-31"> *</span>
+<span class="source-line-no">032</span><span id="line-32"> * &lt;p&gt;Provides REST endpoints to process data streams using existing StreamConverter functionality.</span>
+<span class="source-line-no">033</span><span id="line-33"> */</span>
+<span class="source-line-no">034</span><span id="line-34">@RestController</span>
+<span class="source-line-no">035</span><span id="line-35">@RequestMapping("/api/v1/stream")</span>
+<span class="source-line-no">036</span><span id="line-36">public class StreamProcessingController {</span>
+<span class="source-line-no">037</span><span id="line-37"></span>
+<span class="source-line-no">038</span><span id="line-38">  private static final Logger logger = LoggerFactory.getLogger(StreamProcessingController.class);</span>
+<span class="source-line-no">039</span><span id="line-39"></span>
+<span class="source-line-no">040</span><span id="line-40">  private static final int MAX_PIPELINE_CONFIG_LENGTH = 1000;</span>
+<span class="source-line-no">041</span><span id="line-41">  private static final int MAX_PIPELINE_COMMANDS = 10;</span>
+<span class="source-line-no">042</span><span id="line-42">  private static final int MAX_PARAMETER_LENGTH = 500;</span>
+<span class="source-line-no">043</span><span id="line-43"></span>
+<span class="source-line-no">044</span><span id="line-44">  /**</span>
+<span class="source-line-no">045</span><span id="line-45">   * Process data stream with CSV extraction.</span>
+<span class="source-line-no">046</span><span id="line-46">   *</span>
+<span class="source-line-no">047</span><span id="line-47">   * @param inputData binary input data</span>
+<span class="source-line-no">048</span><span id="line-48">   * @param columnName CSV column name to extract</span>
+<span class="source-line-no">049</span><span id="line-49">   * @return processed data as binary stream</span>
+<span class="source-line-no">050</span><span id="line-50">   */</span>
+<span class="source-line-no">051</span><span id="line-51">  @PostMapping(</span>
+<span class="source-line-no">052</span><span id="line-52">      value = "/csv/extract",</span>
+<span class="source-line-no">053</span><span id="line-53">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
+<span class="source-line-no">054</span><span id="line-54">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
+<span class="source-line-no">055</span><span id="line-55">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processCsvExtraction(</span>
+<span class="source-line-no">056</span><span id="line-56">      @RequestBody Flux&lt;DataBuffer&gt; inputData, @RequestParam String columnName) {</span>
+<span class="source-line-no">057</span><span id="line-57"></span>
+<span class="source-line-no">058</span><span id="line-58">    logger.info("Processing CSV extraction for column: {}", columnName);</span>
+<span class="source-line-no">059</span><span id="line-59"></span>
+<span class="source-line-no">060</span><span id="line-60">    return Mono</span>
+<span class="source-line-no">061</span><span id="line-61">        .fromCallable(</span>
+<span class="source-line-no">062</span><span id="line-62">            () -&gt;</span>
+<span class="source-line-no">063</span><span id="line-63">                ResponseEntity.ok(</span>
+<span class="source-line-no">064</span><span id="line-64">                    processWithStreamConverter(</span>
+<span class="source-line-no">065</span><span id="line-65">                        inputData,</span>
+<span class="source-line-no">066</span><span id="line-66">                        CsvWalker.create(</span>
+<span class="source-line-no">067</span><span id="line-67">                            CSVPath.of(columnName), new PassThroughRule()))))</span>
+<span class="source-line-no">068</span><span id="line-68">        .onErrorResume(</span>
+<span class="source-line-no">069</span><span id="line-69">            e -&gt; {</span>
+<span class="source-line-no">070</span><span id="line-70">              logger.error("CSV extraction failed: {}", e.getMessage(), e);</span>
+<span class="source-line-no">071</span><span id="line-71">              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
+<span class="source-line-no">072</span><span id="line-72">            });</span>
+<span class="source-line-no">073</span><span id="line-73">  }</span>
+<span class="source-line-no">074</span><span id="line-74"></span>
+<span class="source-line-no">075</span><span id="line-75">  /**</span>
+<span class="source-line-no">076</span><span id="line-76">   * Process data stream with JSON path extraction.</span>
+<span class="source-line-no">077</span><span id="line-77">   *</span>
+<span class="source-line-no">078</span><span id="line-78">   * @param inputData binary input data</span>
+<span class="source-line-no">079</span><span id="line-79">   * @param jsonPath JSON path expression</span>
+<span class="source-line-no">080</span><span id="line-80">   * @return processed data as binary stream</span>
+<span class="source-line-no">081</span><span id="line-81">   */</span>
+<span class="source-line-no">082</span><span id="line-82">  @PostMapping(</span>
+<span class="source-line-no">083</span><span id="line-83">      value = "/json/extract",</span>
+<span class="source-line-no">084</span><span id="line-84">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
+<span class="source-line-no">085</span><span id="line-85">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
+<span class="source-line-no">086</span><span id="line-86">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processJsonExtraction(</span>
+<span class="source-line-no">087</span><span id="line-87">      @RequestBody Flux&lt;DataBuffer&gt; inputData, @RequestParam String jsonPath) {</span>
+<span class="source-line-no">088</span><span id="line-88"></span>
+<span class="source-line-no">089</span><span id="line-89">    logger.info("Processing JSON extraction for path: {}", jsonPath);</span>
+<span class="source-line-no">090</span><span id="line-90"></span>
+<span class="source-line-no">091</span><span id="line-91">    return Mono</span>
+<span class="source-line-no">092</span><span id="line-92">        .fromCallable(</span>
+<span class="source-line-no">093</span><span id="line-93">            () -&gt;</span>
+<span class="source-line-no">094</span><span id="line-94">                ResponseEntity.ok(</span>
+<span class="source-line-no">095</span><span id="line-95">                    processWithStreamConverter(</span>
+<span class="source-line-no">096</span><span id="line-96">                        inputData,</span>
+<span class="source-line-no">097</span><span id="line-97">                        JsonWalker.create(</span>
+<span class="source-line-no">098</span><span id="line-98">                            TreePath.fromJson(jsonPath), new PassThroughRule()))))</span>
+<span class="source-line-no">099</span><span id="line-99">        .onErrorResume(</span>
+<span class="source-line-no">100</span><span id="line-100">            e -&gt; {</span>
+<span class="source-line-no">101</span><span id="line-101">              logger.error("JSON extraction failed: {}", e.getMessage(), e);</span>
+<span class="source-line-no">102</span><span id="line-102">              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
+<span class="source-line-no">103</span><span id="line-103">            });</span>
+<span class="source-line-no">104</span><span id="line-104">  }</span>
+<span class="source-line-no">105</span><span id="line-105"></span>
+<span class="source-line-no">106</span><span id="line-106">  /**</span>
+<span class="source-line-no">107</span><span id="line-107">   * Process data stream with custom command pipeline.</span>
+<span class="source-line-no">108</span><span id="line-108">   *</span>
+<span class="source-line-no">109</span><span id="line-109">   * @param inputData binary input data</span>
+<span class="source-line-no">110</span><span id="line-110">   * @param pipelineConfig pipeline configuration header</span>
+<span class="source-line-no">111</span><span id="line-111">   * @return processed data as binary stream</span>
+<span class="source-line-no">112</span><span id="line-112">   */</span>
+<span class="source-line-no">113</span><span id="line-113">  @PostMapping(</span>
+<span class="source-line-no">114</span><span id="line-114">      value = "/process",</span>
+<span class="source-line-no">115</span><span id="line-115">      consumes = MediaType.APPLICATION_OCTET_STREAM_VALUE,</span>
+<span class="source-line-no">116</span><span id="line-116">      produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
+<span class="source-line-no">117</span><span id="line-117">  public Mono&lt;ResponseEntity&lt;Flux&lt;DataBuffer&gt;&gt;&gt; processWithPipeline(</span>
+<span class="source-line-no">118</span><span id="line-118">      @RequestBody Flux&lt;DataBuffer&gt; inputData,</span>
+<span class="source-line-no">119</span><span id="line-119">      @RequestHeader("X-Pipeline-Config") String pipelineConfig) {</span>
+<span class="source-line-no">120</span><span id="line-120"></span>
+<span class="source-line-no">121</span><span id="line-121">    return Mono</span>
+<span class="source-line-no">122</span><span id="line-122">        .fromCallable(() -&gt; buildPipelineFromConfig(pipelineConfig))</span>
+<span class="source-line-no">123</span><span id="line-123">        .map(</span>
+<span class="source-line-no">124</span><span id="line-124">            commands -&gt; {</span>
+<span class="source-line-no">125</span><span id="line-125">              logger.info("Processing pipeline with {} commands", commands.length);</span>
+<span class="source-line-no">126</span><span id="line-126">              return ResponseEntity.ok(processWithStreamConverter(inputData, commands));</span>
+<span class="source-line-no">127</span><span id="line-127">            })</span>
+<span class="source-line-no">128</span><span id="line-128">        .onErrorResume(</span>
+<span class="source-line-no">129</span><span id="line-129">            IllegalArgumentException.class,</span>
+<span class="source-line-no">130</span><span id="line-130">            e -&gt; {</span>
+<span class="source-line-no">131</span><span id="line-131">              logger.warn("Invalid pipeline config: {}", e.getMessage());</span>
+<span class="source-line-no">132</span><span id="line-132">              return Mono.just(ResponseEntity.status(HttpStatus.BAD_REQUEST).build());</span>
+<span class="source-line-no">133</span><span id="line-133">            })</span>
+<span class="source-line-no">134</span><span id="line-134">        .onErrorResume(</span>
+<span class="source-line-no">135</span><span id="line-135">            e -&gt; {</span>
+<span class="source-line-no">136</span><span id="line-136">              logger.error("Pipeline processing failed: {}", e.getMessage(), e);</span>
+<span class="source-line-no">137</span><span id="line-137">              return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());</span>
+<span class="source-line-no">138</span><span id="line-138">            });</span>
+<span class="source-line-no">139</span><span id="line-139">  }</span>
+<span class="source-line-no">140</span><span id="line-140"></span>
+<span class="source-line-no">141</span><span id="line-141">  /**</span>
+<span class="source-line-no">142</span><span id="line-142">   * Health check endpoint.</span>
+<span class="source-line-no">143</span><span id="line-143">   *</span>
+<span class="source-line-no">144</span><span id="line-144">   * @return simple health status</span>
+<span class="source-line-no">145</span><span id="line-145">   */</span>
+<span class="source-line-no">146</span><span id="line-146">  @GetMapping("/health")</span>
+<span class="source-line-no">147</span><span id="line-147">  public Mono&lt;ResponseEntity&lt;String&gt;&gt; health() {</span>
+<span class="source-line-no">148</span><span id="line-148">    return Mono.just(ResponseEntity.ok("StreamConverter Web API is running"));</span>
+<span class="source-line-no">149</span><span id="line-149">  }</span>
+<span class="source-line-no">150</span><span id="line-150"></span>
+<span class="source-line-no">151</span><span id="line-151">  /**</span>
+<span class="source-line-no">152</span><span id="line-152">   * Processes data using StreamConverter with given commands in a streaming fashion.</span>
+<span class="source-line-no">153</span><span id="line-153">   *</span>
+<span class="source-line-no">154</span><span id="line-154">   * @param inputData reactive stream of input data buffers</span>
+<span class="source-line-no">155</span><span id="line-155">   * @param commands stream commands to execute</span>
+<span class="source-line-no">156</span><span id="line-156">   * @return processed output as Flux of DataBuffer</span>
+<span class="source-line-no">157</span><span id="line-157">   */</span>
+<span class="source-line-no">158</span><span id="line-158">  private Flux&lt;DataBuffer&gt; processWithStreamConverter(</span>
+<span class="source-line-no">159</span><span id="line-159">      Flux&lt;DataBuffer&gt; inputData, IStreamCommand... commands) {</span>
+<span class="source-line-no">160</span><span id="line-160">    DefaultDataBufferFactory bufferFactory = new DefaultDataBufferFactory();</span>
+<span class="source-line-no">161</span><span id="line-161">    ExecutorService executor = Executors.newSingleThreadExecutor();</span>
+<span class="source-line-no">162</span><span id="line-162">    return Flux</span>
+<span class="source-line-no">163</span><span id="line-163">        .from(</span>
+<span class="source-line-no">164</span><span id="line-164">            DataBufferUtils.outputStreamPublisher(</span>
+<span class="source-line-no">165</span><span id="line-165">                outputStream -&gt; {</span>
+<span class="source-line-no">166</span><span id="line-166">                  try (InputStream inputStream =</span>
+<span class="source-line-no">167</span><span id="line-167">                      DataBufferUtils.subscriberInputStream(inputData, 4096)) {</span>
+<span class="source-line-no">168</span><span id="line-168">                    StreamConverter converter = StreamConverter.create(commands);</span>
+<span class="source-line-no">169</span><span id="line-169">                    converter.run(inputStream, outputStream);</span>
+<span class="source-line-no">170</span><span id="line-170">                  } catch (IOException e) {</span>
+<span class="source-line-no">171</span><span id="line-171">                    throw new RuntimeException("Stream processing failed", e);</span>
+<span class="source-line-no">172</span><span id="line-172">                  }</span>
+<span class="source-line-no">173</span><span id="line-173">                },</span>
+<span class="source-line-no">174</span><span id="line-174">                bufferFactory,</span>
+<span class="source-line-no">175</span><span id="line-175">                executor))</span>
+<span class="source-line-no">176</span><span id="line-176">        .doFinally(signalType -&gt; executor.shutdown());</span>
+<span class="source-line-no">177</span><span id="line-177">  }</span>
+<span class="source-line-no">178</span><span id="line-178"></span>
+<span class="source-line-no">179</span><span id="line-179">  /**</span>
+<span class="source-line-no">180</span><span id="line-180">   * Builds a pipeline from configuration string.</span>
+<span class="source-line-no">181</span><span id="line-181">   *</span>
+<span class="source-line-no">182</span><span id="line-182">   * @param config pipeline configuration (e.g., "csv:name,json:$.result,process:validator")</span>
+<span class="source-line-no">183</span><span id="line-183">   * @return array of stream commands</span>
+<span class="source-line-no">184</span><span id="line-184">   * @throws IllegalArgumentException config が null/空/長すぎる、またはコマンド数・パラメータが不正な場合</span>
+<span class="source-line-no">185</span><span id="line-185">   */</span>
+<span class="source-line-no">186</span><span id="line-186">  private IStreamCommand[] buildPipelineFromConfig(String config) {</span>
+<span class="source-line-no">187</span><span id="line-187">    if (config == null || config.isBlank()) {</span>
+<span class="source-line-no">188</span><span id="line-188">      throw new IllegalArgumentException("Pipeline config must not be null or blank");</span>
+<span class="source-line-no">189</span><span id="line-189">    }</span>
+<span class="source-line-no">190</span><span id="line-190">    if (config.length() &gt; MAX_PIPELINE_CONFIG_LENGTH) {</span>
+<span class="source-line-no">191</span><span id="line-191">      throw new IllegalArgumentException(</span>
+<span class="source-line-no">192</span><span id="line-192">          "Pipeline config exceeds maximum length of " + MAX_PIPELINE_CONFIG_LENGTH);</span>
+<span class="source-line-no">193</span><span id="line-193">    }</span>
+<span class="source-line-no">194</span><span id="line-194"></span>
+<span class="source-line-no">195</span><span id="line-195">    String[] commandConfigs = config.split(",", -1);</span>
+<span class="source-line-no">196</span><span id="line-196">    if (commandConfigs.length &gt; MAX_PIPELINE_COMMANDS) {</span>
+<span class="source-line-no">197</span><span id="line-197">      throw new IllegalArgumentException(</span>
+<span class="source-line-no">198</span><span id="line-198">          "Pipeline config exceeds maximum command count of " + MAX_PIPELINE_COMMANDS);</span>
+<span class="source-line-no">199</span><span id="line-199">    }</span>
+<span class="source-line-no">200</span><span id="line-200"></span>
+<span class="source-line-no">201</span><span id="line-201">    IStreamCommand[] commands = new IStreamCommand[commandConfigs.length];</span>
+<span class="source-line-no">202</span><span id="line-202"></span>
+<span class="source-line-no">203</span><span id="line-203">    for (int i = 0; i &lt; commandConfigs.length; i++) {</span>
+<span class="source-line-no">204</span><span id="line-204">      String[] parts = commandConfigs[i].split(":", 2);</span>
+<span class="source-line-no">205</span><span id="line-205">      String commandType = parts[0].trim();</span>
+<span class="source-line-no">206</span><span id="line-206">      if (commandType.isEmpty()) {</span>
+<span class="source-line-no">207</span><span id="line-207">        throw new IllegalArgumentException("Command type must not be empty at index " + i);</span>
+<span class="source-line-no">208</span><span id="line-208">      }</span>
+<span class="source-line-no">209</span><span id="line-209">      String parameter = parts.length &gt; 1 ? parts[1].trim() : "";</span>
+<span class="source-line-no">210</span><span id="line-210">      if (parameter.length() &gt; MAX_PARAMETER_LENGTH) {</span>
+<span class="source-line-no">211</span><span id="line-211">        throw new IllegalArgumentException(</span>
+<span class="source-line-no">212</span><span id="line-212">            "Parameter exceeds maximum length of " + MAX_PARAMETER_LENGTH + " at index " + i);</span>
+<span class="source-line-no">213</span><span id="line-213">      }</span>
+<span class="source-line-no">214</span><span id="line-214"></span>
+<span class="source-line-no">215</span><span id="line-215">      commands[i] =</span>
+<span class="source-line-no">216</span><span id="line-216">          switch (commandType.toLowerCase(Locale.ROOT)) {</span>
+<span class="source-line-no">217</span><span id="line-217">            case "csv" -&gt; {</span>
+<span class="source-line-no">218</span><span id="line-218">              if (parameter.isEmpty()) {</span>
+<span class="source-line-no">219</span><span id="line-219">                throw new IllegalArgumentException("csv command requires a column name at index " + i);</span>
+<span class="source-line-no">220</span><span id="line-220">              }</span>
+<span class="source-line-no">221</span><span id="line-221">              yield CsvWalker.create(CSVPath.of(parameter), new PassThroughRule());</span>
+<span class="source-line-no">222</span><span id="line-222">            }</span>
+<span class="source-line-no">223</span><span id="line-223">            case "json" -&gt; {</span>
+<span class="source-line-no">224</span><span id="line-224">              if (parameter.isEmpty()) {</span>
+<span class="source-line-no">225</span><span id="line-225">                throw new IllegalArgumentException("json command requires a path at index " + i);</span>
+<span class="source-line-no">226</span><span id="line-226">              }</span>
+<span class="source-line-no">227</span><span id="line-227">              yield JsonWalker.create(TreePath.fromJson(parameter), new PassThroughRule());</span>
+<span class="source-line-no">228</span><span id="line-228">            }</span>
+<span class="source-line-no">229</span><span id="line-229">            case "process" -&gt; new IStreamCommand() {</span>
+<span class="source-line-no">230</span><span id="line-230">              @Override</span>
+<span class="source-line-no">231</span><span id="line-231">              public void execute(InputStream in, java.io.OutputStream out) throws IOException {</span>
+<span class="source-line-no">232</span><span id="line-232">                in.transferTo(out);</span>
+<span class="source-line-no">233</span><span id="line-233">              }</span>
+<span class="source-line-no">234</span><span id="line-234"></span>
+<span class="source-line-no">235</span><span id="line-235">              @Override</span>
+<span class="source-line-no">236</span><span id="line-236">              public String commandName() {</span>
+<span class="source-line-no">237</span><span id="line-237">                return "process";</span>
+<span class="source-line-no">238</span><span id="line-238">              }</span>
+<span class="source-line-no">239</span><span id="line-239">            };</span>
+<span class="source-line-no">240</span><span id="line-240">            default -&gt; throw new IllegalArgumentException("Unknown command type: " + commandType);</span>
+<span class="source-line-no">241</span><span id="line-241">          };</span>
+<span class="source-line-no">242</span><span id="line-242">    }</span>
+<span class="source-line-no">243</span><span id="line-243"></span>
+<span class="source-line-no">244</span><span id="line-244">    logger.info("Built pipeline with {} commands", commands.length);</span>
+<span class="source-line-no">245</span><span id="line-245">    return commands;</span>
+<span class="source-line-no">246</span><span id="line-246">  }</span>
+<span class="source-line-no">247</span><span id="line-247">}</span>
 
 
 

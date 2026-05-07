@@ -40,7 +40,7 @@ loadScripts(document, 'script');</script>
 <p>Summary:</p>
 <ul>
 <li>Nested</li>
-<li><a href="#field-summary">Field</a></li>
+<li>Field</li>
 <li>Constr</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
@@ -60,7 +60,7 @@ loadScripts(document, 'script');</script>
 <ul class="sub-nav-list">
 <li>Summary:&nbsp;</li>
 <li>Nested&nbsp;|&nbsp;</li>
-<li><a href="#field-summary">Field</a>&nbsp;|&nbsp;</li>
+<li>Field&nbsp;|&nbsp;</li>
 <li>Constr&nbsp;|&nbsp;</li>
 <li><a href="#method-summary">Method</a></li>
 </ul>
@@ -87,9 +87,7 @@ loadScripts(document, 'script');</script>
 <h1 title="Class FileBufferCommand" class="title">Class FileBufferCommand</h1>
 </div>
 <div class="inheritance" title="Inheritance Tree"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">java.lang.Object</a>
-<div class="inheritance"><a href="../AbstractStreamCommand.html" title="class in com.streamconverter.command">com.streamconverter.command.AbstractStreamCommand</a>
 <div class="inheritance">com.streamconverter.command.impl.FileBufferCommand</div>
-</div>
 </div>
 <section class="class-description" id="class-description">
 <dl class="notes">
@@ -97,8 +95,9 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/FileBufferCommand.html#line-38">FileBufferCommand</a></span>
-<span class="extends-implements">extends <a href="../AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></span></div>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/FileBufferCommand.html#line-40">FileBufferCommand</a></span>
+<span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
+implements <a href="../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span></div>
 <div class="block">A pipeline command that buffers data through a temporary file between pipeline stages.
 
  <p>This command solves the problem where validation failures in a preceding stage can cause
@@ -120,15 +119,6 @@ loadScripts(document, 'script');</script>
 </section>
 <section class="summary">
 <ul class="summary-list">
-<!-- =========== FIELD SUMMARY =========== -->
-<li>
-<section class="field-summary" id="field-summary">
-<h2>Field Summary</h2>
-<div class="inherited-list">
-<h3 id="fields-inherited-from-class-com.streamconverter.command.AbstractStreamCommand">Fields inherited from class&nbsp;com.streamconverter.command.<a href="../AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></h3>
-<code><a href="../AbstractStreamCommand.html#log">log</a></code></div>
-</section>
-</li>
 <!-- ========== METHOD SUMMARY =========== -->
 <li>
 <section class="method-summary" id="method-summary">
@@ -181,7 +171,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="create()">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="FileBufferCommand.html" title="class in com.streamconverter.command.impl">FileBufferCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/FileBufferCommand.html#line-53">create</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="FileBufferCommand.html" title="class in com.streamconverter.command.impl">FileBufferCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/FileBufferCommand.html#line-56">create</a></span>()</div>
 <div class="block">Creates a <code>FileBufferCommand</code> that buffers data through a plaintext temporary file.</div>
 <dl class="notes">
 <dt>Returns:</dt>
@@ -192,7 +182,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="createEncrypted()">
 <h3>createEncrypted</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="FileBufferCommand.html" title="class in com.streamconverter.command.impl">FileBufferCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/FileBufferCommand.html#line-66">createEncrypted</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="FileBufferCommand.html" title="class in com.streamconverter.command.impl">FileBufferCommand</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/FileBufferCommand.html#line-69">createEncrypted</a></span>()</div>
 <div class="block">Creates a <code>FileBufferCommand</code> that buffers data through an AES-256-GCM encrypted
  temporary file.
 
@@ -207,7 +197,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/FileBufferCommand.html#line-78">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/FileBufferCommand.html#line-81">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block">Executes the buffering operation: writes the input stream to a temporary file, then reads the
@@ -215,8 +205,6 @@ loadScripts(document, 'script');</script>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">execute</a></code>&nbsp;in interface&nbsp;<code><a href="../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></dd>
-<dt>Specified by:</dt>
-<dd><code><a href="../AbstractStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">execute</a></code>&nbsp;in class&nbsp;<code><a href="../AbstractStreamCommand.html" title="class in com.streamconverter.command">AbstractStreamCommand</a></code></dd>
 <dt>Parameters:</dt>
 <dd><code>inputStream</code> - the input stream to read data from</dd>
 <dd><code>outputStream</code> - the output stream to write data to</dd>

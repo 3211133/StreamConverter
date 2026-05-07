@@ -13,7 +13,7 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamconverter.command.impl.xml;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.command.AbstractStreamCommand;</span>
+<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.command.IStreamCommand;</span>
 <span class="source-line-no">004</span><span id="line-4">import com.streamconverter.command.rule.IRule;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.streamconverter.path.TreePath;</span>
 <span class="source-line-no">006</span><span id="line-6">import com.streamconverter.security.SecureXmlConfiguration;</span>
@@ -44,7 +44,7 @@
 <span class="source-line-no">031</span><span id="line-31"> * configured {@link TreePath} is transformed by the rule; all other events are passed through</span>
 <span class="source-line-no">032</span><span id="line-32"> * unchanged.</span>
 <span class="source-line-no">033</span><span id="line-33"> */</span>
-<span class="source-line-no">034</span><span id="line-34">public class XmlWalker extends AbstractStreamCommand {</span>
+<span class="source-line-no">034</span><span id="line-34">public class XmlWalker implements IStreamCommand {</span>
 <span class="source-line-no">035</span><span id="line-35">  private static final Logger logger = LoggerFactory.getLogger(XmlWalker.class);</span>
 <span class="source-line-no">036</span><span id="line-36"></span>
 <span class="source-line-no">037</span><span id="line-37">  private final TreePath treePath;</span>

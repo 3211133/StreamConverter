@@ -13,7 +13,7 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamconverter.sloc.command;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.command.AbstractStreamCommand;</span>
+<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.command.IStreamCommand;</span>
 <span class="source-line-no">004</span><span id="line-4">import com.streamconverter.security.SecureXmlConfiguration;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.streamconverter.sloc.ModuleSloc;</span>
 <span class="source-line-no">006</span><span id="line-6">import java.io.ByteArrayInputStream;</span>
@@ -27,96 +27,100 @@
 <span class="source-line-no">014</span><span id="line-14">import javax.xml.stream.XMLStreamConstants;</span>
 <span class="source-line-no">015</span><span id="line-15">import javax.xml.stream.XMLStreamException;</span>
 <span class="source-line-no">016</span><span id="line-16">import javax.xml.stream.XMLStreamReader;</span>
-<span class="source-line-no">017</span><span id="line-17"></span>
-<span class="source-line-no">018</span><span id="line-18">/**</span>
-<span class="source-line-no">019</span><span id="line-19"> * JaCoCo XML レポートから LINE カウンターを抽出して {@link ModuleSloc} オブジェクトとして出力するコマンド。</span>
-<span class="source-line-no">020</span><span id="line-20"> *</span>
-<span class="source-line-no">021</span><span id="line-21"> * &lt;p&gt;{@link ModuleXmlConcatCommand} が出力する連結ストリームを入力として受け取り、 各 {@code &lt;report&gt;} 要素の name</span>
-<span class="source-line-no">022</span><span id="line-22"> * 属性をモジュール名として、report 直下の {@code &lt;counter type="LINE"&gt;} を抽出して {@link ObjectOutputStream} で {@link</span>
-<span class="source-line-no">023</span><span id="line-23"> * ModuleSloc} を書き出す。</span>
-<span class="source-line-no">024</span><span id="line-24"> *</span>
-<span class="source-line-no">025</span><span id="line-25"> * &lt;p&gt;入力ストリームは複数の {@code &lt;report&gt;} 要素を持つため、パース前に {@code &lt;jacoco-reports&gt;} ラッパーで 包んで Well-formed な</span>
-<span class="source-line-no">026</span><span id="line-26"> * XML として扱う。ラッパー要素名は JaCoCo の仕様に依存しない独自名を使用している。 {@link ModuleXmlConcatCommand} が XML宣言・DOCTYPE宣言を</span>
-<span class="source-line-no">027</span><span id="line-27"> * 除去した上で {@code &lt;report&gt;} 要素だけを渡すため、ここでは宣言の除去は不要。</span>
-<span class="source-line-no">028</span><span id="line-28"> *</span>
-<span class="source-line-no">029</span><span id="line-29"> * &lt;p&gt;ラッパー要素名は JaCoCo の仕様に依存しない独自名のため、JaCoCo のルート要素名が変わっても影響を受けない。</span>
-<span class="source-line-no">030</span><span id="line-30"> */</span>
-<span class="source-line-no">031</span><span id="line-31">public class JacocoXmlToModuleSlocCommand extends AbstractStreamCommand {</span>
-<span class="source-line-no">032</span><span id="line-32"></span>
-<span class="source-line-no">033</span><span id="line-33">  private static final byte[] WRAPPER_OPEN =</span>
-<span class="source-line-no">034</span><span id="line-34">      "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;jacoco-reports&gt;".getBytes(StandardCharsets.UTF_8);</span>
-<span class="source-line-no">035</span><span id="line-35">  private static final byte[] WRAPPER_CLOSE = "&lt;/jacoco-reports&gt;".getBytes(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">017</span><span id="line-17">import org.slf4j.Logger;</span>
+<span class="source-line-no">018</span><span id="line-18">import org.slf4j.LoggerFactory;</span>
+<span class="source-line-no">019</span><span id="line-19"></span>
+<span class="source-line-no">020</span><span id="line-20">/**</span>
+<span class="source-line-no">021</span><span id="line-21"> * JaCoCo XML レポートから LINE カウンターを抽出して {@link ModuleSloc} オブジェクトとして出力するコマンド。</span>
+<span class="source-line-no">022</span><span id="line-22"> *</span>
+<span class="source-line-no">023</span><span id="line-23"> * &lt;p&gt;{@link ModuleXmlConcatCommand} が出力する連結ストリームを入力として受け取り、 各 {@code &lt;report&gt;} 要素の name</span>
+<span class="source-line-no">024</span><span id="line-24"> * 属性をモジュール名として、report 直下の {@code &lt;counter type="LINE"&gt;} を抽出して {@link ObjectOutputStream} で {@link</span>
+<span class="source-line-no">025</span><span id="line-25"> * ModuleSloc} を書き出す。</span>
+<span class="source-line-no">026</span><span id="line-26"> *</span>
+<span class="source-line-no">027</span><span id="line-27"> * &lt;p&gt;入力ストリームは複数の {@code &lt;report&gt;} 要素を持つため、パース前に {@code &lt;jacoco-reports&gt;} ラッパーで 包んで Well-formed な</span>
+<span class="source-line-no">028</span><span id="line-28"> * XML として扱う。ラッパー要素名は JaCoCo の仕様に依存しない独自名を使用している。 {@link ModuleXmlConcatCommand} が XML宣言・DOCTYPE宣言を</span>
+<span class="source-line-no">029</span><span id="line-29"> * 除去した上で {@code &lt;report&gt;} 要素だけを渡すため、ここでは宣言の除去は不要。</span>
+<span class="source-line-no">030</span><span id="line-30"> *</span>
+<span class="source-line-no">031</span><span id="line-31"> * &lt;p&gt;ラッパー要素名は JaCoCo の仕様に依存しない独自名のため、JaCoCo のルート要素名が変わっても影響を受けない。</span>
+<span class="source-line-no">032</span><span id="line-32"> */</span>
+<span class="source-line-no">033</span><span id="line-33">public class JacocoXmlToModuleSlocCommand implements IStreamCommand {</span>
+<span class="source-line-no">034</span><span id="line-34"></span>
+<span class="source-line-no">035</span><span id="line-35">  private static final Logger log = LoggerFactory.getLogger(JacocoXmlToModuleSlocCommand.class);</span>
 <span class="source-line-no">036</span><span id="line-36"></span>
-<span class="source-line-no">037</span><span id="line-37">  @Override</span>
-<span class="source-line-no">038</span><span id="line-38">  public void execute(InputStream input, OutputStream output) throws IOException {</span>
-<span class="source-line-no">039</span><span id="line-39">    XMLInputFactory factory = SecureXmlConfiguration.createSecureXMLInputFactory();</span>
-<span class="source-line-no">040</span><span id="line-40">    InputStream wrapped =</span>
-<span class="source-line-no">041</span><span id="line-41">        new SequenceInputStream(</span>
-<span class="source-line-no">042</span><span id="line-42">            new SequenceInputStream(new ByteArrayInputStream(WRAPPER_OPEN), input),</span>
-<span class="source-line-no">043</span><span id="line-43">            new ByteArrayInputStream(WRAPPER_CLOSE));</span>
-<span class="source-line-no">044</span><span id="line-44">    try (ObjectOutputStream oos = new ObjectOutputStream(output)) {</span>
-<span class="source-line-no">045</span><span id="line-45">      XMLStreamReader reader = factory.createXMLStreamReader(wrapped);</span>
-<span class="source-line-no">046</span><span id="line-46">      try {</span>
-<span class="source-line-no">047</span><span id="line-47">        parseAll(reader, oos);</span>
-<span class="source-line-no">048</span><span id="line-48">      } finally {</span>
-<span class="source-line-no">049</span><span id="line-49">        reader.close();</span>
-<span class="source-line-no">050</span><span id="line-50">      }</span>
-<span class="source-line-no">051</span><span id="line-51">    } catch (IOException e) {</span>
-<span class="source-line-no">052</span><span id="line-52">      throw e;</span>
-<span class="source-line-no">053</span><span id="line-53">    } catch (XMLStreamException e) {</span>
-<span class="source-line-no">054</span><span id="line-54">      throw new IOException(</span>
-<span class="source-line-no">055</span><span id="line-55">          "Failed to parse JaCoCo XML at " + e.getLocation() + ": " + e.getMessage(), e);</span>
-<span class="source-line-no">056</span><span id="line-56">    }</span>
-<span class="source-line-no">057</span><span id="line-57">  }</span>
-<span class="source-line-no">058</span><span id="line-58"></span>
-<span class="source-line-no">059</span><span id="line-59">  private void parseAll(XMLStreamReader reader, ObjectOutputStream oos)</span>
-<span class="source-line-no">060</span><span id="line-60">      throws XMLStreamException, IOException {</span>
-<span class="source-line-no">061</span><span id="line-61">    String currentModule = null;</span>
-<span class="source-line-no">062</span><span id="line-62">    boolean lineCounterFound = false;</span>
-<span class="source-line-no">063</span><span id="line-63">    int depth = 0;</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">    while (reader.hasNext()) {</span>
-<span class="source-line-no">066</span><span id="line-66">      int event = reader.next();</span>
-<span class="source-line-no">067</span><span id="line-67">      if (event == XMLStreamConstants.START_ELEMENT) {</span>
-<span class="source-line-no">068</span><span id="line-68">        depth++;</span>
-<span class="source-line-no">069</span><span id="line-69">        String localName = reader.getLocalName();</span>
-<span class="source-line-no">070</span><span id="line-70">        if (depth == 2 &amp;&amp; "report".equals(localName)) {</span>
-<span class="source-line-no">071</span><span id="line-71">          currentModule = reader.getAttributeValue(null, "name");</span>
-<span class="source-line-no">072</span><span id="line-72">          lineCounterFound = false;</span>
-<span class="source-line-no">073</span><span id="line-73">        } else if (depth == 3</span>
-<span class="source-line-no">074</span><span id="line-74">            &amp;&amp; "counter".equals(localName)</span>
-<span class="source-line-no">075</span><span id="line-75">            &amp;&amp; "LINE".equals(reader.getAttributeValue(null, "type"))</span>
-<span class="source-line-no">076</span><span id="line-76">            &amp;&amp; currentModule != null) {</span>
-<span class="source-line-no">077</span><span id="line-77">          try {</span>
-<span class="source-line-no">078</span><span id="line-78">            int missed = Integer.parseInt(reader.getAttributeValue(null, "missed"));</span>
-<span class="source-line-no">079</span><span id="line-79">            int covered = Integer.parseInt(reader.getAttributeValue(null, "covered"));</span>
-<span class="source-line-no">080</span><span id="line-80">            oos.writeObject(new ModuleSloc(currentModule, missed + covered, covered, missed));</span>
-<span class="source-line-no">081</span><span id="line-81">            lineCounterFound = true;</span>
-<span class="source-line-no">082</span><span id="line-82">          } catch (NumberFormatException e) {</span>
-<span class="source-line-no">083</span><span id="line-83">            throw new IOException(</span>
-<span class="source-line-no">084</span><span id="line-84">                "Invalid LINE counter attribute in JaCoCo XML for module "</span>
-<span class="source-line-no">085</span><span id="line-85">                    + currentModule</span>
-<span class="source-line-no">086</span><span id="line-86">                    + ": "</span>
-<span class="source-line-no">087</span><span id="line-87">                    + e.getMessage(),</span>
-<span class="source-line-no">088</span><span id="line-88">                e);</span>
-<span class="source-line-no">089</span><span id="line-89">          }</span>
-<span class="source-line-no">090</span><span id="line-90">        }</span>
-<span class="source-line-no">091</span><span id="line-91">      } else if (event == XMLStreamConstants.END_ELEMENT) {</span>
-<span class="source-line-no">092</span><span id="line-92">        if (depth == 2 &amp;&amp; currentModule != null) {</span>
-<span class="source-line-no">093</span><span id="line-93">          if (!lineCounterFound) {</span>
-<span class="source-line-no">094</span><span id="line-94">            log.warn(</span>
-<span class="source-line-no">095</span><span id="line-95">                "No LINE counter found in JaCoCo report for module '{}'. "</span>
-<span class="source-line-no">096</span><span id="line-96">                    + "Check JaCoCo XML format or coverage configuration.",</span>
-<span class="source-line-no">097</span><span id="line-97">                currentModule);</span>
-<span class="source-line-no">098</span><span id="line-98">            oos.writeObject(new ModuleSloc(currentModule, 0, 0, 0));</span>
-<span class="source-line-no">099</span><span id="line-99">          }</span>
-<span class="source-line-no">100</span><span id="line-100">          currentModule = null;</span>
-<span class="source-line-no">101</span><span id="line-101">        }</span>
-<span class="source-line-no">102</span><span id="line-102">        depth--;</span>
-<span class="source-line-no">103</span><span id="line-103">      }</span>
-<span class="source-line-no">104</span><span id="line-104">    }</span>
-<span class="source-line-no">105</span><span id="line-105">  }</span>
-<span class="source-line-no">106</span><span id="line-106">}</span>
+<span class="source-line-no">037</span><span id="line-37">  private static final byte[] WRAPPER_OPEN =</span>
+<span class="source-line-no">038</span><span id="line-38">      "&lt;?xml version=\"1.0\" encoding=\"UTF-8\"?&gt;&lt;jacoco-reports&gt;".getBytes(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">039</span><span id="line-39">  private static final byte[] WRAPPER_CLOSE = "&lt;/jacoco-reports&gt;".getBytes(StandardCharsets.UTF_8);</span>
+<span class="source-line-no">040</span><span id="line-40"></span>
+<span class="source-line-no">041</span><span id="line-41">  @Override</span>
+<span class="source-line-no">042</span><span id="line-42">  public void execute(InputStream input, OutputStream output) throws IOException {</span>
+<span class="source-line-no">043</span><span id="line-43">    XMLInputFactory factory = SecureXmlConfiguration.createSecureXMLInputFactory();</span>
+<span class="source-line-no">044</span><span id="line-44">    InputStream wrapped =</span>
+<span class="source-line-no">045</span><span id="line-45">        new SequenceInputStream(</span>
+<span class="source-line-no">046</span><span id="line-46">            new SequenceInputStream(new ByteArrayInputStream(WRAPPER_OPEN), input),</span>
+<span class="source-line-no">047</span><span id="line-47">            new ByteArrayInputStream(WRAPPER_CLOSE));</span>
+<span class="source-line-no">048</span><span id="line-48">    try (ObjectOutputStream oos = new ObjectOutputStream(output)) {</span>
+<span class="source-line-no">049</span><span id="line-49">      XMLStreamReader reader = factory.createXMLStreamReader(wrapped);</span>
+<span class="source-line-no">050</span><span id="line-50">      try {</span>
+<span class="source-line-no">051</span><span id="line-51">        parseAll(reader, oos);</span>
+<span class="source-line-no">052</span><span id="line-52">      } finally {</span>
+<span class="source-line-no">053</span><span id="line-53">        reader.close();</span>
+<span class="source-line-no">054</span><span id="line-54">      }</span>
+<span class="source-line-no">055</span><span id="line-55">    } catch (IOException e) {</span>
+<span class="source-line-no">056</span><span id="line-56">      throw e;</span>
+<span class="source-line-no">057</span><span id="line-57">    } catch (XMLStreamException e) {</span>
+<span class="source-line-no">058</span><span id="line-58">      throw new IOException(</span>
+<span class="source-line-no">059</span><span id="line-59">          "Failed to parse JaCoCo XML at " + e.getLocation() + ": " + e.getMessage(), e);</span>
+<span class="source-line-no">060</span><span id="line-60">    }</span>
+<span class="source-line-no">061</span><span id="line-61">  }</span>
+<span class="source-line-no">062</span><span id="line-62"></span>
+<span class="source-line-no">063</span><span id="line-63">  private void parseAll(XMLStreamReader reader, ObjectOutputStream oos)</span>
+<span class="source-line-no">064</span><span id="line-64">      throws XMLStreamException, IOException {</span>
+<span class="source-line-no">065</span><span id="line-65">    String currentModule = null;</span>
+<span class="source-line-no">066</span><span id="line-66">    boolean lineCounterFound = false;</span>
+<span class="source-line-no">067</span><span id="line-67">    int depth = 0;</span>
+<span class="source-line-no">068</span><span id="line-68"></span>
+<span class="source-line-no">069</span><span id="line-69">    while (reader.hasNext()) {</span>
+<span class="source-line-no">070</span><span id="line-70">      int event = reader.next();</span>
+<span class="source-line-no">071</span><span id="line-71">      if (event == XMLStreamConstants.START_ELEMENT) {</span>
+<span class="source-line-no">072</span><span id="line-72">        depth++;</span>
+<span class="source-line-no">073</span><span id="line-73">        String localName = reader.getLocalName();</span>
+<span class="source-line-no">074</span><span id="line-74">        if (depth == 2 &amp;&amp; "report".equals(localName)) {</span>
+<span class="source-line-no">075</span><span id="line-75">          currentModule = reader.getAttributeValue(null, "name");</span>
+<span class="source-line-no">076</span><span id="line-76">          lineCounterFound = false;</span>
+<span class="source-line-no">077</span><span id="line-77">        } else if (depth == 3</span>
+<span class="source-line-no">078</span><span id="line-78">            &amp;&amp; "counter".equals(localName)</span>
+<span class="source-line-no">079</span><span id="line-79">            &amp;&amp; "LINE".equals(reader.getAttributeValue(null, "type"))</span>
+<span class="source-line-no">080</span><span id="line-80">            &amp;&amp; currentModule != null) {</span>
+<span class="source-line-no">081</span><span id="line-81">          try {</span>
+<span class="source-line-no">082</span><span id="line-82">            int missed = Integer.parseInt(reader.getAttributeValue(null, "missed"));</span>
+<span class="source-line-no">083</span><span id="line-83">            int covered = Integer.parseInt(reader.getAttributeValue(null, "covered"));</span>
+<span class="source-line-no">084</span><span id="line-84">            oos.writeObject(new ModuleSloc(currentModule, missed + covered, covered, missed));</span>
+<span class="source-line-no">085</span><span id="line-85">            lineCounterFound = true;</span>
+<span class="source-line-no">086</span><span id="line-86">          } catch (NumberFormatException e) {</span>
+<span class="source-line-no">087</span><span id="line-87">            throw new IOException(</span>
+<span class="source-line-no">088</span><span id="line-88">                "Invalid LINE counter attribute in JaCoCo XML for module "</span>
+<span class="source-line-no">089</span><span id="line-89">                    + currentModule</span>
+<span class="source-line-no">090</span><span id="line-90">                    + ": "</span>
+<span class="source-line-no">091</span><span id="line-91">                    + e.getMessage(),</span>
+<span class="source-line-no">092</span><span id="line-92">                e);</span>
+<span class="source-line-no">093</span><span id="line-93">          }</span>
+<span class="source-line-no">094</span><span id="line-94">        }</span>
+<span class="source-line-no">095</span><span id="line-95">      } else if (event == XMLStreamConstants.END_ELEMENT) {</span>
+<span class="source-line-no">096</span><span id="line-96">        if (depth == 2 &amp;&amp; currentModule != null) {</span>
+<span class="source-line-no">097</span><span id="line-97">          if (!lineCounterFound) {</span>
+<span class="source-line-no">098</span><span id="line-98">            log.warn(</span>
+<span class="source-line-no">099</span><span id="line-99">                "No LINE counter found in JaCoCo report for module '{}'. "</span>
+<span class="source-line-no">100</span><span id="line-100">                    + "Check JaCoCo XML format or coverage configuration.",</span>
+<span class="source-line-no">101</span><span id="line-101">                currentModule);</span>
+<span class="source-line-no">102</span><span id="line-102">            oos.writeObject(new ModuleSloc(currentModule, 0, 0, 0));</span>
+<span class="source-line-no">103</span><span id="line-103">          }</span>
+<span class="source-line-no">104</span><span id="line-104">          currentModule = null;</span>
+<span class="source-line-no">105</span><span id="line-105">        }</span>
+<span class="source-line-no">106</span><span id="line-106">        depth--;</span>
+<span class="source-line-no">107</span><span id="line-107">      }</span>
+<span class="source-line-no">108</span><span id="line-108">    }</span>
+<span class="source-line-no">109</span><span id="line-109">  }</span>
+<span class="source-line-no">110</span><span id="line-110">}</span>
 
 
 

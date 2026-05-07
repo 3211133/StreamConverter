@@ -16,7 +16,7 @@
 <span class="source-line-no">003</span><span id="line-3">import com.fasterxml.jackson.core.JsonFactory;</span>
 <span class="source-line-no">004</span><span id="line-4">import com.fasterxml.jackson.core.JsonGenerator;</span>
 <span class="source-line-no">005</span><span id="line-5">import com.fasterxml.jackson.core.JsonParser;</span>
-<span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.AbstractStreamCommand;</span>
+<span class="source-line-no">006</span><span id="line-6">import com.streamconverter.command.IStreamCommand;</span>
 <span class="source-line-no">007</span><span id="line-7">import com.streamconverter.path.IPath;</span>
 <span class="source-line-no">008</span><span id="line-8">import java.io.IOException;</span>
 <span class="source-line-no">009</span><span id="line-9">import java.io.InputStream;</span>
@@ -35,7 +35,7 @@
 <span class="source-line-no">022</span><span id="line-22"> * (JsonParser/JsonGenerator); the document is never fully loaded into memory - Support for simple</span>
 <span class="source-line-no">023</span><span id="line-23"> * path expressions including wildcards ($[*].field, $.array[*].nested.field)</span>
 <span class="source-line-no">024</span><span id="line-24"> */</span>
-<span class="source-line-no">025</span><span id="line-25">public class JsonFilterCommand extends AbstractStreamCommand {</span>
+<span class="source-line-no">025</span><span id="line-25">public class JsonFilterCommand implements IStreamCommand {</span>
 <span class="source-line-no">026</span><span id="line-26"></span>
 <span class="source-line-no">027</span><span id="line-27">  private final IPath&lt;List&lt;String&gt;&gt; jsonPath;</span>
 <span class="source-line-no">028</span><span id="line-28">  private final JsonFactory jsonFactory;</span>

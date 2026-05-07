@@ -21,12 +21,7 @@ import java.util.List;
  *
  * <p><b>注意:</b> {@code "*"} はワイルドカードとして解釈されるため、ヘッダー名そのものが {@code "*"} の列を個別指定する用途には使えない。
  */
-@SuppressWarnings("PMD.TooManyMethods")
-// public API（matches オーバーロード × 2, findMatchingIndices × 2, of × 2）と
-// private ヘルパー（matchesSingleSelector × 2, parseAsIndex, isAllColumnsSelector）で構成される。
-// ヘルパーは同一パッケージの package-private クラスに分離可能だが、CSVPath 専用の実装詳細を
-// 独立クラスとして切り出す設計上の意義がないため現状を維持している。
-public class CSVPath extends AbstractPath<Integer> {
+public class CSVPath implements IPath<Integer> {
 
   private final List<String> selectors;
 
@@ -37,7 +32,6 @@ public class CSVPath extends AbstractPath<Integer> {
    * @throws IllegalArgumentException セレクターが不正な場合
    */
   private CSVPath(String selector) {
-    super(selector);
     this.selectors = Collections.singletonList(selector.trim());
   }
 
@@ -48,7 +42,6 @@ public class CSVPath extends AbstractPath<Integer> {
    * @throws IllegalArgumentException セレクターが不正な場合
    */
   private CSVPath(List<String> selectorList) {
-    super(String.join(",", selectorList));
     List<String> temp = new ArrayList<>();
     for (String sel : selectorList) {
       temp.add(sel.trim());
@@ -82,20 +75,6 @@ public class CSVPath extends AbstractPath<Integer> {
       throw new IllegalArgumentException("Selector list cannot be null or empty");
     }
     return new CSVPath(selectorList);
-  }
-
-  /**
-   * 検証・正規化処理のフック。
-   *
-   * <p>{@link AbstractPath#AbstractPath(String)} コンストラクタから呼び出されるが、CSVPathでは検証を ファクトリメソッド（{@link
-   * #of(String)} / {@link #of(java.util.List)}）側で行うため、
-   * コンストラクタ内スロー（CT_CONSTRUCTOR_THROW）を避けるためにここでは何もしない。
-   *
-   * @param rawSelector 生のセレクター文字列（未使用）
-   */
-  @Override
-  protected void validateAndNormalize(String rawSelector) {
-    // Validation is performed in factory methods (of(...)) to avoid CT_CONSTRUCTOR_THROW
   }
 
   /**

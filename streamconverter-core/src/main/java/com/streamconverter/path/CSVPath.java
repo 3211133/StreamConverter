@@ -21,7 +21,7 @@ import java.util.List;
  *
  * <p><b>注意:</b> {@code "*"} はワイルドカードとして解釈されるため、ヘッダー名そのものが {@code "*"} の列を個別指定する用途には使えない。
  */
-public class CSVPath implements IPath<Integer> {
+public class CSVPath implements IColumnSelector {
 
   private final List<String> selectors;
 
@@ -89,8 +89,7 @@ public class CSVPath implements IPath<Integer> {
    * @param columnIndex 判定対象の列インデックス（0始まり）。nullまたは負値の場合はfalse
    * @return いずれかのセレクターが一致する場合true
    */
-  @Override
-  public boolean matches(Integer columnIndex) {
+  private boolean matches(Integer columnIndex) {
     if (columnIndex == null || columnIndex < 0) {
       return false;
     }
@@ -126,12 +125,13 @@ public class CSVPath implements IPath<Integer> {
   }
 
   /**
-   * マッチするすべての列インデックスを取得（Don't Ask Tell準拠）
+   * ヘッダー配列から対象列のインデックスリストを解決する（{@link IColumnSelector} の実装）。
    *
    * @param headers CSV列ヘッダー配列
    * @return マッチした列インデックスのリスト
    */
-  public List<Integer> findMatchingIndices(String[] headers) {
+  @Override
+  public List<Integer> resolve(String[] headers) {
     List<Integer> matchingIndices = new ArrayList<>();
     if (headers == null) {
       return matchingIndices;
@@ -146,12 +146,13 @@ public class CSVPath implements IPath<Integer> {
   }
 
   /**
-   * マッチするすべての列インデックスを取得（ヘッダーなしの場合）
+   * ヘッダーなしCSVで列数から対象列のインデックスリストを解決する（{@link IColumnSelector} の実装）。
    *
    * @param totalColumns 総列数
    * @return マッチした列インデックスのリスト
    */
-  public List<Integer> findMatchingIndices(int totalColumns) {
+  @Override
+  public List<Integer> resolve(int totalColumns) {
     List<Integer> matchingIndices = new ArrayList<>();
 
     for (int i = 0; i < totalColumns; i++) {

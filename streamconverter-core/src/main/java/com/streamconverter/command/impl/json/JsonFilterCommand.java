@@ -4,7 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.path.IPath;
+import com.streamconverter.path.ITreeMatcher;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -24,7 +24,7 @@ import java.util.List;
  */
 public class JsonFilterCommand implements IStreamCommand {
 
-  private final IPath<List<String>> jsonPath;
+  private final ITreeMatcher jsonPath;
   private final JsonFactory jsonFactory;
 
   /**
@@ -33,7 +33,7 @@ public class JsonFilterCommand implements IStreamCommand {
    * @param jsonPath the typed TreePath to extract data
    * @throws IllegalArgumentException if jsonPath is null
    */
-  private JsonFilterCommand(IPath<List<String>> jsonPath) {
+  private JsonFilterCommand(ITreeMatcher jsonPath) {
     this.jsonPath = jsonPath;
     this.jsonFactory = new JsonFactory();
   }
@@ -45,7 +45,7 @@ public class JsonFilterCommand implements IStreamCommand {
    * @return a JsonFilterCommand instance
    * @throws IllegalArgumentException if jsonPath is null
    */
-  public static JsonFilterCommand create(IPath<List<String>> jsonPath) {
+  public static JsonFilterCommand create(ITreeMatcher jsonPath) {
     if (jsonPath == null) {
       throw new IllegalArgumentException("TreePath cannot be null");
     }

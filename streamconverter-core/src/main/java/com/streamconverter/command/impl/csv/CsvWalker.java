@@ -6,6 +6,7 @@ import com.opencsv.exceptions.CsvValidationException;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.IColumnSelector;
 import com.streamconverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
@@ -13,6 +14,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 
 /**
  * CSV Walker
@@ -23,7 +25,7 @@ import java.nio.charset.StandardCharsets;
  */
 public class CsvWalker implements IStreamCommand {
 
-  private final CSVPath columnSelector;
+  private final IColumnSelector columnSelector;
   private final IRule rule;
 
   /**
@@ -33,7 +35,7 @@ public class CsvWalker implements IStreamCommand {
    * @param rule the transformation rule to apply to selected column
    * @throws IllegalArgumentException if columnSelector or rule is null
    */
-  private CsvWalker(CSVPath columnSelector, IRule rule) {
+  private CsvWalker(IColumnSelector columnSelector, IRule rule) {
     this.columnSelector = columnSelector;
     this.rule = rule;
   }
@@ -58,7 +60,7 @@ public class CsvWalker implements IStreamCommand {
    * @return a CsvWalker that transforms values in the specified column using the given rule
    * @throws IllegalArgumentException if columnSelector or rule is null
    */
-  public static CsvWalker create(CSVPath columnSelector, IRule rule) {
+  public static CsvWalker create(IColumnSelector columnSelector, IRule rule) {
     if (columnSelector == null) {
       throw new IllegalArgumentException("Column selector cannot be null");
     }
@@ -116,10 +118,11 @@ public class CsvWalker implements IStreamCommand {
     }
 
     // Determine column index
-    int columnIndex = resolveColumnIndex(headers, columnSelector);
-    if (columnIndex == -1) {
+    List<Integer> indices = columnSelector.resolve(headers);
+    if (indices.isEmpty()) {
       throw new IllegalArgumentException("Column not found: " + columnSelector.toString());
     }
+    int columnIndex = indices.get(0);
 
     // Write header (unchanged); applyQuotesToAll=false: only quote when RFC 4180 requires
     csvWriter.writeNext(headers, false);
@@ -136,15 +139,5 @@ public class CsvWalker implements IStreamCommand {
       csvWriter.writeNext(row, false);
     }
     csvWriter.flush();
-  }
-
-  /** Resolve column index using CSVPath matches() method */
-  private int resolveColumnIndex(String[] headers, CSVPath csvPath) {
-    for (int i = 0; i < headers.length; i++) {
-      if (csvPath.matches(headers, i)) {
-        return i;
-      }
-    }
-    return -1; // Not found
   }
 }

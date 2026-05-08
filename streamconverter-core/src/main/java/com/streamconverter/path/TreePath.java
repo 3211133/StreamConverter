@@ -2,7 +2,6 @@ package com.streamconverter.path;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.regex.Pattern;
 
 /**
  * Represents a hierarchical path for tree-like data structures (JSON, XML).
@@ -12,8 +11,6 @@ import java.util.regex.Pattern;
  * efficient matching during data processing.
  */
 public class TreePath implements ITreeMatcher {
-
-  private static final Pattern ARRAY_NOTATION = Pattern.compile("\\[[^\\]]*\\]");
 
   private final List<String> segments;
   private final String originalPath;
@@ -124,14 +121,34 @@ public class TreePath implements ITreeMatcher {
       throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);
     }
 
-    // Strip array notation and split on dots to yield field-name-only segments.
-    // e.g. "[*].name" -> "name", "users[*].profile.department" -> ["users","profile","department"]
-    String stripped = ARRAY_NOTATION.matcher(rest).replaceAll("");
+    return splitStrippingBrackets(rest);
+  }
+
+  /**
+   * Splits a JSON path fragment on dots, skipping any bracket sections (e.g. {@code [*]}, {@code
+   * [0]}). Uses character-by-character scanning to avoid regex backtracking.
+   */
+  private static List<String> splitStrippingBrackets(String path) {
     List<String> result = new ArrayList<>();
-    for (String part : stripped.split("\\.")) {
-      if (!part.isEmpty()) {
-        result.add(part);
+    StringBuilder segment = new StringBuilder();
+    boolean inBracket = false;
+    for (int i = 0; i < path.length(); i++) {
+      char c = path.charAt(i);
+      if (c == '[') {
+        inBracket = true;
+      } else if (c == ']') {
+        inBracket = false;
+      } else if (c == '.' && !inBracket) {
+        if (segment.length() > 0) {
+          result.add(segment.toString());
+          segment.setLength(0);
+        }
+      } else if (!inBracket) {
+        segment.append(c);
       }
+    }
+    if (segment.length() > 0) {
+      result.add(segment.toString());
     }
     return result;
   }

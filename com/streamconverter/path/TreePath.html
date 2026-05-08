@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="ITreeMatcher.html" title="interface in com.streamconverter.path">ITreeMatcher</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-14">TreePath</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-13">TreePath</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="ITreeMatcher.html" title="interface in com.streamconverter.path">ITreeMatcher</a></span></div>
 <div class="block">Represents a hierarchical path for tree-like data structures (JSON, XML).
@@ -142,14 +142,9 @@ implements <a href="ITreeMatcher.html" title="interface in com.streamconverter.p
 <div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Checks if current path matches the target path segments</div>
 </div>
-<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code>boolean</code></div>
-<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#matchesIgnoringArraySyntax(java.util.List)" class="member-name-link">matchesIgnoringArraySyntax</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</code></div>
+<div class="col-first odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
+<div class="col-second odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
 <div class="col-last odd-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
-<div class="block">Checks if current path matches after stripping array-index syntax from this path's segments.</div>
-</div>
-<div class="col-first even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></code></div>
-<div class="col-second even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4"><code><a href="#toString()" class="member-name-link">toString</a>()</code></div>
-<div class="col-last even-row-color method-summary-table method-summary-table-tab2 method-summary-table-tab4">
 <div class="block">Returns the original path expression.</div>
 </div>
 </div>
@@ -172,7 +167,7 @@ implements <a href="ITreeMatcher.html" title="interface in com.streamconverter.p
 <li>
 <section class="detail" id="fromXml(java.lang.String)">
 <h3>fromXml</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamconverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-37">fromXml</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xmlPath)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamconverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-31">fromXml</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;xmlPath)</span></div>
 <div class="block">Creates a TreePath from an XML path expression.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -187,7 +182,7 @@ implements <a href="ITreeMatcher.html" title="interface in com.streamconverter.p
 <li>
 <section class="detail" id="fromJson(java.lang.String)">
 <h3>fromJson</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamconverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-53">fromJson</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="TreePath.html" title="class in com.streamconverter.path">TreePath</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-47">fromJson</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;jsonPath)</span></div>
 <div class="block">Creates a TreePath from a JSON path expression.</div>
 <dl class="notes">
 <dt>Parameters:</dt>
@@ -202,7 +197,7 @@ implements <a href="ITreeMatcher.html" title="interface in com.streamconverter.p
 <li>
 <section class="detail" id="matches(java.util.List)">
 <h3>matches</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-68">matches</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-62">matches</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</span></div>
 <div class="block">Checks if current path matches the target path segments</div>
 <dl class="notes">
 <dt>Specified by:</dt>
@@ -215,26 +210,9 @@ implements <a href="ITreeMatcher.html" title="interface in com.streamconverter.p
 </section>
 </li>
 <li>
-<section class="detail" id="matchesIgnoringArraySyntax(java.util.List)">
-<h3>matchesIgnoringArraySyntax</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-83">matchesIgnoringArraySyntax</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&gt;&nbsp;currentPath)</span></div>
-<div class="block">Checks if current path matches after stripping array-index syntax from this path's segments.
-
- <p>A segment like <code>"orders[*]"</code> or <code>"orders[0]"</code> is normalized to <code>"orders"</code>
- before comparison. This allows paths such as <code>"$.orders[*].product_code"</code> to match the
- streaming <code>currentPath</code> list <code>["orders", "product_code"]</code>.</div>
-<dl class="notes">
-<dt>Parameters:</dt>
-<dd><code>currentPath</code> - current path segments built by the streaming traversal</dd>
-<dt>Returns:</dt>
-<dd>true if the normalized segments equal <code>currentPath</code></dd>
-</dl>
-</section>
-</li>
-<li>
 <section class="detail" id="toString()">
 <h3>toString</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-113">toString</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-72">toString</a></span>()</div>
 <div class="block">Returns the original path expression.</div>
 <dl class="notes">
 <dt>Overrides:</dt>
@@ -247,7 +225,7 @@ implements <a href="ITreeMatcher.html" title="interface in com.streamconverter.p
 <li>
 <section class="detail" id="equals(java.lang.Object)">
 <h3>equals</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-127">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">boolean</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-86">equals</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>&nbsp;obj)</span></div>
 <div class="block">2つのTreePathが等しいかどうかをセグメントリストで比較する。
 
  <p>注意: 元のパス文字列（<a href="#toString()"><code>toString()</code></a> の値）が異なっていても、セグメントに展開した結果が同じであれば等しいとみなす。 例えば JSONスタイルの <code>
@@ -265,7 +243,7 @@ implements <a href="ITreeMatcher.html" title="interface in com.streamconverter.p
 <li>
 <section class="detail" id="hashCode()">
 <h3>hashCode</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-144">hashCode</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">int</span>&nbsp;<span class="element-name"><a href="../../../src-html/com/streamconverter/path/TreePath.html#line-103">hashCode</a></span>()</div>
 <div class="block">セグメントリストに基づくハッシュコードを返す。</div>
 <dl class="notes">
 <dt>Overrides:</dt>

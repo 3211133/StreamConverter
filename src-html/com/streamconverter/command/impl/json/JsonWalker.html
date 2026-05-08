@@ -158,13 +158,10 @@
 <span class="source-line-no">145</span><span id="line-145">    return newDepth;</span>
 <span class="source-line-no">146</span><span id="line-146">  }</span>
 <span class="source-line-no">147</span><span id="line-147"></span>
-<span class="source-line-no">148</span><span id="line-148">  /** Simple path matching for streaming JSON processing */</span>
-<span class="source-line-no">149</span><span id="line-149">  private boolean isMatchingPath(List&lt;String&gt; currentPath) {</span>
-<span class="source-line-no">150</span><span id="line-150">    // Use matchesIgnoringArraySyntax so that paths like $.orders[*].product_code</span>
-<span class="source-line-no">151</span><span id="line-151">    // correctly match the streaming currentPath ["orders", "product_code"].</span>
-<span class="source-line-no">152</span><span id="line-152">    return treePath.matchesIgnoringArraySyntax(currentPath);</span>
-<span class="source-line-no">153</span><span id="line-153">  }</span>
-<span class="source-line-no">154</span><span id="line-154">}</span>
+<span class="source-line-no">148</span><span id="line-148">  private boolean isMatchingPath(List&lt;String&gt; currentPath) {</span>
+<span class="source-line-no">149</span><span id="line-149">    return treePath.matches(currentPath);</span>
+<span class="source-line-no">150</span><span id="line-150">  }</span>
+<span class="source-line-no">151</span><span id="line-151">}</span>
 
 
 

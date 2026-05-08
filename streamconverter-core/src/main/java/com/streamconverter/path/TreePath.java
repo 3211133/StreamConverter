@@ -125,29 +125,35 @@ public class TreePath implements ITreeMatcher {
   }
 
   /**
-   * Splits a JSON path fragment on dots, skipping any bracket sections (e.g. {@code [*]}, {@code
-   * [0]}). Uses character-by-character scanning to avoid regex backtracking.
+   * Splits a JSON path fragment on dots, skipping bracket sections (e.g. {@code [*]}, {@code [0]}).
+   * Uses character-by-character scanning to avoid regex backtracking.
+   *
+   * @throws IllegalArgumentException if an unclosed {@code [} is found
    */
+  @SuppressWarnings("PMD.CyclomaticComplexity")
   private static List<String> splitStrippingBrackets(String path) {
     List<String> result = new ArrayList<>();
     StringBuilder segment = new StringBuilder();
-    boolean inBracket = false;
+    int bracketStart = -1;
     for (int i = 0; i < path.length(); i++) {
       char c = path.charAt(i);
       if (c == '[') {
-        inBracket = true;
+        bracketStart = i;
       } else if (c == ']') {
-        inBracket = false;
-      } else if (c == '.' && !inBracket) {
-        if (segment.length() > 0) {
+        bracketStart = -1;
+      } else if (bracketStart < 0) {
+        if (c == '.' && !segment.isEmpty()) {
           result.add(segment.toString());
           segment.setLength(0);
+        } else if (c != '.') {
+          segment.append(c);
         }
-      } else if (!inBracket) {
-        segment.append(c);
       }
     }
-    if (segment.length() > 0) {
+    if (bracketStart >= 0) {
+      throw new IllegalArgumentException("Unclosed '[' in JSON path: \"" + path + "\"");
+    }
+    if (!segment.isEmpty()) {
       result.add(segment.toString());
     }
     return result;

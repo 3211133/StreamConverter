@@ -116,6 +116,11 @@ public class JsonExtractCommand implements IStreamCommand {
       ExtractionState state)
       throws IOException {
     if (jsonPath.matches(currentPath)) {
+      if (currentPath.isEmpty()) {
+        throw new IllegalStateException(
+            "ITreeMatcher matched empty path inside traverse(); root-path matching must be"
+                + " handled before traverse() is called.");
+      }
       // 最初のマッチ時にラッパーオブジェクトと配列を開く
       state.writeOpenIfNeeded(generator, currentPath.get(currentPath.size() - 1));
       JsonValueCopier.copyValue(parser, generator, token);

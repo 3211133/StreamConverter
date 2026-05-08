@@ -9,10 +9,10 @@ import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
 import com.streamconverter.command.impl.csv.CsvFilterCommand;
 import com.streamconverter.command.impl.csv.CsvValidateCommand;
 import com.streamconverter.command.impl.csv.CsvWalker;
-import com.streamconverter.command.impl.json.JsonFilterCommand;
+import com.streamconverter.command.impl.json.JsonExtractCommand;
 import com.streamconverter.command.impl.json.JsonWalker;
 import com.streamconverter.command.impl.xml.ValidateCommand;
-import com.streamconverter.command.impl.xml.XmlFilterCommand;
+import com.streamconverter.command.impl.xml.XmlExtractCommand;
 import com.streamconverter.command.impl.xml.XmlWalker;
 import com.streamconverter.command.rule.TestRule;
 import com.streamconverter.path.CSVPath;
@@ -254,10 +254,11 @@ final class JsonWalkerStreamingContractProvider implements CommandStreamingContr
   }
 }
 
-final class JsonFilterCommandStreamingContractProvider implements CommandStreamingContractProvider {
+final class JsonExtractCommandStreamingContractProvider
+    implements CommandStreamingContractProvider {
   @Override
   public IStreamCommand createCommand() {
-    return JsonFilterCommand.create(TreePath.fromJson("$.user"));
+    return JsonExtractCommand.create(TreePath.fromJson("$.user"));
   }
 
   @Override
@@ -302,10 +303,10 @@ final class ValidateCommandStreamingContractProvider implements CommandStreaming
   }
 }
 
-final class XmlFilterCommandStreamingContractProvider implements CommandStreamingContractProvider {
+final class XmlExtractCommandStreamingContractProvider implements CommandStreamingContractProvider {
   @Override
   public IStreamCommand createCommand() {
-    return XmlFilterCommand.create(TreePath.fromXml("root/item"));
+    return XmlExtractCommand.create(TreePath.fromXml("root/item"));
   }
 
   @Override

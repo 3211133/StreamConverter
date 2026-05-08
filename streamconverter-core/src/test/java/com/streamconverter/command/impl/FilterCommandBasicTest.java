@@ -5,8 +5,8 @@ import static com.streamconverter.test.TestUtils.createTestData;
 import static org.junit.jupiter.api.Assertions.*;
 
 import com.streamconverter.command.impl.csv.CsvFilterCommand;
-import com.streamconverter.command.impl.json.JsonFilterCommand;
-import com.streamconverter.command.impl.xml.XmlFilterCommand;
+import com.streamconverter.command.impl.json.JsonExtractCommand;
+import com.streamconverter.command.impl.xml.XmlExtractCommand;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
 import com.streamconverter.test.StreamingTestUtils.MidStreamMonitoringOutputStream;
@@ -24,18 +24,18 @@ import org.junit.jupiter.api.Test;
 /**
  * Basic tests for FilterCommand implementations
  *
- * <p>Tests the basic functionality of JsonFilterCommand, XmlFilterCommand, and CsvFilterCommand to
- * ensure they can extract data correctly without applying transformations.
+ * <p>Tests the basic functionality of JsonExtractCommand, XmlExtractCommand, and CsvFilterCommand
+ * to ensure they can extract data correctly without applying transformations.
  */
 class FilterCommandBasicTest {
 
   @Test
-  void testJsonFilterCommand_SimpleProperty() throws IOException {
+  void testJsonExtractCommand_SimpleProperty() throws IOException {
     // Test data
     String jsonInput = "{\"name\":\"田中太郎\",\"age\":30,\"city\":\"東京\"}";
 
     // Create command to extract "name" property
-    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$.name"));
+    JsonExtractCommand command = JsonExtractCommand.create(TreePath.fromJson("$.name"));
 
     // Execute
     ByteArrayInputStream input =
@@ -45,16 +45,16 @@ class FilterCommandBasicTest {
 
     // Verify
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("\"田中太郎\"", result);
+    assertEquals("{\"name\":[\"田中太郎\"]}", result);
   }
 
   @Test
-  void testJsonFilterCommand_RootPath() throws IOException {
+  void testJsonExtractCommand_RootPath() throws IOException {
     // Test data
     String jsonInput = "{\"userId\":\"1001\",\"amount\":120000}";
 
     // Create command to extract entire JSON (root path)
-    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$"));
+    JsonExtractCommand command = JsonExtractCommand.create(TreePath.fromJson("$"));
 
     // Execute
     ByteArrayInputStream input =
@@ -125,13 +125,13 @@ class FilterCommandBasicTest {
   }
 
   @Test
-  void testXmlFilterCommand_SimpleElement() throws IOException {
+  void testXmlExtractCommand_SimpleElement() throws IOException {
     // Test data
     String xmlInput =
         "<?xml version=\"1.0\"?><users><user><name>田中太郎</name><age>30</age></user></users>";
 
     // Create command to extract "name" elements
-    XmlFilterCommand command = XmlFilterCommand.create(TreePath.fromXml("users/user/name"));
+    XmlExtractCommand command = XmlExtractCommand.create(TreePath.fromXml("users/user/name"));
 
     // Execute
     ByteArrayInputStream input =
@@ -145,7 +145,7 @@ class FilterCommandBasicTest {
   }
 
   @Test
-  void testXmlFilterCommand_MultipleElementsAreWrapped() throws IOException {
+  void testXmlExtractCommand_MultipleElementsAreWrapped() throws IOException {
     String xmlInput =
         """
         <?xml version="1.0"?>
@@ -156,7 +156,7 @@ class FilterCommandBasicTest {
         </users>
         """;
 
-    XmlFilterCommand command = XmlFilterCommand.create(TreePath.fromXml("users/user/name"));
+    XmlExtractCommand command = XmlExtractCommand.create(TreePath.fromXml("users/user/name"));
 
     ByteArrayInputStream input =
         new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
@@ -170,12 +170,12 @@ class FilterCommandBasicTest {
   }
 
   @Test
-  void testJsonFilterCommand_NonExistentProperty() throws IOException {
+  void testJsonExtractCommand_NonExistentProperty() throws IOException {
     // Test data
     String jsonInput = "{\"name\":\"田中太郎\",\"age\":30}";
 
     // Create command to extract non-existent property
-    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$.nonexistent"));
+    JsonExtractCommand command = JsonExtractCommand.create(TreePath.fromJson("$.nonexistent"));
 
     // Execute
     ByteArrayInputStream input =
@@ -225,7 +225,7 @@ class FilterCommandBasicTest {
 
     String jsonData = jsonBuilder.toString();
 
-    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$[*].name"));
+    JsonExtractCommand command = JsonExtractCommand.create(TreePath.fromJson("$[*].name"));
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
@@ -316,7 +316,7 @@ class FilterCommandBasicTest {
 
     String xmlData = xmlBuilder.toString();
 
-    XmlFilterCommand command = XmlFilterCommand.create(TreePath.fromXml("records/record/name"));
+    XmlExtractCommand command = XmlExtractCommand.create(TreePath.fromXml("records/record/name"));
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(xmlData.getBytes(StandardCharsets.UTF_8));
@@ -361,8 +361,8 @@ class FilterCommandBasicTest {
 
     String jsonData = jsonBuilder.toString();
 
-    JsonFilterCommand command =
-        JsonFilterCommand.create(TreePath.fromJson("$.users[*].profile.department"));
+    JsonExtractCommand command =
+        JsonExtractCommand.create(TreePath.fromJson("$.users[*].profile.department"));
 
     TrackingInputStream trackingInputStream =
         new TrackingInputStream(jsonData.getBytes(StandardCharsets.UTF_8));
@@ -393,8 +393,8 @@ class FilterCommandBasicTest {
 
   @Test
   @Tag("large-data")
-  @DisplayName("[#549] JsonFilterCommand processes JSON larger than 10MB without IOException")
-  void testJsonFilterCommand_LargeJsonNoMemoryLimit() throws IOException {
+  @DisplayName("[#549] JsonExtractCommand processes JSON larger than 10MB without IOException")
+  void testJsonExtractCommand_LargeJsonNoMemoryLimit() throws IOException {
     // Build JSON > 10MB: each entry has a long "data" field to ensure total exceeds 10MB
     String padding = "x".repeat(100);
     StringBuilder jsonBuilder = new StringBuilder("[");
@@ -406,7 +406,7 @@ class FilterCommandBasicTest {
     String largeJson = jsonBuilder.toString();
     assertTrue(largeJson.length() > 10 * 1024 * 1024, "Test data should exceed 10MB");
 
-    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$[*].id"));
+    JsonExtractCommand command = JsonExtractCommand.create(TreePath.fromJson("$[*].id"));
 
     ByteArrayInputStream input =
         new ByteArrayInputStream(largeJson.getBytes(StandardCharsets.UTF_8));
@@ -415,12 +415,13 @@ class FilterCommandBasicTest {
     // Should not throw IOException("JSON content too large...")
     command.execute(input, output);
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("["), "Result should be a JSON array");
+    assertTrue(result.startsWith("{\"id\":["), "Result should be wrapped object array");
+    assertTrue(result.endsWith("]}"), "Result should end with closing array and object");
   }
 
   @Test
-  @DisplayName("[#549] JsonFilterCommand does not call readAllBytes() on the input stream")
-  void testJsonFilterCommand_NoReadAllBytes() throws IOException {
+  @DisplayName("[#549] JsonExtractCommand does not call readAllBytes() on the input stream")
+  void testJsonExtractCommand_NoReadAllBytes() throws IOException {
     // Build a JSON array with enough entries to ensure streaming is observable
     StringBuilder jsonBuilder = new StringBuilder("[");
     for (int i = 0; i < 200; i++) {
@@ -429,7 +430,7 @@ class FilterCommandBasicTest {
     }
     jsonBuilder.append("]");
 
-    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$[*].id"));
+    JsonExtractCommand command = JsonExtractCommand.create(TreePath.fromJson("$[*].id"));
 
     TrackingInputStream trackingInput =
         new TrackingInputStream(jsonBuilder.toString().getBytes(StandardCharsets.UTF_8));
@@ -439,14 +440,14 @@ class FilterCommandBasicTest {
 
     assertFalse(
         trackingInput.wasReadAllBytesCalled(),
-        "JsonFilterCommand must not call readAllBytes() – streaming must not buffer the full"
+        "JsonExtractCommand must not call readAllBytes() – streaming must not buffer the full"
             + " input");
   }
 
   @Test
-  @DisplayName("[#549] JsonFilterCommand processes entire input and produces output")
-  void testJsonFilterCommand_WritesBeforeInputFullyConsumed() throws IOException {
-    // Verify that JsonFilterCommand processes input via streaming (not readAllBytes)
+  @DisplayName("[#549] JsonExtractCommand processes entire input and produces output")
+  void testJsonExtractCommand_WritesBeforeInputFullyConsumed() throws IOException {
+    // Verify that JsonExtractCommand processes input via streaming (not readAllBytes)
     // and that output is produced.
     // Note: Jackson JsonGenerator uses an internal buffer, so the first write to the
     // OutputStream may only occur after flush() at the end of processing. The key
@@ -459,7 +460,7 @@ class FilterCommandBasicTest {
     }
     jsonBuilder.append("]");
 
-    JsonFilterCommand command = JsonFilterCommand.create(TreePath.fromJson("$[*].id"));
+    JsonExtractCommand command = JsonExtractCommand.create(TreePath.fromJson("$[*].id"));
 
     TrackingInputStream trackingInput =
         new TrackingInputStream(jsonBuilder.toString().getBytes(StandardCharsets.UTF_8));
@@ -472,12 +473,12 @@ class FilterCommandBasicTest {
     assertTrue(trackingInput.isFullyRead(), "Input stream must be fully consumed");
     assertFalse(
         trackingInput.wasReadAllBytesCalled(),
-        "JsonFilterCommand must not call readAllBytes() – input must be read incrementally");
+        "JsonExtractCommand must not call readAllBytes() – input must be read incrementally");
   }
 
   @Test
-  @DisplayName("[#550] XmlFilterCommand captures nested child elements correctly")
-  void testXmlFilterCommand_NestedChildElements() throws IOException {
+  @DisplayName("[#550] XmlExtractCommand captures nested child elements correctly")
+  void testXmlExtractCommand_NestedChildElements() throws IOException {
     String xmlInput =
         "<?xml version=\"1.0\"?>"
             + "<catalog>"
@@ -485,7 +486,7 @@ class FilterCommandBasicTest {
             + "<book id=\"2\"><title>Kotlin</title><author>JetBrains</author></book>"
             + "</catalog>";
 
-    XmlFilterCommand command = XmlFilterCommand.create(TreePath.fromXml("catalog/book"));
+    XmlExtractCommand command = XmlExtractCommand.create(TreePath.fromXml("catalog/book"));
 
     ByteArrayInputStream input =
         new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));

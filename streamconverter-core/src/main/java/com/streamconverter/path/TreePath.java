@@ -1,7 +1,6 @@
 package com.streamconverter.path;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -11,11 +10,6 @@ import java.util.List;
  * and XML-style ("user/name") formats. It converts path expressions into hierarchical segments for
  * efficient matching during data processing.
  */
-@SuppressWarnings("PMD.TooManyMethods")
-// public API（fromXml/fromJson・matches/matchesIgnoringArraySyntax・equals/hashCode/toString）と
-// private パーサーヘルパー（parseJsonPathToSegments/parseComplexJsonPath/parseXmlPathToSegments 等）
-// が同居している。パーサーヘルパーは package-private クラスへ分離可能だが、TreePath 専用の
-// 実装詳細であり独立させる設計上の意義がないため現状を維持している。
 public class TreePath implements ITreeMatcher {
 
   private final List<String> segments;
@@ -71,41 +65,6 @@ public class TreePath implements ITreeMatcher {
   }
 
   /**
-   * Checks if current path matches after stripping array-index syntax from this path's segments.
-   *
-   * <p>A segment like {@code "orders[*]"} or {@code "orders[0]"} is normalized to {@code "orders"}
-   * before comparison. This allows paths such as {@code "$.orders[*].product_code"} to match the
-   * streaming {@code currentPath} list {@code ["orders", "product_code"]}.
-   *
-   * @param currentPath current path segments built by the streaming traversal
-   * @return true if the normalized segments equal {@code currentPath}
-   */
-  public boolean matchesIgnoringArraySyntax(List<String> currentPath) {
-    if (currentPath == null) {
-      return false;
-    }
-    List<String> normalized = new ArrayList<>();
-    for (String segment : segments) {
-      // Strip leading $. prefix if present (handles complex path single-segment case)
-      String s = segment;
-      if (s.startsWith("$.")) {
-        s = s.substring(2);
-      } else if (s.startsWith("$")) {
-        s = s.substring(1);
-      }
-      // Split on dots to expand compound segments like "orders[*].product_code"
-      for (String part : s.split("\\.")) {
-        // Remove array index notation: [*], [0], [1], etc.
-        String stripped = part.replaceAll("\\[.*?\\]", "");
-        if (!stripped.isEmpty()) {
-          normalized.add(stripped);
-        }
-      }
-    }
-    return normalized.equals(currentPath);
-  }
-
-  /**
    * Returns the original path expression.
    *
    * @return the original path expression
@@ -149,35 +108,59 @@ public class TreePath implements ITreeMatcher {
   // === Internal Implementation ===
 
   private static List<String> parseJsonPathToSegments(String jsonPath) {
-    // Handle root path
     if ("$".equals(jsonPath)) {
       return new ArrayList<>();
     }
 
-    // Handle array syntax preservation for JsonFilterCommand compatibility
-    if (jsonPath.contains("[")) {
-      // For complex paths with arrays, preserve original parsing logic
-      // This ensures JsonFilterCommand continues to work
-      return parseComplexJsonPath(jsonPath);
-    }
-
-    // Simple property paths: $.property or $.nested.property
+    String rest;
     if (jsonPath.startsWith("$.")) {
-      String pathWithoutRoot = jsonPath.substring(2);
-      if (pathWithoutRoot.isEmpty()) {
-        return new ArrayList<>();
-      }
-      return Arrays.asList(pathWithoutRoot.split("\\."));
+      rest = jsonPath.substring(2);
+    } else if (jsonPath.startsWith("$")) {
+      rest = jsonPath.substring(1);
+    } else {
+      throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);
     }
 
-    throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);
+    return splitStrippingBrackets(jsonPath, rest);
   }
 
-  private static List<String> parseComplexJsonPath(String jsonPath) {
-    // For paths with array syntax like $[*].name or $.users[0].name
-    // Keep them as single segments to maintain compatibility
-    // The actual array handling is done in JsonFilterCommand
-    return List.of(jsonPath);
+  /**
+   * Splits a JSON path fragment on dots, skipping bracket sections (e.g. {@code [*]}, {@code [0]}).
+   * Uses character-by-character scanning to avoid regex backtracking.
+   *
+   * @param originalPath the full original JSON path (e.g. {@code $.users[*]}) for error messages
+   * @param path the fragment after stripping the {@code $} prefix
+   * @throws IllegalArgumentException if an unclosed {@code [} is found
+   */
+  @SuppressWarnings("PMD.CyclomaticComplexity")
+  private static List<String> splitStrippingBrackets(String originalPath, String path) {
+    List<String> result = new ArrayList<>();
+    StringBuilder segment = new StringBuilder();
+    int bracketStart = -1;
+    for (int i = 0; i < path.length(); i++) {
+      char c = path.charAt(i);
+      if (c == '[') {
+        bracketStart = i;
+      } else if (c == ']') {
+        bracketStart = -1;
+      } else if (bracketStart < 0) {
+        if (c == '.' && !segment.isEmpty()) {
+          result.add(segment.toString());
+          segment.setLength(0);
+        } else if (c != '.') {
+          segment.append(c);
+        }
+      }
+    }
+    if (bracketStart >= 0) {
+      int position = originalPath.length() - path.length() + bracketStart;
+      throw new IllegalArgumentException(
+          "Invalid JSON path \"" + originalPath + "\": unclosed '[' at position " + position);
+    }
+    if (!segment.isEmpty()) {
+      result.add(segment.toString());
+    }
+    return result;
   }
 
   private static List<String> parseXmlPathToSegments(String xmlPath) {

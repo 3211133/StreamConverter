@@ -7,7 +7,7 @@ import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.events.XMLEvent;
 
 /**
- * Mutable traversal state for a single XmlFilterCommand execution.
+ * Mutable traversal state for a single XmlExtractCommand execution.
  *
  * <p>Tracks the current path, capture depth, and accumulated output state as the event stream is
  * drained. Owns a {@link XmlCaptureSession} that handles XMLEventWriter lifecycle.

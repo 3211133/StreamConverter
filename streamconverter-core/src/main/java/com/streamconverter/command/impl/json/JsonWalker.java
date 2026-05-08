@@ -145,10 +145,7 @@ public class JsonWalker implements IStreamCommand {
     return newDepth;
   }
 
-  /** Simple path matching for streaming JSON processing */
   private boolean isMatchingPath(List<String> currentPath) {
-    // Use matchesIgnoringArraySyntax so that paths like $.orders[*].product_code
-    // correctly match the streaming currentPath ["orders", "product_code"].
-    return treePath.matchesIgnoringArraySyntax(currentPath);
+    return treePath.matches(currentPath);
   }
 }

@@ -8,7 +8,7 @@ import java.io.IOException;
 /**
  * Copies or skips complete JSON values using Jackson's streaming API.
  *
- * <p>Extracted from {@link JsonPathExtractor} to reduce its weighted method count.
+ * <p>Used by {@link JsonExtractCommand} for streaming value copy and skip operations.
  */
 final class JsonValueCopier {
 

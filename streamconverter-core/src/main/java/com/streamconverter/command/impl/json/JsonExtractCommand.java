@@ -91,11 +91,14 @@ public class JsonExtractCommand implements IStreamCommand {
     while ((token = parser.nextToken()) != null && token != JsonToken.END_OBJECT) {
       if (token == JsonToken.FIELD_NAME) {
         currentPath.add(parser.currentName());
-        token = parser.nextToken();
-        if (token != null) {
-          matched += processToken(parser, generator, token, currentPath);
+        try {
+          token = parser.nextToken();
+          if (token != null) {
+            matched += processToken(parser, generator, token, currentPath);
+          }
+        } finally {
+          currentPath.remove(currentPath.size() - 1);
         }
-        currentPath.remove(currentPath.size() - 1);
       }
     }
     return matched;

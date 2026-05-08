@@ -153,14 +153,9 @@ public class TreePath implements ITreeMatcher {
       }
     }
     if (bracketStart >= 0) {
+      int position = originalPath.length() - path.length() + bracketStart;
       throw new IllegalArgumentException(
-          "Invalid JSON path \""
-              + originalPath
-              + "\": unclosed '[' at index "
-              + bracketStart
-              + " in fragment \""
-              + path
-              + "\"");
+          "Invalid JSON path \"" + originalPath + "\": unclosed '[' at position " + position);
     }
     if (!segment.isEmpty()) {
       result.add(segment.toString());

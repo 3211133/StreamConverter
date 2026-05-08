@@ -13,7 +13,7 @@ import java.util.regex.Pattern;
  */
 public class TreePath implements ITreeMatcher {
 
-  private static final Pattern ARRAY_NOTATION = Pattern.compile("\\[.*?\\]");
+  private static final Pattern ARRAY_NOTATION = Pattern.compile("\\[[^\\]]*\\]");
 
   private final List<String> segments;
   private final String originalPath;

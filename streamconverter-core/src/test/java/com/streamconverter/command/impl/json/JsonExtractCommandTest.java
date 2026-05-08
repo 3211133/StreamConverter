@@ -115,12 +115,12 @@ class JsonExtractCommandTest {
 
   @Test
   @DisplayName("マッチ後に出力ストリームが失敗しても IOException が伝播する")
-  void testOutputStreamFailure_propagatesIOException() {
+  void testOutputStreamFailure_propagatesIOException() throws IOException {
     // マッチが発生してラッパーが開いた後に出力ストリームが失敗するケース
     String json = "[{\"name\":\"Alice\"},{\"name\":\"Bob\"}]";
     JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$[*].name"));
     // 一定バイト書き込んだ後に失敗するストリーム
-    OutputStream failingOut =
+    try (OutputStream failingOut =
         new OutputStream() {
           private int bytesWritten = 0;
 
@@ -130,11 +130,12 @@ class JsonExtractCommandTest {
               throw new IOException("Simulated output stream failure");
             }
           }
-        };
-    assertThrows(
-        IOException.class,
-        () -> cmd.execute(utf8(json), failingOut),
-        "出力ストリーム失敗時に IOException が伝播するべき");
+        }) {
+      assertThrows(
+          IOException.class,
+          () -> cmd.execute(utf8(json), failingOut),
+          "出力ストリーム失敗時に IOException が伝播するべき");
+    }
   }
 
   // ---- currentPath 整合性 ----

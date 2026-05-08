@@ -17,8 +17,8 @@ import java.util.List;
  *
  * <p>指定パスにマッチした JSON 値を抽出して出力する。変換は行わない。 変換を行う場合は {@link JsonWalker} を使用すること。
  *
- * <p>出力形式: 常に {@code {"末端キー名": [値...]}} の形で返す。マッチなしは空配列 {@code []}。 ルートパス（{@code
- * $}）のみ例外で入力をそのままコピーする。
+ * <p>出力形式: 常に {@code {"末端キー名": [値...]}} の形で返す。マッチなしは {@code null}（末端キー名が確定しないため空配列ラッパーを構築できない）。
+ * ルートパス（{@code $}）のみ例外で入力をそのままコピーする。
  *
  * <p>走査は currentPath にオブジェクトフィールド名のみ積む。配列要素はパスに現れない透過的な走査とする。 そのため {@link ITreeMatcher} の実装（{@link
  * com.streamconverter.path.TreePath} 等）は 配列インデックスを含まないセグメントリストと比較すること。
@@ -60,8 +60,11 @@ public class JsonExtractCommand implements IStreamCommand {
         JsonValueCopier.copyValue(parser, generator);
       } else {
         ExtractionState state = new ExtractionState();
-        traverse(parser, generator, currentPath, state);
-        state.writeClose(generator);
+        try {
+          traverse(parser, generator, currentPath, state);
+        } finally {
+          state.writeClose(generator);
+        }
       }
 
       generator.flush();

@@ -6,6 +6,7 @@ import com.streamconverter.path.TreePath;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -110,6 +111,30 @@ class JsonExtractCommandTest {
     JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.name"));
     assertThrows(
         IOException.class, () -> execute(cmd, truncated), "フィールド値欠落で IOException が投げられるべき");
+  }
+
+  @Test
+  @DisplayName("マッチ後に出力ストリームが失敗しても IOException が伝播する")
+  void testOutputStreamFailure_propagatesIOException() {
+    // マッチが発生してラッパーが開いた後に出力ストリームが失敗するケース
+    String json = "[{\"name\":\"Alice\"},{\"name\":\"Bob\"}]";
+    JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$[*].name"));
+    // 一定バイト書き込んだ後に失敗するストリーム
+    OutputStream failingOut =
+        new OutputStream() {
+          private int bytesWritten = 0;
+
+          @Override
+          public void write(int b) throws IOException {
+            if (bytesWritten++ > 10) {
+              throw new IOException("Simulated output stream failure");
+            }
+          }
+        };
+    assertThrows(
+        IOException.class,
+        () -> cmd.execute(utf8(json), failingOut),
+        "出力ストリーム失敗時に IOException が伝播するべき");
   }
 
   // ---- currentPath 整合性 ----

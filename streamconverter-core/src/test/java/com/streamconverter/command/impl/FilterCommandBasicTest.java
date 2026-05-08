@@ -415,7 +415,8 @@ class FilterCommandBasicTest {
     // Should not throw IOException("JSON content too large...")
     command.execute(input, output);
     String result = output.toString(StandardCharsets.UTF_8);
-    assertTrue(result.startsWith("["), "Result should be a JSON array");
+    assertTrue(result.startsWith("{\"id\":["), "Result should be wrapped object array");
+    assertTrue(result.endsWith("]}"), "Result should end with closing array and object");
   }
 
   @Test

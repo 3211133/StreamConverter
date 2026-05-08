@@ -121,17 +121,19 @@ public class TreePath implements ITreeMatcher {
       throw new IllegalArgumentException("Invalid JSON path format: " + jsonPath);
     }
 
-    return splitStrippingBrackets(rest);
+    return splitStrippingBrackets(jsonPath, rest);
   }
 
   /**
    * Splits a JSON path fragment on dots, skipping bracket sections (e.g. {@code [*]}, {@code [0]}).
    * Uses character-by-character scanning to avoid regex backtracking.
    *
+   * @param originalPath the full original JSON path (e.g. {@code $.users[*]}) for error messages
+   * @param path the fragment after stripping the {@code $} prefix
    * @throws IllegalArgumentException if an unclosed {@code [} is found
    */
   @SuppressWarnings("PMD.CyclomaticComplexity")
-  private static List<String> splitStrippingBrackets(String path) {
+  private static List<String> splitStrippingBrackets(String originalPath, String path) {
     List<String> result = new ArrayList<>();
     StringBuilder segment = new StringBuilder();
     int bracketStart = -1;
@@ -151,7 +153,14 @@ public class TreePath implements ITreeMatcher {
       }
     }
     if (bracketStart >= 0) {
-      throw new IllegalArgumentException("Unclosed '[' in JSON path: \"" + path + "\"");
+      throw new IllegalArgumentException(
+          "Invalid JSON path \""
+              + originalPath
+              + "\": unclosed '[' at index "
+              + bracketStart
+              + " in fragment \""
+              + path
+              + "\"");
     }
     if (!segment.isEmpty()) {
       result.add(segment.toString());

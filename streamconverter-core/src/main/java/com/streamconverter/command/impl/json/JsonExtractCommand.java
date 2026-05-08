@@ -118,7 +118,9 @@ public class JsonExtractCommand implements IStreamCommand {
     if (jsonPath.matches(currentPath)) {
       if (currentPath.isEmpty()) {
         throw new IllegalStateException(
-            "ITreeMatcher matched empty path inside traverse(); root-path matching must be"
+            "ITreeMatcher ["
+                + jsonPath
+                + "] matched empty path inside traverse(); root-path matching must be"
                 + " handled before traverse() is called.");
       }
       // 最初のマッチ時にラッパーオブジェクトと配列を開く

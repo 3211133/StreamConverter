@@ -17,8 +17,8 @@ import java.util.List;
  *
  * <p>指定パスにマッチした JSON 値を抽出して出力する。変換は行わない。 変換を行う場合は {@link JsonWalker} を使用すること。
  *
- * <p>特徴: - {@link ITreeMatcher#matches(java.util.List)} による反復マッチで抽出対象を判定 - マッチした値の型・構造をそのまま保持して出力 -
- * Jackson Streaming API による省メモリ処理 - ワイルドカード・ネストパスを含む式をサポート（$[*].field, $.array[*].nested.field）
+ * <p>出力形式: 常に {@code {"末端キー名": [値...]}} の形で返す。マッチなしは空配列 {@code []}。 ルートパス（{@code
+ * $}）のみ例外で入力をそのままコピーする。
  *
  * <p>走査は currentPath にオブジェクトフィールド名のみ積む。配列要素はパスに現れない透過的な走査とする。 そのため {@link ITreeMatcher} の実装（{@link
  * com.streamconverter.path.TreePath} 等）は 配列インデックスを含まないセグメントリストと比較すること。
@@ -59,34 +59,27 @@ public class JsonExtractCommand implements IStreamCommand {
       if (jsonPath.matches(currentPath)) {
         JsonValueCopier.copyValue(parser, generator);
       } else {
-        int matched = traverse(parser, generator, currentPath);
-        if (matched == 0) {
-          generator.writeNull();
-        }
+        ExtractionState state = new ExtractionState();
+        traverse(parser, generator, currentPath, state);
+        state.writeClose(generator);
       }
 
       generator.flush();
     }
   }
 
-  /**
-   * JSON ストリームを走査し、{@link #jsonPath} にマッチした値を generator に書き出す。
-   *
-   * @return マッチして出力した値の個数
-   */
-  private int traverse(JsonParser parser, JsonGenerator generator, List<String> currentPath)
+  private void traverse(
+      JsonParser parser, JsonGenerator generator, List<String> currentPath, ExtractionState state)
       throws IOException {
-    int matched = 0;
     JsonToken token;
     while ((token = parser.nextToken()) != null) {
-      matched += processToken(parser, generator, token, currentPath);
+      processToken(parser, generator, token, currentPath, state);
     }
-    return matched;
   }
 
-  private int traverseObject(JsonParser parser, JsonGenerator generator, List<String> currentPath)
+  private void traverseObject(
+      JsonParser parser, JsonGenerator generator, List<String> currentPath, ExtractionState state)
       throws IOException {
-    int matched = 0;
     JsonToken token;
     while ((token = parser.nextToken()) != null && token != JsonToken.END_OBJECT) {
       if (token == JsonToken.FIELD_NAME) {
@@ -94,37 +87,68 @@ public class JsonExtractCommand implements IStreamCommand {
         try {
           token = parser.nextToken();
           if (token != null) {
-            matched += processToken(parser, generator, token, currentPath);
+            processToken(parser, generator, token, currentPath, state);
           }
         } finally {
           currentPath.remove(currentPath.size() - 1);
         }
       }
     }
-    return matched;
   }
 
-  private int traverseArray(JsonParser parser, JsonGenerator generator, List<String> currentPath)
+  private void traverseArray(
+      JsonParser parser, JsonGenerator generator, List<String> currentPath, ExtractionState state)
       throws IOException {
-    int matched = 0;
     JsonToken token;
     while ((token = parser.nextToken()) != null && token != JsonToken.END_ARRAY) {
-      matched += processToken(parser, generator, token, currentPath);
+      processToken(parser, generator, token, currentPath, state);
     }
-    return matched;
   }
 
-  private int processToken(
-      JsonParser parser, JsonGenerator generator, JsonToken token, List<String> currentPath)
+  private void processToken(
+      JsonParser parser,
+      JsonGenerator generator,
+      JsonToken token,
+      List<String> currentPath,
+      ExtractionState state)
       throws IOException {
     if (jsonPath.matches(currentPath)) {
+      // 最初のマッチ時にラッパーオブジェクトと配列を開く
+      state.writeOpenIfNeeded(generator, currentPath.get(currentPath.size() - 1));
       JsonValueCopier.copyValue(parser, generator, token);
-      return 1;
+    } else {
+      switch (token) {
+        case START_OBJECT -> traverseObject(parser, generator, currentPath, state);
+        case START_ARRAY -> traverseArray(parser, generator, currentPath, state);
+        default -> {
+          /* スカラー: マッチしないので読み捨て */
+        }
+      }
     }
-    return switch (token) {
-      case START_OBJECT -> traverseObject(parser, generator, currentPath);
-      case START_ARRAY -> traverseArray(parser, generator, currentPath);
-      default -> 0;
-    };
+  }
+
+  /** 抽出中のラッパー出力状態を管理する。 */
+  private static final class ExtractionState {
+    private boolean opened = false;
+
+    void writeOpenIfNeeded(JsonGenerator generator, String key) throws IOException {
+      if (!opened) {
+        generator.writeStartObject();
+        generator.writeFieldName(key);
+        generator.writeStartArray();
+        opened = true;
+      }
+    }
+
+    void writeClose(JsonGenerator generator) throws IOException {
+      if (opened) {
+        generator.writeEndArray();
+        generator.writeEndObject();
+      } else {
+        // マッチなし: {キー: []} を出力できないためキー名が不明 → 空オブジェクトは不適切
+        // マッチがなかった場合はキー名を持つ空配列を出力できないため null を出力する
+        generator.writeNull();
+      }
+    }
   }
 }

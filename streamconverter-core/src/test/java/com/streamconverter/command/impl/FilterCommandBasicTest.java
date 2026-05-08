@@ -45,7 +45,7 @@ class FilterCommandBasicTest {
 
     // Verify
     String result = output.toString(StandardCharsets.UTF_8);
-    assertEquals("\"田中太郎\"", result);
+    assertEquals("{\"name\":[\"田中太郎\"]}", result);
   }
 
   @Test

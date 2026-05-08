@@ -22,19 +22,28 @@ class JsonExtractCommandTest {
     return out.toString(StandardCharsets.UTF_8);
   }
 
-  // ---- 複数マッチ ----
+  // ---- 出力形式: 常に {末端キー名: [値...]} ----
 
   @Test
-  @DisplayName("$[*].name: 配列内の複数フィールドを抽出したとき各値がスペース区切りで出力される")
+  @DisplayName("単一マッチも {キー: [値]} 形式で出力される")
+  void testSingleMatch_wrappedInArray() throws IOException {
+    String json = "{\"name\":\"Alice\",\"age\":30}";
+    JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.name"));
+    String result = execute(cmd, json);
+    assertEquals("{\"name\":[\"Alice\"]}", result);
+  }
+
+  @Test
+  @DisplayName("$[*].name: 複数マッチは {name: [値...]} 形式で出力される")
   void testMultipleMatches_rootArrayWildcard() throws IOException {
     String json = "[{\"name\":\"Alice\"},{\"name\":\"Bob\"},{\"name\":\"Carol\"}]";
     JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$[*].name"));
     String result = execute(cmd, json);
-    assertEquals("\"Alice\" \"Bob\" \"Carol\"", result);
+    assertEquals("{\"name\":[\"Alice\",\"Bob\",\"Carol\"]}", result);
   }
 
   @Test
-  @DisplayName("$.users[*].profile.department: ネスト配列内の複数フィールドを正確に抽出する")
+  @DisplayName("$.users[*].profile.department: ネスト配列の複数マッチは {department: [値...]} 形式")
   void testMultipleMatches_nestedArrayWildcard() throws IOException {
     String json =
         "{\"users\":["
@@ -44,7 +53,31 @@ class JsonExtractCommandTest {
     JsonExtractCommand cmd =
         JsonExtractCommand.create(TreePath.fromJson("$.users[*].profile.department"));
     String result = execute(cmd, json);
-    assertEquals("\"Engineering\" \"Marketing\"", result);
+    assertEquals("{\"department\":[\"Engineering\",\"Marketing\"]}", result);
+  }
+
+  @Test
+  @DisplayName("$.orders[*].item: オブジェクト値の複数マッチは {item: [{...},{...}]} 形式")
+  void testMultipleMatches_objectValues() throws IOException {
+    String json =
+        "{\"orders\":["
+            + "{\"id\":1,\"item\":{\"name\":\"Apple\",\"price\":100}},"
+            + "{\"id\":2,\"item\":{\"name\":\"Banana\",\"price\":80}}"
+            + "]}";
+    JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.orders[*].item"));
+    String result = execute(cmd, json);
+    assertEquals(
+        "{\"item\":[{\"name\":\"Apple\",\"price\":100},{\"name\":\"Banana\",\"price\":80}]}",
+        result);
+  }
+
+  @Test
+  @DisplayName("マッチなしは null を出力する（キー名が確定しないため空配列ラッパーは出力できない）")
+  void testNoMatch_returnsNull() throws IOException {
+    String json = "{\"age\":30}";
+    JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.name"));
+    String result = execute(cmd, json);
+    assertEquals("null", result);
   }
 
   // ---- 切り詰めストリーム ----
@@ -91,18 +124,18 @@ class JsonExtractCommandTest {
 
     // 2回目: 正常入力で正しく動作する（currentPath が汚染されていれば失敗する）
     String result = execute(cmd, "{\"name\":\"Alice\",\"age\":30}");
-    assertEquals("\"Alice\"", result);
+    assertEquals("{\"name\":[\"Alice\"]}", result);
   }
 
   // ---- 正常系（既存テストの補完）----
 
   @Test
-  @DisplayName("$[*].id: 数値フィールドを正確に抽出する")
+  @DisplayName("$[*].id: 数値フィールドの複数マッチは {id: [1,2]} 形式")
   void testRootArrayWildcard_numericField() throws IOException {
     String json = "[{\"id\":1,\"name\":\"A\"},{\"id\":2,\"name\":\"B\"}]";
     JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$[*].id"));
     String result = execute(cmd, json);
-    assertEquals("1 2", result);
+    assertEquals("{\"id\":[1,2]}", result);
   }
 
   @Test
@@ -122,21 +155,21 @@ class JsonExtractCommandTest {
   }
 
   @Test
-  @DisplayName("ネストオブジェクト値をそのまま抽出できる")
+  @DisplayName("ネストオブジェクト値は {user: [{...}]} 形式で抽出される")
   void testExtractNestedObject() throws IOException {
     String json = "{\"user\":{\"name\":\"Alice\",\"age\":30}}";
     JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.user"));
     String result = execute(cmd, json);
-    assertEquals("{\"name\":\"Alice\",\"age\":30}", result);
+    assertEquals("{\"user\":[{\"name\":\"Alice\",\"age\":30}]}", result);
   }
 
   @Test
-  @DisplayName("配列値をそのまま抽出できる")
+  @DisplayName("配列値は {tags: [[...]]} 形式で抽出される")
   void testExtractArrayValue() throws IOException {
     String json = "{\"tags\":[\"java\",\"json\"]}";
     JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.tags"));
     String result = execute(cmd, json);
-    assertEquals("[\"java\",\"json\"]", result);
+    assertEquals("{\"tags\":[[\"java\",\"json\"]]}", result);
   }
 
   // ---- TreePath ワイルドカードセグメント解析 ----

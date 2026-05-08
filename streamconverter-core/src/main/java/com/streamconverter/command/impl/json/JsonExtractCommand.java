@@ -132,7 +132,7 @@ public class JsonExtractCommand implements IStreamCommand {
 
   /** 抽出中のラッパー出力状態を管理する。 */
   private static final class ExtractionState {
-    private boolean opened = false;
+    private boolean opened;
 
     void writeOpenIfNeeded(JsonGenerator generator, String key) throws IOException {
       if (!opened) {

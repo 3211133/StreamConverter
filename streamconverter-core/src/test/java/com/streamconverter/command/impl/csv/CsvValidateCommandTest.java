@@ -417,6 +417,7 @@ public class CsvValidateCommandTest {
     int maxAllowedBodyLength = 1000 - prefix.length();
     assertTrue(msg.startsWith(prefix));
     String body = msg.substring(prefix.length());
+    // 修正後の切り詰め実装に追従できるよう、固定長や末尾記号ではなく公開契約のみを検証する。
     assertTrue(body.contains("CSV validation failed with"));
     assertEquals(prefix.length() + body.length(), msg.length());
     assertTrue(

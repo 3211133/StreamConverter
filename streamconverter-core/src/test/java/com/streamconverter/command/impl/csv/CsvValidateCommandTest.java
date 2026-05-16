@@ -414,11 +414,17 @@ public class CsvValidateCommandTest {
 
     String msg = exception.getMessage();
     String prefix = "CSV validation failed: ";
+    int maxAllowedBodyLength = 1000 - prefix.length();
     assertTrue(msg.startsWith(prefix));
     String body = msg.substring(prefix.length());
-    assertTrue(body.endsWith("..."));
-    assertEquals(1000, body.length());
+    assertTrue(body.contains("CSV validation failed with"));
     assertEquals(prefix.length() + body.length(), msg.length());
+    assertTrue(
+        body.length() <= maxAllowedBodyLength,
+        "Error body should be at most "
+            + maxAllowedBodyLength
+            + " chars when prefixed, but was "
+            + body.length());
 
     // 仕様: 例外メッセージ全体が 1000 文字以下であるべき
     // バグが存在する間はこのアサーションで失敗する（1023文字になるため）

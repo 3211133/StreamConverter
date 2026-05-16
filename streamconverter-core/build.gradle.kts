@@ -146,15 +146,17 @@ tasks.register<Test>("verifyKnownBugs") {
             val total = result.testCount
             val failed = result.failedTestCount
             val passed = result.successfulTestCount
+            val skipped = result.skippedTestCount
             logger.lifecycle(
-                "Known-bug verification: $total test(s), $failed failed, $passed passed"
+                "Known-bug verification: $total test(s), $failed failed, $passed passed, $skipped skipped"
             )
             if (total == 0L) {
                 throw GradleException("verifyKnownBugs: no known-bug tests found. Add @Tag(\"known-bug\") tests.")
             }
-            if (passed > 0L) {
+            if (passed > 0L || skipped > 0L || failed != total) {
                 throw GradleException(
-                    "verifyKnownBugs: $passed known-bug test(s) passed unexpectedly. " +
+                    "verifyKnownBugs: expected all known-bug tests to fail, but got " +
+                    "$failed failed, $passed passed, $skipped skipped out of $total. " +
                     "If a bug was fixed, remove the @Tag(\"known-bug\") annotation and close the related issue."
                 )
             }

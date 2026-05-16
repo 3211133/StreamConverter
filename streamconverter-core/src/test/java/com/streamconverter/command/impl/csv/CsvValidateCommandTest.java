@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** CsvValidateCommandクラスのテスト */
@@ -390,5 +391,45 @@ public class CsvValidateCommandTest {
     assertTrue(
         trackingInputStream.getTotalBytes() > 1000,
         "Should have processed substantial amount of data");
+  }
+
+  @Test
+  @Tag("known-bug")
+  @DisplayName("Bug証明 #709: エラーメッセージ切り詰め後にプレフィックスを追加するため例外メッセージが1000文字を超える")
+  void bug_709_errorMessageTruncation_prefixCausesExceedingLimit() throws IOException {
+    String[] requiredColumns = {"id", "name", "email"};
+    CsvValidateCommand command = CsvValidateCommand.create(true, 200, requiredColumns);
+
+    StringBuilder csvBuilder = new StringBuilder();
+    csvBuilder.append("id,name,email\n");
+    for (int i = 1; i <= 40; i++) {
+      csvBuilder.append(String.format("%d,User%d,user%d@example.com,extra_col_%d%n", i, i, i, i));
+    }
+
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csvBuilder.toString().getBytes(StandardCharsets.UTF_8));
+
+    StreamProcessingException exception =
+        assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
+
+    String msg = exception.getMessage();
+    String prefix = "CSV validation failed: ";
+    assertTrue(msg.startsWith(prefix));
+    String body = msg.substring(prefix.length());
+    assertTrue(body.endsWith("..."));
+    assertEquals(1000, body.length());
+    assertEquals(prefix.length() + body.length(), msg.length());
+
+    // 仕様: 例外メッセージ全体が 1000 文字以下であるべき
+    // バグが存在する間はこのアサーションで失敗する（1023文字になるため）
+    assertTrue(
+        msg.length() <= 1000,
+        "Exception message should be at most 1000 chars, but was "
+            + msg.length()
+            + " (prefix="
+            + prefix.length()
+            + " + body="
+            + body.length()
+            + ")");
   }
 }

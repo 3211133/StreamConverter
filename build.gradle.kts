@@ -360,8 +360,8 @@ repositories {
 tasks.test {
     // JUnit 5 を使うための設定
     useJUnitPlatform {
-        // ベンチマークテストを通常のテスト実行から除外
-        excludeTags("benchmark", "large-data")
+        // ベンチマークテストと known-bug テストを通常のテスト実行から除外
+        excludeTags("benchmark", "large-data", "known-bug")
     }
 
     // クラス名・パスパターンでもベンチマーク系テストを除外

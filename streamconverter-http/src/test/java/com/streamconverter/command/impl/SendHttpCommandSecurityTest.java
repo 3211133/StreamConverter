@@ -74,9 +74,7 @@ class SendHttpCommandSecurityTest {
             IllegalArgumentException.class,
             () -> new SendHttpCommand("ftp://example.com"),
             "FTPプロトコルはIllegalArgumentExceptionをスローするべき");
-    assertTrue(
-        ftpEx.getMessage().contains("HTTP and HTTPS"),
-        "エラーメッセージに許可プロトコルの説明が含まれるべき");
+    assertTrue(ftpEx.getMessage().contains("HTTP and HTTPS"), "エラーメッセージに許可プロトコルの説明が含まれるべき");
 
     assertThrows(
         IllegalArgumentException.class,
@@ -97,9 +95,7 @@ class SendHttpCommandSecurityTest {
             IllegalArgumentException.class,
             () -> new SendHttpCommand("example.com/api"),
             "スキームなしのURLはIllegalArgumentExceptionをスローするべき");
-    assertTrue(
-        ex.getMessage().contains("scheme"),
-        "エラーメッセージにschemeに関する説明が含まれるべき");
+    assertTrue(ex.getMessage().contains("scheme"), "エラーメッセージにschemeに関する説明が含まれるべき");
   }
 
   @Test
@@ -203,8 +199,7 @@ class SendHttpCommandSecurityTest {
     assertThrows(
         java.io.IOException.class,
         () ->
-            command.execute(
-                new ByteArrayInputStream("x".getBytes()), new ByteArrayOutputStream()),
+            command.execute(new ByteArrayInputStream("x".getBytes()), new ByteArrayOutputStream()),
         "【バグ #715】execute()はDNS rebinding後のプライベートIPへの接続をブロックすべきだが、例外をスローしない");
   }
 }

@@ -7,8 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.Objects;
 import org.slf4j.Logger;
@@ -140,11 +140,7 @@ public class SendHttpCommand implements IStreamCommand {
         || "::1".equals(cleanHost);
   }
 
-  /**
-   * ホストがプライベートIPに解決されるかを判定する。
-   * リテラルIPはGuavaで即解析し、ホスト名はDNS解決後に検査する。
-   * 解決不能なホスト名は例外をスローしてアクセスを拒否する。
-   */
+  /** ホストがプライベートIPに解決されるかを判定する。 リテラルIPはGuavaで即解析し、ホスト名はDNS解決後に検査する。 解決不能なホスト名は例外をスローしてアクセスを拒否する。 */
   private boolean isPrivateIpAddress(String host) {
     // まずリテラルIPとして解析を試みる
     if (InetAddresses.isInetAddress(host)) {
@@ -181,8 +177,7 @@ public class SendHttpCommand implements IStreamCommand {
    * @throws IOException 入出力エラーが発生した場合
    */
   @Override
-  public void execute(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     Objects.requireNonNull(inputStream, "inputStream must not be null");
     Objects.requireNonNull(outputStream, "outputStream must not be null");
 

@@ -1,5 +1,12 @@
 package com.streamconverter.web;
 
+import com.streamconverter.StreamConverter;
+import com.streamconverter.command.IStreamCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
+import com.streamconverter.command.impl.json.JsonWalker;
+import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.path.CSVPath;
+import com.streamconverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Locale;
@@ -8,21 +15,12 @@ import java.util.concurrent.Executors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.buffer.DataBuffer;
-import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.core.io.buffer.DataBufferUtils;
+import org.springframework.core.io.buffer.DefaultDataBufferFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import com.streamconverter.StreamConverter;
-import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.csv.CsvWalker;
-import com.streamconverter.command.impl.json.JsonWalker;
-import com.streamconverter.command.rule.PassThroughRule;
-import com.streamconverter.path.CSVPath;
-import com.streamconverter.path.TreePath;
-
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -57,14 +55,12 @@ public class StreamProcessingController {
 
     logger.info("Processing CSV extraction for column: {}", columnName);
 
-    return Mono
-        .fromCallable(
+    return Mono.fromCallable(
             () ->
                 ResponseEntity.ok(
                     processWithStreamConverter(
                         inputData,
-                        CsvWalker.create(
-                            CSVPath.of(columnName), new PassThroughRule()))))
+                        CsvWalker.create(CSVPath.of(columnName), new PassThroughRule()))))
         .onErrorResume(
             e -> {
               logger.error("CSV extraction failed: {}", e.getMessage(), e);
@@ -88,14 +84,12 @@ public class StreamProcessingController {
 
     logger.info("Processing JSON extraction for path: {}", jsonPath);
 
-    return Mono
-        .fromCallable(
+    return Mono.fromCallable(
             () ->
                 ResponseEntity.ok(
                     processWithStreamConverter(
                         inputData,
-                        JsonWalker.create(
-                            TreePath.fromJson(jsonPath), new PassThroughRule()))))
+                        JsonWalker.create(TreePath.fromJson(jsonPath), new PassThroughRule()))))
         .onErrorResume(
             e -> {
               logger.error("JSON extraction failed: {}", e.getMessage(), e);
@@ -118,8 +112,7 @@ public class StreamProcessingController {
       @RequestBody Flux<DataBuffer> inputData,
       @RequestHeader("X-Pipeline-Config") String pipelineConfig) {
 
-    return Mono
-        .fromCallable(() -> buildPipelineFromConfig(pipelineConfig))
+    return Mono.fromCallable(() -> buildPipelineFromConfig(pipelineConfig))
         .map(
             commands -> {
               logger.info("Processing pipeline with {} commands", commands.length);
@@ -159,8 +152,7 @@ public class StreamProcessingController {
       Flux<DataBuffer> inputData, IStreamCommand... commands) {
     DefaultDataBufferFactory bufferFactory = new DefaultDataBufferFactory();
     ExecutorService executor = Executors.newSingleThreadExecutor();
-    return Flux
-        .from(
+    return Flux.from(
             DataBufferUtils.outputStreamPublisher(
                 outputStream -> {
                   try (InputStream inputStream =
@@ -216,7 +208,8 @@ public class StreamProcessingController {
           switch (commandType.toLowerCase(Locale.ROOT)) {
             case "csv" -> {
               if (parameter.isEmpty()) {
-                throw new IllegalArgumentException("csv command requires a column name at index " + i);
+                throw new IllegalArgumentException(
+                    "csv command requires a column name at index " + i);
               }
               yield CsvWalker.create(CSVPath.of(parameter), new PassThroughRule());
             }
@@ -226,17 +219,18 @@ public class StreamProcessingController {
               }
               yield JsonWalker.create(TreePath.fromJson(parameter), new PassThroughRule());
             }
-            case "process" -> new IStreamCommand() {
-              @Override
-              public void execute(InputStream in, java.io.OutputStream out) throws IOException {
-                in.transferTo(out);
-              }
+            case "process" ->
+                new IStreamCommand() {
+                  @Override
+                  public void execute(InputStream in, java.io.OutputStream out) throws IOException {
+                    in.transferTo(out);
+                  }
 
-              @Override
-              public String commandName() {
-                return "process";
-              }
-            };
+                  @Override
+                  public String commandName() {
+                    return "process";
+                  }
+                };
             default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
           };
     }

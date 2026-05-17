@@ -9,12 +9,12 @@ import java.io.InputStream;
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
-import java.util.concurrent.atomic.AtomicReference;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.core.io.buffer.DataBufferUtils;
@@ -60,9 +60,7 @@ class SendHttpCommandWebClientTest {
     try (var executor = Executors.newSingleThreadExecutor()) {
       Future<?> future = executor.submit(() -> runCommand(command, input, output));
 
-      assertFalse(
-          output.awaitFirstWrite(TIMEOUT),
-          "レスポンスはリクエストボディ完了前には書き出されないはず");
+      assertFalse(output.awaitFirstWrite(TIMEOUT), "レスポンスはリクエストボディ完了前には書き出されないはず");
 
       input.releaseRemainingInput();
       future.get(TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
@@ -108,7 +106,8 @@ class SendHttpCommandWebClientTest {
     ExchangeFunction exchangeFunction =
         request -> {
           AtomicReference<String> requestBody = new AtomicReference<>("");
-          MockClientHttpRequest mockRequest = new MockClientHttpRequest(HttpMethod.POST, URI.create(request.url().toString()));
+          MockClientHttpRequest mockRequest =
+              new MockClientHttpRequest(HttpMethod.POST, URI.create(request.url().toString()));
           mockRequest.setWriteHandler(
               body ->
                   DataBufferUtils.join(body)
@@ -198,7 +197,8 @@ class SendHttpCommandWebClientTest {
 
       if (index >= firstChunkSize) {
         try {
-          if (!releaseRemainingInput.await(INPUT_RELEASE_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
+          if (!releaseRemainingInput.await(
+              INPUT_RELEASE_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS)) {
             throw new IOException("Timed out waiting to release remaining input");
           }
         } catch (InterruptedException e) {
@@ -261,12 +261,8 @@ class SendHttpCommandWebClientTest {
                     new ByteArrayOutputStream()));
 
     String causeMessage = ex.getCause().getMessage();
-    assertTrue(
-        causeMessage.contains("...[truncated]"),
-        "エラーメッセージに切り詰め表示が含まれるべき: " + causeMessage);
-    assertFalse(
-        causeMessage.contains(longBody),
-        "エラーメッセージに完全な 300 文字ボディが含まれてはいけない");
+    assertTrue(causeMessage.contains("...[truncated]"), "エラーメッセージに切り詰め表示が含まれるべき: " + causeMessage);
+    assertFalse(causeMessage.contains(longBody), "エラーメッセージに完全な 300 文字ボディが含まれてはいけない");
   }
 
   @Test
@@ -297,12 +293,12 @@ class SendHttpCommandWebClientTest {
         request ->
             reactor.core.publisher.Mono.just(
                 ClientResponse.create(status)
-                    .header(HttpHeaders.CONTENT_TYPE,
+                    .header(
+                        HttpHeaders.CONTENT_TYPE,
                         org.springframework.http.MediaType.TEXT_PLAIN_VALUE)
                     .body(
                         Flux.just(
-                            bufferFactory.wrap(
-                                responseBody.getBytes(StandardCharsets.UTF_8))))
+                            bufferFactory.wrap(responseBody.getBytes(StandardCharsets.UTF_8))))
                     .build());
     return WebClient.builder().exchangeFunction(exchangeFunction).build();
   }

@@ -194,8 +194,7 @@ public class DatabaseFetchRule implements IRule {
           logger.error("クローズ中に追加のエラーが発生しました: {}", s.getMessage(), s);
         }
       }
-      throw new StreamProcessingException(
-          "データベースフェッチに失敗しました: " + e.getMessage(), e);
+      throw new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e);
     }
   }
 }

@@ -29,8 +29,11 @@ public class SendHttpCommand implements IStreamCommand {
   private static final int MAX_ERROR_BODY_SIZE = 1024 * 1024;
   private static final int STREAMING_CHUNK_SIZE = 8192;
 
+  private static final InetAddressResolver DEFAULT_RESOLVER = InetAddress::getAllByName;
+
   private final String url;
   private final WebClient webClient;
+  private final InetAddressResolver inetAddressResolver;
 
   /**
    * デフォルトコンストラクタ
@@ -39,7 +42,7 @@ public class SendHttpCommand implements IStreamCommand {
    * @throws IllegalArgumentException URLが無効な場合
    */
   public SendHttpCommand(String url) {
-    this(url, createDefaultWebClient());
+    this(url, createDefaultWebClient(), DEFAULT_RESOLVER);
   }
 
   /**
@@ -51,8 +54,17 @@ public class SendHttpCommand implements IStreamCommand {
    * @param webClient 使用するWebClient
    */
   public SendHttpCommand(String url, WebClient webClient) {
+    this(url, webClient, DEFAULT_RESOLVER);
+  }
+
+  SendHttpCommand(String url, WebClient webClient, InetAddressResolver resolver) {
+    this.inetAddressResolver = Objects.requireNonNull(resolver);
     this.url = validateAndSanitizeUrl(url);
     this.webClient = Objects.requireNonNull(webClient, "webClient must not be null");
+  }
+
+  String getResolvedUrl() {
+    return url;
   }
 
   private static WebClient createDefaultWebClient() {
@@ -145,7 +157,7 @@ public class SendHttpCommand implements IStreamCommand {
     }
     // ホスト名: DNS解決して全アドレスを検査する
     try {
-      InetAddress[] addresses = InetAddress.getAllByName(host);
+      InetAddress[] addresses = inetAddressResolver.getAllByName(host);
       for (InetAddress address : addresses) {
         if (isNonRoutable(address)) {
           return true;

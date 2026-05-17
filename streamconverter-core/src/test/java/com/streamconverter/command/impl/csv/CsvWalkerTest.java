@@ -31,7 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CsvWalker. */
@@ -316,10 +315,9 @@ class CsvWalkerTest {
   }
 
   @Test
-  @Tag("known-bug")
   @DisplayName(
-      "Bug証明 #720: CsvWalker は rule が RuntimeException をスローしたとき IOException にラップしない（JsonWalker/XmlWalker と不一致）")
-  void bug_csvWalkerRuleRuntimeExceptionNotWrappedAsIOException() throws IOException {
+      "[#720] rule が RuntimeException をスローしたとき IOException にラップされること（JsonWalker/XmlWalker と一致）")
+  void testRuleRuntimeExceptionWrappedAsIOException() throws IOException {
     RuntimeException ruleEx = new RuntimeException("rule failure");
     CsvWalker failingRuleCommand =
         CsvWalker.create(

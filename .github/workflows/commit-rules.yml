@@ -79,4 +79,4 @@ jobs:
         run: chmod +x gradlew
 
       - name: Verify known bugs are not accidentally fixed
-        run: ./gradlew :streamconverter-core:verifyKnownBugs
+        run: ./gradlew verifyKnownBugs

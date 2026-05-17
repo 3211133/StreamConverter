@@ -5,7 +5,6 @@ plugins {
     id("jacoco")
     id("pmd")
     id("com.github.spotbugs") version "6.5.1"
-    id("com.diffplug.spotless") version "8.4.0"
     id("info.solidsoft.pitest") version "1.19.0"
 }
 
@@ -74,19 +73,6 @@ dependencies {
     testImplementation(project(":streamconverter-tools"))
 }
 
-// Spotless configuration for code formatting
-spotless {
-    java {
-        // Use Google's Java formatting style
-        googleJavaFormat()
-        // Remove unused imports
-        importOrder()
-        // Remove trailing whitespace
-        trimTrailingWhitespace()
-        // Ensure files end with a newline
-        endWithNewline()
-    }
-}
 
 tasks.test {
     // JUnit 5 を使うための設定
@@ -149,11 +135,6 @@ tasks.javadoc {
     setDestinationDir(layout.buildDirectory.dir("docs/javadoc").get().asFile)
 }
 
-// spotlessCheck タスクを無効化
-tasks.named("spotlessCheck") {
-    enabled = false
-}
-
 // PMD configuration for code smell detection
 pmd {
     isConsoleOutput = false
@@ -203,7 +184,3 @@ tasks.spotbugsMain {
 tasks.spotbugsTest {
 }
 
-// check タスクの実行時に spotlessApply を依存タスクとして実行する
-tasks.named("check") {
-    dependsOn("spotlessApply")
-}

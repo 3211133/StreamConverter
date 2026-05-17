@@ -24,8 +24,7 @@ class HikariConnectionPoolConfigLogTest {
     // 修正後: URL をログに含めないよう修正
     String testUrl = "jdbc:h2:mem:testdb-669-" + System.nanoTime();
 
-    Logger hikariLogger =
-        (Logger) LoggerFactory.getLogger(HikariConnectionPoolConfig.class);
+    Logger hikariLogger = (Logger) LoggerFactory.getLogger(HikariConnectionPoolConfig.class);
     Level originalLevel = hikariLogger.getLevel();
     ListAppender<ILoggingEvent> appender = new ListAppender<>();
     appender.start();
@@ -58,8 +57,7 @@ class HikariConnectionPoolConfigLogTest {
   void testPooledRuleInitInfoLogDoesNotContainDatabaseUrl() {
     String testUrl = "jdbc:h2:mem:pooled-rule-669-" + System.nanoTime();
 
-    Logger pooledLogger =
-        (Logger) LoggerFactory.getLogger(PooledDatabaseFetchRule.class);
+    Logger pooledLogger = (Logger) LoggerFactory.getLogger(PooledDatabaseFetchRule.class);
     Level originalLevel = pooledLogger.getLevel();
     ListAppender<ILoggingEvent> appender = new ListAppender<>();
     appender.start();

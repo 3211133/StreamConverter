@@ -6,8 +6,7 @@ import org.slf4j.Logger;
 /**
  * SQLクエリの検証ユーティリティ。
  *
- * <p>{@link DatabaseFetchRule} と {@link PooledDatabaseFetchRule} で共有される
- * ロジックを提供します。
+ * <p>{@link DatabaseFetchRule} と {@link PooledDatabaseFetchRule} で共有される ロジックを提供します。
  */
 final class SqlQueryUtils {
 
@@ -34,7 +33,8 @@ final class SqlQueryUtils {
 
     // セミコロンによる複数文の実行を防止（末尾の1個のみ許可）
     String stripped = queryString.trim();
-    String withoutTrailingSemicolon = stripped.endsWith(";") ? stripped.substring(0, stripped.length() - 1) : stripped;
+    String withoutTrailingSemicolon =
+        stripped.endsWith(";") ? stripped.substring(0, stripped.length() - 1) : stripped;
     if (withoutTrailingSemicolon.contains(";")) {
       throw new SecurityException("Multiple SQL statements are not allowed: " + queryString);
     }
@@ -42,5 +42,4 @@ final class SqlQueryUtils {
     logger.debug("Query validation passed, length: {}", queryString.length());
     return queryString;
   }
-
 }

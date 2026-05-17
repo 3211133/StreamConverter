@@ -358,6 +358,25 @@ repositories {
 // Root project has no direct runtime sources; keep dependencies in subprojects
 
 subprojects {
+    apply(plugin = "com.diffplug.spotless")
+
+    configure<com.diffplug.gradle.spotless.SpotlessExtension> {
+        java {
+            googleJavaFormat()
+            importOrder()
+            trimTrailingWhitespace()
+            endWithNewline()
+        }
+    }
+
+    tasks.named("spotlessCheck") {
+        enabled = false
+    }
+
+    tasks.named("check") {
+        dependsOn("spotlessApply")
+    }
+
     tasks.withType<Test>().matching { it.name != "verifyKnownBugs" }.configureEach {
         useJUnitPlatform {
             excludeTags("known-bug")

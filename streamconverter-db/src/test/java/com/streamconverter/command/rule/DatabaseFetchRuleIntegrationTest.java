@@ -157,7 +157,6 @@ public class DatabaseFetchRuleIntegrationTest {
         () -> {
           new DatabaseFetchRule(dbUrl, "INSERT INTO users VALUES (99, 'hacker', 'evil@hack.com')");
         });
-
   }
 
   @Test

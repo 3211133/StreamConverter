@@ -123,8 +123,7 @@ public class PooledDatabaseFetchRule implements IRule {
           logger.error("Additional error during close: {}", s.getMessage(), s);
         }
       }
-      throw new StreamProcessingException(
-          "Database fetch failed: " + e.getMessage(), e);
+      throw new StreamProcessingException("Database fetch failed: " + e.getMessage(), e);
     }
   }
 
@@ -134,7 +133,8 @@ public class PooledDatabaseFetchRule implements IRule {
       return true;
     }
     if (input == null || input.isEmpty()) {
-      logger.warn("Query has a placeholder but input is null or empty. Rejecting to prevent unbound parameter.");
+      logger.warn(
+          "Query has a placeholder but input is null or empty. Rejecting to prevent unbound parameter.");
       return false;
     }
     statement.setString(1, input);

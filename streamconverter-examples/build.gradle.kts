@@ -1,7 +1,6 @@
 plugins {
     id("java")
     id("application")
-    id("com.diffplug.spotless") version "8.4.0"
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -72,20 +71,6 @@ tasks.register<JavaExec>("runValidationPipeline") {
     mainClass.set("com.streamconverter.examples.ValidationPipelineExample")
 }
 
-// Spotless configuration for code formatting
-spotless {
-    java {
-        // Use Google's Java formatting style
-        googleJavaFormat()
-        // Remove unused imports
-        importOrder()
-        // Remove trailing whitespace
-        trimTrailingWhitespace()
-        // Ensure files end with a newline
-        endWithNewline()
-    }
-}
-
 tasks.test {
     useJUnitPlatform()
     
@@ -96,12 +81,3 @@ application {
     mainClass.set("com.streamconverter.examples.PipelineBasicsExample")
 }
 
-// spotlessCheck タスクを無効化
-tasks.named("spotlessCheck") {
-    enabled = false
-}
-
-// check タスクの実行時に spotlessApply を依存タスクとして実行する
-tasks.named("check") {
-    dependsOn("spotlessApply")
-}

@@ -13,7 +13,7 @@ final class CsvRowValidator {
 
   private final Set<String> requiredColumns;
   private final int maxErrorsToReport;
-  private boolean truncated = false;
+  private boolean truncated;
 
   CsvRowValidator(Set<String> requiredColumns, int maxErrorsToReport) {
     this.requiredColumns = requiredColumns;

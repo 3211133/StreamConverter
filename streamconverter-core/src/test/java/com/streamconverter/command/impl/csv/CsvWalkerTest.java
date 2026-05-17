@@ -316,6 +316,35 @@ class CsvWalkerTest {
   }
 
   @Test
+  @Tag("known-bug")
+  @DisplayName(
+      "Bug証明 #720: CsvWalker は rule が RuntimeException をスローしたとき IOException にラップしない（JsonWalker/XmlWalker と不一致）")
+  void bug_csvWalkerRuleRuntimeExceptionNotWrappedAsIOException() throws IOException {
+    RuntimeException ruleEx = new RuntimeException("rule failure");
+    CsvWalker failingRuleCommand =
+        CsvWalker.create(
+            CSVPath.of("name"),
+            v -> {
+              throw ruleEx;
+            });
+    String csvInput = "name,age\nAlice,30\n";
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    // JsonWalker/XmlWalker は RuntimeException を IOException でラップするが
+    // CsvWalker はラップせずに RuntimeException をそのまま伝播させる（バグ）
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () -> failingRuleCommand.execute(inputStream, outputStream),
+            "Rule の RuntimeException は IOException にラップされるべきだが、CsvWalker はラップしない");
+    assertNotNull(thrown.getCause(), "IOException は元の例外を cause として保持すること");
+    assertInstanceOf(
+        RuntimeException.class, thrown.getCause(), "Cause は rule からの RuntimeException であること");
+  }
+
+  @Test
   @DisplayName("[#546] RFC 4180: comma inside quoted field is not split")
   void testRfc4180CommaInsideQuotedField() throws IOException {
     String csvInput = "name,address\nAlice,\"123 Main St, Suite 4\"\n";

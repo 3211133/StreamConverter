@@ -359,21 +359,18 @@ class CsvWalkerTest {
     assertTrue(result.contains("Suite 4"), "Comma-separated part of address should be preserved");
   }
 
-  @DisplayName("Bug証明 #726: 存在しない列を指定したとき IllegalArgumentException が IOException にラップされずに伝播する")
-  void bug_csvWalker_unknownColumnThrowsIllegalArgumentException() throws IOException {
+  @Test
+  @DisplayName("[#726] 存在しない列を指定したとき IOException がスローされること")
+  void testCsvWalker_unknownColumnThrowsIOException() throws IOException {
     String csvInput = "name,age\nAlice,30\n";
     CsvWalker csvWalker = CsvWalker.create(CSVPath.of("nonexistent"), new PassThroughRule());
     ByteArrayInputStream input =
         new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    IOException thrown =
-        assertThrows(
-            IOException.class,
-            () -> csvWalker.execute(input, output),
-            "存在しない列の指定は IOException にラップされるべきだが、CsvWalker は IllegalArgumentException をスローする");
-    assertInstanceOf(
-        IllegalArgumentException.class,
-        thrown.getCause(),
-        "Cause は CsvWalker からの IllegalArgumentException であること");
+
+    assertThrows(
+        IOException.class,
+        () -> csvWalker.execute(input, output),
+        "存在しない列の指定は IOException をスローするべきだが、IStreamCommand.execute() 契約に違反する例外が伝播する");
   }
 }

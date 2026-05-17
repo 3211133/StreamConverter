@@ -357,10 +357,66 @@ repositories {
 
 // Root project has no direct runtime sources; keep dependencies in subprojects
 
+subprojects {
+    tasks.withType<Test>().matching { it.name != "verifyKnownBugs" }.configureEach {
+        useJUnitPlatform {
+            excludeTags("known-bug")
+        }
+    }
+
+    tasks.register<Test>("verifyKnownBugs") {
+        group = "verification"
+        description = "Verify that all known-bug tests fail (proving bugs still exist)"
+        testClassesDirs = sourceSets["test"].output.classesDirs
+        classpath = sourceSets["test"].runtimeClasspath
+        useJUnitPlatform {
+            includeTags("known-bug")
+        }
+        ignoreFailures = true
+        jvmArgs("-Xmx2g", "-Xms1g", "-Dfile.encoding=UTF-8")
+
+        val projectName = project.name
+        addTestListener(object : org.gradle.api.tasks.testing.TestListener {
+            override fun beforeSuite(suite: org.gradle.api.tasks.testing.TestDescriptor) = Unit
+            override fun beforeTest(testDescriptor: org.gradle.api.tasks.testing.TestDescriptor) = Unit
+            override fun afterTest(
+                testDescriptor: org.gradle.api.tasks.testing.TestDescriptor,
+                result: org.gradle.api.tasks.testing.TestResult
+            ) = Unit
+
+            override fun afterSuite(
+                suite: org.gradle.api.tasks.testing.TestDescriptor,
+                result: org.gradle.api.tasks.testing.TestResult
+            ) {
+                if (suite.parent != null) return
+                val total = result.testCount
+                val failed = result.failedTestCount
+                val passed = result.successfulTestCount
+                val skipped = result.skippedTestCount
+                if (total == 0L) {
+                    logger.lifecycle("verifyKnownBugs: no known-bug tests found in $projectName — skipping.")
+                    return
+                }
+                logger.lifecycle(
+                    "Known-bug verification ($projectName): $total test(s), $failed failed, $passed passed, $skipped skipped"
+                )
+                if (passed > 0L || skipped > 0L || failed != total) {
+                    throw GradleException(
+                        "verifyKnownBugs ($projectName): expected all known-bug tests to fail, but got " +
+                        "$failed failed, $passed passed, $skipped skipped out of $total. " +
+                        "If a bug was fixed, remove the @Tag(\"known-bug\") annotation and close the related issue."
+                    )
+                }
+                logger.lifecycle("verifyKnownBugs ($projectName): OK — all $failed known-bug test(s) are still failing as expected.")
+            }
+        })
+    }
+}
+
 tasks.test {
     // JUnit 5 を使うための設定
     useJUnitPlatform {
-        // ベンチマークテストを通常のテスト実行から除外
+        // ベンチマークテストを通常のテスト実行から除外（known-bug は subprojects ブロックで除外）
         excludeTags("benchmark", "large-data")
     }
 

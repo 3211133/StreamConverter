@@ -91,7 +91,7 @@ spotless {
 tasks.test {
     // JUnit 5 を使うための設定
     useJUnitPlatform {
-        // ベンチマークテストを通常のテスト実行から除外
+        // ベンチマークテストを通常のテスト実行から除外（known-bug は root subprojects で除外）
         excludeTags("benchmark", "large-data")
     }
 

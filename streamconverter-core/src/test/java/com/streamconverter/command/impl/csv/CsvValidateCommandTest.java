@@ -5,6 +5,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
@@ -438,5 +439,24 @@ public class CsvValidateCommandTest {
             + " + body="
             + body.length()
             + ")");
+  }
+
+  @Test
+  @Tag("known-bug")
+  @DisplayName(
+      "Bug証明 #731: CsvValidateCommand が CSV バリデーション失敗時に StreamProcessingException を execute() 境界から素通りさせる")
+  void bug_731_csvValidateCommandValidationFailureThrowsStreamProcessingException()
+      throws IOException {
+    CsvValidateCommand command = CsvValidateCommand.create("id", "name");
+    String csvInput = "id,age\n1,30\n";
+
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+
+    assertThrows(
+        IOException.class,
+        () -> command.execute(inputStream, outputStream),
+        "CsvValidateCommand.execute() は IOException をスローするべきだが、StreamProcessingException（RuntimeException）が伝播する");
   }
 }

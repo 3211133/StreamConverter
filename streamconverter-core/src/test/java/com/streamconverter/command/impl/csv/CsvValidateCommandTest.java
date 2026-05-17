@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** CsvValidateCommandクラスのテスト */
@@ -390,5 +391,36 @@ public class CsvValidateCommandTest {
     assertTrue(
         trackingInputStream.getTotalBytes() > 1000,
         "Should have processed substantial amount of data");
+  }
+
+  @Test
+  @Tag("known-bug")
+  @DisplayName("Bug証明 #712: CsvRowValidator が maxErrorsToReport + 1 件のエラーを返す")
+  void bug_maxErrorsToReport_returnsTooManyErrors() throws IOException {
+    int maxErrors = 2;
+    String[] requiredColumns = {};
+    CsvValidateCommand command = CsvValidateCommand.create(true, maxErrors, requiredColumns);
+
+    // ヘッダー行2列 + データ行3行（各行が1列しかなく、列不足エラーになる）
+    // addError() が maxErrors=2 件目に達した後、3件目として "... and more errors" を追加するバグを再現
+    String csv = "id,name\n" + "1\n" + "2\n" + "3\n";
+
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
+
+    StreamProcessingException exception =
+        assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
+
+    String msg = exception.getMessage();
+
+    // 仕様: maxErrorsToReport=2 なので、例外メッセージには "2 error(s)" と報告されるべき
+    // バグが存在する間は addError() が N+1 件目に "... and more errors (limit reached)" を追加するため
+    // "3 error(s)" と表示され、かつ "... and more errors (limit reached)" も含まれる
+    assertTrue(
+        msg.contains("2 error(s)"),
+        "maxErrorsToReport=2 なのに '2 error(s)' が含まれていない。実際のメッセージ: " + msg);
+    assertFalse(
+        msg.contains("... and more errors (limit reached)"),
+        "maxErrorsToReport=2 のとき '... and more errors' は含まれるべきでないが、含まれていた。" + "実際のメッセージ: " + msg);
   }
 }

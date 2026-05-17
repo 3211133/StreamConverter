@@ -1,5 +1,6 @@
 package com.streamconverter.command;
 
+import com.streamconverter.StreamProcessingException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
@@ -51,6 +52,8 @@ public abstract class ConsumerCommand implements IStreamCommand {
 
     try (InputStream teeInputStream = new TeeInputStream(inputStream, outputStream)) {
       this.consume(teeInputStream);
+    } catch (StreamProcessingException e) {
+      throw new IOException(e.getMessage(), e);
     } catch (IOException e) {
       throw new IOException("Error while consuming input stream", e);
     }

@@ -125,6 +125,34 @@ public class SendHttpCommand implements IStreamCommand {
     }
   }
 
+  /**
+   * execute()直前にホスト名を再DNS解決してSSRF（DNS rebinding）を検出する。
+   *
+   * <p>リテラルIPはDNS rebindingの対象外なのでスキップする。ホスト名の場合のみ再解決を行い、 localhost判定またはプライベートIP判定に変化していれば {@link
+   * IOException} をスローする。
+   */
+  private void revalidateHostForSsrf() throws IOException {
+    try {
+      URI uri = new URI(url);
+      String host = uri.getHost();
+      if (host == null || InetAddresses.isInetAddress(host)) {
+        return;
+      }
+      if (isLocalhost(host)) {
+        throw new IOException("DNS rebinding detected: host resolved to localhost: " + host);
+      }
+      InetAddress[] addresses = inetAddressResolver.getAllByName(host);
+      for (InetAddress address : addresses) {
+        if (isNonRoutable(address)) {
+          throw new IOException(
+              "DNS rebinding detected: host resolved to non-routable address: " + address);
+        }
+      }
+    } catch (URISyntaxException | UnknownHostException e) {
+      throw new IOException("SSRF revalidation failed: " + e.getMessage(), e);
+    }
+  }
+
   /** ローカルホストかどうかを判定する */
   private boolean isLocalhost(String host) {
     if (host == null) {
@@ -172,14 +200,20 @@ public class SendHttpCommand implements IStreamCommand {
   /**
    * ストリームを指定されたURLに送信します。
    *
+   * <p>SSRF防御のため、送信直前にURLのホスト名を再度DNS解決し、プライベートIPへの変化を検出した場合は {@link IOException} をスローします（DNS
+   * rebinding対策）。カスタム {@link WebClient} を注入する場合は、 接続再利用（keep-alive / connection
+   * pool）を無効にしてください。接続再利用が有効な場合、 この再検証をパスしても既存接続がプライベートIPへ転送されるリスクが残ります。
+   *
    * @param inputStream 入力ストリーム
    * @param outputStream 出力ストリーム
-   * @throws IOException 入出力エラーが発生した場合
+   * @throws IOException DNS rebindingを検出した場合、または入出力エラーが発生した場合
    */
   @Override
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     Objects.requireNonNull(inputStream, "inputStream must not be null");
     Objects.requireNonNull(outputStream, "outputStream must not be null");
+
+    revalidateHostForSsrf();
 
     logger.info("Sending HTTP POST request to: {}", url);
 

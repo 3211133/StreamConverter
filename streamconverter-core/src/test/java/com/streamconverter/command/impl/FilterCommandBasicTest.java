@@ -581,4 +581,26 @@ class FilterCommandBasicTest {
     assertTrue(result.contains("Line1"), "First line of multi-line field should be present");
     assertTrue(result.contains("Line2"), "Second line of multi-line field should be present");
   }
+
+  @Test
+  @DisplayName("[#722] 存在しない列を指定したとき IllegalArgumentException が IOException にラップされること")
+  void testCsvFilterCommand_unknownColumnWrapsAsIOException() throws IOException {
+    String csvInput = "name,age\nAlice,30\n";
+    CsvFilterCommand command = CsvFilterCommand.create(CSVPath.of("nonexistent"));
+
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () -> command.execute(input, output),
+            "存在しない列の指定は IOException にラップされるべきだが、CsvFilterCommand は IllegalArgumentException をスローする");
+    assertNotNull(thrown.getCause(), "IOException は元の例外を cause として保持すること");
+    assertInstanceOf(
+        IllegalArgumentException.class,
+        thrown.getCause(),
+        "Cause は CsvFilterCommand からの IllegalArgumentException であること");
+  }
 }

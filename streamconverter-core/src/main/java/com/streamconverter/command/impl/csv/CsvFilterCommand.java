@@ -110,6 +110,8 @@ public class CsvFilterCommand implements IStreamCommand {
       csvWriter.flush();
     } catch (CsvValidationException e) {
       throw new IOException("Failed to parse CSV: " + e.getMessage(), e);
+    } catch (IllegalArgumentException e) {
+      throw new IOException("Invalid column selector: " + e.getMessage(), e);
     }
   }
 

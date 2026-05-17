@@ -55,8 +55,6 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.daemon.timeout=60000 -Xmx2g -Xms1g"
         run: ./gradlew.bat build --daemon --parallel
 
-
-
   verify-known-bugs:
     name: Verify Known Bugs Still Exist
     runs-on: ubuntu-latest

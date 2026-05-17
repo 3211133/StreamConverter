@@ -394,6 +394,36 @@ public class CsvValidateCommandTest {
   }
 
   @Test
+  @DisplayName("maxErrorsToReport で指定した件数を超えてエラーが報告されない")
+  void maxErrorsToReport_doesNotExceedLimit() throws IOException {
+    int maxErrors = 2;
+    String[] requiredColumns = {};
+    CsvValidateCommand command = CsvValidateCommand.create(true, maxErrors, requiredColumns);
+
+    // ヘッダー行2列 + データ行3行（各行が1列しかなく、列不足エラーになる）
+    String csv = "id,name\n" + "1\n" + "2\n" + "3\n";
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
+
+    StreamProcessingException exception =
+        assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
+
+    String msg = exception.getMessage();
+    // maxErrorsToReport=2 なのでリストには最大 2 件のエラーが含まれる
+    assertTrue(
+        msg.contains("2 error(s)"),
+        "maxErrorsToReport=2 なのに '2 error(s)' が含まれていない。実際のメッセージ: " + msg);
+    // 3件目以降は省略メッセージで示される（N+1件ではなくN件+省略メッセージ）
+    assertTrue(
+        msg.contains("... and more errors (limit reached)"),
+        "3件エラーがあるとき省略メッセージが含まれるべき。実際のメッセージ: " + msg);
+    // 省略メッセージ自体はエラー件数としてカウントされない
+    assertFalse(
+        msg.contains("3 error(s)"),
+        "maxErrorsToReport=2 なのに '3 error(s)' が含まれていた。実際のメッセージ: " + msg);
+  }
+
+  @Test
   @Tag("known-bug")
   @DisplayName("Bug証明 #712: CsvRowValidator が maxErrorsToReport + 1 件のエラーを返す")
   void bug_712_maxErrorsToReport_returnsTooManyErrors() throws IOException {

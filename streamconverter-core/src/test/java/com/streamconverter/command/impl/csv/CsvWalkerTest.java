@@ -3,7 +3,9 @@ package com.streamconverter.command.impl.csv;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.opencsv.CSVReader;
@@ -29,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CsvWalker. */
@@ -327,5 +330,30 @@ class CsvWalkerTest {
     // The address field with internal comma should be preserved intact
     assertTrue(result.contains("123 Main St"), "Address should be preserved");
     assertTrue(result.contains("Suite 4"), "Comma-separated part of address should be preserved");
+  }
+
+  @Test
+  @Tag("known-bug")
+  @DisplayName("Bug証明 #720: CsvWalker は rule が RuntimeException をスローしたとき IOException にラップしない")
+  void bug_720_csvWalkerRuleRuntimeExceptionNotWrappedAsIOException() {
+    RuntimeException ruleEx = new RuntimeException("rule failure");
+    CsvWalker failingRuleCommand =
+        CsvWalker.create(
+            CSVPath.of("name"),
+            v -> {
+              throw ruleEx;
+            });
+    String csvInput = "name,age\nAlice,30\n";
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () -> failingRuleCommand.execute(inputStream, outputStream),
+            "Rule の RuntimeException は IOException にラップされるべきだが、CsvWalker はラップしない");
+    assertNotNull(thrown.getCause());
+    assertInstanceOf(RuntimeException.class, thrown.getCause());
   }
 }

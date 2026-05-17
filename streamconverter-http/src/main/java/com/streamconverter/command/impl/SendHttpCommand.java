@@ -63,10 +63,6 @@ public class SendHttpCommand implements IStreamCommand {
     this.webClient = Objects.requireNonNull(webClient, "webClient must not be null");
   }
 
-  String getResolvedUrl() {
-    return url;
-  }
-
   private static WebClient createDefaultWebClient() {
     // Simple HttpClient configuration for Netty 4.1.123.Final compatibility
     HttpClient httpClient =

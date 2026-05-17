@@ -7,7 +7,6 @@ import java.io.ByteArrayOutputStream;
 import java.net.InetAddress;
 import java.net.UnknownHostException;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -154,7 +153,7 @@ class SendHttpCommandSecurityTest {
         "解決不能なホスト名はブロックされるべき");
   }
 
-  // ---- #691: DNS rebinding TOCTOU ----
+  // ---- #715: DNS rebinding TOCTOU ----
 
   /** 1回目は外部IP、2回目以降はプライベートIPを返すDNSスタブ。 */
   static final class RebindingDnsStub implements InetAddressResolver {
@@ -163,7 +162,7 @@ class SendHttpCommandSecurityTest {
     @Override
     public InetAddress[] getAllByName(String host) throws UnknownHostException {
       if (callCount.incrementAndGet() == 1) {
-        return new InetAddress[] {InetAddress.getByName("203.0.113.1")}; // TEST-NET-3（外部IP）
+        return new InetAddress[] {InetAddress.getByName("8.8.8.8")}; // 外部IP
       }
       return new InetAddress[] {InetAddress.getByName("192.168.1.1")}; // プライベートIP
     }
@@ -176,7 +175,7 @@ class SendHttpCommandSecurityTest {
   @Test
   @Tag("known-bug")
   @DisplayName("Bug証明 #715: DNS rebinding TOCTOU - 2回目のDNS解決がプライベートIPを返す状態でexecute()が例外をスローしない")
-  void bug_691_dnsRebinding_executeSucceedsWhenSecondResolutionReturnsPrivateIp() throws Exception {
+  void bug_715_dnsRebinding_executeSucceedsWhenSecondResolutionReturnsPrivateIp() throws Exception {
     // Arrange: 1回目=外部IP（コンストラクタ検証をパス）、2回目=プライベートIP（DNS rebinding後）
     RebindingDnsStub stub = new RebindingDnsStub();
 
@@ -206,6 +205,6 @@ class SendHttpCommandSecurityTest {
         () ->
             command.execute(
                 new ByteArrayInputStream("x".getBytes()), new ByteArrayOutputStream()),
-        "【バグ #691】execute()はDNS rebinding後のプライベートIPへの接続をブロックすべきだが、例外をスローしない");
+        "【バグ #715】execute()はDNS rebinding後のプライベートIPへの接続をブロックすべきだが、例外をスローしない");
   }
 }

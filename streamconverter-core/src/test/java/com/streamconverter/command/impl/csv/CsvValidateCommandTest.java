@@ -424,7 +424,6 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @Tag("known-bug")
   @DisplayName("Bug証明 #712: CsvRowValidator が maxErrorsToReport + 1 件のエラーを返す")
   void bug_712_maxErrorsToReport_returnsTooManyErrors() throws IOException {
     int maxErrors = 2;
@@ -448,7 +447,6 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @Tag("known-bug")
   @DisplayName("Bug証明 #709: エラーメッセージ切り詰め後にプレフィックスを追加するため例外メッセージが1000文字を超える")
   void bug_709_errorMessageTruncation_prefixCausesExceedingLimit() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};

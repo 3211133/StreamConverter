@@ -91,8 +91,8 @@ spotless {
 tasks.test {
     // JUnit 5 を使うための設定
     useJUnitPlatform {
-        // ベンチマークテストと known-bug テストを通常のテスト実行から除外
-        excludeTags("benchmark", "large-data", "known-bug")
+        // ベンチマークテストを通常のテスト実行から除外
+        excludeTags("benchmark", "large-data")
     }
 
     // Exclude benchmark-related tests by class name and path patterns as well
@@ -115,52 +115,6 @@ tasks.test {
     }
     // テスト実行後にjavadocを生成
     finalizedBy(tasks.javadoc)
-}
-
-// known-bug タグのテストを実行し、全テストが失敗することを検証する
-// バグが修正された場合（テストがパスした場合）にビルドを失敗させる
-tasks.register<Test>("verifyKnownBugs") {
-    group = "verification"
-    description = "Verify that all known-bug tests fail (proving bugs still exist)"
-    testClassesDirs = sourceSets["test"].output.classesDirs
-    classpath = sourceSets["test"].runtimeClasspath
-    useJUnitPlatform {
-        includeTags("known-bug")
-    }
-    ignoreFailures = true
-    jvmArgs("-Xmx2g", "-Xms1g", "-Dfile.encoding=UTF-8")
-
-    addTestListener(object : org.gradle.api.tasks.testing.TestListener {
-        override fun beforeSuite(suite: org.gradle.api.tasks.testing.TestDescriptor) = Unit
-        override fun beforeTest(testDescriptor: org.gradle.api.tasks.testing.TestDescriptor) = Unit
-        override fun afterTest(
-            testDescriptor: org.gradle.api.tasks.testing.TestDescriptor,
-            result: org.gradle.api.tasks.testing.TestResult
-        ) = Unit
-
-        override fun afterSuite(
-            suite: org.gradle.api.tasks.testing.TestDescriptor,
-            result: org.gradle.api.tasks.testing.TestResult
-        ) {
-            if (suite.parent != null) return
-            val total = result.testCount
-            val failed = result.failedTestCount
-            val passed = result.successfulTestCount
-            logger.lifecycle(
-                "Known-bug verification: $total test(s), $failed failed, $passed passed"
-            )
-            if (total == 0L) {
-                throw GradleException("verifyKnownBugs: no known-bug tests found. Add @Tag(\"known-bug\") tests.")
-            }
-            if (passed > 0L) {
-                throw GradleException(
-                    "verifyKnownBugs: $passed known-bug test(s) passed unexpectedly. " +
-                    "If a bug was fixed, remove the @Tag(\"known-bug\") annotation and close the related issue."
-                )
-            }
-            logger.lifecycle("verifyKnownBugs: OK — all $failed known-bug test(s) are still failing as expected.")
-        }
-    })
 }
 
 // JaCoCoレポートの設定（Windows以外でのみ実行）

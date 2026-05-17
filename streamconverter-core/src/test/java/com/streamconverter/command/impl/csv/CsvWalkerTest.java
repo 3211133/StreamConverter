@@ -3,7 +3,9 @@ package com.streamconverter.command.impl.csv;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.opencsv.CSVReader;
@@ -29,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CsvWalker. */
@@ -327,5 +330,26 @@ class CsvWalkerTest {
     // The address field with internal comma should be preserved intact
     assertTrue(result.contains("123 Main St"), "Address should be preserved");
     assertTrue(result.contains("Suite 4"), "Comma-separated part of address should be preserved");
+  }
+
+  @Test
+  @Tag("known-bug")
+  @DisplayName("Bug証明 #726: 存在しない列を指定したとき IllegalArgumentException が IOException にラップされずに伝播する")
+  void bug_csvWalker_unknownColumnThrowsIllegalArgumentException() throws IOException {
+    String csvInput = "name,age\nAlice,30\n";
+    CsvWalker csvWalker = CsvWalker.create(CSVPath.of("nonexistent"), new PassThroughRule());
+    ByteArrayInputStream input =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () -> csvWalker.execute(input, output),
+            "存在しない列の指定は IOException にラップされるべきだが、CsvWalker は IllegalArgumentException をスローする");
+    assertInstanceOf(
+        IllegalArgumentException.class,
+        thrown.getCause(),
+        "Cause は CsvWalker からの IllegalArgumentException であること");
   }
 }

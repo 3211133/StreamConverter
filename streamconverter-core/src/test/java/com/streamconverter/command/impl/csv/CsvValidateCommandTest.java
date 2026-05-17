@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** CsvValidateCommandクラスのテスト */
@@ -394,9 +393,8 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @Tag("known-bug")
-  @DisplayName("Bug証明 #709: エラーメッセージ切り詰め後にプレフィックスを追加するため例外メッセージが1000文字を超える")
-  void bug_709_errorMessageTruncation_prefixCausesExceedingLimit() throws IOException {
+  @DisplayName("[#709] エラーメッセージ切り詰め後にプレフィックスを付加しても例外メッセージが1000文字以下に収まること")
+  void testErrorMessageTruncation_totalLengthWithinLimit() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
     CsvValidateCommand command = CsvValidateCommand.create(true, 200, requiredColumns);
 

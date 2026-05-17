@@ -195,14 +195,16 @@ public class CsvValidateCommand extends ConsumerCommand {
     String errorMessage = errorBuilder.toString();
     logger.error("CSV validation summary: {}", errorMessage);
 
+    String prefix = "CSV validation failed: ";
+    int maxBodyLength = 1000 - prefix.length();
     String finalErrorMessage = errorMessage;
-    if (errorMessage.length() > 1000) {
-      finalErrorMessage = errorMessage.substring(0, 997) + "...";
+    if (errorMessage.length() > maxBodyLength) {
+      finalErrorMessage = errorMessage.substring(0, maxBodyLength - 3) + "...";
       logger.warn(
           "Error message truncated due to length (original: {} chars)", errorMessage.length());
     }
 
-    throw new StreamProcessingException("CSV validation failed: " + finalErrorMessage);
+    throw new StreamProcessingException(prefix + finalErrorMessage);
   }
 
   /**

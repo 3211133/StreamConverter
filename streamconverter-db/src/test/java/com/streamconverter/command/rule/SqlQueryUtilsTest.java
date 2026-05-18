@@ -16,9 +16,7 @@ class SqlQueryUtilsTest {
   @Test
   @DisplayName("空文字列は IllegalArgumentException")
   void testEmptyQueryRejected() {
-    assertThrows(
-        IllegalArgumentException.class,
-        () -> SqlQueryUtils.validateQuery("", logger));
+    assertThrows(IllegalArgumentException.class, () -> SqlQueryUtils.validateQuery("", logger));
   }
 
   @Test
@@ -48,7 +46,8 @@ class SqlQueryUtilsTest {
   @DisplayName("updates_count カラムを含むクエリは誤検知されない")
   void testUpdatesCountColumnPasses() {
     assertDoesNotThrow(
-        () -> SqlQueryUtils.validateQuery(
-            "SELECT updates_count, reunion_id FROM events WHERE id = ?", logger));
+        () ->
+            SqlQueryUtils.validateQuery(
+                "SELECT updates_count, reunion_id FROM events WHERE id = ?", logger));
   }
 }

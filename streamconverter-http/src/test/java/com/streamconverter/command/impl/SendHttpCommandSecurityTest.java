@@ -2,10 +2,19 @@ package com.streamconverter.command.impl;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
+import java.util.concurrent.atomic.AtomicInteger;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.reactive.function.client.ClientResponse;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 /** SendHttpCommandのセキュリティ機能専用テスト */
 class SendHttpCommandSecurityTest {
@@ -65,9 +74,7 @@ class SendHttpCommandSecurityTest {
             IllegalArgumentException.class,
             () -> new SendHttpCommand("ftp://example.com"),
             "FTPプロトコルはIllegalArgumentExceptionをスローするべき");
-    assertTrue(
-        ftpEx.getMessage().contains("HTTP and HTTPS"),
-        "エラーメッセージに許可プロトコルの説明が含まれるべき");
+    assertTrue(ftpEx.getMessage().contains("HTTP and HTTPS"), "エラーメッセージに許可プロトコルの説明が含まれるべき");
 
     assertThrows(
         IllegalArgumentException.class,
@@ -88,9 +95,7 @@ class SendHttpCommandSecurityTest {
             IllegalArgumentException.class,
             () -> new SendHttpCommand("example.com/api"),
             "スキームなしのURLはIllegalArgumentExceptionをスローするべき");
-    assertTrue(
-        ex.getMessage().contains("scheme"),
-        "エラーメッセージにschemeに関する説明が含まれるべき");
+    assertTrue(ex.getMessage().contains("scheme"), "エラーメッセージにschemeに関する説明が含まれるべき");
   }
 
   @Test
@@ -142,5 +147,59 @@ class SendHttpCommandSecurityTest {
         IllegalArgumentException.class,
         () -> new SendHttpCommand("http://this-host-does-not-exist.invalid"),
         "解決不能なホスト名はブロックされるべき");
+  }
+
+  // ---- #715: DNS rebinding TOCTOU ----
+
+  /** 1回目は外部IP、2回目以降はプライベートIPを返すDNSスタブ。 */
+  static final class RebindingDnsStub implements InetAddressResolver {
+    private final AtomicInteger callCount = new AtomicInteger(0);
+
+    @Override
+    public InetAddress[] getAllByName(String host) throws UnknownHostException {
+      if (callCount.incrementAndGet() == 1) {
+        return new InetAddress[] {InetAddress.getByName("8.8.8.8")}; // 外部IP
+      }
+      return new InetAddress[] {InetAddress.getByName("192.168.1.1")}; // プライベートIP
+    }
+
+    int getCallCount() {
+      return callCount.get();
+    }
+  }
+
+  @Test
+  @Tag("known-bug")
+  @DisplayName("Bug証明 #715: DNS rebinding TOCTOU - 2回目のDNS解決がプライベートIPを返す状態でexecute()が例外をスローしない")
+  void bug_715_dnsRebinding_executeSucceedsWhenSecondResolutionReturnsPrivateIp() throws Exception {
+    // Arrange: 1回目=外部IP（コンストラクタ検証をパス）、2回目=プライベートIP（DNS rebinding後）
+    RebindingDnsStub stub = new RebindingDnsStub();
+
+    WebClient dummyWebClient =
+        WebClient.builder()
+            .exchangeFunction(req -> Mono.just(ClientResponse.create(HttpStatus.OK).build()))
+            .build();
+
+    // Act 1: コンストラクタ（1回目DNS解決 → 外部IP → 検証パス）
+    SendHttpCommand command =
+        new SendHttpCommand("http://rebind.example.test", dummyWebClient, stub);
+
+    assertEquals(1, stub.getCallCount(), "コンストラクタで1回DNS解決されるべき");
+
+    // この時点でスタブの2回目以降はプライベートIPを返す状態になっている
+    // つまり「DNS rebinding後」の状態を模倣している
+    InetAddress[] secondResolution = stub.getAllByName("rebind.example.test");
+    boolean secondResolutionIsPrivate =
+        java.util.Arrays.stream(secondResolution).anyMatch(InetAddress::isSiteLocalAddress);
+    assertTrue(secondResolutionIsPrivate, "前提: 2回目のDNS解決はプライベートIPを返す");
+
+    // Act 2: execute() — 修正後なら「ホスト名が再解決されてプライベートIPになった」ことを
+    // 検出して IOException をスローするべき。バグがある今は何も検証せず正常終了する。
+    // assertThrows で IOException が出ることを期待するが、バグがある今は出ないため FAIL する。
+    assertThrows(
+        java.io.IOException.class,
+        () ->
+            command.execute(new ByteArrayInputStream("x".getBytes()), new ByteArrayOutputStream()),
+        "【バグ #715】execute()はDNS rebinding後のプライベートIPへの接続をブロックすべきだが、例外をスローしない");
   }
 }

@@ -7,8 +7,8 @@ import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.URI;
-import java.net.UnknownHostException;
 import java.net.URISyntaxException;
+import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.Objects;
 import org.slf4j.Logger;
@@ -29,8 +29,11 @@ public class SendHttpCommand implements IStreamCommand {
   private static final int MAX_ERROR_BODY_SIZE = 1024 * 1024;
   private static final int STREAMING_CHUNK_SIZE = 8192;
 
+  private static final InetAddressResolver DEFAULT_RESOLVER = InetAddress::getAllByName;
+
   private final String url;
   private final WebClient webClient;
+  private final InetAddressResolver inetAddressResolver;
 
   /**
    * デフォルトコンストラクタ
@@ -39,7 +42,7 @@ public class SendHttpCommand implements IStreamCommand {
    * @throws IllegalArgumentException URLが無効な場合
    */
   public SendHttpCommand(String url) {
-    this(url, createDefaultWebClient());
+    this(url, createDefaultWebClient(), DEFAULT_RESOLVER);
   }
 
   /**
@@ -51,6 +54,11 @@ public class SendHttpCommand implements IStreamCommand {
    * @param webClient 使用するWebClient
    */
   public SendHttpCommand(String url, WebClient webClient) {
+    this(url, webClient, DEFAULT_RESOLVER);
+  }
+
+  SendHttpCommand(String url, WebClient webClient, InetAddressResolver resolver) {
+    this.inetAddressResolver = Objects.requireNonNull(resolver);
     this.url = validateAndSanitizeUrl(url);
     this.webClient = Objects.requireNonNull(webClient, "webClient must not be null");
   }
@@ -132,11 +140,7 @@ public class SendHttpCommand implements IStreamCommand {
         || "::1".equals(cleanHost);
   }
 
-  /**
-   * ホストがプライベートIPに解決されるかを判定する。
-   * リテラルIPはGuavaで即解析し、ホスト名はDNS解決後に検査する。
-   * 解決不能なホスト名は例外をスローしてアクセスを拒否する。
-   */
+  /** ホストがプライベートIPに解決されるかを判定する。 リテラルIPはGuavaで即解析し、ホスト名はDNS解決後に検査する。 解決不能なホスト名は例外をスローしてアクセスを拒否する。 */
   private boolean isPrivateIpAddress(String host) {
     // まずリテラルIPとして解析を試みる
     if (InetAddresses.isInetAddress(host)) {
@@ -145,7 +149,7 @@ public class SendHttpCommand implements IStreamCommand {
     }
     // ホスト名: DNS解決して全アドレスを検査する
     try {
-      InetAddress[] addresses = InetAddress.getAllByName(host);
+      InetAddress[] addresses = inetAddressResolver.getAllByName(host);
       for (InetAddress address : addresses) {
         if (isNonRoutable(address)) {
           return true;
@@ -173,8 +177,7 @@ public class SendHttpCommand implements IStreamCommand {
    * @throws IOException 入出力エラーが発生した場合
    */
   @Override
-  public void execute(InputStream inputStream, OutputStream outputStream)
-      throws IOException {
+  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     Objects.requireNonNull(inputStream, "inputStream must not be null");
     Objects.requireNonNull(outputStream, "outputStream must not be null");
 

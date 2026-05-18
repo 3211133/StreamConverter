@@ -252,8 +252,7 @@ class DatabaseRuleIntegrationTest {
         new DatabaseFetchRule(DB_URL, "SELECT price FROM products WHERE code = ?");
 
     // JsonWalkerの作成
-    JsonWalker command =
-        JsonWalker.create(TreePath.fromJson("$.productCode"), dbRule);
+    JsonWalker command = JsonWalker.create(TreePath.fromJson("$.productCode"), dbRule);
 
     // テスト用JSON
     String inputJson =

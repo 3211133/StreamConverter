@@ -395,6 +395,30 @@ public class CsvValidateCommandTest {
 
   @Test
   @Tag("known-bug")
+  @DisplayName("Bug証明 #712: CsvRowValidator が maxErrorsToReport + 1 件のエラーを返す")
+  void bug_712_maxErrorsToReport_returnsTooManyErrors() throws IOException {
+    int maxErrors = 2;
+    CsvValidateCommand command = CsvValidateCommand.create(true, maxErrors);
+
+    // ヘッダー行2列 + データ行3行（各行が1列しかなく、列不足エラーになる）
+    String csv = "id,name\n1\n2\n3\n";
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
+
+    StreamProcessingException exception =
+        assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
+
+    String msg = exception.getMessage();
+    assertTrue(
+        msg.contains("2 error(s)"),
+        "maxErrorsToReport=2 なのに '2 error(s)' が含まれていない。実際のメッセージ: " + msg);
+    assertFalse(
+        msg.contains("... and more errors (limit reached)"),
+        "maxErrorsToReport=2 のとき '... and more errors' は含まれるべきでないが、含まれていた。" + "実際のメッセージ: " + msg);
+  }
+
+  @Test
+  @Tag("known-bug")
   @DisplayName("Bug証明 #709: エラーメッセージ切り詰め後にプレフィックスを追加するため例外メッセージが1000文字を超える")
   void bug_709_errorMessageTruncation_prefixCausesExceedingLimit() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
@@ -438,5 +462,27 @@ public class CsvValidateCommandTest {
             + " + body="
             + body.length()
             + ")");
+  }
+
+  @Test
+  @Tag("known-bug")
+  @DisplayName(
+      "Bug証明 #731: CsvValidateCommand が CSV バリデーション失敗時に StreamProcessingException（RuntimeException）を IStreamCommand.execute() 契約に違反してスローする")
+  void bug_csvValidateCommand_validationFailureThrowsStreamProcessingExceptionNotIOException()
+      throws IOException {
+    CsvValidateCommand command = CsvValidateCommand.create("id", "name");
+    String csvInput = "id,age\n1,30\n";
+
+    java.io.ByteArrayOutputStream outputStream = new java.io.ByteArrayOutputStream();
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+
+    // IStreamCommand.execute() の設計方針は throws IOException のみ。
+    // バグ: CSV バリデーション失敗 → StreamProcessingException（RuntimeException）が伝播。
+    // 期待: IOException がスローされるべき
+    assertThrows(
+        IOException.class,
+        () -> command.execute(inputStream, outputStream),
+        "CsvValidateCommand.execute() は IOException をスローするべきだが、StreamProcessingException（RuntimeException）が伝播する");
   }
 }

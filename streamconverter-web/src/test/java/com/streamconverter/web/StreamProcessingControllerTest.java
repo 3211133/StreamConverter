@@ -187,7 +187,8 @@ class StreamProcessingControllerTest {
 
               // Verify pipeline executed successfully (data passed through both commands).
               // Use line-ending-agnostic comparison: CsvWriter outputs \r\n (RFC 4180 §2) but
-              // TestUtils.createTestData uses System.lineSeparator() which is \n on Unix / \r\n on Windows.
+              // TestUtils.createTestData uses System.lineSeparator() which is \n on Unix / \r\n on
+              // Windows.
               assertEqualsIgnoreLineEndings(
                   csvData.trim(),
                   responseString.trim(),
@@ -252,8 +253,9 @@ class StreamProcessingControllerTest {
   @Test
   @DisplayName("Too many commands in pipeline configuration returns 400")
   void testTooManyCommandsIsRejected() {
-    String manyCommands = "process:a,process:b,process:c,process:d,process:e,"
-        + "process:f,process:g,process:h,process:i,process:j,process:k";
+    String manyCommands =
+        "process:a,process:b,process:c,process:d,process:e,"
+            + "process:f,process:g,process:h,process:i,process:j,process:k";
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
 
@@ -272,8 +274,9 @@ class StreamProcessingControllerTest {
   @DisplayName("Exactly 10 commands in pipeline is accepted")
   void testExactlyMaxCommandsIsAccepted() {
     // 上限ちょうど10件は受け入れられることを確認（境界値テスト）
-    String tenCommands = "process:a,process:b,process:c,process:d,process:e,"
-        + "process:f,process:g,process:h,process:i,process:j";
+    String tenCommands =
+        "process:a,process:b,process:c,process:d,process:e,"
+            + "process:f,process:g,process:h,process:i,process:j";
     DataBuffer dataBuffer =
         new DefaultDataBufferFactory().wrap("data".getBytes(StandardCharsets.UTF_8));
 

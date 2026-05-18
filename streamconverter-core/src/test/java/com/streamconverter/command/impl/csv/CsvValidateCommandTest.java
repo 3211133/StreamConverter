@@ -395,6 +395,30 @@ public class CsvValidateCommandTest {
 
   @Test
   @Tag("known-bug")
+  @DisplayName("Bug証明 #712: CsvRowValidator が maxErrorsToReport + 1 件のエラーを返す")
+  void bug_712_maxErrorsToReport_returnsTooManyErrors() throws IOException {
+    int maxErrors = 2;
+    CsvValidateCommand command = CsvValidateCommand.create(true, maxErrors);
+
+    // ヘッダー行2列 + データ行3行（各行が1列しかなく、列不足エラーになる）
+    String csv = "id,name\n1\n2\n3\n";
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
+
+    StreamProcessingException exception =
+        assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
+
+    String msg = exception.getMessage();
+    assertTrue(
+        msg.contains("2 error(s)"),
+        "maxErrorsToReport=2 なのに '2 error(s)' が含まれていない。実際のメッセージ: " + msg);
+    assertFalse(
+        msg.contains("... and more errors (limit reached)"),
+        "maxErrorsToReport=2 のとき '... and more errors' は含まれるべきでないが、含まれていた。" + "実際のメッセージ: " + msg);
+  }
+
+  @Test
+  @Tag("known-bug")
   @DisplayName("Bug証明 #709: エラーメッセージ切り詰め後にプレフィックスを追加するため例外メッセージが1000文字を超える")
   void bug_709_errorMessageTruncation_prefixCausesExceedingLimit() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};

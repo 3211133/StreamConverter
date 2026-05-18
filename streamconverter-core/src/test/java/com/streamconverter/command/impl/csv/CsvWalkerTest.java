@@ -334,6 +334,28 @@ class CsvWalkerTest {
 
   @Test
   @Tag("known-bug")
+  @DisplayName("Bug証明 #720: CsvWalker は rule が RuntimeException をスローしたとき IOException にラップしない")
+  void bug_720_csvWalkerRuleRuntimeExceptionNotWrappedAsIOException() {
+    RuntimeException ruleEx = new RuntimeException("rule failure");
+    CsvWalker failingRuleCommand =
+        CsvWalker.create(
+            CSVPath.of("name"),
+            v -> {
+              throw ruleEx;
+            });
+    String csvInput = "name,age\nAlice,30\n";
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+  
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () -> failingRuleCommand.execute(inputStream, outputStream),
+            "Rule の RuntimeException は IOException にラップされるべきだが、CsvWalker はラップしない");
+    assertNotNull(thrown.getCause());
+    assertInstanceOf(RuntimeException.class, thrown.getCause());
+  }
   @DisplayName("Bug証明 #726: 存在しない列を指定したとき IllegalArgumentException が IOException にラップされずに伝播する")
   void bug_csvWalker_unknownColumnThrowsIllegalArgumentException() throws IOException {
     String csvInput = "name,age\nAlice,30\n";
@@ -341,7 +363,6 @@ class CsvWalkerTest {
     ByteArrayInputStream input =
         new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-
     IOException thrown =
         assertThrows(
             IOException.class,

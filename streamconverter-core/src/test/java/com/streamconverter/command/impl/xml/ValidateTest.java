@@ -11,6 +11,7 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("XMLバリデーションコマンドのテスト")
@@ -161,6 +162,28 @@ class ValidateTest {
           () -> {
             command.execute(inputStream, outputStream);
           });
+    }
+  }
+
+  @Test
+  @Tag("known-bug")
+  @DisplayName(
+      "Bug証明 #729: ValidateCommand が XMLバリデーション失敗時に StreamProcessingException（RuntimeException）を IStreamCommand.execute() 契約に違反してスローする")
+  void bug_validateCommand_xmlValidationFailureThrowsStreamProcessingExceptionNotIOException()
+      throws IOException {
+    ValidateCommand command = ValidateCommand.create(schemaPath);
+
+    try (InputStream inputStream =
+            getClass().getClassLoader().getResourceAsStream("invalid-test.xml");
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
+
+      // IStreamCommand.execute() の契約は throws IOException のみ。
+      // バグ: SAXException → StreamProcessingException（RuntimeException）がキャッチされずに伝播。
+      // 期待: IOException がスローされるべき
+      assertThrows(
+          IOException.class,
+          () -> command.execute(inputStream, outputStream),
+          "ValidateCommand.execute() は IOException をスローするべきだが、StreamProcessingException（RuntimeException）が伝播する");
     }
   }
 

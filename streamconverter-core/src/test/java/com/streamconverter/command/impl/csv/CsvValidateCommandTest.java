@@ -441,9 +441,9 @@ public class CsvValidateCommandTest {
     assertTrue(
         msg.contains("2 error(s)"),
         "maxErrorsToReport=2 なのに '2 error(s)' が含まれていない。実際のメッセージ: " + msg);
-    assertFalse(
+    assertTrue(
         msg.contains("... and more errors (limit reached)"),
-        "maxErrorsToReport=2 のとき '... and more errors' は含まれるべきでないが、含まれていた。" + "実際のメッセージ: " + msg);
+        "maxErrorsToReport=2 で3件エラーがあるとき '... and more errors' が含まれるべき。実際のメッセージ: " + msg);
   }
 
   @Test

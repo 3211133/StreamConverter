@@ -59,7 +59,7 @@ public class ValidateCommand extends ConsumerCommand {
    * @throws IllegalArgumentException スキーマパスが空の場合
    * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合
    */
-  public static ValidateCommand create(String schemaPath) {
+  public static ValidateCommand create(String schemaPath) throws IOException {
     Objects.requireNonNull(schemaPath, "Schema path cannot be null");
     if (schemaPath.isBlank()) {
       throw new IllegalArgumentException("Schema path cannot be empty");
@@ -93,7 +93,7 @@ public class ValidateCommand extends ConsumerCommand {
    * @return ロードされたSchemaオブジェクト
    * @throws StreamProcessingException スキーマロードに失敗した場合
    */
-  private static Schema loadSchemaFromClasspath(String validatedPath) {
+  private static Schema loadSchemaFromClasspath(String validatedPath) throws IOException {
     try {
       // セキュアなSchemaFactoryの作成（新しいセキュリティインフラを使用）
       SchemaFactory factory = SecureXmlConfiguration.createSecureSchemaFactory();

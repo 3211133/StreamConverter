@@ -194,7 +194,13 @@ public class DatabaseFetchRule implements IRule {
           logger.error("クローズ中に追加のエラーが発生しました: {}", s.getMessage(), s);
         }
       }
-      throw new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e);
+      sneakyThrow(new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e));
+      throw new AssertionError("unreachable");
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends Throwable> void sneakyThrow(Throwable t) throws T {
+    throw (T) t;
   }
 }

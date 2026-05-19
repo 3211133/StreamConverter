@@ -37,7 +37,7 @@ class ValidateTest {
 
   @Test
   @DisplayName("コンストラクタのテスト")
-  void testConstructor() {
+  void testConstructor() throws IOException {
     // コンストラクタのテスト
     ValidateCommand command = ValidateCommand.create(schemaPath);
     assertNotNull(command);
@@ -86,7 +86,7 @@ class ValidateTest {
 
   @Test
   @DisplayName("execute異常系：null入力ストリーム")
-  void testExecuteWithNullInputStream() {
+  void testExecuteWithNullInputStream() throws IOException {
     // null入力ストリームでのexecuteメソッドテスト
     ValidateCommand command = ValidateCommand.create(schemaPath);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();

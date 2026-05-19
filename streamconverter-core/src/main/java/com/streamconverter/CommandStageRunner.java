@@ -86,7 +86,7 @@ final class CommandStageRunner {
       closeStageOutput(stageIo, commandLabel);
     } catch (Throwable throwable) {
       abortAllPipes(pipes);
-      throw rethrowStageFailure(throwable, commandLabel);
+      sneakyThrow(toStageFailure(throwable, commandLabel));
     }
   }
 
@@ -95,7 +95,7 @@ final class CommandStageRunner {
    *
    * @throws StreamProcessingException if the output cannot be closed cleanly
    */
-  private void closeStageOutput(WiredStageIo stageIo, String commandLabel) {
+  private void closeStageOutput(WiredStageIo stageIo, String commandLabel) throws IOException {
     if (stageIo.pipe() == null) {
       return;
     }
@@ -112,18 +112,23 @@ final class CommandStageRunner {
    *
    * @throws Error when the stage failed with an unrecoverable JVM error
    */
-  private RuntimeException rethrowStageFailure(Throwable throwable, String commandLabel) {
+  private StreamProcessingException toStageFailure(Throwable throwable, String commandLabel) {
     if (throwable instanceof StreamProcessingException streamProcessingException) {
       return streamProcessingException;
+    }
+    if (throwable instanceof Error error) {
+      throw error;
     }
     if (throwable instanceof IOException || throwable instanceof RuntimeException) {
       return new StreamProcessingException(
           "Command execution failed: " + commandLabel + " - " + throwable.getMessage(), throwable);
     }
-    if (throwable instanceof Error error) {
-      throw error;
-    }
     return new StreamProcessingException("Command execution failed: " + commandLabel, throwable);
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends Throwable> void sneakyThrow(Throwable t) throws T {
+    throw (T) t;
   }
 
   /** Aborts every intermediate pipe so dependent stages stop waiting on stream activity. */

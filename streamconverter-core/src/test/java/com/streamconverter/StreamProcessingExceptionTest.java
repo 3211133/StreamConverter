@@ -40,11 +40,11 @@ class StreamProcessingExceptionTest {
   }
 
   @Test
-  void testExceptionIsRuntimeException() {
+  void testExceptionIsIOException() {
     StreamProcessingException exception = new StreamProcessingException("Test");
 
-    // Should be a RuntimeException
+    // Should be an IOException (checked exception honouring IStreamCommand.execute() contract)
     assertNotNull(exception);
-    assertEquals(RuntimeException.class, exception.getClass().getSuperclass());
+    assertEquals(IOException.class, exception.getClass().getSuperclass());
   }
 }

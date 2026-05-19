@@ -123,8 +123,14 @@ public class PooledDatabaseFetchRule implements IRule {
           logger.error("Additional error during close: {}", s.getMessage(), s);
         }
       }
-      throw new StreamProcessingException("Database fetch failed: " + e.getMessage(), e);
+      sneakyThrow(new StreamProcessingException("Database fetch failed: " + e.getMessage(), e));
+      throw new AssertionError("unreachable");
     }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static <T extends Throwable> void sneakyThrow(Throwable t) throws T {
+    throw (T) t;
   }
 
   /** クエリにプレースホルダーがある場合に入力値をバインドする。拒否すべき入力なら false を返す。 */

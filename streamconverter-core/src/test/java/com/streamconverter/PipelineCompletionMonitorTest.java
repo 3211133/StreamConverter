@@ -3,6 +3,7 @@ package com.streamconverter;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
@@ -28,8 +29,10 @@ class PipelineCompletionMonitorTest {
                 () -> {
                   try {
                     monitor.await(List.of(blocker));
-                  } catch (StreamProcessingException e) {
-                    caught[0] = e;
+                  } catch (IOException e) {
+                    if (e instanceof StreamProcessingException spe) {
+                      caught[0] = spe;
+                    }
                   } catch (Exception ignored) {
                   } finally {
                     done.countDown();

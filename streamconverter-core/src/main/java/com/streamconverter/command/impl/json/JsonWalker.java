@@ -121,6 +121,9 @@ public class JsonWalker implements IStreamCommand {
   private void handleValueString(
       JsonParser parser, JsonGenerator generator, List<String> currentPath) throws IOException {
     // IRule.apply() declares no checked exceptions; RuntimeException catch wraps any rule failure.
+    // NOTE: DatabaseFetchRule/PooledDatabaseFetchRule throw StreamProcessingException (IOException)
+    // via sneakyThrow, which escapes this catch. Fix tracked in #741 (IRule.apply throws
+    // IOException).
     String originalValue = parser.getText();
     if (isMatchingPath(currentPath)) {
       String transformed;

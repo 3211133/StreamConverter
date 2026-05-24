@@ -13,19 +13,15 @@
 
 ```java
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
 import com.streamconverter.command.impl.charcode.CharacterConvertCommand;
 import com.streamconverter.command.rule.impl.string.TrimRule;
 import com.streamconverter.path.CSVPath;
 
-// 2つのコマンドを組み合わせたパイプライン
-IStreamCommand[] pipeline = {
-    CsvNavigateCommand.create(CSVPath.of("email"), new TrimRule()),
+StreamConverter converter = StreamConverter.create(
+    CsvWalker.create(CSVPath.of("email"), new TrimRule()),
     CharacterConvertCommand.create("UTF-8", "Shift_JIS")
-};
-
-StreamConverter converter = StreamConverter.create(pipeline);
+);
 converter.run(inputStream, outputStream);
 ```
 
@@ -39,29 +35,28 @@ converter.run(inputStream, outputStream);
 
 ```java
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
 import com.streamconverter.command.impl.SendHttpCommand;
-import com.streamconverter.command.impl.json.JsonNavigateCommand;
-import com.streamconverter.command.rule.PassThroughRule;
+import com.streamconverter.command.impl.json.JsonWalker;
+import com.streamconverter.command.rule.impl.PassThroughRule;
 import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
 
-// 3つのコマンドを組み合わせた実用的なパイプライン
-IStreamCommand[] pipeline = {
-    CsvNavigateCommand.create(CSVPath.of("productId"), new PassThroughRule()),
+// SendHttpCommand は streamconverter-http モジュールで提供
+StreamConverter converter = StreamConverter.create(
+    CsvWalker.create(CSVPath.of("productId"), new PassThroughRule()),
     new SendHttpCommand("https://api.example.com/products"),
-    JsonNavigateCommand.create(TreePath.fromJson("$.result"), new PassThroughRule())
-};
-
-StreamConverter converter = StreamConverter.create(pipeline);
+    JsonWalker.create(TreePath.fromJson("$.result"), new PassThroughRule())
+);
 converter.run(inputStream, outputStream);
 ```
 
 このパイプラインは以下の処理を実行します：
-1. CSVファイルから `productId` 列を抽出
-2. 抽出したIDをHTTP APIに送信（`SendHttpCommand` は `streamconverter-http` モジュールで提供）
-3. APIレスポンス（JSON）から `result` フィールドを抽出
+1. CSVファイルから `productId` 列を行ごとに抽出し、次のステージへ流す
+2. 各行を HTTP API に送信（コマンド間はパイプで接続され並列実行される）
+3. APIレスポンス（JSON）から `result` フィールドを抽出して出力ストリームに書き出す
+
+> **注意**: コマンド間はパイプで接続されて並列実行されます。ステージを完全に分離して順次実行したい場合は `FileBufferCommand` を挟んでください（セクション3参照）。
 
 ## 3. バリデーションとバッファリング
 
@@ -98,7 +93,7 @@ StreamConverter converter = StreamConverter.create(
 ```java
 import com.streamconverter.StreamConverter;
 import com.streamconverter.command.IStreamCommand;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
 import com.streamconverter.command.rule.MdcPropagatingRule;
 import com.streamconverter.logging.MDCInitializer;
 import com.streamconverter.path.CSVPath;
@@ -117,7 +112,7 @@ MDC.put("environment", "production");
 
 try {
     IStreamCommand[] pipeline = {
-        CsvNavigateCommand.create(CSVPath.of("productId"), MdcPropagatingRule.create("productId")),
+        CsvWalker.create(CSVPath.of("productId"), MdcPropagatingRule.create("productId")),
         (IStreamCommand) (in, out) -> {
             // 上流コマンドと並列実行されるため、開始時点での productId の有無は非決定的
             // （入力が小さい場合は上流が先に完了し、既に MDC に含まれることもある）

@@ -34,12 +34,12 @@ Java 21 &nbsp;|&nbsp; [📚 完全なドキュメント一覧](docs/INDEX.md) &n
 
 ```java
 import com.streamconverter.StreamConverter;
-import com.streamconverter.command.impl.csv.CsvNavigateCommand;
+import com.streamconverter.command.impl.csv.CsvWalker;
 import com.streamconverter.command.rule.impl.string.TrimRule;
 import com.streamconverter.path.CSVPath;
 
 StreamConverter converter = StreamConverter.create(
-    CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule()));
+    CsvWalker.create(CSVPath.of("name"), new TrimRule()));
 
 converter.run(inputStream, outputStream);
 ```
@@ -52,9 +52,9 @@ converter.run(inputStream, outputStream);
 
 | カテゴリ | クラス | 概要 |
 | --- | --- | --- |
-| CSV | `CsvNavigateCommand`, `CsvFilterCommand`, `CsvValidateCommand` | 列変換・行フィルタ・構造検証 |
-| JSON | `JsonNavigateCommand`, `JsonFilterCommand` | JSONPath 変換・フィルタ |
-| XML | `XmlNavigateCommand`, `XmlFilterCommand`, `ValidateCommand` | XPath ナビゲーションと XSD 検証 |
+| CSV | `CsvWalker`, `CsvFilterCommand`, `CsvValidateCommand` | 列変換・行フィルタ・構造検証 |
+| JSON | `JsonWalker`, `JsonExtractCommand` | JSONPath 変換・抽出 |
+| XML | `XmlWalker`, `XmlExtractCommand`, `ValidateCommand` | XPath ナビゲーション・抽出と XSD 検証 |
 | 文字列 | `LineEndingNormalizeCommand`, `CharacterConvertCommand` | 改行正規化・エンコーディング変換 |
 
 ---
@@ -97,7 +97,7 @@ converter.run(inputStream, outputStream);
 - DNS 解決後のアドレスも検査されます（DNS リバインディング攻撃への対策）
 - HTTP/HTTPS スキームのみ許可されます
 
-### XML コマンド（XmlNavigateCommand, XmlFilterCommand, ValidateCommand）
+### XML コマンド（XmlWalker, XmlExtractCommand, ValidateCommand）
 - XXE（XML External Entity）対策として外部エンティティ参照を無効化しています
 - DOCTYPE 宣言は処理されません
 

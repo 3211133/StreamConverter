@@ -347,7 +347,7 @@ class CsvWalkerTest {
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-  
+
     IOException thrown =
         assertThrows(
             IOException.class,
@@ -356,6 +356,7 @@ class CsvWalkerTest {
     assertNotNull(thrown.getCause());
     assertInstanceOf(RuntimeException.class, thrown.getCause());
   }
+
   @DisplayName("Bug証明 #726: 存在しない列を指定したとき IllegalArgumentException が IOException にラップされずに伝播する")
   void bug_csvWalker_unknownColumnThrowsIllegalArgumentException() throws IOException {
     String csvInput = "name,age\nAlice,30\n";

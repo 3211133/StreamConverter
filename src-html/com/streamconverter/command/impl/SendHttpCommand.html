@@ -138,162 +138,196 @@
 <span class="source-line-no">125</span><span id="line-125">    }</span>
 <span class="source-line-no">126</span><span id="line-126">  }</span>
 <span class="source-line-no">127</span><span id="line-127"></span>
-<span class="source-line-no">128</span><span id="line-128">  /** ローカルホストかどうかを判定する */</span>
-<span class="source-line-no">129</span><span id="line-129">  private boolean isLocalhost(String host) {</span>
-<span class="source-line-no">130</span><span id="line-130">    if (host == null) {</span>
-<span class="source-line-no">131</span><span id="line-131">      return false;</span>
-<span class="source-line-no">132</span><span id="line-132">    }</span>
-<span class="source-line-no">133</span><span id="line-133"></span>
-<span class="source-line-no">134</span><span id="line-134">    // Handle IPv6 addresses with brackets</span>
-<span class="source-line-no">135</span><span id="line-135">    String cleanHost =</span>
-<span class="source-line-no">136</span><span id="line-136">        host.startsWith("[") &amp;&amp; host.endsWith("]") ? host.substring(1, host.length() - 1) : host;</span>
-<span class="source-line-no">137</span><span id="line-137"></span>
-<span class="source-line-no">138</span><span id="line-138">    return "localhost".equalsIgnoreCase(cleanHost)</span>
-<span class="source-line-no">139</span><span id="line-139">        || "127.0.0.1".equals(cleanHost)</span>
-<span class="source-line-no">140</span><span id="line-140">        || "::1".equals(cleanHost);</span>
-<span class="source-line-no">141</span><span id="line-141">  }</span>
-<span class="source-line-no">142</span><span id="line-142"></span>
-<span class="source-line-no">143</span><span id="line-143">  /** ホストがプライベートIPに解決されるかを判定する。 リテラルIPはGuavaで即解析し、ホスト名はDNS解決後に検査する。 解決不能なホスト名は例外をスローしてアクセスを拒否する。 */</span>
-<span class="source-line-no">144</span><span id="line-144">  private boolean isPrivateIpAddress(String host) {</span>
-<span class="source-line-no">145</span><span id="line-145">    // まずリテラルIPとして解析を試みる</span>
-<span class="source-line-no">146</span><span id="line-146">    if (InetAddresses.isInetAddress(host)) {</span>
-<span class="source-line-no">147</span><span id="line-147">      InetAddress address = InetAddresses.forString(host);</span>
-<span class="source-line-no">148</span><span id="line-148">      return isNonRoutable(address);</span>
-<span class="source-line-no">149</span><span id="line-149">    }</span>
-<span class="source-line-no">150</span><span id="line-150">    // ホスト名: DNS解決して全アドレスを検査する</span>
-<span class="source-line-no">151</span><span id="line-151">    try {</span>
-<span class="source-line-no">152</span><span id="line-152">      InetAddress[] addresses = inetAddressResolver.getAllByName(host);</span>
-<span class="source-line-no">153</span><span id="line-153">      for (InetAddress address : addresses) {</span>
-<span class="source-line-no">154</span><span id="line-154">        if (isNonRoutable(address)) {</span>
-<span class="source-line-no">155</span><span id="line-155">          return true;</span>
-<span class="source-line-no">156</span><span id="line-156">        }</span>
-<span class="source-line-no">157</span><span id="line-157">      }</span>
-<span class="source-line-no">158</span><span id="line-158">      return false;</span>
-<span class="source-line-no">159</span><span id="line-159">    } catch (UnknownHostException e) {</span>
-<span class="source-line-no">160</span><span id="line-160">      throw new IllegalArgumentException("Cannot resolve hostname: " + host, e);</span>
-<span class="source-line-no">161</span><span id="line-161">    }</span>
-<span class="source-line-no">162</span><span id="line-162">  }</span>
-<span class="source-line-no">163</span><span id="line-163"></span>
-<span class="source-line-no">164</span><span id="line-164">  private static boolean isNonRoutable(InetAddress address) {</span>
-<span class="source-line-no">165</span><span id="line-165">    return address.isSiteLocalAddress()</span>
-<span class="source-line-no">166</span><span id="line-166">        || address.isLoopbackAddress()</span>
-<span class="source-line-no">167</span><span id="line-167">        || address.isLinkLocalAddress()</span>
-<span class="source-line-no">168</span><span id="line-168">        || address.isAnyLocalAddress()</span>
-<span class="source-line-no">169</span><span id="line-169">        || address.isMulticastAddress();</span>
-<span class="source-line-no">170</span><span id="line-170">  }</span>
-<span class="source-line-no">171</span><span id="line-171"></span>
-<span class="source-line-no">172</span><span id="line-172">  /**</span>
-<span class="source-line-no">173</span><span id="line-173">   * ストリームを指定されたURLに送信します。</span>
-<span class="source-line-no">174</span><span id="line-174">   *</span>
-<span class="source-line-no">175</span><span id="line-175">   * @param inputStream 入力ストリーム</span>
-<span class="source-line-no">176</span><span id="line-176">   * @param outputStream 出力ストリーム</span>
-<span class="source-line-no">177</span><span id="line-177">   * @throws IOException 入出力エラーが発生した場合</span>
-<span class="source-line-no">178</span><span id="line-178">   */</span>
-<span class="source-line-no">179</span><span id="line-179">  @Override</span>
-<span class="source-line-no">180</span><span id="line-180">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">181</span><span id="line-181">    Objects.requireNonNull(inputStream, "inputStream must not be null");</span>
-<span class="source-line-no">182</span><span id="line-182">    Objects.requireNonNull(outputStream, "outputStream must not be null");</span>
-<span class="source-line-no">183</span><span id="line-183"></span>
-<span class="source-line-no">184</span><span id="line-184">    logger.info("Sending HTTP POST request to: {}", url);</span>
-<span class="source-line-no">185</span><span id="line-185"></span>
-<span class="source-line-no">186</span><span id="line-186">    try {</span>
-<span class="source-line-no">187</span><span id="line-187">      // Track total bytes written for better error reporting</span>
-<span class="source-line-no">188</span><span id="line-188">      final long[] totalBytesWritten = {0L};</span>
-<span class="source-line-no">189</span><span id="line-189"></span>
-<span class="source-line-no">190</span><span id="line-190">      // 大容量データに対応するため、ストリーミング処理を使用</span>
-<span class="source-line-no">191</span><span id="line-191">      // WebClientでストリーミングレスポンスを処理</span>
-<span class="source-line-no">192</span><span id="line-192">      webClient</span>
-<span class="source-line-no">193</span><span id="line-193">          .post()</span>
-<span class="source-line-no">194</span><span id="line-194">          .uri(url)</span>
-<span class="source-line-no">195</span><span id="line-195">          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
-<span class="source-line-no">196</span><span id="line-196">          .header(HttpHeaders.USER_AGENT, "StreamConverter/1.0")</span>
-<span class="source-line-no">197</span><span id="line-197">          .body(</span>
-<span class="source-line-no">198</span><span id="line-198">              BodyInserters.fromDataBuffers(</span>
-<span class="source-line-no">199</span><span id="line-199">                  org.springframework.core.io.buffer.DataBufferUtils.readInputStream(</span>
-<span class="source-line-no">200</span><span id="line-200">                      () -&gt; inputStream,</span>
-<span class="source-line-no">201</span><span id="line-201">                      org.springframework.core.io.buffer.DefaultDataBufferFactory.sharedInstance,</span>
-<span class="source-line-no">202</span><span id="line-202">                      STREAMING_CHUNK_SIZE)))</span>
-<span class="source-line-no">203</span><span id="line-203">          .retrieve()</span>
-<span class="source-line-no">204</span><span id="line-204">          .onStatus(</span>
-<span class="source-line-no">205</span><span id="line-205">              status -&gt; !status.is2xxSuccessful(),</span>
-<span class="source-line-no">206</span><span id="line-206">              response -&gt;</span>
-<span class="source-line-no">207</span><span id="line-207">                  response</span>
-<span class="source-line-no">208</span><span id="line-208">                      .bodyToMono(String.class)</span>
-<span class="source-line-no">209</span><span id="line-209">                      .defaultIfEmpty("")</span>
-<span class="source-line-no">210</span><span id="line-210">                      .map(</span>
-<span class="source-line-no">211</span><span id="line-211">                          errorBody -&gt;</span>
-<span class="source-line-no">212</span><span id="line-212">                              new RuntimeException(</span>
-<span class="source-line-no">213</span><span id="line-213">                                  String.format(</span>
-<span class="source-line-no">214</span><span id="line-214">                                      "HTTP request failed: status=%d, url=%s, response=%s",</span>
-<span class="source-line-no">215</span><span id="line-215">                                      response.statusCode().value(),</span>
-<span class="source-line-no">216</span><span id="line-216">                                      sanitizeUrl(url),</span>
-<span class="source-line-no">217</span><span id="line-217">                                      truncate(errorBody, 256)))))</span>
-<span class="source-line-no">218</span><span id="line-218">          .bodyToFlux(org.springframework.core.io.buffer.DataBuffer.class)</span>
-<span class="source-line-no">219</span><span id="line-219">          .timeout(Duration.ofMinutes(5)) // 大容量データ処理のため5分に延長</span>
-<span class="source-line-no">220</span><span id="line-220">          .doOnNext(</span>
-<span class="source-line-no">221</span><span id="line-221">              dataBuffer -&gt; {</span>
-<span class="source-line-no">222</span><span id="line-222">                // Ensure DataBuffer is always released, even if write fails</span>
-<span class="source-line-no">223</span><span id="line-223">                try {</span>
-<span class="source-line-no">224</span><span id="line-224">                  // ストリーミング処理：8KBずつレスポンスを処理</span>
-<span class="source-line-no">225</span><span id="line-225">                  byte[] bytes = new byte[dataBuffer.readableByteCount()];</span>
-<span class="source-line-no">226</span><span id="line-226">                  dataBuffer.read(bytes);</span>
-<span class="source-line-no">227</span><span id="line-227">                  outputStream.write(bytes);</span>
-<span class="source-line-no">228</span><span id="line-228">                  totalBytesWritten[0] += bytes.length;</span>
-<span class="source-line-no">229</span><span id="line-229">                } catch (IOException e) {</span>
-<span class="source-line-no">230</span><span id="line-230">                  throw new RuntimeException(</span>
-<span class="source-line-no">231</span><span id="line-231">                      String.format(</span>
-<span class="source-line-no">232</span><span id="line-232">                          "Failed to write response data to output stream (url=%s, bytesWritten=%d)",</span>
-<span class="source-line-no">233</span><span id="line-233">                          sanitizeUrl(url), totalBytesWritten[0]),</span>
-<span class="source-line-no">234</span><span id="line-234">                      e);</span>
-<span class="source-line-no">235</span><span id="line-235">                } finally {</span>
-<span class="source-line-no">236</span><span id="line-236">                  org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);</span>
-<span class="source-line-no">237</span><span id="line-237">                }</span>
-<span class="source-line-no">238</span><span id="line-238">              })</span>
-<span class="source-line-no">239</span><span id="line-239">          .doOnComplete(</span>
-<span class="source-line-no">240</span><span id="line-240">              () -&gt; {</span>
-<span class="source-line-no">241</span><span id="line-241">                try {</span>
-<span class="source-line-no">242</span><span id="line-242">                  outputStream.flush();</span>
-<span class="source-line-no">243</span><span id="line-243">                  logger.info("HTTP response streaming completed successfully");</span>
-<span class="source-line-no">244</span><span id="line-244">                } catch (IOException e) {</span>
-<span class="source-line-no">245</span><span id="line-245">                  throw new RuntimeException("Failed to flush output stream", e);</span>
-<span class="source-line-no">246</span><span id="line-246">                }</span>
-<span class="source-line-no">247</span><span id="line-247">              })</span>
-<span class="source-line-no">248</span><span id="line-248">          .blockLast(); // Intentionally synchronous: IStreamCommand interface requires</span>
-<span class="source-line-no">249</span><span id="line-249">      // blocking execution</span>
-<span class="source-line-no">250</span><span id="line-250">      // for compatibility with existing command pipeline. Alternative: use subscribe()</span>
-<span class="source-line-no">251</span><span id="line-251">      // with CompletableFuture for true async, but would break command interface contract.</span>
-<span class="source-line-no">252</span><span id="line-252"></span>
-<span class="source-line-no">253</span><span id="line-253">    } catch (RuntimeException e) {</span>
-<span class="source-line-no">254</span><span id="line-254">      // WebClient error responses are wrapped in RuntimeException</span>
-<span class="source-line-no">255</span><span id="line-255">      String errorMessage = "HTTP request failed: " + url + " - " + e.getMessage();</span>
-<span class="source-line-no">256</span><span id="line-256">      logger.error(errorMessage, e);</span>
-<span class="source-line-no">257</span><span id="line-257">      throw new IOException(errorMessage, e);</span>
-<span class="source-line-no">258</span><span id="line-258">    }</span>
-<span class="source-line-no">259</span><span id="line-259">  }</span>
-<span class="source-line-no">260</span><span id="line-260"></span>
-<span class="source-line-no">261</span><span id="line-261">  private static String truncate(String s, int maxLength) {</span>
-<span class="source-line-no">262</span><span id="line-262">    if (s == null || s.length() &lt;= maxLength) {</span>
-<span class="source-line-no">263</span><span id="line-263">      return s;</span>
-<span class="source-line-no">264</span><span id="line-264">    }</span>
-<span class="source-line-no">265</span><span id="line-265">    return s.substring(0, maxLength) + "...[truncated]";</span>
-<span class="source-line-no">266</span><span id="line-266">  }</span>
-<span class="source-line-no">267</span><span id="line-267"></span>
-<span class="source-line-no">268</span><span id="line-268">  /** URLのクエリ文字列とユーザー情報を除去してログ・例外メッセージへの資格情報漏洩を防ぐ。 */</span>
-<span class="source-line-no">269</span><span id="line-269">  static String sanitizeUrl(String rawUrl) {</span>
-<span class="source-line-no">270</span><span id="line-270">    if (rawUrl == null) {</span>
-<span class="source-line-no">271</span><span id="line-271">      return null;</span>
-<span class="source-line-no">272</span><span id="line-272">    }</span>
-<span class="source-line-no">273</span><span id="line-273">    try {</span>
-<span class="source-line-no">274</span><span id="line-274">      URI uri = new URI(rawUrl);</span>
-<span class="source-line-no">275</span><span id="line-275">      return new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null)</span>
-<span class="source-line-no">276</span><span id="line-276">          .toString();</span>
-<span class="source-line-no">277</span><span id="line-277">    } catch (URISyntaxException e) {</span>
-<span class="source-line-no">278</span><span id="line-278">      // 解析不能な場合はスキームとホストのみ抽出を試みる</span>
-<span class="source-line-no">279</span><span id="line-279">      int idx = rawUrl.indexOf('?');</span>
-<span class="source-line-no">280</span><span id="line-280">      return idx &gt;= 0 ? rawUrl.substring(0, idx) : rawUrl;</span>
-<span class="source-line-no">281</span><span id="line-281">    }</span>
-<span class="source-line-no">282</span><span id="line-282">  }</span>
-<span class="source-line-no">283</span><span id="line-283">}</span>
+<span class="source-line-no">128</span><span id="line-128">  /**</span>
+<span class="source-line-no">129</span><span id="line-129">   * execute()直前にホスト名を再DNS解決してSSRF（DNS rebinding）を検出する。</span>
+<span class="source-line-no">130</span><span id="line-130">   *</span>
+<span class="source-line-no">131</span><span id="line-131">   * &lt;p&gt;リテラルIPはDNS rebindingの対象外なのでスキップする。ホスト名の場合のみ再解決を行い、 localhost判定またはプライベートIP判定に変化していれば {@link</span>
+<span class="source-line-no">132</span><span id="line-132">   * IOException} をスローする。</span>
+<span class="source-line-no">133</span><span id="line-133">   */</span>
+<span class="source-line-no">134</span><span id="line-134">  private void revalidateHostForSsrf() throws IOException {</span>
+<span class="source-line-no">135</span><span id="line-135">    try {</span>
+<span class="source-line-no">136</span><span id="line-136">      URI uri = new URI(url);</span>
+<span class="source-line-no">137</span><span id="line-137">      String host = uri.getHost();</span>
+<span class="source-line-no">138</span><span id="line-138">      if (host == null || InetAddresses.isInetAddress(host)) {</span>
+<span class="source-line-no">139</span><span id="line-139">        return;</span>
+<span class="source-line-no">140</span><span id="line-140">      }</span>
+<span class="source-line-no">141</span><span id="line-141">      if (isLocalhost(host)) {</span>
+<span class="source-line-no">142</span><span id="line-142">        throw new IOException("DNS rebinding detected: host resolved to localhost: " + host);</span>
+<span class="source-line-no">143</span><span id="line-143">      }</span>
+<span class="source-line-no">144</span><span id="line-144">      InetAddress[] addresses = inetAddressResolver.getAllByName(host);</span>
+<span class="source-line-no">145</span><span id="line-145">      for (InetAddress address : addresses) {</span>
+<span class="source-line-no">146</span><span id="line-146">        if (isNonRoutable(address)) {</span>
+<span class="source-line-no">147</span><span id="line-147">          throw new IOException(</span>
+<span class="source-line-no">148</span><span id="line-148">              "DNS rebinding detected: host resolved to non-routable address: " + address);</span>
+<span class="source-line-no">149</span><span id="line-149">        }</span>
+<span class="source-line-no">150</span><span id="line-150">      }</span>
+<span class="source-line-no">151</span><span id="line-151">    } catch (URISyntaxException | UnknownHostException e) {</span>
+<span class="source-line-no">152</span><span id="line-152">      throw new IOException("SSRF revalidation failed: " + e.getMessage(), e);</span>
+<span class="source-line-no">153</span><span id="line-153">    }</span>
+<span class="source-line-no">154</span><span id="line-154">  }</span>
+<span class="source-line-no">155</span><span id="line-155"></span>
+<span class="source-line-no">156</span><span id="line-156">  /** ローカルホストかどうかを判定する */</span>
+<span class="source-line-no">157</span><span id="line-157">  private boolean isLocalhost(String host) {</span>
+<span class="source-line-no">158</span><span id="line-158">    if (host == null) {</span>
+<span class="source-line-no">159</span><span id="line-159">      return false;</span>
+<span class="source-line-no">160</span><span id="line-160">    }</span>
+<span class="source-line-no">161</span><span id="line-161"></span>
+<span class="source-line-no">162</span><span id="line-162">    // Handle IPv6 addresses with brackets</span>
+<span class="source-line-no">163</span><span id="line-163">    String cleanHost =</span>
+<span class="source-line-no">164</span><span id="line-164">        host.startsWith("[") &amp;&amp; host.endsWith("]") ? host.substring(1, host.length() - 1) : host;</span>
+<span class="source-line-no">165</span><span id="line-165"></span>
+<span class="source-line-no">166</span><span id="line-166">    return "localhost".equalsIgnoreCase(cleanHost)</span>
+<span class="source-line-no">167</span><span id="line-167">        || "127.0.0.1".equals(cleanHost)</span>
+<span class="source-line-no">168</span><span id="line-168">        || "::1".equals(cleanHost);</span>
+<span class="source-line-no">169</span><span id="line-169">  }</span>
+<span class="source-line-no">170</span><span id="line-170"></span>
+<span class="source-line-no">171</span><span id="line-171">  /** ホストがプライベートIPに解決されるかを判定する。 リテラルIPはGuavaで即解析し、ホスト名はDNS解決後に検査する。 解決不能なホスト名は例外をスローしてアクセスを拒否する。 */</span>
+<span class="source-line-no">172</span><span id="line-172">  private boolean isPrivateIpAddress(String host) {</span>
+<span class="source-line-no">173</span><span id="line-173">    // まずリテラルIPとして解析を試みる</span>
+<span class="source-line-no">174</span><span id="line-174">    if (InetAddresses.isInetAddress(host)) {</span>
+<span class="source-line-no">175</span><span id="line-175">      InetAddress address = InetAddresses.forString(host);</span>
+<span class="source-line-no">176</span><span id="line-176">      return isNonRoutable(address);</span>
+<span class="source-line-no">177</span><span id="line-177">    }</span>
+<span class="source-line-no">178</span><span id="line-178">    // ホスト名: DNS解決して全アドレスを検査する</span>
+<span class="source-line-no">179</span><span id="line-179">    try {</span>
+<span class="source-line-no">180</span><span id="line-180">      InetAddress[] addresses = inetAddressResolver.getAllByName(host);</span>
+<span class="source-line-no">181</span><span id="line-181">      for (InetAddress address : addresses) {</span>
+<span class="source-line-no">182</span><span id="line-182">        if (isNonRoutable(address)) {</span>
+<span class="source-line-no">183</span><span id="line-183">          return true;</span>
+<span class="source-line-no">184</span><span id="line-184">        }</span>
+<span class="source-line-no">185</span><span id="line-185">      }</span>
+<span class="source-line-no">186</span><span id="line-186">      return false;</span>
+<span class="source-line-no">187</span><span id="line-187">    } catch (UnknownHostException e) {</span>
+<span class="source-line-no">188</span><span id="line-188">      throw new IllegalArgumentException("Cannot resolve hostname: " + host, e);</span>
+<span class="source-line-no">189</span><span id="line-189">    }</span>
+<span class="source-line-no">190</span><span id="line-190">  }</span>
+<span class="source-line-no">191</span><span id="line-191"></span>
+<span class="source-line-no">192</span><span id="line-192">  private static boolean isNonRoutable(InetAddress address) {</span>
+<span class="source-line-no">193</span><span id="line-193">    return address.isSiteLocalAddress()</span>
+<span class="source-line-no">194</span><span id="line-194">        || address.isLoopbackAddress()</span>
+<span class="source-line-no">195</span><span id="line-195">        || address.isLinkLocalAddress()</span>
+<span class="source-line-no">196</span><span id="line-196">        || address.isAnyLocalAddress()</span>
+<span class="source-line-no">197</span><span id="line-197">        || address.isMulticastAddress();</span>
+<span class="source-line-no">198</span><span id="line-198">  }</span>
+<span class="source-line-no">199</span><span id="line-199"></span>
+<span class="source-line-no">200</span><span id="line-200">  /**</span>
+<span class="source-line-no">201</span><span id="line-201">   * ストリームを指定されたURLに送信します。</span>
+<span class="source-line-no">202</span><span id="line-202">   *</span>
+<span class="source-line-no">203</span><span id="line-203">   * &lt;p&gt;SSRF防御のため、送信直前にURLのホスト名を再度DNS解決し、プライベートIPへの変化を検出した場合は {@link IOException} をスローします（DNS</span>
+<span class="source-line-no">204</span><span id="line-204">   * rebinding対策）。カスタム {@link WebClient} を注入する場合は、 接続再利用（keep-alive / connection</span>
+<span class="source-line-no">205</span><span id="line-205">   * pool）を無効にしてください。接続再利用が有効な場合、 この再検証をパスしても既存接続がプライベートIPへ転送されるリスクが残ります。</span>
+<span class="source-line-no">206</span><span id="line-206">   *</span>
+<span class="source-line-no">207</span><span id="line-207">   * @param inputStream 入力ストリーム</span>
+<span class="source-line-no">208</span><span id="line-208">   * @param outputStream 出力ストリーム</span>
+<span class="source-line-no">209</span><span id="line-209">   * @throws IOException DNS rebindingを検出した場合、または入出力エラーが発生した場合</span>
+<span class="source-line-no">210</span><span id="line-210">   */</span>
+<span class="source-line-no">211</span><span id="line-211">  @Override</span>
+<span class="source-line-no">212</span><span id="line-212">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">213</span><span id="line-213">    Objects.requireNonNull(inputStream, "inputStream must not be null");</span>
+<span class="source-line-no">214</span><span id="line-214">    Objects.requireNonNull(outputStream, "outputStream must not be null");</span>
+<span class="source-line-no">215</span><span id="line-215"></span>
+<span class="source-line-no">216</span><span id="line-216">    revalidateHostForSsrf();</span>
+<span class="source-line-no">217</span><span id="line-217"></span>
+<span class="source-line-no">218</span><span id="line-218">    logger.info("Sending HTTP POST request to: {}", url);</span>
+<span class="source-line-no">219</span><span id="line-219"></span>
+<span class="source-line-no">220</span><span id="line-220">    try {</span>
+<span class="source-line-no">221</span><span id="line-221">      // Track total bytes written for better error reporting</span>
+<span class="source-line-no">222</span><span id="line-222">      final long[] totalBytesWritten = {0L};</span>
+<span class="source-line-no">223</span><span id="line-223"></span>
+<span class="source-line-no">224</span><span id="line-224">      // 大容量データに対応するため、ストリーミング処理を使用</span>
+<span class="source-line-no">225</span><span id="line-225">      // WebClientでストリーミングレスポンスを処理</span>
+<span class="source-line-no">226</span><span id="line-226">      webClient</span>
+<span class="source-line-no">227</span><span id="line-227">          .post()</span>
+<span class="source-line-no">228</span><span id="line-228">          .uri(url)</span>
+<span class="source-line-no">229</span><span id="line-229">          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
+<span class="source-line-no">230</span><span id="line-230">          .header(HttpHeaders.USER_AGENT, "StreamConverter/1.0")</span>
+<span class="source-line-no">231</span><span id="line-231">          .body(</span>
+<span class="source-line-no">232</span><span id="line-232">              BodyInserters.fromDataBuffers(</span>
+<span class="source-line-no">233</span><span id="line-233">                  org.springframework.core.io.buffer.DataBufferUtils.readInputStream(</span>
+<span class="source-line-no">234</span><span id="line-234">                      () -&gt; inputStream,</span>
+<span class="source-line-no">235</span><span id="line-235">                      org.springframework.core.io.buffer.DefaultDataBufferFactory.sharedInstance,</span>
+<span class="source-line-no">236</span><span id="line-236">                      STREAMING_CHUNK_SIZE)))</span>
+<span class="source-line-no">237</span><span id="line-237">          .retrieve()</span>
+<span class="source-line-no">238</span><span id="line-238">          .onStatus(</span>
+<span class="source-line-no">239</span><span id="line-239">              status -&gt; !status.is2xxSuccessful(),</span>
+<span class="source-line-no">240</span><span id="line-240">              response -&gt;</span>
+<span class="source-line-no">241</span><span id="line-241">                  response</span>
+<span class="source-line-no">242</span><span id="line-242">                      .bodyToMono(String.class)</span>
+<span class="source-line-no">243</span><span id="line-243">                      .defaultIfEmpty("")</span>
+<span class="source-line-no">244</span><span id="line-244">                      .map(</span>
+<span class="source-line-no">245</span><span id="line-245">                          errorBody -&gt;</span>
+<span class="source-line-no">246</span><span id="line-246">                              new RuntimeException(</span>
+<span class="source-line-no">247</span><span id="line-247">                                  String.format(</span>
+<span class="source-line-no">248</span><span id="line-248">                                      "HTTP request failed: status=%d, url=%s, response=%s",</span>
+<span class="source-line-no">249</span><span id="line-249">                                      response.statusCode().value(),</span>
+<span class="source-line-no">250</span><span id="line-250">                                      sanitizeUrl(url),</span>
+<span class="source-line-no">251</span><span id="line-251">                                      truncate(errorBody, 256)))))</span>
+<span class="source-line-no">252</span><span id="line-252">          .bodyToFlux(org.springframework.core.io.buffer.DataBuffer.class)</span>
+<span class="source-line-no">253</span><span id="line-253">          .timeout(Duration.ofMinutes(5)) // 大容量データ処理のため5分に延長</span>
+<span class="source-line-no">254</span><span id="line-254">          .doOnNext(</span>
+<span class="source-line-no">255</span><span id="line-255">              dataBuffer -&gt; {</span>
+<span class="source-line-no">256</span><span id="line-256">                // Ensure DataBuffer is always released, even if write fails</span>
+<span class="source-line-no">257</span><span id="line-257">                try {</span>
+<span class="source-line-no">258</span><span id="line-258">                  // ストリーミング処理：8KBずつレスポンスを処理</span>
+<span class="source-line-no">259</span><span id="line-259">                  byte[] bytes = new byte[dataBuffer.readableByteCount()];</span>
+<span class="source-line-no">260</span><span id="line-260">                  dataBuffer.read(bytes);</span>
+<span class="source-line-no">261</span><span id="line-261">                  outputStream.write(bytes);</span>
+<span class="source-line-no">262</span><span id="line-262">                  totalBytesWritten[0] += bytes.length;</span>
+<span class="source-line-no">263</span><span id="line-263">                } catch (IOException e) {</span>
+<span class="source-line-no">264</span><span id="line-264">                  throw new RuntimeException(</span>
+<span class="source-line-no">265</span><span id="line-265">                      String.format(</span>
+<span class="source-line-no">266</span><span id="line-266">                          "Failed to write response data to output stream (url=%s, bytesWritten=%d)",</span>
+<span class="source-line-no">267</span><span id="line-267">                          sanitizeUrl(url), totalBytesWritten[0]),</span>
+<span class="source-line-no">268</span><span id="line-268">                      e);</span>
+<span class="source-line-no">269</span><span id="line-269">                } finally {</span>
+<span class="source-line-no">270</span><span id="line-270">                  org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);</span>
+<span class="source-line-no">271</span><span id="line-271">                }</span>
+<span class="source-line-no">272</span><span id="line-272">              })</span>
+<span class="source-line-no">273</span><span id="line-273">          .doOnComplete(</span>
+<span class="source-line-no">274</span><span id="line-274">              () -&gt; {</span>
+<span class="source-line-no">275</span><span id="line-275">                try {</span>
+<span class="source-line-no">276</span><span id="line-276">                  outputStream.flush();</span>
+<span class="source-line-no">277</span><span id="line-277">                  logger.info("HTTP response streaming completed successfully");</span>
+<span class="source-line-no">278</span><span id="line-278">                } catch (IOException e) {</span>
+<span class="source-line-no">279</span><span id="line-279">                  throw new RuntimeException("Failed to flush output stream", e);</span>
+<span class="source-line-no">280</span><span id="line-280">                }</span>
+<span class="source-line-no">281</span><span id="line-281">              })</span>
+<span class="source-line-no">282</span><span id="line-282">          .blockLast(); // Intentionally synchronous: IStreamCommand interface requires</span>
+<span class="source-line-no">283</span><span id="line-283">      // blocking execution</span>
+<span class="source-line-no">284</span><span id="line-284">      // for compatibility with existing command pipeline. Alternative: use subscribe()</span>
+<span class="source-line-no">285</span><span id="line-285">      // with CompletableFuture for true async, but would break command interface contract.</span>
+<span class="source-line-no">286</span><span id="line-286"></span>
+<span class="source-line-no">287</span><span id="line-287">    } catch (RuntimeException e) {</span>
+<span class="source-line-no">288</span><span id="line-288">      // WebClient error responses are wrapped in RuntimeException</span>
+<span class="source-line-no">289</span><span id="line-289">      String errorMessage = "HTTP request failed: " + url + " - " + e.getMessage();</span>
+<span class="source-line-no">290</span><span id="line-290">      logger.error(errorMessage, e);</span>
+<span class="source-line-no">291</span><span id="line-291">      throw new IOException(errorMessage, e);</span>
+<span class="source-line-no">292</span><span id="line-292">    }</span>
+<span class="source-line-no">293</span><span id="line-293">  }</span>
+<span class="source-line-no">294</span><span id="line-294"></span>
+<span class="source-line-no">295</span><span id="line-295">  private static String truncate(String s, int maxLength) {</span>
+<span class="source-line-no">296</span><span id="line-296">    if (s == null || s.length() &lt;= maxLength) {</span>
+<span class="source-line-no">297</span><span id="line-297">      return s;</span>
+<span class="source-line-no">298</span><span id="line-298">    }</span>
+<span class="source-line-no">299</span><span id="line-299">    return s.substring(0, maxLength) + "...[truncated]";</span>
+<span class="source-line-no">300</span><span id="line-300">  }</span>
+<span class="source-line-no">301</span><span id="line-301"></span>
+<span class="source-line-no">302</span><span id="line-302">  /** URLのクエリ文字列とユーザー情報を除去してログ・例外メッセージへの資格情報漏洩を防ぐ。 */</span>
+<span class="source-line-no">303</span><span id="line-303">  static String sanitizeUrl(String rawUrl) {</span>
+<span class="source-line-no">304</span><span id="line-304">    if (rawUrl == null) {</span>
+<span class="source-line-no">305</span><span id="line-305">      return null;</span>
+<span class="source-line-no">306</span><span id="line-306">    }</span>
+<span class="source-line-no">307</span><span id="line-307">    try {</span>
+<span class="source-line-no">308</span><span id="line-308">      URI uri = new URI(rawUrl);</span>
+<span class="source-line-no">309</span><span id="line-309">      return new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null)</span>
+<span class="source-line-no">310</span><span id="line-310">          .toString();</span>
+<span class="source-line-no">311</span><span id="line-311">    } catch (URISyntaxException e) {</span>
+<span class="source-line-no">312</span><span id="line-312">      // 解析不能な場合はスキームとホストのみ抽出を試みる</span>
+<span class="source-line-no">313</span><span id="line-313">      int idx = rawUrl.indexOf('?');</span>
+<span class="source-line-no">314</span><span id="line-314">      return idx &gt;= 0 ? rawUrl.substring(0, idx) : rawUrl;</span>
+<span class="source-line-no">315</span><span id="line-315">    }</span>
+<span class="source-line-no">316</span><span id="line-316">  }</span>
+<span class="source-line-no">317</span><span id="line-317">}</span>
 
 
 

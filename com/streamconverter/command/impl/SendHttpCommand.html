@@ -198,10 +198,14 @@ implements <a href="../IStreamCommand.html" title="interface in com.streamconver
 <li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/SendHttpCommand.html#line-179">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/impl/SendHttpCommand.html#line-211">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
-<div class="block">ストリームを指定されたURLに送信します。</div>
+<div class="block">ストリームを指定されたURLに送信します。
+
+ <p>SSRF防御のため、送信直前にURLのホスト名を再度DNS解決し、プライベートIPへの変化を検出した場合は <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link"><code>IOException</code></a> をスローします（DNS
+ rebinding対策）。カスタム <code>WebClient</code> を注入する場合は、 接続再利用（keep-alive / connection
+ pool）を無効にしてください。接続再利用が有効な場合、 この再検証をパスしても既存接続がプライベートIPへ転送されるリスクが残ります。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">execute</a></code>&nbsp;in interface&nbsp;<code><a href="../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></dd>
@@ -209,7 +213,7 @@ implements <a href="../IStreamCommand.html" title="interface in com.streamconver
 <dd><code>inputStream</code> - 入力ストリーム</dd>
 <dd><code>outputStream</code> - 出力ストリーム</dd>
 <dt>Throws:</dt>
-<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - 入出力エラーが発生した場合</dd>
+<dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></code> - DNS rebindingを検出した場合、または入出力エラーが発生した場合</dd>
 </dl>
 </section>
 </li>

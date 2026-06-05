@@ -169,9 +169,8 @@ class SendHttpCommandSecurityTest {
   }
 
   @Test
-  @Tag("known-bug")
-  @DisplayName("Bug証明 #715: DNS rebinding TOCTOU - 2回目のDNS解決がプライベートIPを返す状態でexecute()が例外をスローしない")
-  void bug_715_dnsRebinding_executeSucceedsWhenSecondResolutionReturnsPrivateIp() throws Exception {
+  @DisplayName("DNS rebinding TOCTOU: execute()はDNS rebinding後のプライベートIPへの接続をブロックする（#715）")
+  void dnsRebinding_executeThrowsWhenSecondResolutionReturnsPrivateIp() throws Exception {
     // Arrange: 1回目=外部IP（コンストラクタ検証をパス）、2回目=プライベートIP（DNS rebinding後）
     RebindingDnsStub stub = new RebindingDnsStub();
 
@@ -200,6 +199,6 @@ class SendHttpCommandSecurityTest {
         java.io.IOException.class,
         () ->
             command.execute(new ByteArrayInputStream("x".getBytes()), new ByteArrayOutputStream()),
-        "【バグ #715】execute()はDNS rebinding後のプライベートIPへの接続をブロックすべきだが、例外をスローしない");
+        "execute()はDNS rebinding後のプライベートIPへの接続をブロックしてIOExceptionをスローするべき");
   }
 }

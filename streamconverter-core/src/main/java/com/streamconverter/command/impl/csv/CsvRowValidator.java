@@ -97,6 +97,10 @@ final class CsvRowValidator {
   private void addError(List<String> errors, String error) {
     if (errors.size() < maxErrorsToReport) {
       errors.add(error);
+    } else if (errors.size() == maxErrorsToReport) {
+      logger.warn(
+          "Validation error limit ({}) reached; further errors will not be reported",
+          maxErrorsToReport);
     }
   }
 }

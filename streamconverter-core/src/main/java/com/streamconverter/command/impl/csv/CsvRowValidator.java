@@ -13,16 +13,10 @@ final class CsvRowValidator {
 
   private final Set<String> requiredColumns;
   private final int maxErrorsToReport;
-  private boolean truncated;
 
   CsvRowValidator(Set<String> requiredColumns, int maxErrorsToReport) {
     this.requiredColumns = requiredColumns;
     this.maxErrorsToReport = maxErrorsToReport;
-  }
-
-  /** Returns true if errors were truncated due to the maxErrorsToReport limit. */
-  boolean isTruncated() {
-    return truncated;
   }
 
   void validateHeaders(String[] headers, List<String> errors) {
@@ -103,8 +97,6 @@ final class CsvRowValidator {
   private void addError(List<String> errors, String error) {
     if (errors.size() < maxErrorsToReport) {
       errors.add(error);
-    } else {
-      truncated = true;
     }
   }
 }

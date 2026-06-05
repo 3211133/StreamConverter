@@ -134,7 +134,7 @@ public class CsvValidateCommand extends ConsumerCommand {
       throw new StreamProcessingException("CSV validation failed: CSV file is empty");
     }
     if (!validationErrors.isEmpty()) {
-      handleValidationErrors(validationErrors, rowValidator.isTruncated());
+      handleValidationErrors(validationErrors);
     }
     logger.info("CSV validation completed successfully");
   }
@@ -184,16 +184,13 @@ public class CsvValidateCommand extends ConsumerCommand {
   }
 
   /** バリデーションエラーの処理 */
-  private void handleValidationErrors(List<String> errors, boolean truncated) {
+  private void handleValidationErrors(List<String> errors) {
     StringBuilder errorBuilder = new StringBuilder();
     errorBuilder.append("CSV validation failed with ").append(errors.size()).append(" error(s):");
 
     for (int i = 0; i < errors.size(); i++) {
       errorBuilder.append("\n  ").append(i + 1).append(". ").append(errors.get(i));
       logger.error("CSV validation error {}: {}", i + 1, errors.get(i));
-    }
-    if (truncated) {
-      errorBuilder.append("\n  ... and more errors (limit reached)");
     }
 
     String errorMessage = errorBuilder.toString();

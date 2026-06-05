@@ -409,41 +409,15 @@ public class CsvValidateCommandTest {
         assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
 
     String msg = exception.getMessage();
-    // maxErrorsToReport=2 なのでリストには最大 2 件のエラーが含まれる
     assertTrue(
         msg.contains("2 error(s)"),
         "maxErrorsToReport=2 なのに '2 error(s)' が含まれていない。実際のメッセージ: " + msg);
-    // 3件目以降は省略メッセージで示される（N+1件ではなくN件+省略メッセージ）
-    assertTrue(
+    assertFalse(
         msg.contains("... and more errors (limit reached)"),
-        "3件エラーがあるとき省略メッセージが含まれるべき。実際のメッセージ: " + msg);
-    // 省略メッセージ自体はエラー件数としてカウントされない
+        "maxErrorsToReport=2 のとき '... and more errors' は含まれるべきでない。実際のメッセージ: " + msg);
     assertFalse(
         msg.contains("3 error(s)"),
         "maxErrorsToReport=2 なのに '3 error(s)' が含まれていた。実際のメッセージ: " + msg);
-  }
-
-  @Test
-  @DisplayName("Bug証明 #712: CsvRowValidator が maxErrorsToReport + 1 件のエラーを返す")
-  void bug_712_maxErrorsToReport_returnsTooManyErrors() throws IOException {
-    int maxErrors = 2;
-    CsvValidateCommand command = CsvValidateCommand.create(true, maxErrors);
-
-    // ヘッダー行2列 + データ行3行（各行が1列しかなく、列不足エラーになる）
-    String csv = "id,name\n1\n2\n3\n";
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
-
-    StreamProcessingException exception =
-        assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
-
-    String msg = exception.getMessage();
-    assertTrue(
-        msg.contains("2 error(s)"),
-        "maxErrorsToReport=2 なのに '2 error(s)' が含まれていない。実際のメッセージ: " + msg);
-    assertTrue(
-        msg.contains("... and more errors (limit reached)"),
-        "maxErrorsToReport=2 で3件エラーがあるとき '... and more errors' が含まれるべき。実際のメッセージ: " + msg);
   }
 
   @Test

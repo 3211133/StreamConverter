@@ -21,7 +21,7 @@ final class CsvRowValidator {
 
   void validateHeaders(String[] headers, List<String> errors) {
     if (headers == null || headers.length == 0) {
-      errors.add("Header row is empty");
+      addError(errors, "Header row is empty");
       return;
     }
     checkDuplicateHeaders(headers, errors);
@@ -34,7 +34,7 @@ final class CsvRowValidator {
     Set<String> duplicates = new HashSet<>();
     for (String header : headers) {
       if (header == null || header.isBlank()) {
-        errors.add("Header contains empty or null column");
+        addError(errors, "Header contains empty or null column");
         continue;
       }
       String trimmed = header.trim();
@@ -43,7 +43,7 @@ final class CsvRowValidator {
       }
     }
     if (!duplicates.isEmpty()) {
-      errors.add("Duplicate column headers: " + duplicates);
+      addError(errors, "Duplicate column headers: " + duplicates);
     }
   }
 
@@ -60,7 +60,7 @@ final class CsvRowValidator {
     Set<String> missing = new HashSet<>(requiredColumns);
     missing.removeAll(headerNames);
     if (!missing.isEmpty()) {
-      errors.add("Missing required columns: " + missing);
+      addError(errors, "Missing required columns: " + missing);
     }
   }
 
@@ -98,7 +98,9 @@ final class CsvRowValidator {
     if (errors.size() < maxErrorsToReport) {
       errors.add(error);
     } else if (errors.size() == maxErrorsToReport) {
-      errors.add("... and more errors (limit reached)");
+      logger.warn(
+          "Validation error limit ({}) reached; further errors will not be reported",
+          maxErrorsToReport);
     }
   }
 }

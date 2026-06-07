@@ -127,7 +127,8 @@ public class CsvValidateCommand extends ConsumerCommand {
         requiredColumns.size());
 
     List<String> validationErrors = new ArrayList<>();
-    boolean empty = readAndValidate(inputStream, validationErrors);
+    CsvRowValidator rowValidator = new CsvRowValidator(requiredColumns, maxErrorsToReport);
+    boolean empty = readAndValidate(inputStream, rowValidator, validationErrors);
 
     if (empty) {
       throw new StreamProcessingException("CSV validation failed: CSV file is empty");
@@ -138,9 +139,9 @@ public class CsvValidateCommand extends ConsumerCommand {
     logger.info("CSV validation completed successfully");
   }
 
-  private boolean readAndValidate(InputStream inputStream, List<String> validationErrors)
+  private boolean readAndValidate(
+      InputStream inputStream, CsvRowValidator rowValidator, List<String> validationErrors)
       throws IOException {
-    CsvRowValidator rowValidator = new CsvRowValidator(requiredColumns, maxErrorsToReport);
     try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         CSVReader csvReader = new CSVReader(reader)) {
 
@@ -195,14 +196,16 @@ public class CsvValidateCommand extends ConsumerCommand {
     String errorMessage = errorBuilder.toString();
     logger.error("CSV validation summary: {}", errorMessage);
 
-    String finalErrorMessage = errorMessage;
-    if (errorMessage.length() > 1000) {
-      finalErrorMessage = errorMessage.substring(0, 997) + "...";
+    String prefix = "CSV validation failed: ";
+    int maxBodyLength = 1000 - prefix.length();
+    String body = errorMessage;
+    if (errorMessage.length() > maxBodyLength) {
+      body = errorMessage.substring(0, maxBodyLength - 3) + "...";
       logger.warn(
           "Error message truncated due to length (original: {} chars)", errorMessage.length());
     }
 
-    throw new StreamProcessingException("CSV validation failed: " + finalErrorMessage);
+    throw new StreamProcessingException(prefix + body);
   }
 
   /**

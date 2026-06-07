@@ -188,6 +188,8 @@ Bugs must be proven before a fix is attempted. The workflow is:
 
 If the bug cannot be reproduced, comment the investigation result on the issue and leave it open.
 
+> **For Claude Code users:** The skills `detect-and-report-bug` and `fix-known-bug` automate this workflow. See `~/.claude/skills/` or ask your AI assistant to create them from the workflow description above.
+
 ### `@Tag("known-bug")` and `verifyKnownBugs`
 
 - Tests tagged `@Tag("known-bug")` are **excluded from the normal build** (`./gradlew build`). They do not break CI while the bug is unfixed.

@@ -421,8 +421,8 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @DisplayName("Bug証明 #709: エラーメッセージ切り詰め後にプレフィックスを追加するため例外メッセージが1000文字を超える")
-  void bug_709_errorMessageTruncation_prefixCausesExceedingLimit() throws IOException {
+  @DisplayName("エラーメッセージ切り詰め時もプレフィックスを含めた全体が1000文字以下に収まる")
+  void errorMessageTruncation_totalLengthIncludingPrefixWithinLimit() throws IOException {
     String[] requiredColumns = {"id", "name", "email"};
     CsvValidateCommand command = CsvValidateCommand.create(true, 200, requiredColumns);
 

@@ -392,10 +392,8 @@ class FilterCommandBasicTest {
   }
 
   @Test
-  @Tag("known-bug")
-  @DisplayName(
-      "Bug証明 #722: CsvFilterCommand が存在しない列を指定したとき IOException の代わりに IllegalArgumentException をスローする")
-  void bug_csvFilterCommand_unknownColumnThrowsIllegalArgumentException() throws IOException {
+  @DisplayName("#722: 存在しない列を指定したとき IllegalArgumentException が IOException にラップされること")
+  void testCsvFilterCommand_unknownColumnThrowsIOException() throws IOException {
     String csvInput = "name,age\nAlice,30\n";
     CsvFilterCommand command = CsvFilterCommand.create(CSVPath.of("nonexistent"));
 
@@ -403,13 +401,11 @@ class FilterCommandBasicTest {
         new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    // IStreamCommand.execute() は throws IOException 契約だが、
-    // CsvFilterCommand は列未検出時に IllegalArgumentException をスローする（契約違反）
     IOException thrown =
         assertThrows(
             IOException.class,
             () -> command.execute(input, output),
-            "存在しない列の指定は IOException にラップされるべきだが、CsvFilterCommand は IllegalArgumentException をスローする");
+            "存在しない列の指定は IOException にラップされるべき");
     assertNotNull(thrown.getCause(), "IOException は元の例外を cause として保持すること");
     assertInstanceOf(
         IllegalArgumentException.class,

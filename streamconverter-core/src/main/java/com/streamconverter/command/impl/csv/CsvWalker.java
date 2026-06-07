@@ -109,7 +109,9 @@ public class CsvWalker implements IStreamCommand {
     }
   }
 
-  /** Apply transformation rule to specific column while preserving CSV structure */
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
+  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and
+  // re-thrown as IOException so the caller's error-handling path is not bypassed.
   private void applyRuleToColumn(CSVReader csvReader, CSVWriter csvWriter)
       throws IOException, CsvValidationException {
     String[] headers = csvReader.readNext();
@@ -130,7 +132,13 @@ public class CsvWalker implements IStreamCommand {
     while ((row = csvReader.readNext()) != null) {
       for (int idx : indices) {
         if (idx < row.length) {
-          row[idx] = rule.apply(row[idx]);
+          String transformed;
+          try {
+            transformed = rule.apply(row[idx]);
+          } catch (RuntimeException ruleEx) {
+            throw new IOException("Rule application failed at column index " + idx, ruleEx);
+          }
+          row[idx] = transformed;
         }
       }
       // applyQuotesToAll=false: only quote fields that contain delimiters or quotes

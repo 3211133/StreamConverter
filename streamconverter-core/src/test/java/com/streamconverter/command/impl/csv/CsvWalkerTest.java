@@ -31,7 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CsvWalker. */
@@ -316,6 +315,34 @@ class CsvWalkerTest {
   }
 
   @Test
+  @DisplayName(
+      "[#720] rule が RuntimeException をスローしたとき IOException にラップされること（JsonWalker/XmlWalker と一致）")
+  void testRuleRuntimeExceptionWrappedAsIOException() throws IOException {
+    RuntimeException ruleEx = new RuntimeException("rule failure");
+    CsvWalker failingRuleCommand =
+        CsvWalker.create(
+            CSVPath.of("name"),
+            v -> {
+              throw ruleEx;
+            });
+    String csvInput = "name,age\nAlice,30\n";
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    // JsonWalker/XmlWalker は RuntimeException を IOException でラップするが
+    // CsvWalker はラップせずに RuntimeException をそのまま伝播させる（バグ）
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () -> failingRuleCommand.execute(inputStream, outputStream),
+            "Rule の RuntimeException は IOException にラップされるべきだが、CsvWalker はラップしない");
+    assertNotNull(thrown.getCause(), "IOException は元の例外を cause として保持すること");
+    assertInstanceOf(
+        RuntimeException.class, thrown.getCause(), "Cause は rule からの RuntimeException であること");
+  }
+
+  @Test
   @DisplayName("[#546] RFC 4180: comma inside quoted field is not split")
   void testRfc4180CommaInsideQuotedField() throws IOException {
     String csvInput = "name,address\nAlice,\"123 Main St, Suite 4\"\n";
@@ -330,31 +357,6 @@ class CsvWalkerTest {
     // The address field with internal comma should be preserved intact
     assertTrue(result.contains("123 Main St"), "Address should be preserved");
     assertTrue(result.contains("Suite 4"), "Comma-separated part of address should be preserved");
-  }
-
-  @Test
-  @Tag("known-bug")
-  @DisplayName("Bug証明 #720: CsvWalker は rule が RuntimeException をスローしたとき IOException にラップしない")
-  void bug_720_csvWalkerRuleRuntimeExceptionNotWrappedAsIOException() {
-    RuntimeException ruleEx = new RuntimeException("rule failure");
-    CsvWalker failingRuleCommand =
-        CsvWalker.create(
-            CSVPath.of("name"),
-            v -> {
-              throw ruleEx;
-            });
-    String csvInput = "name,age\nAlice,30\n";
-    ByteArrayInputStream inputStream =
-        new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
-    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-
-    IOException thrown =
-        assertThrows(
-            IOException.class,
-            () -> failingRuleCommand.execute(inputStream, outputStream),
-            "Rule の RuntimeException は IOException にラップされるべきだが、CsvWalker はラップしない");
-    assertNotNull(thrown.getCause());
-    assertInstanceOf(RuntimeException.class, thrown.getCause());
   }
 
   @DisplayName("Bug証明 #726: 存在しない列を指定したとき IllegalArgumentException が IOException にラップされずに伝播する")

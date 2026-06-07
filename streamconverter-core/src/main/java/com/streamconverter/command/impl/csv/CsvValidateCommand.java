@@ -39,6 +39,9 @@ import org.slf4j.LoggerFactory;
 public class CsvValidateCommand extends ConsumerCommand {
   private static final Logger logger = LoggerFactory.getLogger(CsvValidateCommand.class);
 
+  private static final String ERROR_PREFIX = "CSV validation failed: ";
+  private static final int MAX_MESSAGE_LENGTH = 1000;
+
   private final Set<String> requiredColumns;
   private final boolean hasHeader;
   private final int maxErrorsToReport;
@@ -131,7 +134,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     boolean empty = readAndValidate(inputStream, rowValidator, validationErrors);
 
     if (empty) {
-      throw new StreamProcessingException("CSV validation failed: CSV file is empty");
+      throw new StreamProcessingException(ERROR_PREFIX + "CSV file is empty");
     }
     if (!validationErrors.isEmpty()) {
       handleValidationErrors(validationErrors);
@@ -196,8 +199,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     String errorMessage = errorBuilder.toString();
     logger.error("CSV validation summary: {}", errorMessage);
 
-    String prefix = "CSV validation failed: ";
-    int maxBodyLength = 1000 - prefix.length();
+    int maxBodyLength = MAX_MESSAGE_LENGTH - ERROR_PREFIX.length();
     String body = errorMessage;
     if (errorMessage.length() > maxBodyLength) {
       body = errorMessage.substring(0, maxBodyLength - 3) + "...";
@@ -205,7 +207,7 @@ public class CsvValidateCommand extends ConsumerCommand {
           "Error message truncated due to length (original: {} chars)", errorMessage.length());
     }
 
-    throw new StreamProcessingException(prefix + body);
+    throw new StreamProcessingException(ERROR_PREFIX + body);
   }
 
   /**

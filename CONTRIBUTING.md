@@ -176,6 +176,24 @@ This repository includes configuration files for AI coding assistants. The follo
 
 Personal customizations (e.g., additional agents or commands for your own workflow) should be placed in `.claude/settings.local.json`, which is excluded from git via `.gitignore`.
 
+## Bug Reporting and Proof Workflow
+
+Bugs must be proven before a fix is attempted. The workflow is:
+
+1. **Open an issue** when you suspect a bug — suspicion alone is enough to open one.
+2. **Write a failing test** tagged `@Tag("known-bug") // #<issue number>` that reproduces the bug.
+3. **Submit a proof PR** (`test: add known-bug proof test for #<issue number>`) with the test still failing. This PR is the objective record that the bug exists.
+4. **Fix the bug** in a separate PR. The fix is proven when `./gradlew :<module>:verifyKnownBugs` returns `BUILD FAILED` (meaning the known-bug test now passes).
+5. **Remove the `@Tag("known-bug")` line** (one line only) after confirming the above.
+
+If the bug cannot be reproduced, comment the investigation result on the issue and leave it open.
+
+### `@Tag("known-bug")` and `verifyKnownBugs`
+
+- Tests tagged `@Tag("known-bug")` are **excluded from the normal build** (`./gradlew build`). They do not break CI while the bug is unfixed.
+- `./gradlew :<module>:verifyKnownBugs` checks that all known-bug tests **still fail**. `BUILD SUCCESSFUL` means the bug still exists. `BUILD FAILED` means a known-bug test passed — i.e., the bug has been fixed.
+- The comment `// #<issue number>` on the tag line is the link back to the issue. It disappears with the tag when the bug is fixed; use `git log` for historical traceability.
+
 ## Pull Request Process
 
 1. Ensure your code follows the style guidelines of this project

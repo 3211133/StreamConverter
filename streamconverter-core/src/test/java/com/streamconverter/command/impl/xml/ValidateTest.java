@@ -166,9 +166,9 @@ class ValidateTest {
   }
 
   @Test
-  @Tag("known-bug")
+  @Tag("known-bug") // #729
   @DisplayName(
-      "Bug証明 #729: ValidateCommand が XMLバリデーション失敗時に StreamProcessingException（RuntimeException）を IStreamCommand.execute() 契約に違反してスローする")
+      "ValidateCommand は XMLバリデーション失敗時に IOException をスローする（StreamProcessingException を外に出さない）")
   void bug_validateCommand_xmlValidationFailureThrowsStreamProcessingExceptionNotIOException()
       throws IOException {
     ValidateCommand command = ValidateCommand.create(schemaPath);

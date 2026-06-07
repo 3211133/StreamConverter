@@ -359,7 +359,7 @@ class CsvWalkerTest {
     assertTrue(result.contains("Suite 4"), "Comma-separated part of address should be preserved");
   }
 
-  @DisplayName("Bug証明 #726: 存在しない列を指定したとき IllegalArgumentException が IOException にラップされずに伝播する")
+  @DisplayName("存在しない列を指定したとき IllegalArgumentException が IOException にラップされる")
   void bug_csvWalker_unknownColumnThrowsIllegalArgumentException() throws IOException {
     String csvInput = "name,age\nAlice,30\n";
     CsvWalker csvWalker = CsvWalker.create(CSVPath.of("nonexistent"), new PassThroughRule());

@@ -73,6 +73,27 @@ StreamConverterプロジェクトでは、以下の包括的なテストアプ�
   - `streamconverter-core/src/test/java/com/streamconverter/command/contract/CommandImplementationDiscovery.java`
   - `streamconverter-core/src/test/java/com/streamconverter/command/contract/StreamingExpectation.java`
 
+#### 7. **既知バグ証明テスト (Known-Bug Proof Tests)**
+
+バグの存在を機械的に証明・継続確認するためのテスト群。
+
+- `@Tag("known-bug") // #<issue番号>` を付与する
+- 通常ビルド（`./gradlew build`）では除外され、CIを壊さない
+- `verifyKnownBugs` タスクで全件が「まだ失敗する（バグが残っている）」ことを確認できる
+
+**`verifyKnownBugs` の読み方:**
+
+| 結果 | 意味 |
+|------|------|
+| `BUILD SUCCESSFUL` | 全 known-bug テストが FAIL = バグがまだ存在する |
+| `BUILD FAILED` | いずれかの known-bug テストが PASS = **バグが修正された証明** |
+
+```bash
+./gradlew :<module>:verifyKnownBugs
+```
+
+バグ報告・修正の全手順は [CONTRIBUTING.md の Bug Reporting and Proof Workflow](../../CONTRIBUTING.md#bug-reporting-and-proof-workflow) を参照。
+
 ## 📁 テスト構造
 
 ### ディレクトリ構成

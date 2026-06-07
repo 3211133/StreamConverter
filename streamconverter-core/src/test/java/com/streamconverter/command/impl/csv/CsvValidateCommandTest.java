@@ -401,7 +401,7 @@ public class CsvValidateCommandTest {
     CsvValidateCommand command = CsvValidateCommand.create(true, maxErrors, requiredColumns);
 
     // ヘッダー行2列 + データ行3行（各行が1列しかなく、列不足エラーになる）
-    String csv = "id,name\n" + "1\n" + "2\n" + "3\n";
+    String csv = "id,name\n1\n2\n3\n";
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
 

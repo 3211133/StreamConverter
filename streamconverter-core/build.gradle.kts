@@ -52,10 +52,6 @@ dependencies {
     // CSV validation support
     implementation("com.opencsv:opencsv:5.12.0")
 
-    // Excel streaming read/write support
-    implementation("org.dhatim:fastexcel:0.20.1")
-    implementation("org.dhatim:fastexcel-reader:0.20.1")
-
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
     testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.6"))

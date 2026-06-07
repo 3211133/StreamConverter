@@ -122,36 +122,44 @@
 <span class="source-line-no">109</span><span id="line-109">    }</span>
 <span class="source-line-no">110</span><span id="line-110">  }</span>
 <span class="source-line-no">111</span><span id="line-111"></span>
-<span class="source-line-no">112</span><span id="line-112">  /** Apply transformation rule to specific column while preserving CSV structure */</span>
-<span class="source-line-no">113</span><span id="line-113">  private void applyRuleToColumn(CSVReader csvReader, CSVWriter csvWriter)</span>
-<span class="source-line-no">114</span><span id="line-114">      throws IOException, CsvValidationException {</span>
-<span class="source-line-no">115</span><span id="line-115">    String[] headers = csvReader.readNext();</span>
-<span class="source-line-no">116</span><span id="line-116">    if (headers == null) {</span>
-<span class="source-line-no">117</span><span id="line-117">      return; // Empty input</span>
-<span class="source-line-no">118</span><span id="line-118">    }</span>
-<span class="source-line-no">119</span><span id="line-119"></span>
-<span class="source-line-no">120</span><span id="line-120">    List&lt;Integer&gt; indices = columnSelector.resolve(headers);</span>
-<span class="source-line-no">121</span><span id="line-121">    if (indices.isEmpty()) {</span>
-<span class="source-line-no">122</span><span id="line-122">      throw new IllegalArgumentException("Column not found: " + columnSelector.toString());</span>
-<span class="source-line-no">123</span><span id="line-123">    }</span>
-<span class="source-line-no">124</span><span id="line-124"></span>
-<span class="source-line-no">125</span><span id="line-125">    // Write header (unchanged); applyQuotesToAll=false: only quote when RFC 4180 requires</span>
-<span class="source-line-no">126</span><span id="line-126">    csvWriter.writeNext(headers, false);</span>
-<span class="source-line-no">127</span><span id="line-127"></span>
-<span class="source-line-no">128</span><span id="line-128">    // Process data rows</span>
-<span class="source-line-no">129</span><span id="line-129">    String[] row;</span>
-<span class="source-line-no">130</span><span id="line-130">    while ((row = csvReader.readNext()) != null) {</span>
-<span class="source-line-no">131</span><span id="line-131">      for (int idx : indices) {</span>
-<span class="source-line-no">132</span><span id="line-132">        if (idx &lt; row.length) {</span>
-<span class="source-line-no">133</span><span id="line-133">          row[idx] = rule.apply(row[idx]);</span>
-<span class="source-line-no">134</span><span id="line-134">        }</span>
-<span class="source-line-no">135</span><span id="line-135">      }</span>
-<span class="source-line-no">136</span><span id="line-136">      // applyQuotesToAll=false: only quote fields that contain delimiters or quotes</span>
-<span class="source-line-no">137</span><span id="line-137">      csvWriter.writeNext(row, false);</span>
-<span class="source-line-no">138</span><span id="line-138">    }</span>
-<span class="source-line-no">139</span><span id="line-139">    csvWriter.flush();</span>
-<span class="source-line-no">140</span><span id="line-140">  }</span>
-<span class="source-line-no">141</span><span id="line-141">}</span>
+<span class="source-line-no">112</span><span id="line-112">  @SuppressWarnings("PMD.AvoidCatchingGenericException")</span>
+<span class="source-line-no">113</span><span id="line-113">  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and</span>
+<span class="source-line-no">114</span><span id="line-114">  // re-thrown as IOException so the caller's error-handling path is not bypassed.</span>
+<span class="source-line-no">115</span><span id="line-115">  private void applyRuleToColumn(CSVReader csvReader, CSVWriter csvWriter)</span>
+<span class="source-line-no">116</span><span id="line-116">      throws IOException, CsvValidationException {</span>
+<span class="source-line-no">117</span><span id="line-117">    String[] headers = csvReader.readNext();</span>
+<span class="source-line-no">118</span><span id="line-118">    if (headers == null) {</span>
+<span class="source-line-no">119</span><span id="line-119">      return; // Empty input</span>
+<span class="source-line-no">120</span><span id="line-120">    }</span>
+<span class="source-line-no">121</span><span id="line-121"></span>
+<span class="source-line-no">122</span><span id="line-122">    List&lt;Integer&gt; indices = columnSelector.resolve(headers);</span>
+<span class="source-line-no">123</span><span id="line-123">    if (indices.isEmpty()) {</span>
+<span class="source-line-no">124</span><span id="line-124">      throw new IllegalArgumentException("Column not found: " + columnSelector.toString());</span>
+<span class="source-line-no">125</span><span id="line-125">    }</span>
+<span class="source-line-no">126</span><span id="line-126"></span>
+<span class="source-line-no">127</span><span id="line-127">    // Write header (unchanged); applyQuotesToAll=false: only quote when RFC 4180 requires</span>
+<span class="source-line-no">128</span><span id="line-128">    csvWriter.writeNext(headers, false);</span>
+<span class="source-line-no">129</span><span id="line-129"></span>
+<span class="source-line-no">130</span><span id="line-130">    // Process data rows</span>
+<span class="source-line-no">131</span><span id="line-131">    String[] row;</span>
+<span class="source-line-no">132</span><span id="line-132">    while ((row = csvReader.readNext()) != null) {</span>
+<span class="source-line-no">133</span><span id="line-133">      for (int idx : indices) {</span>
+<span class="source-line-no">134</span><span id="line-134">        if (idx &lt; row.length) {</span>
+<span class="source-line-no">135</span><span id="line-135">          String transformed;</span>
+<span class="source-line-no">136</span><span id="line-136">          try {</span>
+<span class="source-line-no">137</span><span id="line-137">            transformed = rule.apply(row[idx]);</span>
+<span class="source-line-no">138</span><span id="line-138">          } catch (RuntimeException ruleEx) {</span>
+<span class="source-line-no">139</span><span id="line-139">            throw new IOException("Rule application failed at column index " + idx, ruleEx);</span>
+<span class="source-line-no">140</span><span id="line-140">          }</span>
+<span class="source-line-no">141</span><span id="line-141">          row[idx] = transformed;</span>
+<span class="source-line-no">142</span><span id="line-142">        }</span>
+<span class="source-line-no">143</span><span id="line-143">      }</span>
+<span class="source-line-no">144</span><span id="line-144">      // applyQuotesToAll=false: only quote fields that contain delimiters or quotes</span>
+<span class="source-line-no">145</span><span id="line-145">      csvWriter.writeNext(row, false);</span>
+<span class="source-line-no">146</span><span id="line-146">    }</span>
+<span class="source-line-no">147</span><span id="line-147">    csvWriter.flush();</span>
+<span class="source-line-no">148</span><span id="line-148">  }</span>
+<span class="source-line-no">149</span><span id="line-149">}</span>
 
 
 

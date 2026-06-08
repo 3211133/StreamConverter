@@ -467,11 +467,10 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @Tag("known-bug")
+  @Tag("known-bug") // #731
   @DisplayName(
-      "Bug証明 #731: CsvValidateCommand が CSV バリデーション失敗時に StreamProcessingException（RuntimeException）を IStreamCommand.execute() 契約に違反してスローする")
-  void bug_csvValidateCommand_validationFailureThrowsStreamProcessingExceptionNotIOException()
-      throws IOException {
+      "CsvValidateCommand は CSV バリデーション失敗時に IOException をスローする（StreamProcessingException を外に出さない）")
+  void bug_csvValidateCommand_validationFailureThrowsIOException() throws IOException {
     CsvValidateCommand command = CsvValidateCommand.create("id", "name");
     String csvInput = "id,age\n1,30\n";
 

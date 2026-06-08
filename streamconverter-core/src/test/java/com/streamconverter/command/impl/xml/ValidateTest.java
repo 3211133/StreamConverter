@@ -169,8 +169,7 @@ class ValidateTest {
   @Tag("known-bug") // #729
   @DisplayName(
       "ValidateCommand は XMLバリデーション失敗時に IOException をスローする（StreamProcessingException を外に出さない）")
-  void bug_validateCommand_xmlValidationFailureThrowsStreamProcessingExceptionNotIOException()
-      throws IOException {
+  void bug_validateCommand_xmlValidationFailureThrowsIOException() throws IOException {
     ValidateCommand command = ValidateCommand.create(schemaPath);
 
     try (InputStream inputStream =

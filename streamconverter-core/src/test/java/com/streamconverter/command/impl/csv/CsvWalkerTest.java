@@ -31,6 +31,7 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CsvWalker. */
@@ -359,8 +360,10 @@ class CsvWalkerTest {
     assertTrue(result.contains("Suite 4"), "Comma-separated part of address should be preserved");
   }
 
+  @Test
+  @Tag("known-bug") // #726
   @DisplayName("存在しない列を指定したとき IllegalArgumentException が IOException にラップされる")
-  void bug_csvWalker_unknownColumnThrowsIllegalArgumentException() throws IOException {
+  void bug_csvWalker_unknownColumnThrowsIOException() throws IOException {
     String csvInput = "name,age\nAlice,30\n";
     CsvWalker csvWalker = CsvWalker.create(CSVPath.of("nonexistent"), new PassThroughRule());
     ByteArrayInputStream input =

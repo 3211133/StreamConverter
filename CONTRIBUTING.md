@@ -188,7 +188,7 @@ Bugs must be proven before a fix is attempted. The workflow is:
 
 If the bug cannot be reproduced, comment the investigation result on the issue and leave it open.
 
-> **For Claude Code users:** The skills `detect-and-report-bug` and `fix-known-bug` automate this workflow. Ask your AI assistant to create them based on the workflow description above.
+> **For Claude Code users:** The skills `detect-and-report-bug` and `fix-known-bug` automate this workflow. They are not part of this repository; create them as local Claude Code skills based on the workflow above.
 
 ### `@Tag("known-bug")` and `verifyKnownBugs`
 

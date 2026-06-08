@@ -65,6 +65,11 @@ Always start with the **[Documentation Index](docs/INDEX.md)** for comprehensive
 - Module-specific test execution patterns
 - Security vulnerability management with explicit version overrides
 
+### バグ証明ワークフロー
+- バグ修正: `/fix-known-bug` スキル必須
+- バグ起票: `/detect-and-report-bug` スキル必須
+- verifyKnownBugs BUILD FAILED がバグ修正の客観的証明
+
 ### Security Focus
 - Proactive security vulnerability patching with explicit dependency versions
 - XML External Entity (XXE) prevention in XML processing

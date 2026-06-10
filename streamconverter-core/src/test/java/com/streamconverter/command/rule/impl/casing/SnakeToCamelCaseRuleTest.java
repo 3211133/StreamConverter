@@ -68,7 +68,7 @@ class SnakeToCamelCaseRuleTest {
     // Arrange
     SnakeToCamelCaseRule rule = SnakeToCamelCaseRule.builder().preserveUnderscores(true).build();
 
-    // Act & Assert - 末尾は現実装でも保持されるが、先頭が変換で消費される
+    // Act & Assert - 先頭・末尾の両方が保持されたまま camelCase 変換されるべき
     assertEquals("_userName_", rule.apply("_user_name_"));
   }
 }

@@ -139,6 +139,30 @@ class XmlWalkerTest {
   }
 
   @Test
+  @DisplayName("CDATA in non-matched nodes is emitted as infoset-equivalent escaped text")
+  void testCdataInNonMatchedNodeEmittedAsEscapedText() throws IOException {
+    // Arrange - coalescing により非対象ノードの CDATA もテキストイベントに正規化されるため、
+    // 字面は <![CDATA[x<y]]> のままではなく infoset 等価なエスケープ済みテキストになる
+    String xmlInput =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<root><item>target</item><other><![CDATA[x<y]]></other></root>";
+    InputStream inputStream = new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    // Act
+    command.execute(inputStream, outputStream);
+
+    // Assert - CDATA の内容はエスケープ済みテキストとして保存される（infoset 等価）
+    String result = outputStream.toString(StandardCharsets.UTF_8);
+    assertTrue(
+        result.contains("<other>x&lt;y</other>"),
+        "CDATA content should be preserved as infoset-equivalent escaped text, but got: " + result);
+    assertFalse(
+        result.contains("<![CDATA["),
+        "CDATA sections are not preserved verbatim under coalescing, but got: " + result);
+  }
+
+  @Test
   @DisplayName("Complex XML structure is preserved")
   void testComplexXmlProcessing() throws IOException {
     String xmlInput =

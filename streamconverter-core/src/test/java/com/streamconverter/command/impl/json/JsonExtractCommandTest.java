@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 class JsonExtractCommandTest {
@@ -196,6 +197,36 @@ class JsonExtractCommandTest {
     JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.tags"));
     String result = execute(cmd, json);
     assertEquals("{\"tags\":[[\"java\",\"json\"]]}", result);
+  }
+
+  // ---- 数値リテラルの保全（#760）----
+
+  @Test
+  @Tag("known-bug") // #760
+  @DisplayName("long 範囲を超える整数値も例外なくそのまま抽出される")
+  void testExtractIntegerBeyondLongRange() throws IOException {
+    // Arrange - Long.MAX_VALUE + 1 は有効な JSON 数値（RFC 8259 は大きさを制限しない）
+    String json = "{\"value\":9223372036854775808}";
+    JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.value"));
+
+    // Act & Assert - 値はそのまま抽出されるべき（現状は InputCoercionException がスローされる）
+    String result = execute(cmd, json);
+    assertEquals("{\"value\":[9223372036854775808]}", result);
+  }
+
+  @Test
+  @Tag("known-bug") // #760
+  @DisplayName("double で表現できない高精度の小数も丸めずにそのまま抽出される")
+  void testExtractHighPrecisionDecimal() throws IOException {
+    // Arrange - double に丸めると末尾の精度が失われる小数
+    String json = "{\"value\":0.12345678901234567890123456789}";
+    JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.value"));
+
+    // Act
+    String result = execute(cmd, json);
+
+    // Assert - 「変換は行わない」契約どおり数値リテラルが変化しないこと
+    assertEquals("{\"value\":[0.12345678901234567890123456789]}", result);
   }
 
   // ---- TreePath ワイルドカードセグメント解析 ----

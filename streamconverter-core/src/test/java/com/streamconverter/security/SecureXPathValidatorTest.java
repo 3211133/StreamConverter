@@ -3,7 +3,6 @@ package com.streamconverter.security;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -183,7 +182,49 @@ class SecureXPathValidatorTest {
   }
 
   @Test
-  @Tag("known-bug") // #768
+  @DisplayName("厳格モードで and/or/not の複合演算子を含むXPathは拒否される")
+  void testStrictModeRejectsComplexOperatorCombinations() {
+    String complexOperatorXPath = "//a[@x='1' and @y='2' or not(@z)]";
+
+    assertThrows(
+        SecurityException.class,
+        () -> SecureXPathValidator.validateXPath(complexOperatorXPath),
+        "and/or/not の複合演算子を含むXPathが受け入れられました");
+  }
+
+  @Test
+  @DisplayName("QName 風要素名（ハイフン・ドット・コロン）に and/or/not を含むパス式は通過する")
+  void testQNameLikeElementNamesContainingOperatorSubstringsAreAccepted() {
+    // XPath の Name には - . : も含まれるため、これらを境界に持つ要素名が
+    // 単純な \b 境界判定では誤検知される。predicate 外限定の判定であることを検証する。
+    String[] qnameLikePaths = {"and-node/orbit/notation-item", "pre:and/sponsor/not.item"};
+
+    for (String xpath : qnameLikePaths) {
+      assertDoesNotThrow(
+          () -> SecureXPathValidator.validateXPath(xpath), "QName 風の正当なパス式でエラーが発生しました: " + xpath);
+      assertTrue(SecureXPathValidator.isXPathSafe(xpath), "QName 風の正当なパス式が安全でないと判定されました: " + xpath);
+    }
+  }
+
+  @Test
+  @DisplayName("要素名・属性名そのものが and/or/not のパス式は通過する")
+  void testElementOrAttributeNamesEqualToOperatorTokensAreAccepted() {
+    // and / or / not は要素名・属性名として合法に使用できる。
+    // predicate [...] 外に現れる and / or / not は常に Name の一部であり、
+    // 演算子として解釈してはならない。
+    String[] nameAsOperatorPaths = {"/root/and/or/not", "//a/or/@not"};
+
+    for (String xpath : nameAsOperatorPaths) {
+      assertDoesNotThrow(
+          () -> SecureXPathValidator.validateXPath(xpath),
+          "要素名・属性名が and/or/not のパス式でエラーが発生しました: " + xpath);
+      assertTrue(
+          SecureXPathValidator.isXPathSafe(xpath),
+          "要素名・属性名が and/or/not のパス式が安全でないと判定されました: " + xpath);
+    }
+  }
+
+  @Test
   @DisplayName("要素名に and/or/not を部分文字列として含む正当なパス式は検証を通過する")
   void testElementNamesContainingOperatorSubstringsAreAccepted() {
     // 演算子 and/or/not をトークンとして一切含まない単純な要素パス。

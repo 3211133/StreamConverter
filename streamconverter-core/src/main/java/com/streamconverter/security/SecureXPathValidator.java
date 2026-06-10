@@ -53,6 +53,19 @@ public class SecureXPathValidator {
           ".*(union|select|insert|update|delete|drop|create|alter|exec|execute)\\s+.*",
           Pattern.CASE_INSENSITIVE);
 
+  // 厳格モード用の論理演算子トークン検出パターン
+  // XPath の名前（QName）に許容される文字 [\p{L}\p{N}_:.-] を境界に用いることで、
+  // brand / colors / notes・and-node / pre:or-value / not.item のような
+  // 「演算子の部分文字列を含むだけの正当な名前」を演算子と誤検知しないようにする。
+  // CASE_INSENSITIVE は意図的に付けない（XPath の論理演算子は小文字キーワード固定）。
+  private static final String XPATH_NAME_BOUNDARY = "[\\p{L}\\p{N}_:.\\-]";
+  private static final Pattern OPERATOR_AND_PATTERN =
+      Pattern.compile("(?<!" + XPATH_NAME_BOUNDARY + ")and(?!" + XPATH_NAME_BOUNDARY + ")");
+  private static final Pattern OPERATOR_OR_PATTERN =
+      Pattern.compile("(?<!" + XPATH_NAME_BOUNDARY + ")or(?!" + XPATH_NAME_BOUNDARY + ")");
+  private static final Pattern OPERATOR_NOT_PATTERN =
+      Pattern.compile("(?<!" + XPATH_NAME_BOUNDARY + ")not(?!" + XPATH_NAME_BOUNDARY + ")");
+
   private SecureXPathValidator() {
     // ユーティリティクラスのため、インスタンス化を禁止
   }
@@ -236,11 +249,41 @@ public class SecureXPathValidator {
   }
 
   private static void checkOperators(String xpath) {
-    if (xpath.contains("and") && xpath.contains("or") && xpath.contains("not")) {
+    // 論理演算子 and / or / not は predicate [...] 内でのみ式として意味を持つ。
+    // predicate 外（要素名・属性名・ステップ）に現れる and / or / not は常に Name の一部であり、
+    // 演算子として解釈してはならない（例: /root/and、brand/colors/notes、//a[@x='1']/or/@not）。
+    // したがって predicate 内のテキストだけを対象に独立トークンとして検出することで、
+    // 「より長い Name の部分文字列」と「Name そのものが and/or/not」の両ケースを誤検知から除外する。
+    String inPredicate = extractPredicateText(xpath);
+    if (OPERATOR_AND_PATTERN.matcher(inPredicate).find()
+        && OPERATOR_OR_PATTERN.matcher(inPredicate).find()
+        && OPERATOR_NOT_PATTERN.matcher(inPredicate).find()) {
       securityLogger.warn(
           "Complex operator combination in TreePath in strict mode: {}", sanitizeForLogging(xpath));
       throw new SecurityException("Complex operator combinations not allowed in strict mode");
     }
+  }
+
+  /**
+   * XPath 式中の predicate [...] 内のテキストだけを連結して返す。 ネストした角括弧にも対応する。引用符内の角括弧は構文上不正で本来出現しないため、
+   * 構造解析の単純さを優先して特別扱いしない。
+   */
+  private static String extractPredicateText(String xpath) {
+    StringBuilder predicateText = new StringBuilder();
+    int depth = 0;
+    for (int i = 0; i < xpath.length(); i++) {
+      char c = xpath.charAt(i);
+      if (c == '[') {
+        depth++;
+      } else if (c == ']') {
+        if (depth > 0) {
+          depth--;
+        }
+      } else if (depth > 0) {
+        predicateText.append(c);
+      }
+    }
+    return predicateText.toString();
   }
 
   private static void checkWildcards(String xpath) {

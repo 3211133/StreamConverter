@@ -72,7 +72,7 @@
 <span class="source-line-no">059</span><span id="line-59">   * @throws IllegalArgumentException スキーマパスが空の場合</span>
 <span class="source-line-no">060</span><span id="line-60">   * @throws StreamProcessingException スキーマファイルの読み込みに失敗した場合</span>
 <span class="source-line-no">061</span><span id="line-61">   */</span>
-<span class="source-line-no">062</span><span id="line-62">  public static ValidateCommand create(String schemaPath) {</span>
+<span class="source-line-no">062</span><span id="line-62">  public static ValidateCommand create(String schemaPath) throws IOException {</span>
 <span class="source-line-no">063</span><span id="line-63">    Objects.requireNonNull(schemaPath, "Schema path cannot be null");</span>
 <span class="source-line-no">064</span><span id="line-64">    if (schemaPath.isBlank()) {</span>
 <span class="source-line-no">065</span><span id="line-65">      throw new IllegalArgumentException("Schema path cannot be empty");</span>
@@ -106,7 +106,7 @@
 <span class="source-line-no">093</span><span id="line-93">   * @return ロードされたSchemaオブジェクト</span>
 <span class="source-line-no">094</span><span id="line-94">   * @throws StreamProcessingException スキーマロードに失敗した場合</span>
 <span class="source-line-no">095</span><span id="line-95">   */</span>
-<span class="source-line-no">096</span><span id="line-96">  private static Schema loadSchemaFromClasspath(String validatedPath) {</span>
+<span class="source-line-no">096</span><span id="line-96">  private static Schema loadSchemaFromClasspath(String validatedPath) throws IOException {</span>
 <span class="source-line-no">097</span><span id="line-97">    try {</span>
 <span class="source-line-no">098</span><span id="line-98">      // セキュアなSchemaFactoryの作成（新しいセキュリティインフラを使用）</span>
 <span class="source-line-no">099</span><span id="line-99">      SchemaFactory factory = SecureXmlConfiguration.createSecureSchemaFactory();</span>

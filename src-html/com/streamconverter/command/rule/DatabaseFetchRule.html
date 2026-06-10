@@ -207,10 +207,16 @@
 <span class="source-line-no">194</span><span id="line-194">          logger.error("クローズ中に追加のエラーが発生しました: {}", s.getMessage(), s);</span>
 <span class="source-line-no">195</span><span id="line-195">        }</span>
 <span class="source-line-no">196</span><span id="line-196">      }</span>
-<span class="source-line-no">197</span><span id="line-197">      throw new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e);</span>
-<span class="source-line-no">198</span><span id="line-198">    }</span>
-<span class="source-line-no">199</span><span id="line-199">  }</span>
-<span class="source-line-no">200</span><span id="line-200">}</span>
+<span class="source-line-no">197</span><span id="line-197">      sneakyThrow(new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e));</span>
+<span class="source-line-no">198</span><span id="line-198">      throw new AssertionError("unreachable");</span>
+<span class="source-line-no">199</span><span id="line-199">    }</span>
+<span class="source-line-no">200</span><span id="line-200">  }</span>
+<span class="source-line-no">201</span><span id="line-201"></span>
+<span class="source-line-no">202</span><span id="line-202">  @SuppressWarnings("unchecked")</span>
+<span class="source-line-no">203</span><span id="line-203">  private static &lt;T extends Throwable&gt; void sneakyThrow(Throwable t) throws T {</span>
+<span class="source-line-no">204</span><span id="line-204">    throw (T) t;</span>
+<span class="source-line-no">205</span><span id="line-205">  }</span>
+<span class="source-line-no">206</span><span id="line-206">}</span>
 
 
 

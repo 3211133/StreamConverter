@@ -136,6 +136,11 @@ public class XmlWalker implements IStreamCommand {
 
   private XMLEventReader createXMLEventReader(InputStream inputStream) throws XMLStreamException {
     XMLInputFactory inputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();
+    // テキスト断片化防止のため coalescing を有効化する。CDATA 境界やパーサ内部バッファで
+    // 分割された連続テキストを 1 つの Characters イベントに結合し、ルールがテキスト
+    // コンテンツ全体に適用されることを保証する (#762)。XmlWalker ローカルの設定であり、
+    // SecureXmlConfiguration を共有する他コマンドには影響しない。
+    inputFactory.setProperty(XMLInputFactory.IS_COALESCING, true);
     XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);
     if (!reader.hasNext()) {
       try {

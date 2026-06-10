@@ -21,7 +21,6 @@ import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for XmlWalker. */
@@ -114,7 +113,6 @@ class XmlWalkerTest {
   }
 
   @Test
-  @Tag("known-bug") // #762
   @DisplayName("Rule is applied to the whole text content even when split by a CDATA boundary")
   void testRuleAppliedToWholeTextAcrossCdataBoundary() throws IOException {
     // Arrange - <item> のテキストコンテンツは "userName"（CDATA 境界で2つの

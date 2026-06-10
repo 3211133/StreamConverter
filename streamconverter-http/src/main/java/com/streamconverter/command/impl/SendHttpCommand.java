@@ -215,7 +215,8 @@ public class SendHttpCommand implements IStreamCommand {
 
     revalidateHostForSsrf();
 
-    logger.info("Sending HTTP POST request to: {}", url);
+    String safeUrl = sanitizeUrl(url);
+    logger.info("Sending HTTP POST request to: {}", safeUrl);
 
     try {
       // Track total bytes written for better error reporting
@@ -285,8 +286,12 @@ public class SendHttpCommand implements IStreamCommand {
       // with CompletableFuture for true async, but would break command interface contract.
 
     } catch (RuntimeException e) {
-      // WebClient error responses are wrapped in RuntimeException
-      String errorMessage = "HTTP request failed: " + url + " - " + e.getMessage();
+      // WebClient error responses are wrapped in RuntimeException.
+      // 例外メッセージには sanitizeUrl 適用後のURLのみを含め、e.getMessage() の連結は避ける。
+      // WebClient の下位例外メッセージに生 URL が含まれるケース（クエリ文字列・資格情報）でも
+      // 公開される IOException メッセージから漏洩しないようにするため。
+      // 原因の詳細は cause として保持し、診断性を維持する。
+      String errorMessage = "HTTP request failed: " + safeUrl;
       logger.error(errorMessage, e);
       throw new IOException(errorMessage, e);
     }

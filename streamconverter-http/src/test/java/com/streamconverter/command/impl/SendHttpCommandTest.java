@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
 import org.springframework.web.reactive.function.client.WebClient;
@@ -110,7 +109,6 @@ class SendHttpCommandTest {
   }
 
   @Test
-  @Tag("known-bug") // #766
   @DisplayName("リクエスト失敗時の例外メッセージにクエリ文字列の資格情報を含めない")
   void testExceptionMessageDoesNotLeakCredentialsOnRequestFailure() {
     // 資格情報（api_key）をクエリ文字列に含むURL

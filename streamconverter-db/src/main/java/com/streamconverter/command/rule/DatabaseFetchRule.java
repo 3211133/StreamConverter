@@ -132,6 +132,15 @@ public class DatabaseFetchRule implements IRule {
    */
   @Override
   public String apply(String input) {
+    // プレースホルダー付きクエリに空/null 入力が来た場合は DB に接続せず拒否する。
+    // PooledDatabaseFetchRule.bindParameters() と同じ挙動に揃え、未バインドのまま executeQuery が
+    // 走って SQLException("Parameter #1 is not set" 相当) になるのを防ぐ。
+    if (query.contains("?") && (input == null || input.isEmpty())) {
+      logger.warn(
+          "Query has a placeholder but input is null or empty. Rejecting to prevent unbound parameter.");
+      return "";
+    }
+
     try (Connection connection = DriverManager.getConnection(databaseUrl);
         PreparedStatement statement = connection.prepareStatement(query)) {
 

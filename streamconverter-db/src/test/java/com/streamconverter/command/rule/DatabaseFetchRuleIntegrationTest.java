@@ -10,7 +10,6 @@ import java.sql.Statement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -221,7 +220,6 @@ public class DatabaseFetchRuleIntegrationTest {
   }
 
   @Test
-  @Tag("known-bug") // #764
   @DisplayName("プレースホルダー付きクエリに空文字列を入力した場合は例外を出さず空文字列を返す")
   public void testEmptyInputWithPlaceholderQueryReturnsEmptyString() {
     DatabaseFetchRule rule = new DatabaseFetchRule(dbUrl, "SELECT name FROM users WHERE id = ?");
@@ -232,7 +230,6 @@ public class DatabaseFetchRuleIntegrationTest {
   }
 
   @Test
-  @Tag("known-bug") // #764
   @DisplayName("プレースホルダー付きクエリにnullを入力した場合は例外を出さず空文字列を返す")
   public void testNullInputWithPlaceholderQueryReturnsEmptyString() {
     DatabaseFetchRule rule = new DatabaseFetchRule(dbUrl, "SELECT name FROM users WHERE id = ?");

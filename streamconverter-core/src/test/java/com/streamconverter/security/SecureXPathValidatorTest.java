@@ -3,6 +3,7 @@ package com.streamconverter.security;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -179,6 +180,22 @@ class SecureXPathValidatorTest {
         SecurityException.class,
         () -> SecureXPathValidator.validateXPath(deepNestedXPath.toString()),
         "深いネストを持つXPath式が受け入れられました");
+  }
+
+  @Test
+  @Tag("known-bug") // #768
+  @DisplayName("要素名に and/or/not を部分文字列として含む正当なパス式は検証を通過する")
+  void testElementNamesContainingOperatorSubstringsAreAccepted() {
+    // 演算子 and/or/not をトークンとして一切含まない単純な要素パス。
+    // 要素名の一部（brand/colors/notes、operand/sponsor/notation）に
+    // 演算子と同じ文字列が含まれるだけであり、検証を通過することが期待される。
+    String[] legitimatePaths = {"brand/colors/notes", "operand/sponsor/notation"};
+
+    for (String xpath : legitimatePaths) {
+      assertDoesNotThrow(
+          () -> SecureXPathValidator.validateXPath(xpath), "正当なパス式でエラーが発生しました: " + xpath);
+      assertTrue(SecureXPathValidator.isXPathSafe(xpath), "正当なパス式が安全でないと判定されました: " + xpath);
+    }
   }
 
   @Test

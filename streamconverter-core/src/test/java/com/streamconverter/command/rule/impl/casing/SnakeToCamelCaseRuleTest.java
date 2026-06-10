@@ -3,7 +3,6 @@ package com.streamconverter.command.rule.impl.casing;
 import static org.junit.jupiter.api.Assertions.*;
 
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -51,7 +50,6 @@ class SnakeToCamelCaseRuleTest {
   }
 
   @Test
-  @Tag("known-bug") // #758
   @DisplayName("Preserve leading underscore when preserveUnderscores is enabled")
   void testPreserveLeadingUnderscore() {
     // Arrange - preserveUnderscores=true は先頭・末尾のアンダースコアを保持する設定
@@ -62,7 +60,6 @@ class SnakeToCamelCaseRuleTest {
   }
 
   @Test
-  @Tag("known-bug") // #758
   @DisplayName("Preserve both leading and trailing underscores when preserveUnderscores is enabled")
   void testPreserveLeadingAndTrailingUnderscores() {
     // Arrange

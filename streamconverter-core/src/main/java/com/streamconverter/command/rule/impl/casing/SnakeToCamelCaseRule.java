@@ -55,9 +55,24 @@ public class SnakeToCamelCaseRule implements IRule {
       return input;
     }
     String result = normalizeUnderscores(input);
+    String leadingUnderscores = "";
+    String trailingUnderscores = "";
+    if (preserveUnderscores) {
+      int start = 0;
+      while (start < result.length() && result.charAt(start) == '_') {
+        start++;
+      }
+      int end = result.length();
+      while (end > start && result.charAt(end - 1) == '_') {
+        end--;
+      }
+      leadingUnderscores = result.substring(0, start);
+      trailingUnderscores = result.substring(end);
+      result = result.substring(start, end);
+    }
     result = convertSnakeToCamel(result);
     result = trimUnderscores(result);
-    return adjustFirstLetterCase(result);
+    return leadingUnderscores + adjustFirstLetterCase(result) + trailingUnderscores;
   }
 
   private String normalizeUnderscores(String value) {

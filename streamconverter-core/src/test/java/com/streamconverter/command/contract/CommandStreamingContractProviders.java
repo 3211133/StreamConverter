@@ -280,7 +280,7 @@ final class JsonExtractCommandStreamingContractProvider
 
 final class ValidateCommandStreamingContractProvider implements CommandStreamingContractProvider {
   @Override
-  public IStreamCommand createCommand() {
+  public IStreamCommand createCommand() throws IOException {
     return ValidateCommand.create("test-schema.xsd");
   }
 

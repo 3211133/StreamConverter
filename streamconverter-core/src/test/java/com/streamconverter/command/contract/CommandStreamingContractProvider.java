@@ -1,6 +1,7 @@
 package com.streamconverter.command.contract;
 
 import com.streamconverter.command.IStreamCommand;
+import java.io.IOException;
 
 /**
  * Provides the command instance and probe input used by the streaming contract tests.
@@ -17,7 +18,7 @@ import com.streamconverter.command.IStreamCommand;
  */
 interface CommandStreamingContractProvider {
 
-  IStreamCommand createCommand();
+  IStreamCommand createCommand() throws IOException;
 
   byte[] sampleInput();
 

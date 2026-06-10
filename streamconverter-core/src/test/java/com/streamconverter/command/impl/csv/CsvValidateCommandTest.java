@@ -8,7 +8,6 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** CsvValidateCommandクラスのテスト */
@@ -467,10 +466,8 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @Tag("known-bug") // #731
-  @DisplayName(
-      "CsvValidateCommand は CSV バリデーション失敗時に IOException をスローする（StreamProcessingException を外に出さない）")
-  void bug_csvValidateCommand_validationFailureThrowsIOException() throws IOException {
+  @DisplayName("#731: CsvValidateCommand が CSV バリデーション失敗時に IOException をスローする")
+  void csvValidateCommand_validationFailureThrowsIOException() throws IOException {
     CsvValidateCommand command = CsvValidateCommand.create("id", "name");
     String csvInput = "id,age\n1,30\n";
 
@@ -478,12 +475,9 @@ public class CsvValidateCommandTest {
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
 
-    // IStreamCommand.execute() の設計方針は throws IOException のみ。
-    // バグ: CSV バリデーション失敗 → StreamProcessingException（RuntimeException）が伝播。
-    // 期待: IOException がスローされるべき
     assertThrows(
         IOException.class,
         () -> command.execute(inputStream, outputStream),
-        "CsvValidateCommand.execute() は IOException をスローするべきだが、StreamProcessingException（RuntimeException）が伝播する");
+        "CsvValidateCommand.execute() は IOException をスローするべき");
   }
 }

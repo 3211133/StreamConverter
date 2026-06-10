@@ -187,7 +187,7 @@ public class CsvValidateCommand extends ConsumerCommand {
   }
 
   /** バリデーションエラーの処理 */
-  private void handleValidationErrors(List<String> errors) {
+  private void handleValidationErrors(List<String> errors) throws IOException {
     StringBuilder errorBuilder = new StringBuilder();
     errorBuilder.append("CSV validation failed with ").append(errors.size()).append(" error(s):");
 

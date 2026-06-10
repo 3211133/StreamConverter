@@ -1,5 +1,6 @@
 package com.streamconverter;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
@@ -15,7 +16,7 @@ final class PipelineCompletionMonitor {
    * @param futures stage completion futures
    * @throws ExecutionException if any stage completed exceptionally
    */
-  void await(List<CompletableFuture<Void>> futures) throws ExecutionException {
+  void await(List<CompletableFuture<Void>> futures) throws ExecutionException, IOException {
     try {
       CompletableFuture.allOf(futures.toArray(CompletableFuture[]::new)).get();
     } catch (InterruptedException interruptedException) {

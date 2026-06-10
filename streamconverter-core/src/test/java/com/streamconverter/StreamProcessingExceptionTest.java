@@ -1,6 +1,7 @@
 package com.streamconverter;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 import static org.junit.jupiter.api.Assertions.assertSame;
 
@@ -40,11 +41,25 @@ class StreamProcessingExceptionTest {
   }
 
   @Test
-  void testExceptionIsRuntimeException() {
+  void testExceptionIsIOException() {
     StreamProcessingException exception = new StreamProcessingException("Test");
 
-    // Should be a RuntimeException
+    // Should be an IOException (checked exception honouring IStreamCommand.execute() contract)
     assertNotNull(exception);
-    assertEquals(RuntimeException.class, exception.getClass().getSuperclass());
+    assertEquals(IOException.class, exception.getClass().getSuperclass());
+  }
+
+  @Test
+  void streamProcessingExceptionIsCaughtAsIOException() {
+    IOException caught = null;
+    try {
+      throw new StreamProcessingException("test");
+    } catch (IOException e) {
+      caught = e;
+    }
+    assertInstanceOf(
+        StreamProcessingException.class,
+        caught,
+        "StreamProcessingException は catch (IOException) で捕捉できること");
   }
 }

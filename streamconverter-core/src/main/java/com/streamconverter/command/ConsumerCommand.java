@@ -51,8 +51,6 @@ public abstract class ConsumerCommand implements IStreamCommand {
 
     try (InputStream teeInputStream = new TeeInputStream(inputStream, outputStream)) {
       this.consume(teeInputStream);
-    } catch (IOException e) {
-      throw new IOException("Error while consuming input stream", e);
     }
   }
 

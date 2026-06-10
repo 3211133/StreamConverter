@@ -11,7 +11,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("XMLバリデーションコマンドのテスト")
@@ -37,7 +36,7 @@ class ValidateTest {
 
   @Test
   @DisplayName("コンストラクタのテスト")
-  void testConstructor() {
+  void testConstructor() throws IOException {
     // コンストラクタのテスト
     ValidateCommand command = ValidateCommand.create(schemaPath);
     assertNotNull(command);
@@ -86,7 +85,7 @@ class ValidateTest {
 
   @Test
   @DisplayName("execute異常系：null入力ストリーム")
-  void testExecuteWithNullInputStream() {
+  void testExecuteWithNullInputStream() throws IOException {
     // null入力ストリームでのexecuteメソッドテスト
     ValidateCommand command = ValidateCommand.create(schemaPath);
     ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
@@ -166,23 +165,18 @@ class ValidateTest {
   }
 
   @Test
-  @Tag("known-bug") // #729
-  @DisplayName(
-      "ValidateCommand は XMLバリデーション失敗時に IOException をスローする（StreamProcessingException を外に出さない）")
-  void bug_validateCommand_xmlValidationFailureThrowsIOException() throws IOException {
+  @DisplayName("#729: ValidateCommand が XMLバリデーション失敗時に IOException をスローする")
+  void validateCommand_xmlValidationFailureThrowsIOException() throws IOException {
     ValidateCommand command = ValidateCommand.create(schemaPath);
 
     try (InputStream inputStream =
             getClass().getClassLoader().getResourceAsStream("invalid-test.xml");
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
 
-      // IStreamCommand.execute() の契約は throws IOException のみ。
-      // バグ: SAXException → StreamProcessingException（RuntimeException）がキャッチされずに伝播。
-      // 期待: IOException がスローされるべき
       assertThrows(
           IOException.class,
           () -> command.execute(inputStream, outputStream),
-          "ValidateCommand.execute() は IOException をスローするべきだが、StreamProcessingException（RuntimeException）が伝播する");
+          "ValidateCommand.execute() は IOException をスローするべき");
     }
   }
 

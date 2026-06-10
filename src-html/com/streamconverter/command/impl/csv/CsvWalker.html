@@ -134,7 +134,7 @@
 <span class="source-line-no">121</span><span id="line-121"></span>
 <span class="source-line-no">122</span><span id="line-122">    List&lt;Integer&gt; indices = columnSelector.resolve(headers);</span>
 <span class="source-line-no">123</span><span id="line-123">    if (indices.isEmpty()) {</span>
-<span class="source-line-no">124</span><span id="line-124">      throw new IllegalArgumentException("Column not found: " + columnSelector.toString());</span>
+<span class="source-line-no">124</span><span id="line-124">      throw new IOException("Column not found: " + columnSelector.toString());</span>
 <span class="source-line-no">125</span><span id="line-125">    }</span>
 <span class="source-line-no">126</span><span id="line-126"></span>
 <span class="source-line-no">127</span><span id="line-127">    // Write header (unchanged); applyQuotesToAll=false: only quote when RFC 4180 requires</span>

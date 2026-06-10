@@ -121,7 +121,7 @@ public class CsvWalker implements IStreamCommand {
 
     List<Integer> indices = columnSelector.resolve(headers);
     if (indices.isEmpty()) {
-      throw new IllegalArgumentException("Column not found: " + columnSelector.toString());
+      throw new IOException("Column not found: " + columnSelector.toString());
     }
 
     // Write header (unchanged); applyQuotesToAll=false: only quote when RFC 4180 requires

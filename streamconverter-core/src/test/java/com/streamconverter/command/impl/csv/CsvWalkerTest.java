@@ -31,7 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CsvWalker. */
@@ -361,22 +360,17 @@ class CsvWalkerTest {
   }
 
   @Test
-  @Tag("known-bug") // #726
-  @DisplayName("存在しない列を指定したとき IllegalArgumentException が IOException にラップされる")
-  void bug_csvWalker_unknownColumnThrowsIOException() throws IOException {
+  @DisplayName("[#726] 存在しない列を指定したとき IOException がスローされること")
+  void testCsvWalker_unknownColumnThrowsIOException() throws IOException {
     String csvInput = "name,age\nAlice,30\n";
     CsvWalker csvWalker = CsvWalker.create(CSVPath.of("nonexistent"), new PassThroughRule());
     ByteArrayInputStream input =
         new ByteArrayInputStream(csvInput.getBytes(StandardCharsets.UTF_8));
     ByteArrayOutputStream output = new ByteArrayOutputStream();
-    IOException thrown =
-        assertThrows(
-            IOException.class,
-            () -> csvWalker.execute(input, output),
-            "存在しない列の指定は IOException にラップされるべきだが、CsvWalker は IllegalArgumentException をスローする");
-    assertInstanceOf(
-        IllegalArgumentException.class,
-        thrown.getCause(),
-        "Cause は CsvWalker からの IllegalArgumentException であること");
+
+    assertThrows(
+        IOException.class,
+        () -> csvWalker.execute(input, output),
+        "存在しない列の指定は IOException をスローするべきだが、IStreamCommand.execute() 契約に違反する例外が伝播する");
   }
 }

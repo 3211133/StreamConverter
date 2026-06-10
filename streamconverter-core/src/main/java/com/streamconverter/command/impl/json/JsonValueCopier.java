@@ -31,8 +31,9 @@ final class JsonValueCopier {
       case START_OBJECT -> copyObject(parser, generator);
       case START_ARRAY -> copyArray(parser, generator);
       case VALUE_STRING -> generator.writeString(parser.getText());
-      case VALUE_NUMBER_INT -> generator.writeNumber(parser.getLongValue());
-      case VALUE_NUMBER_FLOAT -> generator.writeNumber(parser.getDoubleValue());
+      // Write the original numeric literal verbatim to avoid overflow on integers
+      // beyond long range and precision loss on decimals beyond double precision (#760).
+      case VALUE_NUMBER_INT, VALUE_NUMBER_FLOAT -> generator.writeNumber(parser.getText());
       case VALUE_TRUE -> generator.writeBoolean(true);
       case VALUE_FALSE -> generator.writeBoolean(false);
       default -> generator.writeNull();

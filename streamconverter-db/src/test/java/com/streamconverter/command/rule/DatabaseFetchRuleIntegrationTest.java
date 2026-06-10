@@ -10,6 +10,7 @@ import java.sql.Statement;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /**
@@ -217,6 +218,28 @@ public class DatabaseFetchRuleIntegrationTest {
     assertTrue(
         duration < 5000,
         "100 queries should complete within 5 seconds, but took: " + duration + "ms");
+  }
+
+  @Test
+  @Tag("known-bug") // #764
+  @DisplayName("プレースホルダー付きクエリに空文字列を入力した場合は例外を出さず空文字列を返す")
+  public void testEmptyInputWithPlaceholderQueryReturnsEmptyString() {
+    DatabaseFetchRule rule = new DatabaseFetchRule(dbUrl, "SELECT name FROM users WHERE id = ?");
+
+    // プレースホルダーをバインドできない空入力ではクエリを実行せず空文字列を返すこと
+    // （PooledDatabaseFetchRule の bindParameters と同じ動作）
+    assertEquals("", rule.apply(""));
+  }
+
+  @Test
+  @Tag("known-bug") // #764
+  @DisplayName("プレースホルダー付きクエリにnullを入力した場合は例外を出さず空文字列を返す")
+  public void testNullInputWithPlaceholderQueryReturnsEmptyString() {
+    DatabaseFetchRule rule = new DatabaseFetchRule(dbUrl, "SELECT name FROM users WHERE id = ?");
+
+    // プレースホルダーをバインドできない null 入力ではクエリを実行せず空文字列を返すこと
+    // （PooledDatabaseFetchRule の bindParameters と同じ動作）
+    assertEquals("", rule.apply(null));
   }
 
   @Test

@@ -209,7 +209,7 @@ class JsonExtractCommandTest {
     String json = "{\"value\":9223372036854775808}";
     JsonExtractCommand cmd = JsonExtractCommand.create(TreePath.fromJson("$.value"));
 
-    // Act & Assert - 値はそのまま抽出されるべき（現状は InputCoercionException がスローされる）
+    // Act & Assert - 値は例外なくそのまま抽出されるべき
     String result = execute(cmd, json);
     assertEquals("{\"value\":[9223372036854775808]}", result);
   }

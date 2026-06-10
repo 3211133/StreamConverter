@@ -361,9 +361,9 @@ class CsvWalkerTest {
   }
 
   @Test
-  @Tag("known-bug")
-  @DisplayName("Bug証明 #726: 存在しない列を指定したとき IllegalArgumentException が IOException にラップされずに伝播する")
-  void bug_csvWalker_unknownColumnThrowsIllegalArgumentException() throws IOException {
+  @Tag("known-bug") // #726
+  @DisplayName("存在しない列を指定したとき IllegalArgumentException が IOException にラップされる")
+  void bug_csvWalker_unknownColumnThrowsIOException() throws IOException {
     String csvInput = "name,age\nAlice,30\n";
     CsvWalker csvWalker = CsvWalker.create(CSVPath.of("nonexistent"), new PassThroughRule());
     ByteArrayInputStream input =

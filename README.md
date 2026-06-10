@@ -30,6 +30,30 @@ Java 21 &nbsp;|&nbsp; [📚 完全なドキュメント一覧](docs/INDEX.md) &n
 
 ---
 
+## 📦 依存関係の追加
+
+### Gradle (Kotlin DSL)
+```kotlin
+implementation("com.streamconverter:streamconverter-core:0.1.0")
+
+// HTTP連携コマンドを使う場合
+implementation("com.streamconverter:streamconverter-http:0.1.0")
+
+// DBルール連携を使う場合
+implementation("com.streamconverter:streamconverter-db:0.1.0")
+```
+
+### Maven
+```xml
+<dependency>
+  <groupId>com.streamconverter</groupId>
+  <artifactId>streamconverter-core</artifactId>
+  <version>0.1.0</version>
+</dependency>
+```
+
+---
+
 ## 🚀 クイックスタート
 
 ```java

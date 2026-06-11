@@ -8,6 +8,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** CsvValidateCommandクラスのテスト */
@@ -417,6 +418,30 @@ public class CsvValidateCommandTest {
     assertFalse(
         msg.contains("3 error(s)"),
         "maxErrorsToReport=2 なのに '3 error(s)' が含まれていた。実際のメッセージ: " + msg);
+  }
+
+  @Test
+  @Tag("known-bug") // #747
+  @DisplayName("ヘッダーのみのCSVでも maxErrorsToReport の上限を超えてエラーが報告されない")
+  void maxErrorsToReport_headerOnlyCsvDoesNotExceedLimit() throws IOException {
+    // 空セルを含むヘッダー行のみ（データ行なし）の入力では、
+    // ヘッダー検証エラーと「データ行なし」エラーの2系統の追加経路が同時に発生する。
+    // maxErrorsToReport=1 のとき、報告されるエラーは経路によらず1件に制限されるべき。
+    CsvValidateCommand command = CsvValidateCommand.create(true, 1);
+    String csv = "id,\n";
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
+
+    StreamProcessingException exception =
+        assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
+
+    String msg = exception.getMessage();
+    assertTrue(
+        msg.contains("1 error(s)"),
+        "maxErrorsToReport=1 なのに '1 error(s)' が含まれていない。実際のメッセージ: " + msg);
+    assertFalse(
+        msg.contains("2 error(s)"),
+        "maxErrorsToReport=1 なのに '2 error(s)' が含まれていた。実際のメッセージ: " + msg);
   }
 
   @Test

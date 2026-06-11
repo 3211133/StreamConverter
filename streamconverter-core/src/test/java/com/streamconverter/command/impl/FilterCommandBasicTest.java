@@ -15,6 +15,7 @@ import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import org.junit.jupiter.api.DisplayName;
@@ -598,5 +599,55 @@ class FilterCommandBasicTest {
         IllegalArgumentException.class,
         thrown.getCause(),
         "Cause は CsvFilterCommand からの IllegalArgumentException であること");
+  }
+
+  @Test
+  @Tag("known-bug") // #784
+  @DisplayName("CsvFilterCommand: 読み取り中の入力ストリーム I/O 障害は IOException として呼び出し元に伝播する")
+  void testCsvFilterCommand_readIoErrorPropagatesAsIOException() {
+    // ネットワーク切断・パイプ切断等で読み取り途中に I/O 障害が発生した場合、
+    // 途中までの行だけの切り詰められた出力を完全な結果として確定させてはならず、
+    // IOException を呼び出し元に伝播させて障害を検知可能にするべき。
+    //
+    // 失敗ストリーム: 全3行（ヘッダー + Alice 行 + Bob 行）の CSV のうち、
+    // ヘッダーと Alice 行までを供給した後、Bob 行が届く前に I/O 障害が発生する。
+    // 障害が無視されると、後続行を欠いた切り詰め出力が完全な結果として確定してしまう。
+    byte[] supplied = "id,name\n1,Alice\n".getBytes(StandardCharsets.UTF_8);
+    InputStream failingStream =
+        new InputStream() {
+          private int position = 0;
+
+          @Override
+          public int read(byte[] b, int off, int len) throws IOException {
+            // read(byte[], int, int) を直接オーバーライドするのは、JDK のデフォルト実装が
+            // 2バイト目以降の read() の IOException を握りつぶすため。
+            // 読み取り位置を管理し、供給分を返し切った後の読み取りで I/O 障害を発生させる。
+            if (position >= supplied.length) {
+              throw new IOException("simulated I/O failure during read");
+            }
+            int n = Math.min(len, supplied.length - position);
+            System.arraycopy(supplied, position, b, off, n);
+            position += n;
+            return n;
+          }
+
+          @Override
+          public int read() throws IOException {
+            if (position >= supplied.length) {
+              throw new IOException("simulated I/O failure during read");
+            }
+            return supplied[position++] & 0xFF;
+          }
+        };
+    CsvFilterCommand command = CsvFilterCommand.create(CSVPath.of("name"));
+    ByteArrayOutputStream output = new ByteArrayOutputStream();
+
+    assertThrows(
+        IOException.class,
+        () -> command.execute(failingStream, output),
+        () ->
+            "読み取り中の I/O 障害は IOException として伝播し、切り詰められた出力を正常終了として確定させないこと。"
+                + "確定されてしまった切り詰め出力: "
+                + output.toString(StandardCharsets.UTF_8));
   }
 }

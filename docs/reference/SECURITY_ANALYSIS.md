@@ -34,12 +34,13 @@ public static DocumentBuilderFactory createSecureDocumentBuilderFactory() {
 本プロジェクトは XPath 評価エンジン（`javax.xml.xpath` 等）を使用していません。
 パス照合は `com.streamconverter.path.TreePath` が行い、パス式をセグメントに分割して
 要素パスとの等値比較（`List.equals`）を行うのみで、predicate・関数・論理演算子を
-一切評価しません。Web API の外部入力（`/json/extract` の `jsonPath` パラメータ、
-`X-Pipeline-Config` ヘッダ）も `TreePath` に直接渡されます。
+一切評価しません。Web API の外部入力も、`/json/extract` の `jsonPath` パラメータと
+`X-Pipeline-Config` ヘッダ中の `json:` コマンドパラメータが `TreePath.fromJson` で
+処理されます（形式不正な入力は `IllegalArgumentException` で拒否されます）。
 
 そのため、**XPath インジェクションという脅威分類は現行実装には該当しません**。
-悪意のある式（例: `' or '1'='1`）を渡しても、単に「そのような名前のセグメント」として
-等値比較され、どの要素にもマッチしないだけです。
+有効な TreePath 形式の入力であっても式として評価されることはなく、
+単なるセグメントの等値比較として扱われるだけです。
 
 > **将来の再評価条件**: XPath 評価エンジンを導入する場合は、採用するエンジンと
 > 入力境界に基づいて脅威モデルを再評価し、必要な検証をその時点で新規設計してください。
@@ -146,7 +147,6 @@ jobs:
 ```properties
 # application-prod.properties
 security.xml.disable-external-entities=true
-security.xpath.validation.enabled=true
 security.path-traversal.prevention=true
 ```
 

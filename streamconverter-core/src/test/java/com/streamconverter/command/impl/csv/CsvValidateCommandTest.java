@@ -6,8 +6,10 @@ import com.streamconverter.StreamProcessingException;
 import com.streamconverter.test.StreamingTestUtils.TrackingInputStream;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** CsvValidateCommandクラスのテスト */
@@ -479,5 +481,34 @@ public class CsvValidateCommandTest {
         IOException.class,
         () -> command.execute(inputStream, outputStream),
         "CsvValidateCommand.execute() は IOException をスローするべき");
+  }
+
+  @Test
+  @Tag("known-bug") // #748
+  @DisplayName("入力ストリームの I/O 障害はパース失敗と区別できるメッセージで報告される")
+  void ioErrorIsNotLabeledAsParseFailure() {
+    // ネットワーク切断・パイプ切断等の I/O 障害は CSV の内容不正とは原因が異なるため、
+    // オペレーターが切り分けられるメッセージで報告されるべき。
+    // close() 時の IOException を使うのは、opencsv の readNext() が読み取り中の
+    // IOException を EOF として扱うため、I/O 障害が IOException として観測できる
+    // 経路がストリームのクローズ時に限られることによる。
+    CsvValidateCommand command = CsvValidateCommand.create(true, 10);
+    byte[] csv = "id,name\n1,Alice\n".getBytes(StandardCharsets.UTF_8);
+    InputStream failingStream =
+        new ByteArrayInputStream(csv) {
+          @Override
+          public void close() throws IOException {
+            throw new IOException("simulated connection loss");
+          }
+        };
+
+    StreamProcessingException exception =
+        assertThrows(StreamProcessingException.class, () -> command.consume(failingStream));
+
+    String msg = exception.getMessage();
+    assertFalse(msg.contains("Failed to parse CSV"), "I/O 障害がパース失敗としてラベルされている。実際のメッセージ: " + msg);
+    assertTrue(
+        msg.contains("Failed to read CSV input"),
+        "I/O 障害は 'Failed to read CSV input' として報告されるべき。実際のメッセージ: " + msg);
   }
 }

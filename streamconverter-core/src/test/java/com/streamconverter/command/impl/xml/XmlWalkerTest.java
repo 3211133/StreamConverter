@@ -21,6 +21,7 @@ import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for XmlWalker. */
@@ -110,6 +111,33 @@ class XmlWalkerTest {
     assertTrue(result.contains("<item>ORIGINAL</item>"), "Should apply rule to matched element");
     assertTrue(
         result.contains("<other>unchanged</other>"), "Should not transform non-matched elements");
+  }
+
+  @Test
+  @Tag("known-bug") // #762
+  @DisplayName("Rule is applied to the whole text content even when split by a CDATA boundary")
+  void testRuleAppliedToWholeTextAcrossCdataBoundary() throws IOException {
+    // Arrange - <item> のテキストコンテンツは "userName"（CDATA 境界で2つの
+    // Characters イベントに分割されて届く）
+    String xmlInput =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?><root><item>user<![CDATA[Name]]></item></root>";
+    XmlWalker snakeCaseCommand =
+        XmlWalker.create(
+            TreePath.fromXml("root/item"),
+            com.streamconverter.command.rule.impl.casing.CamelToSnakeCaseRule.create());
+
+    InputStream inputStream = new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    // Act
+    snakeCaseCommand.execute(inputStream, outputStream);
+
+    // Assert - テキストコンテンツ全体 "userName" への変換結果 "user_name" が出力されるべき。
+    // 断片ごとに適用されると "user" + "name" = "username" になり語境界が失われる
+    String result = outputStream.toString(StandardCharsets.UTF_8);
+    assertTrue(
+        result.contains("<item>user_name</item>"),
+        "Rule should be applied to the whole text content of the node, but got: " + result);
   }
 
   @Test

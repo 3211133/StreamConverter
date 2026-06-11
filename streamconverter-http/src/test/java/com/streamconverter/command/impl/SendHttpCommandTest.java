@@ -6,10 +6,14 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.InetAddress;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfSystemProperty;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
 
 /** SendHttpCommandの包括的なテスト */
 class SendHttpCommandTest {
@@ -103,6 +107,48 @@ class SendHttpCommandTest {
     System.out.println("📥 レスポンス長: " + response.length() + " bytes");
     System.out.println(
         "📋 レスポンス例: " + response.substring(0, Math.min(200, response.length())) + "...");
+  }
+
+  @Test
+  @Tag("known-bug") // #766
+  @DisplayName("リクエスト失敗時の例外メッセージにクエリ文字列の資格情報を含めない")
+  void testExceptionMessageDoesNotLeakCredentialsOnRequestFailure() {
+    // 資格情報（api_key）をクエリ文字列に含むURL
+    String urlWithCredentials = "https://api.example.com/data?api_key=secret123";
+
+    // パブリックIPを返すモックリゾルバ（SSRF検証をパスさせる）
+    InetAddressResolver publicIpResolver =
+        host -> new InetAddress[] {InetAddress.getByName("93.184.216.34")};
+
+    // ネットワークを使わずにリクエストを失敗させる ExchangeFunction スタブ
+    WebClient failingWebClient =
+        WebClient.builder()
+            .exchangeFunction(request -> Mono.error(new RuntimeException("connection refused")))
+            .build();
+
+    SendHttpCommand command =
+        new SendHttpCommand(urlWithCredentials, failingWebClient, publicIpResolver);
+
+    ByteArrayInputStream inputStream =
+        new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () -> command.execute(inputStream, outputStream),
+            "リクエスト失敗時はIOExceptionをスローするべき");
+
+    // 期待動作: 例外メッセージには sanitizeUrl() 適用後のURLのみが含まれ、
+    // クエリ文字列の資格情報は漏洩しない
+    assertFalse(
+        thrown.getMessage().contains("api_key=secret123"),
+        "例外メッセージにクエリ文字列の資格情報（api_key=secret123）を含めるべきではない: " + thrown.getMessage());
+
+    // URL自体への言及（サニタイズ済み）は維持される
+    assertTrue(
+        thrown.getMessage().contains("https://api.example.com"),
+        "例外メッセージにはサニタイズ済みURLへの言及が含まれるべき: " + thrown.getMessage());
   }
 
   @Test

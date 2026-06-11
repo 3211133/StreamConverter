@@ -427,8 +427,21 @@ public class CsvValidateCommandTest {
     // 空セルを含むヘッダー行のみ（データ行なし）の入力では、
     // ヘッダー検証エラーと「データ行なし」エラーの2系統の追加経路が同時に発生する。
     // maxErrorsToReport=1 のとき、報告されるエラーは経路によらず1件に制限されるべき。
-    CsvValidateCommand command = CsvValidateCommand.create(true, 1);
     String csv = "id,\n";
+
+    // 前提確認: 上限が十分大きければこの入力は2系統のエラーを2件とも報告する。
+    // ヘッダー検証仕様の変更で前提が崩れた場合、上限迂回の検証が成立しなくなるため
+    // ここで検出する。
+    CsvValidateCommand uncapped = CsvValidateCommand.create(true, 10);
+    ByteArrayInputStream uncappedInput =
+        new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
+    StreamProcessingException uncappedException =
+        assertThrows(StreamProcessingException.class, () -> uncapped.consume(uncappedInput));
+    assertTrue(
+        uncappedException.getMessage().contains("2 error(s)"),
+        "前提: この入力は上限が十分大きいとき2件のエラーを報告するはず。実際のメッセージ: " + uncappedException.getMessage());
+
+    CsvValidateCommand command = CsvValidateCommand.create(true, 1);
     ByteArrayInputStream inputStream =
         new ByteArrayInputStream(csv.getBytes(StandardCharsets.UTF_8));
 

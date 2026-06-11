@@ -521,7 +521,6 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @Tag("known-bug") // #748
   @DisplayName("入力ストリームの I/O 障害はパース失敗と区別できるメッセージで報告される")
   void ioErrorIsNotLabeledAsParseFailure() {
     // ネットワーク切断・パイプ切断等の I/O 障害は CSV の内容不正とは原因が異なるため、

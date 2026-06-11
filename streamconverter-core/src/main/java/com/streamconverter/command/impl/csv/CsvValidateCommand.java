@@ -1,6 +1,7 @@
 package com.streamconverter.command.impl.csv;
 
 import com.opencsv.CSVReader;
+import com.opencsv.exceptions.CsvMalformedLineException;
 import com.opencsv.exceptions.CsvValidationException;
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.ConsumerCommand;
@@ -159,12 +160,14 @@ public class CsvValidateCommand extends ConsumerCommand {
 
       return validateDataRows(csvReader, rowValidator, headers, validationErrors);
 
-    } catch (CsvValidationException e) {
+    } catch (CsvValidationException | CsvMalformedLineException e) {
+      // CsvMalformedLineException は IOException のサブクラスだが、
+      // 未閉鎖クォート等のパース失敗を表すため I/O 障害と区別して扱う
       logger.error("CSV parsing error: {}", e.getMessage(), e);
       throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
     } catch (IOException e) {
-      logger.error("CSV validation failed: {}", e.getMessage(), e);
-      throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
+      logger.error("I/O error while reading CSV input: {}", e.getMessage(), e);
+      throw new StreamProcessingException("Failed to read CSV input: " + e.getMessage(), e);
     }
   }
 

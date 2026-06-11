@@ -181,7 +181,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     }
 
     if (hasHeader && !hasDataRows) {
-      errors.add("CSV file contains only header, no data rows found");
+      rowValidator.reportHeaderOnlyCsv(errors);
     }
     return !hasHeader && !hasDataRows;
   }

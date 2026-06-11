@@ -422,7 +422,6 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @Tag("known-bug") // #747
   @DisplayName("ヘッダーのみのCSVでも maxErrorsToReport の上限を超えてエラーが報告されない")
   void maxErrorsToReport_headerOnlyCsvDoesNotExceedLimit() throws IOException {
     // 空セルを含むヘッダー行のみ（データ行なし）の入力では、

@@ -363,7 +363,7 @@ class CsvWalkerTest {
   @Test
   @Tag("known-bug") // #784
   @DisplayName("読み取り中の入力ストリーム I/O 障害は IOException として呼び出し元に伝播する")
-  void testReadIoErrorPropagatesAsIOException() {
+  void testReadIoErrorPropagatesAsIOException() throws IOException {
     // ネットワーク切断・パイプ切断等で読み取り途中に I/O 障害が発生した場合、
     // 途中までの行だけの切り詰められた出力を完全な結果として確定させてはならず、
     // IOException を呼び出し元に伝播させて障害を検知可能にするべき。
@@ -372,7 +372,7 @@ class CsvWalkerTest {
     // ヘッダーと Alice 行までを供給した後、Bob 行が届く前に I/O 障害が発生する。
     // 障害が無視されると、後続行を欠いた切り詰め出力が完全な結果として確定してしまう。
     byte[] supplied = "name,age\nAlice,30\n".getBytes(StandardCharsets.UTF_8);
-    InputStream failingStream =
+    try (InputStream failingStream =
         new InputStream() {
           private int position = 0;
 
@@ -397,17 +397,18 @@ class CsvWalkerTest {
             }
             return supplied[position++] & 0xFF;
           }
-        };
-    CsvWalker testCommand = CsvWalker.create(CSVPath.of("name"), new PassThroughRule());
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
+        }) {
+      CsvWalker testCommand = CsvWalker.create(CSVPath.of("name"), new PassThroughRule());
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    assertThrows(
-        IOException.class,
-        () -> testCommand.execute(failingStream, output),
-        () ->
-            "読み取り中の I/O 障害は IOException として伝播し、切り詰められた出力を正常終了として確定させないこと。"
-                + "確定されてしまった切り詰め出力: "
-                + output.toString(StandardCharsets.UTF_8));
+      assertThrows(
+          IOException.class,
+          () -> testCommand.execute(failingStream, output),
+          () ->
+              "読み取り中の I/O 障害は IOException として伝播し、切り詰められた出力を正常終了として確定させないこと。"
+                  + "確定されてしまった切り詰め出力: "
+                  + output.toString(StandardCharsets.UTF_8));
+    }
   }
 
   @Test

@@ -604,7 +604,7 @@ class FilterCommandBasicTest {
   @Test
   @Tag("known-bug") // #784
   @DisplayName("CsvFilterCommand: 読み取り中の入力ストリーム I/O 障害は IOException として呼び出し元に伝播する")
-  void testCsvFilterCommand_readIoErrorPropagatesAsIOException() {
+  void testCsvFilterCommand_readIoErrorPropagatesAsIOException() throws IOException {
     // ネットワーク切断・パイプ切断等で読み取り途中に I/O 障害が発生した場合、
     // 途中までの行だけの切り詰められた出力を完全な結果として確定させてはならず、
     // IOException を呼び出し元に伝播させて障害を検知可能にするべき。
@@ -613,7 +613,7 @@ class FilterCommandBasicTest {
     // ヘッダーと Alice 行までを供給した後、Bob 行が届く前に I/O 障害が発生する。
     // 障害が無視されると、後続行を欠いた切り詰め出力が完全な結果として確定してしまう。
     byte[] supplied = "id,name\n1,Alice\n".getBytes(StandardCharsets.UTF_8);
-    InputStream failingStream =
+    try (InputStream failingStream =
         new InputStream() {
           private int position = 0;
 
@@ -638,16 +638,17 @@ class FilterCommandBasicTest {
             }
             return supplied[position++] & 0xFF;
           }
-        };
-    CsvFilterCommand command = CsvFilterCommand.create(CSVPath.of("name"));
-    ByteArrayOutputStream output = new ByteArrayOutputStream();
+        }) {
+      CsvFilterCommand command = CsvFilterCommand.create(CSVPath.of("name"));
+      ByteArrayOutputStream output = new ByteArrayOutputStream();
 
-    assertThrows(
-        IOException.class,
-        () -> command.execute(failingStream, output),
-        () ->
-            "読み取り中の I/O 障害は IOException として伝播し、切り詰められた出力を正常終了として確定させないこと。"
-                + "確定されてしまった切り詰め出力: "
-                + output.toString(StandardCharsets.UTF_8));
+      assertThrows(
+          IOException.class,
+          () -> command.execute(failingStream, output),
+          () ->
+              "読み取り中の I/O 障害は IOException として伝播し、切り詰められた出力を正常終了として確定させないこと。"
+                  + "確定されてしまった切り詰め出力: "
+                  + output.toString(StandardCharsets.UTF_8));
+    }
   }
 }

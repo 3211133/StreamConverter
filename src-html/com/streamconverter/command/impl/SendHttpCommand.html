@@ -228,106 +228,111 @@
 <span class="source-line-no">215</span><span id="line-215"></span>
 <span class="source-line-no">216</span><span id="line-216">    revalidateHostForSsrf();</span>
 <span class="source-line-no">217</span><span id="line-217"></span>
-<span class="source-line-no">218</span><span id="line-218">    logger.info("Sending HTTP POST request to: {}", url);</span>
-<span class="source-line-no">219</span><span id="line-219"></span>
-<span class="source-line-no">220</span><span id="line-220">    try {</span>
-<span class="source-line-no">221</span><span id="line-221">      // Track total bytes written for better error reporting</span>
-<span class="source-line-no">222</span><span id="line-222">      final long[] totalBytesWritten = {0L};</span>
-<span class="source-line-no">223</span><span id="line-223"></span>
-<span class="source-line-no">224</span><span id="line-224">      // 大容量データに対応するため、ストリーミング処理を使用</span>
-<span class="source-line-no">225</span><span id="line-225">      // WebClientでストリーミングレスポンスを処理</span>
-<span class="source-line-no">226</span><span id="line-226">      webClient</span>
-<span class="source-line-no">227</span><span id="line-227">          .post()</span>
-<span class="source-line-no">228</span><span id="line-228">          .uri(url)</span>
-<span class="source-line-no">229</span><span id="line-229">          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
-<span class="source-line-no">230</span><span id="line-230">          .header(HttpHeaders.USER_AGENT, "StreamConverter/1.0")</span>
-<span class="source-line-no">231</span><span id="line-231">          .body(</span>
-<span class="source-line-no">232</span><span id="line-232">              BodyInserters.fromDataBuffers(</span>
-<span class="source-line-no">233</span><span id="line-233">                  org.springframework.core.io.buffer.DataBufferUtils.readInputStream(</span>
-<span class="source-line-no">234</span><span id="line-234">                      () -&gt; inputStream,</span>
-<span class="source-line-no">235</span><span id="line-235">                      org.springframework.core.io.buffer.DefaultDataBufferFactory.sharedInstance,</span>
-<span class="source-line-no">236</span><span id="line-236">                      STREAMING_CHUNK_SIZE)))</span>
-<span class="source-line-no">237</span><span id="line-237">          .retrieve()</span>
-<span class="source-line-no">238</span><span id="line-238">          .onStatus(</span>
-<span class="source-line-no">239</span><span id="line-239">              status -&gt; !status.is2xxSuccessful(),</span>
-<span class="source-line-no">240</span><span id="line-240">              response -&gt;</span>
-<span class="source-line-no">241</span><span id="line-241">                  response</span>
-<span class="source-line-no">242</span><span id="line-242">                      .bodyToMono(String.class)</span>
-<span class="source-line-no">243</span><span id="line-243">                      .defaultIfEmpty("")</span>
-<span class="source-line-no">244</span><span id="line-244">                      .map(</span>
-<span class="source-line-no">245</span><span id="line-245">                          errorBody -&gt;</span>
-<span class="source-line-no">246</span><span id="line-246">                              new RuntimeException(</span>
-<span class="source-line-no">247</span><span id="line-247">                                  String.format(</span>
-<span class="source-line-no">248</span><span id="line-248">                                      "HTTP request failed: status=%d, url=%s, response=%s",</span>
-<span class="source-line-no">249</span><span id="line-249">                                      response.statusCode().value(),</span>
-<span class="source-line-no">250</span><span id="line-250">                                      sanitizeUrl(url),</span>
-<span class="source-line-no">251</span><span id="line-251">                                      truncate(errorBody, 256)))))</span>
-<span class="source-line-no">252</span><span id="line-252">          .bodyToFlux(org.springframework.core.io.buffer.DataBuffer.class)</span>
-<span class="source-line-no">253</span><span id="line-253">          .timeout(Duration.ofMinutes(5)) // 大容量データ処理のため5分に延長</span>
-<span class="source-line-no">254</span><span id="line-254">          .doOnNext(</span>
-<span class="source-line-no">255</span><span id="line-255">              dataBuffer -&gt; {</span>
-<span class="source-line-no">256</span><span id="line-256">                // Ensure DataBuffer is always released, even if write fails</span>
-<span class="source-line-no">257</span><span id="line-257">                try {</span>
-<span class="source-line-no">258</span><span id="line-258">                  // ストリーミング処理：8KBずつレスポンスを処理</span>
-<span class="source-line-no">259</span><span id="line-259">                  byte[] bytes = new byte[dataBuffer.readableByteCount()];</span>
-<span class="source-line-no">260</span><span id="line-260">                  dataBuffer.read(bytes);</span>
-<span class="source-line-no">261</span><span id="line-261">                  outputStream.write(bytes);</span>
-<span class="source-line-no">262</span><span id="line-262">                  totalBytesWritten[0] += bytes.length;</span>
-<span class="source-line-no">263</span><span id="line-263">                } catch (IOException e) {</span>
-<span class="source-line-no">264</span><span id="line-264">                  throw new RuntimeException(</span>
-<span class="source-line-no">265</span><span id="line-265">                      String.format(</span>
-<span class="source-line-no">266</span><span id="line-266">                          "Failed to write response data to output stream (url=%s, bytesWritten=%d)",</span>
-<span class="source-line-no">267</span><span id="line-267">                          sanitizeUrl(url), totalBytesWritten[0]),</span>
-<span class="source-line-no">268</span><span id="line-268">                      e);</span>
-<span class="source-line-no">269</span><span id="line-269">                } finally {</span>
-<span class="source-line-no">270</span><span id="line-270">                  org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);</span>
-<span class="source-line-no">271</span><span id="line-271">                }</span>
-<span class="source-line-no">272</span><span id="line-272">              })</span>
-<span class="source-line-no">273</span><span id="line-273">          .doOnComplete(</span>
-<span class="source-line-no">274</span><span id="line-274">              () -&gt; {</span>
-<span class="source-line-no">275</span><span id="line-275">                try {</span>
-<span class="source-line-no">276</span><span id="line-276">                  outputStream.flush();</span>
-<span class="source-line-no">277</span><span id="line-277">                  logger.info("HTTP response streaming completed successfully");</span>
-<span class="source-line-no">278</span><span id="line-278">                } catch (IOException e) {</span>
-<span class="source-line-no">279</span><span id="line-279">                  throw new RuntimeException("Failed to flush output stream", e);</span>
-<span class="source-line-no">280</span><span id="line-280">                }</span>
-<span class="source-line-no">281</span><span id="line-281">              })</span>
-<span class="source-line-no">282</span><span id="line-282">          .blockLast(); // Intentionally synchronous: IStreamCommand interface requires</span>
-<span class="source-line-no">283</span><span id="line-283">      // blocking execution</span>
-<span class="source-line-no">284</span><span id="line-284">      // for compatibility with existing command pipeline. Alternative: use subscribe()</span>
-<span class="source-line-no">285</span><span id="line-285">      // with CompletableFuture for true async, but would break command interface contract.</span>
-<span class="source-line-no">286</span><span id="line-286"></span>
-<span class="source-line-no">287</span><span id="line-287">    } catch (RuntimeException e) {</span>
-<span class="source-line-no">288</span><span id="line-288">      // WebClient error responses are wrapped in RuntimeException</span>
-<span class="source-line-no">289</span><span id="line-289">      String errorMessage = "HTTP request failed: " + url + " - " + e.getMessage();</span>
-<span class="source-line-no">290</span><span id="line-290">      logger.error(errorMessage, e);</span>
-<span class="source-line-no">291</span><span id="line-291">      throw new IOException(errorMessage, e);</span>
-<span class="source-line-no">292</span><span id="line-292">    }</span>
-<span class="source-line-no">293</span><span id="line-293">  }</span>
-<span class="source-line-no">294</span><span id="line-294"></span>
-<span class="source-line-no">295</span><span id="line-295">  private static String truncate(String s, int maxLength) {</span>
-<span class="source-line-no">296</span><span id="line-296">    if (s == null || s.length() &lt;= maxLength) {</span>
-<span class="source-line-no">297</span><span id="line-297">      return s;</span>
-<span class="source-line-no">298</span><span id="line-298">    }</span>
-<span class="source-line-no">299</span><span id="line-299">    return s.substring(0, maxLength) + "...[truncated]";</span>
-<span class="source-line-no">300</span><span id="line-300">  }</span>
-<span class="source-line-no">301</span><span id="line-301"></span>
-<span class="source-line-no">302</span><span id="line-302">  /** URLのクエリ文字列とユーザー情報を除去してログ・例外メッセージへの資格情報漏洩を防ぐ。 */</span>
-<span class="source-line-no">303</span><span id="line-303">  static String sanitizeUrl(String rawUrl) {</span>
-<span class="source-line-no">304</span><span id="line-304">    if (rawUrl == null) {</span>
-<span class="source-line-no">305</span><span id="line-305">      return null;</span>
-<span class="source-line-no">306</span><span id="line-306">    }</span>
-<span class="source-line-no">307</span><span id="line-307">    try {</span>
-<span class="source-line-no">308</span><span id="line-308">      URI uri = new URI(rawUrl);</span>
-<span class="source-line-no">309</span><span id="line-309">      return new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null)</span>
-<span class="source-line-no">310</span><span id="line-310">          .toString();</span>
-<span class="source-line-no">311</span><span id="line-311">    } catch (URISyntaxException e) {</span>
-<span class="source-line-no">312</span><span id="line-312">      // 解析不能な場合はスキームとホストのみ抽出を試みる</span>
-<span class="source-line-no">313</span><span id="line-313">      int idx = rawUrl.indexOf('?');</span>
-<span class="source-line-no">314</span><span id="line-314">      return idx &gt;= 0 ? rawUrl.substring(0, idx) : rawUrl;</span>
-<span class="source-line-no">315</span><span id="line-315">    }</span>
-<span class="source-line-no">316</span><span id="line-316">  }</span>
-<span class="source-line-no">317</span><span id="line-317">}</span>
+<span class="source-line-no">218</span><span id="line-218">    String safeUrl = sanitizeUrl(url);</span>
+<span class="source-line-no">219</span><span id="line-219">    logger.info("Sending HTTP POST request to: {}", safeUrl);</span>
+<span class="source-line-no">220</span><span id="line-220"></span>
+<span class="source-line-no">221</span><span id="line-221">    try {</span>
+<span class="source-line-no">222</span><span id="line-222">      // Track total bytes written for better error reporting</span>
+<span class="source-line-no">223</span><span id="line-223">      final long[] totalBytesWritten = {0L};</span>
+<span class="source-line-no">224</span><span id="line-224"></span>
+<span class="source-line-no">225</span><span id="line-225">      // 大容量データに対応するため、ストリーミング処理を使用</span>
+<span class="source-line-no">226</span><span id="line-226">      // WebClientでストリーミングレスポンスを処理</span>
+<span class="source-line-no">227</span><span id="line-227">      webClient</span>
+<span class="source-line-no">228</span><span id="line-228">          .post()</span>
+<span class="source-line-no">229</span><span id="line-229">          .uri(url)</span>
+<span class="source-line-no">230</span><span id="line-230">          .header(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_OCTET_STREAM_VALUE)</span>
+<span class="source-line-no">231</span><span id="line-231">          .header(HttpHeaders.USER_AGENT, "StreamConverter/1.0")</span>
+<span class="source-line-no">232</span><span id="line-232">          .body(</span>
+<span class="source-line-no">233</span><span id="line-233">              BodyInserters.fromDataBuffers(</span>
+<span class="source-line-no">234</span><span id="line-234">                  org.springframework.core.io.buffer.DataBufferUtils.readInputStream(</span>
+<span class="source-line-no">235</span><span id="line-235">                      () -&gt; inputStream,</span>
+<span class="source-line-no">236</span><span id="line-236">                      org.springframework.core.io.buffer.DefaultDataBufferFactory.sharedInstance,</span>
+<span class="source-line-no">237</span><span id="line-237">                      STREAMING_CHUNK_SIZE)))</span>
+<span class="source-line-no">238</span><span id="line-238">          .retrieve()</span>
+<span class="source-line-no">239</span><span id="line-239">          .onStatus(</span>
+<span class="source-line-no">240</span><span id="line-240">              status -&gt; !status.is2xxSuccessful(),</span>
+<span class="source-line-no">241</span><span id="line-241">              response -&gt;</span>
+<span class="source-line-no">242</span><span id="line-242">                  response</span>
+<span class="source-line-no">243</span><span id="line-243">                      .bodyToMono(String.class)</span>
+<span class="source-line-no">244</span><span id="line-244">                      .defaultIfEmpty("")</span>
+<span class="source-line-no">245</span><span id="line-245">                      .map(</span>
+<span class="source-line-no">246</span><span id="line-246">                          errorBody -&gt;</span>
+<span class="source-line-no">247</span><span id="line-247">                              new RuntimeException(</span>
+<span class="source-line-no">248</span><span id="line-248">                                  String.format(</span>
+<span class="source-line-no">249</span><span id="line-249">                                      "HTTP request failed: status=%d, url=%s, response=%s",</span>
+<span class="source-line-no">250</span><span id="line-250">                                      response.statusCode().value(),</span>
+<span class="source-line-no">251</span><span id="line-251">                                      sanitizeUrl(url),</span>
+<span class="source-line-no">252</span><span id="line-252">                                      truncate(errorBody, 256)))))</span>
+<span class="source-line-no">253</span><span id="line-253">          .bodyToFlux(org.springframework.core.io.buffer.DataBuffer.class)</span>
+<span class="source-line-no">254</span><span id="line-254">          .timeout(Duration.ofMinutes(5)) // 大容量データ処理のため5分に延長</span>
+<span class="source-line-no">255</span><span id="line-255">          .doOnNext(</span>
+<span class="source-line-no">256</span><span id="line-256">              dataBuffer -&gt; {</span>
+<span class="source-line-no">257</span><span id="line-257">                // Ensure DataBuffer is always released, even if write fails</span>
+<span class="source-line-no">258</span><span id="line-258">                try {</span>
+<span class="source-line-no">259</span><span id="line-259">                  // ストリーミング処理：8KBずつレスポンスを処理</span>
+<span class="source-line-no">260</span><span id="line-260">                  byte[] bytes = new byte[dataBuffer.readableByteCount()];</span>
+<span class="source-line-no">261</span><span id="line-261">                  dataBuffer.read(bytes);</span>
+<span class="source-line-no">262</span><span id="line-262">                  outputStream.write(bytes);</span>
+<span class="source-line-no">263</span><span id="line-263">                  totalBytesWritten[0] += bytes.length;</span>
+<span class="source-line-no">264</span><span id="line-264">                } catch (IOException e) {</span>
+<span class="source-line-no">265</span><span id="line-265">                  throw new RuntimeException(</span>
+<span class="source-line-no">266</span><span id="line-266">                      String.format(</span>
+<span class="source-line-no">267</span><span id="line-267">                          "Failed to write response data to output stream (url=%s, bytesWritten=%d)",</span>
+<span class="source-line-no">268</span><span id="line-268">                          sanitizeUrl(url), totalBytesWritten[0]),</span>
+<span class="source-line-no">269</span><span id="line-269">                      e);</span>
+<span class="source-line-no">270</span><span id="line-270">                } finally {</span>
+<span class="source-line-no">271</span><span id="line-271">                  org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);</span>
+<span class="source-line-no">272</span><span id="line-272">                }</span>
+<span class="source-line-no">273</span><span id="line-273">              })</span>
+<span class="source-line-no">274</span><span id="line-274">          .doOnComplete(</span>
+<span class="source-line-no">275</span><span id="line-275">              () -&gt; {</span>
+<span class="source-line-no">276</span><span id="line-276">                try {</span>
+<span class="source-line-no">277</span><span id="line-277">                  outputStream.flush();</span>
+<span class="source-line-no">278</span><span id="line-278">                  logger.info("HTTP response streaming completed successfully");</span>
+<span class="source-line-no">279</span><span id="line-279">                } catch (IOException e) {</span>
+<span class="source-line-no">280</span><span id="line-280">                  throw new RuntimeException("Failed to flush output stream", e);</span>
+<span class="source-line-no">281</span><span id="line-281">                }</span>
+<span class="source-line-no">282</span><span id="line-282">              })</span>
+<span class="source-line-no">283</span><span id="line-283">          .blockLast(); // Intentionally synchronous: IStreamCommand interface requires</span>
+<span class="source-line-no">284</span><span id="line-284">      // blocking execution</span>
+<span class="source-line-no">285</span><span id="line-285">      // for compatibility with existing command pipeline. Alternative: use subscribe()</span>
+<span class="source-line-no">286</span><span id="line-286">      // with CompletableFuture for true async, but would break command interface contract.</span>
+<span class="source-line-no">287</span><span id="line-287"></span>
+<span class="source-line-no">288</span><span id="line-288">    } catch (RuntimeException e) {</span>
+<span class="source-line-no">289</span><span id="line-289">      // WebClient error responses are wrapped in RuntimeException.</span>
+<span class="source-line-no">290</span><span id="line-290">      // 例外メッセージには sanitizeUrl 適用後のURLのみを含め、e.getMessage() の連結は避ける。</span>
+<span class="source-line-no">291</span><span id="line-291">      // WebClient の下位例外メッセージに生 URL が含まれるケース（クエリ文字列・資格情報）でも</span>
+<span class="source-line-no">292</span><span id="line-292">      // 公開される IOException メッセージから漏洩しないようにするため。</span>
+<span class="source-line-no">293</span><span id="line-293">      // 原因の詳細は cause として保持し、診断性を維持する。</span>
+<span class="source-line-no">294</span><span id="line-294">      String errorMessage = "HTTP request failed: " + safeUrl;</span>
+<span class="source-line-no">295</span><span id="line-295">      logger.error(errorMessage, e);</span>
+<span class="source-line-no">296</span><span id="line-296">      throw new IOException(errorMessage, e);</span>
+<span class="source-line-no">297</span><span id="line-297">    }</span>
+<span class="source-line-no">298</span><span id="line-298">  }</span>
+<span class="source-line-no">299</span><span id="line-299"></span>
+<span class="source-line-no">300</span><span id="line-300">  private static String truncate(String s, int maxLength) {</span>
+<span class="source-line-no">301</span><span id="line-301">    if (s == null || s.length() &lt;= maxLength) {</span>
+<span class="source-line-no">302</span><span id="line-302">      return s;</span>
+<span class="source-line-no">303</span><span id="line-303">    }</span>
+<span class="source-line-no">304</span><span id="line-304">    return s.substring(0, maxLength) + "...[truncated]";</span>
+<span class="source-line-no">305</span><span id="line-305">  }</span>
+<span class="source-line-no">306</span><span id="line-306"></span>
+<span class="source-line-no">307</span><span id="line-307">  /** URLのクエリ文字列とユーザー情報を除去してログ・例外メッセージへの資格情報漏洩を防ぐ。 */</span>
+<span class="source-line-no">308</span><span id="line-308">  static String sanitizeUrl(String rawUrl) {</span>
+<span class="source-line-no">309</span><span id="line-309">    if (rawUrl == null) {</span>
+<span class="source-line-no">310</span><span id="line-310">      return null;</span>
+<span class="source-line-no">311</span><span id="line-311">    }</span>
+<span class="source-line-no">312</span><span id="line-312">    try {</span>
+<span class="source-line-no">313</span><span id="line-313">      URI uri = new URI(rawUrl);</span>
+<span class="source-line-no">314</span><span id="line-314">      return new URI(uri.getScheme(), null, uri.getHost(), uri.getPort(), uri.getPath(), null, null)</span>
+<span class="source-line-no">315</span><span id="line-315">          .toString();</span>
+<span class="source-line-no">316</span><span id="line-316">    } catch (URISyntaxException e) {</span>
+<span class="source-line-no">317</span><span id="line-317">      // 解析不能な場合はスキームとホストのみ抽出を試みる</span>
+<span class="source-line-no">318</span><span id="line-318">      int idx = rawUrl.indexOf('?');</span>
+<span class="source-line-no">319</span><span id="line-319">      return idx &gt;= 0 ? rawUrl.substring(0, idx) : rawUrl;</span>
+<span class="source-line-no">320</span><span id="line-320">    }</span>
+<span class="source-line-no">321</span><span id="line-321">  }</span>
+<span class="source-line-no">322</span><span id="line-322">}</span>
 
 
 

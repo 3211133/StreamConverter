@@ -8,7 +8,6 @@ import static org.mockito.Mockito.when;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -21,7 +20,6 @@ import org.mockito.Mockito;
 class DatabaseConnectionPoolTest {
 
   @Test
-  @Tag("known-bug") // #754
   @org.junit.jupiter.api.DisplayName("プール内の接続が無効化された後でも新しい接続を取得できる")
   void getConnection_createsNewConnectionAfterPooledConnectionBecomesInvalid() throws SQLException {
     Connection mockConnection1 = mock(Connection.class);

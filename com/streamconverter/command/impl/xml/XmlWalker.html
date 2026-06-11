@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="../../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlWalker.html#line-34">XmlWalker</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlWalker.html#line-41">XmlWalker</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="../../IStreamCommand.html" title="interface in com.streamconverter.command">IStreamCommand</a></span></div>
 <div class="block">XML Walker for applying transformations to XML data.
@@ -107,8 +107,15 @@ implements <a href="../../IStreamCommand.html" title="interface in com.streamcon
 
  <p>The full XML event stream — including the XML declaration, all elements, attributes, and text
  nodes — is written to the output. Only character data at nodes whose path exactly matches the
- configured <a href="../../../path/TreePath.html" title="class in com.streamconverter.path"><code>TreePath</code></a> is transformed by the rule; all other events are passed through
- unchanged.</div>
+ configured <a href="../../../path/TreePath.html" title="class in com.streamconverter.path"><code>TreePath</code></a> is transformed by the rule; all other events are passed through with
+ their XML information set (infoset) preserved.
+
+ <p>Note on text handling: the underlying StAX reader is configured with <code>
+ XMLInputFactory.IS_COALESCING</code>, so adjacent text fragments and CDATA sections are coalesced into
+ a single character event before rules are applied. This guarantees that a rule sees the whole
+ text content of a node even when the parser would otherwise split it (e.g. at CDATA boundaries).
+ As a consequence, CDATA sections are written to the output as escaped character data — an
+ infoset-equivalent representation — rather than being preserved verbatim.</div>
 </section>
 <section class="summary">
 <ul class="summary-list">
@@ -163,7 +170,7 @@ implements <a href="../../IStreamCommand.html" title="interface in com.streamcon
 <li>
 <section class="detail" id="create(com.streamconverter.path.TreePath,com.streamconverter.command.rule.IRule)">
 <h3>create</h3>
-<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="XmlWalker.html" title="class in com.streamconverter.command.impl.xml">XmlWalker</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlWalker.html#line-66">create</a></span><wbr><span class="parameters">(<a href="../../../path/TreePath.html" title="class in com.streamconverter.path">TreePath</a>&nbsp;treePath,
+<div class="member-signature"><span class="modifiers">public static</span>&nbsp;<span class="return-type"><a href="XmlWalker.html" title="class in com.streamconverter.command.impl.xml">XmlWalker</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlWalker.html#line-73">create</a></span><wbr><span class="parameters">(<a href="../../../path/TreePath.html" title="class in com.streamconverter.path">TreePath</a>&nbsp;treePath,
  <a href="../../rule/IRule.html" title="interface in com.streamconverter.command.rule">IRule</a>&nbsp;rule)</span></div>
 <div class="block">Factory method for creating an XML navigation command with TreePath and rule.</div>
 <dl class="notes">
@@ -180,7 +187,7 @@ implements <a href="../../IStreamCommand.html" title="interface in com.streamcon
 <li>
 <section class="detail" id="execute(java.io.InputStream,java.io.OutputStream)">
 <h3>execute</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlWalker.html#line-76">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type">void</span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlWalker.html#line-83">execute</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/InputStream.html" title="class or interface in java.io" class="external-link">InputStream</a>&nbsp;inputStream,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
              throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link">IOException</a></span></div>
 <div class="block"><span class="description-from-type-label">Description copied from interface:&nbsp;<code><a href="../../IStreamCommand.html#execute(java.io.InputStream,java.io.OutputStream)">IStreamCommand</a></code></span></div>
@@ -199,7 +206,7 @@ implements <a href="../../IStreamCommand.html" title="interface in com.streamcon
 <li>
 <section class="detail" id="createXMLEventWriter(java.io.OutputStream)">
 <h3>createXMLEventWriter</h3>
-<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLEventWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLEventWriter</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlWalker.html#line-160">createXMLEventWriter</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
+<div class="member-signature"><span class="modifiers">protected</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLEventWriter.html" title="class or interface in javax.xml.stream" class="external-link">XMLEventWriter</a></span>&nbsp;<span class="element-name"><a href="../../../../../src-html/com/streamconverter/command/impl/xml/XmlWalker.html#line-172">createXMLEventWriter</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/OutputStream.html" title="class or interface in java.io" class="external-link">OutputStream</a>&nbsp;outputStream)</span>
                                        throws <span class="exceptions"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.xml/javax/xml/stream/XMLStreamException.html" title="class or interface in javax.xml.stream" class="external-link">XMLStreamException</a></span></div>
 <div class="block">出力ストリームへの XMLEventWriter を作成する。
 

@@ -90,6 +90,7 @@ public class DatabaseConnectionPool {
       } catch (SQLException e) {
         logger.warn("Failed to close invalid connection: {}", e.getMessage());
       }
+      activeConnections.decrementAndGet();
     }
 
     // 新しい接続を作成（プールサイズ制限内）

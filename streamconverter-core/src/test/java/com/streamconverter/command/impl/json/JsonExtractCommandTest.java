@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 class JsonExtractCommandTest {
@@ -202,7 +201,6 @@ class JsonExtractCommandTest {
   // ---- 数値リテラルの保全（#760）----
 
   @Test
-  @Tag("known-bug") // #760
   @DisplayName("long 範囲を超える整数値も例外なくそのまま抽出される")
   void testExtractIntegerBeyondLongRange() throws IOException {
     // Arrange - Long.MAX_VALUE + 1 は有効な JSON 数値（RFC 8259 は大きさを制限しない）
@@ -215,7 +213,6 @@ class JsonExtractCommandTest {
   }
 
   @Test
-  @Tag("known-bug") // #760
   @DisplayName("double で表現できない高精度の小数も丸めずにそのまま抽出される")
   void testExtractHighPrecisionDecimal() throws IOException {
     // Arrange - double に丸めると末尾の精度が失われる小数

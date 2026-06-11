@@ -55,14 +55,6 @@ security.xml.disable-doctype-declarations=true
 security.xml.load-external-dtd=false
 ```
 
-#### XPath セキュリティ設定
-
-```properties
-# XPathインジェクション防止
-security.xpath.validation.enabled=true
-security.xpath.strict-mode=true
-```
-
 #### パストラバーサル防止
 
 ```properties

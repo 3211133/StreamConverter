@@ -21,7 +21,6 @@ import javax.xml.stream.XMLEventWriter;
 import javax.xml.stream.XMLStreamException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for XmlWalker. */
@@ -114,7 +113,6 @@ class XmlWalkerTest {
   }
 
   @Test
-  @Tag("known-bug") // #762
   @DisplayName("Rule is applied to the whole text content even when split by a CDATA boundary")
   void testRuleAppliedToWholeTextAcrossCdataBoundary() throws IOException {
     // Arrange - <item> のテキストコンテンツは "userName"（CDATA 境界で2つの
@@ -138,6 +136,30 @@ class XmlWalkerTest {
     assertTrue(
         result.contains("<item>user_name</item>"),
         "Rule should be applied to the whole text content of the node, but got: " + result);
+  }
+
+  @Test
+  @DisplayName("CDATA in non-matched nodes is emitted as infoset-equivalent escaped text")
+  void testCdataInNonMatchedNodeEmittedAsEscapedText() throws IOException {
+    // Arrange - coalescing により非対象ノードの CDATA もテキストイベントに正規化されるため、
+    // 字面は <![CDATA[x<y]]> のままではなく infoset 等価なエスケープ済みテキストになる
+    String xmlInput =
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>"
+            + "<root><item>target</item><other><![CDATA[x<y]]></other></root>";
+    InputStream inputStream = new ByteArrayInputStream(xmlInput.getBytes(StandardCharsets.UTF_8));
+    ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+
+    // Act
+    command.execute(inputStream, outputStream);
+
+    // Assert - CDATA の内容はエスケープ済みテキストとして保存される（infoset 等価）
+    String result = outputStream.toString(StandardCharsets.UTF_8);
+    assertTrue(
+        result.contains("<other>x&lt;y</other>"),
+        "CDATA content should be preserved as infoset-equivalent escaped text, but got: " + result);
+    assertFalse(
+        result.contains("<![CDATA["),
+        "CDATA sections are not preserved verbatim under coalescing, but got: " + result);
   }
 
   @Test

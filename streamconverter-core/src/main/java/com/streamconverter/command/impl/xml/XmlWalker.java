@@ -28,8 +28,15 @@ import org.slf4j.LoggerFactory;
  *
  * <p>The full XML event stream — including the XML declaration, all elements, attributes, and text
  * nodes — is written to the output. Only character data at nodes whose path exactly matches the
- * configured {@link TreePath} is transformed by the rule; all other events are passed through
- * unchanged.
+ * configured {@link TreePath} is transformed by the rule; all other events are passed through with
+ * their XML information set (infoset) preserved.
+ *
+ * <p>Note on text handling: the underlying StAX reader is configured with {@code
+ * XMLInputFactory.IS_COALESCING}, so adjacent text fragments and CDATA sections are coalesced into
+ * a single character event before rules are applied. This guarantees that a rule sees the whole
+ * text content of a node even when the parser would otherwise split it (e.g. at CDATA boundaries).
+ * As a consequence, CDATA sections are written to the output as escaped character data — an
+ * infoset-equivalent representation — rather than being preserved verbatim.
  */
 public class XmlWalker implements IStreamCommand {
   private static final Logger logger = LoggerFactory.getLogger(XmlWalker.class);
@@ -136,6 +143,11 @@ public class XmlWalker implements IStreamCommand {
 
   private XMLEventReader createXMLEventReader(InputStream inputStream) throws XMLStreamException {
     XMLInputFactory inputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();
+    // テキスト断片化防止のため coalescing を有効化する。CDATA 境界やパーサ内部バッファで
+    // 分割された連続テキストを 1 つの Characters イベントに結合し、ルールがテキスト
+    // コンテンツ全体に適用されることを保証する (#762)。XmlWalker ローカルの設定であり、
+    // SecureXmlConfiguration を共有する他コマンドには影響しない。
+    inputFactory.setProperty(XMLInputFactory.IS_COALESCING, true);
     XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);
     if (!reader.hasNext()) {
       try {

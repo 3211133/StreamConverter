@@ -162,6 +162,17 @@ Example entries for a global ignore file:
 Thumbs.db
 ```
 
+### Git Hooks
+
+Versioned hook scripts live in `.githooks/`. Install them into your local clone after checkout:
+
+```
+cp .githooks/pre-push .git/hooks/pre-push
+chmod +x .git/hooks/pre-push
+```
+
+- **`pre-push`** runs the same checks as CI before every push (`./gradlew build` — including SpotBugs, PMD, and Javadoc — and `./gradlew verifyKnownBugs`). This catches quality-gate failures locally instead of discovering them in CI after the push. To bypass in an emergency, use `git push --no-verify` (note that CI may then fail).
+
 ### AI Assistant Files
 
 This repository includes configuration files for AI coding assistants. The following are project assets and are tracked in git:

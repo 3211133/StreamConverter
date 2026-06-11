@@ -1,0 +1,39 @@
+#!/bin/bash
+# Pre-push hook for StreamConverter project
+# CI（commit-rules.yml）と同じチェックを push 前にローカルで実行し、
+# CI で初めて失敗が発覚することを防ぐ。
+#   - "Code Quality and Tests" 相当: ./gradlew build
+#     （test に加え SpotBugs / PMD / Javadoc 等の品質チェックを含む）
+#   - "Verify Known Bugs Still Exist" 相当: ./gradlew verifyKnownBugs
+#
+# インストール: cp .githooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+# 緊急時のスキップ: git push --no-verify（CI は通らない可能性があることに注意）
+
+set -u
+
+# OS環境差異を吸収するために、実行するgradleを選択する
+if [ "${OS:-}" = "Windows_NT" ]; then
+    GRADLE_CMD="./gradlew.bat"
+else
+    GRADLE_CMD="./gradlew"
+fi
+
+echo "🚦 Running pre-push checks (CI mirror)..."
+
+echo "🏗  Running full build (test + SpotBugs + PMD + Javadoc)..."
+if ! $GRADLE_CMD build; then
+    echo "✗ './gradlew build' failed. Push aborted."
+    echo "  CI の 'Code Quality and Tests' と同じチェックです。test だけでなく"
+    echo "  spotbugsTest / spotbugsMain / pmd 等の品質チェックの失敗も含まれます。"
+    exit 1
+fi
+
+echo "🐛 Verifying known bugs still exist..."
+if ! $GRADLE_CMD verifyKnownBugs; then
+    echo "✗ './gradlew verifyKnownBugs' failed. Push aborted."
+    echo "  known-bug テストが意図せず PASS しています。バグが修正済みなら"
+    echo "  @Tag(\"known-bug\") を除去して通常テストに昇格させてください。"
+    exit 1
+fi
+
+echo "✓ Pre-push checks passed. Pushing..."

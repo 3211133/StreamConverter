@@ -29,20 +29,22 @@ public static DocumentBuilderFactory createSecureDocumentBuilderFactory() {
 }
 ```
 
-#### 2. XPath インジェクション防止
-```java
-// src/main/java/com/streamConverter/security/SecureXPathValidator.java
-public class SecureXPathValidator {
-    private static final Pattern XPATH_INJECTION_PATTERN = 
-        Pattern.compile(".*['\\\";].*|.*\\b(and|or|not|contains|starts-with)\\s*\\(.*");
-    
-    public static void validateXPath(String xpath) {
-        if (XPATH_INJECTION_PATTERN.matcher(xpath.toLowerCase()).matches()) {
-            throw new SecurityException("Potentially malicious XPath detected: " + xpath);
-        }
-    }
-}
-```
+#### 2. XPath インジェクション（現行実装では該当なし）
+
+本プロジェクトは XPath 評価エンジン（`javax.xml.xpath` 等）を使用していません。
+パス照合は `com.streamconverter.path.TreePath` が行い、パス式をセグメントに分割して
+要素パスとの等値比較（`List.equals`）を行うのみで、predicate・関数・論理演算子を
+一切評価しません。Web API の外部入力（`/json/extract` の `jsonPath` パラメータ、
+`X-Pipeline-Config` ヘッダ）も `TreePath` に直接渡されます。
+
+そのため、**XPath インジェクションという脅威分類は現行実装には該当しません**。
+悪意のある式（例: `' or '1'='1`）を渡しても、単に「そのような名前のセグメント」として
+等値比較され、どの要素にもマッチしないだけです。
+
+> **将来の再評価条件**: XPath 評価エンジンを導入する場合は、採用するエンジンと
+> 入力境界に基づいて脅威モデルを再評価し、必要な検証をその時点で新規設計してください。
+> かつて存在した `SecureXPathValidator` は、評価エンジンが存在しないまま正規表現ベースの
+> 検証のみを提供する未接続のクラスであり、誤検知（issue #768）も確認されたため削除されました。
 
 #### 3. パストラバーサル攻撃防止
 ```java
@@ -70,7 +72,7 @@ public String apply(String input) {
 
 ## 🛡️ **セキュリティテスト実装**
 
-### 1. XMLセキュリティテスト
+### XMLセキュリティテスト
 ```java
 @Test
 @DisplayName("XXE攻撃防止テスト")
@@ -89,25 +91,6 @@ void testXXEPrevention() {
 }
 ```
 
-### 2. XPathインジェクションテスト
-```java
-@Test
-@DisplayName("XPathインジェクション防止テスト")
-void testXPathInjectionPrevention() {
-    String[] maliciousInputs = {
-        "' or '1'='1",
-        "\"; DROP TABLE users; --",
-        "../../etc/passwd"
-    };
-    
-    for (String input : maliciousInputs) {
-        assertThrows(SecurityException.class, () -> {
-            xpathValidator.validateXPath(input);
-        });
-    }
-}
-```
-
 ## 📊 **セキュリティメトリクス**
 
 ### 修正前 vs 修正後
@@ -116,7 +99,7 @@ void testXPathInjectionPrevention() {
 |------|--------|--------|
 | CodeQLアラート | 複数件失敗 | 1件（修正済み） |
 | XXE脆弱性 | 存在 | 対策済み |
-| XPathインジェクション | 存在 | 対策済み |
+| XPathインジェクション | - | 該当なし（XPath 評価エンジン不使用） |
 | パストラバーサル | 存在 | 対策済み |
 | SQLインジェクション | リスク有 | 対策済み |
 
@@ -201,7 +184,7 @@ security.path-traversal.prevention=true
 StreamConverterプロジェクトは現在、**高いセキュリティ品質を維持**しています：
 
 1. **CodeQL完全通過**: 全セキュリティチェック合格
-2. **包括的対策**: XXE、XPath injection、Path traversal、SQL injection対策完了
+2. **包括的対策**: XXE、Path traversal、SQL injection対策完了（XPath injection は XPath 評価エンジン不使用のため該当なし）
 3. **継続的監視**: CI/CDパイプラインでのセキュリティチェック自動化
 4. **テスト網羅**: 各脆弱性に対する防御テスト実装
 

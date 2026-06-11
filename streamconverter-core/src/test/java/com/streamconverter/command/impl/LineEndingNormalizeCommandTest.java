@@ -10,7 +10,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("LineEndingNormalizeCommand Tests")
@@ -301,7 +300,6 @@ class LineEndingNormalizeCommandTest {
   }
 
   @Test
-  @Tag("known-bug") // #756
   @DisplayName("Convert consecutive CR line endings (classic Mac empty line) to Unix")
   void testConsecutiveCarriageReturnsToUnix() throws IOException {
     // Given - classic Mac text with an empty line (CR CR)
@@ -318,7 +316,6 @@ class LineEndingNormalizeCommandTest {
   }
 
   @Test
-  @Tag("known-bug") // #756
   @DisplayName("Convert consecutive CR line endings (classic Mac empty line) to Windows")
   void testConsecutiveCarriageReturnsToWindows() throws IOException {
     // Given - classic Mac text with an empty line (CR CR)

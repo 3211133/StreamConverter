@@ -6,6 +6,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
+import java.io.PushbackReader;
 import java.io.Reader;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
@@ -104,11 +105,12 @@ public class LineEndingNormalizeCommand implements IStreamCommand {
   private static void normalize(Reader reader, Writer writer, String targetSeparator)
       throws IOException {
     // Process character by character for line ending normalization
+    PushbackReader pushbackReader = new PushbackReader(reader);
     int current;
     // Read one code unit at a time so CR, LF, and CRLF can be normalized consistently.
-    while ((current = reader.read()) != -1) {
+    while ((current = pushbackReader.read()) != -1) {
       if (current == '\r') {
-        handleCarriageReturn(reader, writer, targetSeparator);
+        handleCarriageReturn(pushbackReader, writer, targetSeparator);
         continue;
       }
       if (current == '\n') {
@@ -119,20 +121,16 @@ public class LineEndingNormalizeCommand implements IStreamCommand {
     }
   }
 
-  private static void handleCarriageReturn(Reader reader, Writer writer, String targetSeparator)
-      throws IOException {
+  private static void handleCarriageReturn(
+      PushbackReader reader, Writer writer, String targetSeparator) throws IOException {
     // Handle CR - could be CR, CRLF, or standalone CR
     int next = reader.read();
-    if (next == '\n') {
-      // CRLF -> convert to target
-      writer.write(targetSeparator);
-      return;
-    }
-    // Standalone CR -> convert to target
     writer.write(targetSeparator);
-    // Write the next character that wasn't part of line ending
-    if (next != -1) {
-      writer.write(next);
+    if (next != -1 && next != '\n') {
+      // The look-ahead character was not part of the line ending. Push it back so the
+      // main loop processes it; this keeps consecutive CRs (e.g. \r\r) handled as
+      // separate line endings instead of being written through as raw characters.
+      reader.unread(next);
     }
   }
 }

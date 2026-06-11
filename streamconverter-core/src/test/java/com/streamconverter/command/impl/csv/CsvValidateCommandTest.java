@@ -523,14 +523,14 @@ public class CsvValidateCommandTest {
   @Test
   @Tag("known-bug") // #783
   @DisplayName("読み取り中に I/O 障害が発生した場合は検証成功として扱われない")
-  void midStreamIoErrorIsNotTreatedAsSuccess() {
+  void midStreamIoErrorIsNotTreatedAsSuccess() throws IOException {
     // ネットワーク切断・ディスクエラー等で入力が途中で切断された場合、
     // 障害発生前までのデータだけで検証を成立させてはならない。
     // 切り詰められた入力の黙認は欠損データの見逃しに直結するため、
     // I/O 障害は例外としてエラー報告されるべき。
     CsvValidateCommand command = CsvValidateCommand.create(true, 10);
     byte[] csv = "id,name\n1,Alice\n".getBytes(StandardCharsets.UTF_8);
-    InputStream failingStream =
+    try (InputStream failingStream =
         new InputStream() {
           private int pos = 0;
 
@@ -554,10 +554,10 @@ public class CsvValidateCommandTest {
             pos += n;
             return n;
           }
-        };
-
-    assertThrows(
-        IOException.class, () -> command.consume(failingStream), "読み取り中の I/O 障害は例外として報告されるべき");
+        }) {
+      assertThrows(
+          IOException.class, () -> command.consume(failingStream), "読み取り中の I/O 障害は例外として報告されるべき");
+    }
   }
 
   @Test

@@ -10,6 +10,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 @DisplayName("LineEndingNormalizeCommand Tests")
@@ -297,6 +298,40 @@ class LineEndingNormalizeCommandTest {
         expectedOutput,
         result,
         "Mixed line endings near buffer boundary should be normalized correctly");
+  }
+
+  @Test
+  @Tag("known-bug") // #756
+  @DisplayName("Convert consecutive CR line endings (classic Mac empty line) to Unix")
+  void testConsecutiveCarriageReturnsToUnix() throws IOException {
+    // Given - classic Mac text with an empty line (CR CR)
+    String input = "line1\r\rline2";
+    String expected = "line1\n\nline2";
+
+    LineEndingNormalizeCommand command = new LineEndingNormalizeCommand(LineEndingType.UNIX);
+
+    // When
+    String result = executeCommand(command, input);
+
+    // Then - both CRs must be normalized; no raw CR may remain in the output
+    assertEquals(expected, result);
+  }
+
+  @Test
+  @Tag("known-bug") // #756
+  @DisplayName("Convert consecutive CR line endings (classic Mac empty line) to Windows")
+  void testConsecutiveCarriageReturnsToWindows() throws IOException {
+    // Given - classic Mac text with an empty line (CR CR)
+    String input = "line1\r\rline2";
+    String expected = "line1\r\n\r\nline2";
+
+    LineEndingNormalizeCommand command = new LineEndingNormalizeCommand(LineEndingType.WINDOWS);
+
+    // When
+    String result = executeCommand(command, input);
+
+    // Then - both CRs must be normalized to CRLF
+    assertEquals(expected, result);
   }
 
   @Test

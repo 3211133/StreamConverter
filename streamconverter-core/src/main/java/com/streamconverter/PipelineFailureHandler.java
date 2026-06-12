@@ -24,7 +24,8 @@ final class PipelineFailureHandler {
     List<Throwable> rootCauses = collectRootCauses(futures);
     if (rootCauses.isEmpty()) {
       throw new StreamProcessingException(
-          "Unexpected error during command execution", executionException.getCause());
+          "Unexpected error during command execution",
+          unwrapCarrier(executionException.getCause()));
     }
 
     Throwable primary = rootCauses.get(0);
@@ -62,7 +63,7 @@ final class PipelineFailureHandler {
       try {
         future.get();
       } catch (ExecutionException executionException) {
-        Throwable cause = executionException.getCause();
+        Throwable cause = unwrapCarrier(executionException.getCause());
         if (!isPipeAbortedCause(cause)) {
           rootCauses.add(cause);
         }
@@ -72,6 +73,17 @@ final class PipelineFailureHandler {
       }
     }
     return rootCauses;
+  }
+
+  /**
+   * Unwraps the async-boundary carrier so callers see the original checked failure.
+   *
+   * <p>{@link CommandStageRunner} moves {@link IOException} failures across the {@code Runnable}
+   * boundary inside an {@link UncheckedStreamException}; root-cause inspection must look at the
+   * carried exception, not the carrier.
+   */
+  private static Throwable unwrapCarrier(Throwable cause) {
+    return cause instanceof UncheckedStreamException carrier ? carrier.getCause() : cause;
   }
 
   /**

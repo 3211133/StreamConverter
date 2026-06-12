@@ -295,7 +295,8 @@ class StreamConverterMDCIntegrationTest {
 
   @Test
   void testAnonymousClassCommandNameInException() {
-    // 匿名クラスで実装したコマンドが失敗したとき、例外メッセージに "IStreamCommand" が含まれる
+    // 匿名クラスで実装したコマンドが失敗したとき、suppressed コンテキストに "IStreamCommand" が含まれる。
+    // 例外規定: I/O 障害（分類 B）はラップされず素の IOException のまま伝播する
     IStreamCommand failingCommand =
         new IStreamCommand() {
           @Override
@@ -306,17 +307,19 @@ class StreamConverterMDCIntegrationTest {
 
     StreamConverter converter = StreamConverter.create(failingCommand);
 
-    StreamProcessingException ex =
+    IOException ex =
         assertThrows(
-            StreamProcessingException.class,
+            IOException.class,
             () ->
                 converter.run(
                     new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8)),
                     new ByteArrayOutputStream()));
 
+    assertEquals("intentional failure", ex.getMessage(), "I/O 障害がラップされずそのまま伝播すること");
     assertTrue(
-        ex.getMessage().contains("IStreamCommand"),
-        "Exception message should contain 'IStreamCommand' for anonymous class, but was: "
-            + ex.getMessage());
+        java.util.Arrays.stream(ex.getSuppressed())
+            .anyMatch(s -> String.valueOf(s.getMessage()).contains("IStreamCommand")),
+        "Suppressed context should contain 'IStreamCommand' for anonymous class, but was: "
+            + java.util.Arrays.toString(ex.getSuppressed()));
   }
 }

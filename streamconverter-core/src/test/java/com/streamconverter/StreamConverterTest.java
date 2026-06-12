@@ -183,7 +183,8 @@ class StreamConverterTest {
   @Timeout(10)
   @DisplayName("Downstream failure unblocks upstream within 10 seconds (no 60s timeout)")
   void testDownstreamFailureUnblocksUpstreamQuickly() {
-    // 後段が即時失敗した場合、前段が 60 秒待たずに StreamProcessingException を受け取る
+    // 後段が即時失敗した場合、前段が 60 秒待たずに失敗例外を受け取る
+    // （例外規定: RuntimeException は分類 C としてラップされずそのまま伝播する）
     IStreamCommand upstreamCommand =
         (in, out) -> {
           // 大量データを書き込もうとして、後段が失敗したときにブロックしないことを確認
@@ -202,8 +203,8 @@ class StreamConverterTest {
     InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
     OutputStream output = new ByteArrayOutputStream();
 
-    StreamProcessingException ex =
-        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    RuntimeException ex = assertThrows(RuntimeException.class, () -> converter.run(input, output));
+    assertEquals("Downstream failed immediately", ex.getMessage(), "後段の失敗例外がラップされずそのまま伝播すること");
     assertFalse(
         StreamConverter.isPipeAbortedCause(ex),
         "Root cause should not be a pipe-aborted cause. Got: " + ex);
@@ -233,8 +234,8 @@ class StreamConverterTest {
     InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
     OutputStream output = new ByteArrayOutputStream();
 
-    StreamProcessingException ex =
-        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    RuntimeException ex = assertThrows(RuntimeException.class, () -> converter.run(input, output));
+    assertEquals("Middle stage failed", ex.getMessage(), "中段の失敗例外がラップされずそのまま伝播すること");
     assertFalse(
         StreamConverter.isPipeAbortedCause(ex),
         "Root cause should not be a pipe-aborted cause. Got: " + ex);
@@ -265,10 +266,10 @@ class StreamConverterTest {
     InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
     OutputStream output = new ByteArrayOutputStream();
 
-    StreamProcessingException ex =
-        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    RuntimeException ex = assertThrows(RuntimeException.class, () -> converter.run(input, output));
 
     // pipe 系の二次エラーではなく、後段の失敗が根本原因として伝播すること
+    assertEquals("Root cause: downstream failed", ex.getMessage(), "後段の失敗例外がラップされずそのまま伝播すること");
     assertFalse(
         StreamConverter.isPipeAbortedCause(ex),
         "Root cause should not be a pipe-aborted cause. Got: " + ex);
@@ -412,9 +413,12 @@ class StreamConverterTest {
     InputStream input = new ByteArrayInputStream("AB".getBytes(StandardCharsets.UTF_8));
     OutputStream output = new ByteArrayOutputStream();
 
-    StreamProcessingException ex =
-        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    RuntimeException ex = assertThrows(RuntimeException.class, () -> converter.run(input, output));
 
+    assertEquals(
+        "Root cause: downstream failed while upstream blocked in read",
+        ex.getMessage(),
+        "後段の失敗例外がラップされずそのまま伝播すること");
     assertFalse(
         StreamConverter.isPipeAbortedCause(ex),
         "Root cause should not be a pipe-aborted cause. Got: " + ex);
@@ -469,7 +473,7 @@ class StreamConverterTest {
 
   @Test
   @Timeout(10)
-  @DisplayName("エラーメッセージにコマンド名が含まれる（命名リグレッション防止）")
+  @DisplayName("suppressed コンテキストにコマンド名が含まれる（命名リグレッション防止）")
   void testErrorMessageContainsConcreteCommandName() throws IOException {
     class FailingCommand implements IStreamCommand {
       @Override
@@ -482,12 +486,13 @@ class StreamConverterTest {
     InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
     OutputStream output = new ByteArrayOutputStream();
 
-    StreamProcessingException ex =
-        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    // 例外規定: 失敗例外はラップされず、コマンド名は suppressed コンテキストで報告される
+    RuntimeException ex = assertThrows(RuntimeException.class, () -> converter.run(input, output));
 
     assertTrue(
-        ex.getMessage().contains("FailingCommand"),
-        "エラーメッセージに 'FailingCommand' が含まれるべき: " + ex.getMessage());
+        Arrays.stream(ex.getSuppressed())
+            .anyMatch(s -> String.valueOf(s.getMessage()).contains("FailingCommand")),
+        "suppressed コンテキストに 'FailingCommand' が含まれるべき: " + Arrays.toString(ex.getSuppressed()));
   }
 
   @Test
@@ -504,9 +509,9 @@ class StreamConverterTest {
     InputStream input = new ByteArrayInputStream("test".getBytes(StandardCharsets.UTF_8));
     OutputStream output = new ByteArrayOutputStream();
 
-    StreamProcessingException ex =
-        assertThrows(StreamProcessingException.class, () -> converter.run(input, output));
+    // 例外規定: RuntimeException はラップされないため、根本原因の例外そのものが伝播する
+    RuntimeException ex = assertThrows(RuntimeException.class, () -> converter.run(input, output));
 
-    assertSame(originalCause, ex.getCause(), "exceptionally コールバックが根本原因を上書きしていないこと");
+    assertSame(originalCause, ex, "exceptionally コールバックが根本原因を上書きしていないこと");
   }
 }

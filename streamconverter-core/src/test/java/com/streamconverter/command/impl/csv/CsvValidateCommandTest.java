@@ -544,8 +544,12 @@ public class CsvValidateCommandTest {
 
           @Override
           public int read(byte[] b, int off, int len) throws IOException {
-            // JDK のデフォルト実装は2バイト目以降の IOException を握りつぶすため、
-            // 障害を確実に上位へ伝えるようオーバーライドする
+            // 「初回呼び出しで全データを供給し、以降の呼び出しで I/O 障害」という
+            // 再現条件を安定して成立させるため直接オーバーライドする
+            // （継承したデフォルト実装に任せると障害が Reader 層へ届く保証がない）
+            if (len == 0) {
+              return 0;
+            }
             if (pos >= csv.length) {
               throw new IOException("simulated connection loss");
             }

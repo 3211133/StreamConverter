@@ -98,6 +98,11 @@ final class FaultReportingReader extends FilterReader {
    * itself completes normally. If {@code super.close()} also fails, the recorded fault (if any) is
    * attached to the close failure as a suppressed exception.
    *
+   * <p>A recorded fault is reported only once: closing an already-closed reader does not rethrow
+   * it. This keeps {@code close()} idempotent when the reader is registered both as its own
+   * try-with-resources resource and as the delegate of a closeable consumer (such as {@code
+   * CSVReader}) that closes it first.
+   *
    * @throws IOException if the underlying reader fails to close, or if a read operation previously
    *     failed and was not propagated by the caller
    */
@@ -108,12 +113,17 @@ final class FaultReportingReader extends FilterReader {
     } catch (IOException closeFailure) {
       if (fault != null) {
         closeFailure.addSuppressed(fault);
+        fault = null;
       }
       throw closeFailure;
     }
     if (fault != null) {
-      throw new IOException(
-          "I/O read failure was suppressed by a downstream consumer: " + fault.getMessage(), fault);
+      IOException reported =
+          new IOException(
+              "I/O read failure was suppressed by a downstream consumer: " + fault.getMessage(),
+              fault);
+      fault = null;
+      throw reported;
     }
   }
 }

@@ -46,7 +46,11 @@ class FaultReportingReaderTest {
     IOException thrown =
         assertThrows(
             IOException.class,
-            () -> reader.read(buf, 0, buf.length),
+            () -> {
+              // SpotBugs RR 対策: 戻り値を使用する（この行は例外をスローするため到達しない）
+              int unexpectedCount = reader.read(buf, 0, buf.length);
+              throw new AssertionError("read が失敗せず " + unexpectedCount + " 文字を返した");
+            },
             "read(char[],int,int)の例外がそのまま伝播すること");
     assertSame(failure, thrown, "read(char[],int,int)がスローする例外は下位readerの例外と同一インスタンスであること");
 
@@ -64,11 +68,14 @@ class FaultReportingReaderTest {
 
     // Caller catches the IOException and treats it as EOF (the opencsv-like behaviour),
     // i.e. it does NOT rethrow.
+    int readCount;
     try {
-      reader.read(buf, 0, buf.length);
+      readCount = reader.read(buf, 0, buf.length);
     } catch (IOException ignored) {
       // simulate a caller that swallows the failure as if it were EOF
+      readCount = -1;
     }
+    assertEquals(-1, readCount, "黙殺シナリオでは読み取り結果がEOF扱いになること");
 
     IOException closeFailure =
         assertThrows(IOException.class, reader::close, "黙殺されたfaultはclose()で新たな例外として検出されること");
@@ -109,6 +116,17 @@ class FaultReportingReaderTest {
   }
 
   @Test
+  @DisplayName("close()は冪等であること: faultを報告した後の2回目のclose()は例外をスローしないこと")
+  void testCloseIsIdempotentAfterReportingFault() {
+    IOException failure = new IOException("simulated read failure");
+    FaultReportingReader reader = new FaultReportingReader(new AlwaysFailingReader(failure));
+
+    assertThrows(IOException.class, reader::read, "read()の失敗が伝播すること");
+    assertThrows(IOException.class, reader::close, "1回目のclose()は記録済みfaultを報告すること");
+    assertDoesNotThrow(reader::close, "2回目のclose()は報告済みfaultを再スローしないこと");
+  }
+
+  @Test
   @DisplayName("forUtf8(InputStream)はUTF-8コンテンツ(日本語含む)を正しく読めること")
   void testForUtf8ReadsUtf8Content() throws IOException {
     String content = "name,note\nAlice,こんにちは\n";
@@ -136,13 +154,16 @@ class FaultReportingReaderTest {
     IOException simulatedFailure = new IOException("simulated disk failure");
     FailAfterFirstReadReader failingReader =
         new FailAfterFirstReadReader(csvData, simulatedFailure);
-    FaultReportingReader faultReportingReader = new FaultReportingReader(failingReader);
 
     IOException closeFailure =
         assertThrows(
             IOException.class,
             () -> {
-              try (CSVReader csvReader = new CSVReader(faultReportingReader)) {
+              // FaultReportingReader 自身も resource として登録する（SpotBugs OS 対策）。
+              // CSVReader.close() が先に閉じるが、close() は冪等なので二重 close は安全
+              try (FaultReportingReader faultReportingReader =
+                      new FaultReportingReader(failingReader);
+                  CSVReader csvReader = new CSVReader(faultReportingReader)) {
                 // First call returns the header row, served from the initial buffer fill.
                 String[] headers = csvReader.readNext();
                 assertArrayEquals(new String[] {"name", "age"}, headers, "1行目のヘッダーは正常に読めること");

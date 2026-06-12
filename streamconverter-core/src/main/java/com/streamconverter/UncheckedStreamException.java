@@ -8,9 +8,11 @@ import java.util.Objects;
  * interfaces, such as {@link com.streamconverter.command.rule.IRule#apply}, that do not declare
  * checked exceptions.
  *
- * <p>This is an internal carrier type only; it must not escape public command boundaries. Code at a
- * command boundary (for example, a {@code CommandStageRunner}) must catch this exception, unwrap it
- * via {@link #getCause()}, and rethrow the underlying {@link IOException} (or a {@link
+ * <p>This type is {@code public} because rule implementations live in other packages and modules
+ * (for example, the database rules in {@code streamconverter-db}) and need to throw it. Its role is
+ * still strictly that of a carrier: it must not escape public command boundaries. Code at a command
+ * boundary (for example, a {@code CommandStageRunner}) must catch this exception, unwrap it via
+ * {@link #getCause()}, and rethrow the underlying {@link IOException} (or a {@link
  * StreamProcessingException} wrapping it) so that callers continue to observe the checked exception
  * contract.
  *

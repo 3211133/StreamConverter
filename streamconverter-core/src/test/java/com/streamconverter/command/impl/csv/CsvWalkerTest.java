@@ -381,6 +381,9 @@ class CsvWalkerTest {
             // read(byte[], int, int) を直接オーバーライドするのは、JDK のデフォルト実装が
             // 2バイト目以降の read() の IOException を握りつぶすため。
             // 読み取り位置を管理し、供給分を返し切った後の読み取りで I/O 障害を発生させる。
+            if (len == 0) {
+              return 0;
+            }
             if (position >= supplied.length) {
               throw new IOException("simulated I/O failure during read");
             }

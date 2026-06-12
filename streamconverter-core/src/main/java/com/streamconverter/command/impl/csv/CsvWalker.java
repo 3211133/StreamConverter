@@ -110,10 +110,6 @@ public class CsvWalker implements IStreamCommand {
     }
   }
 
-  @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the
-  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); any other
-  // RuntimeException is wrapped as IOException so the caller's error-handling path is not bypassed.
   private void applyRuleToColumn(CSVReader csvReader, CSVWriter csvWriter)
       throws IOException, CsvValidationException {
     String[] headers = csvReader.readNext();
@@ -134,20 +130,28 @@ public class CsvWalker implements IStreamCommand {
     while ((row = csvReader.readNext()) != null) {
       for (int idx : indices) {
         if (idx < row.length) {
-          String transformed;
-          try {
-            transformed = rule.apply(row[idx]);
-          } catch (UncheckedStreamException carrier) {
-            throw carrier.getCause();
-          } catch (RuntimeException ruleEx) {
-            throw new IOException("Rule application failed at column index " + idx, ruleEx);
-          }
-          row[idx] = transformed;
+          row[idx] = applyRule(row[idx], idx);
         }
       }
       // applyQuotesToAll=false: only quote fields that contain delimiters or quotes
       csvWriter.writeNext(row, false);
     }
     csvWriter.flush();
+  }
+
+  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace"})
+  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the
+  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); the cause
+  // already records the rule-site stack trace, so discarding the carrier loses no diagnostics.
+  // Any other RuntimeException is wrapped as IOException so the caller's error-handling path is
+  // not bypassed.
+  private String applyRule(String value, int columnIndex) throws IOException {
+    try {
+      return rule.apply(value);
+    } catch (UncheckedStreamException carrier) {
+      throw carrier.getCause();
+    } catch (RuntimeException ruleEx) {
+      throw new IOException("Rule application failed at column index " + columnIndex, ruleEx);
+    }
   }
 }

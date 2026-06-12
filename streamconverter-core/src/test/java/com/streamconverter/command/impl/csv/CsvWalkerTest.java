@@ -31,7 +31,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** Unit tests for CsvWalker. */
@@ -361,7 +360,6 @@ class CsvWalkerTest {
   }
 
   @Test
-  @Tag("known-bug") // #784
   @DisplayName("読み取り中の入力ストリーム I/O 障害は IOException として呼び出し元に伝播する")
   void testReadIoErrorPropagatesAsIOException() throws IOException {
     // ネットワーク切断・パイプ切断等で読み取り途中に I/O 障害が発生した場合、

@@ -3,6 +3,7 @@ package com.streamconverter.command.impl.csv;
 import com.opencsv.CSVReader;
 import com.opencsv.CSVWriter;
 import com.opencsv.exceptions.CsvValidationException;
+import com.streamconverter.UncheckedStreamException;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.CSVPath;
@@ -110,8 +111,9 @@ public class CsvWalker implements IStreamCommand {
   }
 
   @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and
-  // re-thrown as IOException so the caller's error-handling path is not bypassed.
+  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the
+  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); any other
+  // RuntimeException is wrapped as IOException so the caller's error-handling path is not bypassed.
   private void applyRuleToColumn(CSVReader csvReader, CSVWriter csvWriter)
       throws IOException, CsvValidationException {
     String[] headers = csvReader.readNext();
@@ -135,6 +137,8 @@ public class CsvWalker implements IStreamCommand {
           String transformed;
           try {
             transformed = rule.apply(row[idx]);
+          } catch (UncheckedStreamException carrier) {
+            throw carrier.getCause();
           } catch (RuntimeException ruleEx) {
             throw new IOException("Rule application failed at column index " + idx, ruleEx);
           }

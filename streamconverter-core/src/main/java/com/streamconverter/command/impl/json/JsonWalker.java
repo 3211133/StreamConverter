@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.streamconverter.UncheckedStreamException;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.TreePath;
@@ -120,15 +121,17 @@ public class JsonWalker implements IStreamCommand {
   @SuppressWarnings("PMD.AvoidCatchingGenericException")
   private void handleValueString(
       JsonParser parser, JsonGenerator generator, List<String> currentPath) throws IOException {
-    // IRule.apply() declares no checked exceptions; RuntimeException catch wraps any rule failure.
-    // NOTE: DatabaseFetchRule/PooledDatabaseFetchRule throw StreamProcessingException (IOException)
-    // via sneakyThrow, which escapes this catch. Fix tracked in #741 (IRule.apply throws
-    // IOException).
+    // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the
+    // UncheckedStreamException carrier and are unwrapped here at the command boundary (#741);
+    // any other RuntimeException is an implementation failure of the rule and is wrapped with
+    // path context.
     String originalValue = parser.getText();
     if (isMatchingPath(currentPath)) {
       String transformed;
       try {
         transformed = rule.apply(originalValue);
+      } catch (UncheckedStreamException carrier) {
+        throw carrier.getCause();
       } catch (RuntimeException ruleEx) {
         throw new IOException("Rule application failed at path " + currentPath, ruleEx);
       }

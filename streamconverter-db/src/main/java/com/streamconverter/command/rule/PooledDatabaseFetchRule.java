@@ -1,6 +1,7 @@
 package com.streamconverter.command.rule;
 
 import com.streamconverter.StreamProcessingException;
+import com.streamconverter.UncheckedStreamException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -97,7 +98,8 @@ public class PooledDatabaseFetchRule implements IRule {
    *
    * @param input 変換対象の文字列（クエリパラメータとして使用）
    * @return クエリ結果の先頭値、または空文字列（結果がない場合）
-   * @throws StreamProcessingException SQLExceptionが発生した場合
+   * @throws UncheckedStreamException SQLExceptionが発生した場合、{@link StreamProcessingException} を cause
+   *     として持つキャリアとしてスローされる。コマンド境界（Walker）で IOException として unwrap される
    * @throws IllegalArgumentException inputがnullの場合（sanitizeInput経由）
    */
   @Override
@@ -123,14 +125,9 @@ public class PooledDatabaseFetchRule implements IRule {
           logger.error("Additional error during close: {}", s.getMessage(), s);
         }
       }
-      sneakyThrow(new StreamProcessingException("Database fetch failed: " + e.getMessage(), e));
-      throw new AssertionError("unreachable");
+      throw new UncheckedStreamException(
+          new StreamProcessingException("Database fetch failed: " + e.getMessage(), e));
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T extends Throwable> void sneakyThrow(Throwable t) throws T {
-    throw (T) t;
   }
 
   /** クエリにプレースホルダーがある場合に入力値をバインドする。拒否すべき入力なら false を返す。 */

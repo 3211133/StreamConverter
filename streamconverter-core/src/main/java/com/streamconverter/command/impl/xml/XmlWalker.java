@@ -1,5 +1,6 @@
 package com.streamconverter.command.impl.xml;
 
+import com.streamconverter.UncheckedStreamException;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.TreePath;
@@ -93,6 +94,10 @@ public class XmlWalker implements IStreamCommand {
       eventWriter.flush();
     } catch (XMLStreamException e) {
       primaryException = buildXmlException(e);
+    } catch (IOException e) {
+      // ルール層から unwrap された I/O 障害（分類 B）。型を変えず、close 失敗の suppressed 連結
+      // を XMLStreamException 経路と同様に行うため primaryException に乗せる
+      primaryException = e;
     } finally {
       primaryException = XmlStreamResources.closeAll(eventReader, eventWriter, primaryException);
     }
@@ -103,11 +108,13 @@ public class XmlWalker implements IStreamCommand {
   }
 
   @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and
-  // re-thrown as XMLStreamException so the caller's error-handling path is not bypassed.
+  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the
+  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); any other
+  // RuntimeException is wrapped as XMLStreamException so the caller's error-handling path is not
+  // bypassed.
   private void navigateXmlWithRule(
       XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)
-      throws XMLStreamException {
+      throws XMLStreamException, IOException {
     XMLEventFactory eventFactory = XMLEventFactory.newInstance();
     List<String> currentPath = new ArrayList<>();
 
@@ -129,6 +136,8 @@ public class XmlWalker implements IStreamCommand {
         String transformed;
         try {
           transformed = rule.apply(data);
+        } catch (UncheckedStreamException carrier) {
+          throw carrier.getCause();
         } catch (RuntimeException ruleEx) {
           throw new XMLStreamException("Rule application failed at path " + currentPath, ruleEx);
         }

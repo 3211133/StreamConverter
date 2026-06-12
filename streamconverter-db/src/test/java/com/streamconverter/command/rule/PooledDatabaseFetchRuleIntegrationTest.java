@@ -1,10 +1,12 @@
 package com.streamconverter.command.rule;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import com.streamconverter.StreamProcessingException;
+import com.streamconverter.UncheckedStreamException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.Statement;
@@ -279,10 +281,15 @@ public class PooledDatabaseFetchRuleIntegrationTest {
     // プールをシャットダウン
     testPool.close();
 
-    // シャットダウン後は StreamProcessingException がスローされることを確認
-    assertThrows(
+    // シャットダウン後は UncheckedStreamException（cause=StreamProcessingException）がスローされることを確認
+    UncheckedStreamException thrown =
+        assertThrows(
+            UncheckedStreamException.class,
+            () -> rule.apply("2"),
+            "Should throw UncheckedStreamException after pool shutdown");
+    assertInstanceOf(
         StreamProcessingException.class,
-        () -> rule.apply("2"),
-        "Should throw StreamProcessingException after pool shutdown");
+        thrown.getCause(),
+        "UncheckedStreamException の cause は StreamProcessingException であること");
   }
 }

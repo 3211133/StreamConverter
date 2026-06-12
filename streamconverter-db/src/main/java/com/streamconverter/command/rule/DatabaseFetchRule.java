@@ -1,6 +1,7 @@
 package com.streamconverter.command.rule;
 
 import com.streamconverter.StreamProcessingException;
+import com.streamconverter.UncheckedStreamException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -203,13 +204,8 @@ public class DatabaseFetchRule implements IRule {
           logger.error("クローズ中に追加のエラーが発生しました: {}", s.getMessage(), s);
         }
       }
-      sneakyThrow(new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e));
-      throw new AssertionError("unreachable");
+      throw new UncheckedStreamException(
+          new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e));
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T extends Throwable> void sneakyThrow(Throwable t) throws T {
-    throw (T) t;
   }
 }

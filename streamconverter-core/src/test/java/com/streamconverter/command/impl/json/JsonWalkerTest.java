@@ -3,9 +3,12 @@ package com.streamconverter.command.impl.json;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+import com.streamconverter.StreamProcessingException;
+import com.streamconverter.UncheckedStreamException;
 import com.streamconverter.command.rule.PassThroughRule;
 import com.streamconverter.command.rule.TestRule;
 import com.streamconverter.path.TreePath;
@@ -309,5 +312,28 @@ class JsonWalkerTest {
         "product_code values should be transformed via $.orders[*].product_code path");
     // order_id should be preserved untouched
     assertTrue(result.contains("ORD-001"), "order_id should be preserved");
+  }
+
+  @Test
+  @DisplayName("[#741] ルール層の UncheckedStreamException キャリアは境界で unwrap され IOException として伝播する")
+  void testRuleCarrierIsUnwrappedToIOException() {
+    StreamProcessingException ruleFailure =
+        new StreamProcessingException("simulated rule I/O failure");
+    JsonWalker walker =
+        JsonWalker.create(
+            TreePath.fromJson("$.test"),
+            input -> {
+              throw new UncheckedStreamException(ruleFailure);
+            });
+    InputStream input =
+        new ByteArrayInputStream("{\"test\":\"value\"}".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    IOException thrown =
+        assertThrows(
+            IOException.class,
+            () -> walker.execute(input, output),
+            "ルール層の I/O 失敗キャリアは IOException として伝播すること");
+    assertSame(ruleFailure, thrown, "キャリアの cause がラップされずそのまま伝播すること");
   }
 }

@@ -24,6 +24,7 @@ import java.nio.charset.StandardCharsets;
 final class FaultReportingReader extends FilterReader {
 
   private IOException fault;
+  private boolean faultReported;
 
   /**
    * Constructs a new FaultReportingReader wrapping the given reader.
@@ -111,19 +112,16 @@ final class FaultReportingReader extends FilterReader {
     try {
       super.close();
     } catch (IOException closeFailure) {
-      if (fault != null) {
+      if (fault != null && !faultReported) {
+        faultReported = true;
         closeFailure.addSuppressed(fault);
-        fault = null;
       }
       throw closeFailure;
     }
-    if (fault != null) {
-      IOException reported =
-          new IOException(
-              "I/O read failure was suppressed by a downstream consumer: " + fault.getMessage(),
-              fault);
-      fault = null;
-      throw reported;
+    if (fault != null && !faultReported) {
+      faultReported = true;
+      throw new IOException(
+          "I/O read failure was suppressed by a downstream consumer: " + fault.getMessage(), fault);
     }
   }
 }

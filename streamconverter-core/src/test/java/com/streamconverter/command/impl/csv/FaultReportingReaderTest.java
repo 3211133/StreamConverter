@@ -152,16 +152,16 @@ class FaultReportingReaderTest {
     // buffer without any further calls to the underlying reader.
     String csvData = "name,age\nAlice,30\n";
     IOException simulatedFailure = new IOException("simulated disk failure");
-    FailAfterFirstReadReader failingReader =
-        new FailAfterFirstReadReader(csvData, simulatedFailure);
 
     IOException closeFailure =
         assertThrows(
             IOException.class,
             () -> {
-              // FaultReportingReader 自身も resource として登録する（SpotBugs OS 対策）。
-              // CSVReader.close() が先に閉じるが、close() は冪等なので二重 close は安全
-              try (FaultReportingReader faultReportingReader =
+              // 各 Reader を resource として登録する（SpotBugs OS 対策）。
+              // CSVReader.close() が先に内側を閉じるが、close() は冪等なので二重 close は安全
+              try (FailAfterFirstReadReader failingReader =
+                      new FailAfterFirstReadReader(csvData, simulatedFailure);
+                  FaultReportingReader faultReportingReader =
                       new FaultReportingReader(failingReader);
                   CSVReader csvReader = new CSVReader(faultReportingReader)) {
                 // First call returns the header row, served from the initial buffer fill.

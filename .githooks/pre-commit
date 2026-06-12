@@ -1,34 +1,109 @@
-#!/bin/sh
-echo "Running pre-commit checks..."
-#OS環境差異を吸収するために、実行するgradleを選択する
-# OS判定
-if [ "$OS" = "Windows_NT" ]; then
-    GRADLE_CMD="gradle.bat"
-else
-    GRADLE_CMD="./gradlew"
-fi
+#!/bin/bash
+# Pre-commit hook for StreamConverter project
+# Ensures code quality by running formatting, linting, and quick tests
+#
+# インストール: bash docs/development/setup-hooks.sh
+#   （git config core.hooksPath .githooks）
+# Git フックは Windows でも Git Bash（sh）上で実行されるため、
+# OS を問わず gradlew シェルスクリプトを使用する。
 
-echo "Running code checking format with Spotless..."
-$GRADLE_CMD spotlessCheck
-RESULT=$?
-if [ $RESULT -ne 0 ]; then
-    echo "Running code formatting with Spotless..."
-    $GRADLE_CMD spotlessApply
-    RESULT=$?
-    if [ $RESULT -ne 0 ]; then
-        echo "Code formatting failed. Commit aborted."
-        exit 1
-    fi
-    # 変更されたファイルを再度ステージングする
-    git add -u
-fi
+set -e
 
-echo "Running code analysis with clean build (excluding tests)..."
-$GRADLE_CMD clean build -x test
-RESULT=$?
-if [ $RESULT -ne 0 ]; then
-    echo "Pre-commit checks failed. Commit aborted."
+echo "🔍 Running pre-commit checks..."
+
+# Colors for output
+RED='\033[0;31m'
+GREEN='\033[0;32m'
+YELLOW='\033[1;33m'
+NC='\033[0m' # No Color
+
+# Function to print colored output
+print_status() {
+    echo -e "${GREEN}✓${NC} $1"
+}
+
+print_warning() {
+    echo -e "${YELLOW}⚠${NC} $1"
+}
+
+print_error() {
+    echo -e "${RED}✗${NC} $1"
+}
+
+# Check if we're in the right directory
+if [ ! -f "build.gradle.kts" ]; then
+    print_error "Not in project root directory"
     exit 1
 fi
 
-exit 0
+# Step 1: Run Spotless format check and apply
+echo "📝 Checking code formatting..."
+if ./gradlew spotlessCheck > /dev/null 2>&1; then
+    print_status "Code formatting is already correct"
+else
+    print_warning "Code formatting issues found, applying fixes..."
+    if ./gradlew spotlessApply; then
+        print_status "Code formatting applied successfully"
+
+        # Add the formatted files to staging
+        echo "📦 Adding formatted files to staging area..."
+        git add -u
+        print_status "Formatted files added to commit"
+    else
+        print_error "Failed to apply code formatting"
+        exit 1
+    fi
+fi
+
+# Step 2: Compile check
+echo "🔨 Checking compilation..."
+if ./gradlew compileJava compileTestJava > /dev/null 2>&1; then
+    print_status "Compilation successful"
+else
+    print_error "Compilation failed"
+    echo "Please fix compilation errors before committing"
+    exit 1
+fi
+
+# Step 3: Run quick tests (exclude slow integration tests)
+echo "🧪 Running quick tests..."
+if ./gradlew test -x pitest --fail-fast > /dev/null 2>&1; then
+    print_status "All tests passed"
+else
+    print_error "Tests failed"
+    echo "Please fix failing tests before committing"
+    echo "Run './gradlew test' for detailed test results"
+    exit 1
+fi
+
+# Step 4: Check for common issues
+echo "🔍 Checking for common issues..."
+
+# Check for TODO/FIXME without issue references
+if git diff --cached --name-only | xargs grep -l "TODO\|FIXME" 2>/dev/null | grep -v ".git" | head -5; then
+    print_warning "Found TODO/FIXME comments in staged files"
+    echo "Consider creating issues for these items"
+fi
+
+# Check for console.log or System.out.println (except in test files)
+if git diff --cached --name-only | grep -E "\.(java|kt)$" | grep -v test | xargs grep -l "System\.out\.print\|console\.log" 2>/dev/null | head -5; then
+    print_warning "Found console output statements in non-test files"
+    echo "Consider using proper logging instead"
+fi
+
+# Step 5: Validate Javadoc syntax (if there are Java changes)
+java_files_changed=$(git diff --cached --name-only | grep -E "\.java$" | wc -l)
+if [ "$java_files_changed" -gt 0 ]; then
+    echo "📚 Validating Javadoc syntax..."
+    if ./gradlew javadoc > /dev/null 2>&1; then
+        print_status "Javadoc syntax validation successful"
+        print_warning "Note: Javadoc files are not committed (CI will generate them)"
+    else
+        print_warning "Javadoc has warnings/errors (check './gradlew javadoc' for details)"
+        print_warning "This won't block commit but should be addressed"
+    fi
+fi
+
+echo ""
+print_status "Pre-commit checks completed successfully!"
+echo "🚀 Ready to commit"

@@ -164,13 +164,15 @@ Thumbs.db
 
 ### Git Hooks
 
-Versioned hook scripts live in `.githooks/`. Install them into your local clone after checkout:
+Versioned hook scripts live in `.githooks/`. Enable them after checkout by running:
 
 ```
-cp .githooks/pre-push .git/hooks/pre-push
-chmod +x .git/hooks/pre-push
+bash docs/development/setup-hooks.sh
 ```
 
+This sets `git config core.hooksPath .githooks`, so the hooks apply to all checkouts including git worktrees without per-worktree copying.
+
+- **`pre-commit`** runs formatting (Spotless), compilation, quick tests, and Javadoc validation before every commit.
 - **`pre-push`** runs the same checks as CI before every push (`./gradlew build` — including SpotBugs, PMD, and Javadoc — and `./gradlew verifyKnownBugs`). This catches quality-gate failures locally instead of discovering them in CI after the push. To bypass in an emergency, use `git push --no-verify` (note that CI may then fail).
 
 ### AI Assistant Files

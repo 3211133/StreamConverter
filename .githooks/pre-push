@@ -6,17 +6,17 @@
 #     （test に加え SpotBugs / PMD / Javadoc 等の品質チェックを含む）
 #   - "Verify Known Bugs Still Exist" 相当: ./gradlew verifyKnownBugs
 #
-# インストール: cp .githooks/pre-push .git/hooks/pre-push && chmod +x .git/hooks/pre-push
+# インストール: bash docs/development/setup-hooks.sh
+#   （git config core.hooksPath .githooks が設定され、このディレクトリの
+#     フックが worktree を含む全チェックアウトで有効になる）
 # 緊急時のスキップ: git push --no-verify（CI は通らない可能性があることに注意）
+#
+# Git フックは Windows でも Git Bash（sh）上で実行されるため、
+# OS を問わず gradlew シェルスクリプトを使用する。
 
 set -u
 
-# OS環境差異を吸収するために、実行するgradleを選択する
-if [ "${OS:-}" = "Windows_NT" ]; then
-    GRADLE_CMD="./gradlew.bat"
-else
-    GRADLE_CMD="./gradlew"
-fi
+GRADLE_CMD="./gradlew"
 
 echo "🚦 Running pre-push checks (CI mirror)..."
 

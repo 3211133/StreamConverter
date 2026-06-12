@@ -130,6 +130,9 @@ public class DatabaseFetchRule implements IRule {
    *
    * @param input 変換対象の文字列（クエリパラメータとして使用）
    * @return String output クエリ結果の先頭値、または空文字列（結果がない場合）
+   * @throws UncheckedStreamException SQLException が発生した場合、{@link StreamProcessingException} を cause
+   *     として持つキャリアとしてスローされる。コマンド境界（Walker）で IOException として unwrap される。 このメソッドを直接呼び出す場合は呼び出し側が
+   *     unwrap する責務を負う
    */
   @Override
   public String apply(String input) {

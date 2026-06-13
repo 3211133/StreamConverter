@@ -520,6 +520,50 @@ public class CsvValidateCommandTest {
   }
 
   @Test
+  @Tag("known-bug") // #783
+  @DisplayName("読み取り中に I/O 障害が発生した場合は検証成功として扱われない")
+  void midStreamIoErrorIsNotTreatedAsSuccess() throws IOException {
+    // ネットワーク切断・ディスクエラー等で入力が途中で切断された場合、
+    // 障害発生前までのデータだけで検証を成立させてはならない。
+    // 切り詰められた入力の黙認は欠損データの見逃しに直結するため、
+    // I/O 障害は例外としてエラー報告されるべき。
+    CsvValidateCommand command = CsvValidateCommand.create(true, 10);
+    byte[] csv = "id,name\n1,Alice\n".getBytes(StandardCharsets.UTF_8);
+    try (InputStream failingStream =
+        new InputStream() {
+          private int pos = 0;
+
+          @Override
+          public int read() throws IOException {
+            if (pos >= csv.length) {
+              throw new IOException("simulated connection loss");
+            }
+            return csv[pos++] & 0xFF;
+          }
+
+          @Override
+          public int read(byte[] b, int off, int len) throws IOException {
+            // 「初回呼び出しで全データを供給し、以降の呼び出しで I/O 障害」という
+            // 再現条件を安定して成立させるため直接オーバーライドする
+            // （継承したデフォルト実装に任せると障害が Reader 層へ届く保証がない）
+            if (len == 0) {
+              return 0;
+            }
+            if (pos >= csv.length) {
+              throw new IOException("simulated connection loss");
+            }
+            int n = Math.min(len, csv.length - pos);
+            System.arraycopy(csv, pos, b, off, n);
+            pos += n;
+            return n;
+          }
+        }) {
+      assertThrows(
+          IOException.class, () -> command.consume(failingStream), "読み取り中の I/O 障害は例外として報告されるべき");
+    }
+  }
+
+  @Test
   @DisplayName("入力ストリームの I/O 障害はパース失敗と区別できるメッセージで報告される")
   void ioErrorIsNotLabeledAsParseFailure() {
     // ネットワーク切断・パイプ切断等の I/O 障害は CSV の内容不正とは原因が異なるため、

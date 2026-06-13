@@ -200,13 +200,8 @@ public class DatabaseFetchRule implements IRule {
         return value;
       }
     } catch (SQLException e) {
-      logger.error("データベース操作中にエラーが発生しました: {}", e.getMessage(), e);
-      Throwable[] suppressed = e.getSuppressed();
-      if (suppressed != null) {
-        for (Throwable s : suppressed) {
-          logger.error("クローズ中に追加のエラーが発生しました: {}", s.getMessage(), s);
-        }
-      }
+      // 例外規定のログ規約: ルール層での log&rethrow は禁止。SQLException（suppressed 含む）は
+      // cause チェーンとして伝播し、最終的に withLogging がスタックトレース付きで記録する
       throw new UncheckedStreamException(
           new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e));
     }

@@ -86,7 +86,7 @@ final class CommandStageRunner {
       closeStageOutput(stageIo, commandLabel);
     } catch (Throwable throwable) {
       abortAllPipes(pipes);
-      sneakyThrow(toStageFailure(throwable, commandLabel));
+      throw toStageFailure(throwable, commandLabel);
     }
   }
 
@@ -108,27 +108,32 @@ final class CommandStageRunner {
   }
 
   /**
-   * Converts a stage failure into the exception type surfaced by the pipeline.
+   * Classifies a stage failure per the exception policy (docs/reference/EXCEPTION_POLICY.md) and
+   * returns it as an unchecked throwable suitable for the async stage boundary.
+   *
+   * <p>The propagated exception keeps its original type: input-data and I/O failures travel as
+   * their own {@link IOException} subtype (carried across the {@code Runnable} boundary by {@link
+   * UncheckedStreamException}), and runtime exceptions — implementation bugs by classification —
+   * are returned as-is. The failing command is recorded as a suppressed {@link StageFailureContext}
+   * instead of being embedded in a wrapper message.
    *
    * @throws Error when the stage failed with an unrecoverable JVM error
    */
-  private StreamProcessingException toStageFailure(Throwable throwable, String commandLabel) {
-    if (throwable instanceof StreamProcessingException streamProcessingException) {
-      return streamProcessingException;
-    }
+  private RuntimeException toStageFailure(Throwable throwable, String commandLabel) {
     if (throwable instanceof Error error) {
       throw error;
     }
-    if (throwable instanceof IOException || throwable instanceof RuntimeException) {
-      return new StreamProcessingException(
-          "Command execution failed: " + commandLabel + " - " + throwable.getMessage(), throwable);
+    Throwable failure =
+        throwable instanceof UncheckedStreamException carrier ? carrier.getCause() : throwable;
+    failure.addSuppressed(new StageFailureContext(commandLabel));
+    if (failure instanceof RuntimeException runtimeException) {
+      return runtimeException;
     }
-    return new StreamProcessingException("Command execution failed: " + commandLabel, throwable);
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T extends Throwable> void sneakyThrow(Throwable t) throws T {
-    throw (T) t;
+    if (failure instanceof IOException ioException) {
+      return new UncheckedStreamException(ioException);
+    }
+    return new UncheckedStreamException(
+        new StreamProcessingException("Command execution failed: " + commandLabel, failure));
   }
 
   /** Aborts every intermediate pipe so dependent stages stop waiting on stream activity. */

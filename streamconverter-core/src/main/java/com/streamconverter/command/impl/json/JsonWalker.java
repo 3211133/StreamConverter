@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.streamconverter.UncheckedStreamException;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.TreePath;
@@ -117,24 +118,28 @@ public class JsonWalker implements IStreamCommand {
     return depth;
   }
 
-  @SuppressWarnings("PMD.AvoidCatchingGenericException")
   private void handleValueString(
       JsonParser parser, JsonGenerator generator, List<String> currentPath) throws IOException {
-    // IRule.apply() declares no checked exceptions; RuntimeException catch wraps any rule failure.
-    // NOTE: DatabaseFetchRule/PooledDatabaseFetchRule throw StreamProcessingException (IOException)
-    // via sneakyThrow, which escapes this catch. Fix tracked in #741 (IRule.apply throws
-    // IOException).
     String originalValue = parser.getText();
     if (isMatchingPath(currentPath)) {
-      String transformed;
-      try {
-        transformed = rule.apply(originalValue);
-      } catch (RuntimeException ruleEx) {
-        throw new IOException("Rule application failed at path " + currentPath, ruleEx);
-      }
-      generator.writeString(transformed);
+      generator.writeString(applyRule(originalValue, currentPath));
     } else {
       generator.writeString(originalValue);
+    }
+  }
+
+  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace"})
+  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the
+  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); the cause
+  // already records the rule-site stack trace, so discarding the carrier loses no diagnostics.
+  // Any other RuntimeException is wrapped as IOException with path context.
+  private String applyRule(String value, List<String> currentPath) throws IOException {
+    try {
+      return rule.apply(value);
+    } catch (UncheckedStreamException carrier) {
+      throw carrier.getCause();
+    } catch (RuntimeException ruleEx) {
+      throw new IOException("Rule application failed at path " + currentPath, ruleEx);
     }
   }
 

@@ -1,5 +1,6 @@
 package com.streamconverter.command.impl.xml;
 
+import com.streamconverter.UncheckedStreamException;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.path.TreePath;
@@ -89,10 +90,14 @@ public class XmlWalker implements IStreamCommand {
     try {
       eventReader = createXMLEventReader(inputStream);
       eventWriter = createXMLEventWriter(outputStream);
-      navigateXmlWithRule(eventReader, eventWriter, treePath, rule);
+      navigateXmlWithRule(eventReader, eventWriter, treePath);
       eventWriter.flush();
     } catch (XMLStreamException e) {
       primaryException = buildXmlException(e);
+    } catch (IOException e) {
+      // ルール層から unwrap された I/O 障害（分類 B）。型を変えず、close 失敗の suppressed 連結
+      // を XMLStreamException 経路と同様に行うため primaryException に乗せる
+      primaryException = e;
     } finally {
       primaryException = XmlStreamResources.closeAll(eventReader, eventWriter, primaryException);
     }
@@ -102,12 +107,9 @@ public class XmlWalker implements IStreamCommand {
     }
   }
 
-  @SuppressWarnings("PMD.AvoidCatchingGenericException")
-  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and
-  // re-thrown as XMLStreamException so the caller's error-handling path is not bypassed.
   private void navigateXmlWithRule(
-      XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)
-      throws XMLStreamException {
+      XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath)
+      throws XMLStreamException, IOException {
     XMLEventFactory eventFactory = XMLEventFactory.newInstance();
     List<String> currentPath = new ArrayList<>();
 
@@ -125,19 +127,30 @@ public class XmlWalker implements IStreamCommand {
           currentPath.remove(currentPath.size() - 1);
         }
       } else if (event.isCharacters() && treePath.matches(currentPath)) {
-        String data = event.asCharacters().getData();
-        String transformed;
-        try {
-          transformed = rule.apply(data);
-        } catch (RuntimeException ruleEx) {
-          throw new XMLStreamException("Rule application failed at path " + currentPath, ruleEx);
-        }
+        String transformed = applyRule(event.asCharacters().getData(), currentPath);
         // Write every event unconditionally; character events at the target path are replaced
         // above.
         event = eventFactory.createCharacters(transformed);
       }
 
       eventWriter.add(event);
+    }
+  }
+
+  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace"})
+  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the
+  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); the cause
+  // already records the rule-site stack trace, so discarding the carrier loses no diagnostics.
+  // Any other RuntimeException is wrapped as XMLStreamException so the caller's error-handling
+  // path is not bypassed.
+  private String applyRule(String data, List<String> currentPath)
+      throws XMLStreamException, IOException {
+    try {
+      return rule.apply(data);
+    } catch (UncheckedStreamException carrier) {
+      throw carrier.getCause();
+    } catch (RuntimeException ruleEx) {
+      throw new XMLStreamException("Rule application failed at path " + currentPath, ruleEx);
     }
   }
 

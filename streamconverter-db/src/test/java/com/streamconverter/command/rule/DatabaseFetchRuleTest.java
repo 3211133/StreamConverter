@@ -1,12 +1,14 @@
 package com.streamconverter.command.rule;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertInstanceOf;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import com.streamconverter.StreamProcessingException;
+import com.streamconverter.UncheckedStreamException;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -204,11 +206,16 @@ public class DatabaseFetchRuleTest {
       // テスト対象のインスタンスを作成
       DatabaseFetchRule rule = new DatabaseFetchRule(databaseUrl, query);
 
-      // SQLエラーは StreamProcessingException としてスローされることを検証
-      assertThrows(
+      // SQLエラーは UncheckedStreamException（cause=StreamProcessingException）としてスローされることを検証
+      UncheckedStreamException thrown =
+          assertThrows(
+              UncheckedStreamException.class,
+              () -> rule.apply(input),
+              "SQLエラーが発生した場合は UncheckedStreamException がスローされること");
+      assertInstanceOf(
           StreamProcessingException.class,
-          () -> rule.apply(input),
-          "SQLエラーが発生した場合は StreamProcessingException がスローされること");
+          thrown.getCause(),
+          "UncheckedStreamException の cause は StreamProcessingException であること");
     }
   }
 

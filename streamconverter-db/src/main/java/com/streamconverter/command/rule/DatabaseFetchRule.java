@@ -1,6 +1,7 @@
 package com.streamconverter.command.rule;
 
 import com.streamconverter.StreamProcessingException;
+import com.streamconverter.UncheckedStreamException;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -129,6 +130,9 @@ public class DatabaseFetchRule implements IRule {
    *
    * @param input 変換対象の文字列（クエリパラメータとして使用）
    * @return String output クエリ結果の先頭値、または空文字列（結果がない場合）
+   * @throws UncheckedStreamException SQLException が発生した場合、{@link StreamProcessingException} を cause
+   *     として持つキャリアとしてスローされる。コマンド境界（Walker）で IOException として unwrap される。 このメソッドを直接呼び出す場合は呼び出し側が
+   *     unwrap する責務を負う
    */
   @Override
   public String apply(String input) {
@@ -196,20 +200,10 @@ public class DatabaseFetchRule implements IRule {
         return value;
       }
     } catch (SQLException e) {
-      logger.error("データベース操作中にエラーが発生しました: {}", e.getMessage(), e);
-      Throwable[] suppressed = e.getSuppressed();
-      if (suppressed != null) {
-        for (Throwable s : suppressed) {
-          logger.error("クローズ中に追加のエラーが発生しました: {}", s.getMessage(), s);
-        }
-      }
-      sneakyThrow(new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e));
-      throw new AssertionError("unreachable");
+      // 例外規定のログ規約: ルール層での log&rethrow は禁止。SQLException（suppressed 含む）は
+      // cause チェーンとして伝播し、最終的に withLogging がスタックトレース付きで記録する
+      throw new UncheckedStreamException(
+          new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e));
     }
-  }
-
-  @SuppressWarnings("unchecked")
-  private static <T extends Throwable> void sneakyThrow(Throwable t) throws T {
-    throw (T) t;
   }
 }

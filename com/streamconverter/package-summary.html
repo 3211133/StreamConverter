@@ -118,21 +118,32 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">コマンド間の異常終了を伝播するためのPipedStreamペアラッパー。</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="PipeAbortedException.html" title="class in com.streamconverter">PipeAbortedException</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="InvalidInputDataException.html" title="class in com.streamconverter">InvalidInputDataException</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab5">
+<div class="block">Indicates invalid input data (classification A in the exception policy): failures that are
+ resolved by fixing the input, such as parse errors and validation failures.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="PipeAbortedException.html" title="class in com.streamconverter">PipeAbortedException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
 <div class="block">対向コマンドの異常終了により、パイプへの read/write が継続不可能になったことを示す例外。</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="StreamConverter.html" title="class in com.streamconverter">StreamConverter</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="StreamConverter.html" title="class in com.streamconverter">StreamConverter</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">ストリーム変換クラス。</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="StreamConverterWebApplication.html" title="class in com.streamconverter">StreamConverterWebApplication</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="StreamConverterWebApplication.html" title="class in com.streamconverter">StreamConverterWebApplication</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">Spring Boot application entry point for StreamConverter Web API.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab5"><a href="StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
 <div class="block">Custom exception for stream processing errors.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="UncheckedStreamException.html" title="class in com.streamconverter">UncheckedStreamException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="block">Wraps an <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link"><code>IOException</code></a> as an unchecked exception so it can be carried through functional
+ interfaces, such as <a href="command/rule/IRule.html#apply(java.lang.String)"><code>IRule.apply(java.lang.String)</code></a>, that do not declare
+ checked exceptions.</div>
 </div>
 </div>
 </div>

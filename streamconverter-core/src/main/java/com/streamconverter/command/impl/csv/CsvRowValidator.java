@@ -64,6 +64,10 @@ final class CsvRowValidator {
     }
   }
 
+  void reportHeaderOnlyCsv(List<String> errors) {
+    addError(errors, "CSV file contains only header, no data rows found");
+  }
+
   void validateDataRow(String[] row, int rowNum, String[] headers, List<String> errors) {
     int expectedColumnCount = headers != null ? headers.length : -1;
 

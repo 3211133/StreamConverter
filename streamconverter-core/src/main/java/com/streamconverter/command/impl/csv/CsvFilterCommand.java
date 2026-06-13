@@ -7,7 +7,6 @@ import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.path.IColumnSelector;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.OutputStreamWriter;
 import java.nio.charset.StandardCharsets;
@@ -69,8 +68,10 @@ public class CsvFilterCommand implements IStreamCommand {
 
   @Override
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
-    try (CSVReader csvReader =
-            new CSVReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
+    // opencsv の readNext() は下位ストリームの IOException を EOF として握りつぶすため、
+    // FaultReportingReader を介して close 時に記録済み障害を必ず再スローする（#784）
+    try (FaultReportingReader reader = FaultReportingReader.forUtf8(inputStream);
+        CSVReader csvReader = new CSVReader(reader);
         CSVWriter csvWriter =
             new CSVWriter(
                 new OutputStreamWriter(outputStream, StandardCharsets.UTF_8),

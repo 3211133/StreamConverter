@@ -602,7 +602,6 @@ class FilterCommandBasicTest {
   }
 
   @Test
-  @Tag("known-bug") // #784
   @DisplayName("CsvFilterCommand: 読み取り中の入力ストリーム I/O 障害は IOException として呼び出し元に伝播する")
   void testCsvFilterCommand_readIoErrorPropagatesAsIOException() throws IOException {
     // ネットワーク切断・パイプ切断等で読み取り途中に I/O 障害が発生した場合、

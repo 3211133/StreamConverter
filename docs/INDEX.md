@@ -14,6 +14,7 @@
 - **[ARCHITECTURE.md](ARCHITECTURE.md)**: 4 層アーキテクチャと設計原則
 - **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)**: UML / クラス関係図
 - **[handbook/architecture.md](handbook/architecture.md)**: パイプライン内部の詳細
+- **[reference/EXCEPTION_POLICY.md](reference/EXCEPTION_POLICY.md)**: 例外規定（分類・型・報告ルール）
 - **[reference/CONTEXT_PROPAGATION_ARCHITECTURE.md](reference/CONTEXT_PROPAGATION_ARCHITECTURE.md)**: コンテキスト伝播の背景調査
 
 ## 🧰 Features

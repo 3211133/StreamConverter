@@ -10,6 +10,7 @@
 起因していた。個別対処では再発を防げないため、以下を規定として明文化する。
 
 - 例外の**分類体系**と、分類ごとの**例外型・メッセージ規約**
+- アーキテクチャ階層（L1〜L4）ごとの**例外責務**（生成・伝播・記録の分担）
 - コマンドが公開 API として**スローしてよい例外**の範囲
 - **catch 節・ログ出力**の規約
 - 依存ライブラリが例外を**黙殺**する場合の検出責務
@@ -56,14 +57,64 @@ CSV 構文不正と業務バリデーション失敗のようにメッセージ�
 自前の例外・パース失敗例外まで捕捉し、誤ラベルの温床になる（issue #748 / PR #782 で実際に発生）。
 この罠への対処が次節の catch 規約である。
 
+## 🏗️ アーキテクチャ階層と例外責務
+
+分類（A/B/C）が「**誰が直せば解消するか**」の軸であるのに対し、本節は「**どの層が例外を生成・伝播・記録するか**」
+の軸を定める。両者は直交しており、各層は分類を変えずに伝播させるのが大原則である。
+
+### 層の定義（ARCHITECTURE.md の構造に対応）
+
+| 層 | 構成要素 | モジュール |
+|---|---|---|
+| **L1 利用者・統合層** | 外部システム、REST（`StreamProcessingController`）、examples | streamconverter-web / 利用者コード |
+| **L2 パイプライン層（エンジン）** | `StreamConverter` / `CommandStageRunner` / `PipelineFailureHandler` / `PipelineCompletionMonitor` / `AbortablePipedStream` / `withLogging` | streamconverter-core |
+| **L3 コマンド層** | `IStreamCommand` 実装（Walker / Filter / Validate / Convert）、`ConsumerCommand` 等の中間抽象 | streamconverter-core / http |
+| **L4 ルール層** | `IRule` 実装（`PassThroughRule` / `ChainRule` / `DatabaseFetchRule` 等） | streamconverter-core / db |
+| 横断 | 外部ライブラリ連携ヘルパー（fault 検査 Reader 等）、外部ライブラリ（opencsv / Jackson / StAX / JDBC） | — |
+
+`UncheckedStreamException`（内部キャリア）が public である理由は、L4 が別モジュール
+（streamconverter-db 等）に存在するためである。役割はあくまで層間の運搬であり、L2 を越えて
+呼び出し元に漏れたら実装バグ（分類 C）として扱う。
+
+### エンジン起源障害（補助軸）
+
+L2 エンジン自身が失敗の発生源になる場合（中間出力 close の失敗、待機中の割り込み、原因を特定
+できないステージ失敗）は、分類 A/B/C の主語（入力・環境・コマンド実装）に当てはまらない
+「**エンジン起源障害**」であり、**`StreamProcessingException`（基底型）で報告する**。現行の
+`closeStageOutput()` / `PipelineCompletionMonitor` の挙動はこの規定に適合する。
+L1 で機械的に区別する需要が生じた場合は `EngineFailureException extends StreamProcessingException`
+を切り出す（拡張点として予約）。分類 B への吸収は行わない — 割り込みや stage close 失敗は
+外部環境 I/O とは remediation が異なるためである。
+
+### 層別責務マトリクス
+
+| 層 | スローしてよいもの | 変換 | unwrap | 失敗ログ |
+|---|---|---|---|---|
+| **L1 利用者・統合層** | 任意（本規定の対象外） | 表現変換（HTTP ステータス等）は L1 の責務（[付録](#-付録-l1利用者統合層向け指針non-normative)参照） | — | 自文脈での記録可 |
+| **L2 エンジン** | コマンド由来: 境界送出規約に従い元の型のまま／エンジン起源障害: SPE | 型を変えない。文脈は suppressed（`StageFailureContext`） | **キャリアの必須 unwrap 点** | **core 内で唯一の失敗ログ点**（`withLogging`、失敗ステージごとに1回） |
+| **L3 コマンド** | 想定される失敗（入力不正・環境障害）は `IOException` 系のみ。**実装バグは RuntimeException のまま漏れてよい**（分類 C の成立要件） | 具体型 catch → 分類 A への変換のみ可。B は素通し | ルールを直接呼ぶ箇所（Walker）はキャリアを unwrap | **禁止**（log & rethrow 禁止） |
+| **L4 ルール** | unchecked のみ（`IRule` の言語制約）。checked I/O はキャリアで包む | checked → キャリアのみ | — | **log & rethrow 禁止**。例外を伴わない状態ログ（warn/info）は可 |
+
+中間抽象（`ConsumerCommand` 等）は**文脈付加は可**。分類の変更は、その抽象自身が意味的責務を
+持つ場合（例: consume 実装が検証失敗を `InvalidInputDataException` に変換する）に限り可とする。
+
+### 層越え規約
+
+1. 例外の識別は**型のみ**で行う。メッセージ文字列によるルーティング・分岐を禁止する
+2. **意味を変えるラップは公開境界で最大1回**。キャリア（`UncheckedStreamException`）は実装上の
+   運搬であり、ラップ回数には数えない
+3. 上位層は下位層の内部機構（キャリア、suppressed の内部マーカー等）に依存したハンドリングを書かない
+
 ## 📐 スロー規定（コマンド公開 API）
 
 1. `IStreamCommand.execute()` がスローしてよいのは **`IOException` とそのサブタイプのみ**
 2. 検証失敗・パース失敗（分類 A）は `InvalidInputDataException` としてスローする
    - checked であり `execute()` の契約に適合する。RuntimeException で代用してはならない
 3. 環境障害（分類 B）は捕捉せず素通しする（後述の catch 規約参照）
-4. RuntimeException がコマンド境界から漏れてよいのは分類 C（実装バグ）の場合のみ
-5. `UncheckedStreamException` は内部実装の詳細であり、コマンド境界の外へ漏らしてはならない
+4. **想定される失敗**（入力不正・環境障害）でスローしてよいのは `IOException` 系のみ。一方、
+   分類 C（実装バグ）の `RuntimeException` はコマンド境界から**そのまま漏れてよい**（包み直さない）。
+   これは L2 が分類 C を成立させるための前提であり、`IOException` 系への矯正は行わない
+5. `UncheckedStreamException` は内部キャリアであり、コマンド境界の外へ漏らしてはならない（Walker が unwrap する）
 
 ## 🧤 catch 節の規約
 
@@ -78,8 +129,11 @@ CSV 構文不正と業務バリデーション失敗のようにメッセージ�
 
 ## 📝 ログ規約
 
-1. **失敗ログは最外層の1回のみ**。`IStreamCommand.withLogging()` ラッパーが出力する
-2. コマンド内部での **log & rethrow を禁止**する（issue #749 の二重出力の再発防止）
+1. **core 内の失敗ログ点は `withLogging` ラッパーのみ**。`StreamConverter` が全コマンドに適用し、
+   失敗したステージごとに1回 ERROR を出力する（パイプライン全体で「最外層1回」ではない点に注意。
+   L1 が自文脈で追加記録することは妨げない — 層別責務マトリクス参照）
+2. L3 / L4 での **log & rethrow を禁止**する（issue #749 の二重出力の再発防止）。
+   例外を伴わない状態ログ（結果件数の warn / 進行状況の info 等）は各層で出力してよい
 3. コマンド内部で文脈を付加したい場合は「**変換してスロー**」のみ行い、ログは書かない（issue #742 の方針を内包）
 4. メッセージ規約
    - 分類 A: 「何が・どの位置で不正か」を含める（行番号・カラム名等）
@@ -98,6 +152,10 @@ CSV 構文不正と業務バリデーション失敗のようにメッセージ�
 | 素の `IOException`（分類 B） | **`IOException` のまま**伝播。コマンド名等の文脈が必要な場合は suppressed 例外や context 付与で行い、**型は変えない** |
 | `RuntimeException`（分類 C） | 実装バグとして**包み直さず**伝播 |
 | `Error` | 包まず再スロー（現行どおり） |
+
+なお、ステージ失敗の翻訳とは別に、**L2 エンジン自身が発生源となる障害**（中間出力 close の失敗、
+待機中の割り込み等）は[エンジン起源障害](#エンジン起源障害補助軸)として `StreamProcessingException`
+で送出する。
 
 ## 🕳️ 依存ライブラリの例外黙殺対策
 
@@ -157,10 +215,30 @@ I/O 障害と入力の終端を区別できず、途中切断された入力を�
 |---|---|---|
 | **Phase 1** | 本規定文書の策定 | 本ドキュメント |
 | **Phase 2** | 共通機構の実装 + 単体テスト: `InvalidInputDataException` 新設、CSV 連携 fault 検査ヘルパー、`UncheckedStreamException`（`sneakyThrow` 置換）、`CommandStageRunner` 送出規約の見直し | 未着手 |
-| **Phase 3** | 既存コマンドへの適用: #783 / #784 の修正、#729 / #731 の再評価（起票時の前提が現行コードと異なるため規定に照らして判断）、#740 / #741 / #742 / #749 の対応 | 未着手 |
+| **Phase 3** | 既存コマンドへの適用: #783 / #784 の修正、#729 / #731 の再評価（起票時の前提が現行コードと異なるため規定に照らして判断）、#740 / #741 / #742 / #749 の対応、ルール層の log & rethrow 是正（階層監査で発見。PR #792 で対応）、web 層（L1）の例外マッピング検討 | 未着手 |
 
 各 Phase は別 PR とする。新規コードは Phase 2 を待たず、本規定の分類・catch・ログ規約に従うこと
 （新設型が必要な箇所は `StreamProcessingException` + 規約準拠メッセージで代用し、Phase 2 で置換する）。
+
+## 📎 付録: L1（利用者・統合層）向け指針（non-normative）
+
+`StreamConverter.run()` から呼び出し元に届く例外は次の3系統＋エンジン起源障害である。
+
+| 届く型 | 意味 | HTTP への推奨マッピング（事前検証フェーズの失敗のみ） |
+|---|---|---|
+| `InvalidInputDataException` | 分類 A: 入力データ不正 | 400 / 422 |
+| 素の `IOException` | 分類 B: 環境（I/O）障害 | 502 / 503 |
+| `RuntimeException` | 分類 C: 実装バグ | 500 |
+| `StreamProcessingException`（上記以外） | エンジン起源障害 | 500 |
+
+**ストリーミング応答の制約（重要）**: 上記マッピングが可能なのは**レスポンスヘッダ送信前に検知
+できた失敗のみ**である。ストリーミング処理の性質上、多くの失敗は 200 OK 送信後のボディ転送中に
+発生し、その時点ではステータスコードを変更できない（接続切断・チャンク中断等の表現になる）。
+不完全出力を外部に見せない保証が必要な場合は、L1 側で一時領域への書き出し→成功時 publish の
+二段階設計を検討すること（本ライブラリは「メモリに全て持たない」設計のため、この保証を
+エンジン側では提供しない）。
+
+本付録は推奨であり規定（normative）ではない。
 
 ## 🔗 スコープ外・関連ドキュメント
 

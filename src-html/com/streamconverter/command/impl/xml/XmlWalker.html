@@ -13,193 +13,206 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamconverter.command.impl.xml;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.command.IStreamCommand;</span>
-<span class="source-line-no">004</span><span id="line-4">import com.streamconverter.command.rule.IRule;</span>
-<span class="source-line-no">005</span><span id="line-5">import com.streamconverter.path.TreePath;</span>
-<span class="source-line-no">006</span><span id="line-6">import com.streamconverter.security.SecureXmlConfiguration;</span>
-<span class="source-line-no">007</span><span id="line-7">import java.io.IOException;</span>
-<span class="source-line-no">008</span><span id="line-8">import java.io.InputStream;</span>
-<span class="source-line-no">009</span><span id="line-9">import java.io.OutputStream;</span>
-<span class="source-line-no">010</span><span id="line-10">import java.util.ArrayList;</span>
-<span class="source-line-no">011</span><span id="line-11">import java.util.List;</span>
-<span class="source-line-no">012</span><span id="line-12">import javax.xml.stream.XMLEventFactory;</span>
-<span class="source-line-no">013</span><span id="line-13">import javax.xml.stream.XMLEventReader;</span>
-<span class="source-line-no">014</span><span id="line-14">import javax.xml.stream.XMLEventWriter;</span>
-<span class="source-line-no">015</span><span id="line-15">import javax.xml.stream.XMLInputFactory;</span>
-<span class="source-line-no">016</span><span id="line-16">import javax.xml.stream.XMLStreamException;</span>
-<span class="source-line-no">017</span><span id="line-17">import javax.xml.stream.events.XMLEvent;</span>
-<span class="source-line-no">018</span><span id="line-18">import org.slf4j.Logger;</span>
-<span class="source-line-no">019</span><span id="line-19">import org.slf4j.LoggerFactory;</span>
-<span class="source-line-no">020</span><span id="line-20"></span>
-<span class="source-line-no">021</span><span id="line-21">/**</span>
-<span class="source-line-no">022</span><span id="line-22"> * XML Walker for applying transformations to XML data.</span>
-<span class="source-line-no">023</span><span id="line-23"> *</span>
-<span class="source-line-no">024</span><span id="line-24"> * &lt;p&gt;This command navigates through XML structures and applies transformations using rules while</span>
-<span class="source-line-no">025</span><span id="line-25"> * preserving the overall XML structure. It identifies specific elements using TreePath</span>
-<span class="source-line-no">026</span><span id="line-26"> * slash-delimited path expressions (e.g., {@code product/name}) and applies {@link IRule}</span>
-<span class="source-line-no">027</span><span id="line-27"> * transformations to the text content of matching nodes.</span>
-<span class="source-line-no">028</span><span id="line-28"> *</span>
-<span class="source-line-no">029</span><span id="line-29"> * &lt;p&gt;The full XML event stream — including the XML declaration, all elements, attributes, and text</span>
-<span class="source-line-no">030</span><span id="line-30"> * nodes — is written to the output. Only character data at nodes whose path exactly matches the</span>
-<span class="source-line-no">031</span><span id="line-31"> * configured {@link TreePath} is transformed by the rule; all other events are passed through with</span>
-<span class="source-line-no">032</span><span id="line-32"> * their XML information set (infoset) preserved.</span>
-<span class="source-line-no">033</span><span id="line-33"> *</span>
-<span class="source-line-no">034</span><span id="line-34"> * &lt;p&gt;Note on text handling: the underlying StAX reader is configured with {@code</span>
-<span class="source-line-no">035</span><span id="line-35"> * XMLInputFactory.IS_COALESCING}, so adjacent text fragments and CDATA sections are coalesced into</span>
-<span class="source-line-no">036</span><span id="line-36"> * a single character event before rules are applied. This guarantees that a rule sees the whole</span>
-<span class="source-line-no">037</span><span id="line-37"> * text content of a node even when the parser would otherwise split it (e.g. at CDATA boundaries).</span>
-<span class="source-line-no">038</span><span id="line-38"> * As a consequence, CDATA sections are written to the output as escaped character data — an</span>
-<span class="source-line-no">039</span><span id="line-39"> * infoset-equivalent representation — rather than being preserved verbatim.</span>
-<span class="source-line-no">040</span><span id="line-40"> */</span>
-<span class="source-line-no">041</span><span id="line-41">public class XmlWalker implements IStreamCommand {</span>
-<span class="source-line-no">042</span><span id="line-42">  private static final Logger logger = LoggerFactory.getLogger(XmlWalker.class);</span>
-<span class="source-line-no">043</span><span id="line-43"></span>
-<span class="source-line-no">044</span><span id="line-44">  private final TreePath treePath;</span>
-<span class="source-line-no">045</span><span id="line-45">  private final IRule rule;</span>
-<span class="source-line-no">046</span><span id="line-46"></span>
-<span class="source-line-no">047</span><span id="line-47">  /**</span>
-<span class="source-line-no">048</span><span id="line-48">   * Constructor for XML navigation with TreePath selector and transformation rule.</span>
-<span class="source-line-no">049</span><span id="line-49">   *</span>
-<span class="source-line-no">050</span><span id="line-50">   * @param treePath the TreePath to select elements</span>
-<span class="source-line-no">051</span><span id="line-51">   * @param rule the transformation rule to apply to selected elements</span>
-<span class="source-line-no">052</span><span id="line-52">   * @throws IllegalArgumentException if treePath or rule is null</span>
-<span class="source-line-no">053</span><span id="line-53">   */</span>
-<span class="source-line-no">054</span><span id="line-54">  XmlWalker(TreePath treePath, IRule rule) {</span>
-<span class="source-line-no">055</span><span id="line-55">    if (treePath == null) {</span>
-<span class="source-line-no">056</span><span id="line-56">      throw new IllegalArgumentException("TreePath cannot be null");</span>
-<span class="source-line-no">057</span><span id="line-57">    }</span>
-<span class="source-line-no">058</span><span id="line-58">    if (rule == null) {</span>
-<span class="source-line-no">059</span><span id="line-59">      throw new IllegalArgumentException("Rule cannot be null");</span>
-<span class="source-line-no">060</span><span id="line-60">    }</span>
-<span class="source-line-no">061</span><span id="line-61">    this.treePath = treePath;</span>
-<span class="source-line-no">062</span><span id="line-62">    this.rule = rule;</span>
-<span class="source-line-no">063</span><span id="line-63">  }</span>
-<span class="source-line-no">064</span><span id="line-64"></span>
-<span class="source-line-no">065</span><span id="line-65">  /**</span>
-<span class="source-line-no">066</span><span id="line-66">   * Factory method for creating an XML navigation command with TreePath and rule.</span>
-<span class="source-line-no">067</span><span id="line-67">   *</span>
-<span class="source-line-no">068</span><span id="line-68">   * @param treePath the TreePath to select elements</span>
-<span class="source-line-no">069</span><span id="line-69">   * @param rule the transformation rule to apply to selected elements</span>
-<span class="source-line-no">070</span><span id="line-70">   * @return an XmlWalker that transforms the specified TreePath elements with the given rule</span>
-<span class="source-line-no">071</span><span id="line-71">   * @throws IllegalArgumentException if treePath or rule is null</span>
-<span class="source-line-no">072</span><span id="line-72">   */</span>
-<span class="source-line-no">073</span><span id="line-73">  public static XmlWalker create(TreePath treePath, IRule rule) {</span>
-<span class="source-line-no">074</span><span id="line-74">    if (treePath == null) {</span>
-<span class="source-line-no">075</span><span id="line-75">      throw new IllegalArgumentException("TreePath cannot be null");</span>
-<span class="source-line-no">076</span><span id="line-76">    }</span>
-<span class="source-line-no">077</span><span id="line-77">    if (rule == null) {</span>
-<span class="source-line-no">078</span><span id="line-78">      throw new IllegalArgumentException("Rule cannot be null");</span>
-<span class="source-line-no">079</span><span id="line-79">    }</span>
-<span class="source-line-no">080</span><span id="line-80">    return new XmlWalker(treePath, rule);</span>
-<span class="source-line-no">081</span><span id="line-81">  }</span>
-<span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">  @Override</span>
-<span class="source-line-no">084</span><span id="line-84">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
-<span class="source-line-no">085</span><span id="line-85">    XMLEventReader eventReader = null;</span>
-<span class="source-line-no">086</span><span id="line-86">    XMLEventWriter eventWriter = null;</span>
-<span class="source-line-no">087</span><span id="line-87">    IOException primaryException = null;</span>
-<span class="source-line-no">088</span><span id="line-88"></span>
-<span class="source-line-no">089</span><span id="line-89">    try {</span>
-<span class="source-line-no">090</span><span id="line-90">      eventReader = createXMLEventReader(inputStream);</span>
-<span class="source-line-no">091</span><span id="line-91">      eventWriter = createXMLEventWriter(outputStream);</span>
-<span class="source-line-no">092</span><span id="line-92">      navigateXmlWithRule(eventReader, eventWriter, treePath, rule);</span>
-<span class="source-line-no">093</span><span id="line-93">      eventWriter.flush();</span>
-<span class="source-line-no">094</span><span id="line-94">    } catch (XMLStreamException e) {</span>
-<span class="source-line-no">095</span><span id="line-95">      primaryException = buildXmlException(e);</span>
-<span class="source-line-no">096</span><span id="line-96">    } finally {</span>
-<span class="source-line-no">097</span><span id="line-97">      primaryException = XmlStreamResources.closeAll(eventReader, eventWriter, primaryException);</span>
-<span class="source-line-no">098</span><span id="line-98">    }</span>
-<span class="source-line-no">099</span><span id="line-99"></span>
-<span class="source-line-no">100</span><span id="line-100">    if (primaryException != null) {</span>
-<span class="source-line-no">101</span><span id="line-101">      throw primaryException;</span>
-<span class="source-line-no">102</span><span id="line-102">    }</span>
-<span class="source-line-no">103</span><span id="line-103">  }</span>
+<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.UncheckedStreamException;</span>
+<span class="source-line-no">004</span><span id="line-4">import com.streamconverter.command.IStreamCommand;</span>
+<span class="source-line-no">005</span><span id="line-5">import com.streamconverter.command.rule.IRule;</span>
+<span class="source-line-no">006</span><span id="line-6">import com.streamconverter.path.TreePath;</span>
+<span class="source-line-no">007</span><span id="line-7">import com.streamconverter.security.SecureXmlConfiguration;</span>
+<span class="source-line-no">008</span><span id="line-8">import java.io.IOException;</span>
+<span class="source-line-no">009</span><span id="line-9">import java.io.InputStream;</span>
+<span class="source-line-no">010</span><span id="line-10">import java.io.OutputStream;</span>
+<span class="source-line-no">011</span><span id="line-11">import java.util.ArrayList;</span>
+<span class="source-line-no">012</span><span id="line-12">import java.util.List;</span>
+<span class="source-line-no">013</span><span id="line-13">import javax.xml.stream.XMLEventFactory;</span>
+<span class="source-line-no">014</span><span id="line-14">import javax.xml.stream.XMLEventReader;</span>
+<span class="source-line-no">015</span><span id="line-15">import javax.xml.stream.XMLEventWriter;</span>
+<span class="source-line-no">016</span><span id="line-16">import javax.xml.stream.XMLInputFactory;</span>
+<span class="source-line-no">017</span><span id="line-17">import javax.xml.stream.XMLStreamException;</span>
+<span class="source-line-no">018</span><span id="line-18">import javax.xml.stream.events.XMLEvent;</span>
+<span class="source-line-no">019</span><span id="line-19">import org.slf4j.Logger;</span>
+<span class="source-line-no">020</span><span id="line-20">import org.slf4j.LoggerFactory;</span>
+<span class="source-line-no">021</span><span id="line-21"></span>
+<span class="source-line-no">022</span><span id="line-22">/**</span>
+<span class="source-line-no">023</span><span id="line-23"> * XML Walker for applying transformations to XML data.</span>
+<span class="source-line-no">024</span><span id="line-24"> *</span>
+<span class="source-line-no">025</span><span id="line-25"> * &lt;p&gt;This command navigates through XML structures and applies transformations using rules while</span>
+<span class="source-line-no">026</span><span id="line-26"> * preserving the overall XML structure. It identifies specific elements using TreePath</span>
+<span class="source-line-no">027</span><span id="line-27"> * slash-delimited path expressions (e.g., {@code product/name}) and applies {@link IRule}</span>
+<span class="source-line-no">028</span><span id="line-28"> * transformations to the text content of matching nodes.</span>
+<span class="source-line-no">029</span><span id="line-29"> *</span>
+<span class="source-line-no">030</span><span id="line-30"> * &lt;p&gt;The full XML event stream — including the XML declaration, all elements, attributes, and text</span>
+<span class="source-line-no">031</span><span id="line-31"> * nodes — is written to the output. Only character data at nodes whose path exactly matches the</span>
+<span class="source-line-no">032</span><span id="line-32"> * configured {@link TreePath} is transformed by the rule; all other events are passed through with</span>
+<span class="source-line-no">033</span><span id="line-33"> * their XML information set (infoset) preserved.</span>
+<span class="source-line-no">034</span><span id="line-34"> *</span>
+<span class="source-line-no">035</span><span id="line-35"> * &lt;p&gt;Note on text handling: the underlying StAX reader is configured with {@code</span>
+<span class="source-line-no">036</span><span id="line-36"> * XMLInputFactory.IS_COALESCING}, so adjacent text fragments and CDATA sections are coalesced into</span>
+<span class="source-line-no">037</span><span id="line-37"> * a single character event before rules are applied. This guarantees that a rule sees the whole</span>
+<span class="source-line-no">038</span><span id="line-38"> * text content of a node even when the parser would otherwise split it (e.g. at CDATA boundaries).</span>
+<span class="source-line-no">039</span><span id="line-39"> * As a consequence, CDATA sections are written to the output as escaped character data — an</span>
+<span class="source-line-no">040</span><span id="line-40"> * infoset-equivalent representation — rather than being preserved verbatim.</span>
+<span class="source-line-no">041</span><span id="line-41"> */</span>
+<span class="source-line-no">042</span><span id="line-42">public class XmlWalker implements IStreamCommand {</span>
+<span class="source-line-no">043</span><span id="line-43">  private static final Logger logger = LoggerFactory.getLogger(XmlWalker.class);</span>
+<span class="source-line-no">044</span><span id="line-44"></span>
+<span class="source-line-no">045</span><span id="line-45">  private final TreePath treePath;</span>
+<span class="source-line-no">046</span><span id="line-46">  private final IRule rule;</span>
+<span class="source-line-no">047</span><span id="line-47"></span>
+<span class="source-line-no">048</span><span id="line-48">  /**</span>
+<span class="source-line-no">049</span><span id="line-49">   * Constructor for XML navigation with TreePath selector and transformation rule.</span>
+<span class="source-line-no">050</span><span id="line-50">   *</span>
+<span class="source-line-no">051</span><span id="line-51">   * @param treePath the TreePath to select elements</span>
+<span class="source-line-no">052</span><span id="line-52">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">053</span><span id="line-53">   * @throws IllegalArgumentException if treePath or rule is null</span>
+<span class="source-line-no">054</span><span id="line-54">   */</span>
+<span class="source-line-no">055</span><span id="line-55">  XmlWalker(TreePath treePath, IRule rule) {</span>
+<span class="source-line-no">056</span><span id="line-56">    if (treePath == null) {</span>
+<span class="source-line-no">057</span><span id="line-57">      throw new IllegalArgumentException("TreePath cannot be null");</span>
+<span class="source-line-no">058</span><span id="line-58">    }</span>
+<span class="source-line-no">059</span><span id="line-59">    if (rule == null) {</span>
+<span class="source-line-no">060</span><span id="line-60">      throw new IllegalArgumentException("Rule cannot be null");</span>
+<span class="source-line-no">061</span><span id="line-61">    }</span>
+<span class="source-line-no">062</span><span id="line-62">    this.treePath = treePath;</span>
+<span class="source-line-no">063</span><span id="line-63">    this.rule = rule;</span>
+<span class="source-line-no">064</span><span id="line-64">  }</span>
+<span class="source-line-no">065</span><span id="line-65"></span>
+<span class="source-line-no">066</span><span id="line-66">  /**</span>
+<span class="source-line-no">067</span><span id="line-67">   * Factory method for creating an XML navigation command with TreePath and rule.</span>
+<span class="source-line-no">068</span><span id="line-68">   *</span>
+<span class="source-line-no">069</span><span id="line-69">   * @param treePath the TreePath to select elements</span>
+<span class="source-line-no">070</span><span id="line-70">   * @param rule the transformation rule to apply to selected elements</span>
+<span class="source-line-no">071</span><span id="line-71">   * @return an XmlWalker that transforms the specified TreePath elements with the given rule</span>
+<span class="source-line-no">072</span><span id="line-72">   * @throws IllegalArgumentException if treePath or rule is null</span>
+<span class="source-line-no">073</span><span id="line-73">   */</span>
+<span class="source-line-no">074</span><span id="line-74">  public static XmlWalker create(TreePath treePath, IRule rule) {</span>
+<span class="source-line-no">075</span><span id="line-75">    if (treePath == null) {</span>
+<span class="source-line-no">076</span><span id="line-76">      throw new IllegalArgumentException("TreePath cannot be null");</span>
+<span class="source-line-no">077</span><span id="line-77">    }</span>
+<span class="source-line-no">078</span><span id="line-78">    if (rule == null) {</span>
+<span class="source-line-no">079</span><span id="line-79">      throw new IllegalArgumentException("Rule cannot be null");</span>
+<span class="source-line-no">080</span><span id="line-80">    }</span>
+<span class="source-line-no">081</span><span id="line-81">    return new XmlWalker(treePath, rule);</span>
+<span class="source-line-no">082</span><span id="line-82">  }</span>
+<span class="source-line-no">083</span><span id="line-83"></span>
+<span class="source-line-no">084</span><span id="line-84">  @Override</span>
+<span class="source-line-no">085</span><span id="line-85">  public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {</span>
+<span class="source-line-no">086</span><span id="line-86">    XMLEventReader eventReader = null;</span>
+<span class="source-line-no">087</span><span id="line-87">    XMLEventWriter eventWriter = null;</span>
+<span class="source-line-no">088</span><span id="line-88">    IOException primaryException = null;</span>
+<span class="source-line-no">089</span><span id="line-89"></span>
+<span class="source-line-no">090</span><span id="line-90">    try {</span>
+<span class="source-line-no">091</span><span id="line-91">      eventReader = createXMLEventReader(inputStream);</span>
+<span class="source-line-no">092</span><span id="line-92">      eventWriter = createXMLEventWriter(outputStream);</span>
+<span class="source-line-no">093</span><span id="line-93">      navigateXmlWithRule(eventReader, eventWriter, treePath);</span>
+<span class="source-line-no">094</span><span id="line-94">      eventWriter.flush();</span>
+<span class="source-line-no">095</span><span id="line-95">    } catch (XMLStreamException e) {</span>
+<span class="source-line-no">096</span><span id="line-96">      primaryException = buildXmlException(e);</span>
+<span class="source-line-no">097</span><span id="line-97">    } catch (IOException e) {</span>
+<span class="source-line-no">098</span><span id="line-98">      // ルール層から unwrap された I/O 障害（分類 B）。型を変えず、close 失敗の suppressed 連結</span>
+<span class="source-line-no">099</span><span id="line-99">      // を XMLStreamException 経路と同様に行うため primaryException に乗せる</span>
+<span class="source-line-no">100</span><span id="line-100">      primaryException = e;</span>
+<span class="source-line-no">101</span><span id="line-101">    } finally {</span>
+<span class="source-line-no">102</span><span id="line-102">      primaryException = XmlStreamResources.closeAll(eventReader, eventWriter, primaryException);</span>
+<span class="source-line-no">103</span><span id="line-103">    }</span>
 <span class="source-line-no">104</span><span id="line-104"></span>
-<span class="source-line-no">105</span><span id="line-105">  @SuppressWarnings("PMD.AvoidCatchingGenericException")</span>
-<span class="source-line-no">106</span><span id="line-106">  // IRule.apply() declares no checked exceptions; any RuntimeException must be caught and</span>
-<span class="source-line-no">107</span><span id="line-107">  // re-thrown as XMLStreamException so the caller's error-handling path is not bypassed.</span>
-<span class="source-line-no">108</span><span id="line-108">  private void navigateXmlWithRule(</span>
-<span class="source-line-no">109</span><span id="line-109">      XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath, IRule rule)</span>
-<span class="source-line-no">110</span><span id="line-110">      throws XMLStreamException {</span>
-<span class="source-line-no">111</span><span id="line-111">    XMLEventFactory eventFactory = XMLEventFactory.newInstance();</span>
-<span class="source-line-no">112</span><span id="line-112">    List&lt;String&gt; currentPath = new ArrayList&lt;&gt;();</span>
-<span class="source-line-no">113</span><span id="line-113"></span>
-<span class="source-line-no">114</span><span id="line-114">    while (eventReader.hasNext()) {</span>
-<span class="source-line-no">115</span><span id="line-115">      XMLEvent event = eventReader.nextEvent();</span>
-<span class="source-line-no">116</span><span id="line-116"></span>
-<span class="source-line-no">117</span><span id="line-117">      if (event.isStartElement()) {</span>
-<span class="source-line-no">118</span><span id="line-118">        currentPath.add(event.asStartElement().getName().getLocalPart());</span>
-<span class="source-line-no">119</span><span id="line-119">      } else if (event.isEndElement()) {</span>
-<span class="source-line-no">120</span><span id="line-120">        if (currentPath.isEmpty()) {</span>
-<span class="source-line-no">121</span><span id="line-121">          logger.warn(</span>
-<span class="source-line-no">122</span><span id="line-122">              "Unexpected end element '{}' with empty path stack — possible malformed XML",</span>
-<span class="source-line-no">123</span><span id="line-123">              event.asEndElement().getName().getLocalPart());</span>
-<span class="source-line-no">124</span><span id="line-124">        } else {</span>
-<span class="source-line-no">125</span><span id="line-125">          currentPath.remove(currentPath.size() - 1);</span>
-<span class="source-line-no">126</span><span id="line-126">        }</span>
-<span class="source-line-no">127</span><span id="line-127">      } else if (event.isCharacters() &amp;&amp; treePath.matches(currentPath)) {</span>
-<span class="source-line-no">128</span><span id="line-128">        String data = event.asCharacters().getData();</span>
-<span class="source-line-no">129</span><span id="line-129">        String transformed;</span>
-<span class="source-line-no">130</span><span id="line-130">        try {</span>
-<span class="source-line-no">131</span><span id="line-131">          transformed = rule.apply(data);</span>
-<span class="source-line-no">132</span><span id="line-132">        } catch (RuntimeException ruleEx) {</span>
-<span class="source-line-no">133</span><span id="line-133">          throw new XMLStreamException("Rule application failed at path " + currentPath, ruleEx);</span>
-<span class="source-line-no">134</span><span id="line-134">        }</span>
-<span class="source-line-no">135</span><span id="line-135">        // Write every event unconditionally; character events at the target path are replaced</span>
-<span class="source-line-no">136</span><span id="line-136">        // above.</span>
-<span class="source-line-no">137</span><span id="line-137">        event = eventFactory.createCharacters(transformed);</span>
-<span class="source-line-no">138</span><span id="line-138">      }</span>
+<span class="source-line-no">105</span><span id="line-105">    if (primaryException != null) {</span>
+<span class="source-line-no">106</span><span id="line-106">      throw primaryException;</span>
+<span class="source-line-no">107</span><span id="line-107">    }</span>
+<span class="source-line-no">108</span><span id="line-108">  }</span>
+<span class="source-line-no">109</span><span id="line-109"></span>
+<span class="source-line-no">110</span><span id="line-110">  private void navigateXmlWithRule(</span>
+<span class="source-line-no">111</span><span id="line-111">      XMLEventReader eventReader, XMLEventWriter eventWriter, TreePath treePath)</span>
+<span class="source-line-no">112</span><span id="line-112">      throws XMLStreamException, IOException {</span>
+<span class="source-line-no">113</span><span id="line-113">    XMLEventFactory eventFactory = XMLEventFactory.newInstance();</span>
+<span class="source-line-no">114</span><span id="line-114">    List&lt;String&gt; currentPath = new ArrayList&lt;&gt;();</span>
+<span class="source-line-no">115</span><span id="line-115"></span>
+<span class="source-line-no">116</span><span id="line-116">    while (eventReader.hasNext()) {</span>
+<span class="source-line-no">117</span><span id="line-117">      XMLEvent event = eventReader.nextEvent();</span>
+<span class="source-line-no">118</span><span id="line-118"></span>
+<span class="source-line-no">119</span><span id="line-119">      if (event.isStartElement()) {</span>
+<span class="source-line-no">120</span><span id="line-120">        currentPath.add(event.asStartElement().getName().getLocalPart());</span>
+<span class="source-line-no">121</span><span id="line-121">      } else if (event.isEndElement()) {</span>
+<span class="source-line-no">122</span><span id="line-122">        if (currentPath.isEmpty()) {</span>
+<span class="source-line-no">123</span><span id="line-123">          logger.warn(</span>
+<span class="source-line-no">124</span><span id="line-124">              "Unexpected end element '{}' with empty path stack — possible malformed XML",</span>
+<span class="source-line-no">125</span><span id="line-125">              event.asEndElement().getName().getLocalPart());</span>
+<span class="source-line-no">126</span><span id="line-126">        } else {</span>
+<span class="source-line-no">127</span><span id="line-127">          currentPath.remove(currentPath.size() - 1);</span>
+<span class="source-line-no">128</span><span id="line-128">        }</span>
+<span class="source-line-no">129</span><span id="line-129">      } else if (event.isCharacters() &amp;&amp; treePath.matches(currentPath)) {</span>
+<span class="source-line-no">130</span><span id="line-130">        String transformed = applyRule(event.asCharacters().getData(), currentPath);</span>
+<span class="source-line-no">131</span><span id="line-131">        // Write every event unconditionally; character events at the target path are replaced</span>
+<span class="source-line-no">132</span><span id="line-132">        // above.</span>
+<span class="source-line-no">133</span><span id="line-133">        event = eventFactory.createCharacters(transformed);</span>
+<span class="source-line-no">134</span><span id="line-134">      }</span>
+<span class="source-line-no">135</span><span id="line-135"></span>
+<span class="source-line-no">136</span><span id="line-136">      eventWriter.add(event);</span>
+<span class="source-line-no">137</span><span id="line-137">    }</span>
+<span class="source-line-no">138</span><span id="line-138">  }</span>
 <span class="source-line-no">139</span><span id="line-139"></span>
-<span class="source-line-no">140</span><span id="line-140">      eventWriter.add(event);</span>
-<span class="source-line-no">141</span><span id="line-141">    }</span>
-<span class="source-line-no">142</span><span id="line-142">  }</span>
-<span class="source-line-no">143</span><span id="line-143"></span>
-<span class="source-line-no">144</span><span id="line-144">  private XMLEventReader createXMLEventReader(InputStream inputStream) throws XMLStreamException {</span>
-<span class="source-line-no">145</span><span id="line-145">    XMLInputFactory inputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();</span>
-<span class="source-line-no">146</span><span id="line-146">    // テキスト断片化防止のため coalescing を有効化する。CDATA 境界やパーサ内部バッファで</span>
-<span class="source-line-no">147</span><span id="line-147">    // 分割された連続テキストを 1 つの Characters イベントに結合し、ルールがテキスト</span>
-<span class="source-line-no">148</span><span id="line-148">    // コンテンツ全体に適用されることを保証する (#762)。XmlWalker ローカルの設定であり、</span>
-<span class="source-line-no">149</span><span id="line-149">    // SecureXmlConfiguration を共有する他コマンドには影響しない。</span>
-<span class="source-line-no">150</span><span id="line-150">    inputFactory.setProperty(XMLInputFactory.IS_COALESCING, true);</span>
-<span class="source-line-no">151</span><span id="line-151">    XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);</span>
-<span class="source-line-no">152</span><span id="line-152">    if (!reader.hasNext()) {</span>
-<span class="source-line-no">153</span><span id="line-153">      try {</span>
-<span class="source-line-no">154</span><span id="line-154">        reader.close();</span>
-<span class="source-line-no">155</span><span id="line-155">      } catch (XMLStreamException closeEx) {</span>
-<span class="source-line-no">156</span><span id="line-156">        logger.warn("Failed to close empty XMLEventReader", closeEx);</span>
-<span class="source-line-no">157</span><span id="line-157">      }</span>
-<span class="source-line-no">158</span><span id="line-158">      throw new XMLStreamException("Empty XML input");</span>
-<span class="source-line-no">159</span><span id="line-159">    }</span>
-<span class="source-line-no">160</span><span id="line-160">    return reader;</span>
-<span class="source-line-no">161</span><span id="line-161">  }</span>
-<span class="source-line-no">162</span><span id="line-162"></span>
-<span class="source-line-no">163</span><span id="line-163">  /**</span>
-<span class="source-line-no">164</span><span id="line-164">   * 出力ストリームへの XMLEventWriter を作成する。</span>
-<span class="source-line-no">165</span><span id="line-165">   *</span>
-<span class="source-line-no">166</span><span id="line-166">   * &lt;p&gt;テスト時にオーバーライドしてファクトリをモック可能にするため protected スコープとしている。</span>
-<span class="source-line-no">167</span><span id="line-167">   *</span>
-<span class="source-line-no">168</span><span id="line-168">   * @param outputStream 書き込み先ストリーム</span>
-<span class="source-line-no">169</span><span id="line-169">   * @return 設定済み XMLEventWriter</span>
-<span class="source-line-no">170</span><span id="line-170">   * @throws XMLStreamException ライターの生成に失敗した場合</span>
-<span class="source-line-no">171</span><span id="line-171">   */</span>
-<span class="source-line-no">172</span><span id="line-172">  protected XMLEventWriter createXMLEventWriter(OutputStream outputStream)</span>
-<span class="source-line-no">173</span><span id="line-173">      throws XMLStreamException {</span>
-<span class="source-line-no">174</span><span id="line-174">    return SecureXmlConfiguration.createSecureXMLOutputFactory().createXMLEventWriter(outputStream);</span>
-<span class="source-line-no">175</span><span id="line-175">  }</span>
-<span class="source-line-no">176</span><span id="line-176"></span>
-<span class="source-line-no">177</span><span id="line-177">  private IOException buildXmlException(XMLStreamException e) {</span>
-<span class="source-line-no">178</span><span id="line-178">    String location = "";</span>
-<span class="source-line-no">179</span><span id="line-179">    if (e.getLocation() != null) {</span>
-<span class="source-line-no">180</span><span id="line-180">      int line = e.getLocation().getLineNumber();</span>
-<span class="source-line-no">181</span><span id="line-181">      int column = e.getLocation().getColumnNumber();</span>
-<span class="source-line-no">182</span><span id="line-182">      if (line &gt; 0 &amp;&amp; column &gt; 0) {</span>
-<span class="source-line-no">183</span><span id="line-183">        location = String.format(" at line %d, column %d", line, column);</span>
-<span class="source-line-no">184</span><span id="line-184">      }</span>
-<span class="source-line-no">185</span><span id="line-185">    }</span>
-<span class="source-line-no">186</span><span id="line-186">    logger.error("XML processing failed{}", location, e);</span>
-<span class="source-line-no">187</span><span id="line-187">    return new IOException("XML processing failed" + location, e);</span>
+<span class="source-line-no">140</span><span id="line-140">  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace"})</span>
+<span class="source-line-no">141</span><span id="line-141">  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the</span>
+<span class="source-line-no">142</span><span id="line-142">  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); the cause</span>
+<span class="source-line-no">143</span><span id="line-143">  // already records the rule-site stack trace, so discarding the carrier loses no diagnostics.</span>
+<span class="source-line-no">144</span><span id="line-144">  // Any other RuntimeException is wrapped as XMLStreamException so the caller's error-handling</span>
+<span class="source-line-no">145</span><span id="line-145">  // path is not bypassed.</span>
+<span class="source-line-no">146</span><span id="line-146">  private String applyRule(String data, List&lt;String&gt; currentPath)</span>
+<span class="source-line-no">147</span><span id="line-147">      throws XMLStreamException, IOException {</span>
+<span class="source-line-no">148</span><span id="line-148">    try {</span>
+<span class="source-line-no">149</span><span id="line-149">      return rule.apply(data);</span>
+<span class="source-line-no">150</span><span id="line-150">    } catch (UncheckedStreamException carrier) {</span>
+<span class="source-line-no">151</span><span id="line-151">      throw carrier.getCause();</span>
+<span class="source-line-no">152</span><span id="line-152">    } catch (RuntimeException ruleEx) {</span>
+<span class="source-line-no">153</span><span id="line-153">      throw new XMLStreamException("Rule application failed at path " + currentPath, ruleEx);</span>
+<span class="source-line-no">154</span><span id="line-154">    }</span>
+<span class="source-line-no">155</span><span id="line-155">  }</span>
+<span class="source-line-no">156</span><span id="line-156"></span>
+<span class="source-line-no">157</span><span id="line-157">  private XMLEventReader createXMLEventReader(InputStream inputStream) throws XMLStreamException {</span>
+<span class="source-line-no">158</span><span id="line-158">    XMLInputFactory inputFactory = SecureXmlConfiguration.createSecureXMLInputFactory();</span>
+<span class="source-line-no">159</span><span id="line-159">    // テキスト断片化防止のため coalescing を有効化する。CDATA 境界やパーサ内部バッファで</span>
+<span class="source-line-no">160</span><span id="line-160">    // 分割された連続テキストを 1 つの Characters イベントに結合し、ルールがテキスト</span>
+<span class="source-line-no">161</span><span id="line-161">    // コンテンツ全体に適用されることを保証する (#762)。XmlWalker ローカルの設定であり、</span>
+<span class="source-line-no">162</span><span id="line-162">    // SecureXmlConfiguration を共有する他コマンドには影響しない。</span>
+<span class="source-line-no">163</span><span id="line-163">    inputFactory.setProperty(XMLInputFactory.IS_COALESCING, true);</span>
+<span class="source-line-no">164</span><span id="line-164">    XMLEventReader reader = inputFactory.createXMLEventReader(inputStream);</span>
+<span class="source-line-no">165</span><span id="line-165">    if (!reader.hasNext()) {</span>
+<span class="source-line-no">166</span><span id="line-166">      try {</span>
+<span class="source-line-no">167</span><span id="line-167">        reader.close();</span>
+<span class="source-line-no">168</span><span id="line-168">      } catch (XMLStreamException closeEx) {</span>
+<span class="source-line-no">169</span><span id="line-169">        logger.warn("Failed to close empty XMLEventReader", closeEx);</span>
+<span class="source-line-no">170</span><span id="line-170">      }</span>
+<span class="source-line-no">171</span><span id="line-171">      throw new XMLStreamException("Empty XML input");</span>
+<span class="source-line-no">172</span><span id="line-172">    }</span>
+<span class="source-line-no">173</span><span id="line-173">    return reader;</span>
+<span class="source-line-no">174</span><span id="line-174">  }</span>
+<span class="source-line-no">175</span><span id="line-175"></span>
+<span class="source-line-no">176</span><span id="line-176">  /**</span>
+<span class="source-line-no">177</span><span id="line-177">   * 出力ストリームへの XMLEventWriter を作成する。</span>
+<span class="source-line-no">178</span><span id="line-178">   *</span>
+<span class="source-line-no">179</span><span id="line-179">   * &lt;p&gt;テスト時にオーバーライドしてファクトリをモック可能にするため protected スコープとしている。</span>
+<span class="source-line-no">180</span><span id="line-180">   *</span>
+<span class="source-line-no">181</span><span id="line-181">   * @param outputStream 書き込み先ストリーム</span>
+<span class="source-line-no">182</span><span id="line-182">   * @return 設定済み XMLEventWriter</span>
+<span class="source-line-no">183</span><span id="line-183">   * @throws XMLStreamException ライターの生成に失敗した場合</span>
+<span class="source-line-no">184</span><span id="line-184">   */</span>
+<span class="source-line-no">185</span><span id="line-185">  protected XMLEventWriter createXMLEventWriter(OutputStream outputStream)</span>
+<span class="source-line-no">186</span><span id="line-186">      throws XMLStreamException {</span>
+<span class="source-line-no">187</span><span id="line-187">    return SecureXmlConfiguration.createSecureXMLOutputFactory().createXMLEventWriter(outputStream);</span>
 <span class="source-line-no">188</span><span id="line-188">  }</span>
-<span class="source-line-no">189</span><span id="line-189">}</span>
+<span class="source-line-no">189</span><span id="line-189"></span>
+<span class="source-line-no">190</span><span id="line-190">  private IOException buildXmlException(XMLStreamException e) {</span>
+<span class="source-line-no">191</span><span id="line-191">    String location = "";</span>
+<span class="source-line-no">192</span><span id="line-192">    if (e.getLocation() != null) {</span>
+<span class="source-line-no">193</span><span id="line-193">      int line = e.getLocation().getLineNumber();</span>
+<span class="source-line-no">194</span><span id="line-194">      int column = e.getLocation().getColumnNumber();</span>
+<span class="source-line-no">195</span><span id="line-195">      if (line &gt; 0 &amp;&amp; column &gt; 0) {</span>
+<span class="source-line-no">196</span><span id="line-196">        location = String.format(" at line %d, column %d", line, column);</span>
+<span class="source-line-no">197</span><span id="line-197">      }</span>
+<span class="source-line-no">198</span><span id="line-198">    }</span>
+<span class="source-line-no">199</span><span id="line-199">    logger.error("XML processing failed{}", location, e);</span>
+<span class="source-line-no">200</span><span id="line-200">    return new IOException("XML processing failed" + location, e);</span>
+<span class="source-line-no">201</span><span id="line-201">  }</span>
+<span class="source-line-no">202</span><span id="line-202">}</span>
 
 
 

@@ -95,7 +95,7 @@ loadScripts(document, 'script');</script>
 <dd><code><a href="IRule.html" title="interface in com.streamconverter.command.rule">IRule</a></code></dd>
 </dl>
 <hr>
-<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/PooledDatabaseFetchRule.html#line-49">PooledDatabaseFetchRule</a></span>
+<div class="type-signature"><span class="modifiers">public class </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/PooledDatabaseFetchRule.html#line-50">PooledDatabaseFetchRule</a></span>
 <span class="extends-implements">extends <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/Object.html" title="class or interface in java.lang" class="external-link">Object</a>
 implements <a href="IRule.html" title="interface in com.streamconverter.command.rule">IRule</a></span></div>
 <div class="block">HikariCP対応のデータベースフェッチルール
@@ -192,7 +192,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <li>
 <section class="detail" id="&lt;init&gt;(com.streamconverter.command.rule.HikariConnectionPoolConfig,java.lang.String)">
 <h3>PooledDatabaseFetchRule</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/PooledDatabaseFetchRule.html#line-63">PooledDatabaseFetchRule</a></span><wbr><span class="parameters">(<a href="HikariConnectionPoolConfig.html" title="class in com.streamconverter.command.rule">HikariConnectionPoolConfig</a>&nbsp;connectionPool,
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/PooledDatabaseFetchRule.html#line-64">PooledDatabaseFetchRule</a></span><wbr><span class="parameters">(<a href="HikariConnectionPoolConfig.html" title="class in com.streamconverter.command.rule">HikariConnectionPoolConfig</a>&nbsp;connectionPool,
  <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;query)</span></div>
 <div class="block">コンストラクタ</div>
 <dl class="notes">
@@ -216,7 +216,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <li>
 <section class="detail" id="apply(java.lang.String)">
 <h3>apply</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/PooledDatabaseFetchRule.html#line-103">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span></div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/PooledDatabaseFetchRule.html#line-105">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span></div>
 <div class="block">ルールの適用を実行します。
 
  <p>コネクションプールから接続を取得してクエリを実行し、結果の先頭行・先頭列の値を返します。 接続はプールに自動的に返却されるため、高いパフォーマンスを実現します。</div>
@@ -228,7 +228,8 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <dt>Returns:</dt>
 <dd>クエリ結果の先頭値、または空文字列（結果がない場合）</dd>
 <dt>Throws:</dt>
-<dd><code><a href="../../StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></code> - SQLExceptionが発生した場合</dd>
+<dd><code><a href="../../UncheckedStreamException.html" title="class in com.streamconverter">UncheckedStreamException</a></code> - SQLExceptionが発生した場合、<a href="../../StreamProcessingException.html" title="class in com.streamconverter"><code>StreamProcessingException</code></a> を cause
+     として持つキャリアとしてスローされる。コマンド境界（Walker）で IOException として unwrap される</dd>
 <dd><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/IllegalArgumentException.html" title="class or interface in java.lang" class="external-link">IllegalArgumentException</a></code> - inputがnullの場合（sanitizeInput経由）</dd>
 </dl>
 </section>
@@ -236,7 +237,7 @@ implements <a href="IRule.html" title="interface in com.streamconverter.command.
 <li>
 <section class="detail" id="getPoolStats()">
 <h3>getPoolStats</h3>
-<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/PooledDatabaseFetchRule.html#line-190">getPoolStats</a></span>()</div>
+<div class="member-signature"><span class="modifiers">public</span>&nbsp;<span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/PooledDatabaseFetchRule.html#line-182">getPoolStats</a></span>()</div>
 <div class="block">プールの統計情報を取得</div>
 <dl class="notes">
 <dt>Returns:</dt>

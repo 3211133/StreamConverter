@@ -2,247 +2,416 @@
 
 > 📋 **このドキュメントについて**: StreamConverter プロジェクトの例外の分類・型・報告ルールを定める規定です。
 > 新規コードはこの規定に従って実装し、既存コードは段階的に適用します（[適用計画](#-適用計画)参照）。
-> 策定の経緯と背景は [issue #786](https://github.com/3211133/StreamConverter/issues/786) を参照してください。
+> 策定の経緯と背景は [issue #795](https://github.com/3211133/StreamConverter/issues/795) を参照してください。
+> 旧版（issue #786 ベース）は通知配送軸を持たない技術的分類体系でしたが、本版では「**誰に何を通知するか**」を軸とした体系に再構築しています。
 
 ## 🎯 目的
 
-2026-05〜06 のバグ起票・修正のほとんどが例外処理の不備（誤ラベル、黙殺、二重ログ、スロー型の不統一）に
-起因していた。個別対処では再発を防げないため、以下を規定として明文化する。
+- 例外を「**通知配送軸**（誰に何を伝えるか）」「**並行例外集約軸**（複数同時失敗をどう束ねるか）」「**階層別責務軸**（main / converter / command / rule の各層が何を投げ・捕まえるか）」の3軸で規定する
+- 利用者（main 層）が一貫した方法でエンドユーザー通知・ログ出力・管理者通知を実装できるようにする
+- 例外解釈責務は **main 層が独占**。converter / command / rule は例外を運ぶだけ
+- POC 実装の制約に引っ張られず、あるべき姿として規定する
 
-- 例外の**分類体系**と、分類ごとの**例外型・メッセージ規約**
-- アーキテクチャ階層（L1〜L4）ごとの**例外責務**（生成・伝播・記録の分担）
-- コマンドが公開 API として**スローしてよい例外**の範囲
-- **catch 節・ログ出力**の規約
-- 依存ライブラリが例外を**黙殺**する場合の検出責務
-- パイプライン実行境界での**最終送出規約**
+## 🗂️ 通知3分類
 
-## 🗂️ 例外の3分類
+すべての例外は、**誰に通知するか**で次の3分類のいずれかに割り当てる。
+これは旧版の「誰が直せば解消するか」（A/B/C 分類）とは別軸であり、本版では通知軸が一次分類となる。
 
-すべての例外は、**誰が直せば解消するか**で次の3分類のいずれかに割り当てる。
-
-| 分類 | 意味 | 直す人 | 例外型 | 例 |
-|---|---|---|---|---|
-| **A. 入力データ不正** | 入力を直せば解消する失敗（パース失敗・検証失敗） | 入力データの提供者 | `InvalidInputDataException`（Phase 2 で新設。`StreamProcessingException` のサブクラス） | CSV 構文不正、スキーマ検証失敗、必須カラム欠落 |
-| **B. 環境（I/O）障害** | ネットワーク・ディスク等の障害。リトライ・運用対処の対象 | オペレーター / インフラ | JDK の `IOException` を**ラップせずそのまま伝播** | `read()` / `write()` の `IOException`、接続切断 |
-| **C. 実装バグ** | コードの誤り。呼び出し側で回復不能 | 開発者 | `IllegalArgumentException` / `IllegalStateException`（unchecked） | 不正な設定値、API 契約違反 |
+| 分類 | 通知対象 | 意味 | 例外型 |
+|---|---|---|---|
+| **U** | エンドユーザー | 入力起因。利用者がメッセージを見て入力を直す | `UserInputException` |
+| **T** | エンドユーザーに「待て」 | 外部システムの一時障害。再試行で解決する可能性 | `ExternalTransientException` |
+| **A** | 管理者 | 内部実装バグ・外部恒久障害・内部システム障害。エンドユーザーには原因を伏せ管理者連絡を促す | `ExternalPermanentException` / `InternalSystemException` |
 
 ### 分類の判断基準
 
-- 「入力ファイルを正しいものに差し替えたら成功するか？」→ Yes なら **A**
-- 「同じ入力でリトライしたら成功し得るか？」→ Yes なら **B**
-- 「どんな入力・環境でも発生するコードの誤りか？」→ Yes なら **C**
+- 「**利用者が入力を直せば解消するか**」→ Yes なら **U**
+- 「**外部システムの一時障害で、時間をおけば解決する可能性が高いか**」→ Yes なら **T**
+- 上記いずれにも該当しないすべての失敗 → **A**
 
-### 分類 A の型は基底1型で開始する
+T と A の境界判定は「**外部接続クラス自身が当該プロトコルにおいてどのレスポンスが時間で解決するかを知っている**」という前提に立つ。
+判定不能な場合は保守的に A に倒す（エンドユーザーを「待て」と誤誘導しないため）。
 
-`InvalidInputDataException` を基底とし、当面はこの1型で運用する。
-CSV 構文不正と業務バリデーション失敗のようにメッセージ粒度・テスト観点が分かれてきた場合は、
-`MalformedInputException` / `ValidationException` 等のサブタイプを**この基底の下に**追加してよい
-（拡張点として明示的に許容する）。最初から細分化はしない。
+### 内部 transient は原則認めない
 
-## 🏛️ 例外型カタログ
+「内部システムの一時障害で待てば解決」というケースは、1リクエスト内で許容できるタイムアウトでは解決しない待ち時間を要する。
+したがって**内部で発生する transient は T として外に出さない**:
 
-| 型 | 継承 | 位置づけ |
+- 内部リトライ・内部キューで吸収する
+- 解決しなければ A として外に出す
+- T で外に出すには明示的な設計判断レビューが必要
+
+## 🏛️ 例外型階層
+
+```
+IOException
+└── StreamProcessingException                 // 基底（通知3分類の親）
+    ├── UserInputException                    // U（動的 userMessage を持つ）
+    ├── ExternalSystemException               // 外部起源マーカー（抽象）
+    │   ├── ExternalTransientException        // T
+    │   └── ExternalPermanentException        // A（外部恒久）
+    └── InternalSystemException               // A（内部）
+```
+
+設計の要点:
+
+- **`IOException` 配下を維持**。利用者は `catch (IOException)` ワンライナーで全失敗を捕捉でき、通知分類によって細分catch することもできる
+- **`ExternalSystemException` は抽象**。T/A 判定不能時に直接 throw することは禁止し、保守的に A サブタイプに倒す
+- **`StreamProcessingException` の直接 throw は禁止**（規定文書による縛り）
+
+### 各型のスロー可否
+
+| 型 | 直接 throw 可否 | 用途 |
 |---|---|---|
-| `StreamProcessingException` | `extends IOException` | ストリーム処理失敗の基底型。**IOException 継承は維持する**（`IStreamCommand.execute()` の `throws IOException` 契約と整合し、呼び出し側が単一の `catch (IOException)` で全失敗を扱える） |
-| `InvalidInputDataException` | `extends StreamProcessingException`（Phase 2 で新設） | 分類 A 専用型。検証・パース失敗はすべてこの型（またはサブタイプ）でスローする |
-| `PipeAbortedException` | `extends IOException` | 対向コマンド異常終了による**分類 B の副次的失敗**。現行の位置づけを維持（`StreamConverter` は根本例外を優先して呼び出し元へ伝える） |
-| JDK `IOException` | — | 分類 B。**包み直さない**のが原則 |
-| `IllegalArgumentException` / `IllegalStateException` | unchecked | 分類 C。コマンドは catch しない |
-| `UncheckedStreamException` | `extends RuntimeException`（Phase 2 で新設） | **内部キャリア専用**。`IRule` 等 checked 例外をスローできない箇所で `IOException` を運び、コマンド境界で unwrap する。公開 API から漏らしてはならない |
+| `StreamProcessingException` | 禁止 | 基底 / 利用者の catch ターゲット |
+| `UserInputException` | 可 | U 分類のスロー |
+| `ExternalSystemException` | 禁止（抽象） | 利用者の catch ターゲット（T/A まとめて） |
+| `ExternalTransientException` | 可 | T 分類のスロー |
+| `ExternalPermanentException` | 可 | A 分類（外部恒久障害）のスロー |
+| `InternalSystemException` | 可 | A 分類（内部障害）のスロー |
 
-### ⚠️ 型階層の罠（必読）
+## 💬 メッセージ機構
 
-`StreamProcessingException` と opencsv の `CsvMalformedLineException` はいずれも `IOException` の
-サブクラスである。したがって **`catch (IOException)` は「環境障害だけを捕まえる」という意味にならない**。
-自前の例外・パース失敗例外まで捕捉し、誤ラベルの温床になる（issue #748 / PR #782 で実際に発生）。
-この罠への対処が次節の catch 規約である。
+利用者がエンドユーザー画面・管理者通知・開発者ログにそれぞれ適切な情報を渡せるよう、例外オブジェクトは**3層のメッセージ機構**を持つ。
 
-## 🏗️ アーキテクチャ階層と例外責務
+### `getUserMessage()`
 
-分類（A/B/C）が「**誰が直せば解消するか**」の軸であるのに対し、本節は「**どの層が例外を生成・伝播・記録するか**」
-の軸を定める。両者は直交しており、各層は分類を変えずに伝播させるのが大原則である。
+エンドユーザー向けメッセージを返す。**すべての例外で利用可能**であり、`showUser(e.getUserMessage())` を分岐なしで呼べる。
 
-### 層の定義（ARCHITECTURE.md の構造に対応）
+- `UserInputException`: コンストラクタで指定した**動的メッセージ**（入力のどこがどう悪いかを動的に組み立てる）
+- 他の型: 型ごとに **static デフォルトメッセージ** を持ち、`public static final` として公開する
 
-| 層 | 構成要素 | モジュール |
-|---|---|---|
-| **L1 利用者・統合層** | 外部システム、REST（`StreamProcessingController`）、examples | streamconverter-web / 利用者コード |
-| **L2 パイプライン層（エンジン）** | `StreamConverter` / `CommandStageRunner` / `PipelineFailureHandler` / `PipelineCompletionMonitor` / `AbortablePipedStream` / `withLogging` | streamconverter-core |
-| **L3 コマンド層** | `IStreamCommand` 実装（Walker / Filter / Validate / Convert）、`ConsumerCommand` 等の中間抽象 | streamconverter-core / http |
-| **L4 ルール層** | `IRule` 実装（`PassThroughRule` / `ChainRule` / `DatabaseFetchRule` 等） | streamconverter-core / db |
-| 横断 | 外部ライブラリ連携ヘルパー（fault 検査 Reader 等）、外部ライブラリ（opencsv / Jackson / StAX / JDBC） | — |
+```java
+public class StreamProcessingException extends IOException {
+    public static final String DEFAULT_USER_MESSAGE =
+        "システムエラーが発生しました。管理者にお問い合わせください。";
+    public String getUserMessage() { return DEFAULT_USER_MESSAGE; }
+}
 
-`UncheckedStreamException`（内部キャリア）が public である理由は、L4 が別モジュール
-（streamconverter-db 等）に存在するためである。役割はあくまで層間の運搬であり、L2 を越えて
-呼び出し元に漏れたら実装バグ（分類 C）として扱う。
+public class ExternalTransientException extends StreamProcessingException {
+    public static final String DEFAULT_USER_MESSAGE =
+        "サービスが混雑しています。時間をおいて再試行してください。";
+    @Override public String getUserMessage() { return DEFAULT_USER_MESSAGE; }
+}
+```
 
-### エンジン起源障害（補助軸）
+- 多言語対応は当面なし。**日本語固定**でスタートする
+- 必要組織は `MessageResolver` 注入で対応可能とし、設計余地として残す（`getUserMessage(MessageResolver)` のオーバーロード追加経路）
+- `cause.getMessage()` を `userMessage` に転記することを**禁止**する（情報漏洩防止）
 
-L2 エンジン自身が失敗の発生源になる場合（中間出力 close の失敗、待機中の割り込み、原因を特定
-できないステージ失敗）は、分類 A/B/C の主語（入力・環境・コマンド実装）に当てはまらない
-「**エンジン起源障害**」であり、**`StreamProcessingException`（基底型）で報告する**。現行の
-`closeStageOutput()` / `PipelineCompletionMonitor` の挙動はこの規定に適合する。
-L1 で機械的に区別する需要が生じた場合は `EngineFailureException extends StreamProcessingException`
-を切り出す（拡張点として予約）。分類 B への吸収は行わない — 割り込みや stage close 失敗は
-外部環境 I/O とは remediation が異なるためである。
+### `getMessage()` / `getCause()` / `getStackTrace()`
 
-### 層別責務マトリクス
+標準慣習通り**開発者向け**（フル情報）。
 
-| 層 | スローしてよいもの | 変換 | unwrap | 失敗ログ |
-|---|---|---|---|---|
-| **L1 利用者・統合層** | 任意（本規定の対象外） | 表現変換（HTTP ステータス等）は L1 の責務（[付録](#-付録-l1利用者統合層向け指針non-normative)参照） | — | 自文脈での記録可 |
-| **L2 エンジン** | コマンド由来: 境界送出規約に従い元の型のまま／エンジン起源障害: SPE | 型を変えない。文脈は suppressed（`StageFailureContext`） | **キャリアの必須 unwrap 点** | **core 内で唯一の失敗ログ点**（`withLogging`、失敗ステージごとに1回） |
-| **L3 コマンド** | 想定される失敗（入力不正・環境障害）は `IOException` 系のみ。**実装バグは RuntimeException のまま漏れてよい**（分類 C の成立要件） | 具体型 catch → 分類 A への変換のみ可。B は素通し | ルールを直接呼ぶ箇所（Walker）はキャリアを unwrap | **禁止**（log & rethrow 禁止） |
-| **L4 ルール** | unchecked のみ（`IRule` の言語制約）。checked I/O はキャリアで包む | checked → キャリアのみ | — | **log & rethrow 禁止**。例外を伴わない状態ログ（warn/info）は可 |
+- スタックトレース・cause チェイン・内部詳細を含む
+- ログ出力・IDE デバッガ・スタックトレースに使われる
 
-中間抽象（`ConsumerCommand` 等）は**文脈付加は可**。分類の変更は、その抽象自身が意味的責務を
-持つ場合（例: consume 実装が検証失敗を `InvalidInputDataException` に変換する）に限り可とする。
+### `getOperatorContext()`
 
-### 層越え規約
+運用管理者向けのサニタイズ済み情報を返す。**デフォルトは開発者レベル**（cause/stacktrace を含むフル情報を開発者と同等に返す）。
 
-1. 例外の識別は**型のみ**で行う。メッセージ文字列によるルーティング・分岐を禁止する
-2. **意味を変えるラップは公開境界で最大1回**。キャリア（`UncheckedStreamException`）は実装上の
-   運搬であり、ラップ回数には数えない
-3. 上位層は下位層の内部機構（キャリア、suppressed の内部マーカー等）に依存したハンドリングを書かない
+- セキュリティ要件のある組織（運用管理者と開発者が分離している組織）は `OperatorContextProvider` を注入して**運用管理者レベル**（サニタイズ済み・実装詳細を含まない）に切り替える
+- ライブラリ標準では「3層分離」のうち「運用管理者層」を提供しない方針。当該要件を持つ組織が改めて設定する
+- サニタイズ強制機構（`IncidentCode` enum・値オブジェクト主体・自由文字列最小化）は将来課題として規定する
 
-## 📐 スロー規定（コマンド公開 API）
+## 🧼 サニタイズ規約
 
-1. `IStreamCommand.execute()` がスローしてよいのは **`IOException` とそのサブタイプのみ**
-2. 検証失敗・パース失敗（分類 A）は `InvalidInputDataException` としてスローする
-   - checked であり `execute()` の契約に適合する。RuntimeException で代用してはならない
-3. 環境障害（分類 B）は捕捉せず素通しする（後述の catch 規約参照）
-4. **想定される失敗**（入力不正・環境障害）でスローしてよいのは `IOException` 系のみ。一方、
-   分類 C（実装バグ）の `RuntimeException` はコマンド境界から**そのまま漏れてよい**（包み直さない）。
-   これは L2 が分類 C を成立させるための前提であり、`IOException` 系への矯正は行わない
-5. `UncheckedStreamException` は内部キャリアであり、コマンド境界の外へ漏らしてはならない（Walker が unwrap する）
+### `userMessage` のサニタイズ
 
-## 🧤 catch 節の規約
+`userMessage` はエンドユーザーに表示される前提で、**外部公開可能**な内容のみを含む:
 
-1. **広い `catch (IOException)` で原因ラベルを付け直すことを禁止する**
-   - 分類 A への変換は、**具体型の catch のみ**で行う（例: `catch (CsvValidationException | CsvMalformedLineException e)`）
-   - 素の `IOException`（分類 B）は触らず伝播させる。「Failed to parse ...」等のラベルを付けて包み直してはならない
-2. **原因例外（cause）は必ず保持する**。例外を変換する場合は必ず元例外を cause に渡す
-3. ライブラリ固有の例外型は**分類で扱いを決める**
-   - opencsv の `CsvMalformedLineException` は `IOException` のサブクラスだが**分類 A**（入力データ不正）として扱う
-4. 例外の分類・変換ロジックは共通ヘルパーに一本化する（Phase 2 で `ExceptionClassifier` 的な変換関数を導入予定）。
-   コマンドごとに独自の分類 if/instanceof を書かない
-
-## 📝 ログ規約
-
-1. **core 内の失敗ログ点は `withLogging` ラッパーのみ**。`StreamConverter` が全コマンドに適用し、
-   失敗したステージごとに1回 ERROR を出力する（パイプライン全体で「最外層1回」ではない点に注意。
-   L1 が自文脈で追加記録することは妨げない — 層別責務マトリクス参照）
-2. L3 / L4 での **log & rethrow を禁止**する（issue #749 の二重出力の再発防止）。
-   例外を伴わない状態ログ（結果件数の warn / 進行状況の info 等）は各層で出力してよい
-3. コマンド内部で文脈を付加したい場合は「**変換してスロー**」のみ行い、ログは書かない（issue #742 の方針を内包）
-4. メッセージ規約
-   - 分類 A: 「何が・どの位置で不正か」を含める（行番号・カラム名等）
-   - 分類 B: ラップしないため独自メッセージを付けない（文脈付加は境界送出規約に従う）
-   - 分類 C: 違反した契約・前提を明記する
-
-## 🔀 パイプライン境界の送出規約
-
-`CommandStageRunner`（`StreamConverter.run()` 経路）はステージ失敗を呼び出し元へ送出する**唯一の境界**であり、
-ここでの包み直しが分類を壊してはならない。現行の `toStageFailure()` は `IOException` も `RuntimeException` も
-一律 `StreamProcessingException` に包み直しており、Phase 2 で以下の規約に改める。
-
-| ステージ失敗の原因 | 送出 |
+| 含めて良い | 含めてはいけない |
 |---|---|
-| `InvalidInputDataException`（分類 A） | **そのまま**伝播 |
-| 素の `IOException`（分類 B） | **`IOException` のまま**伝播。コマンド名等の文脈が必要な場合は suppressed 例外や context 付与で行い、**型は変えない** |
-| `RuntimeException`（分類 C） | 実装バグとして**包み直さず**伝播 |
-| `Error` | 包まず再スロー（現行どおり） |
+| 入力データの位置情報（行番号・列番号・フィールド名） | 内部ファイルパス・URL |
+| 形式名（"CSV", "JSON" 等の公開仕様名） | スタックトレース・例外クラス名 |
+| 制約条件（仕様上公開されている） | 内部実装の詳細（クラス名・メソッド名・SQL文・正規表現） |
+| | 環境情報（スレッド名・MDC値・ホスト名） |
 
-なお、ステージ失敗の翻訳とは別に、**L2 エンジン自身が発生源となる障害**（中間出力 close の失敗、
-待機中の割り込み等）は[エンジン起源障害](#エンジン起源障害補助軸)として `StreamProcessingException`
-で送出する。
+`UserInputException` のコンストラクタは `userMessage` を必須引数として受け取り、サニタイズ済みであることを呼び出し側の責務とする。
+外部ライブラリの例外メッセージ（opencsv 等）を `userMessage` に転記することを禁止する。
 
-## 🕳️ 依存ライブラリの例外黙殺対策
+```java
+// NG
+catch (CsvMalformedLineException e) {
+    throw new UserInputException(e.getMessage(), e);
+}
 
-opencsv 5.12.0 の `CSVReader.readNext()` は、下位ストリームの `IOException` を伝播せず EOF（null）として
-扱うことが実測で確認されている（issue #783 / #784）。`while ((row = readNext()) != null)` ループは
-I/O 障害と入力の終端を区別できず、途中切断された入力を完全な入力として処理してしまう。
+// OK
+catch (CsvMalformedLineException e) {
+    String userMessage = "CSV format error at line " + e.getLineNumber();
+    throw new UserInputException(userMessage, e);
+}
+```
 
-### 検出責務
+### `getOperatorContext()` のサニタイズ
 
-**外部ライブラリにストリームを渡す層**（`CsvWalker` / `CsvFilterCommand` / `CsvValidateCommand` 等）が、
-黙殺を検出して分類 B として報告する責務を負う。
+デフォルト実装は開発者レベル（フル情報）。サニタイズ強制機構（`IncidentCode` enum・値オブジェクト・自由文字列禁止）は将来課題。
 
-### 共通機構の要件（Phase 2 で実装）
+## 🧵 並行例外集約
 
-- `read()` で発生した `IOException` を記録して再スローし、ライブラリが握りつぶした場合に備えて
-  **終了時に必ず検査が走る**形状とする
-  - `close()` 時に記録済み障害を再送出する `Reader` / `InputStream` ラッパー、または
-  - `CSVReader` 利用全体を囲む高階 API（`withFaultCheckedCsvReader(...)` のような形状）
-- **利用者に明示チェックを書かせない**。「ループ終了後に `rethrowIfFaulted()` を呼ぶ」のような
-  呼び忘れに弱い API 形状は**採用しない**
-- 配置はライブラリ連携ヘルパーとして閉じ込める（汎用 I/O ユーティリティとして公開しない）
+StreamConverter のパイプラインは複数ステージ・複数ワーカーが並行実行する。
+1回の実行で**同時に複数の例外が発生しうる**ため、main 層への伝達方法を規定する。
 
-## 🧩 IRule 系の checked 例外伝搬
+### main へのインターフェース
 
-`IRule.apply(String): String` は throws 宣言を持たない公開関数型インターフェースであり、
-シグネチャ変更（`throws IOException` 追加）はソース互換・バイナリ互換の両面で影響が大きいため**行わない**。
+- 届くのは**1つの `StreamProcessingException` オブジェクト**
+- 内部に**全独立失敗のリスト**を保持し、`getAllFailures()` で取得可能
+- 単独失敗時はリスト要素1件、並行集約時は複数件
+- 用途別代表選択アクセサ（`primaryForUserNotification()` 等）は**作らない**。main 層が自由に解釈する
 
-1. ルール実装内の `IOException` は `UncheckedStreamException`（内部キャリア）で包む
-2. コマンド境界（Walker / `CommandStageRunner`）で unwrap し、`IOException` として再スローする
-3. `sneakyThrow` は**全廃**し、この機構に統一する（issue #740 の解決。現行の散在箇所:
-   `CommandStageRunner` / `JsonWalker`）
-4. 将来 checked 例外を型で表現したくなった場合は、`ThrowingRule` 等の**別インターフェース追加**
-   （コマンド側で overload）を本命とする。`IRule` の破壊的変更をやる場合は別 issue・別メジャーバージョンとして扱う
+```java
+public class StreamProcessingException extends IOException {
+    public String getUserMessage();
+    public OperatorContext getOperatorContext();
+    public List<StreamProcessingException> getAllFailures();
+}
+```
+
+main 層の利用パターン例:
+
+```java
+catch (StreamProcessingException e) {
+    List<StreamProcessingException> failures = e.getAllFailures();
+
+    // ユーザー表示は U を最優先
+    failures.stream()
+        .filter(f -> f instanceof UserInputException)
+        .findFirst()
+        .or(() -> Optional.of(failures.get(0)))
+        .ifPresent(f -> showUser(f.getUserMessage()));
+
+    // ログ・管理者通知は全件
+    failures.forEach(f -> log.error("pipeline failure", f));
+}
+```
+
+### converter 内でのサプレス（副次的失敗の吸収）
+
+「**他の例外送出によって発生したことが明確な例外**」は converter 内でサプレスし、`getAllFailures()` に**含めない**。
+ただし `getSuppressed()` で調査時に取得可能とする（情報を完全に捨てない）。
+
+サプレス対象（確定）:
+
+| 例外 | サプレス理由 |
+|---|---|
+| 下流停止通知（POC の `PipeAbortedException` 相当） | 上流の失敗が原因。原因例外が別途報告される |
+| キャリア例外（POC の `UncheckedStreamException` 相当） | 運搬機構。unwrap した中身が真の例外 |
+| `InterruptedException`（**先行失敗が確定している状態で発生**） | 他ワーカー失敗起因のキャンセル協調による中断 |
+| `InterruptedException`（利用者起因のキャンセル） | **サプレスしない**。利用者キャンセルは真の終了理由 |
+
+判定基準:
+
+- **型ヒエラルキー判定が主**（下流停止通知・キャリアは型で機械的に判定）
+- `InterruptedException` のみ**コンテキスト判定**（先行失敗の有無で副次扱いか否かが分かれる）
+- 判定不能な場合は**独立失敗扱い**（過剰サプレスを避け、保守的に main に渡す）
+
+### 早期中断ポリシー
+
+- ライブラリ標準は**早期中断**
+- 1つ目の致命的失敗を検知した時点で他ワーカーへ中断要求を出す
+- リソース節約と速報性のため
+- 「走り切ってから集約」オプションは将来必要になったら追加検討
+
+### `getAllFailures()` の順序
+
+- **command の順序に従う**（パイプライン構成順 = 上流→下流）
+- 同一 command 階位の複数ワーカーが同時失敗した場合、リスト内で連続するが**その中の順序は実装依存**
+- 時刻順ソート等は main 側の責務（例外オブジェクトに発生時刻を持たせれば main 側でソート可能）
+
+### 通知分類外の例外
+
+通知分類（U/T/A）に乗らない**内部制御例外**カテゴリを認める:
+
+- 下流停止通知（POC の `PipeAbortedException` 相当）
+- 非同期境界キャリア（POC の `UncheckedStreamException` 相当）
+- JDK `InterruptedException`
+
+これらは converter 内で**必ず吸収または unwrap される**ことが規約。main まで届かない契約。
+
+## 🏗️ 階層別責務（叩き台）
+
+階層: **main / converter / command / rule** の4層。各層に **run** と **それ以前の処理**（構築・準備）がある。
+
+### 各層の責務
+
+#### rule
+
+- 通知分類例外（U/T/A）の**最初の発生源**
+- 自身は例外を**吸収しない**（吸収は command の責務）
+- 文脈情報（処理中レコード位置・rule 名等）を付加して投げる
+- 外部接続を持つ rule は**自身が T/A 判定**して投げる責務を持つ
+
+#### command
+
+- rule の例外を**ポリシーに基づき吸収するか伝播する**
+- 吸収パターン: スキップ / 隔離 / リトライ
+- 伝播時は**型を変えず文脈付加のみ**
+- 自身が直接 I/O する場合は通知分類確定して投げる
+- **明示ポリシーなき吸収は禁止**（`catch (Exception) { /* ignore */ }` 禁止）
+
+#### converter
+
+- パイプライン起動と並行管理
+- 各ワーカーから発生した例外を**独立失敗 vs 副次的失敗**に振り分け
+- 集約結果を**1つの `StreamProcessingException`** として main に投げる
+- 通知分類外の例外（下流停止通知・キャリア）を吸収または unwrap
+
+#### main
+
+- ライブラリ規定対象外
+- 受け取った1つの `StreamProcessingException` を**自由に解釈**
+- `getAllFailures()` で全独立失敗を取得して用途別に処理
+- ライブラリ契約: 届くのは1つの `StreamProcessingException`・通知分類外の例外は届かない
+
+### 階層別責務の詳細は未確定
+
+各層の **run** と **run 以前** で「何を投げ・何を捕まえ・何を伝播させ・何を吸収するか」の詳細は本規定の現バージョンでは未確定。
+[未決事項](#-未決事項) 4.1 を参照。
 
 ## 🚫 アンチパターン集
 
-| アンチパターン | 何が起きるか | 実例 | 正しい形 |
-|---|---|---|---|
-| 広い `catch (IOException)` での原因ラベル付け直し | 環境障害が「パース失敗」等に誤分類される | #748 | 具体型 catch のみで分類 A に変換。素の `IOException` は素通し |
-| `readNext() != null` ループを黙殺検査なしで使う | I/O 障害が EOF 扱いになり出力が黙って切り詰められる | #783 / #784 | fault 検査付きヘルパー経由で読む |
-| コマンド内部での log & rethrow | 同一エラーが二重にログ出力される | #749 | ログは `withLogging()` の1回のみ |
-| cause を捨てた例外変換 | 根本原因が追跡不能になる | #742 | 変換時は必ず cause を渡す |
-| `sneakyThrow` の個別実装 | checked 例外の迂回手段が散在し追跡不能 | #740 | `UncheckedStreamException` キャリアに統一 |
-| 境界での一律 `StreamProcessingException` 包み直し | 分類 B が分類不能になり呼び出し側が切り分けられない | `toStageFailure()` 現行実装 | 境界送出規約に従い分類別に送出 |
+| アンチパターン | 何が起きるか | 正しい形 |
+|---|---|---|
+| 広い `catch (IOException)` での原因ラベル付け直し | 外部恒久障害が U に誤分類される等の誤ラベル | 具体型 catch のみで分類変換。判定不能なら A（保守的） |
+| `cause.getMessage()` を `userMessage` に転記 | 内部実装詳細がエンドユーザーに漏洩 | サニタイズ済み文字列を呼び出し側で組み立て |
+| `catch (Exception) { /* ignore */ }`（command 層） | rule の例外が業務ポリシーなく握り潰される | 明示ポリシー（スキップ/隔離/リトライ）に基づく吸収のみ可 |
+| `ExternalSystemException` 抽象型の直接 throw | T/A の判定が呼び出し側に押し付けられる | T/A を判定して具体型を投げる。不能なら A |
+| 内部 transient を T として外出し | エンドユーザーに「待て」と誤誘導 | 内部で吸収 or A 化 |
+| cause を捨てた例外変換 | 根本原因が追跡不能 | 変換時は必ず cause を渡す |
+| log & rethrow（rule/command 層） | 同一エラーが二重ログ出力 | ログは converter 層の1か所のみ |
 
-### 静的検査の方針
+## ❓ 未決事項
 
-規約はレビューだけでは守りきれないため、以下を段階的に導入する（Phase 2 以降）。
+新規 issue として起票するにあたり、以下が**論点として明示できているが結論未確定**である。
+それぞれ独立に詰める必要がある。
 
-- PMD カスタムルール等による「広い `catch (IOException)` + 包み直し」パターンの検出
-- `sneakyThrow` 実装（`@SuppressWarnings("unchecked")` + `throw (T)`）の新規追加検出
-- 導入までの間は、本ドキュメントの[アンチパターン集](#-アンチパターン集)を PR レビューのチェック観点として用いる
+### 4.1 階層別責務（次フェーズ・主要論点）
+
+各層が「何を投げ・何を捕まえ・何を伝播・何を吸収するか」の詳細は本規定の現バージョンでは叩き台のみ。
+
+#### 4.1.1 例外型変換の許容範囲
+
+**問題**: rule で発生した `UserInputException` を command 層が `ExternalTransientException` に変換することは禁止すべきだが、規約だけで縛れるか・型強制で縛るか。`catch (IOException) { throw new UserInputException(...); }` のような広い catch でのラベル付け直しは禁止すべきだが、何が「広い catch」かの線引きが必要。
+
+**確認すべき点**:
+- rule から `RuntimeException` が漏れた場合、converter が A 化するのは許されるか・そのまま伝播か
+- command が「広い catch」で例外を分類確定するのはどこまで許されるか（自身が直接呼び出す外部ライブラリ例外の具体型 catch のみ許可、等の線引き）
+- 通知分類例外（U/T/A）同士の変換は全層で禁止という線で良いか
+
+#### 4.1.2 文脈付加の手段
+
+**問題**: 通知分類型を変えずに文脈情報（処理中レコード位置・command 名・rule 名等）を付加する方法。
+
+選択肢:
+- 案A: 同じ型で新例外を生成して元を cause にラップ → 4層貫通で cause が4段になる
+- 案B: 元例外の `addSuppressed()` に文脈情報オブジェクトを追加 → JDK 標準慣習を歪める
+- 案C: 例外に文脈フィールドを追加しコンストラクタ的に補強 → 例外型 API が膨らむ
+- 案D: 例外に伝わる MDC を持たせ、各層が補強 → 例外の不変性を破る
+
+**確認すべき点**:
+- cause チェイン深化の許容度（4段なら許容か）
+- 「文脈情報」が具体的に何か（コンテキストオブジェクトの設計）
+
+#### 4.1.3 rule のライフサイクル
+
+**問題**: ライブラリが rule インスタンスを**シングルトン的に共有**するか、**リクエストごとに新規生成**するか。外部接続を持つ rule（DB rule 等）はライフサイクルが特に重要で、構築時失敗の発生タイミングが変わる:
+
+- 共有なら起動時に1回だけ発生し、以降の run 中には発生しない
+- リクエストごと生成なら毎リクエストの run 以前に発生しうる
+
+**確認すべき点**:
+- ライブラリとして共有 vs リクエストごとを選択可能にするか・どちらかに固定するか
+- 外部接続 rule の接続オープンタイミングと例外発生タイミングの規約
+
+#### 4.1.4 close 時失敗の扱い
+
+**問題**: 各層がリソースを持つので close 時失敗が発生しうる。run 中の主例外と、close 時失敗（cleanup 例外）の主従関係。
+
+- close 時失敗が単独で発生した場合（run 中は成功・close で失敗）の通知分類
+- close 時失敗が複数 command で連鎖した場合の集約方法
+
+**確認すべき点**:
+- close 時失敗は run 中の例外と同じく `getAllFailures()` に含めるか・`getSuppressed()` 扱いか
+- close 時失敗のみの場合のリスト構造
+
+#### 4.1.5 構築時失敗の集約
+
+**問題**: 構築は順次実行（並行ではない）なので run 中の集約とは別軸。「最初の失敗で中断するか、できる限り構築を進めて複数失敗をまとめて報告するか」の選択肢がある。設定検証では複数失敗の集約が望ましい（ユーザーに一度に全部見せたい）が、依存関係のある構築では中断が必要。
+
+**確認すべき点**:
+- 構築時失敗の集約戦略をどう規定するか
+- 設定検証と接続オープンを別フェーズとして扱うか
+
+#### 4.1.6 吸収ポリシーの規定強度
+
+**問題**: command の吸収を「ポリシーに基づく明示的吸収のみ」と縛るための仕組み。
+
+選択肢:
+- 規定文書のみで運用（`catch (Exception) { /* ignore */ }` 禁止を文書で明記）
+- 専用インターフェース（`FailureAbsorbingPolicy` 等）を導入し、これを通さない吸収を禁止する規約
+- 型強制まで踏み込まず、PMD/SpotBugs カスタムルールで検出
+
+**確認すべき点**:
+- ライブラリレベルで型強制まで踏み込むか・規定のみで運用するか
+- 静的解析でどこまで検出可能か
+
+#### 4.1.7 converter 構築失敗の分類
+
+**問題**: 利用者がライブラリ API で converter を組み立てる時の失敗が、U か A か曖昧。利用者が API 呼び出しコードで指定する設定 → 利用者起因だが、入力**データ**ではなく**プログラム引数**。通知3分類では区別が曖昧。
+
+**確認すべき点**:
+- API 利用ミス（設定値不正）は A（実装バグ寄り）か U（利用者起因）か
+- そもそも API 利用ミスは `IllegalArgumentException` に倒すか、通知分類体系に乗せるか
+
+#### 4.1.8 「吸収された例外数」のメタデータ経路
+
+**問題**: command が rule の例外を業務的に吸収した場合（スキップ・隔離・リトライ）、「100件中5件スキップ」のような情報は業務的に重要。これは例外ではなく**実行結果のメタデータ**として返す方が自然だが、どこに乗せるか。
+
+**確認すべき点**:
+- 例外規定の範囲外として別 issue にするか、本シリーズで扱うか
+- 「処理結果サマリ」を返す API 設計（パイプライン結果オブジェクト等）
+
+### 4.2 並行例外集約の残存論点
+
+#### 4.2.1 キャンセル協調プロトコルの規約強度
+
+**問題**: 早期中断ポリシーが機能するためには、各ワーカーが中断要求に応答する必要がある:
+- 全ワーカーが `Thread.currentThread().isInterrupted()` を定期チェック
+- ブロッキング I/O 中の `InterruptedException` を素直に投げる
+- `InterruptedException` を握り潰さず `Thread.interrupt()` で再設定
+
+**確認すべき点**:
+- 規定強度（command/rule 実装者への作法規約として明記するか、テスト等で検証可能にするか）
+- ブロッキング I/O 中のチェック頻度の指針
+
+### 4.3 通知配送の残存論点
+
+#### 4.3.1 通知分類外の例外をマーカーインターフェースで型表現するか
+
+**問題**: 下流停止通知・キャリア・`InterruptedException` を**通知分類外マーカー**（`InternalControlException` 等）として型で表現するか、規定文書のみで運用するか。
+
+- 型で表現すると converter の境界処理が `catch (InternalControlException e)` で書けて規約が型に表現される
+- 一方、型階層が複雑になる。`InterruptedException` は JDK 標準なので実装不可で、規定文書での明示が結局必要になる
+
+**確認すべき点**:
+- マーカー導入のメリットが規定文書のみ運用を上回るか
+- `InterruptedException` を型機構の外に置く設計の整合性
 
 ## 🗓️ 適用計画
 
 | Phase | 内容 | 状態 |
 |---|---|---|
-| **Phase 1** | 本規定文書の策定 | 本ドキュメント |
-| **Phase 2** | 共通機構の実装 + 単体テスト: `InvalidInputDataException` 新設、CSV 連携 fault 検査ヘルパー、`UncheckedStreamException`（`sneakyThrow` 置換）、`CommandStageRunner` 送出規約の見直し | 未着手 |
-| **Phase 3** | 既存コマンドへの適用: #783 / #784 の修正、#729 / #731 の再評価（起票時の前提が現行コードと異なるため規定に照らして判断）、#740 / #741 / #742 / #749 の対応、ルール層の log & rethrow 是正（階層監査で発見。PR #792 で対応）、web 層（L1）の例外マッピング検討 | 未着手 |
+| **Phase 1** | 本規定文書の策定（通知ベース分類への転換） | 本ドキュメント |
+| **Phase 2** | 階層別責務の詳細確定（[未決事項 4.1](#41-階層別責務次フェーズ主要論点) を順次詰める） | 未着手 |
+| **Phase 3** | 共通機構の実装 + 単体テスト: 通知分類型新設（`UserInputException` / `ExternalTransientException` / `ExternalPermanentException` / `InternalSystemException`）、`OperatorContext` 機構、メッセージ機構、サニタイズヘルパー、converter 集約機構（`getAllFailures()`） | 未着手 |
+| **Phase 4** | 既存コマンドへの適用: POC 実装の規定整合化、既存 issue（#729 / #731 / #740 / #741 / #742 / #748 / #749 / #783 / #784）の規定に沿った再評価・対応 | 未着手 |
 
-各 Phase は別 PR とする。新規コードは Phase 2 を待たず、本規定の分類・catch・ログ規約に従うこと
-（新設型が必要な箇所は `StreamProcessingException` + 規約準拠メッセージで代用し、Phase 2 で置換する）。
-
-## 📎 付録: L1（利用者・統合層）向け指針（non-normative）
-
-`StreamConverter.run()` から呼び出し元に届く例外は次の3系統＋エンジン起源障害である。
-
-| 届く型 | 意味 | HTTP への推奨マッピング（事前検証フェーズの失敗のみ） |
-|---|---|---|
-| `InvalidInputDataException` | 分類 A: 入力データ不正 | 400 / 422 |
-| 素の `IOException` | 分類 B: 環境（I/O）障害 | 502 / 503 |
-| `RuntimeException` | 分類 C: 実装バグ | 500 |
-| `StreamProcessingException`（上記以外） | エンジン起源障害 | 500 |
-
-**ストリーミング応答の制約（重要）**: 上記マッピングが可能なのは**レスポンスヘッダ送信前に検知
-できた失敗のみ**である。ストリーミング処理の性質上、多くの失敗は 200 OK 送信後のボディ転送中に
-発生し、その時点ではステータスコードを変更できない（接続切断・チャンク中断等の表現になる）。
-不完全出力を外部に見せない保証が必要な場合は、L1 側で一時領域への書き出し→成功時 publish の
-二段階設計を検討すること（本ライブラリは「メモリに全て持たない」設計のため、この保証を
-エンジン側では提供しない）。
-
-本付録は推奨であり規定（normative）ではない。
+各 Phase は別 PR とする。
 
 ## 🔗 スコープ外・関連ドキュメント
 
 - **fail-fast / skip / retry の実行時戦略**は本規定のスコープ外（[issue #505](https://github.com/3211133/StreamConverter/issues/505) の論点）
-- [logging-rules.md](../logging-rules.md): ログ運用ポリシー（本規定のログ規約はこの上に成り立つ）
-- [ARCHITECTURE.md](../ARCHITECTURE.md): パイプラインの実行モデル（境界送出規約の前提）
-- [reference/TESTING.md](TESTING.md): テスト戦略（known-bug 証明テストの運用を含む）
+- **過渡期の既存実装**: 本規定は「あるべき姿」を示すもので、POC 実装は本規定に沿って段階的に書き換える対象である。現行 POC の `PipeAbortedException` / `UncheckedStreamException` / `CommandStageRunner` 等の機構は、本規定が示す抽象的な役割（下流停止通知・運搬キャリア・並行集約）の現行実装にすぎず、規定上の役割を満たす形であれば実装は変更可能
+- [logging-rules.md](../logging-rules.md): ログ運用ポリシー
+- [ARCHITECTURE.md](../ARCHITECTURE.md): パイプラインの実行モデル
+- [reference/TESTING.md](TESTING.md): テスト戦略

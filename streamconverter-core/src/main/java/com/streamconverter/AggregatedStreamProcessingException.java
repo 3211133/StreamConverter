@@ -70,8 +70,7 @@ public final class AggregatedStreamProcessingException extends StreamProcessingE
    * @param failures non-empty list of independent {@link StreamProcessingException} failures (末端型:
    *     {@link UserInputException}, {@link ExternalTransientException}, {@link
    *     ExternalPermanentException}, or {@link InternalSystemException})
-   * @throws NullPointerException if failures is null
-   * @throws IllegalArgumentException if failures is empty or contains nested aggregates
+   * @throws IllegalArgumentException if failures is null, empty, or contains nested aggregates
    */
   public AggregatedStreamProcessingException(List<StreamProcessingException> failures) {
     super(
@@ -91,7 +90,7 @@ public final class AggregatedStreamProcessingException extends StreamProcessingE
 
   private static int validateAndGetSize(List<StreamProcessingException> failures) {
     if (failures == null) {
-      throw new NullPointerException("failures list cannot be null");
+      throw new IllegalArgumentException("failures list cannot be null");
     }
     if (failures.isEmpty()) {
       throw new IllegalArgumentException("failures list cannot be empty");

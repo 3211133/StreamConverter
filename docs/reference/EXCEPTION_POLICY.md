@@ -481,6 +481,20 @@ catch (StreamProcessingException e) {
 - マーカー導入のメリットが規定文書のみ運用を上回るか
 - `InterruptedException` を型機構の外に置く設計の整合性
 
+#### 4.3.2 `AggregatedStreamProcessingException#getUserMessage()` の代表メッセージ
+
+**問題**: `getUserMessage()` を基底 `StreamProcessingException` に置いたため、`AggregatedStreamProcessingException` も継承上 `getUserMessage()` を実装する必要がある。しかし「**用途別代表選択アクセサは作らない・main 層が自由に解釈する**」（[§並行例外集約 §main へのインターフェース](#main-へのインターフェース)）の方針と、集約型が `getUserMessage()` で何らかの代表メッセージを返さざるを得ない実装上の要請とが矛盾する。
+
+選択肢:
+- 案A: 集約型の `getUserMessage()` は `UnsupportedOperationException` を投げる（呼び出した時点で API 誤用と型機構で示す）
+- 案B: 集約型の `getUserMessage()` は基底の `DEFAULT_USER_MESSAGE`（汎用文言）を返す（呼べるが意味的に何の代表でもないと規約で明示）
+- 案C: 集約型では `getUserMessage()` を `@Deprecated` + 別名 `getRepresentativeUserMessage()` を新設し、利用者が代表選択を意識して呼べるようにする
+- 案D: 集約型は `failures.get(0).getUserMessage()` を返す（規約として「先頭=代表」を後から明文化）
+
+**確認すべき点**:
+- 「代表選択アクセサは作らない」の方針を集約型 `getUserMessage()` にも適用するか、集約型だけ特例とするか
+- main 層のサンプルコード（[§main へのインターフェース](#main-へのインターフェース)）で `failures.stream().filter(f -> f instanceof UserInputException).findFirst()...` のように main が代表選択を行うパターンとの整合性
+
 ## 🗓️ 適用計画
 
 | Phase | 内容 | 状態 |

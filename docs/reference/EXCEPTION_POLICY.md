@@ -45,9 +45,10 @@ T と A の境界判定は「**外部接続クラス自身が当該プロトコ�
 
 ```
 IOException
-└── StreamProcessingException                 // 基底（通知3分類の親）
+└── StreamProcessingException                 // abstract 基底（通知3分類の親 / 利用者の catch ターゲット）
+    ├── AggregatedStreamProcessingException   // converter→main の集約コンテナ（converter のみ throw 可）
     ├── UserInputException                    // U（動的 userMessage を持つ）
-    ├── ExternalSystemException               // 外部起源マーカー（抽象）
+    ├── ExternalSystemException               // 外部起源マーカー（abstract）
     │   ├── ExternalTransientException        // T
     │   └── ExternalPermanentException        // A（外部恒久）
     └── InternalSystemException               // A（内部）
@@ -56,16 +57,18 @@ IOException
 設計の要点:
 
 - **`IOException` 配下を維持**。利用者は `catch (IOException)` ワンライナーで全失敗を捕捉でき、通知分類によって細分catch することもできる
-- **`ExternalSystemException` は抽象**。T/A 判定不能時に直接 throw することは禁止し、保守的に A サブタイプに倒す
-- **`StreamProcessingException` の直接 throw は禁止**（規定文書による縛り）
+- **`StreamProcessingException` は abstract**。直接 throw・直接 new はコンパイル不可とし、規定の縛りを型機構で強制する。利用者は catch ターゲットとしてのみ用いる
+- **`ExternalSystemException` も abstract**。T/A 判定不能時に直接 throw することはコンパイル不可、保守的に A サブタイプに倒す
+- **`AggregatedStreamProcessingException` は converter→main の伝達専用**。converter が並行集約結果を1つにまとめて main に投げるための具象コンテナで、`getAllFailures()` で個別失敗（`UserInputException` 等の末端型）を返す。converter 以外の層からの throw は規約上禁止
 
 ### 各型のスロー可否
 
 | 型 | 直接 throw 可否 | 用途 |
 |---|---|---|
-| `StreamProcessingException` | 禁止 | 基底 / 利用者の catch ターゲット |
+| `StreamProcessingException` | 不可（abstract） | 基底 / 利用者の catch ターゲット |
+| `AggregatedStreamProcessingException` | 可（converter 層のみ） | 並行集約結果を main へ運ぶコンテナ |
 | `UserInputException` | 可 | U 分類のスロー |
-| `ExternalSystemException` | 禁止（抽象） | 利用者の catch ターゲット（T/A まとめて） |
+| `ExternalSystemException` | 不可（abstract） | 利用者の catch ターゲット（T/A まとめて） |
 | `ExternalTransientException` | 可 | T 分類のスロー |
 | `ExternalPermanentException` | 可 | A 分類（外部恒久障害）のスロー |
 | `InternalSystemException` | 可 | A 分類（内部障害）のスロー |
@@ -82,7 +85,7 @@ IOException
 - 他の型: 型ごとに **static デフォルトメッセージ** を持ち、`public static final` として公開する
 
 ```java
-public class StreamProcessingException extends IOException {
+public abstract class StreamProcessingException extends IOException {
     public static final String DEFAULT_USER_MESSAGE =
         "システムエラーが発生しました。管理者にお問い合わせください。";
     public String getUserMessage() { return DEFAULT_USER_MESSAGE; }
@@ -97,7 +100,17 @@ public class ExternalTransientException extends StreamProcessingException {
 
 - 多言語対応は当面なし。**日本語固定**でスタートする
 - 必要組織は `MessageResolver` 注入で対応可能とし、設計余地として残す（`getUserMessage(MessageResolver)` のオーバーロード追加経路）
-- `cause.getMessage()` を `userMessage` に転記することを**禁止**する（情報漏洩防止）
+- `cause.getMessage()` を `userMessage` に転記することを**禁止**する（外部ライブラリ例外メッセージは内部実装の詳細＝パス・SQL・スタックトレース等を内包し得るため）
+
+#### `DEFAULT_USER_MESSAGE` の利用パターン
+
+`DEFAULT_USER_MESSAGE` を `public static final` で公開する目的:
+
+1. **i18n 鍵としての参照**: `MessageResolver` 注入時に「どのデフォルトメッセージを翻訳対象とするか」を型名経由で識別できる
+2. **テスト時の期待値参照**: テストコードが `assertEquals(ExternalTransientException.DEFAULT_USER_MESSAGE, e.getUserMessage())` のように型固定の検証を書ける
+3. **組織側の上書き起点**: 組織側カスタム例外がデフォルトメッセージを書き換える際の比較基準として参照する
+
+アクセスは**必ず型名経由**（`ExternalTransientException.DEFAULT_USER_MESSAGE`）で行うこと。インスタンス経由（`e.DEFAULT_USER_MESSAGE`）は `AccessStaticViaInstance` 警告となる上、サブクラス側のフィールドを参照しない（`static` は継承されない）ため誤読を招く。
 
 ### `getMessage()` / `getCause()` / `getStackTrace()`
 
@@ -108,11 +121,12 @@ public class ExternalTransientException extends StreamProcessingException {
 
 ### `getOperatorContext()`
 
-運用管理者向けのサニタイズ済み情報を返す。**デフォルトは開発者レベル**（cause/stacktrace を含むフル情報を開発者と同等に返す）。
+運用管理者向けのサニタイズ済み情報を返す。**デフォルトはサニタイズ済み最小情報**（セキュア by default）。
 
-- セキュリティ要件のある組織（運用管理者と開発者が分離している組織）は `OperatorContextProvider` を注入して**運用管理者レベル**（サニタイズ済み・実装詳細を含まない）に切り替える
-- ライブラリ標準では「3層分離」のうち「運用管理者層」を提供しない方針。当該要件を持つ組織が改めて設定する
-- サニタイズ強制機構（`IncidentCode` enum・値オブジェクト主体・自由文字列最小化）は将来課題として規定する
+- 開発者向けフル情報（cause / stacktrace / 内部詳細）は標準慣習通り `getMessage()` / `getCause()` / `getStackTrace()` から取得する。`getOperatorContext()` は**それらとは別経路の、運用管理者に渡して安全な最小スキーマ**を返す
+- 最小スキーマ（ライブラリ提供）: `IncidentCode`（分類カタログ）・発生時刻・通知3分類（U/T/A）・例外型名（公開可な範囲）・呼び出し側で組み立てた `userMessage`
+- セキュリティ要件が緩く「開発者と運用管理者を分けない」組織は `OperatorContextProvider` を注入して**情報量を増やす**ことができる（フル情報相当へ寄せる）
+- 既定の `OperatorContext` は不変オブジェクトとし、自由文字列フィールドを最小化する。`IncidentCode` enum 値カタログの整備・マッピング規約は [§4.1.10](#4110-incidentcode-カタログ整備とマッピング規約) で未確定
 
 ## 🧼 サニタイズ規約
 
@@ -145,7 +159,15 @@ catch (CsvMalformedLineException e) {
 
 ### `getOperatorContext()` のサニタイズ
 
-デフォルト実装は開発者レベル（フル情報）。サニタイズ強制機構（`IncidentCode` enum・値オブジェクト・自由文字列禁止）は将来課題。
+デフォルト実装は**サニタイズ済み最小情報**（セキュア by default）。ライブラリは不変な `OperatorContext` 値オブジェクトと `IncidentCode` enum の骨格を提供し、自由文字列フィールドを最小化する。
+
+| 含めて良い | 含めてはいけない |
+|---|---|
+| `IncidentCode`（分類カタログのキー） | 内部ファイルパス・URL・SQL 文・正規表現 |
+| 発生時刻・通知3分類（U/T/A） | スタックトレース・cause チェイン |
+| 公開可な例外型名・サニタイズ済み `userMessage` | 環境情報（スレッド名・MDC値・ホスト名・PID 等） |
+
+フル情報が必要な場面では `getMessage()` / `getCause()` / `getStackTrace()` を使う（開発者向け経路）。`OperatorContextProvider` を注入することで情報量を増やすことができるが、規定上は**情報量を減らす方向のオーバーライドのみが望ましい**。
 
 ## 🧵 並行例外集約
 
@@ -154,24 +176,32 @@ StreamConverter のパイプラインは複数ステージ・複数ワーカー�
 
 ### main へのインターフェース
 
-- 届くのは**1つの `StreamProcessingException` オブジェクト**
+- 届くのは**1つの `AggregatedStreamProcessingException` オブジェクト**（`StreamProcessingException` の具象サブクラス）
 - 内部に**全独立失敗のリスト**を保持し、`getAllFailures()` で取得可能
-- 単独失敗時はリスト要素1件、並行集約時は複数件
+- 単独失敗時もリスト要素1件として正規化（list 化のオーバーヘッドを払ってでも main 側の場合分けを消す）
 - 用途別代表選択アクセサ（`primaryForUserNotification()` 等）は**作らない**。main 層が自由に解釈する
 
 ```java
-public class StreamProcessingException extends IOException {
+public abstract class StreamProcessingException extends IOException {
     public String getUserMessage();
     public OperatorContext getOperatorContext();
+}
+
+public final class AggregatedStreamProcessingException extends StreamProcessingException {
     public List<StreamProcessingException> getAllFailures();
+    // getAllFailures() の要素は末端型（UserInputException 等）のみ。
+    // AggregatedStreamProcessingException の入れ子は禁止（converter で平坦化する）。
 }
 ```
+
+main 層の catch ターゲットは基底の `StreamProcessingException` のままで良い（abstract 基底は catch 可能）。
 
 main 層の利用パターン例:
 
 ```java
 catch (StreamProcessingException e) {
-    List<StreamProcessingException> failures = e.getAllFailures();
+    List<StreamProcessingException> failures =
+        (e instanceof AggregatedStreamProcessingException agg) ? agg.getAllFailures() : List.of(e);
 
     // ユーザー表示は U を最優先
     failures.stream()
@@ -185,6 +215,8 @@ catch (StreamProcessingException e) {
 }
 ```
 
+なお、規約上 converter は単独失敗の場合も `AggregatedStreamProcessingException` でラップして main に渡すことを既定とする（main の場合分けを消す目的）。上記サンプルの `instanceof` 分岐は防御的記述。
+
 ### converter 内でのサプレス（副次的失敗の吸収）
 
 「**他の例外送出によって発生したことが明確な例外**」は converter 内でサプレスし、`getAllFailures()` に**含めない**。
@@ -197,12 +229,14 @@ catch (StreamProcessingException e) {
 | 下流停止通知（POC の `PipeAbortedException` 相当） | 上流の失敗が原因。原因例外が別途報告される |
 | キャリア例外（POC の `UncheckedStreamException` 相当） | 運搬機構。unwrap した中身が真の例外 |
 | `InterruptedException`（**先行失敗が確定している状態で発生**） | 他ワーカー失敗起因のキャンセル協調による中断 |
+| **先行失敗確定後に他ワーカーから発生した I/O 例外**（キャンセル協調でブロッキング I/O が打ち切られた結果として現れた `IOException` 等） | 既に起因例外が確定済み。早期中断要求に伴い連鎖的に発生した I/O 失敗は副次扱い |
 | `InterruptedException`（利用者起因のキャンセル） | **サプレスしない**。利用者キャンセルは真の終了理由 |
 
 判定基準:
 
 - **型ヒエラルキー判定が主**（下流停止通知・キャリアは型で機械的に判定）
-- `InterruptedException` のみ**コンテキスト判定**（先行失敗の有無で副次扱いか否かが分かれる）
+- `InterruptedException` および**他ワーカー I/O 例外**は**コンテキスト判定**（先行失敗の有無で副次扱いか否かが分かれる）
+- 「先行失敗確定」とは converter が早期中断要求を発した後の状態を指す。各ワーカーは自身の失敗時刻と converter の中断要求時刻を比較できる必要がある（実装は converter 内に閉じる）
 - 判定不能な場合は**独立失敗扱い**（過剰サプレスを避け、保守的に main に渡す）
 
 ### 早期中断ポリシー
@@ -210,6 +244,8 @@ catch (StreamProcessingException e) {
 - ライブラリ標準は**早期中断**
 - 1つ目の致命的失敗を検知した時点で他ワーカーへ中断要求を出す
 - リソース節約と速報性のため
+- 中断要求が届くまでのラグで複数の独立失敗が並ぶ可能性がある。先行失敗確定後に他ワーカーから発生した I/O 失敗・`InterruptedException` の扱いは上記サプレス表に従う
+- 「致命的失敗」とは command 層で吸収されずに converter まで届く失敗を指す（吸収可能な失敗は command 層で `getAllFailures()` の対象にならない形で処理されている前提）
 - 「走り切ってから集約」オプションは将来必要になったら追加検討
 
 ### `getAllFailures()` の順序
@@ -237,31 +273,34 @@ catch (StreamProcessingException e) {
 #### rule
 
 - 通知分類例外（U/T/A）の**最初の発生源**
+- `IRule#apply` の throws 句に `StreamProcessingException`（abstract 基底）を指定し、U/T/A サブクラスを**直接 throw する**。`IOException` より狭く、U/T/A 個別列挙より簡潔に、投げられる例外を U/T/A に限定できる（型機構による強制）
 - 自身は例外を**吸収しない**（吸収は command の責務）
-- 文脈情報（処理中レコード位置・rule 名等）を付加して投げる
+- 文脈情報（処理中レコード位置・rule 名等）を付加して投げる（**文脈付加の具体的手段は [§4.1.2](#412-文脈付加の手段) で未確定**）
 - 外部接続を持つ rule は**自身が T/A 判定**して投げる責務を持つ
+- IRule のファンクショナルインターフェース性との両立は [§4.1.11](#4111-irule-のファンクショナルインターフェース性) を参照
 
 #### command
 
 - rule の例外を**ポリシーに基づき吸収するか伝播する**
 - 吸収パターン: スキップ / 隔離 / リトライ
-- 伝播時は**型を変えず文脈付加のみ**
+- 伝播時は**型を変えず文脈付加のみ**（**例外型変換の許容範囲・「広い catch」の線引きは [§4.1.1](#411-例外型変換の許容範囲) で未確定**）
 - 自身が直接 I/O する場合は通知分類確定して投げる
-- **明示ポリシーなき吸収は禁止**（`catch (Exception) { /* ignore */ }` 禁止）
+- **明示ポリシーなき吸収は禁止**（`catch (Exception) { /* ignore */ }` 禁止。**規定強度は [§4.1.6](#416-吸収ポリシーの規定強度) で未確定**）
 
 #### converter
 
 - パイプライン起動と並行管理
 - 各ワーカーから発生した例外を**独立失敗 vs 副次的失敗**に振り分け
-- 集約結果を**1つの `StreamProcessingException`** として main に投げる
+- 集約結果を**1つの `AggregatedStreamProcessingException`** として main に投げる（単独失敗もラップして正規化）
 - 通知分類外の例外（下流停止通知・キャリア）を吸収または unwrap
+- **ログ出力の集約点**。rule/command 層は log & rethrow せず、ログ出力は converter で一元化する
 
 #### main
 
 - ライブラリ規定対象外
-- 受け取った1つの `StreamProcessingException` を**自由に解釈**
+- 受け取った1つの `AggregatedStreamProcessingException`（基底 `StreamProcessingException` として catch 可）を**自由に解釈**
 - `getAllFailures()` で全独立失敗を取得して用途別に処理
-- ライブラリ契約: 届くのは1つの `StreamProcessingException`・通知分類外の例外は届かない
+- ライブラリ契約: 届くのは1つの `AggregatedStreamProcessingException`・通知分類外の例外は届かない
 
 ### 階層別責務の詳細は未確定
 
@@ -370,6 +409,51 @@ catch (StreamProcessingException e) {
 **確認すべき点**:
 - 例外規定の範囲外として別 issue にするか、本シリーズで扱うか
 - 「処理結果サマリ」を返す API 設計（パイプライン結果オブジェクト等）
+
+#### 4.1.9 `UserInputException` の `userMessage` サニタイズ強制機構
+
+**問題**: 本規定は `UserInputException` のコンストラクタが受け取る `userMessage` を「呼び出し側の責務でサニタイズ済み」と規定するのみで、強制機構を持たない。`getOperatorContext()` 側では `IncidentCode` enum・値オブジェクト・自由文字列最小化でサニタイズを構造的に強制する方向（[§4.1.10](#4110-incidentcode-カタログ整備とマッピング規約)）に倒したのに対し、U 経路のサニタイズだけが規約レベルに留まる非対称が残る。
+
+選択肢:
+- 規定文書のみで運用（現状）
+- `UserInputException` コンストラクタに **`UserMessageBuilder`** のような構造化 API を強制し、自由文字列直接渡しを禁止
+- 静的解析（PMD/SpotBugs カスタムルール）で `cause.getMessage()` 等の禁止パターンを検出
+- 型強制（`SanitizedString` 値オブジェクト）
+
+**確認すべき点**:
+- U 経路と A 経路（`getOperatorContext()`）でサニタイズ規定強度を揃えるか・割り切るか
+- 構造化 API 強制が利用者の書きやすさを損なわない範囲に収まるか
+
+#### 4.1.10 `IncidentCode` カタログ整備とマッピング規約
+
+**問題**: `getOperatorContext()` のデフォルト最小スキーマに `IncidentCode` enum を据えたが、enum 値カタログをどう設計・運用するかは未確定。
+
+**確認すべき点**:
+- 通知3分類（U/T/A）× 発生層（rule/command/converter）の直積で初期カタログを切るか、もっと粗く始めるか
+- 利用者が独自に `IncidentCode` を追加できる拡張機構を提供するか
+- 各例外型（`UserInputException` 等）とデフォルト `IncidentCode` のマッピングをコンストラクタ強制で結びつけるか
+
+#### 4.1.11 `IRule` のファンクショナルインターフェース性
+
+**前提**: 現状 `IRule` は `@FunctionalInterface`・SAM・throws 句なし（`String apply(String input)`）で定義されている。本規定は rule に対し U/T/A の直接 throw・T/A 判定・ライフサイクル管理・文脈付加・吸収禁止の責務を要求するが、これらは SAM 制約と緊張関係にある。
+
+**確定（案 A 採用）**: `IRule#apply` のシグネチャを `String apply(String input) throws StreamProcessingException` に変更する。`@FunctionalInterface` は throws 句と排他ではなく SAM 性は維持される。throws 句に基底 `StreamProcessingException`（abstract）を指定することで、投げられる例外を U/T/A サブクラスに型機構で限定できる。これにより以下が解決:
+
+- **F-1（throws できない）**: 通知分類例外を直接 throw 可能になり、`UncheckedStreamException` ラッパー経由の必要がなくなる
+- **F-2（T/A 判定責務が型で表現できない）**: 外部接続 rule が `ExternalTransientException` / `ExternalPermanentException` を直接投げ分けられる
+
+ラムダ実装は throws 宣言なしで `IRule r = s -> s.trim();` のまま書ける（throws 句は宣言可能だが必須ではない）。移行コストは既存 11 実装の throws 追加と command 層（XmlWalker / JsonWalker 等）の throws 拡張のみ。
+
+**残る未決**: 案 A は F-3〜F-5 を解決しない。以下は別論点として委譲:
+
+- **F-3 ライフサイクル不在**: [§4.1.3](#413-rule-のライフサイクル) で扱う
+- **F-4 文脈付加手段**: [§4.1.2](#412-文脈付加の手段) で扱う
+- **F-5 吸収禁止の型強制**: [§4.1.6](#416-吸収ポリシーの規定強度) で扱う
+
+**確認すべき点**:
+- `JDK Function<String,String>` 互換喪失の許容度（Stream API 連携で `UncheckedStreamException` キャリアが境界で残る可能性）
+- 公開 API 破壊的変更の Phase ライン（Phase 3 共通機構実装と同期させるか、先行して切るか）
+- 案 A で残る F-3〜F-5 を、案 B（abstract class 格上げ）/ 案 C（軽量 IRule + IConnectedRule 二系統分離）で解決する余地と費用対効果
 
 ### 4.2 並行例外集約の残存論点
 

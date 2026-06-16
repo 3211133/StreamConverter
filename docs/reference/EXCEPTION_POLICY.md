@@ -123,10 +123,9 @@ public class ExternalTransientException extends StreamProcessingException {
 
 運用管理者向けのサニタイズ済み情報を返す。**デフォルトはサニタイズ済み最小情報**（セキュア by default）。
 
-- 開発者向けフル情報（cause / stacktrace / 内部詳細）は標準慣習通り `getMessage()` / `getCause()` / `getStackTrace()` から取得する。`getOperatorContext()` は**それらとは別経路の、運用管理者に渡して安全な最小スキーマ**を返す
-- 最小スキーマ（ライブラリ提供）: `IncidentCode`（分類カタログ）・発生時刻・通知3分類（U/T/A）・例外型名（公開可な範囲）・呼び出し側で組み立てた `userMessage`
-- セキュリティ要件が緩く「開発者と運用管理者を分けない」組織は `OperatorContextProvider` を注入して**情報量を増やす**ことができる（フル情報相当へ寄せる）
-- 既定の `OperatorContext` は不変オブジェクトとし、自由文字列フィールドを最小化する。`IncidentCode` enum 値カタログの整備・マッピング規約は [§4.1.10](#4110-incidentcode-カタログ整備とマッピング規約) で未確定
+- 開発者向けフル情報（cause / stacktrace / 内部詳細）は標準慣習通り `getMessage()` / `getCause()` / `getStackTrace()` から取得する。`getOperatorContext()` は別経路で運用管理者に渡して安全な情報のみを返す
+- セキュリティ要件が緩い組織は `OperatorContextProvider` を注入して情報量を**増やす**ことができる（推奨は減らす方向）
+- 最小スキーマの具体的な含む/含まない項目・`IncidentCode` enum 値カタログの整備は [§サニタイズ規約](#-サニタイズ規約) と [§4.1.10](#4110-incidentcode-カタログ整備とマッピング規約) を参照
 
 ## 🧼 サニタイズ規約
 
@@ -174,6 +173,14 @@ catch (CsvMalformedLineException e) {
 StreamConverter のパイプラインは複数ステージ・複数ワーカーが並行実行する。
 1回の実行で**同時に複数の例外が発生しうる**ため、main 層への伝達方法を規定する。
 
+### 用語
+
+- **致命的失敗**: command 層で吸収されずに converter まで届く失敗。吸収可能な失敗は `getAllFailures()` の対象にならない
+- **独立失敗**: 他の失敗とは因果関係のない失敗。`getAllFailures()` のリストに載る
+- **副次的失敗**: 他の例外送出によって発生したことが明確な失敗。converter 内でサプレスされ `getSuppressed()` 経由でのみ取得可
+- **先行失敗確定**: converter が早期中断要求を発した後の状態。この後に発生した他ワーカーの中断由来失敗は副次扱い
+- **通知分類外の例外**: U/T/A に乗らない内部制御例外（下流停止通知・キャリア・`InterruptedException`）。converter で必ず吸収または unwrap される
+
 ### main へのインターフェース
 
 - 届くのは**1つの `AggregatedStreamProcessingException` オブジェクト**（`StreamProcessingException` の具象サブクラス）
@@ -200,6 +207,7 @@ main 層の利用パターン例:
 
 ```java
 catch (StreamProcessingException e) {
+    // 規約上 converter は常に AggregatedStreamProcessingException で包む。instanceof は防御的記述
     List<StreamProcessingException> failures =
         (e instanceof AggregatedStreamProcessingException agg) ? agg.getAllFailures() : List.of(e);
 
@@ -214,8 +222,6 @@ catch (StreamProcessingException e) {
     failures.forEach(f -> log.error("pipeline failure", f));
 }
 ```
-
-なお、規約上 converter は単独失敗の場合も `AggregatedStreamProcessingException` でラップして main に渡すことを既定とする（main の場合分けを消す目的）。上記サンプルの `instanceof` 分岐は防御的記述。
 
 ### converter 内でのサプレス（副次的失敗の吸収）
 
@@ -245,7 +251,6 @@ catch (StreamProcessingException e) {
 - 1つ目の致命的失敗を検知した時点で他ワーカーへ中断要求を出す
 - リソース節約と速報性のため
 - 中断要求が届くまでのラグで複数の独立失敗が並ぶ可能性がある。先行失敗確定後に他ワーカーから発生した I/O 失敗・`InterruptedException` の扱いは上記サプレス表に従う
-- 「致命的失敗」とは command 層で吸収されずに converter まで届く失敗を指す（吸収可能な失敗は command 層で `getAllFailures()` の対象にならない形で処理されている前提）
 - 「走り切ってから集約」オプションは将来必要になったら追加検討
 
 ### `getAllFailures()` の順序
@@ -309,15 +314,16 @@ catch (StreamProcessingException e) {
 
 ## 🚫 アンチパターン集
 
+abstract 型の直接 throw（`StreamProcessingException` / `ExternalSystemException`）は型機構でコンパイル不可。
+以下は**コードレベルで見落としやすい誤り**のチェックリスト。本文規定の正本は各セクション参照。
+
 | アンチパターン | 何が起きるか | 正しい形 |
 |---|---|---|
-| 広い `catch (IOException)` での原因ラベル付け直し | 外部恒久障害が U に誤分類される等の誤ラベル | 具体型 catch のみで分類変換。判定不能なら A（保守的） |
-| `cause.getMessage()` を `userMessage` に転記 | 内部実装詳細がエンドユーザーに漏洩 | サニタイズ済み文字列を呼び出し側で組み立て |
-| `catch (Exception) { /* ignore */ }`（command 層） | rule の例外が業務ポリシーなく握り潰される | 明示ポリシー（スキップ/隔離/リトライ）に基づく吸収のみ可 |
-| `ExternalSystemException` 抽象型の直接 throw | T/A の判定が呼び出し側に押し付けられる | T/A を判定して具体型を投げる。不能なら A |
-| 内部 transient を T として外出し | エンドユーザーに「待て」と誤誘導 | 内部で吸収 or A 化 |
+| `cause.getMessage()` を `userMessage` に転記 | 内部実装詳細がエンドユーザーに漏洩 | サニタイズ済み文字列を呼び出し側で組み立て（[§サニタイズ規約](#-サニタイズ規約)） |
+| `catch (Exception) { /* ignore */ }`（command 層） | rule の例外が業務ポリシーなく握り潰される | 明示ポリシーに基づく吸収のみ可（[§command](#command) / [§4.1.6](#416-吸収ポリシーの規定強度)） |
+| 内部 transient を T として外出し | エンドユーザーに「待て」と誤誘導 | 内部で吸収 or A 化（[§内部 transient は原則認めない](#内部-transient-は原則認めない)） |
 | cause を捨てた例外変換 | 根本原因が追跡不能 | 変換時は必ず cause を渡す |
-| log & rethrow（rule/command 層） | 同一エラーが二重ログ出力 | ログは converter 層の1か所のみ |
+| log & rethrow（rule/command 層） | 同一エラーが二重ログ出力 | ログは converter 層の1か所のみ（[§converter](#converter)） |
 
 ## ❓ 未決事項
 
@@ -433,27 +439,16 @@ catch (StreamProcessingException e) {
 - 利用者が独自に `IncidentCode` を追加できる拡張機構を提供するか
 - 各例外型（`UserInputException` 等）とデフォルト `IncidentCode` のマッピングをコンストラクタ強制で結びつけるか
 
-#### 4.1.11 `IRule` のファンクショナルインターフェース性
+#### 4.1.11 `IRule` のファンクショナルインターフェース性（確定済み）
 
-**前提**: 現状 `IRule` は `@FunctionalInterface`・SAM・throws 句なし（`String apply(String input)`）で定義されている。本規定は rule に対し U/T/A の直接 throw・T/A 判定・ライフサイクル管理・文脈付加・吸収禁止の責務を要求するが、これらは SAM 制約と緊張関係にある。
+**確定**: `IRule#apply` のシグネチャを `String apply(String input) throws StreamProcessingException` に変更する。`@FunctionalInterface` は throws 句と排他ではなく SAM 性は維持される。これにより U/T/A の直接 throw・T/A 判定責務を型機構で表現できる。ラムダ実装は `IRule r = s -> s.trim();` のまま書ける（throws 宣言は必須ではない）。
 
-**確定（案 A 採用）**: `IRule#apply` のシグネチャを `String apply(String input) throws StreamProcessingException` に変更する。`@FunctionalInterface` は throws 句と排他ではなく SAM 性は維持される。throws 句に基底 `StreamProcessingException`（abstract）を指定することで、投げられる例外を U/T/A サブクラスに型機構で限定できる。これにより以下が解決:
-
-- **F-1（throws できない）**: 通知分類例外を直接 throw 可能になり、`UncheckedStreamException` ラッパー経由の必要がなくなる
-- **F-2（T/A 判定責務が型で表現できない）**: 外部接続 rule が `ExternalTransientException` / `ExternalPermanentException` を直接投げ分けられる
-
-ラムダ実装は throws 宣言なしで `IRule r = s -> s.trim();` のまま書ける（throws 句は宣言可能だが必須ではない）。移行コストは既存 11 実装の throws 追加と command 層（XmlWalker / JsonWalker 等）の throws 拡張のみ。
-
-**残る未決**: 案 A は F-3〜F-5 を解決しない。以下は別論点として委譲:
-
-- **F-3 ライフサイクル不在**: [§4.1.3](#413-rule-のライフサイクル) で扱う
-- **F-4 文脈付加手段**: [§4.1.2](#412-文脈付加の手段) で扱う
-- **F-5 吸収禁止の型強制**: [§4.1.6](#416-吸収ポリシーの規定強度) で扱う
+**残課題**: ライフサイクル不在は [§4.1.3](#413-rule-のライフサイクル)・文脈付加手段は [§4.1.2](#412-文脈付加の手段)・吸収禁止の型強制は [§4.1.6](#416-吸収ポリシーの規定強度) で扱う。
 
 **確認すべき点**:
-- `JDK Function<String,String>` 互換喪失の許容度（Stream API 連携で `UncheckedStreamException` キャリアが境界で残る可能性）
-- 公開 API 破壊的変更の Phase ライン（Phase 3 共通機構実装と同期させるか、先行して切るか）
-- 案 A で残る F-3〜F-5 を、案 B（abstract class 格上げ）/ 案 C（軽量 IRule + IConnectedRule 二系統分離）で解決する余地と費用対効果
+- `JDK Function<String,String>` 互換喪失の許容度
+- 公開 API 破壊的変更の Phase ライン
+- 案 B（abstract class 格上げ）/ 案 C（軽量 IRule + IConnectedRule 二系統分離）で残課題を一括解決する余地
 
 ### 4.2 並行例外集約の残存論点
 

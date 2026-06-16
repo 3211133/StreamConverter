@@ -122,6 +122,7 @@ public final class AggregatedStreamProcessingException extends StreamProcessingE
    * @return {@link StreamProcessingException#DEFAULT_USER_MESSAGE}
    */
   @Override
+  @SuppressWarnings("PMD.UselessOverridingMethod")
   public String getUserMessage() {
     return super.getUserMessage();
   }

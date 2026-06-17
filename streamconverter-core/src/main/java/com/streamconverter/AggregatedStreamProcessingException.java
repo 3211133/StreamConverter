@@ -48,6 +48,13 @@ import java.util.List;
  * of {@link com.streamconverter.command.IStreamCommand#execute} can handle all stream-level
  * failures with a single {@code catch (IOException)} block.
  *
+ * <p><strong>getUserMessage() behavior:</strong> This class inherits the base {@link
+ * StreamProcessingException#getUserMessage()} (returns {@code DEFAULT_USER_MESSAGE}). Per exception
+ * policy §4.3.2, the final behavior of aggregate-level message selection is pending decision in
+ * issue #797. Main-layer code should call {@link #getAllFailures()} to select a representative
+ * failure and use its {@code getUserMessage()} instead of calling this method on the aggregate
+ * itself.
+ *
  * <p>See docs/reference/EXCEPTION_POLICY.md for the full exception classification policy.
  *
  * @see StreamProcessingException
@@ -113,24 +120,5 @@ public final class AggregatedStreamProcessingException extends StreamProcessingE
    */
   public List<StreamProcessingException> getAllFailures() {
     return failures;
-  }
-
-  /**
-   * Returns the base default user message.
-   *
-   * <p><strong>NOTE:</strong> This is an interim implementation pending decision on issue #797 (未決
-   * 4.3.2). Currently returns the base {@link StreamProcessingException} default message.
-   *
-   * <p>Main-layer code should <strong>not</strong> rely on this method for user display. Instead,
-   * call {@link #getAllFailures()}, filter for a representative failure (e.g., prioritizing {@link
-   * UserInputException}), and use that failure's {@code getUserMessage()}. This pattern is
-   * demonstrated in the class documentation.
-   *
-   * @return {@link StreamProcessingException#DEFAULT_USER_MESSAGE}
-   */
-  @Override
-  @SuppressWarnings("PMD.UselessOverridingMethod")
-  public String getUserMessage() {
-    return super.getUserMessage();
   }
 }

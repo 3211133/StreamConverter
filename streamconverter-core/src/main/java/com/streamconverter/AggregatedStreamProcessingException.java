@@ -76,8 +76,10 @@ public final class AggregatedStreamProcessingException extends StreamProcessingE
    *
    * @param failures non-empty list of independent {@link StreamProcessingException} failures (末端型:
    *     {@link UserInputException}, {@link ExternalTransientException}, {@link
-   *     ExternalPermanentException}, or {@link InternalSystemException})
-   * @throws IllegalArgumentException if failures is null, empty, or contains nested aggregates
+   *     ExternalPermanentException}, or {@link InternalSystemException}). Must not contain null
+   *     elements.
+   * @throws IllegalArgumentException if failures is null, empty, contains null elements, or
+   *     contains nested aggregates
    */
   public AggregatedStreamProcessingException(List<StreamProcessingException> failures) {
     super(
@@ -85,7 +87,11 @@ public final class AggregatedStreamProcessingException extends StreamProcessingE
         failures.isEmpty() ? null : failures.get(0));
 
     // Validate contents
-    for (StreamProcessingException failure : failures) {
+    for (int i = 0; i < failures.size(); i++) {
+      StreamProcessingException failure = failures.get(i);
+      if (failure == null) {
+        throw new IllegalArgumentException("failures list contains null element at index " + i);
+      }
       if (failure instanceof AggregatedStreamProcessingException) {
         throw new IllegalArgumentException(
             "nested AggregatedStreamProcessingException not allowed; converter must flatten");

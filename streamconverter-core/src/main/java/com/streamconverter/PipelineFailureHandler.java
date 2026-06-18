@@ -13,9 +13,9 @@ final class PipelineFailureHandler {
    *
    * <p>Classified failures ({@link StreamProcessingException} subtypes) are aggregated into a
    * single {@link AggregatedStreamProcessingException} before being thrown. Unclassified failures
-   * ({@link Error}, {@link RuntimeException}, raw {@link IOException}) propagate unchanged — their
-   * handling in the converter layer is an open question tracked in issue #797 §4.1.1 and no
-   * decision has been made yet.
+   * ({@link Error}, {@link RuntimeException}, raw {@link IOException}) propagate unchanged per
+   * EXCEPTION_POLICY.md §4.1.1 A1: blanket-wrapping should-never-happen unchecked exceptions into
+   * A-class is prohibited inside the library; only truly-unreachable guard sites may do so.
    *
    * <p>Pipe-aborted failures (secondary consequences of another stage's failure) are filtered out
    * regardless of classification.
@@ -59,6 +59,8 @@ final class PipelineFailureHandler {
     if (cause instanceof RuntimeException re) {
       throw re;
     }
+    // Truly-unreachable guard: Throwable that is neither Error, IOException, nor RuntimeException.
+    // Per §4.1.1 A1, this site qualifies as a guard for an impossible Throwable subtype.
     throw new InternalSystemException("コマンド実行中に予期せぬエラーが発生しました", cause);
   }
 

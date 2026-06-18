@@ -334,39 +334,39 @@ abstract 型の直接 throw（`StreamProcessingException` / `ExternalSystemExcep
 
 各層が「何を投げ・何を捕まえ・何を伝播・何を吸収するか」の詳細は本規定の現バージョンでは叩き台のみ。
 
-#### 4.1.1 例外型変換の許容範囲
+#### 4.1.1 例外型変換の許容範囲（確定済み）
 
-**問題**: rule で発生した `UserInputException` を command 層が `ExternalTransientException` に変換することは禁止すべきだが、規約だけで縛れるか・型強制で縛るか。`catch (IOException) { throw new UserInputException(...); }` のような広い catch でのラベル付け直しは禁止すべきだが、何が「広い catch」かの線引きが必要。
+**確定**:
 
-**確認すべき点**:
-- rule から `RuntimeException` が漏れた場合、converter が A 化するのは許されるか・そのまま伝播か
-- command が「広い catch」で例外を分類確定するのはどこまで許されるか（自身が直接呼び出す外部ライブラリ例外の具体型 catch のみ許可、等の線引き）
-- 通知分類例外（U/T/A）同士の変換は全層で禁止という線で良いか
+- **A1（converter の RuntimeException 扱い）**: ライブラリ内部で「起こり得ないはずの」unchecked 例外を blanket-catch して A 化することは禁止。各スローサイトで出所が判明している `RuntimeException` を classified 型（`InternalSystemException` 等）に変換するのは許容。  
+  *根拠*: 真に到達不能なガードコード（`default: throw new InternalSystemException(...)` 相当）のみ例外として認める。blanket-catch による一律 A 化は「入り口防衛」用途（Web フレームワーク等）に限定すべき。
+- **A2（command の外部ライブラリ例外変換）**: command が自身で**直接呼び出す**外部ライブラリの具体型例外（`SQLException`, `SAXException` 等）のみ分類変換を許可。間接依存（呼び出し先が内部で投げる例外型等）への変換は禁止。
+- **A3（U/T/A 間の変換）**: 全層で禁止。分類確定後の例外を別分類に変換することで通知先が変わるため、全層で禁止。
 
-#### 4.1.2 文脈付加の手段
+#### 4.1.2 文脈付加の手段（確定済み）
 
-**問題**: 通知分類型を変えずに文脈情報（処理中レコード位置・command 名・rule 名等）を付加する方法。
+**確定**: 案B（`addSuppressed()` による `StageFailureContext` 付加）を採用。
 
-選択肢:
-- 案A: 同じ型で新例外を生成して元を cause にラップ → 4層貫通で cause が4段になる
-- 案B: 元例外の `addSuppressed()` に文脈情報オブジェクトを追加 → JDK 標準慣習を歪める
-- 案C: 例外に文脈フィールドを追加しコンストラクタ的に補強 → 例外型 API が膨らむ
-- 案D: 例外に伝わる MDC を持たせ、各層が補強 → 例外の不変性を破る
+実装: `CommandStageRunner.toStageFailure()` で `failure.addSuppressed(new StageFailureContext(commandLabel))` を実行済み。`StageFailureContext` はスタックトレース無効化で軽量化。
 
-**確認すべき点**:
-- cause チェイン深化の許容度（4段なら許容か）
-- 「文脈情報」が具体的に何か（コンテキストオブジェクトの設計）
+*各案の不採用理由*:
+- 案A: cause chain が4段になり根本原因の追跡コストが増大
+- 案C: 例外型の public API が膨らみ依存が増える
+- 案D: 例外の不変性を破る（MDC はスレッドローカルで例外本体に付随しない）
 
-#### 4.1.3 rule のライフサイクル
+#### 4.1.3 rule のライフサイクル（確定済み）
 
-**問題**: ライブラリが rule インスタンスを**シングルトン的に共有**するか、**リクエストごとに新規生成**するか。外部接続を持つ rule（DB rule 等）はライフサイクルが特に重要で、構築時失敗の発生タイミングが変わる:
+**確定**: 選択制（C3）。マーカーインターフェースで per-request を opt-in とし、デフォルトは共有（スレッドセーフ必須）。
 
-- 共有なら起動時に1回だけ発生し、以降の run 中には発生しない
-- リクエストごと生成なら毎リクエストの run 以前に発生しうる
+```java
+/** 実装クラスが per-request インスタンス生成を要求するマーカー。 */
+public interface PerRequestRule extends IRule {}
+```
 
-**確認すべき点**:
-- ライブラリとして共有 vs リクエストごとを選択可能にするか・どちらかに固定するか
-- 外部接続 rule の接続オープンタイミングと例外発生タイミングの規約
+- `PerRequestRule` を実装しない `IRule` は**共有前提**（スレッドセーフが実装者の義務）
+- `PerRequestRule` を実装した rule は `StreamConverter.run()` ごとに新規インスタンスを要求する。インスタンス生成は `IRule` ファクトリ（ラムダまたは `Supplier<IRule>`）を経由
+- 現行 11 rule は全て `PerRequestRule` 未実装 → **retrofit 不要**
+- 外部接続 rule（`DatabaseFetchRule` 等）の接続オープンタイミングは実装依存。共有の場合は構築時、per-request の場合は `apply()` 内またはファクトリの `get()` 内で行う
 
 #### 4.1.4 close 時失敗の扱い
 

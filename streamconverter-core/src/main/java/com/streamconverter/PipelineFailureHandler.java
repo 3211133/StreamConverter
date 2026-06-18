@@ -9,52 +9,77 @@ import java.util.concurrent.ExecutionException;
 /** Translates stage failures into the exception surfaced by {@link StreamConverter}. */
 final class PipelineFailureHandler {
   /**
-   * Re-throws the primary execution failure after all stage futures have been inspected.
+   * Rethrows the pipeline failure after inspecting all completed stage futures.
    *
-   * <p>Secondary failures are attached as suppressed exceptions, while pipe-aborted failures are
-   * treated as downstream consequences and filtered out.
+   * <p>Classified failures ({@link StreamProcessingException} subtypes) are aggregated into a
+   * single {@link AggregatedStreamProcessingException} before being thrown. Unclassified failures
+   * ({@link Error}, {@link RuntimeException}, raw {@link IOException}) propagate unchanged — their
+   * handling in the converter layer is an open question tracked in issue #797 §4.1.1 and no
+   * decision has been made yet.
+   *
+   * <p>Pipe-aborted failures (secondary consequences of another stage's failure) are filtered out
+   * regardless of classification.
    *
    * @param executionException failure reported by {@code CompletableFuture.allOf(...).get()}
    * @param futures completed stage futures to inspect
-   * @throws IOException if the primary root cause is an I/O failure
+   * @throws AggregatedStreamProcessingException when all independent failures are classified
+   * @throws IOException (and its subtypes) for unclassified or empty-collection fallback
    */
   void rethrowExecutionFailure(
       ExecutionException executionException, List<CompletableFuture<Void>> futures)
       throws IOException {
-    List<Throwable> rootCauses = collectRootCauses(futures);
-    if (rootCauses.isEmpty()) {
-      throw new InternalSystemException(
-          "コマンド実行中に予期せぬエラーが発生しました", unwrapCarrier(executionException.getCause()));
+    CollectedFailures collected = collectIndependentFailures(futures);
+
+    // Unclassified failures propagate unchanged (§4.1.1 open question).
+    if (collected.unclassified != null) {
+      throwRaw(collected.unclassified);
     }
 
-    Throwable primary = rootCauses.get(0);
-    for (int i = 1; i < rootCauses.size(); i++) {
-      primary.addSuppressed(rootCauses.get(i));
+    if (collected.classified.isEmpty()) {
+      // No independent failures could be identified; fall back to the original cause.
+      Throwable rawCause = unwrapCarrier(executionException.getCause());
+      if (rawCause instanceof StreamProcessingException spe) {
+        throw new AggregatedStreamProcessingException(List.of(spe));
+      }
+      throwRaw(rawCause);
+      // Unreachable in practice; guards against an unknown Throwable subtype.
+      throw new InternalSystemException("コマンド実行中に予期せぬエラーが発生しました", rawCause);
     }
 
-    throwPrimary(primary);
+    throw new AggregatedStreamProcessingException(collected.classified);
   }
 
-  private static void throwPrimary(Throwable primary) throws IOException {
-    if (primary instanceof Error err) {
+  private static void throwRaw(Throwable cause) throws IOException {
+    if (cause instanceof Error err) {
       throw err;
     }
-    if (primary instanceof IOException ioe) {
+    if (cause instanceof IOException ioe) {
       throw ioe;
     }
-    if (primary instanceof RuntimeException re) {
+    if (cause instanceof RuntimeException re) {
       throw re;
     }
-    throw new InternalSystemException("コマンド実行中に予期せぬエラーが発生しました", primary);
+    throw new InternalSystemException("コマンド実行中に予期せぬエラーが発生しました", cause);
+  }
+
+  /** Holder for the two categories of independent failures found across stage futures. */
+  private static final class CollectedFailures {
+    final List<StreamProcessingException> classified = new ArrayList<>();
+
+    /** The first unclassified failure encountered, or null if all were classified. */
+    Throwable unclassified;
   }
 
   /**
-   * Collects non-secondary failures from already completed stage futures.
+   * Inspects all completed stage futures and separates failures into classified vs. unclassified.
    *
-   * <p>Callers are expected to wait for all futures first so the collected failure set is stable.
+   * <p>Pipe-aborted secondary failures are filtered before categorization. Classified failures
+   * ({@link StreamProcessingException} subtypes) are collected for aggregation. The first
+   * unclassified failure short-circuits further collection and is returned as {@code
+   * CollectedFailures#unclassified}.
    */
-  private List<Throwable> collectRootCauses(List<CompletableFuture<Void>> futures) {
-    List<Throwable> rootCauses = new ArrayList<>();
+  private CollectedFailures collectIndependentFailures(List<CompletableFuture<Void>> futures) {
+    CollectedFailures result = new CollectedFailures();
     for (CompletableFuture<Void> future : futures) {
       if (!future.isCompletedExceptionally()) {
         continue;
@@ -63,15 +88,22 @@ final class PipelineFailureHandler {
         future.get();
       } catch (ExecutionException executionException) {
         Throwable cause = unwrapCarrier(executionException.getCause());
-        if (!isPipeAbortedCause(cause)) {
-          rootCauses.add(cause);
+        if (isPipeAbortedCause(cause)) {
+          continue;
+        }
+        if (cause instanceof StreamProcessingException spe) {
+          result.classified.add(spe);
+        } else {
+          result.unclassified = cause;
+          return result;
         }
       } catch (InterruptedException interruptedException) {
         Thread.currentThread().interrupt();
-        rootCauses.add(interruptedException);
+        result.classified.add(
+            new InternalSystemException("コマンド実行中に予期せぬエラーが発生しました", interruptedException));
       }
     }
-    return rootCauses;
+    return result;
   }
 
   /**

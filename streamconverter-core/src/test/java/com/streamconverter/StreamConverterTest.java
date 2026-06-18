@@ -428,6 +428,68 @@ class StreamConverterTest {
   // isPipeAbortedCause のカバレッジテスト
   // -------------------------------------------------------------------------
 
+  // -------------------------------------------------------------------------
+  // Phase 5: AggregatedStreamProcessingException aggregation tests
+  // -------------------------------------------------------------------------
+
+  @Test
+  @Timeout(10)
+  @DisplayName("UserInputException from command is wrapped in AggregatedStreamProcessingException")
+  void testClassifiedFailureIsAggregated() {
+    UserInputException original = new UserInputException("入力データが不正です");
+    IStreamCommand failingCommand =
+        (in, out) -> {
+          throw original;
+        };
+
+    StreamConverter converter = StreamConverter.create(failingCommand);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    AggregatedStreamProcessingException ex =
+        assertThrows(AggregatedStreamProcessingException.class, () -> converter.run(input, output));
+    assertEquals(1, ex.getAllFailures().size(), "単一失敗もリスト化される");
+    assertSame(original, ex.getAllFailures().get(0), "元の例外がそのまま格納される");
+  }
+
+  @Test
+  @Timeout(10)
+  @DisplayName(
+      "InternalSystemException from command is wrapped in AggregatedStreamProcessingException")
+  void testInternalSystemExceptionIsAggregated() {
+    IStreamCommand failingCommand =
+        (in, out) -> {
+          throw new InternalSystemException("内部障害が発生しました");
+        };
+
+    StreamConverter converter = StreamConverter.create(failingCommand);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    AggregatedStreamProcessingException ex =
+        assertThrows(AggregatedStreamProcessingException.class, () -> converter.run(input, output));
+    assertEquals(1, ex.getAllFailures().size());
+    assertInstanceOf(InternalSystemException.class, ex.getAllFailures().get(0));
+  }
+
+  @Test
+  @Timeout(10)
+  @DisplayName("Unclassified RuntimeException still propagates unwrapped (§4.1.1 open)")
+  void testUnclassifiedRuntimeExceptionPropagatesUnwrapped() {
+    RuntimeException original = new RuntimeException("unclassified failure");
+    IStreamCommand failingCommand =
+        (in, out) -> {
+          throw original;
+        };
+
+    StreamConverter converter = StreamConverter.create(failingCommand);
+    InputStream input = new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8));
+    OutputStream output = new ByteArrayOutputStream();
+
+    RuntimeException ex = assertThrows(RuntimeException.class, () -> converter.run(input, output));
+    assertSame(original, ex, "未分類 RuntimeException はラップされないこと（§4.1.1 未決）");
+  }
+
   @Test
   @DisplayName("PipeAbortedException is recognized as pipe-aborted cause")
   void testPipeAbortedExceptionIsSecondaryCause() {

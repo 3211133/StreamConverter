@@ -83,7 +83,7 @@ final class CommandStageRunner {
       List<AbortablePipedStream> pipes) {
     try {
       command.execute(stageIo.input(), stageIo.output());
-      closeStageOutput(stageIo, commandLabel);
+      closeStageOutput(stageIo);
     } catch (Throwable throwable) {
       abortAllPipes(pipes);
       throw toStageFailure(throwable, commandLabel);
@@ -95,15 +95,14 @@ final class CommandStageRunner {
    *
    * @throws StreamProcessingException if the output cannot be closed cleanly
    */
-  private void closeStageOutput(WiredStageIo stageIo, String commandLabel) throws IOException {
+  private void closeStageOutput(WiredStageIo stageIo) throws IOException {
     if (stageIo.pipe() == null) {
       return;
     }
     try {
       stageIo.output().close();
     } catch (IOException closeEx) {
-      throw new StreamProcessingException(
-          "Failed to close output stream of command: " + commandLabel, closeEx);
+      throw new InternalSystemException("ステージ出力ストリームのクローズに失敗しました", closeEx);
     }
   }
 
@@ -132,8 +131,7 @@ final class CommandStageRunner {
     if (failure instanceof IOException ioException) {
       return new UncheckedStreamException(ioException);
     }
-    return new UncheckedStreamException(
-        new StreamProcessingException("Command execution failed: " + commandLabel, failure));
+    return new UncheckedStreamException(new InternalSystemException("コマンド実行に失敗しました", failure));
   }
 
   /** Aborts every intermediate pipe so dependent stages stop waiting on stream activity. */

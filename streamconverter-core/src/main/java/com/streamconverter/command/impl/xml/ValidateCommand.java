@@ -1,6 +1,8 @@
 package com.streamconverter.command.impl.xml;
 
+import com.streamconverter.InternalSystemException;
 import com.streamconverter.StreamProcessingException;
+import com.streamconverter.UserInputException;
 import com.streamconverter.command.ConsumerCommand;
 import com.streamconverter.security.SecureXmlConfiguration;
 import com.streamconverter.util.ClasspathResourceValidator;
@@ -110,9 +112,7 @@ public class ValidateCommand extends ConsumerCommand {
     } catch (SAXException | IllegalArgumentException e) {
       logger.error("Failed to load XML schema from {}: {}", validatedPath, e.getMessage(), e);
       securityLogger.error("Secure XML schema loading failed for: {}", validatedPath);
-      throw new StreamProcessingException(
-          String.format("XMLスキーマの読み込みに失敗しました - スキーマ: %s, エラー: %s", validatedPath, e.getMessage()),
-          e);
+      throw new InternalSystemException("XMLスキーマの読み込みに失敗しました", e);
     }
   }
 
@@ -146,8 +146,7 @@ public class ValidateCommand extends ConsumerCommand {
       logger.error("XMLバリデーションエラーが発生しました: {}", e.getMessage(), e);
 
       // バリデーションエラーをカスタム例外でラップして伝播
-      throw new StreamProcessingException(
-          String.format("XMLバリデーションに失敗しました - スキーマ: %s, エラー: %s", schemaPath, e.getMessage()), e);
+      throw new UserInputException("XMLの形式が正しくありません", e);
     }
   }
 

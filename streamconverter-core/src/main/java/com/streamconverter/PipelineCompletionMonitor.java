@@ -22,8 +22,7 @@ final class PipelineCompletionMonitor {
     } catch (InterruptedException interruptedException) {
       cancelRemainingFutures(futures);
       Thread.currentThread().interrupt();
-      throw new StreamProcessingException(
-          "Pipeline execution was interrupted", interruptedException);
+      throw new InternalSystemException("パイプライン実行が中断されました", interruptedException);
     }
   }
 

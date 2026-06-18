@@ -1,5 +1,6 @@
 package com.streamconverter.command.rule;
 
+import com.streamconverter.ExternalPermanentException;
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.UncheckedStreamException;
 import java.sql.Connection;
@@ -121,7 +122,7 @@ public class PooledDatabaseFetchRule implements IRule {
       // 例外規定のログ規約: ルール層での log&rethrow は禁止。SQLException（suppressed 含む）は
       // cause チェーンとして伝播し、最終的に withLogging がスタックトレース付きで記録する
       throw new UncheckedStreamException(
-          new StreamProcessingException("Database fetch failed: " + e.getMessage(), e));
+          new ExternalPermanentException("Database fetch failed", e));
     }
   }
 

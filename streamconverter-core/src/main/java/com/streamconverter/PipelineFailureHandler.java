@@ -23,9 +23,8 @@ final class PipelineFailureHandler {
       throws IOException {
     List<Throwable> rootCauses = collectRootCauses(futures);
     if (rootCauses.isEmpty()) {
-      throw new StreamProcessingException(
-          "Unexpected error during command execution",
-          unwrapCarrier(executionException.getCause()));
+      throw new InternalSystemException(
+          "コマンド実行中に予期せぬエラーが発生しました", unwrapCarrier(executionException.getCause()));
     }
 
     Throwable primary = rootCauses.get(0);
@@ -46,7 +45,7 @@ final class PipelineFailureHandler {
     if (primary instanceof RuntimeException re) {
       throw re;
     }
-    throw new StreamProcessingException("Unexpected error during command execution", primary);
+    throw new InternalSystemException("コマンド実行中に予期せぬエラーが発生しました", primary);
   }
 
   /**

@@ -30,7 +30,7 @@ final class PipelineFailureHandler {
       throws IOException {
     CollectedFailures collected = collectIndependentFailures(futures);
 
-    // Unclassified failures propagate unchanged (§4.1.1 open question).
+    // Unclassified failures propagate unchanged per §4.1.1 A1.
     if (collected.unclassified != null) {
       throwRaw(collected.unclassified);
     }

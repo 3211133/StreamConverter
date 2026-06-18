@@ -494,12 +494,15 @@ public interface PerRequestRule extends IRule {}
 
 | Phase | 内容 | 状態 |
 |---|---|---|
-| **Phase 1** | 本規定文書の策定（通知ベース分類への転換） | 本ドキュメント |
-| **Phase 2** | 階層別責務の詳細確定（[未決事項 4.1](#41-階層別責務次フェーズ主要論点) を順次詰める） | 未着手 |
-| **Phase 3** | 共通機構の実装 + 単体テスト: 通知分類型新設（`UserInputException` / `ExternalTransientException` / `ExternalPermanentException` / `InternalSystemException`）、`OperatorContext` 機構、メッセージ機構、サニタイズヘルパー、converter 集約機構（`getAllFailures()`） | 未着手 |
-| **Phase 4** | 既存コマンドへの適用: POC 実装の規定整合化、既存 issue（#729 / #731 / #740 / #741 / #742 / #748 / #749 / #783 / #784）の規定に沿った再評価・対応 | 未着手 |
+| **Phase 1** | 本規定文書の策定（通知ベース分類への転換） | 完了（PR #796） |
+| **Phase 2** | 階層別責務の詳細確定（§4.1.1/4.1.2/4.1.3 確定、[PerRequestRule](../../streamconverter-core/src/main/java/com/streamconverter/command/rule/PerRequestRule.java) 追加） | 完了（PR #802 含む） |
+| **Phase 3** | 共通機構の実装 + 単体テスト: 通知分類型新設（`UserInputException` / `ExternalTransientException` / `ExternalPermanentException` / `InternalSystemException`）、`OperatorContext` 機構、メッセージ機構、サニタイズヘルパー、converter 集約機構（`getAllFailures()`） | 完了（PR #798） |
+| **Phase 4** | 既存コマンドへの適用: `CsvValidateCommand` / `ValidateCommand` / `CommandStageRunner` / `PipelineCompletionMonitor` / `PipelineFailureHandler` / `DatabaseFetchRule` / `PooledDatabaseFetchRule` の各スローサイトに分類型を適用。`InvalidInputDataException` を deprecated 化 | 完了（PR #799） |
+| **Phase 5** | converter 層集約機構の実装: `AggregatedStreamProcessingException` の `getAllFailures()` / `PipelineFailureHandler` のリファクタリング | 完了（PR #800） |
+| **Phase 6** | rule 層 U/T/A 分類基盤: `IRule.apply()` に `throws StreamProcessingException` 追加。`PassThroughRule` / `MdcPropagatingRule` の null 時を `UserInputException` に変更 | 完了（PR #801） |
+| **Phase 7** | main 層消費サンプル: `ExceptionHandlingExample` で `AggregatedStreamProcessingException` 処理パターンをデモ | 完了（PR #802） |
 
-各 Phase は別 PR とする。
+各 Phase は別 PR とする。Phase 2 以降は Issue #797 で追跡中。
 
 ## 🔗 スコープ外・関連ドキュメント
 

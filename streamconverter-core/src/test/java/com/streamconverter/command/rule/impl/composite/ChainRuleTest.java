@@ -2,6 +2,7 @@ package com.streamconverter.command.rule.impl.composite;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.rule.IRule;
 import com.streamconverter.command.rule.impl.casing.CamelToSnakeCaseRule;
 import com.streamconverter.command.rule.impl.string.LowerCaseRule;
@@ -13,7 +14,7 @@ import org.junit.jupiter.api.Test;
 class ChainRuleTest {
 
   @Test
-  void testBasicChaining() {
+  void testBasicChaining() throws StreamProcessingException {
     ChainRule rule =
         ChainRule.of(new TrimRule(), CamelToSnakeCaseRule.create(), new LowerCaseRule());
 
@@ -22,7 +23,7 @@ class ChainRuleTest {
   }
 
   @Test
-  void testBuilderPattern() {
+  void testBuilderPattern() throws StreamProcessingException {
     ChainRule rule =
         ChainRule.builder()
             .addRule(new TrimRule())
@@ -34,7 +35,7 @@ class ChainRuleTest {
   }
 
   @Test
-  void testOfMethods() {
+  void testOfMethods() throws StreamProcessingException {
     // Test varargs method
     ChainRule rule1 = ChainRule.of(new TrimRule(), new LowerCaseRule());
     assertEquals("hello", rule1.apply("  HELLO  "));
@@ -45,14 +46,14 @@ class ChainRuleTest {
   }
 
   @Test
-  void testSingleRule() {
+  void testSingleRule() throws StreamProcessingException {
     ChainRule rule = ChainRule.of(new TrimRule());
     assertEquals("hello", rule.apply("  hello  "));
     assertEquals(1, rule.size());
   }
 
   @Test
-  void testNullHandling() {
+  void testNullHandling() throws StreamProcessingException {
     // Test null input
     ChainRule rule = ChainRule.of(new TrimRule(), new LowerCaseRule());
     assertNull(rule.apply(null));
@@ -110,7 +111,7 @@ class ChainRuleTest {
   }
 
   @Test
-  void testComplexTransformation() {
+  void testComplexTransformation() throws StreamProcessingException {
     // Create a complex transformation: trim -> camel to snake -> lowercase
     ChainRule rule =
         ChainRule.builder()
@@ -125,7 +126,7 @@ class ChainRuleTest {
   }
 
   @Test
-  void testGetRules() {
+  void testGetRules() throws StreamProcessingException {
     TrimRule trim = new TrimRule();
     LowerCaseRule lower = new LowerCaseRule();
 
@@ -199,7 +200,7 @@ class ChainRuleTest {
   }
 
   @Test
-  void testCustomRule() {
+  void testCustomRule() throws StreamProcessingException {
     // Create custom rule for testing
     IRule doubleRule = input -> input != null ? input + input : null;
 

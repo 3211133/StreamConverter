@@ -1,5 +1,6 @@
 package com.streamconverter.command.rule.impl.composite;
 
+import com.streamconverter.StreamProcessingException;
 import com.streamconverter.command.rule.IRule;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -45,14 +46,11 @@ public class ChainRule implements IRule {
   }
 
   @Override
-  public String apply(String input) {
+  public String apply(String input) throws StreamProcessingException {
     String result = input;
-
-    // Apply each rule in sequence
     for (IRule rule : rules) {
       result = rule.apply(result);
     }
-
     return result;
   }
 

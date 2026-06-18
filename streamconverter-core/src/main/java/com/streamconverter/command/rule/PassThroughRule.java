@@ -1,5 +1,7 @@
 package com.streamconverter.command.rule;
 
+import com.streamconverter.UserInputException;
+
 /**
  * Pass-through rule implementation
  *
@@ -16,12 +18,12 @@ public class PassThroughRule implements IRule {
    *
    * @param input the input string to process
    * @return the same input string without any modifications
-   * @throws IllegalArgumentException if input is null
+   * @throws UserInputException if input is null
    */
   @Override
-  public String apply(String input) {
+  public String apply(String input) throws UserInputException {
     if (input == null) {
-      throw new IllegalArgumentException("Input cannot be null");
+      throw new UserInputException("入力値がnullです");
     }
     return input;
   }

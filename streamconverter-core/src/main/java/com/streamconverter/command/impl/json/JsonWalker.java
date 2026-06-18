@@ -129,10 +129,10 @@ public class JsonWalker implements IStreamCommand {
   }
 
   @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace"})
-  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the
-  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); the cause
-  // already records the rule-site stack trace, so discarding the carrier loses no diagnostics.
-  // Any other RuntimeException is wrapped as IOException with path context.
+  // IRule.apply() may throw StreamProcessingException (IOException subtype) — propagates via
+  // throws IOException without wrapping. UncheckedStreamException carrier is unwrapped at this
+  // command boundary (#741); the cause already records the rule-site stack trace. Any other
+  // RuntimeException is wrapped as IOException with path context.
   private String applyRule(String value, List<String> currentPath) throws IOException {
     try {
       return rule.apply(value);

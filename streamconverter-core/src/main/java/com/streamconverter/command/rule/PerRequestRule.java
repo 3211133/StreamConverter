@@ -10,4 +10,5 @@ package com.streamconverter.command.rule;
  *
  * <p>EXCEPTION_POLICY.md §4.1.3 参照。
  */
+@SuppressWarnings("PMD.ImplicitFunctionalInterface")
 public interface PerRequestRule extends IRule {}

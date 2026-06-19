@@ -68,11 +68,69 @@ loadScripts(document, 'script');</script>
 <div class="table-header col-first">Modifier and Type</div>
 <div class="table-header col-second">Class</div>
 <div class="table-header col-last">Description</div>
-<div class="col-first even-row-color"><code>class&nbsp;</code></div>
-<div class="col-second even-row-color"><code><a href="../InvalidInputDataException.html" class="type-name-link" title="class in com.streamconverter">InvalidInputDataException</a></code></div>
+<div class="col-first even-row-color"><code>final class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../AggregatedStreamProcessingException.html" class="type-name-link" title="class in com.streamconverter">AggregatedStreamProcessingException</a></code></div>
 <div class="col-last even-row-color">
+<div class="block">Container for aggregated independent failures from converter-level pipeline execution.</div>
+</div>
+<div class="col-first odd-row-color"><code>final class&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../ExternalPermanentException.html" class="type-name-link" title="class in com.streamconverter">ExternalPermanentException</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Indicates a permanent external system failure (notification class A in the exception policy):
+ failures where the remedy requires administrator intervention.</div>
+</div>
+<div class="col-first even-row-color"><code>class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../ExternalSystemException.html" class="type-name-link" title="class in com.streamconverter">ExternalSystemException</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Abstract parent type for external system failures (notification classes T and A in the exception
+ policy).</div>
+</div>
+<div class="col-first odd-row-color"><code>final class&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../ExternalTransientException.html" class="type-name-link" title="class in com.streamconverter">ExternalTransientException</a></code></div>
+<div class="col-last odd-row-color">
+<div class="block">Indicates a temporary external system failure (notification class T in the exception policy):
+ failures where the remedy is to wait and retry.</div>
+</div>
+<div class="col-first even-row-color"><code>final class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../InternalSystemException.html" class="type-name-link" title="class in com.streamconverter">InternalSystemException</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Indicates an internal system failure (notification class A in the exception policy): failures
+ that require administrator intervention and are caused by bugs or configuration errors in the
+ application itself.</div>
+</div>
+<div class="col-first odd-row-color"><code>class&nbsp;</code></div>
+<div class="col-second odd-row-color"><code><a href="../InvalidInputDataException.html" class="type-name-link" title="class in com.streamconverter">InvalidInputDataException</a></code></div>
+<div class="col-last odd-row-color">
 <div class="block">Indicates invalid input data (classification A in the exception policy): failures that are
  resolved by fixing the input, such as parse errors and validation failures.</div>
+</div>
+<div class="col-first even-row-color"><code>final class&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../UserInputException.html" class="type-name-link" title="class in com.streamconverter">UserInputException</a></code></div>
+<div class="col-last even-row-color">
+<div class="block">Indicates user input error (notification class U in the exception policy): failures where the
+ remedy is for the end user to correct their input.</div>
+</div>
+</div>
+<div class="caption"><span>Methods in <a href="../package-summary.html">com.streamconverter</a> that return types with arguments of type <a href="../StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier and Type</div>
+<div class="table-header col-second">Method</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a><wbr>&lt;<a href="../StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a>&gt;</code></div>
+<div class="col-second even-row-color"><span class="type-name-label">AggregatedStreamProcessingException.</span><code><a href="../AggregatedStreamProcessingException.html#getAllFailures()" class="member-name-link">getAllFailures</a>()</code></div>
+<div class="col-last even-row-color">
+<div class="block">Returns all independent failures that occurred during pipeline execution.</div>
+</div>
+</div>
+<div class="caption"><span>Constructor parameters in <a href="../package-summary.html">com.streamconverter</a> with type arguments of type <a href="../StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></span></div>
+<div class="summary-table three-column-summary">
+<div class="table-header col-first">Modifier</div>
+<div class="table-header col-second">Constructor</div>
+<div class="table-header col-last">Description</div>
+<div class="col-first even-row-color"><code>&nbsp;</code></div>
+<div class="col-second even-row-color"><code><a href="../AggregatedStreamProcessingException.html#%3Cinit%3E(java.util.List)" class="member-name-link">AggregatedStreamProcessingException</a><wbr>(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/util/List.html" title="class or interface in java.util" class="external-link">List</a>&lt;<a href="../StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a>&gt;&nbsp;failures)</code></div>
+<div class="col-last even-row-color">
+<div class="block">Constructs an AggregatedStreamProcessingException from a list of independent failures.</div>
 </div>
 </div>
 </section>

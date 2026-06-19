@@ -118,32 +118,63 @@ loadScripts(document, 'script');</script>
 <div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">コマンド間の異常終了を伝播するためのPipedStreamペアラッパー。</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="InvalidInputDataException.html" title="class in com.streamconverter">InvalidInputDataException</a></div>
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="AggregatedStreamProcessingException.html" title="class in com.streamconverter">AggregatedStreamProcessingException</a></div>
 <div class="col-last odd-row-color class-summary class-summary-tab5">
+<div class="block">Container for aggregated independent failures from converter-level pipeline execution.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="ExternalPermanentException.html" title="class in com.streamconverter">ExternalPermanentException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="block">Indicates a permanent external system failure (notification class A in the exception policy):
+ failures where the remedy requires administrator intervention.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="ExternalSystemException.html" title="class in com.streamconverter">ExternalSystemException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
+<div class="block">Abstract parent type for external system failures (notification classes T and A in the exception
+ policy).</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="ExternalTransientException.html" title="class in com.streamconverter">ExternalTransientException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="block">Indicates a temporary external system failure (notification class T in the exception policy):
+ failures where the remedy is to wait and retry.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="InternalSystemException.html" title="class in com.streamconverter">InternalSystemException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
+<div class="block">Indicates an internal system failure (notification class A in the exception policy): failures
+ that require administrator intervention and are caused by bugs or configuration errors in the
+ application itself.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="InvalidInputDataException.html" title="class in com.streamconverter">InvalidInputDataException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
 <div class="block">Indicates invalid input data (classification A in the exception policy): failures that are
  resolved by fixing the input, such as parse errors and validation failures.</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab5"><a href="PipeAbortedException.html" title="class in com.streamconverter">PipeAbortedException</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="PipeAbortedException.html" title="class in com.streamconverter">PipeAbortedException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
 <div class="block">対向コマンドの異常終了により、パイプへの read/write が継続不可能になったことを示す例外。</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="StreamConverter.html" title="class in com.streamconverter">StreamConverter</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab2">
+<div class="col-first even-row-color class-summary class-summary-tab2"><a href="StreamConverter.html" title="class in com.streamconverter">StreamConverter</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab2">
 <div class="block">ストリーム変換クラス。</div>
 </div>
-<div class="col-first even-row-color class-summary class-summary-tab2"><a href="StreamConverterWebApplication.html" title="class in com.streamconverter">StreamConverterWebApplication</a></div>
-<div class="col-last even-row-color class-summary class-summary-tab2">
+<div class="col-first odd-row-color class-summary class-summary-tab2"><a href="StreamConverterWebApplication.html" title="class in com.streamconverter">StreamConverterWebApplication</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab2">
 <div class="block">Spring Boot application entry point for StreamConverter Web API.</div>
 </div>
-<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></div>
-<div class="col-last odd-row-color class-summary class-summary-tab5">
-<div class="block">Custom exception for stream processing errors.</div>
-</div>
-<div class="col-first even-row-color class-summary class-summary-tab5"><a href="UncheckedStreamException.html" title="class in com.streamconverter">UncheckedStreamException</a></div>
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></div>
 <div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="block">Base exception for stream processing failures, part of the exception policy notification class
+ hierarchy.</div>
+</div>
+<div class="col-first odd-row-color class-summary class-summary-tab5"><a href="UncheckedStreamException.html" title="class in com.streamconverter">UncheckedStreamException</a></div>
+<div class="col-last odd-row-color class-summary class-summary-tab5">
 <div class="block">Wraps an <a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/io/IOException.html" title="class or interface in java.io" class="external-link"><code>IOException</code></a> as an unchecked exception so it can be carried through functional
  interfaces, such as <a href="command/rule/IRule.html#apply(java.lang.String)"><code>IRule.apply(java.lang.String)</code></a>, that do not declare
  checked exceptions.</div>
+</div>
+<div class="col-first even-row-color class-summary class-summary-tab5"><a href="UserInputException.html" title="class in com.streamconverter">UserInputException</a></div>
+<div class="col-last even-row-color class-summary class-summary-tab5">
+<div class="block">Indicates user input error (notification class U in the exception policy): failures where the
+ remedy is for the end user to correct their input.</div>
 </div>
 </div>
 </div>

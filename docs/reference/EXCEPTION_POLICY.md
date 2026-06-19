@@ -356,17 +356,9 @@ abstract 型の直接 throw（`StreamProcessingException` / `ExternalSystemExcep
 
 #### 4.1.3 rule のライフサイクル（確定済み）
 
-**確定**: 選択制（C3）。マーカーインターフェースで per-request を opt-in とし、デフォルトは共有（スレッドセーフ必須）。
+**確定**: 共有固定（C1）。`IRule` インスタンスは複数リクエスト間で共有される前提とし、**スレッドセーフな実装が実装者の義務**。
 
-```java
-/** 実装クラスが per-request インスタンス生成を要求するマーカー。 */
-public interface PerRequestRule extends IRule {}
-```
-
-- `PerRequestRule` を実装しない `IRule` は**共有前提**（スレッドセーフが実装者の義務）
-- `PerRequestRule` を実装した rule は `StreamConverter.run()` ごとに新規インスタンスを要求する。インスタンス生成は `IRule` ファクトリ（ラムダまたは `Supplier<IRule>`）を経由
-- 現行 11 rule は全て `PerRequestRule` 未実装 → **retrofit 不要**
-- 外部接続 rule（`DatabaseFetchRule` 等）の接続オープンタイミングは実装依存。共有の場合は構築時、per-request の場合は `apply()` 内またはファクトリの `get()` 内で行う
+*根拠*: 現行 11 rule は全てスレッドセーフに実装済み（ステートレスまたは immutable フィールドのみ）。`DatabaseFetchRule` は `apply()` 内で毎回接続を開閉しスレッドセーフ。per-request を必要とする rule が現時点で存在しないため、C3（選択制）のマーカーインターフェースを導入しても動かない安全装置になるだけで誤誘導を生む。per-request が実際に必要になった時点で改めて設計する。
 
 #### 4.1.4 close 時失敗の扱い
 
@@ -495,7 +487,7 @@ public interface PerRequestRule extends IRule {}
 | Phase | 内容 | 状態 |
 |---|---|---|
 | **Phase 1** | 本規定文書の策定（通知ベース分類への転換） | 完了（PR #796） |
-| **Phase 2** | 階層別責務の詳細確定（§4.1.1/4.1.2/4.1.3 確定、[PerRequestRule](../../streamconverter-core/src/main/java/com/streamconverter/command/rule/PerRequestRule.java) 追加） | 完了（PR #802 含む） |
+| **Phase 2** | 階層別責務の詳細確定（§4.1.1/4.1.2/4.1.3 確定） | 完了（PR #802 含む） |
 | **Phase 3** | 共通機構の実装 + 単体テスト: 通知分類型新設（`UserInputException` / `ExternalTransientException` / `ExternalPermanentException` / `InternalSystemException`）、`OperatorContext` 機構、メッセージ機構、サニタイズヘルパー、converter 集約機構（`getAllFailures()`） | 完了（PR #798） |
 | **Phase 4** | 既存コマンドへの適用: `CsvValidateCommand` / `ValidateCommand` / `CommandStageRunner` / `PipelineCompletionMonitor` / `PipelineFailureHandler` / `DatabaseFetchRule` / `PooledDatabaseFetchRule` の各スローサイトに分類型を適用。`InvalidInputDataException` を deprecated 化 | 完了（PR #799） |
 | **Phase 5** | converter 層集約機構の実装: `AggregatedStreamProcessingException` の `getAllFailures()` / `PipelineFailureHandler` のリファクタリング | 完了（PR #800） |

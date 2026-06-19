@@ -1,6 +1,7 @@
 package com.streamconverter.examples;
 
 import com.streamconverter.AggregatedStreamProcessingException;
+import com.streamconverter.ExternalPermanentException;
 import com.streamconverter.ExternalTransientException;
 import com.streamconverter.InternalSystemException;
 import com.streamconverter.StreamConverter;
@@ -84,7 +85,8 @@ public class ExceptionHandlingExample {
    * AggregatedStreamProcessingException（または単独の StreamProcessingException）を処理する。
    *
    * <p>ライブラリ契約: 届くのは必ず1つの {@link AggregatedStreamProcessingException} か その基底型（{@link
-   * StreamProcessingException}）。通知分類外の例外は届かない。
+   * StreamProcessingException}）。{@link AggregatedStreamProcessingException#getAllFailures()} が返す
+   * リストはU/T/A分類済み型のみを含む（{@link com.streamconverter.PipelineFailureHandler} 参照）。
    */
   static void handleFailures(StreamProcessingException e) {
     // AggregatedStreamProcessingException かどうかで全失敗リストを取得
@@ -113,13 +115,21 @@ public class ExceptionHandlingExample {
         // T: 一時的な外部障害—リトライを推奨
         log.warn("[T: 一時障害] {} — リトライをお試しください", failure.getUserMessage());
 
+      } else if (failure instanceof ExternalPermanentException) {
+        // A（外部永続障害）: 管理者対応
+        log.error("[A: 外部永続障害] {} (管理者に連絡)", failure.getUserMessage(), failure);
+
       } else if (failure instanceof InternalSystemException) {
-        // A: 内部システム障害—管理者対応
+        // A（内部システム障害）: 管理者対応
         log.error("[A: システムエラー] {} (詳細はオペレーターログを確認)", failure.getUserMessage(), failure);
 
       } else {
-        // A（ExternalPermanentException 含む）: 管理者対応
-        log.error("[A: 外部永続障害] {} (管理者に連絡)", failure.getUserMessage(), failure);
+        // ライブラリ契約違反: 未知の例外型が main 層に到達した—バグ
+        log.error(
+            "[UNCLASSIFIED BUG] 未知の例外型 {} が main 層に到達しました: {}",
+            failure.getClass().getName(),
+            failure.getUserMessage(),
+            failure);
       }
     }
   }
@@ -129,16 +139,18 @@ public class ExceptionHandlingExample {
   // ---------------------------------------------------------------------------
 
   private static void showHandlePattern() {
-    // 実際のパイプライン失敗と同じ形式で直接組み立てて挙動を示す
+    // 実際のパイプライン失敗と同じ形式で直接組み立てて挙動を示す（U/T/A 全分類）
     java.util.List<StreamProcessingException> multipleFailures =
         java.util.List.of(
             new UserInputException("3行目: 必須フィールド 'email' が空です"),
+            new ExternalTransientException("データベース接続タイムアウト—リトライ可能"),
+            new ExternalPermanentException("参照テーブル 'categories' が存在しません"),
             new InternalSystemException("一時ファイルの書き込みに失敗しました"));
 
     AggregatedStreamProcessingException agg =
         new AggregatedStreamProcessingException(multipleFailures);
 
-    log.info("複数失敗（U + A）の場合の handleFailures() 出力:");
+    log.info("複数失敗（U + T + A×2）の場合の handleFailures() 出力:");
     handleFailures(agg);
   }
 }

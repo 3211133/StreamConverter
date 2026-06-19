@@ -358,7 +358,7 @@ abstract 型の直接 throw（`StreamProcessingException` / `ExternalSystemExcep
 
 **確定**: 共有固定（C1）。`IRule` インスタンスは複数リクエスト間で共有される前提とし、**スレッドセーフな実装が実装者の義務**。
 
-*根拠*: 現行 11 rule は全てスレッドセーフに実装済み（ステートレスまたは immutable フィールドのみ）。`DatabaseFetchRule` は `apply()` 内で毎回接続を開閉しスレッドセーフ。per-request を必要とする rule が現時点で存在しないため、C3（選択制）のマーカーインターフェースを導入しても動かない安全装置になるだけで誤誘導を生む。per-request が実際に必要になった時点で改めて設計する。
+*根拠*: 現行 11 rule は全てスレッドセーフに実装済み（ステートレスまたは immutable フィールドのみ）。`DatabaseFetchRule` は `apply()` 内で毎回接続を開閉しスレッドセーフ。per-request を必要とする rule が現時点で存在しないため、選択制（C3）は採用しない。per-request が実際に必要になった時点で改めて設計する。
 
 #### 4.1.4 close 時失敗の扱い
 

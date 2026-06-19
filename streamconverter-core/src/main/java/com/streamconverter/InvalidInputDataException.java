@@ -1,7 +1,7 @@
 package com.streamconverter;
 
 /**
- * Indicates invalid input data (classification A in the exception policy): failures that are
+ * Indicates invalid input data (classification U in the exception policy): failures that are
  * resolved by fixing the input, such as parse errors and validation failures.
  *
  * <p>This exception is intended for failures caused by the content of the data being processed (for

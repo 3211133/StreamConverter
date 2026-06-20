@@ -18,7 +18,13 @@ package com.streamconverter;
  * <p>Extends {@link StreamProcessingException}, and therefore {@link java.io.IOException}, so that
  * callers of {@link com.streamconverter.command.IStreamCommand#execute} can continue to handle all
  * stream-level failures with a single {@code catch (IOException)} block.
+ *
+ * @deprecated As of Phase 4 (exception policy implementation), use {@link UserInputException}
+ *     instead for input-related failures. {@link InvalidInputDataException} is retained for
+ *     backwards compatibility but all new code should use {@link UserInputException} for input
+ *     validation errors.
  */
+@Deprecated(since = "Phase 4", forRemoval = true)
 public class InvalidInputDataException extends StreamProcessingException {
   private static final long serialVersionUID = 1L;
 

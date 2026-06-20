@@ -170,8 +170,7 @@ public class CsvValidateCommandTest {
     StreamProcessingException exception =
         assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
 
-    assertTrue(exception.getMessage().contains("CSV validation failed"));
-    assertTrue(exception.getMessage().contains("CSV file is empty"));
+    assertTrue(exception.getMessage().contains("CSVファイルが空です"));
   }
 
   @Test
@@ -186,8 +185,7 @@ public class CsvValidateCommandTest {
     StreamProcessingException exception =
         assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
 
-    assertTrue(exception.getMessage().contains("CSV validation failed"));
-    assertTrue(exception.getMessage().contains("CSV file is empty"));
+    assertTrue(exception.getMessage().contains("CSVファイルが空です"));
   }
 
   @Test
@@ -345,7 +343,7 @@ public class CsvValidateCommandTest {
     StreamProcessingException exception =
         assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
 
-    assertTrue(exception.getMessage().contains("Failed to parse CSV"));
+    assertTrue(exception.getMessage().contains("CSV形式エラー"));
   }
 
   @Test
@@ -476,31 +474,13 @@ public class CsvValidateCommandTest {
         assertThrows(StreamProcessingException.class, () -> command.consume(inputStream));
 
     String msg = exception.getMessage();
-    String prefix = "CSV validation failed: ";
-    int maxAllowedBodyLength = 1000 - prefix.length();
-    assertTrue(msg.startsWith(prefix));
-    String body = msg.substring(prefix.length());
-    // 修正後の切り詰め実装に追従できるよう、固定長や末尾記号ではなく公開契約のみを検証する。
-    assertTrue(body.contains("CSV validation failed with"));
-    assertEquals(prefix.length() + body.length(), msg.length());
-    assertTrue(
-        body.length() <= maxAllowedBodyLength,
-        "Error body should be at most "
-            + maxAllowedBodyLength
-            + " chars when prefixed, but was "
-            + body.length());
-
     // 仕様: 例外メッセージ全体が 1000 文字以下であるべき
-    // バグが存在する間はこのアサーションで失敗する（1023文字になるため）
     assertTrue(
         msg.length() <= 1000,
-        "Exception message should be at most 1000 chars, but was "
-            + msg.length()
-            + " (prefix="
-            + prefix.length()
-            + " + body="
-            + body.length()
-            + ")");
+        "Exception message should be at most 1000 chars, but was " + msg.length());
+    // Phase 4 で例外型が変わったため、ユーザーメッセージ形式も変わっている
+    // 本質的な要件は「メッセージが切り詰められたときに全体が1000文字以下」であること
+    assertTrue(msg.contains("CSV validation failed with"), "メッセージに検証エラー情報を含むべき");
   }
 
   @Test
@@ -585,9 +565,9 @@ public class CsvValidateCommandTest {
         assertThrows(StreamProcessingException.class, () -> command.consume(failingStream));
 
     String msg = exception.getMessage();
-    assertFalse(msg.contains("Failed to parse CSV"), "I/O 障害がパース失敗としてラベルされている。実際のメッセージ: " + msg);
-    assertTrue(
-        msg.contains("Failed to read CSV input"),
-        "I/O 障害は 'Failed to read CSV input' として報告されるべき。実際のメッセージ: " + msg);
+    // Phase 4: I/O 障害は InternalSystemException でラップされる
+    // メッセージは「CSV形式エラー」ではなく「読み取り失敗」であるべき
+    assertFalse(msg.contains("CSV形式エラー"), "I/O 障害がパース失敗としてラベルされている。実際のメッセージ: " + msg);
+    assertTrue(msg.contains("読み取りに失敗"), "I/O 障害は '読み取りに失敗' として報告されるべき。実際のメッセージ: " + msg);
   }
 }

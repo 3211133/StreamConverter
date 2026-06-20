@@ -3,7 +3,9 @@ package com.streamconverter.command.impl.csv;
 import com.opencsv.CSVReader;
 import com.opencsv.exceptions.CsvMalformedLineException;
 import com.opencsv.exceptions.CsvValidationException;
+import com.streamconverter.InternalSystemException;
 import com.streamconverter.StreamProcessingException;
+import com.streamconverter.UserInputException;
 import com.streamconverter.command.ConsumerCommand;
 import java.io.IOException;
 import java.io.InputStream;
@@ -135,7 +137,7 @@ public class CsvValidateCommand extends ConsumerCommand {
     boolean empty = readAndValidate(inputStream, rowValidator, validationErrors);
 
     if (empty) {
-      throw new StreamProcessingException(ERROR_PREFIX + "CSV file is empty");
+      throw new UserInputException("CSVファイルが空です");
     }
     if (!validationErrors.isEmpty()) {
       handleValidationErrors(validationErrors);
@@ -164,10 +166,10 @@ public class CsvValidateCommand extends ConsumerCommand {
       // CsvMalformedLineException は IOException のサブクラスだが、
       // 未閉鎖クォート等のパース失敗を表すため I/O 障害と区別して扱う
       logger.error("CSV parsing error: {}", e.getMessage(), e);
-      throw new StreamProcessingException("Failed to parse CSV: " + e.getMessage(), e);
+      throw new UserInputException("CSV形式エラーが発生しました", e);
     } catch (IOException e) {
       logger.error("I/O error while reading CSV input: {}", e.getMessage(), e);
-      throw new StreamProcessingException("Failed to read CSV input: " + e.getMessage(), e);
+      throw new InternalSystemException("CSV入力の読み取りに失敗しました", e);
     }
   }
 
@@ -210,7 +212,7 @@ public class CsvValidateCommand extends ConsumerCommand {
           "Error message truncated due to length (original: {} chars)", errorMessage.length());
     }
 
-    throw new StreamProcessingException(ERROR_PREFIX + body);
+    throw new UserInputException(body);
   }
 
   /**

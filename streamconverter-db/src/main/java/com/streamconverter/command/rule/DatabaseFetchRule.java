@@ -1,5 +1,6 @@
 package com.streamconverter.command.rule;
 
+import com.streamconverter.ExternalPermanentException;
 import com.streamconverter.StreamProcessingException;
 import com.streamconverter.UncheckedStreamException;
 import java.sql.Connection;
@@ -202,8 +203,7 @@ public class DatabaseFetchRule implements IRule {
     } catch (SQLException e) {
       // 例外規定のログ規約: ルール層での log&rethrow は禁止。SQLException（suppressed 含む）は
       // cause チェーンとして伝播し、最終的に withLogging がスタックトレース付きで記録する
-      throw new UncheckedStreamException(
-          new StreamProcessingException("データベースフェッチに失敗しました: " + e.getMessage(), e));
+      throw new UncheckedStreamException(new ExternalPermanentException("データベースフェッチに失敗しました", e));
     }
   }
 }

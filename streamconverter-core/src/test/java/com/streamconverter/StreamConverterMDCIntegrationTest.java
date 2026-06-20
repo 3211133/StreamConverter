@@ -272,8 +272,9 @@ class StreamConverterMDCIntegrationTest {
   }
 
   @Test
-  void testStreamProcessingExceptionIsNotDoubleWrapped() {
-    // コマンドが StreamProcessingException を投げたとき、同じ例外がそのまま伝播する（二重ラップなし）
+  void testStreamProcessingExceptionIsAggregatedNotDoubleWrapped() {
+    // Phase 5: 分類済み例外は AggregatedStreamProcessingException にラップされて届く。
+    // getAllFailures() の要素が同一オブジェクトであること（Aggregated の入れ子でないこと）を検証する。
     StreamProcessingException original = new StreamProcessingException("original error");
     IStreamCommand failingCommand =
         (in, out) -> {
@@ -282,15 +283,16 @@ class StreamConverterMDCIntegrationTest {
 
     StreamConverter converter = StreamConverter.create(failingCommand);
 
-    StreamProcessingException thrown =
+    AggregatedStreamProcessingException thrown =
         assertThrows(
-            StreamProcessingException.class,
+            AggregatedStreamProcessingException.class,
             () ->
                 converter.run(
                     new ByteArrayInputStream("data".getBytes(StandardCharsets.UTF_8)),
                     new ByteArrayOutputStream()));
 
-    assertSame(original, thrown, "StreamProcessingException must not be double-wrapped");
+    assertEquals(1, thrown.getAllFailures().size(), "単一失敗もリスト化される");
+    assertSame(original, thrown.getAllFailures().get(0), "元の例外が二重ラップなしで格納される");
   }
 
   @Test

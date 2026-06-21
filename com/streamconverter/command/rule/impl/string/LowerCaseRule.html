@@ -230,7 +230,10 @@ implements <a href="../../IRule.html" title="interface in com.streamconverter.co
 <div class="block">ルールの適用を実行します。
 
  <p>このメソッドは、ストリーム変換の際にルールを適用するために使用されます。 具体的なルールの実装は、このメソッドをオーバーライドして定義します。
- 変換対象とする箇所を特定したあとにこのメソッドを呼び出すことを想定しています。</div>
+ 変換対象とする箇所を特定したあとにこのメソッドを呼び出すことを想定しています。
+
+ <p>実装がU/T/A分類済みの例外をスローする場合は <a href="../../../../StreamProcessingException.html" title="class in com.streamconverter"><code>StreamProcessingException</code></a> のサブタイプを
+ 直接throwすること。walker層がこれをIOExceptionとして伝播し、converter層が集約する。</div>
 <dl class="notes">
 <dt>Specified by:</dt>
 <dd><code><a href="../../IRule.html#apply(java.lang.String)">apply</a></code>&nbsp;in interface&nbsp;<code><a href="../../IRule.html" title="interface in com.streamconverter.command.rule">IRule</a></code></dd>

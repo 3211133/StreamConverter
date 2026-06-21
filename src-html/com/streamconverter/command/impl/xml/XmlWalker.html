@@ -151,11 +151,11 @@
 <span class="source-line-no">138</span><span id="line-138">  }</span>
 <span class="source-line-no">139</span><span id="line-139"></span>
 <span class="source-line-no">140</span><span id="line-140">  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace"})</span>
-<span class="source-line-no">141</span><span id="line-141">  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the</span>
-<span class="source-line-no">142</span><span id="line-142">  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); the cause</span>
-<span class="source-line-no">143</span><span id="line-143">  // already records the rule-site stack trace, so discarding the carrier loses no diagnostics.</span>
-<span class="source-line-no">144</span><span id="line-144">  // Any other RuntimeException is wrapped as XMLStreamException so the caller's error-handling</span>
-<span class="source-line-no">145</span><span id="line-145">  // path is not bypassed.</span>
+<span class="source-line-no">141</span><span id="line-141">  // IRule.apply() may throw StreamProcessingException (IOException subtype) — propagates via</span>
+<span class="source-line-no">142</span><span id="line-142">  // throws IOException without wrapping. UncheckedStreamException carrier is unwrapped at this</span>
+<span class="source-line-no">143</span><span id="line-143">  // command boundary (#741); the cause already records the rule-site stack trace. Any other</span>
+<span class="source-line-no">144</span><span id="line-144">  // RuntimeException is wrapped as XMLStreamException so the caller's error-handling path is not</span>
+<span class="source-line-no">145</span><span id="line-145">  // bypassed.</span>
 <span class="source-line-no">146</span><span id="line-146">  private String applyRule(String data, List&lt;String&gt; currentPath)</span>
 <span class="source-line-no">147</span><span id="line-147">      throws XMLStreamException, IOException {</span>
 <span class="source-line-no">148</span><span id="line-148">    try {</span>

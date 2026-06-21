@@ -97,7 +97,7 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/FunctionalInterface.html" title="class or interface in java.lang" class="external-link">@FunctionalInterface</a>
-</span><span class="modifiers">public interface </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-29">IRule</a></span></div>
+</span><span class="modifiers">public interface </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-31">IRule</a></span></div>
 <div class="block">ルールインターフェース
 
  <p>このインターフェースは、ストリーム変換のルールを定義するためのものです。 具体的なルールはこのインターフェースを実装するクラスで定義されます。
@@ -108,7 +108,7 @@ loadScripts(document, 'script');</script>
  <p>使用例:
 
  <pre><code>
- // 単純な変換ルール
+ // 単純な変換ルール（例外を投げない場合はラムダのまま使用可）
  IRule upperCaseRule = input -&gt; input.toUpperCase();
  IRule trimRule = String::trim;
 
@@ -158,16 +158,22 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="apply(java.lang.String)">
 <h3>apply</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-41">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span></div>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-47">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span>
+      throws <span class="exceptions"><a href="../../StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></span></div>
 <div class="block">ルールの適用を実行します。
 
  <p>このメソッドは、ストリーム変換の際にルールを適用するために使用されます。 具体的なルールの実装は、このメソッドをオーバーライドして定義します。
- 変換対象とする箇所を特定したあとにこのメソッドを呼び出すことを想定しています。</div>
+ 変換対象とする箇所を特定したあとにこのメソッドを呼び出すことを想定しています。
+
+ <p>実装がU/T/A分類済みの例外をスローする場合は <a href="../../StreamProcessingException.html" title="class in com.streamconverter"><code>StreamProcessingException</code></a> のサブタイプを
+ 直接throwすること。walker層がこれをIOExceptionとして伝播し、converter層が集約する。</div>
 <dl class="notes">
 <dt>Parameters:</dt>
 <dd><code>input</code> - 変換対象の文字列</dd>
 <dt>Returns:</dt>
 <dd>String output 変換結果を格納する文字列</dd>
+<dt>Throws:</dt>
+<dd><code><a href="../../StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></code> - 入力エラー（U）・外部障害（T/A）・内部障害（A）の場合</dd>
 </dl>
 </section>
 </li>

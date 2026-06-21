@@ -154,11 +154,11 @@
 <span class="source-line-no">141</span><span id="line-141">  }</span>
 <span class="source-line-no">142</span><span id="line-142"></span>
 <span class="source-line-no">143</span><span id="line-143">  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace"})</span>
-<span class="source-line-no">144</span><span id="line-144">  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the</span>
-<span class="source-line-no">145</span><span id="line-145">  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); the cause</span>
-<span class="source-line-no">146</span><span id="line-146">  // already records the rule-site stack trace, so discarding the carrier loses no diagnostics.</span>
-<span class="source-line-no">147</span><span id="line-147">  // Any other RuntimeException is wrapped as IOException so the caller's error-handling path is</span>
-<span class="source-line-no">148</span><span id="line-148">  // not bypassed.</span>
+<span class="source-line-no">144</span><span id="line-144">  // IRule.apply() may throw StreamProcessingException (IOException subtype) — propagates via</span>
+<span class="source-line-no">145</span><span id="line-145">  // throws IOException without wrapping. UncheckedStreamException carrier is unwrapped at this</span>
+<span class="source-line-no">146</span><span id="line-146">  // command boundary (#741); the cause already records the rule-site stack trace. Any other</span>
+<span class="source-line-no">147</span><span id="line-147">  // RuntimeException is wrapped as IOException so the caller's error-handling path is not</span>
+<span class="source-line-no">148</span><span id="line-148">  // bypassed.</span>
 <span class="source-line-no">149</span><span id="line-149">  private String applyRule(String value, int columnIndex) throws IOException {</span>
 <span class="source-line-no">150</span><span id="line-150">    try {</span>
 <span class="source-line-no">151</span><span id="line-151">      return rule.apply(value);</span>

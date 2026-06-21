@@ -142,10 +142,10 @@
 <span class="source-line-no">129</span><span id="line-129">  }</span>
 <span class="source-line-no">130</span><span id="line-130"></span>
 <span class="source-line-no">131</span><span id="line-131">  @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace"})</span>
-<span class="source-line-no">132</span><span id="line-132">  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the</span>
-<span class="source-line-no">133</span><span id="line-133">  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); the cause</span>
-<span class="source-line-no">134</span><span id="line-134">  // already records the rule-site stack trace, so discarding the carrier loses no diagnostics.</span>
-<span class="source-line-no">135</span><span id="line-135">  // Any other RuntimeException is wrapped as IOException with path context.</span>
+<span class="source-line-no">132</span><span id="line-132">  // IRule.apply() may throw StreamProcessingException (IOException subtype) — propagates via</span>
+<span class="source-line-no">133</span><span id="line-133">  // throws IOException without wrapping. UncheckedStreamException carrier is unwrapped at this</span>
+<span class="source-line-no">134</span><span id="line-134">  // command boundary (#741); the cause already records the rule-site stack trace. Any other</span>
+<span class="source-line-no">135</span><span id="line-135">  // RuntimeException is wrapped as IOException with path context.</span>
 <span class="source-line-no">136</span><span id="line-136">  private String applyRule(String value, List&lt;String&gt; currentPath) throws IOException {</span>
 <span class="source-line-no">137</span><span id="line-137">    try {</span>
 <span class="source-line-no">138</span><span id="line-138">      return rule.apply(value);</span>

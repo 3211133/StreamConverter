@@ -13,96 +13,97 @@
 <div class="source-container">
 <pre><span class="source-line-no">001</span><span id="line-1">package com.streamconverter.command.rule;</span>
 <span class="source-line-no">002</span><span id="line-2"></span>
-<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.context.PipelineContext;</span>
-<span class="source-line-no">004</span><span id="line-4"></span>
-<span class="source-line-no">005</span><span id="line-5">/**</span>
-<span class="source-line-no">006</span><span id="line-6"> * 変換結果をMDC共有値として伝搬するルール。</span>
-<span class="source-line-no">007</span><span id="line-7"> *</span>
-<span class="source-line-no">008</span><span id="line-8"> * &lt;p&gt;ストリームデータから抽出された値を、パイプライン内の全コマンドのログ出力に 自動反映するために使用する。値はパススルーされ、変換は行わない。</span>
-<span class="source-line-no">009</span><span id="line-9"> *</span>
-<span class="source-line-no">010</span><span id="line-10"> * &lt;p&gt;{@code MDC.put} だけのルールとの違い:</span>
-<span class="source-line-no">011</span><span id="line-11"> *</span>
-<span class="source-line-no">012</span><span id="line-12"> * &lt;ol&gt;</span>
-<span class="source-line-no">013</span><span id="line-13"> *   &lt;li&gt;&lt;b&gt;後続コマンドへの伝搬&lt;/b&gt; — 値を {@link com.streamconverter.context.PipelineContext}</span>
-<span class="source-line-no">014</span><span id="line-14"> *       の共有値として格納し、{@link com.streamconverter.logging.PipelineContextTurboFilter</span>
-<span class="source-line-no">015</span><span id="line-15"> *       PipelineContextTurboFilter} が他コマンドのログ出力直前に {@code syncToMDC()} で自動反映する。{@code MDC.put}</span>
-<span class="source-line-no">016</span><span id="line-16"> *       だけでは呼び出しスレッド内しか効かない。</span>
-<span class="source-line-no">017</span><span id="line-17"> *   &lt;li&gt;&lt;b&gt;実行タイミング非依存&lt;/b&gt; — 子スレッド起動後に値を書いても {@code PipelineContext} 経由なら {@code TurboFilter}</span>
-<span class="source-line-no">018</span><span id="line-18"> *       が毎ログ前に同期するため順序非依存。</span>
-<span class="source-line-no">019</span><span id="line-19"> *   &lt;li&gt;&lt;b&gt;スレッドからのコンテキスト切り離し&lt;/b&gt; — {@code PipelineContext.clear()} により、このスレッドとの関連付けを解除できる。</span>
-<span class="source-line-no">020</span><span id="line-20"> * &lt;/ol&gt;</span>
-<span class="source-line-no">021</span><span id="line-21"> *</span>
-<span class="source-line-no">022</span><span id="line-22"> * &lt;p&gt;使用例:</span>
-<span class="source-line-no">023</span><span id="line-23"> *</span>
-<span class="source-line-no">024</span><span id="line-24"> * &lt;pre&gt;{@code</span>
-<span class="source-line-no">025</span><span id="line-25"> * // XMLの orderId を抽出してMDCに伝搬</span>
-<span class="source-line-no">026</span><span id="line-26"> * XmlWalker command = XmlWalker.create(</span>
-<span class="source-line-no">027</span><span id="line-27"> *     TreePath.fromXml("order/@id"),</span>
-<span class="source-line-no">028</span><span id="line-28"> *     MdcPropagatingRule.create("orderId")</span>
-<span class="source-line-no">029</span><span id="line-29"> * );</span>
-<span class="source-line-no">030</span><span id="line-30"> * }&lt;/pre&gt;</span>
-<span class="source-line-no">031</span><span id="line-31"> */</span>
-<span class="source-line-no">032</span><span id="line-32">public final class MdcPropagatingRule implements IRule {</span>
-<span class="source-line-no">033</span><span id="line-33"></span>
-<span class="source-line-no">034</span><span id="line-34">  private final String mdcKey;</span>
-<span class="source-line-no">035</span><span id="line-35"></span>
-<span class="source-line-no">036</span><span id="line-36">  private MdcPropagatingRule(String mdcKey) {</span>
-<span class="source-line-no">037</span><span id="line-37">    this.mdcKey = mdcKey;</span>
-<span class="source-line-no">038</span><span id="line-38">  }</span>
-<span class="source-line-no">039</span><span id="line-39"></span>
-<span class="source-line-no">040</span><span id="line-40">  /**</span>
-<span class="source-line-no">041</span><span id="line-41">   * 指定されたキーにストリーム値を伝搬するルールを作成します。</span>
-<span class="source-line-no">042</span><span id="line-42">   *</span>
-<span class="source-line-no">043</span><span id="line-43">   * &lt;p&gt;使用例:</span>
-<span class="source-line-no">044</span><span id="line-44">   *</span>
-<span class="source-line-no">045</span><span id="line-45">   * &lt;pre&gt;{@code</span>
-<span class="source-line-no">046</span><span id="line-46">   * XmlWalker.create(</span>
-<span class="source-line-no">047</span><span id="line-47">   *     TreePath.fromXml("request/userId"),</span>
-<span class="source-line-no">048</span><span id="line-48">   *     MdcPropagatingRule.create("userId"));</span>
-<span class="source-line-no">049</span><span id="line-49">   * }&lt;/pre&gt;</span>
-<span class="source-line-no">050</span><span id="line-50">   *</span>
-<span class="source-line-no">051</span><span id="line-51">   * @param mdcKey MDC／PipelineContext に格納するキー名</span>
-<span class="source-line-no">052</span><span id="line-52">   * @return 伝搬ルールのインスタンス</span>
-<span class="source-line-no">053</span><span id="line-53">   * @throws IllegalArgumentException mdcKey が null または空の場合</span>
-<span class="source-line-no">054</span><span id="line-54">   */</span>
-<span class="source-line-no">055</span><span id="line-55">  public static MdcPropagatingRule create(String mdcKey) {</span>
-<span class="source-line-no">056</span><span id="line-56">    if (mdcKey == null || mdcKey.isEmpty()) {</span>
-<span class="source-line-no">057</span><span id="line-57">      throw new IllegalArgumentException("mdcKey cannot be null or empty");</span>
-<span class="source-line-no">058</span><span id="line-58">    }</span>
-<span class="source-line-no">059</span><span id="line-59">    return new MdcPropagatingRule(mdcKey);</span>
-<span class="source-line-no">060</span><span id="line-60">  }</span>
-<span class="source-line-no">061</span><span id="line-61"></span>
-<span class="source-line-no">062</span><span id="line-62">  /**</span>
-<span class="source-line-no">063</span><span id="line-63">   * 入力値をMDC共有値として設定し、そのまま返す。</span>
-<span class="source-line-no">064</span><span id="line-64">   *</span>
-<span class="source-line-no">065</span><span id="line-65">   * @param input 変換対象の文字列</span>
-<span class="source-line-no">066</span><span id="line-66">   * @return 入力値をそのまま返す</span>
-<span class="source-line-no">067</span><span id="line-67">   * @throws IllegalArgumentException inputがnullの場合</span>
-<span class="source-line-no">068</span><span id="line-68">   */</span>
-<span class="source-line-no">069</span><span id="line-69">  @Override</span>
-<span class="source-line-no">070</span><span id="line-70">  public String apply(String input) {</span>
-<span class="source-line-no">071</span><span id="line-71">    if (input == null) {</span>
-<span class="source-line-no">072</span><span id="line-72">      throw new IllegalArgumentException("Input cannot be null");</span>
-<span class="source-line-no">073</span><span id="line-73">    }</span>
-<span class="source-line-no">074</span><span id="line-74">    PipelineContext.putShared(mdcKey, input);</span>
-<span class="source-line-no">075</span><span id="line-75">    return input;</span>
-<span class="source-line-no">076</span><span id="line-76">  }</span>
-<span class="source-line-no">077</span><span id="line-77"></span>
-<span class="source-line-no">078</span><span id="line-78">  @Override</span>
-<span class="source-line-no">079</span><span id="line-79">  public String toString() {</span>
-<span class="source-line-no">080</span><span id="line-80">    return "MdcPropagatingRule{mdcKey='" + mdcKey + "'}";</span>
-<span class="source-line-no">081</span><span id="line-81">  }</span>
-<span class="source-line-no">082</span><span id="line-82"></span>
-<span class="source-line-no">083</span><span id="line-83">  @Override</span>
-<span class="source-line-no">084</span><span id="line-84">  public boolean equals(Object obj) {</span>
-<span class="source-line-no">085</span><span id="line-85">    return this == obj || (obj instanceof MdcPropagatingRule other &amp;&amp; mdcKey.equals(other.mdcKey));</span>
-<span class="source-line-no">086</span><span id="line-86">  }</span>
-<span class="source-line-no">087</span><span id="line-87"></span>
-<span class="source-line-no">088</span><span id="line-88">  @Override</span>
-<span class="source-line-no">089</span><span id="line-89">  public int hashCode() {</span>
-<span class="source-line-no">090</span><span id="line-90">    return mdcKey.hashCode();</span>
-<span class="source-line-no">091</span><span id="line-91">  }</span>
-<span class="source-line-no">092</span><span id="line-92">}</span>
+<span class="source-line-no">003</span><span id="line-3">import com.streamconverter.UserInputException;</span>
+<span class="source-line-no">004</span><span id="line-4">import com.streamconverter.context.PipelineContext;</span>
+<span class="source-line-no">005</span><span id="line-5"></span>
+<span class="source-line-no">006</span><span id="line-6">/**</span>
+<span class="source-line-no">007</span><span id="line-7"> * 変換結果をMDC共有値として伝搬するルール。</span>
+<span class="source-line-no">008</span><span id="line-8"> *</span>
+<span class="source-line-no">009</span><span id="line-9"> * &lt;p&gt;ストリームデータから抽出された値を、パイプライン内の全コマンドのログ出力に 自動反映するために使用する。値はパススルーされ、変換は行わない。</span>
+<span class="source-line-no">010</span><span id="line-10"> *</span>
+<span class="source-line-no">011</span><span id="line-11"> * &lt;p&gt;{@code MDC.put} だけのルールとの違い:</span>
+<span class="source-line-no">012</span><span id="line-12"> *</span>
+<span class="source-line-no">013</span><span id="line-13"> * &lt;ol&gt;</span>
+<span class="source-line-no">014</span><span id="line-14"> *   &lt;li&gt;&lt;b&gt;後続コマンドへの伝搬&lt;/b&gt; — 値を {@link com.streamconverter.context.PipelineContext}</span>
+<span class="source-line-no">015</span><span id="line-15"> *       の共有値として格納し、{@link com.streamconverter.logging.PipelineContextTurboFilter</span>
+<span class="source-line-no">016</span><span id="line-16"> *       PipelineContextTurboFilter} が他コマンドのログ出力直前に {@code syncToMDC()} で自動反映する。{@code MDC.put}</span>
+<span class="source-line-no">017</span><span id="line-17"> *       だけでは呼び出しスレッド内しか効かない。</span>
+<span class="source-line-no">018</span><span id="line-18"> *   &lt;li&gt;&lt;b&gt;実行タイミング非依存&lt;/b&gt; — 子スレッド起動後に値を書いても {@code PipelineContext} 経由なら {@code TurboFilter}</span>
+<span class="source-line-no">019</span><span id="line-19"> *       が毎ログ前に同期するため順序非依存。</span>
+<span class="source-line-no">020</span><span id="line-20"> *   &lt;li&gt;&lt;b&gt;スレッドからのコンテキスト切り離し&lt;/b&gt; — {@code PipelineContext.clear()} により、このスレッドとの関連付けを解除できる。</span>
+<span class="source-line-no">021</span><span id="line-21"> * &lt;/ol&gt;</span>
+<span class="source-line-no">022</span><span id="line-22"> *</span>
+<span class="source-line-no">023</span><span id="line-23"> * &lt;p&gt;使用例:</span>
+<span class="source-line-no">024</span><span id="line-24"> *</span>
+<span class="source-line-no">025</span><span id="line-25"> * &lt;pre&gt;{@code</span>
+<span class="source-line-no">026</span><span id="line-26"> * // XMLの orderId を抽出してMDCに伝搬</span>
+<span class="source-line-no">027</span><span id="line-27"> * XmlWalker command = XmlWalker.create(</span>
+<span class="source-line-no">028</span><span id="line-28"> *     TreePath.fromXml("order/@id"),</span>
+<span class="source-line-no">029</span><span id="line-29"> *     MdcPropagatingRule.create("orderId")</span>
+<span class="source-line-no">030</span><span id="line-30"> * );</span>
+<span class="source-line-no">031</span><span id="line-31"> * }&lt;/pre&gt;</span>
+<span class="source-line-no">032</span><span id="line-32"> */</span>
+<span class="source-line-no">033</span><span id="line-33">public final class MdcPropagatingRule implements IRule {</span>
+<span class="source-line-no">034</span><span id="line-34"></span>
+<span class="source-line-no">035</span><span id="line-35">  private final String mdcKey;</span>
+<span class="source-line-no">036</span><span id="line-36"></span>
+<span class="source-line-no">037</span><span id="line-37">  private MdcPropagatingRule(String mdcKey) {</span>
+<span class="source-line-no">038</span><span id="line-38">    this.mdcKey = mdcKey;</span>
+<span class="source-line-no">039</span><span id="line-39">  }</span>
+<span class="source-line-no">040</span><span id="line-40"></span>
+<span class="source-line-no">041</span><span id="line-41">  /**</span>
+<span class="source-line-no">042</span><span id="line-42">   * 指定されたキーにストリーム値を伝搬するルールを作成します。</span>
+<span class="source-line-no">043</span><span id="line-43">   *</span>
+<span class="source-line-no">044</span><span id="line-44">   * &lt;p&gt;使用例:</span>
+<span class="source-line-no">045</span><span id="line-45">   *</span>
+<span class="source-line-no">046</span><span id="line-46">   * &lt;pre&gt;{@code</span>
+<span class="source-line-no">047</span><span id="line-47">   * XmlWalker.create(</span>
+<span class="source-line-no">048</span><span id="line-48">   *     TreePath.fromXml("request/userId"),</span>
+<span class="source-line-no">049</span><span id="line-49">   *     MdcPropagatingRule.create("userId"));</span>
+<span class="source-line-no">050</span><span id="line-50">   * }&lt;/pre&gt;</span>
+<span class="source-line-no">051</span><span id="line-51">   *</span>
+<span class="source-line-no">052</span><span id="line-52">   * @param mdcKey MDC／PipelineContext に格納するキー名</span>
+<span class="source-line-no">053</span><span id="line-53">   * @return 伝搬ルールのインスタンス</span>
+<span class="source-line-no">054</span><span id="line-54">   * @throws IllegalArgumentException mdcKey が null または空の場合</span>
+<span class="source-line-no">055</span><span id="line-55">   */</span>
+<span class="source-line-no">056</span><span id="line-56">  public static MdcPropagatingRule create(String mdcKey) {</span>
+<span class="source-line-no">057</span><span id="line-57">    if (mdcKey == null || mdcKey.isEmpty()) {</span>
+<span class="source-line-no">058</span><span id="line-58">      throw new IllegalArgumentException("mdcKey cannot be null or empty");</span>
+<span class="source-line-no">059</span><span id="line-59">    }</span>
+<span class="source-line-no">060</span><span id="line-60">    return new MdcPropagatingRule(mdcKey);</span>
+<span class="source-line-no">061</span><span id="line-61">  }</span>
+<span class="source-line-no">062</span><span id="line-62"></span>
+<span class="source-line-no">063</span><span id="line-63">  /**</span>
+<span class="source-line-no">064</span><span id="line-64">   * 入力値をMDC共有値として設定し、そのまま返す。</span>
+<span class="source-line-no">065</span><span id="line-65">   *</span>
+<span class="source-line-no">066</span><span id="line-66">   * @param input 変換対象の文字列</span>
+<span class="source-line-no">067</span><span id="line-67">   * @return 入力値をそのまま返す</span>
+<span class="source-line-no">068</span><span id="line-68">   * @throws com.streamconverter.UserInputException inputがnullの場合</span>
+<span class="source-line-no">069</span><span id="line-69">   */</span>
+<span class="source-line-no">070</span><span id="line-70">  @Override</span>
+<span class="source-line-no">071</span><span id="line-71">  public String apply(String input) throws UserInputException {</span>
+<span class="source-line-no">072</span><span id="line-72">    if (input == null) {</span>
+<span class="source-line-no">073</span><span id="line-73">      throw new UserInputException("入力値がnullです");</span>
+<span class="source-line-no">074</span><span id="line-74">    }</span>
+<span class="source-line-no">075</span><span id="line-75">    PipelineContext.putShared(mdcKey, input);</span>
+<span class="source-line-no">076</span><span id="line-76">    return input;</span>
+<span class="source-line-no">077</span><span id="line-77">  }</span>
+<span class="source-line-no">078</span><span id="line-78"></span>
+<span class="source-line-no">079</span><span id="line-79">  @Override</span>
+<span class="source-line-no">080</span><span id="line-80">  public String toString() {</span>
+<span class="source-line-no">081</span><span id="line-81">    return "MdcPropagatingRule{mdcKey='" + mdcKey + "'}";</span>
+<span class="source-line-no">082</span><span id="line-82">  }</span>
+<span class="source-line-no">083</span><span id="line-83"></span>
+<span class="source-line-no">084</span><span id="line-84">  @Override</span>
+<span class="source-line-no">085</span><span id="line-85">  public boolean equals(Object obj) {</span>
+<span class="source-line-no">086</span><span id="line-86">    return this == obj || (obj instanceof MdcPropagatingRule other &amp;&amp; mdcKey.equals(other.mdcKey));</span>
+<span class="source-line-no">087</span><span id="line-87">  }</span>
+<span class="source-line-no">088</span><span id="line-88"></span>
+<span class="source-line-no">089</span><span id="line-89">  @Override</span>
+<span class="source-line-no">090</span><span id="line-90">  public int hashCode() {</span>
+<span class="source-line-no">091</span><span id="line-91">    return mdcKey.hashCode();</span>
+<span class="source-line-no">092</span><span id="line-92">  }</span>
+<span class="source-line-no">093</span><span id="line-93">}</span>
 
 
 

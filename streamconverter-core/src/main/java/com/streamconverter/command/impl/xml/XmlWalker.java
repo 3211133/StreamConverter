@@ -138,11 +138,11 @@ public class XmlWalker implements IStreamCommand {
   }
 
   @SuppressWarnings({"PMD.AvoidCatchingGenericException", "PMD.PreserveStackTrace"})
-  // IRule.apply() declares no checked exceptions. Rule-layer I/O failures arrive wrapped in the
-  // UncheckedStreamException carrier and are unwrapped at this command boundary (#741); the cause
-  // already records the rule-site stack trace, so discarding the carrier loses no diagnostics.
-  // Any other RuntimeException is wrapped as XMLStreamException so the caller's error-handling
-  // path is not bypassed.
+  // IRule.apply() may throw StreamProcessingException (IOException subtype) — propagates via
+  // throws IOException without wrapping. UncheckedStreamException carrier is unwrapped at this
+  // command boundary (#741); the cause already records the rule-site stack trace. Any other
+  // RuntimeException is wrapped as XMLStreamException so the caller's error-handling path is not
+  // bypassed.
   private String applyRule(String data, List<String> currentPath)
       throws XMLStreamException, IOException {
     try {

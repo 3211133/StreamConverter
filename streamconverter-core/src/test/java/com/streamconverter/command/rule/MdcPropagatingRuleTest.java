@@ -2,6 +2,8 @@ package com.streamconverter.command.rule;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import com.streamconverter.StreamProcessingException;
+import com.streamconverter.UserInputException;
 import com.streamconverter.context.PipelineContext;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -20,7 +22,7 @@ class MdcPropagatingRuleTest {
   }
 
   @Test
-  void applyPutsValueIntoSharedContext() {
+  void applyPutsValueIntoSharedContext() throws StreamProcessingException {
     PipelineContext ctx = new PipelineContext();
     PipelineContext.set(ctx);
 
@@ -33,7 +35,7 @@ class MdcPropagatingRuleTest {
   }
 
   @Test
-  void applyReturnsInputUnchanged() {
+  void applyReturnsInputUnchanged() throws StreamProcessingException {
     PipelineContext ctx = new PipelineContext();
     PipelineContext.set(ctx);
 
@@ -48,7 +50,7 @@ class MdcPropagatingRuleTest {
   void applyWithNullInputThrowsException() {
     MdcPropagatingRule rule = MdcPropagatingRule.create("key");
 
-    assertThrows(IllegalArgumentException.class, () -> rule.apply(null));
+    assertThrows(UserInputException.class, () -> rule.apply(null));
   }
 
   @Test
@@ -65,7 +67,7 @@ class MdcPropagatingRuleTest {
 
   @Test
   @DisplayName("create_returnsRuleThatStoresValueInPipelineContext")
-  void create_returnsRuleThatStoresValueInPipelineContext() {
+  void create_returnsRuleThatStoresValueInPipelineContext() throws StreamProcessingException {
     PipelineContext ctx = new PipelineContext();
     PipelineContext.set(ctx);
 
@@ -77,7 +79,7 @@ class MdcPropagatingRuleTest {
   }
 
   @Test
-  void applyWithoutPipelineContextIsNoOp() {
+  void applyWithoutPipelineContextIsNoOp() throws StreamProcessingException {
     MdcPropagatingRule rule = MdcPropagatingRule.create("key");
     String result = rule.apply("value");
 

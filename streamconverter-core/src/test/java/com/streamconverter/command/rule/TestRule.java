@@ -1,5 +1,6 @@
 package com.streamconverter.command.rule;
 
+import com.streamconverter.StreamProcessingException;
 import java.util.Objects;
 
 /**
@@ -24,7 +25,7 @@ public class TestRule implements IRule {
   }
 
   @Override
-  public String apply(String input) {
+  public String apply(String input) throws StreamProcessingException {
     Objects.requireNonNull(input, "input cannot be null");
     return input.replace(searchPattern, replacement);
   }

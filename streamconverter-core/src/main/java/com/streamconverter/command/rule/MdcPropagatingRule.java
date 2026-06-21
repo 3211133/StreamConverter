@@ -1,5 +1,6 @@
 package com.streamconverter.command.rule;
 
+import com.streamconverter.UserInputException;
 import com.streamconverter.context.PipelineContext;
 
 /**
@@ -64,12 +65,12 @@ public final class MdcPropagatingRule implements IRule {
    *
    * @param input 変換対象の文字列
    * @return 入力値をそのまま返す
-   * @throws IllegalArgumentException inputがnullの場合
+   * @throws com.streamconverter.UserInputException inputがnullの場合
    */
   @Override
-  public String apply(String input) {
+  public String apply(String input) throws UserInputException {
     if (input == null) {
-      throw new IllegalArgumentException("Input cannot be null");
+      throw new UserInputException("入力値がnullです");
     }
     PipelineContext.putShared(mdcKey, input);
     return input;

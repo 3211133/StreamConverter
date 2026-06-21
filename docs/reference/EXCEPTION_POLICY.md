@@ -334,39 +334,31 @@ abstract 型の直接 throw（`StreamProcessingException` / `ExternalSystemExcep
 
 各層が「何を投げ・何を捕まえ・何を伝播・何を吸収するか」の詳細は本規定の現バージョンでは叩き台のみ。
 
-#### 4.1.1 例外型変換の許容範囲
+#### 4.1.1 例外型変換の許容範囲（確定済み）
 
-**問題**: rule で発生した `UserInputException` を command 層が `ExternalTransientException` に変換することは禁止すべきだが、規約だけで縛れるか・型強制で縛るか。`catch (IOException) { throw new UserInputException(...); }` のような広い catch でのラベル付け直しは禁止すべきだが、何が「広い catch」かの線引きが必要。
+**確定**:
 
-**確認すべき点**:
-- rule から `RuntimeException` が漏れた場合、converter が A 化するのは許されるか・そのまま伝播か
-- command が「広い catch」で例外を分類確定するのはどこまで許されるか（自身が直接呼び出す外部ライブラリ例外の具体型 catch のみ許可、等の線引き）
-- 通知分類例外（U/T/A）同士の変換は全層で禁止という線で良いか
+- **A1（converter の RuntimeException 扱い）**: ライブラリ内部で「起こり得ないはずの」unchecked 例外を blanket-catch して A 化することは禁止。各スローサイトで出所が判明している `RuntimeException` を classified 型（`InternalSystemException` 等）に変換するのは許容。  
+  *根拠*: 真に到達不能なガードコード（`default: throw new InternalSystemException(...)` 相当）のみ例外として認める。blanket-catch による一律 A 化は「入り口防衛」用途（Web フレームワーク等）に限定すべき。
+- **A2（command の外部ライブラリ例外変換）**: command が自身で**直接呼び出す**外部ライブラリの具体型例外（`SQLException`, `SAXException` 等）のみ分類変換を許可。間接依存（呼び出し先が内部で投げる例外型等）への変換は禁止。
+- **A3（U/T/A 間の変換）**: 全層で禁止。分類確定後の例外を別分類に変換することで通知先が変わるため、全層で禁止。
 
-#### 4.1.2 文脈付加の手段
+#### 4.1.2 文脈付加の手段（確定済み）
 
-**問題**: 通知分類型を変えずに文脈情報（処理中レコード位置・command 名・rule 名等）を付加する方法。
+**確定**: 案B（`addSuppressed()` による `StageFailureContext` 付加）を採用。
 
-選択肢:
-- 案A: 同じ型で新例外を生成して元を cause にラップ → 4層貫通で cause が4段になる
-- 案B: 元例外の `addSuppressed()` に文脈情報オブジェクトを追加 → JDK 標準慣習を歪める
-- 案C: 例外に文脈フィールドを追加しコンストラクタ的に補強 → 例外型 API が膨らむ
-- 案D: 例外に伝わる MDC を持たせ、各層が補強 → 例外の不変性を破る
+実装: `CommandStageRunner.toStageFailure()` で `failure.addSuppressed(new StageFailureContext(commandLabel))` を実行済み。`StageFailureContext` はスタックトレース無効化で軽量化。
 
-**確認すべき点**:
-- cause チェイン深化の許容度（4段なら許容か）
-- 「文脈情報」が具体的に何か（コンテキストオブジェクトの設計）
+*各案の不採用理由*:
+- 案A: cause chain が4段になり根本原因の追跡コストが増大
+- 案C: 例外型の public API が膨らみ依存が増える
+- 案D: 例外の不変性を破る（MDC はスレッドローカルで例外本体に付随しない）
 
-#### 4.1.3 rule のライフサイクル
+#### 4.1.3 rule のライフサイクル（確定済み）
 
-**問題**: ライブラリが rule インスタンスを**シングルトン的に共有**するか、**リクエストごとに新規生成**するか。外部接続を持つ rule（DB rule 等）はライフサイクルが特に重要で、構築時失敗の発生タイミングが変わる:
+**確定**: 共有固定（C1）。`IRule` インスタンスは複数リクエスト間で共有される前提とし、**スレッドセーフな実装が実装者の義務**。
 
-- 共有なら起動時に1回だけ発生し、以降の run 中には発生しない
-- リクエストごと生成なら毎リクエストの run 以前に発生しうる
-
-**確認すべき点**:
-- ライブラリとして共有 vs リクエストごとを選択可能にするか・どちらかに固定するか
-- 外部接続 rule の接続オープンタイミングと例外発生タイミングの規約
+*根拠*: 現行 11 rule は全てスレッドセーフに実装済み（ステートレスまたは immutable フィールドのみ）。`DatabaseFetchRule` は `apply()` 内で毎回接続を開閉しスレッドセーフ。per-request を必要とする rule が現時点で存在しないため、選択制（C3）は採用しない。per-request が実際に必要になった時点で改めて設計する。
 
 #### 4.1.4 close 時失敗の扱い
 
@@ -494,12 +486,15 @@ abstract 型の直接 throw（`StreamProcessingException` / `ExternalSystemExcep
 
 | Phase | 内容 | 状態 |
 |---|---|---|
-| **Phase 1** | 本規定文書の策定（通知ベース分類への転換） | 本ドキュメント |
-| **Phase 2** | 階層別責務の詳細確定（[未決事項 4.1](#41-階層別責務次フェーズ主要論点) を順次詰める） | 未着手 |
-| **Phase 3** | 共通機構の実装 + 単体テスト: 通知分類型新設（`UserInputException` / `ExternalTransientException` / `ExternalPermanentException` / `InternalSystemException`）、`OperatorContext` 機構、メッセージ機構、サニタイズヘルパー、converter 集約機構（`getAllFailures()`） | 未着手 |
-| **Phase 4** | 既存コマンドへの適用: POC 実装の規定整合化、既存 issue（#729 / #731 / #740 / #741 / #742 / #748 / #749 / #783 / #784）の規定に沿った再評価・対応 | 未着手 |
+| **Phase 1** | 本規定文書の策定（通知ベース分類への転換） | 完了（PR #796） |
+| **Phase 2** | 階層別責務の詳細確定（§4.1.1/4.1.2/4.1.3 確定） | 完了（PR #802 含む） |
+| **Phase 3** | 共通機構の実装 + 単体テスト: 通知分類型新設（`UserInputException` / `ExternalTransientException` / `ExternalPermanentException` / `InternalSystemException`）、`OperatorContext` 機構、メッセージ機構、サニタイズヘルパー、converter 集約機構（`getAllFailures()`） | 完了（PR #798） |
+| **Phase 4** | 既存コマンドへの適用: `CsvValidateCommand` / `ValidateCommand` / `CommandStageRunner` / `PipelineCompletionMonitor` / `PipelineFailureHandler` / `DatabaseFetchRule` / `PooledDatabaseFetchRule` の各スローサイトに分類型を適用。`InvalidInputDataException` を deprecated 化 | 完了（PR #799） |
+| **Phase 5** | converter 層集約機構の実装: `AggregatedStreamProcessingException` の `getAllFailures()` / `PipelineFailureHandler` のリファクタリング | 完了（PR #800） |
+| **Phase 6** | rule 層 U/T/A 分類基盤: `IRule.apply()` に `throws StreamProcessingException` 追加。`PassThroughRule` / `MdcPropagatingRule` の null 時を `UserInputException` に変更 | 完了（PR #801） |
+| **Phase 7** | main 層消費サンプル: `ExceptionHandlingExample` で `AggregatedStreamProcessingException` 処理パターンをデモ | 完了（PR #802） |
 
-各 Phase は別 PR とする。
+各 Phase は別 PR とする。Phase 2 以降は Issue #797 で追跡中。
 
 ## 🔗 スコープ外・関連ドキュメント
 

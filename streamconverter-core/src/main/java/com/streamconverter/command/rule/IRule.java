@@ -10,6 +10,9 @@ import com.streamconverter.StreamProcessingException;
  *
  * <p>このインターフェースは関数型インターフェースです。ラムダ式やメソッド参照で実装できます。
  *
+ * <p><b>スレッドセーフ要件（EXCEPTION_POLICY.md §4.1.3）:</b> {@code IRule} インスタンスは
+ * 複数リクエスト間で共有されることを前提とする。実装クラスはスレッドセーフでなければならない。 ミュータブルな状態を持つ場合は適切な同期が必要。
+ *
  * <p>使用例:
  *
  * <pre>{@code

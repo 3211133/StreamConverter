@@ -97,13 +97,16 @@ loadScripts(document, 'script');</script>
 </dl>
 <hr>
 <div class="type-signature"><span class="annotations"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/FunctionalInterface.html" title="class or interface in java.lang" class="external-link">@FunctionalInterface</a>
-</span><span class="modifiers">public interface </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-31">IRule</a></span></div>
+</span><span class="modifiers">public interface </span><span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-34">IRule</a></span></div>
 <div class="block">ルールインターフェース
 
  <p>このインターフェースは、ストリーム変換のルールを定義するためのものです。 具体的なルールはこのインターフェースを実装するクラスで定義されます。
  ルールは、ストリーム変換の際に適用される条件や処理を定義します。
 
  <p>このインターフェースは関数型インターフェースです。ラムダ式やメソッド参照で実装できます。
+
+ <p><b>スレッドセーフ要件（EXCEPTION_POLICY.md §4.1.3）:</b> <code>IRule</code> インスタンスは
+ 複数リクエスト間で共有されることを前提とする。実装クラスはスレッドセーフでなければならない。 ミュータブルな状態を持つ場合は適切な同期が必要。
 
  <p>使用例:
 
@@ -158,7 +161,7 @@ loadScripts(document, 'script');</script>
 <li>
 <section class="detail" id="apply(java.lang.String)">
 <h3>apply</h3>
-<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-47">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span>
+<div class="member-signature"><span class="return-type"><a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a></span>&nbsp;<span class="element-name"><a href="../../../../src-html/com/streamconverter/command/rule/IRule.html#line-50">apply</a></span><wbr><span class="parameters">(<a href="https://docs.oracle.com/en/java/javase/21/docs/api/java.base/java/lang/String.html" title="class or interface in java.lang" class="external-link">String</a>&nbsp;input)</span>
       throws <span class="exceptions"><a href="../../StreamProcessingException.html" title="class in com.streamconverter">StreamProcessingException</a></span></div>
 <div class="block">ルールの適用を実行します。
 

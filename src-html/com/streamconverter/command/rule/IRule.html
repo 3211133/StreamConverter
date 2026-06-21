@@ -23,42 +23,45 @@
 <span class="source-line-no">010</span><span id="line-10"> *</span>
 <span class="source-line-no">011</span><span id="line-11"> * &lt;p&gt;このインターフェースは関数型インターフェースです。ラムダ式やメソッド参照で実装できます。</span>
 <span class="source-line-no">012</span><span id="line-12"> *</span>
-<span class="source-line-no">013</span><span id="line-13"> * &lt;p&gt;使用例:</span>
-<span class="source-line-no">014</span><span id="line-14"> *</span>
-<span class="source-line-no">015</span><span id="line-15"> * &lt;pre&gt;{@code</span>
-<span class="source-line-no">016</span><span id="line-16"> * // 単純な変換ルール（例外を投げない場合はラムダのまま使用可）</span>
-<span class="source-line-no">017</span><span id="line-17"> * IRule upperCaseRule = input -&gt; input.toUpperCase();</span>
-<span class="source-line-no">018</span><span id="line-18"> * IRule trimRule = String::trim;</span>
-<span class="source-line-no">019</span><span id="line-19"> *</span>
-<span class="source-line-no">020</span><span id="line-20"> * // 複合ルール（トリムして大文字に変換）</span>
-<span class="source-line-no">021</span><span id="line-21"> * IRule trimAndUpperCase = input -&gt; input.trim().toUpperCase();</span>
+<span class="source-line-no">013</span><span id="line-13"> * &lt;p&gt;&lt;b&gt;スレッドセーフ要件（EXCEPTION_POLICY.md §4.1.3）:&lt;/b&gt; {@code IRule} インスタンスは</span>
+<span class="source-line-no">014</span><span id="line-14"> * 複数リクエスト間で共有されることを前提とする。実装クラスはスレッドセーフでなければならない。 ミュータブルな状態を持つ場合は適切な同期が必要。</span>
+<span class="source-line-no">015</span><span id="line-15"> *</span>
+<span class="source-line-no">016</span><span id="line-16"> * &lt;p&gt;使用例:</span>
+<span class="source-line-no">017</span><span id="line-17"> *</span>
+<span class="source-line-no">018</span><span id="line-18"> * &lt;pre&gt;{@code</span>
+<span class="source-line-no">019</span><span id="line-19"> * // 単純な変換ルール（例外を投げない場合はラムダのまま使用可）</span>
+<span class="source-line-no">020</span><span id="line-20"> * IRule upperCaseRule = input -&gt; input.toUpperCase();</span>
+<span class="source-line-no">021</span><span id="line-21"> * IRule trimRule = String::trim;</span>
 <span class="source-line-no">022</span><span id="line-22"> *</span>
-<span class="source-line-no">023</span><span id="line-23"> * // StreamConverterコマンドでの使用例</span>
-<span class="source-line-no">024</span><span id="line-24"> * IRule dataCleaningRule = input -&gt; input.trim().replaceAll("\\s+", " ");</span>
-<span class="source-line-no">025</span><span id="line-25"> * JsonWalker command = JsonWalker.create(</span>
-<span class="source-line-no">026</span><span id="line-26"> *     TreePath.fromJson("$.user.name"),</span>
-<span class="source-line-no">027</span><span id="line-27"> *     dataCleaningRule</span>
-<span class="source-line-no">028</span><span id="line-28"> * );</span>
-<span class="source-line-no">029</span><span id="line-29"> * }&lt;/pre&gt;</span>
-<span class="source-line-no">030</span><span id="line-30"> */</span>
-<span class="source-line-no">031</span><span id="line-31">@FunctionalInterface</span>
-<span class="source-line-no">032</span><span id="line-32">public interface IRule {</span>
-<span class="source-line-no">033</span><span id="line-33"></span>
-<span class="source-line-no">034</span><span id="line-34">  /**</span>
-<span class="source-line-no">035</span><span id="line-35">   * ルールの適用を実行します。</span>
-<span class="source-line-no">036</span><span id="line-36">   *</span>
-<span class="source-line-no">037</span><span id="line-37">   * &lt;p&gt;このメソッドは、ストリーム変換の際にルールを適用するために使用されます。 具体的なルールの実装は、このメソッドをオーバーライドして定義します。</span>
-<span class="source-line-no">038</span><span id="line-38">   * 変換対象とする箇所を特定したあとにこのメソッドを呼び出すことを想定しています。</span>
+<span class="source-line-no">023</span><span id="line-23"> * // 複合ルール（トリムして大文字に変換）</span>
+<span class="source-line-no">024</span><span id="line-24"> * IRule trimAndUpperCase = input -&gt; input.trim().toUpperCase();</span>
+<span class="source-line-no">025</span><span id="line-25"> *</span>
+<span class="source-line-no">026</span><span id="line-26"> * // StreamConverterコマンドでの使用例</span>
+<span class="source-line-no">027</span><span id="line-27"> * IRule dataCleaningRule = input -&gt; input.trim().replaceAll("\\s+", " ");</span>
+<span class="source-line-no">028</span><span id="line-28"> * JsonWalker command = JsonWalker.create(</span>
+<span class="source-line-no">029</span><span id="line-29"> *     TreePath.fromJson("$.user.name"),</span>
+<span class="source-line-no">030</span><span id="line-30"> *     dataCleaningRule</span>
+<span class="source-line-no">031</span><span id="line-31"> * );</span>
+<span class="source-line-no">032</span><span id="line-32"> * }&lt;/pre&gt;</span>
+<span class="source-line-no">033</span><span id="line-33"> */</span>
+<span class="source-line-no">034</span><span id="line-34">@FunctionalInterface</span>
+<span class="source-line-no">035</span><span id="line-35">public interface IRule {</span>
+<span class="source-line-no">036</span><span id="line-36"></span>
+<span class="source-line-no">037</span><span id="line-37">  /**</span>
+<span class="source-line-no">038</span><span id="line-38">   * ルールの適用を実行します。</span>
 <span class="source-line-no">039</span><span id="line-39">   *</span>
-<span class="source-line-no">040</span><span id="line-40">   * &lt;p&gt;実装がU/T/A分類済みの例外をスローする場合は {@link StreamProcessingException} のサブタイプを</span>
-<span class="source-line-no">041</span><span id="line-41">   * 直接throwすること。walker層がこれをIOExceptionとして伝播し、converter層が集約する。</span>
+<span class="source-line-no">040</span><span id="line-40">   * &lt;p&gt;このメソッドは、ストリーム変換の際にルールを適用するために使用されます。 具体的なルールの実装は、このメソッドをオーバーライドして定義します。</span>
+<span class="source-line-no">041</span><span id="line-41">   * 変換対象とする箇所を特定したあとにこのメソッドを呼び出すことを想定しています。</span>
 <span class="source-line-no">042</span><span id="line-42">   *</span>
-<span class="source-line-no">043</span><span id="line-43">   * @param input 変換対象の文字列</span>
-<span class="source-line-no">044</span><span id="line-44">   * @return String output 変換結果を格納する文字列</span>
-<span class="source-line-no">045</span><span id="line-45">   * @throws StreamProcessingException 入力エラー（U）・外部障害（T/A）・内部障害（A）の場合</span>
-<span class="source-line-no">046</span><span id="line-46">   */</span>
-<span class="source-line-no">047</span><span id="line-47">  String apply(String input) throws StreamProcessingException;</span>
-<span class="source-line-no">048</span><span id="line-48">}</span>
+<span class="source-line-no">043</span><span id="line-43">   * &lt;p&gt;実装がU/T/A分類済みの例外をスローする場合は {@link StreamProcessingException} のサブタイプを</span>
+<span class="source-line-no">044</span><span id="line-44">   * 直接throwすること。walker層がこれをIOExceptionとして伝播し、converter層が集約する。</span>
+<span class="source-line-no">045</span><span id="line-45">   *</span>
+<span class="source-line-no">046</span><span id="line-46">   * @param input 変換対象の文字列</span>
+<span class="source-line-no">047</span><span id="line-47">   * @return String output 変換結果を格納する文字列</span>
+<span class="source-line-no">048</span><span id="line-48">   * @throws StreamProcessingException 入力エラー（U）・外部障害（T/A）・内部障害（A）の場合</span>
+<span class="source-line-no">049</span><span id="line-49">   */</span>
+<span class="source-line-no">050</span><span id="line-50">  String apply(String input) throws StreamProcessingException;</span>
+<span class="source-line-no">051</span><span id="line-51">}</span>
 
 
 

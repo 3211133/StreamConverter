@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 /** CsvValidateCommandクラスのテスト */
@@ -500,7 +499,6 @@ public class CsvValidateCommandTest {
   }
 
   @Test
-  @Tag("known-bug") // #783
   @DisplayName("読み取り中に I/O 障害が発生した場合は検証成功として扱われない")
   void midStreamIoErrorIsNotTreatedAsSuccess() throws IOException {
     // ネットワーク切断・ディスクエラー等で入力が途中で切断された場合、

@@ -1,6 +1,7 @@
 package com.streamconverter.command.impl.csv;
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import com.opencsv.exceptions.CsvMalformedLineException;
 import com.opencsv.exceptions.CsvValidationException;
 import com.streamconverter.InternalSystemException;
@@ -149,7 +150,7 @@ public class CsvValidateCommand extends ConsumerCommand {
       InputStream inputStream, CsvRowValidator rowValidator, List<String> validationErrors)
       throws IOException {
     try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-        CSVReader csvReader = new CSVReader(reader)) {
+        CSVReader csvReader = new CSVReaderBuilder(reader).withVerifyReader(false).build()) {
 
       String[] headers = null;
       if (hasHeader) {

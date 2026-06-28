@@ -280,24 +280,7 @@ CI_MEMORY_LIMIT_RELAXATION=1.5            # CI環境でのメモリ制限緩和
 ### メトリクス収集と分析
 
 1. **テスト実行ログの構造化**
-   ```json
-   {
-     "testName": "testStreamingEfficiency",
-     "timestamp": "2025-08-15T12:34:56Z",
-     "environment": {
-       "os": "Linux",
-       "heapSize": "2048MB",
-       "processors": 4
-     },
-     "metrics": {
-       "dataSize": 1073741824,
-       "memoryUsed": 45232640,
-       "efficiencyRatio": 0.042,
-       "throughput": 156.7
-     },
-     "result": "PASSED"
-   }
-   ```
+   - testName、timestamp、environment、metrics、result を含む構造化ログを出力する
 
 2. **傾向分析とベンチマーク更新**
    - 月次でメトリクス分析実施
@@ -315,23 +298,6 @@ CI_MEMORY_LIMIT_RELAXATION=1.5            # CI環境でのメモリ制限緩和
    - JFRプロファイリング
    - ヒープダンプ分析
    - GCログ解析
-
-## 🔄 マイグレーション計画
-
-### Phase 1: 測定インフラ改善 (Week 1-2)
-- [ ] EnhancedResourceMonitorの実装
-- [ ] JMXベースメモリ測定の導入
-- [ ] プロファイラ統合
-
-### Phase 2: テスト戦略適用 (Week 3-4)  
-- [ ] 既存テストのリファクタリング
-- [ ] プリンシパルテストの実装
-- [ ] スケーラビリティテストの実装
-
-### Phase 3: 継続的改善基盤 (Week 5-6)
-- [ ] メトリクス収集システム
-- [ ] 自動分析レポート
-- [ ] 性能回帰検出
 
 ## 関連ドキュメント
 

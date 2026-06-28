@@ -1,9 +1,5 @@
 # Architecture
 
-## このドキュメントの基礎資料
-このドキュメントは以下の資料を基に作成されています：
-- [ARCHITECTURE.md](../ARCHITECTURE.md) - 4層アーキテクチャの詳細設計
-
 ## What
 The StreamConverter architecture uses direct command instantiation. Commands are chained in a pipeline and executed by the `StreamConverter` core.
 

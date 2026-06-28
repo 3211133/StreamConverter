@@ -290,75 +290,9 @@ static boolean hasEnoughMemoryFor5GB() {
 
 ## 🧠 メモリ効率化テスト戦略
 
-### 改善されたメモリ効率テストアプローチ
+GC依存測定ではなくプロファイラベースの正確な測定を採用し、プラットフォームとリソースに応じてテスト条件を動的に調整する。検証対象は2つの設計原理：原理1（ストリーミング効率：データをメモリに全量保持しない）と原理2（並列処理安定性：逐次処理の並列化でブロックしない）。
 
-従来のGC依存測定から、プロファイラベースの正確な測定への移行：
-
-#### 従来の問題のあるアプローチ
-```java
-// ❌ 不安定なGC依存測定
-System.gc();
-long beforeMemory = runtime.totalMemory() - runtime.freeMemory();
-// 処理実行
-System.gc();
-long afterMemory = runtime.totalMemory() - runtime.freeMemory();
-```
-
-#### 改善されたアプローチ
-```java
-// ✅ 安定したプロファイラベース測定
-@Test
-@DisplayName("設計原理検証: ストリーミング効率")
-@EnabledIf("PlatformAdaptiveTestUtils.hasAdequateResources")
-void testStreamingEfficiencyPrinciple() {
-    // 環境適応型データサイズ決定
-    long dataSize = PlatformAdaptiveTestUtils.getAdaptiveDataSize(100L * 1024 * 1024);
-    
-    // プロファイラベース測定
-    EnhancedResourceMonitor monitor = new EnhancedResourceMonitor();
-    ResourceUsage usage = monitor.measureExecution(() -> {
-        converter.run(createLargeDataStream(dataSize), new NullOutputStream());
-    });
-    
-    // 設計原理1: メモリに全て持たないこと
-    // データサイズ1000倍でもメモリ使用量が2倍以下かをチェック
-    long memory10MB = measureMemoryUsage(10_000_000L);    // 10MB
-    long memory10GB = measureMemoryUsage(10_000_000_000L); // 10GB
-    
-    boolean isStreaming = (memory10GB <= memory10MB * 2);
-    
-    if (isStreaming) {
-        logger.info("✅ ストリーミング処理: データをメモリに全て持っていない");
-    } else {
-        logger.error("❌ 非ストリーミング処理: データをメモリに全て持っている");
-    }
-    
-    assertTrue(isStreaming, 
-        "データをメモリに全て持ってしまっている: 10GB処理時のメモリが10MB処理時の2倍を超過");
-}
-```
-
-### 設計原理ベーステストマトリックス
-
-| テストカテゴリ | データサイズ | 検証原理 | 判定基準 |
-|---------------|-------------|---------|---------|
-| **ストリーミング効率** | 10MB vs 10GB | 原理1 | 10GB時メモリ ≤ 10MB時メモリ×2 |
-| **並列処理安定性** | 大容量 | 原理2 | 処理が完了する（時間は問わない） |
-| **統合検証** | 両方実施 | 両方 | ストリーミング=TRUE & 安定性=TRUE |
-
-### プラットフォーム適応型制限値
-
-```java
-// OS別制限値の動的調整
-public class MemoryTestLimits {
-    public static long getAdaptiveMemoryLimit(long baseLimit) {
-        double platformFactor = PlatformAdaptiveTestUtils.getPlatformPerformanceFactor();
-        double ciRelaxation = PlatformAdaptiveTestUtils.isCI() ? 1.5 : 1.0;
-        
-        return Math.round(baseLimit / platformFactor * ciRelaxation);
-    }
-}
-```
+> 📖 **詳細**: [Memory Efficiency Test Strategy](MEMORY_EFFICIENCY_TEST_STRATEGY.md) - 測定アプローチ・テストマトリックス・プラットフォーム適応型制限値の包括的な設計書
 
 ## 環境依存テスト
 
@@ -487,31 +421,6 @@ void testBenchmarkConsistency()          // 性能一貫性テスト
 - メモリ制約のあるコンテナ環境では、大容量データテストが無効化される
 - ネットワーク制限のある環境では、HTTP関連テストが失敗する可能性がある
 - 高負荷環境では、タイミング依存テストが間欠的に失敗する可能性がある
-
-## テスト実行コマンド
-
-```bash
-# 全テスト実行
-./gradlew test
-
-# メモリ使用量を増やしてテスト実行
-./gradlew test -Xmx2g
-
-# 特定のテストクラスのみ実行
-./gradlew test --tests "com.streamConverter.MemoryEfficiencyTest"
-
-# ベンチマークテストを除外
-./gradlew test --exclude-task benchmarkTest
-```
-
-## 現在のテスト状況
-
-- **総テスト数**: 229
-- **成功率**: 100%
-- **実行時間**: 約47秒
-- **最終更新**: 2025年7月31日
-
-すべてのテストは現在成功していますが、上記の環境条件によっては失敗する可能性があります。
 
 ## 関連ドキュメント
 

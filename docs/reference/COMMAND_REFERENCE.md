@@ -1,6 +1,6 @@
-# Command Reference
+# Command Reference — Gradle / Git チートシート
 
-StreamConverter プロジェクトで使用する Gradle コマンドと Git コマンドのリファレンスです。
+> このファイルは StreamConverter プロジェクトで使用する **Gradle コマンドおよび Git コマンド**のリファレンスです。StreamConverter の Java API（コマンドクラス）については [COMMAND_EXAMPLES.md](COMMAND_EXAMPLES.md) を参照してください。
 
 ## Build Commands
 

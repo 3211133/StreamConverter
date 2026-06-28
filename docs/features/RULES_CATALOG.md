@@ -1,11 +1,6 @@
 # Rules Catalog and Usage Examples
 
-## このドキュメントの基礎資料
-このドキュメントは以下の実装を基に作成されています：
-- [com.streamconverter.command.rule.impl](../../streamconverter-core/src/main/java/com/streamconverter/command/rule/impl/) - 変換ルールの実装
-- [IRule.java](../../streamconverter-core/src/main/java/com/streamconverter/command/rule/IRule.java) - ルールインターフェース
-
-This catalog lists currently implemented transformation rules in StreamConverter core and shows concise usage examples. It focuses on rules that are already available so teams can apply them consistently.
+This catalog lists currently implemented transformation rules in StreamConverter core and shows concise usage examples.
 
 ## Implemented Rules
 
@@ -16,21 +11,20 @@ This catalog lists currently implemented transformation rules in StreamConverter
 - ChainRule: Compose multiple rules in sequence.
 - PassThroughRule: No-op rule (useful for demos/tests).
 
-Missing or proposed rules (tracked separately): DateFormatRule, NumberFormatRule, EmailNormalizeRule, PhoneNumberFormatRule. These will be added under new issues for clear scoping.
+Missing or proposed rules (tracked separately): DateFormatRule, NumberFormatRule, EmailNormalizeRule, PhoneNumberFormatRule.
 
 ## JSON Usage
 
 Example: Convert a specific JSON path to snake_case, after trimming and lowercasing.
 
 ```java
-import com.streamConverter.command.impl.json.JsonNavigateCommand;
-import com.streamConverter.command.rule.IRule;
-import com.streamConverter.command.rule.PassThroughRule;
-import com.streamConverter.command.rule.impl.casing.CamelToSnakeCaseRule;
-import com.streamConverter.command.rule.impl.string.LowerCaseRule;
-import com.streamConverter.command.rule.impl.string.TrimRule;
-import com.streamConverter.command.rule.impl.composite.ChainRule;
-import com.streamConverter.path.TreePath;
+import com.streamconverter.command.impl.json.JsonWalker;
+import com.streamconverter.command.rule.IRule;
+import com.streamconverter.command.rule.impl.casing.CamelToSnakeCaseRule;
+import com.streamconverter.command.rule.impl.string.LowerCaseRule;
+import com.streamconverter.command.rule.impl.string.TrimRule;
+import com.streamconverter.command.rule.impl.composite.ChainRule;
+import com.streamconverter.path.TreePath;
 
 IRule rule = ChainRule.builder()
     .addRule(new TrimRule())
@@ -38,7 +32,7 @@ IRule rule = ChainRule.builder()
     .addRule(CamelToSnakeCaseRule.builder().build())
     .build();
 
-JsonNavigateCommand cmd = JsonNavigateCommand.create(TreePath.fromJson("$.user.name"), rule);
+JsonWalker cmd = JsonWalker.create(TreePath.fromJson("$.user.name"), rule);
 ```
 
 ## CSV Usage
@@ -46,11 +40,11 @@ JsonNavigateCommand cmd = JsonNavigateCommand.create(TreePath.fromJson("$.user.n
 Example: Apply trimming to a CSV column (keep structure).
 
 ```java
-import com.streamConverter.command.impl.csv.CsvNavigateCommand;
-import com.streamConverter.command.rule.impl.string.TrimRule;
-import com.streamConverter.path.CSVPath;
+import com.streamconverter.command.impl.csv.CsvWalker;
+import com.streamconverter.command.rule.impl.string.TrimRule;
+import com.streamconverter.path.CSVPath;
 
-CsvNavigateCommand cmd = CsvNavigateCommand.create(new CSVPath("name"), new TrimRule());
+CsvWalker cmd = CsvWalker.create(CSVPath.of("name"), new TrimRule());
 ```
 
 ## Notes

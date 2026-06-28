@@ -1,10 +1,12 @@
 # CLAUDE Examples
 
+> AIアシスタント（Claude Code）向けの要約リファレンスです。詳細は [COMMAND_EXAMPLES.md](COMMAND_EXAMPLES.md) を参照してください。
+
 ## Minimal pipeline
 
 ```java
 StreamConverter converter = StreamConverter.create(
-    CsvNavigateCommand.create(CSVPath.of("name"), new TrimRule())
+    CsvWalker.create(CSVPath.of("name"), new TrimRule())
 );
 converter.run(inputStream, outputStream);
 ```
@@ -13,7 +15,7 @@ converter.run(inputStream, outputStream);
 
 ```java
 StreamConverter converter = StreamConverter.create(
-    JsonNavigateCommand.create(TreePath.fromJson("$.user.id"), MdcPropagatingRule.create("userId"))
+    JsonWalker.create(TreePath.fromJson("$.user.id"), MdcPropagatingRule.create("userId"))
 );
 converter.run(inputStream, outputStream);
 ```

@@ -1,9 +1,6 @@
 # StreamConverter Documentation Index
 
-> 📚 **このインデックスについて**: プロジェクト全体の完全なドキュメント一覧（カテゴリ別リファレンス）です。
-> クイックスタートやハイライトは [README.md](README.md) を参照してください。
-
-この索引はドキュメントの全体像を把握するためのナビゲーションです。目的に応じて以下のカテゴリから参照してください。
+クイックスタートは [README.md](README.md)、目的に応じて以下のカテゴリから参照してください。
 
 ## 🚀 Getting Started
 - **[../README.md](../README.md)**: リポジトリ概要と最新のハイライト
@@ -15,7 +12,6 @@
 - **[ARCHITECTURE_DIAGRAMS.md](ARCHITECTURE_DIAGRAMS.md)**: UML / クラス関係図
 - **[handbook/architecture.md](handbook/architecture.md)**: パイプライン内部の詳細
 - **[reference/EXCEPTION_POLICY.md](reference/EXCEPTION_POLICY.md)**: 例外規定（分類・型・報告ルール）
-- **[reference/CONTEXT_PROPAGATION_ARCHITECTURE.md](reference/CONTEXT_PROPAGATION_ARCHITECTURE.md)**: コンテキスト伝播の背景調査
 
 ## 🧰 Features
 - **[handbook/logging.md](handbook/logging.md)**: 自動ログ・MDC 連携
@@ -54,9 +50,6 @@
 - **[reference/CLAUDE_ARCHITECTURE.md](reference/CLAUDE_ARCHITECTURE.md)**: アーキテクチャパターンとコマンドタイプ
 - **[reference/CLAUDE_EXAMPLES.md](reference/CLAUDE_EXAMPLES.md)**: コード例と使用パターン
 - **[reference/CLAUDE_IMPLEMENTATION.md](reference/CLAUDE_IMPLEMENTATION.md)**: ストリーム処理制約とセキュリティ
-
-## 📊 Reports & Research
-- **[reference/MDC_ANALYSIS_REPORT.md](reference/MDC_ANALYSIS_REPORT.md)**: MDC 分析
 
 ## 🗂️ Archive
 - **[archived/](archived/)**: 旧アーキテクチャや破棄済み設計資料

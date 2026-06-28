@@ -31,38 +31,37 @@ classDiagram
         #processStream(InputStream, OutputStream)*
     }
     
-    class CsvNavigateCommand {
-        -CSVPath path
+    class CsvWalker {
+        -IColumnSelector columnSelector
         -IRule rule
-        +CsvNavigateCommand(CSVPath, IRule)
-        +processStream(InputStream, OutputStream)
+        +create(IColumnSelector, IRule): CsvWalker
+        +execute(InputStream, OutputStream)
     }
     
-    class JsonNavigateCommand {
-        -JSONPath path  
+    class JsonWalker {
+        -TreePath treePath
         -IRule rule
-        +JsonNavigateCommand(JSONPath, IRule)
-        +processStream(InputStream, OutputStream)
+        +create(TreePath, IRule): JsonWalker
+        +execute(InputStream, OutputStream)
     }
     
-    class XmlNavigateCommand {
-        -XPath path
+    class XmlWalker {
+        -TreePath treePath
         -IRule rule
-        +XmlNavigateCommand(XPath, IRule)
-        +processStream(InputStream, OutputStream)
+        +create(TreePath, IRule): XmlWalker
+        +execute(InputStream, OutputStream)
     }
 
     class StreamConverter {
         -IStreamCommand[] commands
-        -ExecutorService executor
-        +StreamConverter(IStreamCommand[])
+        +create(IStreamCommand...): StreamConverter
         +run(InputStream, OutputStream)
     }
 
     IStreamCommand <|.. AbstractStreamCommand
-    AbstractStreamCommand <|-- CsvNavigateCommand
-    AbstractStreamCommand <|-- JsonNavigateCommand
-    AbstractStreamCommand <|-- XmlNavigateCommand
+    AbstractStreamCommand <|-- CsvWalker
+    AbstractStreamCommand <|-- JsonWalker
+    AbstractStreamCommand <|-- XmlWalker
     StreamConverter o-- IStreamCommand : executes
 
     note right of AbstractStreamCommand
@@ -163,7 +162,7 @@ sequenceDiagram
         Cmd->>SC: write to outputStream
     end
     
-    SC-->>Client: List<CommandResult>
+    SC-->>Client: (void)
 ```
 
 ## Before vs After Architecture
@@ -278,8 +277,8 @@ Average Complexity             24.5      2.3     -91%
 ### Simple Command Creation
 ```java
 // Direct and Clear
-IStreamCommand command = new CsvNavigateCommand(
-    new CSVPath("columnName"),    ←── Explicit path
+IStreamCommand command = CsvWalker.create(
+    CSVPath.of("columnName"),     ←── Explicit path
     new PassThroughRule()         ←── Explicit rule
 );
 ```
@@ -287,12 +286,11 @@ IStreamCommand command = new CsvNavigateCommand(
 ### Pipeline Creation
 ```java
 // Explicit Pipeline Definition (all commands auto-logged)
-IStreamCommand[] pipeline = {
-    new CsvNavigateCommand(new CSVPath("data"), new PassThroughRule()),
-    new CharacterConvertCommand("UTF-8", "UTF-16"),
+StreamConverter converter = StreamConverter.create(
+    CsvWalker.create(CSVPath.of("data"), new PassThroughRule()),
+    CharacterConvertCommand.create("UTF-8", "UTF-16"),
     new LineEndingNormalizeCommand(LineEndingType.UNIX)
-};
-StreamConverter converter = new StreamConverter(pipeline);
+);
 ```
 
 ### Error Handling Flow

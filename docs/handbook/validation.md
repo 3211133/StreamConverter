@@ -1,9 +1,5 @@
 # Validation
 
-## このドキュメントの基礎資料
-このドキュメントは以下の資料を基に作成されています：
-- [features/VALIDATION.md](../features/VALIDATION.md) - バリデーション機能の詳細ガイド
-
 ## What
 StreamConverter ships with validation commands for CSV and XML inputs to verify structure and data before processing.
 

@@ -1,9 +1,5 @@
 # Logging
 
-## このドキュメントの基礎資料
-このドキュメントは以下の資料を基に作成されています：
-- [AUTO_LOGGING.md](../AUTO_LOGGING.md) - 自動ログ機能の詳細仕様
-
 ## What
 StreamConverter provides an auto‑logging system for monitoring command execution and performance.
 

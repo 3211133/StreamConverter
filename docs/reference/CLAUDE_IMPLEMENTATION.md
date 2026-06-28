@@ -1,5 +1,7 @@
 # CLAUDE Implementation Notes
 
+> AIアシスタント（Claude Code）向けの要約リファレンスです。詳細は [IMPLEMENTING_COMMANDS.md](IMPLEMENTING_COMMANDS.md) を参照してください。
+
 ## API baseline
 - `StreamConverter.run(...)` is `void`.
 - Build pipelines with `StreamConverter.create(...)`.

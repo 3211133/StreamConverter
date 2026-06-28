@@ -140,24 +140,3 @@ if (log.isDebugEnabled()) {
     log.debug("Expensive operation result: {}", computeExpensiveValue());
 }
 ```
-
-## 移行計画
-
-### フェーズ1: 基盤整備
-- ログ設定ファイル最適化
-- 共通ユーティリティクラス作成
-
-### フェーズ2: コアクラス更新
-- AbstractStreamCommand
-- StreamConverter
-- 各NavigateCommand
-
-### フェーズ3: サンプル・デモクラス更新
-- examples パッケージ
-- demo パッケージ
-- テストクラス
-
-### フェーズ4: 検証・最適化
-- ログ出力量の調整
-- パフォーマンス影響確認
-- 本番環境用設定作成

@@ -1,21 +1,12 @@
 # StreamConverter 統合パターンと実装例
 
-## このドキュメントの基礎資料
-このドキュメントは以下の資料および実装を基に作成されています：
-- [ARCHITECTURE.md](../ARCHITECTURE.md) - アーキテクチャ設計と設計原則
-- [handbook/web-api.md](../handbook/web-api.md) - Web API概要
-- [StreamProcessingController.java](../../streamconverter-web/src/main/java/com/streamconverter/web/StreamProcessingController.java) - Spring Boot統合の実装
-- Spring Boot / Quarkus / Vert.x の公式ドキュメント
-
-> 意図と実行タイミングについて
->
-> - 目的: ここに掲載する例は、コマンド/ルールの組み合わせや入出力の流れを理解するための学習・動作確認用です。性能比較や厳密な仕様検証は目的にしていません。
-> - 利用場面: CSV/JSON/XML 向けのコマンド配線、ルール構成、API 利用の参考として活用してください。再現性の高い確認は各モジュールの `src/test/java` にあるテストコードで行います。
-> - 環境依存: ネットワークやOS依存のケースは、実運用ではモック (WireMock/Testcontainers など) を使うことを推奨します。本ドキュメントでは説明の簡潔化のため省略している場合があります。
-
 ## 📋 概要
 
-StreamConverterライブラリは様々なフレームワークや環境との統合が可能です。本ドキュメントでは、主要な統合パターンと実装例を紹介し、実際のプロジェクトでの活用方法を説明します。
+StreamConverterライブラリは様々なフレームワークや環境との統合が可能です。
+
+> - 掲載する例はコマンド/ルールの組み合わせや入出力の流れを理解するための学習・動作確認用です。性能比較や厳密な仕様検証は目的にしていません。
+> - 再現性の高い確認は各モジュールの `src/test/java` にあるテストコードで行います。
+> - ネットワークやOS依存のケースは、実運用ではモック (WireMock/Testcontainers など) を使うことを推奨します。本ドキュメントでは説明の簡潔化のため省略している場合があります。
 
 ## 🚀 Spring Boot WebFlux統合
 
@@ -88,7 +79,7 @@ public Mono<ResponseEntity<Flux<DataBuffer>>> processCsvExtraction(
     return inputData
         .collectList()
         .map(this::combineDataBuffers)
-        .map(data -> processWithStreamConverter(data, new CsvNavigateCommand(columnName)))
+        .map(data -> processWithStreamConverter(data, CsvWalker.create(CSVPath.of(columnName), new PassThroughRule())))
         .map(result -> ResponseEntity.ok(createDataBufferFlux(result)))
         .onErrorReturn(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
 }
@@ -248,7 +239,7 @@ public class SyncStreamController {
              ByteArrayOutputStream output = new ByteArrayOutputStream()) {
             
             StreamConverter converter = StreamConverter.create(
-                new CsvNavigateCommand(columnName)
+                CsvWalker.create(CSVPath.of(columnName), new PassThroughRule())
             );
             converter.run(input, output);
             
@@ -296,8 +287,8 @@ public class StreamConverterBatchConfig {
                      ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
                     
                     StreamConverter converter = StreamConverter.create(
-                        new CsvNavigateCommand("processedData"),
-                        new JsonNavigateCommand("$.result")
+                        CsvWalker.create(CSVPath.of("processedData"), new PassThroughRule()),
+                        JsonWalker.create(TreePath.fromJson("$.result"), new PassThroughRule())
                     );
                     converter.run(inputStream, outputStream);
                     
@@ -425,7 +416,7 @@ public class QuarkusStreamResource {
                  ByteArrayOutputStream output = new ByteArrayOutputStream()) {
                 
                 StreamConverter converter = StreamConverter.create(
-                    new CsvNavigateCommand(columnName)
+                    CsvWalker.create(CSVPath.of(columnName), new PassThroughRule())
                 );
                 converter.run(input, output);
                 
@@ -466,7 +457,7 @@ public class VertxStreamVerticle extends AbstractVerticle {
                      ByteArrayOutputStream output = new ByteArrayOutputStream()) {
                     
                     StreamConverter converter = StreamConverter.create(
-                        new CsvNavigateCommand(columnName)
+                        CsvWalker.create(CSVPath.of(columnName), new PassThroughRule())
                     );
                     converter.run(input, output);
                     
@@ -600,6 +591,3 @@ public class CachedStreamService {
 - **[セキュリティ分析](../security/SECURITY_ANALYSIS.md)** - セキュリティ考慮事項
 - **[アーキテクチャ](../architecture/ARCHITECTURE.md)** - システム全体設計
 
-## 🔄 更新履歴
-
-- **2025-08-16**: 初版作成 - Spring Boot WebFlux統合、マイクロサービス統合パターンの文書化

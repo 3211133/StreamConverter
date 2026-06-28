@@ -1,5 +1,7 @@
 # CLAUDE Architecture Notes
 
+> AIアシスタント（Claude Code）向けの要約リファレンスです。詳細は [ARCHITECTURE.md](../ARCHITECTURE.md) を参照してください。
+
 ## Core API
 - `StreamConverter.create(IStreamCommand...)`
 - `StreamConverter.create(List<IStreamCommand>)`

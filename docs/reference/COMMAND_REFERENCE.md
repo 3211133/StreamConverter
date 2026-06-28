@@ -1,6 +1,6 @@
 # Command Reference — Gradle / Git チートシート
 
-> このファイルは StreamConverter プロジェクトで使用する **Gradle コマンドおよび Git コマンド**のリファレンスです。StreamConverter の Java API（コマンドクラス）については [COMMAND_EXAMPLES.md](COMMAND_EXAMPLES.md) を参照してください。
+> Java API（コマンドクラス）については [COMMAND_EXAMPLES.md](COMMAND_EXAMPLES.md) を参照してください。
 
 ## Build Commands
 
@@ -135,43 +135,6 @@ fix(web): handle 400 on invalid path
 docs(readme): update installation instructions
 refactor(core): simplify command factory
 test(core): add integration tests for HTTP commands
-```
-
-## 開発ワークフロー
-
-### 典型的な開発サイクル
-
-```bash
-# 1. コードを変更
-
-# 2. フォーマット適用
-./gradlew spotlessApply
-
-# 3. テスト実行
-./gradlew test
-
-# 4. 静的解析
-./gradlew check
-
-# 5. ビルド確認
-./gradlew build
-
-# 6. コミット
-git add .
-git commit -m "feat: add new feature"
-```
-
-### Pull Request 作成前
-
-```bash
-# 完全なビルドとテストを実行
-./gradlew clean build
-
-# ベンチマークテスト（パフォーマンス変更時）
-./gradlew benchmarkAll
-
-# すべての静的解析を通過
-./gradlew check
 ```
 
 ## トラブルシューティング

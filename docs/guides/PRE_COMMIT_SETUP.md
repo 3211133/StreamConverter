@@ -28,8 +28,7 @@ This project includes a comprehensive pre-commit hook that automatically enforce
    - Suggests using proper logging instead
 
 5. **Documentation Generation**
-   - Generates Javadoc when Java files are modified
-   - Ensures documentation stays up to date
+   - Runs Javadoc syntax check when Java files are modified（ファイル生成はCIが行う。詳細は [JAVADOC_MANAGEMENT.md](../reference/JAVADOC_MANAGEMENT.md)）
 
 ## Installation
 
@@ -228,11 +227,3 @@ The hook is optimized for speed:
 ./gradlew build
 ```
 
-## Support
-
-If you encounter issues with the pre-commit hook:
-
-1. Check this documentation first
-2. Run the failing command manually to see detailed output
-3. Consider temporarily disabling with `--no-verify` for urgent commits
-4. Report persistent issues to the development team

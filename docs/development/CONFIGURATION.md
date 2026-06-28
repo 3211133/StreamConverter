@@ -248,12 +248,7 @@ public class StreamConverterWebApplication {
 
 ### エンドポイント設定
 
-| エンドポイント | メソッド | 説明 |
-|---------------|---------|------|
-| `/api/v1/stream/health` | GET | ヘルスチェック |
-| `/api/v1/stream/csv/extract` | POST | CSV列抽出 |
-| `/api/v1/stream/json/extract` | POST | JSONパス抽出 |
-| `/api/v1/stream/process` | POST | パイプライン処理 |
+利用可能なエンドポイントの一覧は [WEB_API.md](../WEB_API.md#-api-エンドポイント) を参照してください。
 
 ### WebAPI設定カスタマイズ
 

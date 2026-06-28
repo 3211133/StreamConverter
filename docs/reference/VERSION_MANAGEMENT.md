@@ -20,6 +20,15 @@ For the current version, see [build.gradle.kts](../../build.gradle.kts) (search 
 
 ## Version History
 
+### 1.1.0（予定）
+- Core streaming pipeline functionality
+- Command pattern implementation
+- Basic auto-logging infrastructure
+- Memory-efficient processing for large files
+
+### 1.0.0（予定: 初回安定版）
+- Basic stream processing capabilities
+
 ### 0.0.0 (Current - In Development)
 - ExecutionContext and MDC integration for multi-threaded traceability
 - Direct instantiation pattern (Factory Pattern removed)
@@ -27,16 +36,6 @@ For the current version, see [build.gradle.kts](../../build.gradle.kts) (search 
 - Comprehensive auto-logging infrastructure
 - Performance benchmarking tools (streamconverter-tools module)
 - Web API foundation (streamconverter-web module)
-
-### 1.1.0
-- Core streaming pipeline functionality
-- Command pattern implementation
-- Basic auto-logging infrastructure
-- Memory-efficient processing for large files
-
-### 1.0.0
-- Initial release version
-- Basic stream processing capabilities
 
 ## Release Policy
 

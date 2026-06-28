@@ -288,12 +288,6 @@ static boolean hasEnoughMemoryFor5GB() {
 }
 ```
 
-## 🧠 メモリ効率化テスト戦略
-
-GC依存測定ではなくプロファイラベースの正確な測定を採用し、プラットフォームとリソースに応じてテスト条件を動的に調整する。検証対象は2つの設計原理：原理1（ストリーミング効率：データをメモリに全量保持しない）と原理2（並列処理安定性：逐次処理の並列化でブロックしない）。
-
-> 📖 **詳細**: [Memory Efficiency Test Strategy](MEMORY_EFFICIENCY_TEST_STRATEGY.md) - 測定アプローチ・テストマトリックス・プラットフォーム適応型制限値の包括的な設計書
-
 ## 環境依存テスト
 
 以下のテストは特定の環境条件により失敗する可能性があります：
@@ -424,9 +418,7 @@ void testBenchmarkConsistency()          // 性能一貫性テスト
 
 ## 関連ドキュメント
 
-- [Memory Efficiency Test Strategy](MEMORY_EFFICIENCY_TEST_STRATEGY.md) - メモリ効率化テストの包括的な設計書
 - [Cross-Platform Test Considerations](CROSS_PLATFORM_TEST_CONSIDERATIONS.md) - クロスプラットフォームテストの考慮事項
-- [Command Architecture](../archived/COMMAND_ARCHITECTURE.md) - コマンドパターンとテストアーキテクチャ
 - [Auto-Logging](../AUTO_LOGGING.md) - ログ機能とテスト環境での活用
 - [Benchmark Implementation](../guides/BENCHMARK_IMPLEMENTATION.md) - ベンチマーク実装詳細
 - [Documentation Index](../INDEX.md) - その他のドキュメント

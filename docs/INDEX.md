@@ -1,6 +1,6 @@
 # StreamConverter Documentation Index
 
-クイックスタートは [README.md](README.md)、目的に応じて以下のカテゴリから参照してください。
+クイックスタートは [README.md](README.md) を参照してください。目的に応じて以下のカテゴリから参照してください。
 
 ## 🚀 Getting Started
 - **[../README.md](../README.md)**: リポジトリ概要と最新のハイライト
@@ -50,8 +50,5 @@
 - **[reference/CLAUDE_ARCHITECTURE.md](reference/CLAUDE_ARCHITECTURE.md)**: アーキテクチャパターンとコマンドタイプ
 - **[reference/CLAUDE_EXAMPLES.md](reference/CLAUDE_EXAMPLES.md)**: コード例と使用パターン
 - **[reference/CLAUDE_IMPLEMENTATION.md](reference/CLAUDE_IMPLEMENTATION.md)**: ストリーム処理制約とセキュリティ
-
-## 🗂️ Archive
-- **[archived/](archived/)**: 旧アーキテクチャや破棄済み設計資料
 
 > この一覧に載っていない場合は `docs/` 以下を直接検索してください (`rg` や IDE の検索機能が便利です)。

@@ -111,33 +111,7 @@ git merge hotfix/ISSUE-NUMBER-description
 
 ## コミットメッセージ規則
 
-### フォーマット
-```
-type(scope): subject
-
-body (optional)
-
-footer (optional)
-```
-
-### タイプ
-- `feat`: 新機能
-- `fix`: バグ修正
-- `docs`: ドキュメント
-- `style`: フォーマット変更
-- `refactor`: リファクタリング
-- `test`: テスト追加・修正
-- `chore`: ビルド・設定変更
-
-### 例
-```
-feat(api): add JSON validation endpoint
-
-Add comprehensive JSON validation with custom rules
-Support for JSONPath expressions and schema validation
-
-Closes #123
-```
+Conventional Commits 仕様に従います。詳細は [COMMAND_REFERENCE.md](../reference/COMMAND_REFERENCE.md#conventional-commits) を参照してください。
 
 ## マージ戦略
 

@@ -6,7 +6,7 @@
 
 ```java
 StreamConverter converter = StreamConverter.create(
-    new CsvWalker(CSVPath.of("name"), new TrimRule())
+    CsvWalker.create(CSVPath.of("name"), new TrimRule())
 );
 converter.run(inputStream, outputStream);
 ```
@@ -15,7 +15,7 @@ converter.run(inputStream, outputStream);
 
 ```java
 StreamConverter converter = StreamConverter.create(
-    new JsonWalker(TreePath.fromJson("$.user.id"), MdcPropagatingRule.create("userId"))
+    JsonWalker.create(TreePath.fromJson("$.user.id"), MdcPropagatingRule.create("userId"))
 );
 converter.run(inputStream, outputStream);
 ```

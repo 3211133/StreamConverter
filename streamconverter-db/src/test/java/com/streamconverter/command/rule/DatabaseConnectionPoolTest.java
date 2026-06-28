@@ -3,6 +3,7 @@ package com.streamconverter.command.rule;
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
 import java.sql.Connection;
@@ -63,6 +64,47 @@ class DatabaseConnectionPoolTest {
       assertDoesNotThrow(
           pool::getConnection,
           "returnConnection で close() が失敗した後も activeConnections がデクリメントされ、新規接続を取得できるべき");
+    }
+  }
+
+  @Test
+  @Tag("known-bug") // #820
+  @DisplayName("close() 失敗後にスロットを解放する場合、DriverManager.getConnection() の呼び出し回数は maxPoolSize を超えない")
+  void returnConnection_doesNotExceedMaxPoolSizeWhenCloseFails() throws SQLException {
+    // returnConnection() で close() が失敗した場合、activeConnections をデクリメントして
+    // スロットを解放するため、次の getConnection() で新規接続が作られる。
+    // しかし DB 側には 1 本目の接続が残存している可能性があるため、
+    // DriverManager.getConnection() の呼び出し回数は maxPoolSize（=1）を超えてはならない。
+    Connection closeFailingConnection = mock(Connection.class);
+
+    when(closeFailingConnection.isValid(1)).thenReturn(false);
+    when(closeFailingConnection.isClosed()).thenReturn(false);
+    Mockito.doThrow(new SQLException("simulated close failure"))
+        .when(closeFailingConnection)
+        .close();
+
+    try (MockedStatic<DriverManager> mockedDriverManager =
+        Mockito.mockStatic(DriverManager.class)) {
+      mockedDriverManager
+          .when(() -> DriverManager.getConnection(anyString()))
+          .thenReturn(closeFailingConnection);
+
+      DatabaseConnectionPool pool = new DatabaseConnectionPool("jdbc:mock:db", 1, 200);
+
+      // 1回目: maxPoolSize=1 に対して1本目の接続を取得（DriverManager 呼び出し: 1回）
+      Connection c1 = pool.getConnection();
+      // 返却時に isConnectionValid()==false → close() 失敗 → スロット解放
+      c1.close();
+
+      // バグがある場合: スロット解放により 2回目の DriverManager.getConnection() が発生し
+      // maxPoolSize を超えた物理接続要求が生じる（close() 失敗で DB 側に 1 本目が残存したまま）
+      try {
+        pool.getConnection();
+      } catch (SQLException ignored) {
+        // タイムアウト等でも呼び出し回数は 1 回を超えてはならない
+      }
+
+      mockedDriverManager.verify(() -> DriverManager.getConnection(anyString()), times(1));
     }
   }
 

@@ -150,6 +150,7 @@ public class CsvValidateCommand extends ConsumerCommand {
       InputStream inputStream, CsvRowValidator rowValidator, List<String> validationErrors)
       throws IOException {
     try (InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+        // withVerifyReader(false): prevent OpenCSV from treating IOException as EOF (#783)
         CSVReader csvReader = new CSVReaderBuilder(reader).withVerifyReader(false).build()) {
 
       String[] headers = null;

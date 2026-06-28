@@ -18,7 +18,6 @@
 - Path traversal patterns (`../`) and backslashes are treated as non-existent resources
 - No symlink vulnerabilities (JAR contents are immutable)
 - No TOCTOU race conditions
-- Leading slashes are automatically stripped for ClassLoader compatibility
 
 ## Example
 
@@ -39,13 +38,7 @@ URL url = ClasspathResourceValidator.getResourceUrl("templates/email.html");
 - Do not include leading slash (automatically stripped if present)
 - Path is relative to classpath root (e.g., `src/main/resources/`)
 
-## Features
-
-### Automatic Path Normalization
-- Leading slashes are automatically removed
-- Context ClassLoader is preferred (falls back to class ClassLoader)
-
-### Error Handling
+## Error Handling
 ```java
 // Null or empty path
 ClasspathResourceValidator.getResourceAsStream(null);  // NullPointerException
@@ -56,13 +49,6 @@ ClasspathResourceValidator.getResourceAsStream("nonexistent.txt");  // IllegalAr
 ```
 
 ## Implementation Details
-
-### Security Model
-ClassLoader's built-in security features:
-- Resources are loaded from sealed JAR files
-- Path traversal attempts result in null (resource not found)
-- No filesystem access, no symlink risks
-- Immutable resources (cannot be modified at runtime)
 
 ### Context ClassLoader Support
 The validator prefers the thread's context ClassLoader, which ensures compatibility with:

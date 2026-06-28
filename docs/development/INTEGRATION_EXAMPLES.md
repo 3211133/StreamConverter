@@ -104,32 +104,6 @@ public Mono<ResponseEntity<Flux<DataBuffer>>> processWithPipeline(
 
 ### 3. 使用例
 
-#### cURL での API呼び出し
-
-```bash
-# 1. ヘルスチェック
-curl -X GET "http://localhost:8080/api/v1/stream/health"
-
-# 2. CSV列抽出
-curl -X POST \
-  -H "Content-Type: application/octet-stream" \
-  --data-binary @input.csv \
-  "http://localhost:8080/api/v1/stream/csv/extract?columnName=name"
-
-# 3. JSON パス抽出
-curl -X POST \
-  -H "Content-Type: application/octet-stream" \
-  --data-binary @input.json \
-  "http://localhost:8080/api/v1/stream/json/extract?jsonPath=$.user.name"
-
-# 4. パイプライン処理
-curl -X POST \
-  -H "Content-Type: application/octet-stream" \
-  -H "X-Pipeline-Config: csv:name,json:$.result" \
-  --data-binary @input.csv \
-  "http://localhost:8080/api/v1/stream/process"
-```
-
 #### Java WebClient での呼び出し
 
 ```java

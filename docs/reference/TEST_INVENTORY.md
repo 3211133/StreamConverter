@@ -1,8 +1,8 @@
 # StreamConverter Project Test Suite Inventory
 
-> **作成日**: 2025-07-27  
-> **対象ブランチ**: feature/validation-support  
+> **作成日**: 2025-07-27（`feature/validation-support` ブランチ時点のスナップショット）
 > **目的**: テスト整理とカバレッジ改善のベースライン記録
+> **注意**: このドキュメントは特定時点の記録であり、現在の状態を反映していない可能性があります。
 
 ## 📊 Overview
 
@@ -30,7 +30,7 @@
 ### 1. Core Framework Tests
 
 #### `StreamConverterTest.java` ✅ 優秀
-- **@Test Methods**: 10
+- **@Test Methods**: 11
 - **Coverage**: コアStreamConverter機能
 - **Tests**:
   - `testConstructorWithValidCommandArray()` - 配列コンストラクタ

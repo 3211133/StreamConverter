@@ -1,26 +1,6 @@
 # StreamConverter ログ出力ルール
 
-## 現在のログ実装の分析結果
-
-### 1. ログフレームワーク
-- **採用**: SLF4J + Logback
-- **設定ファイル**: `src/main/resources/logback.xml`
-- **ログ出力先**: コンソール（STDOUT）+ ファイル（logs/myapp.log）
-
-### 2. 現在のログ出力状況
-
-#### SLF4J使用クラス (推奨)
-- `AbstractStreamCommand` - デバッグレベルで実行開始/終了ログ
-- `FixedStaXPathHandler` - デバッグレベルでXPath正規化ログ
-- `DatabaseFetchRule` - 詳細未確認
-- `LoggingTest` - テストクラス
-
-#### System.out/err使用クラス (要改善)
-- `Main` - アプリケーション実行メッセージ
-- `MemoryEfficiencyTest` - テスト実行結果
-- `ValidateCommand` - 詳細未確認
-
-## 統一されたログ出力ルール
+## ログ出力ルール
 
 ### 1. ログレベル定義
 

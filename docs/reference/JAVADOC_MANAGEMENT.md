@@ -28,33 +28,7 @@ docs/javadoc/          # 既存ファイル (GitHub Pages用)
 ├── docs/javadoc/     # 新規生成ファイルを除外
 ```
 
-### 3. 🛠 開発ワークフロー
-
-#### 日常開発
-```bash
-# 1. 通常のコミット（Javadocは生成されない）
-git add src/main/java/MyClass.java
-git commit -m "feat: add new feature"
-
-# 2. CIが自動的にJavadocを更新・デプロイ
-```
-
-#### Javadocを手動更新したい場合
-```bash
-# 専用スクリプトを使用（コンフリクト回避機能付き）
-./scripts/update-javadoc.sh
-```
-
-#### コンフリクトが発生した場合
-```bash
-# 最新のリモート状態にリセット
-git checkout origin/main -- docs/javadoc/
-
-# 再生成
-./scripts/update-javadoc.sh
-```
-
-### 4. 🔧 スクリプトの機能
+### 3. 🔧 スクリプトの機能
 
 `scripts/update-javadoc.sh` の特徴:
 - ✅ **自動バックアップ**: 既存Javadocをバックアップ
@@ -63,7 +37,7 @@ git checkout origin/main -- docs/javadoc/
 - ✅ **変更サマリー**: 追加/変更/削除ファイル数を表示
 - ✅ **インタラクティブ**: コミット・プッシュの確認
 
-### 5. 🎯 GitHub Actions設定
+### 4. 🎯 GitHub Actions設定
 
 `.github/workflows/javadoc.yml` の機能:
 - **トリガー**: Java ファイル変更時のみ実行
@@ -113,12 +87,6 @@ git push
 
 ## 🔧 設定詳細
 
-### Pre-commitフック設定変更
-```bash
-# Javadoc生成 → 構文チェックのみに変更
-# ファイルは生成されず、構文エラーのみ検出
-```
-
 ### .gitignore 設定
 ```gitignore
 # 新規生成されるJavadocファイルを除外
@@ -132,29 +100,6 @@ docs/javadoc/
 env:
   JAVA_OPTS: "-Xmx2048m"
   GRADLE_OPTS: "-Dorg.gradle.daemon=false"
-```
-
-## 📚 関連コマンド
-
-```bash
-# Javadoc生成
-./gradlew javadoc
-
-# 構文チェックのみ
-./gradlew javadoc --quiet
-
-# 安全な更新
-./scripts/update-javadoc.sh
-
-# リモート同期
-git pull origin main
-
-# コンフリクト解決
-git checkout --theirs docs/javadoc/
-
-# 手動コミット
-git add docs/javadoc/
-git commit -m "docs: update Javadoc"
 ```
 
 この管理方法により、Javadocコンフリクトを最小限に抑えながら、常に最新のドキュメントを維持できます。

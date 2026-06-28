@@ -8,37 +8,24 @@ StreamConverterプロジェクトのベンチマーク測定基盤です。大�
 
 ### 1. PerformanceAnalyzer クラス
 - **場所**: `src/main/java/com/streamConverter/benchmark/PerformanceAnalyzer.java`
-- **機能**: 
+- **機能**:
   - CommandResultからの詳細なパフォーマンス分析
   - 実行時間、メモリ使用量、スループットの統計計算
   - 詳細レポート生成（テキスト・CSV形式）
-  - パフォーマンス推奨事項の自動生成
-- **特徴**:
-  - 371行の包括的実装
-  - 統計分析（平均、中央値、標準偏差）
-  - メモリ効率とスループット最適化の提案機能
+  - パフォーマンス推奨事項の自動生成（統計分析: 平均、中央値、標準偏差）
 
 ### 2. LargeDataBenchmark クラス
 - **場所**: `src/test/java/com/streamConverter/benchmark/LargeDataBenchmark.java`
 - **機能**:
   - 1MB〜1GBまでの多段階データサイズテスト
   - シンプル・複雑・スケーラビリティベンチマーク
-  - メモリ制約下でのパフォーマンステスト
-  - ウォームアップとベンチマーク反復実行
-- **特徴**:
-  - 436行の詳細実装
-  - JUnit 5条件付き実行（@EnabledIf）
-  - メモリ安全性チェック
+  - メモリ制約下でのパフォーマンステスト（JUnit 5 `@EnabledIf` による条件付き実行）
 
 ### 3. BenchmarkInfrastructureTest クラス
 - **場所**: `src/test/java/com/streamConverter/benchmark/BenchmarkInfrastructureTest.java`
 - **機能**:
   - ベンチマーク基盤の機能検証
-  - PerformanceAnalyzerの動作確認
-  - 小規模データでの一貫性テスト
-- **特徴**:
-  - 軽量なテストデータでの検証
-  - ベンチマーク結果の統計分析確認
+  - PerformanceAnalyzerの動作確認（軽量なテストデータで一貫性を確認）
 
 ### 4. Gradle タスク統合
 - **benchmarkInfrastructure**: ベンチマーク基盤テスト
@@ -116,19 +103,6 @@ String csvReport = analyzer.generateCSVReport();
 - 新しいベンチマークシナリオの容易な追加
 - カスタムメトリクスの実装サポート
 - CI/CD統合対応
-
-## 性能検証結果
-
-### 基盤テスト結果
-- ✅ PerformanceAnalyzer基本機能テスト: 通過
-- ✅ 複数テスト記録と統計分析: 通過  
-- ✅ メモリ効率的な小規模ベンチマーク: 通過
-- ✅ ベンチマーク結果の一貫性確認: 通過
-
-### 大容量データテスト
-- ✅ 1.7GB データファイルの処理確認
-- ✅ 2GB ヒープでの安定動作確認
-- ✅ 詳細なタイミング情報とメモリ使用量の記録
 
 ## 関連ドキュメント
 

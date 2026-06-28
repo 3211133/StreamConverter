@@ -53,12 +53,6 @@ IStreamCommand csvCommand = CsvWalker.create(
 );
 ```
 
-**Benefits**:
-- No reflection overhead
-- Clear, readable code
-- Compile-time type safety
-- Easy to understand and debug
-
 ### 2. StreamConverter Pipeline
 
 ```java
@@ -92,33 +86,16 @@ See [AUTO_LOGGING.md](AUTO_LOGGING.md) for details on the automatic logging infr
 
 ## Architecture Benefits
 
-### 1. Simplicity and Clarity
-
-**Direct Instantiation Approach**:
-```java
-// Explicit, readable command creation
-IStreamCommand csvCommand = CsvWalker.create(CSVPath.of("name"), new PassThroughRule());
-StreamConverter converter = StreamConverter.create(csvCommand);
-converter.run(inputStream, outputStream);
-```
-
-**Benefits**:
+**Benefits of direct instantiation**:
 - No hidden complexity or magic
-- Easy to understand and debug
-- Clear dependency requirements
 - No reflection overhead
+- Compile-time type safety
+- Clear, explicit dependency requirements
+- Easy to understand and debug
+- Automatic logging via `AbstractStreamCommand` — no extra configuration
+- 60% memory reduction vs factory pattern; 2,500+ lines of factory code removed
 
-### 2. Flexible Logging
-
-Add logging only where needed with minimal overhead:
-
-```java
-// Commands automatically include comprehensive logging
-IStreamCommand command = CsvWalker.create(CSVPath.of("email"), new PassThroughRule());
-// Logs: execution time, data sizes, memory usage, performance warnings
-```
-
-### 3. Multiple Integration Patterns
+### Integration Patterns
 
 **File-based Processing**:
 ```java
@@ -139,35 +116,6 @@ StreamConverter converter = StreamConverter.create(
     new CharacterConvertCommand("UTF-8", "UTF-16"),
     new LineEndingNormalizeCommand(LineEndingNormalizeCommand.LineEndingType.UNIX)
 );
-```
-
-## Usage Examples
-
-### Basic CSV Processing
-```java
-// Extract a specific column from CSV data
-IStreamCommand command = CsvWalker.create(CSVPath.of("email"), new PassThroughRule());
-StreamConverter converter = StreamConverter.create(command);
-converter.run(csvInputStream, outputStream);
-```
-
-### JSON Processing
-```java
-// JSON property extraction (auto-logged)
-IStreamCommand jsonCommand = JsonWalker.create(
-    TreePath.fromJson("user.profile.name"), new PassThroughRule());
-StreamConverter converter = StreamConverter.create(jsonCommand);
-converter.run(jsonInputStream, outputStream);
-```
-
-### XML Processing Pipeline
-```java
-// XML transformation pipeline (all commands auto-logged)
-StreamConverter converter = StreamConverter.create(
-    XmlWalker.create(TreePath.fromXml("users/user/name"), new PassThroughRule()),
-    new CharacterConvertCommand("UTF-8", "UTF-16")
-);
-converter.run(xmlInputStream, outputStream);
 ```
 
 ## Key Improvements After Factory Elimination
@@ -207,18 +155,6 @@ converter.run(xmlInputStream, outputStream);
 
 ## Implementation Details
 
-### Command Creation Pattern
-Direct instantiation via static factory methods with explicit parameters:
-
-```java
-// Clear, readable command creation
-IStreamCommand csvCommand = CsvWalker.create(
-    CSVPath.of("columnName"),    // Path specification
-    new PassThroughRule()        // Transformation rule
-);
-// Logging is automatically included via AbstractStreamCommand
-```
-
 ### Error Handling
 StreamConverter provides built-in error handling:
 - Input/output stream validation
@@ -248,12 +184,6 @@ Direct Instantiation (After):
 │ Memory Saved:       [████████████████████████████████] (40%)    │
 └─────────────────────────────────────────────────────────────────┘
 ```
-
-**Key Benefits**:
-- **No reflection overhead**: Direct instantiation is faster
-- **Memory efficient**: 60% reduction in memory usage
-- **Predictable**: Clear execution path without hidden complexity
-- **Debuggable**: Easy to step through and understand
 
 ## Available Commands
 
@@ -306,14 +236,3 @@ TreePath.fromXml("root/users/user[1]") // Specific element access
 new PassThroughRule()  // No transformation, just pass data through
 ```
 
-## Conclusion
-
-The simplified StreamConverter architecture provides:
-
-- **Simplicity**: Direct instantiation eliminates factory complexity
-- **Performance**: No reflection overhead or hidden object creation
-- **Clarity**: Explicit parameters make dependencies clear
-- **Built-in Features**: Automatic logging via AbstractStreamCommand
-- **Maintainability**: Less code to understand and maintain (2,500+ lines removed)
-
-This architecture demonstrates that simpler approaches often provide better results than complex design patterns.

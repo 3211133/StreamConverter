@@ -25,8 +25,8 @@ dependencies {
     implementation(project(":streamconverter-core"))
 
     // Logging
-    implementation("ch.qos.logback:logback-core:1.5.32")
-    implementation("ch.qos.logback:logback-classic:1.5.32")
+    implementation("ch.qos.logback:logback-core:1.5.37")
+    implementation("ch.qos.logback:logback-classic:1.5.37")
 
     // HikariCP connection pool
     implementation("com.zaxxer:HikariCP:7.0.2")

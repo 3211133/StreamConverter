@@ -140,9 +140,10 @@ public class DatabaseConnectionPool {
     if (isShutdown.get() || !isConnectionValid(connection)) {
       try {
         connection.close();
-        activeConnections.decrementAndGet();
       } catch (SQLException e) {
         logger.warn("Failed to close returned connection: {}", e.getMessage());
+      } finally {
+        activeConnections.decrementAndGet();
       }
       return;
     }
@@ -151,10 +152,11 @@ public class DatabaseConnectionPool {
       // プールが満杯の場合は接続をクローズ
       try {
         connection.close();
-        activeConnections.decrementAndGet();
         logger.debug("Closed excess connection - Active connections: {}", activeConnections.get());
       } catch (SQLException e) {
         logger.warn("Failed to close excess connection: {}", e.getMessage());
+      } finally {
+        activeConnections.decrementAndGet();
       }
     } else {
       logger.debug("Returned connection to pool");

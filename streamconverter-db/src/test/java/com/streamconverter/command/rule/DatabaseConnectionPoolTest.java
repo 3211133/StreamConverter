@@ -9,7 +9,6 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.SQLException;
 import org.junit.jupiter.api.DisplayName;
-import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.MockedStatic;
 import org.mockito.Mockito;
@@ -22,7 +21,6 @@ import org.mockito.Mockito;
 class DatabaseConnectionPoolTest {
 
   @Test
-  @Tag("known-bug") // #817
   @DisplayName("returnConnection が close() 失敗後も activeConnections をデクリメントして次の接続取得を可能にする")
   void returnConnection_decrementsActiveConnectionsEvenWhenCloseFails() throws SQLException {
     // returnConnection() は close() が SQLException をスローしても activeConnections を減算すべき。

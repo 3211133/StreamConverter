@@ -25,7 +25,7 @@ dependencies {
     implementation(project(":streamconverter-core"))
 
     // Import Spring Boot BOM to align Spring/Reactor/Netty versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.6"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.0"))
     // Override Netty version to 4.2.13.Final (fixes CVE-2026-42577 et al.)
     implementation(platform("io.netty:netty-bom:4.2.13.Final"))
 

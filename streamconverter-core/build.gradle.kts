@@ -54,7 +54,7 @@ dependencies {
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:6.0.3"))
-    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.0.6"))
+    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")

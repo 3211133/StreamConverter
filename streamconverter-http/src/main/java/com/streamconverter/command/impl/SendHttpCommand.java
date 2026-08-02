@@ -1,6 +1,6 @@
 package com.streamconverter.command.impl;
 
-import com.google.common.net.InetAddresses;
+import com.streamconverter.UncheckedStreamException;
 import com.streamconverter.command.IStreamCommand;
 import java.io.IOException;
 import java.io.InputStream;
@@ -8,7 +8,6 @@ import java.io.OutputStream;
 import java.net.InetAddress;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.net.UnknownHostException;
 import java.time.Duration;
 import java.util.Objects;
 import org.slf4j.Logger;
@@ -33,7 +32,7 @@ public class SendHttpCommand implements IStreamCommand {
 
   private final String url;
   private final WebClient webClient;
-  private final InetAddressResolver inetAddressResolver;
+  private final SsrfUrlValidator ssrfUrlValidator;
 
   /**
    * デフォルトコンストラクタ
@@ -58,8 +57,8 @@ public class SendHttpCommand implements IStreamCommand {
   }
 
   SendHttpCommand(String url, WebClient webClient, InetAddressResolver resolver) {
-    this.inetAddressResolver = Objects.requireNonNull(resolver);
-    this.url = validateAndSanitizeUrl(url);
+    this.ssrfUrlValidator = new SsrfUrlValidator(resolver);
+    this.url = ssrfUrlValidator.validateAndSanitizeUrl(url);
     this.webClient = Objects.requireNonNull(webClient, "webClient must not be null");
   }
 
@@ -82,122 +81,6 @@ public class SendHttpCommand implements IStreamCommand {
   }
 
   /**
-   * URLの検証とサニタイゼーションを行う
-   *
-   * @param url 検証するURL
-   * @return 検証済みURL
-   * @throws IllegalArgumentException URLが無効な場合
-   */
-  private String validateAndSanitizeUrl(String url) {
-    Objects.requireNonNull(url, "URL cannot be null");
-
-    String trimmedUrl = url.trim();
-    if (trimmedUrl.isEmpty()) {
-      throw new IllegalArgumentException("URL cannot be empty");
-    }
-
-    try {
-      URI uri = new URI(trimmedUrl);
-      String scheme = uri.getScheme();
-
-      if (scheme == null) {
-        throw new IllegalArgumentException("URL must have a scheme (http or https)");
-      }
-
-      if (!"http".equalsIgnoreCase(scheme) && !"https".equalsIgnoreCase(scheme)) {
-        throw new IllegalArgumentException("Only HTTP and HTTPS protocols are allowed");
-      }
-
-      String host = uri.getHost();
-      if (host == null || host.trim().isEmpty()) {
-        throw new IllegalArgumentException("URL must have a valid host");
-      }
-
-      // ローカルホストや内部IPアドレスへのアクセスを防ぐ
-      if (isLocalhost(host) || isPrivateIpAddress(host)) {
-        throw new IllegalArgumentException(
-            "Access to localhost or private IP addresses is not allowed");
-      }
-
-      return trimmedUrl;
-    } catch (URISyntaxException e) {
-      throw new IllegalArgumentException("Invalid URL format: " + e.getMessage(), e);
-    }
-  }
-
-  /**
-   * execute()直前にホスト名を再DNS解決してSSRF（DNS rebinding）を検出する。
-   *
-   * <p>リテラルIPはDNS rebindingの対象外なのでスキップする。ホスト名の場合のみ再解決を行い、 localhost判定またはプライベートIP判定に変化していれば {@link
-   * IOException} をスローする。
-   */
-  private void revalidateHostForSsrf() throws IOException {
-    try {
-      URI uri = new URI(url);
-      String host = uri.getHost();
-      if (host == null || InetAddresses.isInetAddress(host)) {
-        return;
-      }
-      if (isLocalhost(host)) {
-        throw new IOException("DNS rebinding detected: host resolved to localhost: " + host);
-      }
-      InetAddress[] addresses = inetAddressResolver.getAllByName(host);
-      for (InetAddress address : addresses) {
-        if (isNonRoutable(address)) {
-          throw new IOException(
-              "DNS rebinding detected: host resolved to non-routable address: " + address);
-        }
-      }
-    } catch (URISyntaxException | UnknownHostException e) {
-      throw new IOException("SSRF revalidation failed: " + e.getMessage(), e);
-    }
-  }
-
-  /** ローカルホストかどうかを判定する */
-  private boolean isLocalhost(String host) {
-    if (host == null) {
-      return false;
-    }
-
-    // Handle IPv6 addresses with brackets
-    String cleanHost =
-        host.startsWith("[") && host.endsWith("]") ? host.substring(1, host.length() - 1) : host;
-
-    return "localhost".equalsIgnoreCase(cleanHost)
-        || "127.0.0.1".equals(cleanHost)
-        || "::1".equals(cleanHost);
-  }
-
-  /** ホストがプライベートIPに解決されるかを判定する。 リテラルIPはGuavaで即解析し、ホスト名はDNS解決後に検査する。 解決不能なホスト名は例外をスローしてアクセスを拒否する。 */
-  private boolean isPrivateIpAddress(String host) {
-    // まずリテラルIPとして解析を試みる
-    if (InetAddresses.isInetAddress(host)) {
-      InetAddress address = InetAddresses.forString(host);
-      return isNonRoutable(address);
-    }
-    // ホスト名: DNS解決して全アドレスを検査する
-    try {
-      InetAddress[] addresses = inetAddressResolver.getAllByName(host);
-      for (InetAddress address : addresses) {
-        if (isNonRoutable(address)) {
-          return true;
-        }
-      }
-      return false;
-    } catch (UnknownHostException e) {
-      throw new IllegalArgumentException("Cannot resolve hostname: " + host, e);
-    }
-  }
-
-  private static boolean isNonRoutable(InetAddress address) {
-    return address.isSiteLocalAddress()
-        || address.isLoopbackAddress()
-        || address.isLinkLocalAddress()
-        || address.isAnyLocalAddress()
-        || address.isMulticastAddress();
-  }
-
-  /**
    * ストリームを指定されたURLに送信します。
    *
    * <p>SSRF防御のため、送信直前にURLのホスト名を再度DNS解決し、プライベートIPへの変化を検出した場合は {@link IOException} をスローします（DNS
@@ -208,12 +91,16 @@ public class SendHttpCommand implements IStreamCommand {
    * @param outputStream 出力ストリーム
    * @throws IOException DNS rebindingを検出した場合、または入出力エラーが発生した場合
    */
+  // AvoidCatchingGenericException: WebClient / Reactor は下位の失敗を任意の RuntimeException として
+  // 送出するため、コマンド境界でまとめて捕捉し、URLをサニタイズした IOException へ変換する必要がある。
+  // 握り潰さず cause を保持して再スローするため、IStreamCommand.withLogging と同種の正当な境界catch。
+  @SuppressWarnings("PMD.AvoidCatchingGenericException")
   @Override
   public void execute(InputStream inputStream, OutputStream outputStream) throws IOException {
     Objects.requireNonNull(inputStream, "inputStream must not be null");
     Objects.requireNonNull(outputStream, "outputStream must not be null");
 
-    revalidateHostForSsrf();
+    ssrfUrlValidator.revalidateHostForSsrf(url);
 
     String safeUrl = sanitizeUrl(url);
     logger.info("Sending HTTP POST request to: {}", safeUrl);
@@ -252,34 +139,8 @@ public class SendHttpCommand implements IStreamCommand {
                                       truncate(errorBody, 256)))))
           .bodyToFlux(org.springframework.core.io.buffer.DataBuffer.class)
           .timeout(Duration.ofMinutes(5)) // 大容量データ処理のため5分に延長
-          .doOnNext(
-              dataBuffer -> {
-                // Ensure DataBuffer is always released, even if write fails
-                try {
-                  // ストリーミング処理：8KBずつレスポンスを処理
-                  byte[] bytes = new byte[dataBuffer.readableByteCount()];
-                  dataBuffer.read(bytes);
-                  outputStream.write(bytes);
-                  totalBytesWritten[0] += bytes.length;
-                } catch (IOException e) {
-                  throw new RuntimeException(
-                      String.format(
-                          "Failed to write response data to output stream (url=%s, bytesWritten=%d)",
-                          sanitizeUrl(url), totalBytesWritten[0]),
-                      e);
-                } finally {
-                  org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);
-                }
-              })
-          .doOnComplete(
-              () -> {
-                try {
-                  outputStream.flush();
-                  logger.info("HTTP response streaming completed successfully");
-                } catch (IOException e) {
-                  throw new RuntimeException("Failed to flush output stream", e);
-                }
-              })
+          .doOnNext(dataBuffer -> writeChunk(dataBuffer, outputStream, totalBytesWritten))
+          .doOnComplete(() -> flushResponse(outputStream))
           .blockLast(); // Intentionally synchronous: IStreamCommand interface requires
       // blocking execution
       // for compatibility with existing command pipeline. Alternative: use subscribe()
@@ -294,6 +155,49 @@ public class SendHttpCommand implements IStreamCommand {
       String errorMessage = "HTTP request failed: " + safeUrl;
       logger.error(errorMessage, e);
       throw new IOException(errorMessage, e);
+    }
+  }
+
+  /**
+   * レスポンスの1チャンクを出力ストリームへ書き出す。
+   *
+   * <p>{@code doOnNext} のコールバックはチェック例外を宣言できないため、{@link IOException} は {@link
+   * UncheckedStreamException} に載せて搬送し、{@link #execute} の catch 節で {@link IOException} に戻す。
+   */
+  private void writeChunk(
+      org.springframework.core.io.buffer.DataBuffer dataBuffer,
+      OutputStream outputStream,
+      long[] totalBytesWritten) {
+    // Ensure DataBuffer is always released, even if write fails
+    try {
+      // ストリーミング処理：8KBずつレスポンスを処理
+      byte[] bytes = new byte[dataBuffer.readableByteCount()];
+      dataBuffer.read(bytes);
+      outputStream.write(bytes);
+      totalBytesWritten[0] += bytes.length;
+    } catch (IOException e) {
+      throw new UncheckedStreamException(
+          new IOException(
+              String.format(
+                  "Failed to write response data to output stream (url=%s, bytesWritten=%d)",
+                  sanitizeUrl(url), totalBytesWritten[0]),
+              e));
+    } finally {
+      org.springframework.core.io.buffer.DataBufferUtils.release(dataBuffer);
+    }
+  }
+
+  /**
+   * ストリーミング完了時に出力ストリームをフラッシュする。
+   *
+   * <p>{@link #writeChunk} と同様に、{@link IOException} は {@link UncheckedStreamException} に載せて搬送する。
+   */
+  private void flushResponse(OutputStream outputStream) {
+    try {
+      outputStream.flush();
+      logger.info("HTTP response streaming completed successfully");
+    } catch (IOException e) {
+      throw new UncheckedStreamException(new IOException("Failed to flush output stream", e));
     }
   }
 

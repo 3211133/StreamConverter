@@ -23,7 +23,7 @@ public class ResourceMonitor {
   private long startMemory;
   private long dataSize;
   private ScheduledExecutorService executor;
-  private volatile boolean monitoring = false;
+  private volatile boolean monitoring;
 
   /** Creates a new {@code ResourceMonitor}. */
   public ResourceMonitor() {}
@@ -84,7 +84,7 @@ public class ResourceMonitor {
     long duration = endTime - startTime;
     long memoryUsed = peakMemory.get() - startMemory;
     double throughputMBps =
-        dataSize > 0 && duration > 0 ? (dataSize / 1024.0 / 1024.0) / (duration / 1000.0) : 0.0;
+        dataSize > 0 && duration > 0 ? dataSize / 1024.0 / 1024.0 / (duration / 1000.0) : 0.0;
 
     return new ResourceUsage(
         duration,
@@ -99,7 +99,9 @@ public class ResourceMonitor {
 
   /** 現在のメモリ使用量を更新 */
   private void updateMemoryUsage() {
-    if (!monitoring) return;
+    if (!monitoring) {
+      return;
+    }
 
     long current = getCurrentMemoryUsage();
     currentMemory.set(current);
@@ -122,6 +124,10 @@ public class ResourceMonitor {
   }
 
   /** ガベージコレクションを強制実行 */
+  // DoNotCallGarbageCollectionExplicitly: 本クラスはベンチマークの計測基盤であり、
+  // 計測開始・終了時点のヒープ使用量を安定させるために明示的なGCが必要。
+  // GCを外すと start()/stop() 間のメモリ差分に未回収オブジェクトが混入し、測定値が無意味になる。
+  @SuppressWarnings("PMD.DoNotCallGarbageCollectionExplicitly")
   private void forceGC() {
     System.gc();
     System.gc(); // 2回実行してより確実にクリーンアップ

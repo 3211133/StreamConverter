@@ -52,8 +52,6 @@ public class JacocoXmlToModuleSlocCommand implements IStreamCommand {
       } finally {
         reader.close();
       }
-    } catch (IOException e) {
-      throw e;
     } catch (XMLStreamException e) {
       throw new IOException(
           "Failed to parse JaCoCo XML at " + e.getLocation() + ": " + e.getMessage(), e);
@@ -62,49 +60,79 @@ public class JacocoXmlToModuleSlocCommand implements IStreamCommand {
 
   private void parseAll(XMLStreamReader reader, ObjectOutputStream oos)
       throws XMLStreamException, IOException {
-    String currentModule = null;
-    boolean lineCounterFound = false;
-    int depth = 0;
+    ParseState state = new ParseState();
 
     while (reader.hasNext()) {
       int event = reader.next();
       if (event == XMLStreamConstants.START_ELEMENT) {
-        depth++;
-        String localName = reader.getLocalName();
-        if (depth == 2 && "report".equals(localName)) {
-          currentModule = reader.getAttributeValue(null, "name");
-          lineCounterFound = false;
-        } else if (depth == 3
-            && "counter".equals(localName)
-            && "LINE".equals(reader.getAttributeValue(null, "type"))
-            && currentModule != null) {
-          try {
-            int missed = Integer.parseInt(reader.getAttributeValue(null, "missed"));
-            int covered = Integer.parseInt(reader.getAttributeValue(null, "covered"));
-            oos.writeObject(new ModuleSloc(currentModule, missed + covered, covered, missed));
-            lineCounterFound = true;
-          } catch (NumberFormatException e) {
-            throw new IOException(
-                "Invalid LINE counter attribute in JaCoCo XML for module "
-                    + currentModule
-                    + ": "
-                    + e.getMessage(),
-                e);
-          }
-        }
+        handleStartElement(reader, oos, state);
       } else if (event == XMLStreamConstants.END_ELEMENT) {
-        if (depth == 2 && currentModule != null) {
-          if (!lineCounterFound) {
-            log.warn(
-                "No LINE counter found in JaCoCo report for module '{}'. "
-                    + "Check JaCoCo XML format or coverage configuration.",
-                currentModule);
-            oos.writeObject(new ModuleSloc(currentModule, 0, 0, 0));
-          }
-          currentModule = null;
-        }
-        depth--;
+        handleEndElement(oos, state);
       }
     }
+  }
+
+  /** {@code <report>} でモジュール名を確定し、その直下の LINE カウンターを書き出す。 */
+  private void handleStartElement(XMLStreamReader reader, ObjectOutputStream oos, ParseState state)
+      throws IOException {
+    state.depth++;
+    String localName = reader.getLocalName();
+    if (state.depth == 2 && "report".equals(localName)) {
+      state.currentModule = reader.getAttributeValue(null, "name");
+      state.lineCounterFound = false;
+    } else if (isLineCounter(reader, localName, state)) {
+      writeLineCounter(reader, oos, state);
+    }
+  }
+
+  /** report 直下の {@code <counter type="LINE">} かどうかを判定する。 */
+  private static boolean isLineCounter(XMLStreamReader reader, String localName, ParseState state) {
+    return state.depth == 3
+        && "counter".equals(localName)
+        && "LINE".equals(reader.getAttributeValue(null, "type"))
+        && state.currentModule != null;
+  }
+
+  /** LINE カウンターの missed/covered を {@link ModuleSloc} として書き出す。 */
+  private void writeLineCounter(XMLStreamReader reader, ObjectOutputStream oos, ParseState state)
+      throws IOException {
+    try {
+      int missed = Integer.parseInt(reader.getAttributeValue(null, "missed"));
+      int covered = Integer.parseInt(reader.getAttributeValue(null, "covered"));
+      oos.writeObject(new ModuleSloc(state.currentModule, missed + covered, covered, missed));
+      state.lineCounterFound = true;
+    } catch (NumberFormatException e) {
+      throw new IOException(
+          "Invalid LINE counter attribute in JaCoCo XML for module "
+              + state.currentModule
+              + ": "
+              + e.getMessage(),
+          e);
+    }
+  }
+
+  /** {@code </report>} でモジュールを閉じる。LINE カウンターが無かった場合はゼロ件として記録する。 */
+  // NullAssignment: currentModule への null 代入はストリーミングパーサの状態リセットであり、
+  // 「モジュール外にいる」ことを表す意図的なセンチネル。
+  @SuppressWarnings("PMD.NullAssignment")
+  private void handleEndElement(ObjectOutputStream oos, ParseState state) throws IOException {
+    if (state.depth == 2 && state.currentModule != null) {
+      if (!state.lineCounterFound) {
+        log.warn(
+            "No LINE counter found in JaCoCo report for module '{}'. "
+                + "Check JaCoCo XML format or coverage configuration.",
+            state.currentModule);
+        oos.writeObject(new ModuleSloc(state.currentModule, 0, 0, 0));
+      }
+      state.currentModule = null;
+    }
+    state.depth--;
+  }
+
+  /** ストリーミングパース中の可変状態。抽出したハンドラ間で受け渡すための入れ物。 */
+  private static final class ParseState {
+    private String currentModule;
+    private boolean lineCounterFound;
+    private int depth;
   }
 }

@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("pmd")
     id("org.springframework.boot") version "4.0.6"
     id("io.spring.dependency-management") version "1.1.7"
 }
@@ -43,4 +44,25 @@ tasks.bootJar {
 tasks.jar {
     enabled = true
     archiveClassifier.set("")
+}
+
+// PMD configuration for code smell detection
+pmd {
+    isConsoleOutput = false
+    toolVersion = "7.16.0"
+    rulesMinimumPriority = 5
+    ruleSetFiles = rootProject.files("config/pmd/ruleset.xml")
+    ruleSets = emptyList()
+}
+
+tasks.pmdMain {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+    exclude("**/examples/**", "**/demo/**")
+}
+
+tasks.pmdTest {
+    ignoreFailures = true
 }

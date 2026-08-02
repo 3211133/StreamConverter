@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.util.Locale;
 import java.util.Scanner;
 
 // import org.h2.tools.Server; // H2のWebサーバー機能は依存関係の問題でコメントアウト
@@ -16,9 +17,23 @@ import java.util.Scanner;
  * <p>このツールでは以下の方法でH2データベースにアクセスできます： 1. H2 Web Console（ブラウザ経由） 2. 対話型SQLクライアント（コマンドライン） 3.
  * データベース構造の表示
  */
-public class DatabaseInspector {
+// 対話型コンソールツールのため、System.out/err は「ログ」ではなく利用者向けUIチャネルそのもの。
+// Scanner で標準入力を読み、メニューと結果を標準出力へ返す REPL であり、Logger への置換は用途上不適切。
+// AvoidCatchingGenericException / AvoidPrintStackTrace は、対話セッションを異常終了させずに
+// エラー内容を利用者へ提示するための最上位境界での処理。
+@SuppressWarnings({
+  "PMD.SystemPrintln",
+  "PMD.AvoidPrintStackTrace",
+  "PMD.AvoidCatchingGenericException",
+  "PMD.TooManyMethods"
+})
+public final class DatabaseInspector {
 
   private static final String DEFAULT_DB_URL = "jdbc:h2:mem:demo;DB_CLOSE_DELAY=-1";
+
+  private DatabaseInspector() {
+    // ユーティリティクラスのためインスタンス化しない
+  }
 
   public static void main(String[] args) {
     try {
@@ -169,7 +184,7 @@ public class DatabaseInspector {
     try (Connection conn = DriverManager.getConnection(DEFAULT_DB_URL)) {
       try (PreparedStatement stmt = conn.prepareStatement(query)) {
 
-        if (query.trim().toUpperCase().startsWith("SELECT")) {
+        if (query.trim().toUpperCase(Locale.ROOT).startsWith("SELECT")) {
           // SELECT文の場合
           try (ResultSet rs = stmt.executeQuery()) {
             System.out.println("\n🔍 クエリ結果:");

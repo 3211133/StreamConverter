@@ -252,7 +252,7 @@ public class PerformanceAnalyzer {
 
       this.throughput =
           totalExecutionTime > 0
-              ? (totalDataSize / 1024.0 / 1024.0) / (totalExecutionTime / 1000.0)
+              ? totalDataSize / 1024.0 / 1024.0 / (totalExecutionTime / 1000.0)
               : 0.0;
 
       this.peakMemoryUsage = 0L;
@@ -260,6 +260,9 @@ public class PerformanceAnalyzer {
   }
 
   /** パフォーマンス統計クラス */
+  // DataClass: ベンチマーク統計を保持する不変の値オブジェクト。
+  // 集計ロジックはコンストラクタ内に閉じており、振る舞いは PerformanceAnalyzer 側が持つ設計。
+  @SuppressWarnings("PMD.DataClass")
   public static class PerformanceStatistics {
     /** 平均実行時間（ミリ秒） */
     public final double averageExecutionTime;

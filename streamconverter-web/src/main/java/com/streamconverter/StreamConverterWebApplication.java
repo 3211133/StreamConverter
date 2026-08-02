@@ -9,6 +9,9 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * <p>This application provides REST endpoints for processing data streams using the existing
  * StreamConverter functionality.
  */
+// UseUtilityClass: Spring Boot のエントリポイントは private コンストラクタを持てない。
+// SpringApplication.run() がこのクラスを構成クラスとして扱うため、ユーティリティクラス化は不可。
+@SuppressWarnings("PMD.UseUtilityClass")
 @SpringBootApplication
 public class StreamConverterWebApplication {
 

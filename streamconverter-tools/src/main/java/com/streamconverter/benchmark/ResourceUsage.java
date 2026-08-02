@@ -162,7 +162,9 @@ public class ResourceUsage {
    * @return メモリ効率性（0.0-1.0、低いほど効率的）
    */
   public double getMemoryEfficiency() {
-    if (dataSizeBytes == 0) return 0.0;
+    if (dataSizeBytes == 0) {
+      return 0.0;
+    }
     return (double) memoryUsedBytes / dataSizeBytes;
   }
 

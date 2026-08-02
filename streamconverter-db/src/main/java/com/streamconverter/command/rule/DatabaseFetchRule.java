@@ -161,49 +161,57 @@ public class DatabaseFetchRule implements IRule {
       // クエリ実行
       logger.debug("クエリを実行: {}", query);
       try (ResultSet resultSet = statement.executeQuery()) {
-        // 結果の検証と処理
-        ResultSetMetaData metaData = resultSet.getMetaData();
-        int columnCount = metaData.getColumnCount();
-
-        // 結果がない場合
-        if (!resultSet.next()) {
-          logger.warn("クエリ結果が空です。");
-          return "";
-        }
-
-        // 列数の検証
-        if (columnCount != 1) {
-          logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);
-        }
-
-        // 先頭行の先頭列の値を取得
-        String value = resultSet.getString(1);
-
-        // 追加の行があるかチェック
-        boolean hasMoreRows = resultSet.next();
-        if (hasMoreRows) {
-          logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");
-        }
-
-        // nullチェック
-        if (value == null) {
-          logger.info("クエリ結果の先頭値がNULLです。");
-          return ""; // NULLの場合は空文字列を返す
-        }
-
-        // 結果が理想的（1行1列）かどうかをログに記録
-        if (columnCount == 1 && !hasMoreRows) {
-          logger.info("データベースから単一値を取得しました: {}", value);
-        } else {
-          logger.info("データベースから先頭値を取得しました: {}", value);
-        }
-
-        return value;
+        return extractFirstValue(resultSet);
       }
     } catch (SQLException e) {
       // 例外規定のログ規約: ルール層での log&rethrow は禁止。SQLException（suppressed 含む）は
       // cause チェーンとして伝播し、最終的に withLogging がスタックトレース付きで記録する
       throw new UncheckedStreamException(new ExternalPermanentException("データベースフェッチに失敗しました", e));
     }
+  }
+
+  /** ResultSet から先頭行・先頭列の値を取得して返す。結果なしの場合は空文字列を返す。 */
+  // CheckResultSet: next() の戻り値は hasMoreRows に束縛して直後の分岐で判定しているため無視していない。
+  // PMD は変数代入形式を未チェック扱いに誤検知する。
+  @SuppressWarnings("PMD.CheckResultSet")
+  private String extractFirstValue(ResultSet resultSet) throws SQLException {
+    // 結果の検証と処理
+    ResultSetMetaData metaData = resultSet.getMetaData();
+    int columnCount = metaData.getColumnCount();
+
+    // 結果がない場合
+    if (!resultSet.next()) {
+      logger.warn("クエリ結果が空です。");
+      return "";
+    }
+
+    // 列数の検証
+    if (columnCount != 1) {
+      logger.warn("クエリ結果が一列ではありません。列数: {}。先頭列の値を使用します。", columnCount);
+    }
+
+    // 先頭行の先頭列の値を取得
+    String value = resultSet.getString(1);
+
+    // 追加の行があるかチェック
+    boolean hasMoreRows = resultSet.next();
+    if (hasMoreRows) {
+      logger.warn("クエリ結果が複数行あります。先頭行の値を使用します。");
+    }
+
+    // nullチェック
+    if (value == null) {
+      logger.info("クエリ結果の先頭値がNULLです。");
+      return ""; // NULLの場合は空文字列を返す
+    }
+
+    // 結果が理想的（1行1列）かどうかをログに記録
+    if (columnCount == 1 && !hasMoreRows) {
+      logger.info("データベースから単一値を取得しました: {}", value);
+    } else {
+      logger.info("データベースから先頭値を取得しました: {}", value);
+    }
+
+    return value;
   }
 }

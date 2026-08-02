@@ -7,6 +7,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Instant;
+import java.util.Locale;
 import java.util.Random;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -58,13 +59,17 @@ public class LargeDataGenerator {
       while (currentSize < targetSizeBytes) {
         String record = generateXmlRecord(recordCount++, random);
         writer.write(record);
-        currentSize += record.getBytes("UTF-8").length;
+        currentSize += record.getBytes(StandardCharsets.UTF_8).length;
 
         // 進捗表示（大きなファイルの場合）
-        if (recordCount % 100000 == 0 && targetSizeBytes > 100 * 1024 * 1024) {
-          if (LOG.isInfoEnabled()) {
-            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);
-          }
+        if (recordCount % 100_000 == 0
+            && targetSizeBytes > 100 * 1024 * 1024
+            && LOG.isInfoEnabled()) {
+          // SLF4J のプレースホルダは {} のみ。小数桁は事前に整形する。
+          LOG.info(
+              "Generated {} records, {} MB",
+              recordCount,
+              String.format(Locale.ROOT, "%.2f", currentSize / 1024.0 / 1024.0));
         }
       }
 
@@ -99,12 +104,16 @@ public class LargeDataGenerator {
 
         String record = generateJsonRecord(recordCount++, random);
         writer.write(record);
-        currentSize += record.getBytes("UTF-8").length;
+        currentSize += record.getBytes(StandardCharsets.UTF_8).length;
 
-        if (recordCount % 100000 == 0 && targetSizeBytes > 100 * 1024 * 1024) {
-          if (LOG.isInfoEnabled()) {
-            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);
-          }
+        if (recordCount % 100_000 == 0
+            && targetSizeBytes > 100 * 1024 * 1024
+            && LOG.isInfoEnabled()) {
+          // SLF4J のプレースホルダは {} のみ。小数桁は事前に整形する。
+          LOG.info(
+              "Generated {} records, {} MB",
+              recordCount,
+              String.format(Locale.ROOT, "%.2f", currentSize / 1024.0 / 1024.0));
         }
       }
 
@@ -129,19 +138,23 @@ public class LargeDataGenerator {
       // CSVヘッダー
       String header = "id,name,city,product,quantity,price,timestamp\n";
       writer.write(header);
-      long currentSize = header.getBytes("UTF-8").length;
+      long currentSize = header.getBytes(StandardCharsets.UTF_8).length;
 
       int recordCount = 0;
 
       while (currentSize < targetSizeBytes) {
         String record = generateCsvRecord(recordCount++, random);
         writer.write(record);
-        currentSize += record.getBytes("UTF-8").length;
+        currentSize += record.getBytes(StandardCharsets.UTF_8).length;
 
-        if (recordCount % 100000 == 0 && targetSizeBytes > 100 * 1024 * 1024) {
-          if (LOG.isInfoEnabled()) {
-            LOG.info("Generated {} records, {:.2f} MB", recordCount, currentSize / 1024.0 / 1024.0);
-          }
+        if (recordCount % 100_000 == 0
+            && targetSizeBytes > 100 * 1024 * 1024
+            && LOG.isInfoEnabled()) {
+          // SLF4J のプレースホルダは {} のみ。小数桁は事前に整形する。
+          LOG.info(
+              "Generated {} records, {} MB",
+              recordCount,
+              String.format(Locale.ROOT, "%.2f", currentSize / 1024.0 / 1024.0));
         }
       }
     }
@@ -155,7 +168,7 @@ public class LargeDataGenerator {
     String city = SAMPLE_CITIES[random.nextInt(SAMPLE_CITIES.length)];
     String product = SAMPLE_PRODUCTS[random.nextInt(SAMPLE_PRODUCTS.length)];
     int quantity = random.nextInt(10) + 1;
-    double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;
+    double price = Math.round((random.nextDouble() * 10_000 + 1000) * 100) / 100.0;
 
     return String.format(
         "  <order id=\"%d\">%n"
@@ -185,7 +198,7 @@ public class LargeDataGenerator {
     String city = SAMPLE_CITIES[random.nextInt(SAMPLE_CITIES.length)];
     String product = SAMPLE_PRODUCTS[random.nextInt(SAMPLE_PRODUCTS.length)];
     int quantity = random.nextInt(10) + 1;
-    double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;
+    double price = Math.round((random.nextDouble() * 10_000 + 1000) * 100) / 100.0;
 
     return String.format(
         "    {%n"
@@ -216,7 +229,7 @@ public class LargeDataGenerator {
     String city = SAMPLE_CITIES[random.nextInt(SAMPLE_CITIES.length)];
     String product = SAMPLE_PRODUCTS[random.nextInt(SAMPLE_PRODUCTS.length)];
     int quantity = random.nextInt(10) + 1;
-    double price = Math.round((random.nextDouble() * 10000 + 1000) * 100) / 100.0;
+    double price = Math.round((random.nextDouble() * 10_000 + 1000) * 100) / 100.0;
 
     return String.format(
         "%d,\"%s\",\"%s\",\"%s\",%d,%.2f,\"%s\"%n",
@@ -254,21 +267,72 @@ public class LargeDataGenerator {
     return new LargeDataInputStream(format, targetSizeBytes);
   }
 
+  /**
+   * 生成対象のデータフォーマット。
+   *
+   * <p>ヘッダー・フッター・レコード生成をフォーマットごとに集約し、 生成処理側の分岐（旧実装では同一の {@code switch (format)} が3箇所に重複していた）を排除する。
+   */
+  private enum Format {
+    XML("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<orders>\n", "</orders>\n"),
+    JSON("{\n  \"orders\": [\n", "\n  ]\n}\n"),
+    CSV("id,name,city,product,quantity,price,timestamp\n", "");
+
+    private final String headerText;
+    private final String footerText;
+
+    Format(String headerText, String footerText) {
+      this.headerText = headerText;
+      this.footerText = footerText;
+    }
+
+    String header() {
+      return headerText;
+    }
+
+    String footer() {
+      return footerText;
+    }
+
+    int footerSizeBytes() {
+      return footerText.getBytes(StandardCharsets.UTF_8).length;
+    }
+
+    String generateRecord(int id, Random random) {
+      return switch (this) {
+        case XML -> generateXmlRecord(id, random);
+        case JSON -> generateJsonRecord(id, random);
+        case CSV -> generateCsvRecord(id, random);
+      };
+    }
+
+    static Format from(String rawFormat) {
+      try {
+        return Format.valueOf(rawFormat.toUpperCase(Locale.ROOT));
+      } catch (IllegalArgumentException e) {
+        throw new IllegalArgumentException("Unsupported format: " + rawFormat, e);
+      }
+    }
+  }
+
   /** メモリ効率的な大容量データInputStream実装 */
   private static class LargeDataInputStream extends InputStream {
-    private final String format;
+
+    /** 1チャンクの上限。64KB制限でメモリ効率を確保する。 */
+    private static final int MAX_CHUNK_SIZE = 64 * 1024;
+
+    private final Format format;
     private final long totalSize;
-    private long bytesGenerated = 0;
+    private long bytesGenerated;
     private byte[] buffer = new byte[0];
-    private int bufferPosition = 0;
-    private int recordCount = 0;
-    private boolean headerWritten = false;
-    private boolean footerWritten = false;
-    private boolean isDocumentComplete = false;
+    private int bufferPosition;
+    private int recordCount;
+    private boolean headerWritten;
+    private boolean footerWritten;
+    private boolean isDocumentComplete;
     private final Random random = new Random(42);
 
-    public LargeDataInputStream(String format, long totalSize) {
-      this.format = format.toUpperCase();
+    LargeDataInputStream(String format, long totalSize) {
+      this.format = Format.from(format);
       this.totalSize = totalSize;
     }
 
@@ -295,7 +359,9 @@ public class LargeDataGenerator {
       while (totalRead < len && (!isDocumentComplete || bufferPosition < buffer.length)) {
         if (bufferPosition >= buffer.length) {
           generateNextChunk();
-          if (buffer.length == 0) break;
+          if (buffer.length == 0) {
+            break;
+          }
           bufferPosition = 0;
         }
 
@@ -319,115 +385,72 @@ public class LargeDataGenerator {
       StringBuilder chunk = new StringBuilder();
 
       // フッターの必要なサイズを計算（マージンを含む）
-      int footerSize = calculateFooterSize();
+      int footerSize = format.footerSizeBytes();
       long remainingBytes = totalSize - bytesGenerated;
 
       // ヘッダー生成
       if (!headerWritten) {
-        switch (format) {
-          case "XML":
-            chunk.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n<orders>\n");
-            break;
-          case "JSON":
-            chunk.append("{\n  \"orders\": [\n");
-            break;
-          case "CSV":
-            chunk.append("id,name,city,product,quantity,price,timestamp\n");
-            break;
-          default:
-            throw new IllegalArgumentException("Unsupported format: " + format);
-        }
+        chunk.append(format.header());
         headerWritten = true;
       }
 
-      // フッター生成のタイミングチェック（厳密な制御）
-      boolean shouldGenerateFooter =
-          !footerWritten
-              && (remainingBytes <= footerSize + 100
-                  || // 最小限のマージン
-                  (chunk.length() == 0 && remainingBytes < 500)); // ヘッダーのみで小さすぎる場合
-
-      if (shouldGenerateFooter) {
-        switch (format) {
-          case "XML":
-            chunk.append("</orders>\n");
-            break;
-          case "JSON":
-            chunk.append("\n  ]\n}\n");
-            break;
-          case "CSV":
-            // CSVにはフッターなし
-            break;
-        }
+      if (shouldGenerateFooter(chunk.length(), remainingBytes, footerSize)) {
+        chunk.append(format.footer());
         footerWritten = true;
         isDocumentComplete = true;
       } else {
-        // レコード生成（メモリ効率重視、チャンクサイズ制限）
-        long availableSpace = remainingBytes - footerSize - 50; // 安全マージン
-        final int MAX_CHUNK_SIZE = 64 * 1024; // 64KB制限でメモリ効率向上
-
-        while (availableSpace > 0 && !shouldGenerateFooter && chunk.length() < MAX_CHUNK_SIZE) {
-          // JSON カンマ追加
-          String separator = "";
-          if (format.equals("JSON") && recordCount > 0 && chunk.length() > 50) {
-            separator = ",\n";
-          }
-
-          String record;
-          switch (format) {
-            case "XML":
-              record = generateXmlRecord(recordCount, random);
-              break;
-            case "JSON":
-              record = generateJsonRecord(recordCount, random);
-              break;
-            case "CSV":
-              record = generateCsvRecord(recordCount, random);
-              break;
-            default:
-              record = "Unknown format\n";
-          }
-
-          // サイズチェック（より厳密）
-          int nextAdditionSize = separator.length() + record.length();
-          if (nextAdditionSize > availableSpace
-              || chunk.length() + nextAdditionSize > MAX_CHUNK_SIZE) {
-            break; // これ以上追加できない
-          }
-
-          // レコード追加
-          chunk.append(separator).append(record);
-          recordCount++;
-          availableSpace -= nextAdditionSize;
-
-          // 次回のフッター生成判定を更新
-          shouldGenerateFooter = !footerWritten && availableSpace <= footerSize + 50;
-          if (shouldGenerateFooter) break;
-        }
+        appendRecords(chunk, remainingBytes, footerSize);
       }
 
-      try {
-        byte[] chunkBytes = chunk.toString().getBytes("UTF-8");
-        buffer = chunkBytes;
-        bytesGenerated += chunkBytes.length;
-      } catch (Exception e) {
-        LOG.warn("Unexpected error while encoding chunk to bytes; treating as end of document", e);
-        buffer = new byte[0];
-        isDocumentComplete = true;
-      }
+      byte[] chunkBytes = chunk.toString().getBytes(StandardCharsets.UTF_8);
+      buffer = chunkBytes;
+      bytesGenerated += chunkBytes.length;
       bufferPosition = 0;
     }
 
-    private int calculateFooterSize() {
-      switch (format) {
-        case "XML":
-          return "</orders>\n".getBytes(StandardCharsets.UTF_8).length;
-        case "JSON":
-          return "\n  ]\n}\n".getBytes(StandardCharsets.UTF_8).length;
-        case "CSV":
-        default:
-          return 0;
+    /**
+     * 今回のチャンクでフッターを書き出すべきかを判定する（厳密な制御）。
+     *
+     * <p>残りサイズがフッター＋最小限のマージンを下回る場合、またはヘッダーのみで残りが小さすぎる場合に true。
+     */
+    private boolean shouldGenerateFooter(int chunkLength, long remainingBytes, int footerSize) {
+      return !footerWritten
+          && (remainingBytes <= footerSize + 100 // 最小限のマージン
+              || (chunkLength == 0 && remainingBytes < 500)); // ヘッダーのみで小さすぎる場合
+    }
+
+    /** レコードを生成してチャンクへ追加する（メモリ効率重視、チャンクサイズ制限）。 */
+    private void appendRecords(StringBuilder chunk, long remainingBytes, int footerSize) {
+      long availableSpace = remainingBytes - footerSize - 50; // 安全マージン
+      boolean footerPending = false;
+
+      while (availableSpace > 0 && !footerPending && chunk.length() < MAX_CHUNK_SIZE) {
+        String separator = separatorFor(chunk.length());
+        String record = format.generateRecord(recordCount, random);
+
+        // サイズチェック（より厳密）
+        int nextAdditionSize = separator.length() + record.length();
+        if (nextAdditionSize > availableSpace
+            || chunk.length() + nextAdditionSize > MAX_CHUNK_SIZE) {
+          break; // これ以上追加できない
+        }
+
+        // レコード追加
+        chunk.append(separator).append(record);
+        recordCount++;
+        availableSpace -= nextAdditionSize;
+
+        // 次回のフッター生成判定を更新（true になれば while 条件で抜ける）
+        footerPending = !footerWritten && availableSpace <= footerSize + 50;
       }
+    }
+
+    /** JSON の場合のみ、2件目以降のレコード前にカンマ区切りを挿入する。 */
+    private String separatorFor(int chunkLength) {
+      if (format == Format.JSON && recordCount > 0 && chunkLength > 50) {
+        return ",\n";
+      }
+      return "";
     }
   }
 }

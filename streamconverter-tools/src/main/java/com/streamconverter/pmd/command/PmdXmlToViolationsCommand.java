@@ -39,8 +39,6 @@ public class PmdXmlToViolationsCommand implements IStreamCommand {
       } finally {
         reader.close();
       }
-    } catch (IOException e) {
-      throw e;
     } catch (XMLStreamException e) {
       throw new IOException(
           "Failed to parse PMD XML at " + e.getLocation() + ": " + e.getMessage(), e);
@@ -49,57 +47,83 @@ public class PmdXmlToViolationsCommand implements IStreamCommand {
 
   private void parseAll(XMLStreamReader reader, ObjectOutputStream oos)
       throws XMLStreamException, IOException {
-    String currentFile = null;
-    String currentRule = null;
-    String currentRuleset = null;
-    int currentLine = 0;
-    int currentPriority = 0;
-    String currentClass = null;
-    String currentMethod = null;
-    String currentVariable = null;
-    StringBuilder currentDescription = null;
+    ParseState state = new ParseState();
 
     while (reader.hasNext()) {
       int event = reader.next();
       if (event == XMLStreamConstants.START_ELEMENT) {
-        String localName = reader.getLocalName();
-        if ("file".equals(localName)) {
-          currentFile = extractRelativePath(reader.getAttributeValue(null, "name"));
-        } else if ("violation".equals(localName) && currentFile != null) {
-          currentRule = reader.getAttributeValue(null, "rule");
-          currentRuleset = reader.getAttributeValue(null, "ruleset");
-          currentLine =
-              parseIntOrZero(reader.getAttributeValue(null, "beginline"), "beginline", currentFile);
-          currentPriority =
-              parseIntOrZero(reader.getAttributeValue(null, "priority"), "priority", currentFile);
-          currentClass = nullToEmpty(reader.getAttributeValue(null, "class"));
-          currentMethod = nullToEmpty(reader.getAttributeValue(null, "method"));
-          currentVariable = nullToEmpty(reader.getAttributeValue(null, "variable"));
-          currentDescription = new StringBuilder();
-        }
-      } else if ((event == XMLStreamConstants.CHARACTERS || event == XMLStreamConstants.CDATA)
-          && currentDescription != null) {
-        currentDescription.append(reader.getText());
+        handleStartElement(reader, state);
+      } else if (isDescriptionText(event) && state.description != null) {
+        state.description.append(reader.getText());
       } else if (event == XMLStreamConstants.END_ELEMENT) {
-        String localName = reader.getLocalName();
-        if ("violation".equals(localName) && currentDescription != null) {
-          oos.writeObject(
-              new PmdViolation(
-                  currentFile,
-                  currentLine,
-                  currentRule,
-                  currentRuleset,
-                  currentPriority,
-                  currentDescription.toString().strip(),
-                  currentClass,
-                  currentMethod,
-                  currentVariable));
-          currentDescription = null;
-        } else if ("file".equals(localName)) {
-          currentFile = null;
-        }
+        handleEndElement(reader, oos, state);
       }
     }
+  }
+
+  /** violation 要素の本文（説明文）として蓄積すべきイベントかどうかを判定する。 */
+  private static boolean isDescriptionText(int event) {
+    return event == XMLStreamConstants.CHARACTERS || event == XMLStreamConstants.CDATA;
+  }
+
+  /** {@code <file>} でファイル名を、{@code <violation>} で違反の属性を取り込む。 */
+  private void handleStartElement(XMLStreamReader reader, ParseState state) {
+    String localName = reader.getLocalName();
+    if ("file".equals(localName)) {
+      state.file = extractRelativePath(reader.getAttributeValue(null, "name"));
+    } else if ("violation".equals(localName) && state.file != null) {
+      state.rule = reader.getAttributeValue(null, "rule");
+      state.ruleset = reader.getAttributeValue(null, "ruleset");
+      state.line =
+          parseIntOrZero(reader.getAttributeValue(null, "beginline"), "beginline", state.file);
+      state.priority =
+          parseIntOrZero(reader.getAttributeValue(null, "priority"), "priority", state.file);
+      state.violationClass = nullToEmpty(reader.getAttributeValue(null, "class"));
+      state.method = nullToEmpty(reader.getAttributeValue(null, "method"));
+      state.variable = nullToEmpty(reader.getAttributeValue(null, "variable"));
+      state.description = new StringBuilder();
+    }
+  }
+
+  /** {@code </violation>} で1件を書き出し、{@code </file>} でファイル状態をリセットする。 */
+  // NullAssignment: description / file への null 代入はストリーミングパーサの状態リセットであり、
+  // 「violation・file 要素の外にいる」ことを表す意図的なセンチネル。
+  @SuppressWarnings("PMD.NullAssignment")
+  private void handleEndElement(XMLStreamReader reader, ObjectOutputStream oos, ParseState state)
+      throws IOException {
+    String localName = reader.getLocalName();
+    if ("violation".equals(localName) && state.description != null) {
+      oos.writeObject(
+          new PmdViolation(
+              state.file,
+              state.line,
+              state.rule,
+              state.ruleset,
+              state.priority,
+              state.description.toString().strip(),
+              state.violationClass,
+              state.method,
+              state.variable));
+      state.description = null;
+    } else if ("file".equals(localName)) {
+      state.file = null;
+    }
+  }
+
+  /** ストリーミングパース中の可変状態。抽出したハンドラ間で受け渡すための入れ物。 */
+  // AvoidStringBufferField: ParseState は parseAll() 1回分の寿命しか持たず、
+  // description は violation 1件ごとに作り直されるため、長期滞留による肥大化は起きない。
+  @SuppressWarnings("PMD.AvoidStringBufferField")
+  private static final class ParseState {
+    private String file;
+    private String rule;
+    private String ruleset;
+    private int line;
+    private int priority;
+    private String violationClass;
+    private String method;
+    private String variable;
+    private StringBuilder description;
   }
 
   /**

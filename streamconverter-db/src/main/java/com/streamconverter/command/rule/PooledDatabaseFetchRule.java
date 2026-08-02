@@ -142,6 +142,9 @@ public class PooledDatabaseFetchRule implements IRule {
   }
 
   /** ResultSet から先頭行・先頭列の値を取得して返す。結果なしの場合は空文字列を返す。 */
+  // CheckResultSet: next() の戻り値は hasMoreRows に束縛して直後の分岐で判定しているため無視していない。
+  // PMD は変数代入形式を未チェック扱いに誤検知する。
+  @SuppressWarnings("PMD.CheckResultSet")
   private String extractFirstValue(ResultSet resultSet) throws SQLException {
     ResultSetMetaData metaData = resultSet.getMetaData();
     int columnCount = metaData.getColumnCount();

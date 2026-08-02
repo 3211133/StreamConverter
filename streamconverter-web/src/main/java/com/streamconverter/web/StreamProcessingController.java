@@ -1,6 +1,7 @@
 package com.streamconverter.web;
 
 import com.streamconverter.StreamConverter;
+import com.streamconverter.UncheckedStreamException;
 import com.streamconverter.command.IStreamCommand;
 import com.streamconverter.command.impl.csv.CsvWalker;
 import com.streamconverter.command.impl.json.JsonWalker;
@@ -9,7 +10,6 @@ import com.streamconverter.path.CSVPath;
 import com.streamconverter.path.TreePath;
 import java.io.IOException;
 import java.io.InputStream;
-import java.util.Locale;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import org.slf4j.Logger;
@@ -34,10 +34,6 @@ import reactor.core.publisher.Mono;
 public class StreamProcessingController {
 
   private static final Logger logger = LoggerFactory.getLogger(StreamProcessingController.class);
-
-  private static final int MAX_PIPELINE_CONFIG_LENGTH = 1000;
-  private static final int MAX_PIPELINE_COMMANDS = 10;
-  private static final int MAX_PARAMETER_LENGTH = 500;
 
   /**
    * Process data stream with CSV extraction.
@@ -112,7 +108,7 @@ public class StreamProcessingController {
       @RequestBody Flux<DataBuffer> inputData,
       @RequestHeader("X-Pipeline-Config") String pipelineConfig) {
 
-    return Mono.fromCallable(() -> buildPipelineFromConfig(pipelineConfig))
+    return Mono.fromCallable(() -> PipelineConfigParser.parse(pipelineConfig))
         .map(
             commands -> {
               logger.info("Processing pipeline with {} commands", commands.length);
@@ -160,82 +156,14 @@ public class StreamProcessingController {
                     StreamConverter converter = StreamConverter.create(commands);
                     converter.run(inputStream, outputStream);
                   } catch (IOException e) {
-                    throw new RuntimeException("Stream processing failed", e);
+                    // OutputStream コールバックはチェック例外を宣言できないため、
+                    // IOException はキャリア例外に載せて搬送する（onErrorResume で 500 に変換される）。
+                    throw new UncheckedStreamException(
+                        new IOException("Stream processing failed", e));
                   }
                 },
                 bufferFactory,
                 executor))
         .doFinally(signalType -> executor.shutdown());
-  }
-
-  /**
-   * Builds a pipeline from configuration string.
-   *
-   * @param config pipeline configuration (e.g., "csv:name,json:$.result,process:validator")
-   * @return array of stream commands
-   * @throws IllegalArgumentException config が null/空/長すぎる、またはコマンド数・パラメータが不正な場合
-   */
-  private IStreamCommand[] buildPipelineFromConfig(String config) {
-    if (config == null || config.isBlank()) {
-      throw new IllegalArgumentException("Pipeline config must not be null or blank");
-    }
-    if (config.length() > MAX_PIPELINE_CONFIG_LENGTH) {
-      throw new IllegalArgumentException(
-          "Pipeline config exceeds maximum length of " + MAX_PIPELINE_CONFIG_LENGTH);
-    }
-
-    String[] commandConfigs = config.split(",", -1);
-    if (commandConfigs.length > MAX_PIPELINE_COMMANDS) {
-      throw new IllegalArgumentException(
-          "Pipeline config exceeds maximum command count of " + MAX_PIPELINE_COMMANDS);
-    }
-
-    IStreamCommand[] commands = new IStreamCommand[commandConfigs.length];
-
-    for (int i = 0; i < commandConfigs.length; i++) {
-      String[] parts = commandConfigs[i].split(":", 2);
-      String commandType = parts[0].trim();
-      if (commandType.isEmpty()) {
-        throw new IllegalArgumentException("Command type must not be empty at index " + i);
-      }
-      String parameter = parts.length > 1 ? parts[1].trim() : "";
-      if (parameter.length() > MAX_PARAMETER_LENGTH) {
-        throw new IllegalArgumentException(
-            "Parameter exceeds maximum length of " + MAX_PARAMETER_LENGTH + " at index " + i);
-      }
-
-      commands[i] =
-          switch (commandType.toLowerCase(Locale.ROOT)) {
-            case "csv" -> {
-              if (parameter.isEmpty()) {
-                throw new IllegalArgumentException(
-                    "csv command requires a column name at index " + i);
-              }
-              yield CsvWalker.create(CSVPath.of(parameter), new PassThroughRule());
-            }
-            case "json" -> {
-              if (parameter.isEmpty()) {
-                throw new IllegalArgumentException("json command requires a path at index " + i);
-              }
-              yield JsonWalker.create(TreePath.fromJson(parameter), new PassThroughRule());
-            }
-            case "process" ->
-                new IStreamCommand() {
-                  @Override
-                  public void execute(InputStream in, java.io.OutputStream out) throws IOException {
-                    in.transferTo(out);
-                  }
-
-                  @Override
-                  public String commandName() {
-                    return "process";
-                  }
-                };
-            default -> throw new IllegalArgumentException("Unknown command type: " + commandType);
-          };
-    }
-
-    logger.info("Built pipeline with {} commands", commands.length);
-    return commands;
   }
 }

@@ -1,5 +1,6 @@
 plugins {
     id("java")
+    id("pmd")
 }
 
 description = "StreamConverter HTTP module - SendHttpCommand for HTTP stream processing"
@@ -53,4 +54,25 @@ dependencies {
 tasks.test {
     useJUnitPlatform()
     jvmArgs("-Xmx2g", "-Xms1g", "-Dfile.encoding=UTF-8")
+}
+
+// PMD configuration for code smell detection
+pmd {
+    isConsoleOutput = false
+    toolVersion = "7.16.0"
+    rulesMinimumPriority = 5
+    ruleSetFiles = rootProject.files("config/pmd/ruleset.xml")
+    ruleSets = emptyList()
+}
+
+tasks.pmdMain {
+    reports {
+        xml.required.set(true)
+        html.required.set(true)
+    }
+    exclude("**/examples/**", "**/demo/**")
+}
+
+tasks.pmdTest {
+    ignoreFailures = true
 }

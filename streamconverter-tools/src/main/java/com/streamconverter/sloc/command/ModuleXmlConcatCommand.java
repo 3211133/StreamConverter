@@ -46,7 +46,7 @@ public class ModuleXmlConcatCommand implements IStreamCommand {
   @Override
   public void execute(InputStream input, OutputStream output) throws IOException {
     Path normalizedRoot = projectRoot.toAbsolutePath().normalize();
-    try (var reader =
+    try (java.io.BufferedReader reader =
         new java.io.BufferedReader(new java.io.InputStreamReader(input, StandardCharsets.UTF_8))) {
       String moduleName;
       while ((moduleName = reader.readLine()) != null) {
@@ -91,7 +91,9 @@ public class ModuleXmlConcatCommand implements IStreamCommand {
       in.mark(2);
       int c1 = in.read();
       if (c1 != '<') {
-        if (c1 != -1) in.reset();
+        if (c1 != -1) {
+          in.reset();
+        }
         return;
       }
       int c2 = in.read();
@@ -114,7 +116,9 @@ public class ModuleXmlConcatCommand implements IStreamCommand {
     int prev = -1;
     int cur;
     while ((cur = in.read()) != -1) {
-      if (cur == end && (pre == '\0' || prev == pre)) return;
+      if (cur == end && (pre == '\0' || prev == pre)) {
+        return;
+      }
       prev = cur;
     }
   }

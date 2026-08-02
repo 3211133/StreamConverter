@@ -116,10 +116,13 @@ final class SsrfUrlValidator {
     return null;
   }
 
-  /** ローカルホストかどうかを判定する */
-  // AvoidUsingHardCodedIP: ループバックアドレスの拒否そのものが目的であり、
-  // これらのリテラルは設定値ではなく SSRF 防御の判定基準である。
-  @SuppressWarnings("PMD.AvoidUsingHardCodedIP")
+  /**
+   * ローカルホストかどうかを判定する。
+   *
+   * <p>IPリテラルは文字列比較ではなく {@link InetAddresses} で解析して {@link InetAddress#isLoopbackAddress()} を見る。
+   * {@code 127.0.0.1} と {@code ::1} だけを文字列一致で弾く実装では、同じループバックである {@code 127.0.0.2} や {@code 127.1}
+   * のような表記を取りこぼすため。
+   */
   private boolean isLocalhost(String host) {
     if (host == null) {
       return false;
@@ -130,8 +133,8 @@ final class SsrfUrlValidator {
         host.startsWith("[") && host.endsWith("]") ? host.substring(1, host.length() - 1) : host;
 
     return "localhost".equalsIgnoreCase(cleanHost)
-        || "127.0.0.1".equals(cleanHost)
-        || "::1".equals(cleanHost);
+        || (InetAddresses.isInetAddress(cleanHost)
+            && InetAddresses.forString(cleanHost).isLoopbackAddress());
   }
 
   /** ホストがプライベートIPに解決されるかを判定する。 リテラルIPはGuavaで即解析し、ホスト名はDNS解決後に検査する。 解決不能なホスト名は例外をスローしてアクセスを拒否する。 */

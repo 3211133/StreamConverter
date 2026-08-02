@@ -29,6 +29,9 @@ import org.slf4j.LoggerFactory;
  * 除去した上で {@code <report>} 要素だけを渡すため、ここでは宣言の除去は不要。
  *
  * <p>ラッパー要素名は JaCoCo の仕様に依存しない独自名のため、JaCoCo のルート要素名が変わっても影響を受けない。
+ *
+ * <p>パース処理は要素の入れ子構造をそのままメソッドの入れ子で写している。{@code <report>} に入ったら {@link #readReport}
+ * がその要素を閉じるまでを担当するため、モジュール名や LINE カウンターの検出有無はローカル変数で表現でき、 イベントを跨いで持ち回る可変状態を持たない。
  */
 public class JacocoXmlToModuleSlocCommand implements IStreamCommand {
 
@@ -58,81 +61,87 @@ public class JacocoXmlToModuleSlocCommand implements IStreamCommand {
     }
   }
 
+  /**
+   * {@code <report>} 要素を探し、見つけるたびにその要素全体の読み取りを {@link #readReport} に委ねる。
+   *
+   * <p>{@link #readReport} が report のサブツリーを消費しきるため、ここで見える {@code <report>} は
+   * 常にラッパー直下のものになる。旧実装が絶対深度 {@code depth == 2} で行っていた絞り込みは、 この構造によって自然に満たされる。
+   */
   private void parseAll(XMLStreamReader reader, ObjectOutputStream oos)
       throws XMLStreamException, IOException {
-    ParseState state = new ParseState();
-
     while (reader.hasNext()) {
-      int event = reader.next();
-      if (event == XMLStreamConstants.START_ELEMENT) {
-        handleStartElement(reader, oos, state);
-      } else if (event == XMLStreamConstants.END_ELEMENT) {
-        handleEndElement(oos, state);
+      if (reader.next() == XMLStreamConstants.START_ELEMENT
+          && "report".equals(reader.getLocalName())) {
+        readReport(reader, oos);
       }
     }
   }
 
-  /** {@code <report>} でモジュール名を確定し、その直下の LINE カウンターを書き出す。 */
-  private void handleStartElement(XMLStreamReader reader, ObjectOutputStream oos, ParseState state)
-      throws IOException {
-    state.depth++;
-    String localName = reader.getLocalName();
-    if (state.depth == 2 && "report".equals(localName)) {
-      state.currentModule = reader.getAttributeValue(null, "name");
-      state.lineCounterFound = false;
-    } else if (isLineCounter(reader, localName, state)) {
-      writeLineCounter(reader, oos, state);
+  /**
+   * {@code </report>} に到達するまで読み進め、直下の {@code <counter type="LINE">} を書き出す。
+   *
+   * <p>LINE カウンターが1つも無かった場合はゼロ件として記録する。{@code depth} は report 直下を 0 とした相対深度で、 深い階層（package / class
+   * / method）にある同名のカウンターを除外するために用いる。
+   *
+   * @param reader カーソルが {@code <report>} の START_ELEMENT にあるリーダー
+   */
+  private void readReport(XMLStreamReader reader, ObjectOutputStream oos)
+      throws XMLStreamException, IOException {
+    String module = reader.getAttributeValue(null, "name");
+    boolean lineCounterFound = false;
+    int depth = 0;
+
+    while (reader.hasNext()) {
+      int event = reader.next();
+      if (event == XMLStreamConstants.START_ELEMENT) {
+        depth++;
+        if (depth == 1 && isLineCounter(reader)) {
+          writeLineCounter(reader, oos, module);
+          lineCounterFound = true;
+        }
+      } else if (event == XMLStreamConstants.END_ELEMENT) {
+        if (depth == 0) {
+          finishReport(oos, module, lineCounterFound);
+          return;
+        }
+        depth--;
+      }
     }
   }
 
-  /** report 直下の {@code <counter type="LINE">} かどうかを判定する。 */
-  private static boolean isLineCounter(XMLStreamReader reader, String localName, ParseState state) {
-    return state.depth == 3
-        && "counter".equals(localName)
-        && "LINE".equals(reader.getAttributeValue(null, "type"))
-        && state.currentModule != null;
+  /** カーソル位置の要素が {@code <counter type="LINE">} かどうかを判定する。 */
+  private static boolean isLineCounter(XMLStreamReader reader) {
+    return "counter".equals(reader.getLocalName())
+        && "LINE".equals(reader.getAttributeValue(null, "type"));
   }
 
   /** LINE カウンターの missed/covered を {@link ModuleSloc} として書き出す。 */
-  private void writeLineCounter(XMLStreamReader reader, ObjectOutputStream oos, ParseState state)
+  private void writeLineCounter(XMLStreamReader reader, ObjectOutputStream oos, String module)
       throws IOException {
     try {
       int missed = Integer.parseInt(reader.getAttributeValue(null, "missed"));
       int covered = Integer.parseInt(reader.getAttributeValue(null, "covered"));
-      oos.writeObject(new ModuleSloc(state.currentModule, missed + covered, covered, missed));
-      state.lineCounterFound = true;
+      oos.writeObject(new ModuleSloc(module, missed + covered, covered, missed));
     } catch (NumberFormatException e) {
       throw new IOException(
           "Invalid LINE counter attribute in JaCoCo XML for module "
-              + state.currentModule
+              + module
               + ": "
               + e.getMessage(),
           e);
     }
   }
 
-  /** {@code </report>} でモジュールを閉じる。LINE カウンターが無かった場合はゼロ件として記録する。 */
-  // NullAssignment: currentModule への null 代入はストリーミングパーサの状態リセットであり、
-  // 「モジュール外にいる」ことを表す意図的なセンチネル。
-  @SuppressWarnings("PMD.NullAssignment")
-  private void handleEndElement(ObjectOutputStream oos, ParseState state) throws IOException {
-    if (state.depth == 2 && state.currentModule != null) {
-      if (!state.lineCounterFound) {
-        log.warn(
-            "No LINE counter found in JaCoCo report for module '{}'. "
-                + "Check JaCoCo XML format or coverage configuration.",
-            state.currentModule);
-        oos.writeObject(new ModuleSloc(state.currentModule, 0, 0, 0));
-      }
-      state.currentModule = null;
+  /** report を閉じる際に、LINE カウンターが見つからなかったモジュールをゼロ件として記録する。 */
+  private void finishReport(ObjectOutputStream oos, String module, boolean lineCounterFound)
+      throws IOException {
+    if (lineCounterFound) {
+      return;
     }
-    state.depth--;
-  }
-
-  /** ストリーミングパース中の可変状態。抽出したハンドラ間で受け渡すための入れ物。 */
-  private static final class ParseState {
-    private String currentModule;
-    private boolean lineCounterFound;
-    private int depth;
+    log.warn(
+        "No LINE counter found in JaCoCo report for module '{}'. "
+            + "Check JaCoCo XML format or coverage configuration.",
+        module);
+    oos.writeObject(new ModuleSloc(module, 0, 0, 0));
   }
 }

@@ -6,6 +6,7 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.streamconverter.test.TestUtils;
 import java.nio.charset.StandardCharsets;
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.server.LocalServerPort;
@@ -358,6 +359,49 @@ class StreamProcessingControllerTest {
         .post()
         .uri("/api/v1/stream/process")
         .header("X-Pipeline-Config", "json:")
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
+  @Test
+  @Tag("known-bug") // #829
+  @DisplayName("/csv/extract は MAX_PARAMETER_LENGTH を超える columnName を 400 Bad Request で拒否する")
+  void csvExtract_rejectsOversizedColumnName() {
+    // /process エンドポイントは MAX_PARAMETER_LENGTH(500) を超えるパラメータを 400 で拒否するが、
+    // /csv/extract は同じ長さの columnName に対して長さ検証を行わず 400 を返さない。
+    // 入力 CSV のヘッダーを oversizedColumnName と一致させることで、列が存在しないことによる
+    // 500 エラーを排除し、長さ検証がなければ 200 が返るシナリオを再現する。
+    String oversizedColumnName = "a".repeat(501);
+    String csvData = oversizedColumnName + "\nvalue1\n";
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap(csvData.getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/csv/extract?columnName=" + oversizedColumnName)
+        .contentType(MediaType.APPLICATION_OCTET_STREAM)
+        .body(Flux.just(dataBuffer), DataBuffer.class)
+        .exchange()
+        .expectStatus()
+        .isBadRequest();
+  }
+
+  @Test
+  @Tag("known-bug") // #829
+  @DisplayName("/json/extract は MAX_PARAMETER_LENGTH を超える jsonPath を 400 Bad Request で拒否する")
+  void jsonExtract_rejectsOversizedJsonPath() {
+    // /process エンドポイントは MAX_PARAMETER_LENGTH(500) を超えるパラメータを 400 で拒否するが、
+    // /json/extract は同じ長さの jsonPath に対して長さ検証を行わず 400 を返さない。
+    String oversizedJsonPath = "$.".concat("a".repeat(500));
+    DataBuffer dataBuffer =
+        new DefaultDataBufferFactory().wrap("{}".getBytes(StandardCharsets.UTF_8));
+
+    webTestClient()
+        .post()
+        .uri("/api/v1/stream/json/extract?jsonPath=" + oversizedJsonPath)
         .contentType(MediaType.APPLICATION_OCTET_STREAM)
         .body(Flux.just(dataBuffer), DataBuffer.class)
         .exchange()

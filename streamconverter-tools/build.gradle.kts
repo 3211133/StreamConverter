@@ -2,7 +2,7 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
-    id("org.springframework.boot") version "4.0.6"
+    id("org.springframework.boot") version "4.1.0"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -46,10 +46,10 @@ dependencies {
     
     // JSON processing with Jackson
     // jackson-annotations は Spring Boot BOM が 2.20 に固定するため明示的に 2.21 を指定
-    implementation("com.fasterxml.jackson.core:jackson-core:2.22.0")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.0")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.22.2")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.22")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.21.3")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.0")
     implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.22.0")
 }
 

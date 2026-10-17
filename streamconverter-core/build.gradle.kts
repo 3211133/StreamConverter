@@ -44,7 +44,7 @@ dependencies {
     implementation("commons-io:commons-io:2.22.0")
 
     // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:3.0.2")
+    implementation("com.networknt:json-schema-validator:3.0.5")
 
     // JsonSurfer for streaming JSON processing
     implementation("com.github.jsurfer:jsurfer-jackson:1.6.5")

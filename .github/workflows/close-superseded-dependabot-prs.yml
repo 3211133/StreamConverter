@@ -1,0 +1,65 @@
+name: Close superseded Dependabot PRs
+
+on:
+  pull_request:
+    types: [closed]
+    branches: [develop]
+
+permissions:
+  contents: read
+
+jobs:
+  close-superseded-prs:
+    if: >-
+      github.event.pull_request.merged == true &&
+      (
+        (
+          github.event.pull_request.head.ref == 'codex/group-weekly-dependabot-updates' &&
+          github.event.pull_request.title == 'Bundle weekly Gradle dependency updates'
+        ) ||
+        (
+          github.event.pull_request.user.login == 'dependabot[bot]' &&
+          contains(github.event.pull_request.title, 'all-gradle-dependencies group')
+        )
+      )
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - name: Close older individual Gradle update PRs
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const merged = context.payload.pull_request;
+            const openPulls = await github.paginate(github.rest.pulls.list, {
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              state: 'open',
+              per_page: 100,
+            });
+
+            const superseded = openPulls.filter((pull) =>
+              pull.user?.login === 'dependabot[bot]' &&
+              pull.base.ref === merged.base.ref &&
+              pull.number !== merged.number &&
+              pull.head.ref.startsWith('dependabot/gradle/') &&
+              new Date(pull.created_at) <= new Date(merged.created_at)
+            );
+
+            for (const pull of superseded) {
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: pull.number,
+                body: `Closing this individual dependency update because the weekly grouped update #${merged.number} has merged.`,
+              });
+              await github.rest.pulls.update({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                pull_number: pull.number,
+                state: 'closed',
+              });
+              core.info(`Closed superseded Dependabot PR #${pull.number}`);
+            }
+
+            core.info(`Closed ${superseded.length} superseded Dependabot PR(s).`);

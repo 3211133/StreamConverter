@@ -25,23 +25,23 @@ dependencies {
     implementation(project(":streamconverter-core"))
 
     // Logging
-    implementation("ch.qos.logback:logback-core:1.5.37")
-    implementation("ch.qos.logback:logback-classic:1.5.37")
+    implementation("ch.qos.logback:logback-core:1.6.5")
+    implementation("ch.qos.logback:logback-classic:1.6.5")
 
     // HikariCP connection pool
     implementation("com.zaxxer:HikariCP:7.1.0")
 
     // JUnit 5
-    testImplementation(platform("org.junit:junit-bom:6.0.3"))
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
 
     // Mockito
-    testImplementation("org.mockito:mockito-core:5.23.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.23.0")
+    testImplementation("org.mockito:mockito-core:5.24.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.24.0")
 
     // H2 in-memory database for testing
-    testImplementation("com.h2database:h2:2.4.240")
+    testImplementation("com.h2database:h2:2.5.252")
 }
 
 tasks.test {

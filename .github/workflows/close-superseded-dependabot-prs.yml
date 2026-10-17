@@ -14,8 +14,7 @@ jobs:
       github.event.pull_request.merged == true &&
       (
         (
-          github.event.pull_request.head.ref == 'codex/group-weekly-dependabot-updates' &&
-          github.event.pull_request.title == 'Bundle weekly Gradle dependency updates'
+          github.event.pull_request.head.ref == 'codex/group-weekly-dependabot-updates'
         ) ||
         (
           github.event.pull_request.user.login == 'dependabot[bot]' &&

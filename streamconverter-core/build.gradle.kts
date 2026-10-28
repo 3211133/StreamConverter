@@ -67,8 +67,8 @@ dependencies {
 
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.2")
-    // Classpath scanning for streaming contract test discovery
-    testImplementation("io.github.classgraph:classgraph:6.0.0")
+    // ClassGraph 6.x requires Java 25; keep contract test discovery compatible with Java 21.
+    testImplementation("io.github.classgraph:classgraph:4.8.184")
     testImplementation(project(":streamconverter-http"))
     testImplementation(project(":streamconverter-tools"))
 }

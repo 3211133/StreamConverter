@@ -4,7 +4,7 @@ plugins {
     id("java")
     id("jacoco")
     id("pmd")
-    id("com.github.spotbugs") version "6.5.1"
+    id("com.github.spotbugs") version "6.5.13"
     id("info.solidsoft.pitest") version "1.19.0"
 }
 
@@ -36,15 +36,15 @@ repositories {
 
 dependencies {
     // Logging
-    implementation("ch.qos.logback:logback-core:1.5.37")
-    implementation("ch.qos.logback:logback-classic:1.5.37")
+    implementation("ch.qos.logback:logback-core:1.6.5")
+    implementation("ch.qos.logback:logback-classic:1.6.5")
 
     // メインの依存関係
-    implementation("org.apache.commons:commons-lang3:3.20.0")
+    implementation("org.apache.commons:commons-lang3:3.21.0")
     implementation("commons-io:commons-io:2.22.0")
 
     // JSON Schema validation
-    implementation("com.networknt:json-schema-validator:3.0.5")
+    implementation("com.networknt:json-schema-validator:3.0.8")
 
     // JsonSurfer for streaming JSON processing
     implementation("com.github.jsurfer:jsurfer-jackson:1.6.5")
@@ -53,21 +53,21 @@ dependencies {
     implementation("com.opencsv:opencsv:5.12.0")
 
     // JUnit 5 の依存関係（テスト用）
-    testImplementation(platform("org.junit:junit-bom:6.0.3"))
-    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.0"))
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
+    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.1"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
 
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.23.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.23.0")
+    testImplementation("org.mockito:mockito-core:5.24.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.24.0")
     testImplementation("org.springframework:spring-webflux")
     testImplementation("org.springframework:spring-test")
 
     // In-memory filesystem for cross-platform file system tests
-    testImplementation("com.google.jimfs:jimfs:1.3.1")
-    // Classpath scanning for streaming contract test discovery
+    testImplementation("com.google.jimfs:jimfs:1.3.2")
+    // ClassGraph 6.x requires Java 25; keep contract test discovery compatible with Java 21.
     testImplementation("io.github.classgraph:classgraph:4.8.184")
     testImplementation(project(":streamconverter-http"))
     testImplementation(project(":streamconverter-tools"))

@@ -36,8 +36,8 @@ repositories {
 
 dependencies {
     // Logging
-    implementation("ch.qos.logback:logback-core:1.6.5")
-    implementation("ch.qos.logback:logback-classic:1.6.5")
+    implementation("ch.qos.logback:logback-core:1.6.6")
+    implementation("ch.qos.logback:logback-classic:1.6.6")
 
     // メインの依存関係
     implementation("org.apache.commons:commons-lang3:3.21.0")
@@ -54,7 +54,7 @@ dependencies {
 
     // JUnit 5 の依存関係（テスト用）
     testImplementation(platform("org.junit:junit-bom:6.1.3"))
-    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.1"))
+    testImplementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.2"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     testImplementation("org.pitest:pitest-junit5-plugin:1.2.3")
@@ -68,7 +68,7 @@ dependencies {
     // In-memory filesystem for cross-platform file system tests
     testImplementation("com.google.jimfs:jimfs:1.3.2")
     // ClassGraph 6.x requires Java 25; keep contract test discovery compatible with Java 21.
-    testImplementation("io.github.classgraph:classgraph:4.8.184")
+    testImplementation("io.github.classgraph:classgraph:5.0.1")
     testImplementation(project(":streamconverter-http"))
     testImplementation(project(":streamconverter-tools"))
 }

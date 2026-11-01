@@ -9,6 +9,10 @@ updates:
     directory: "/" # Location of package manifests
     schedule:
       interval: "weekly"
+    # ClassGraph 6.x is compiled for Java 25; this project targets Java 21.
+    ignore:
+      - dependency-name: "io.github.classgraph:classgraph"
+        versions: [">=6"]
     groups:
       all-gradle-dependencies:
         patterns:

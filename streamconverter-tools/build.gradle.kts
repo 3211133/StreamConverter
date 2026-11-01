@@ -2,7 +2,7 @@ plugins {
     id("java")
     id("jacoco")
     id("application")
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
@@ -33,24 +33,24 @@ dependencies {
     implementation("ch.qos.logback:logback-classic")
     
     // H2 database for tools that use databases
-    implementation("com.h2database:h2:2.4.240")
+    implementation("com.h2database:h2:2.5.252")
     
     // JUnit 5 の依存関係（テスト用）
-    testImplementation(platform("org.junit:junit-bom:6.0.3"))
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")
     
     // Mockito の依存関係（テスト用）
-    testImplementation("org.mockito:mockito-core:5.23.0")
-    testImplementation("org.mockito:mockito-junit-jupiter:5.23.0")
+    testImplementation("org.mockito:mockito-core:5.24.0")
+    testImplementation("org.mockito:mockito-junit-jupiter:5.24.0")
     
     // JSON processing with Jackson
     // jackson-annotations は Spring Boot BOM が 2.20 に固定するため明示的に 2.21 を指定
-    implementation("com.fasterxml.jackson.core:jackson-core:2.22.2")
-    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.2")
+    implementation("com.fasterxml.jackson.core:jackson-core:2.22.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.22.3")
     implementation("com.fasterxml.jackson.core:jackson-annotations:2.22")
-    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.0")
-    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.22.0")
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.22.3")
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-csv:2.22.3")
 }
 
 // Benchmark tasks

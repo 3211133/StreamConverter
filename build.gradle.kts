@@ -28,10 +28,10 @@ plugins {
     id("jacoco")
     id("application")
     id("pmd")
-    id("com.github.spotbugs") version "6.5.1"
-    id("com.diffplug.spotless") version "8.8.0"
+    id("com.github.spotbugs") version "6.5.13"
+    id("com.diffplug.spotless") version "8.10.4"
     id("info.solidsoft.pitest") version "1.19.0"
-    id("org.springframework.boot") version "4.1.0"
+    id("org.springframework.boot") version "4.1.1"
     id("io.spring.dependency-management") version "1.1.7"
 }
 

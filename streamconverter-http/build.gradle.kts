@@ -25,9 +25,9 @@ dependencies {
     implementation(project(":streamconverter-core"))
 
     // Import Spring Boot BOM to align Spring/Reactor/Netty versions
-    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.0"))
+    implementation(platform("org.springframework.boot:spring-boot-dependencies:4.1.1"))
     // Override Netty version to 4.2.13.Final (fixes CVE-2026-42577 et al.)
-    implementation(platform("io.netty:netty-bom:4.2.13.Final"))
+    implementation(platform("io.netty:netty-bom:4.2.19.Final"))
 
     // Logging (version via BOM)
     implementation("ch.qos.logback:logback-core")
@@ -41,10 +41,10 @@ dependencies {
     implementation("io.netty:netty-common")
 
     // IP address validation
-    implementation("com.google.guava:guava:33.6.0-jre")
+    implementation("com.google.guava:guava:33.7.2-jre")
 
     // JUnit 5
-    testImplementation(platform("org.junit:junit-bom:6.0.3"))
+    testImplementation(platform("org.junit:junit-bom:6.1.3"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     testImplementation("org.springframework:spring-test")
     testRuntimeOnly("org.junit.platform:junit-platform-launcher")

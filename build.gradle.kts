@@ -29,9 +29,9 @@ plugins {
     id("application")
     id("pmd")
     id("com.github.spotbugs") version "6.5.13"
-    id("com.diffplug.spotless") version "8.10.4"
+    id("com.diffplug.spotless") version "8.11.0"
     id("info.solidsoft.pitest") version "1.19.0"
-    id("org.springframework.boot") version "4.1.1"
+    id("org.springframework.boot") version "4.1.2"
     id("io.spring.dependency-management") version "1.1.7"
 }
 
